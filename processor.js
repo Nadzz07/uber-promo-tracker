@@ -35,6 +35,7 @@ export function scorePromo(promo) {
 
 function promoKey(promo) {
   return [
+    promo.accountAlias || "",
     promo.service,
     promo.discountType,
     promo.discount,
@@ -67,5 +68,22 @@ export function buildPromoList(emails = [], { now = new Date(), includeExpired =
     if (!uniquePromos.has(key)) uniquePromos.set(key, promo);
   });
 
-  return [...uniquePromos.values()].sort((a, b) => scorePromo(b) - scorePromo(a));
+  const promos = [...uniquePromos.values()];
+
+  const countsByAccount = new Map();
+  for (const promo of promos) {
+    if (!promo.accountAlias) continue;
+    countsByAccount.set(
+      promo.accountAlias,
+      (countsByAccount.get(promo.accountAlias) || 0) + 1
+    );
+  }
+
+  for (const promo of promos) {
+    promo.sameAccountOfferCount = promo.accountAlias
+      ? countsByAccount.get(promo.accountAlias) || 1
+      : 1;
+  }
+
+  return promos.sort((a, b) => scorePromo(b) - scorePromo(a));
 }
