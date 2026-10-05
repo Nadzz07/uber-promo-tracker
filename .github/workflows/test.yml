@@ -15,13 +15,33 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Run tests
+
+      - name: Run regression and integration tests
         run: npm test
-      - name: Check generator syntax
-        run: node --check generate-promos.js
-      - name: Check Apple Mail exporter syntax
-        run: node --check mac/export-uber-mail.js
+
+      - name: Check core JavaScript syntax
+        run: |
+          node --check generate-promos.js
+          node --check private-db.js
+          node --check receipt-parser.js
+          node --check receipt-intelligence.js
+          for file in parser-v2/*.js; do node --check "$file"; done
+
+      - name: Check Mac JavaScript automation syntax
+        run: |
+          node --check mac/export-uber-mail.js
+          node --check mac/list-mailboxes.js
+          node --check mac/import-account-access.js
+          node --check mac/import-legacy-db.js
+          node --check mac/init-private-db.js
+
+      - name: Check shell scripts
+        run: |
+          bash -n mac/update-promos.sh
+          bash -n mac/install-automation.sh
+          bash -n mac/setup-v2.sh

@@ -2,55 +2,64 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#111512">
   <title>Uber Eats Promo Finder</title>
   <style>
     * { box-sizing: border-box; }
 
     :root {
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --bg: #000;
-      --card: #070707;
-      --card-2: #0b0b0b;
-      --line: #1b1b1b;
-      --line-2: #2a2a2a;
-      --text: #fff;
-      --muted: #8a8a8a;
-      --dim: #525252;
-      --green: #a6ff00;
-      --green-soft: rgba(166,255,0,.09);
-      --amber: #ffcf66;
-      --red: #ff7d7d;
+      --bg: #111512;
+      --surface: #191e1a;
+      --surface-2: #202621;
+      --surface-3: #262d27;
+      --line: #303932;
+      --line-soft: #252c27;
+      --text: #f5f8f5;
+      --muted: #a7b0a9;
+      --dim: #747e76;
+      --green: #9fe870;
+      --green-strong: #b6f58e;
+      --green-soft: rgba(159,232,112,.12);
+      --amber: #f2c66d;
+      --red: #f08a8a;
+      --shadow: 0 12px 30px rgba(0,0,0,.18);
     }
 
     html, body {
       margin: 0;
       min-height: 100%;
-      background: #000;
+      background: var(--bg);
       color: var(--text);
     }
 
-    body { min-height: 100vh; }
+    body {
+      min-height: 100vh;
+      padding-bottom: calc(78px + env(safe-area-inset-bottom));
+    }
+
     button, input, select { font: inherit; }
     button { color: inherit; }
+    a { color: inherit; }
 
-    .app {
-      width: min(780px, calc(100% - 22px));
+    .shell {
+      width: min(1080px, 100%);
       margin: 0 auto;
-      padding: 14px 0 64px;
+      padding: 14px 14px 32px;
     }
 
     .topbar {
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      gap: 16px;
-      align-items: flex-start;
-      margin-bottom: 26px;
+      gap: 14px;
+      min-height: 52px;
+      margin-bottom: 10px;
     }
 
-    .brand-kicker, .kicker {
+    .brand-kicker {
       color: var(--green);
       font-size: 10px;
       font-weight: 900;
@@ -58,154 +67,158 @@
       text-transform: uppercase;
     }
 
-    .brand h1 {
-      margin: 5px 0 0;
-      font-size: 26px;
-      line-height: 1;
-      letter-spacing: -.045em;
+    .brand-title {
+      margin-top: 3px;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -.035em;
     }
 
-    .status { text-align: right; }
+    .scan {
+      text-align: right;
+    }
 
-    .status-pill {
+    .scan-pill {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      min-height: 29px;
-      padding: 0 10px;
+      gap: 6px;
+      min-height: 28px;
+      padding: 0 9px;
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: #050505;
-      color: #b8b8b8;
+      background: var(--surface);
+      color: var(--muted);
       font-size: 9px;
       font-weight: 900;
-      letter-spacing: .08em;
+      letter-spacing: .06em;
     }
 
-    .status-dot {
+    .scan-dot {
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #777;
+      background: var(--dim);
     }
 
-    .status-pill.live .status-dot { background: var(--green); }
-    .status-pill.demo .status-dot,
-    .status-pill.stale .status-dot { background: var(--amber); }
+    .scan-pill.live .scan-dot { background: var(--green); }
+    .scan-pill.demo .scan-dot,
+    .scan-pill.stale .scan-dot { background: var(--amber); }
 
     .scan-time {
-      margin-top: 6px;
-      max-width: 190px;
+      margin-top: 4px;
       color: var(--dim);
       font-size: 9px;
     }
 
     .notice {
       display: none;
-      margin-bottom: 16px;
-      padding: 11px 13px;
-      border: 1px solid #382f1e;
+      margin: 6px 0 14px;
+      padding: 11px 12px;
+      border: 1px solid #4b4129;
       border-radius: 12px;
-      background: #0c0903;
-      color: #c6ad73;
+      background: #242116;
+      color: #d8c18d;
       font-size: 10px;
       line-height: 1.45;
     }
 
-    .hero-label {
-      color: var(--muted);
-      font-size: 12px;
+    .desktop-nav {
+      display: none;
     }
 
-    .hero-title {
-      margin: 8px 0 0;
-      max-width: 700px;
-      font-size: clamp(38px, 9vw, 62px);
-      line-height: .98;
-      letter-spacing: -.06em;
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .page-head {
+      margin: 15px 0 14px;
     }
 
-    .hero-title span { color: var(--green); }
-
-    .hero-copy {
-      margin-top: 11px;
-      max-width: 590px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.6;
-    }
-
-    .intent-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 19px;
-    }
-
-    .intent {
-      position: relative;
-      min-height: 132px;
-      padding: 15px;
-      border: 1px solid var(--line);
-      border-radius: 17px;
-      background: var(--card);
-      text-align: left;
-      cursor: pointer;
-    }
-
-    .intent.active {
-      border-color: var(--green);
-      box-shadow: inset 0 0 0 1px rgba(166,255,0,.16);
-    }
-
-    .intent-icon {
-      width: 32px;
-      height: 32px;
-      display: grid;
-      place-items: center;
-      border: 1px solid #202020;
-      border-radius: 10px;
-      background: #101010;
+    .eyebrow {
       color: var(--green);
-      font-size: 13px;
+      font-size: 10px;
       font-weight: 900;
+      letter-spacing: .1em;
+      text-transform: uppercase;
     }
 
-    .intent-count {
-      position: absolute;
-      top: 15px;
-      right: 15px;
+    .page-title {
+      margin: 5px 0 0;
+      font-size: clamp(28px, 8vw, 42px);
+      line-height: 1;
+      letter-spacing: -.055em;
+    }
+
+    .page-copy {
+      margin-top: 8px;
+      max-width: 650px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .stat {
+      min-width: 0;
+      min-height: 84px;
+      padding: 12px;
+      border: 1px solid var(--line-soft);
+      border-radius: 15px;
+      background: var(--surface);
+    }
+
+    .stat-label {
       color: var(--dim);
       font-size: 9px;
+      font-weight: 800;
     }
 
-    .intent-title {
-      margin-top: 16px;
-      font-size: 16px;
-      font-weight: 850;
-      letter-spacing: -.025em;
+    .stat-value {
+      margin-top: 8px;
+      font-size: clamp(19px, 5.2vw, 28px);
+      font-weight: 950;
+      letter-spacing: -.045em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .intent-sub {
-      margin-top: 4px;
+    .stat-value.green { color: var(--green); }
+
+    .stat-sub {
+      margin-top: 2px;
       color: var(--muted);
-      font-size: 10px;
-      line-height: 1.45;
+      font-size: 8px;
     }
 
-    .section { margin-top: 30px; }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .planner {
+      padding: 14px;
+    }
 
     .section-head {
       display: flex;
-      justify-content: space-between;
-      gap: 14px;
       align-items: flex-end;
-      margin-bottom: 11px;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 22px 0 10px;
     }
 
     .section-title {
-      margin: 5px 0 0;
-      font-size: 22px;
+      margin: 3px 0 0;
+      font-size: 19px;
+      font-weight: 900;
       letter-spacing: -.035em;
     }
 
@@ -215,575 +228,903 @@
       text-align: right;
     }
 
-    .planner {
-      padding: 15px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: #050505;
-    }
-
-    .planner-inputs {
-      display: grid;
-      grid-template-columns: minmax(0,1fr) 118px 90px;
-      gap: 8px;
-      align-items: end;
-    }
-
-    .field {
-      display: grid;
-      gap: 5px;
+    .field-label {
+      display: block;
+      margin-bottom: 6px;
       color: var(--dim);
       font-size: 9px;
-      font-weight: 800;
-      letter-spacing: .07em;
+      font-weight: 900;
+      letter-spacing: .06em;
       text-transform: uppercase;
     }
 
-    .field input, .field select {
-      width: 100%;
-      min-height: 45px;
-      padding: 0 11px;
-      border: 1px solid var(--line-2);
-      border-radius: 12px;
-      outline: none;
-      background: #000;
-      color: #fff;
-      font-weight: 800;
-    }
-
-    .field input:focus, .field select:focus { border-color: var(--green); }
-
-    .quick {
+    .money-input-wrap {
       display: flex;
-      gap: 6px;
-      margin-top: 8px;
-    }
-
-    .quick button {
-      flex: 1;
-      min-height: 37px;
+      align-items: center;
+      min-height: 52px;
+      padding: 0 13px;
       border: 1px solid var(--line);
-      border-radius: 10px;
-      background: #090909;
-      color: #aaa;
-      cursor: pointer;
-      font-size: 11px;
+      border-radius: 14px;
+      background: var(--surface-2);
     }
 
-    .plan-result {
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid var(--line);
-    }
-
-    .plan-summary {
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      align-items: flex-start;
-    }
-
-    .plan-title {
+    .currency {
+      margin-right: 5px;
+      color: var(--muted);
       font-size: 19px;
+      font-weight: 850;
+    }
+
+    .money-input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: 24px;
       font-weight: 900;
       letter-spacing: -.03em;
     }
 
-    .plan-sub {
-      margin-top: 4px;
+    .quick-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .chip-btn,
+    .seg-btn {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface-2);
       color: var(--muted);
+      cursor: pointer;
       font-size: 10px;
-      line-height: 1.45;
+      font-weight: 850;
     }
 
-    .plan-money { text-align: right; }
-
-    .plan-save {
-      color: var(--green);
-      font-size: 25px;
-      font-weight: 950;
-      letter-spacing: -.04em;
+    .chip-btn:active,
+    .seg-btn.active {
+      border-color: #5c7f49;
+      background: var(--green-soft);
+      color: var(--green-strong);
     }
 
-    .plan-pay {
-      margin-top: 2px;
-      color: var(--dim);
-      font-size: 9px;
+    .planner-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
     }
 
-    .plan-metrics {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 10px;
-    }
-
-    .metric, .badge {
-      display: inline-flex;
-      align-items: center;
-      min-height: 23px;
-      padding: 0 8px;
-      border: 1px solid #202020;
-      border-radius: 999px;
-      background: #0a0a0a;
-      color: #8f8f8f;
-      font-size: 9px;
+    .small-field input,
+    .small-field select,
+    .search-input {
+      width: 100%;
+      min-height: 42px;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      outline: 0;
+      background: var(--surface-2);
+      color: var(--text);
+      font-size: 11px;
       font-weight: 750;
     }
 
-    .metric.good, .badge.green {
+    .planner-result {
+      margin-top: 13px;
+      padding-top: 13px;
+      border-top: 1px solid var(--line-soft);
+    }
+
+    .plan-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .plan-title {
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: -.03em;
+    }
+
+    .plan-copy {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.45;
+    }
+
+    .plan-save {
+      flex: 0 0 auto;
+      text-align: right;
       color: var(--green);
-      border-color: #27370e;
-      background: #070b02;
+      font-size: 21px;
+      font-weight: 950;
+      letter-spacing: -.035em;
+    }
+
+    .plan-save small {
+      display: block;
+      margin-top: 2px;
+      color: var(--dim);
+      font-size: 8px;
+      font-weight: 700;
     }
 
     .plan-steps {
       display: grid;
       gap: 7px;
-      margin-top: 13px;
+      margin-top: 11px;
     }
 
     .plan-step {
       display: grid;
-      grid-template-columns: 26px minmax(0,1fr) auto;
+      grid-template-columns: 28px minmax(0,1fr) auto;
       gap: 9px;
       align-items: center;
       padding: 10px;
-      border: 1px solid #181818;
+      border: 1px solid var(--line-soft);
       border-radius: 12px;
-      background: #020202;
+      background: var(--surface-2);
     }
 
-    .step-no {
-      width: 26px;
-      height: 26px;
+    .step-number {
+      width: 28px;
+      height: 28px;
       display: grid;
       place-items: center;
       border-radius: 9px;
-      background: #101010;
+      background: var(--green-soft);
       color: var(--green);
       font-size: 10px;
-      font-weight: 900;
+      font-weight: 950;
     }
 
     .step-account {
-      font-size: 12px;
-      font-weight: 850;
+      font-size: 11px;
+      font-weight: 900;
+      word-break: break-word;
     }
 
     .step-promo {
       margin-top: 2px;
       color: var(--muted);
-      font-size: 9px;
+      font-size: 8px;
       line-height: 1.4;
     }
 
-    .step-value {
+    .step-saving {
       text-align: right;
-      font-size: 10px;
-      color: #aaa;
-    }
-
-    .step-value strong {
-      display: block;
       color: var(--green);
-      font-size: 13px;
+      font-size: 12px;
+      font-weight: 900;
     }
 
-    .account-list { display: grid; gap: 9px; }
+    .intent-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-rows: 112px;
+      gap: 8px;
+    }
+
+    .intent {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .intent.active {
+      border-color: #5c7f49;
+      background: var(--green-soft);
+    }
+
+    .intent-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .intent-icon {
+      width: 31px;
+      height: 31px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--surface-3);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .intent-count {
+      color: var(--dim);
+      font-size: 9px;
+    }
+
+    .intent-title {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: -.025em;
+    }
+
+    .intent-sub {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.35;
+    }
+
+    .account-list {
+      display: grid;
+      gap: 8px;
+    }
 
     .account-card {
       border: 1px solid var(--line);
-      border-radius: 17px;
-      background: var(--card);
+      border-radius: 16px;
+      background: var(--surface);
       overflow: hidden;
     }
 
-    .account-main { padding: 15px; }
+    .account-main {
+      padding: 13px;
+    }
 
     .account-top {
       display: flex;
       justify-content: space-between;
-      gap: 13px;
+      gap: 12px;
       align-items: flex-start;
     }
 
     .account-email {
-      font-size: 18px;
+      font-size: 14px;
       font-weight: 900;
-      letter-spacing: -.03em;
+      letter-spacing: -.02em;
       word-break: break-word;
     }
 
-    .account-ref {
+    .account-caption {
       margin-top: 3px;
-      color: var(--dim);
+      color: var(--muted);
       font-size: 9px;
+      line-height: 1.4;
     }
 
-    .account-badges {
+    .save-now {
+      flex: 0 0 auto;
+      text-align: right;
+      color: var(--green);
+      font-size: 17px;
+      font-weight: 950;
+    }
+
+    .save-now small {
+      display: block;
+      margin-top: 2px;
+      color: var(--dim);
+      font-size: 8px;
+      font-weight: 700;
+    }
+
+    .badges {
       display: flex;
       flex-wrap: wrap;
       gap: 5px;
-      margin-top: 8px;
-    }
-
-    .account-score {
-      flex: 0 0 auto;
-      text-align: right;
-    }
-
-    .account-score strong {
-      display: block;
-      color: var(--green);
-      font-size: 23px;
-      letter-spacing: -.04em;
-    }
-
-    .account-score span {
-      color: var(--dim);
-      font-size: 8px;
-    }
-
-    .activity {
       margin-top: 9px;
-      color: #666;
-      font-size: 9px;
     }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 0 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 8px;
+      font-weight: 800;
+    }
+
+    .badge.good {
+      border-color: #4a6940;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .badge.warn {
+      border-color: #655435;
+      color: var(--amber);
+    }
+
+    .offers-details {
+      margin-top: 10px;
+      border-top: 1px solid var(--line-soft);
+      padding-top: 9px;
+    }
+
+    .offers-details summary {
+      cursor: pointer;
+      list-style: none;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 850;
+    }
+
+    .offers-details summary::-webkit-details-marker { display: none; }
 
     .offer-list {
       display: grid;
       gap: 6px;
-      margin-top: 13px;
+      margin-top: 8px;
     }
 
     .offer {
-      padding: 10px;
-      border: 1px solid #171717;
-      border-radius: 12px;
-      background: #020202;
+      padding: 9px;
+      border: 1px solid var(--line-soft);
+      border-radius: 11px;
+      background: var(--surface-2);
     }
 
-    .offer-main {
-      display: grid;
-      grid-template-columns: minmax(0,1fr) auto;
+    .offer-row {
+      display: flex;
+      justify-content: space-between;
       gap: 10px;
-      align-items: start;
+      align-items: flex-start;
     }
 
-    .offer-name {
-      font-size: 12px;
-      font-weight: 800;
+    .offer-title {
+      font-size: 10px;
+      font-weight: 850;
       line-height: 1.35;
     }
 
     .offer-meta {
       margin-top: 3px;
       color: var(--dim);
-      font-size: 9px;
+      font-size: 8px;
       line-height: 1.45;
     }
 
     .offer-value {
-      text-align: right;
-      color: #bbb;
-      font-size: 9px;
-    }
-
-    .offer-value strong {
-      display: block;
+      flex: 0 0 auto;
       color: var(--green);
-      font-size: 13px;
+      font-size: 11px;
+      font-weight: 900;
+      text-align: right;
     }
 
-    .offer-actions, .account-actions {
+    .actions {
       display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 8px;
+      gap: 6px;
+      margin-top: 7px;
     }
 
     .mini-btn {
-      min-height: 27px;
-      padding: 0 8px;
-      border: 1px solid #202020;
-      border-radius: 8px;
-      background: #090909;
-      color: #777;
+      min-height: 29px;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--surface-3);
+      color: var(--muted);
       cursor: pointer;
       font-size: 8px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: .05em;
+      font-weight: 850;
     }
 
-    .mini-btn:hover { color: #fff; border-color: #333; }
     .mini-btn.used { color: var(--green); }
     .mini-btn.ignore { color: var(--amber); }
 
-    details.bucket {
-      margin-top: 12px;
-      border: 1px solid #151515;
+    .bucket {
+      margin-top: 10px;
+      border: 1px solid var(--line-soft);
       border-radius: 14px;
-      background: #030303;
+      background: var(--surface);
       overflow: hidden;
     }
 
-    details.bucket summary {
+    .bucket summary {
       padding: 12px;
       cursor: pointer;
       list-style: none;
-      color: #999;
+      color: var(--muted);
       font-size: 10px;
-      font-weight: 800;
+      font-weight: 850;
     }
 
-    details.bucket summary::-webkit-details-marker { display: none; }
+    .bucket summary::-webkit-details-marker { display: none; }
 
     .bucket-body {
       padding: 0 9px 9px;
     }
 
-    .used-row {
+    .search-wrap {
+      margin: 12px 0 10px;
+    }
+
+    .seg-row {
       display: flex;
-      justify-content: space-between;
-      gap: 10px;
+      gap: 7px;
+      margin-bottom: 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .seg-row::-webkit-scrollbar { display: none; }
+    .seg-btn { padding: 0 12px; white-space: nowrap; }
+
+    .simple-row {
+      display: flex;
       align-items: center;
-      padding: 9px;
-      border-top: 1px solid #141414;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 3px;
+      border-bottom: 1px solid var(--line-soft);
     }
 
-    .used-title {
-      font-size: 10px;
-      font-weight: 750;
+    .simple-row:last-child { border-bottom: 0; }
+
+    .simple-title {
+      font-size: 11px;
+      font-weight: 850;
+      word-break: break-word;
     }
 
-    .used-meta {
+    .simple-meta {
       margin-top: 2px;
       color: var(--dim);
       font-size: 8px;
+    }
+
+    .simple-value {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 9px;
+      text-align: right;
     }
 
     .empty {
       padding: 22px 14px;
-      border: 1px dashed #242424;
-      border-radius: 15px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.015);
       color: var(--muted);
       text-align: center;
-      font-size: 11px;
+      font-size: 10px;
       line-height: 1.55;
     }
 
-    .history {
-      margin-top: 28px;
-      padding-top: 17px;
-      border-top: 1px solid var(--line);
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 8px;
     }
 
-    .history summary {
+    .menu-card {
+      min-height: 104px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--surface);
       cursor: pointer;
-      list-style: none;
-      color: #9e9e9e;
-      font-size: 10px;
+      text-align: left;
+    }
+
+    .menu-card strong {
+      display: block;
+      font-size: 13px;
+      letter-spacing: -.02em;
+    }
+
+    .menu-card span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.4;
+    }
+
+    .menu-panel {
+      display: none;
+      margin-top: 12px;
+    }
+
+    .menu-panel.active { display: block; }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 8px;
+    }
+
+    .insight {
+      min-height: 88px;
+      padding: 12px;
+      border: 1px solid var(--line-soft);
+      border-radius: 14px;
+      background: var(--surface);
+    }
+
+    .insight-label {
+      color: var(--dim);
+      font-size: 8px;
       font-weight: 800;
     }
 
-    .history summary::-webkit-details-marker { display: none; }
+    .insight-value {
+      margin-top: 8px;
+      font-size: 20px;
+      font-weight: 950;
+      letter-spacing: -.04em;
+    }
 
-    .history-list {
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: calc(8px + env(safe-area-inset-bottom));
+      z-index: 20;
+      width: min(calc(100% - 18px), 520px);
+      transform: translateX(-50%);
       display: grid;
-      gap: 6px;
-      margin-top: 10px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(25,30,26,.96);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 16px 36px rgba(0,0,0,.3);
     }
 
-    .history-row {
-      padding: 9px 10px;
-      border: 1px solid #151515;
-      border-radius: 11px;
-      background: #030303;
-    }
-
-    .history-title {
-      font-size: 10px;
-      font-weight: 750;
-    }
-
-    .history-meta {
-      margin-top: 2px;
+    .nav-btn {
+      min-height: 51px;
+      border: 0;
+      border-radius: 13px;
+      background: transparent;
       color: var(--dim);
-      font-size: 8px;
+      cursor: pointer;
+      font-size: 9px;
+      font-weight: 850;
+    }
+
+    .nav-icon {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .nav-btn.active {
+      background: var(--surface-3);
+      color: var(--green);
     }
 
     .privacy {
-      margin-top: 22px;
-      color: #3d3d3d;
+      margin: 24px 0 4px;
+      color: #667067;
       font-size: 8px;
-      line-height: 1.55;
+      line-height: 1.5;
       text-align: center;
     }
 
-    @media (max-width: 560px) {
-      .app { width: min(100% - 16px, 780px); }
-      .planner-inputs { grid-template-columns: 1fr 1fr; }
-      .planner-inputs .field:first-child { grid-column: 1 / -1; }
-      .plan-summary { display: block; }
-      .plan-money { margin-top: 9px; text-align: left; }
+    @media (min-width: 760px) {
+      body { padding-bottom: 0; }
+
+      .shell { padding: 20px 24px 54px; }
+
+      .topbar {
+        min-height: 62px;
+        margin-bottom: 4px;
+      }
+
+      .brand-title { font-size: 24px; }
+
+      .bottom-nav {
+        position: static;
+        left: auto;
+        bottom: auto;
+        width: 100%;
+        max-width: 560px;
+        transform: none;
+        margin: 8px 0 22px;
+        box-shadow: none;
+        backdrop-filter: none;
+      }
+
+      .nav-btn { min-height: 44px; }
+      .nav-icon { display: inline; margin: 0 5px 0 0; }
+
+      .page-head { margin-top: 6px; }
+      .stats-grid { max-width: 720px; }
+      .intent-grid { grid-template-columns: repeat(4, minmax(0,1fr)); grid-auto-rows: 120px; }
+      .account-list { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .account-card { height: 100%; }
+      .planner { padding: 17px; }
+      .planner-options { max-width: 480px; }
+      .menu-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .insight-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
     }
 
-    @media (max-width: 360px) {
-      .intent-grid { grid-template-columns: 1fr; }
-      .account-top { display: block; }
-      .account-score { margin-top: 8px; text-align: left; }
+    @media (max-width: 370px) {
+      .shell { padding-left: 10px; padding-right: 10px; }
+      .stats-grid { gap: 6px; }
+      .stat { padding: 10px 8px; }
+      .intent-grid { gap: 6px; }
+      .planner-options { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <main id="app" class="app">
+  <div id="app" class="shell">
     <header class="topbar">
-      <div class="brand">
+      <div>
         <div class="brand-kicker">Uber Eats</div>
-        <h1>Promo Finder</h1>
+        <div class="brand-title">Promo Finder</div>
       </div>
-
-      <div class="status">
-        <div id="modePill" class="status-pill">
-          <span class="status-dot"></span>
-          <span id="modeText">LOADING</span>
+      <div class="scan">
+        <div id="scanPill" class="scan-pill">
+          <span class="scan-dot"></span>
+          <span id="scanLabel">LOADING</span>
         </div>
-        <div id="scanTime" class="scan-time">Checking offers…</div>
+        <div id="scanTime" class="scan-time">Checking data…</div>
       </div>
     </header>
 
     <div id="demoNotice" class="notice">
-      Demo data is showing. Live Apple Mail promos and receipts will replace it on the Mac.
+      Demo data is showing. Your private Mac database will replace this after the first live scan.
     </div>
 
-    <section>
-      <div class="hero-label">What are you looking for?</div>
-      <h2 class="hero-title">Choose the account that gives you the <span>best order.</span></h2>
-      <div class="hero-copy">
-        Your email recipient identifies the Uber Eats account. The public page shows only a masked version.
-      </div>
+    <nav id="mainNav" class="bottom-nav" aria-label="Main navigation">
+      <button class="nav-btn active" data-view="deals"><span class="nav-icon">⌂</span>Deals</button>
+      <button class="nav-btn" data-view="accounts"><span class="nav-icon">@</span>Accounts</button>
+      <button class="nav-btn" data-view="used"><span class="nav-icon">✓</span>Used</button>
+      <button class="nav-btn" data-view="menu"><span class="nav-icon">•••</span>Menu</button>
+    </nav>
 
-      <div id="intentGrid" class="intent-grid">
-        <button class="intent active" data-mode="best">
-          <span id="bestCount" class="intent-count"></span>
-          <div class="intent-icon">★</div>
-          <div class="intent-title">Best deal</div>
-          <div class="intent-sub">Strongest accounts overall.</div>
-        </button>
-
-        <button class="intent" data-mode="15off15">
-          <span id="fifteenCount" class="intent-count"></span>
-          <div class="intent-icon">15</div>
-          <div class="intent-title">£15 off £15</div>
-          <div class="intent-sub">Accounts with a full £15-off minimum-spend deal.</div>
-        </button>
-
-        <button class="intent" data-mode="cash">
-          <span id="cashCount" class="intent-count"></span>
-          <div class="intent-icon">£</div>
-          <div class="intent-title">Uber Cash</div>
-          <div class="intent-sub">Accounts carrying Uber Cash value.</div>
-        </button>
-
-        <button class="intent" data-mode="multi">
-          <span id="multiCount" class="intent-count"></span>
-          <div class="intent-icon">+</div>
-          <div class="intent-title">Multiple promos</div>
-          <div class="intent-sub">Accounts with several active offers.</div>
-        </button>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
-        <div>
-          <div class="kicker">Basket optimiser</div>
-          <h2 class="section-title">How should I split this order?</h2>
-        </div>
-      </div>
-
-      <div class="planner">
-        <div class="planner-inputs">
-          <label class="field">
-            Basket subtotal
-            <input id="spendInput" type="number" min="0" step="0.50" value="50" inputmode="decimal">
-          </label>
-
-          <label class="field">
-            Extra fee / added order
-            <input id="feeInput" type="number" min="0" step="0.10" value="0" inputmode="decimal">
-          </label>
-
-          <label class="field">
-            Max orders
-            <select id="maxOrders">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3" selected>3</option>
-              <option value="4">4</option>
-            </select>
-          </label>
+    <main>
+      <section id="view-deals" class="view active">
+        <div class="page-head">
+          <div class="eyebrow">Ordering now</div>
+          <h1 class="page-title">Use the right account.</h1>
+          <div class="page-copy">Only accounts you can actually log into are considered for recommendations.</div>
         </div>
 
-        <div class="quick">
-          <button data-spend="15">£15</button>
-          <button data-spend="25">£25</button>
-          <button data-spend="40">£40</button>
-          <button data-spend="50">£50</button>
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-label">Total saved</div>
+            <div id="savedStat" class="stat-value green">£0</div>
+            <div class="stat-sub">from receipts</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Can log in</div>
+            <div id="usableStat" class="stat-value">0</div>
+            <div class="stat-sub">accounts</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Active deals</div>
+            <div id="activeStat" class="stat-value">0</div>
+            <div class="stat-sub">usable promos</div>
+          </div>
         </div>
 
-        <div id="planResult" class="plan-result">
-          <div class="empty">Loading offers…</div>
+        <div class="card planner">
+          <label class="field-label" for="basketInput">Basket subtotal</label>
+          <div class="money-input-wrap">
+            <span class="currency">£</span>
+            <input id="basketInput" class="money-input" type="number" min="0" step="0.50" value="50" inputmode="decimal">
+          </div>
+
+          <div class="quick-row">
+            <button class="chip-btn" data-basket="15">£15</button>
+            <button class="chip-btn" data-basket="25">£25</button>
+            <button class="chip-btn" data-basket="40">£40</button>
+            <button class="chip-btn" data-basket="50">£50</button>
+          </div>
+
+          <div class="planner-options">
+            <label class="small-field">
+              <span class="field-label">Extra fee / extra order</span>
+              <input id="feeInput" type="number" min="0" step="0.10" value="0">
+            </label>
+            <label class="small-field">
+              <span class="field-label">Max orders</span>
+              <select id="maxOrders">
+                <option value="1">1 order</option>
+                <option value="2">2 orders</option>
+                <option value="3" selected>3 orders</option>
+                <option value="4">4 orders</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="plannerResult" class="planner-result">
+            <div class="empty">Loading your usable deals…</div>
+          </div>
         </div>
-      </div>
-    </section>
 
-    <section class="section">
-      <div class="section-head">
-        <div>
-          <div id="resultsKicker" class="kicker">Best deal</div>
-          <h2 id="resultsTitle" class="section-title">Accounts to use</h2>
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Quick find</div>
+            <div class="section-title">What do you want?</div>
+          </div>
         </div>
-        <div id="resultsMeta" class="section-meta"></div>
-      </div>
 
-      <div id="accountList" class="account-list"></div>
+        <div id="intentGrid" class="intent-grid">
+          <button class="intent active" data-intent="best">
+            <div class="intent-top"><span class="intent-icon">★</span><span id="bestCount" class="intent-count">0</span></div>
+            <div><div class="intent-title">Best deal</div><div class="intent-sub">Strongest usable accounts.</div></div>
+          </button>
+          <button class="intent" data-intent="15off15">
+            <div class="intent-top"><span class="intent-icon">15</span><span id="fifteenCount" class="intent-count">0</span></div>
+            <div><div class="intent-title">£15 off £15</div><div class="intent-sub">Full-value minimum spend deals.</div></div>
+          </button>
+          <button class="intent" data-intent="cash">
+            <div class="intent-top"><span class="intent-icon">£</span><span id="cashCount" class="intent-count">0</span></div>
+            <div><div class="intent-title">Uber Cash</div><div class="intent-sub">Usable cash-value accounts.</div></div>
+          </button>
+          <button class="intent" data-intent="multi">
+            <div class="intent-top"><span class="intent-icon">+</span><span id="multiCount" class="intent-count">0</span></div>
+            <div><div class="intent-title">Multiple promos</div><div class="intent-sub">More than one active option.</div></div>
+          </button>
+        </div>
 
-      <details id="weakBucket" class="bucket">
-        <summary id="weakSummary">Weaker accounts</summary>
-        <div id="weakList" class="bucket-body"></div>
-      </details>
+        <div class="section-head">
+          <div>
+            <div id="dealKicker" class="eyebrow">Best deal</div>
+            <div class="section-title">Accounts to use</div>
+          </div>
+          <div id="dealMeta" class="section-meta"></div>
+        </div>
 
-      <details id="usedBucket" class="bucket">
-        <summary id="usedSummary">Used / ignored</summary>
-        <div id="usedList" class="bucket-body"></div>
-      </details>
-    </section>
+        <div id="dealAccounts" class="account-list"></div>
 
-    <details class="history">
-      <summary>Recent promo history</summary>
-      <div id="historyList" class="history-list"></div>
-    </details>
+        <details id="weakBucket" class="bucket">
+          <summary id="weakSummary">Weaker usable accounts</summary>
+          <div id="weakAccounts" class="bucket-body account-list"></div>
+        </details>
+      </section>
+
+      <section id="view-accounts" class="view">
+        <div class="page-head">
+          <div class="eyebrow">Your logins</div>
+          <h1 class="page-title">Accounts you can use.</h1>
+          <div class="page-copy">Search by the masked email you recognise. Inaccessible accounts stay out of this screen.</div>
+        </div>
+
+        <div class="search-wrap">
+          <input id="accountSearch" class="search-input" type="search" placeholder="Search email…">
+        </div>
+
+        <div class="seg-row">
+          <button class="seg-btn active" data-account-filter="all">All usable</button>
+          <button class="seg-btn" data-account-filter="offers">With promos</button>
+          <button class="seg-btn" data-account-filter="cash">Uber Cash</button>
+        </div>
+
+        <div id="accountsMeta" class="section-meta" style="text-align:left;margin-bottom:10px;"></div>
+        <div id="accountsList" class="account-list"></div>
+      </section>
+
+      <section id="view-used" class="view">
+        <div class="page-head">
+          <div class="eyebrow">Promo state</div>
+          <h1 class="page-title">Used & ignored.</h1>
+          <div class="page-copy">Receipt-confirmed usage is automatic. Manual Used/Ignore choices stay private in this browser.</div>
+        </div>
+
+        <div id="usedList"></div>
+      </section>
+
+      <section id="view-menu" class="view">
+        <div class="page-head">
+          <div class="eyebrow">More</div>
+          <h1 class="page-title">Tracker details.</h1>
+        </div>
+
+        <div class="menu-grid">
+          <button class="menu-card" data-menu-panel="locked">
+            <strong>Can’t access</strong>
+            <span id="lockedMenuCount">0 accounts hidden from recommendations.</span>
+          </button>
+          <button class="menu-card" data-menu-panel="savings">
+            <strong>Savings</strong>
+            <span>Receipt-based totals and top accounts.</span>
+          </button>
+          <button class="menu-card" data-menu-panel="health">
+            <strong>Scan & data</strong>
+            <span>Mail scan status and account totals.</span>
+          </button>
+          <button class="menu-card" data-menu-panel="history">
+            <strong>History</strong>
+            <span>Recent active, used and expired promos.</span>
+          </button>
+        </div>
+
+        <div id="panel-locked" class="menu-panel">
+          <div class="section-head">
+            <div><div class="eyebrow">Hidden</div><div class="section-title">Can’t log in</div></div>
+          </div>
+          <input id="lockedSearch" class="search-input" type="search" placeholder="Search inaccessible email…">
+          <div id="lockedList" style="margin-top:8px;"></div>
+        </div>
+
+        <div id="panel-savings" class="menu-panel">
+          <div class="section-head">
+            <div><div class="eyebrow">Receipts</div><div class="section-title">Savings insights</div></div>
+          </div>
+          <div id="savingsInsights"></div>
+        </div>
+
+        <div id="panel-health" class="menu-panel">
+          <div class="section-head">
+            <div><div class="eyebrow">System</div><div class="section-title">Scan & data</div></div>
+          </div>
+          <div id="healthInsights"></div>
+        </div>
+
+        <div id="panel-history" class="menu-panel">
+          <div class="section-head">
+            <div><div class="eyebrow">Timeline</div><div class="section-title">Recent promo history</div></div>
+          </div>
+          <div id="historyList"></div>
+        </div>
+      </section>
+    </main>
 
     <div class="privacy">
-      Raw emails, full iCloud aliases, receipt details and promo codes stay private on your Mac.
-      Manual Used/Ignore choices are stored only in this browser.
+      Full emails, raw Mail content, receipt details and promo codes stay on your Mac.
+      This site receives masked account labels and safe derived totals only.
     </div>
-  </main>
+  </div>
 
   <script type="module">
-    import { planBasketSplit } from "./deal-intelligence.js";
+    import {
+      planBasketSplit,
+      rankPromosForSpend,
+      savingForSpend
+    } from "./deal-intelligence.js";
 
-    const STATE_KEY = "uber-eats-promo-finder:promo-state:v1";
+    const STATE_KEY = "uber-eats-promo-finder:promo-state:v2";
 
+    let payload = {};
     let promos = [];
+    let accounts = [];
     let history = [];
-    let insights = { accounts: [], feeModel: {} };
-    let mode = "best";
-    let promoStates = loadStates();
+    let currentView = "deals";
+    let currentIntent = "best";
+    let accountFilter = "all";
+    let menuPanel = null;
+    let localStates = readLocalStates();
     let feeTouched = false;
+
+    function readLocalStates() {
+      try {
+        return JSON.parse(localStorage.getItem(STATE_KEY) || "{}");
+      } catch {
+        return {};
+      }
+    }
+
+    function saveLocalStates() {
+      try {
+        localStorage.setItem(STATE_KEY, JSON.stringify(localStates));
+      } catch {}
+    }
 
     function escapeHtml(value) {
       return String(value == null ? "" : value)
@@ -796,169 +1137,82 @@
 
     function money(value) {
       return "£" + Number(value || 0).toLocaleString("en-GB", {
+        minimumFractionDigits: 0,
         maximumFractionDigits: 2
       });
     }
 
-    function loadStates() {
-      try {
-        return JSON.parse(localStorage.getItem(STATE_KEY) || "{}");
-      } catch {
-        return {};
-      }
+    function parseDateOnly(value, endOfDay = false) {
+      if (!value) return null;
+      const parts = String(value).split("-").map(Number);
+      if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+
+      return new Date(
+        parts[0],
+        parts[1] - 1,
+        parts[2],
+        endOfDay ? 23 : 12,
+        endOfDay ? 59 : 0,
+        endOfDay ? 59 : 0
+      );
     }
 
-    function saveStates() {
-      try {
-        localStorage.setItem(STATE_KEY, JSON.stringify(promoStates));
-      } catch {}
+    function formatDate(value) {
+      const date = String(value || "").includes("T")
+        ? new Date(value)
+        : parseDateOnly(value);
+
+      if (!date || Number.isNaN(date.getTime())) return null;
+
+      return date.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short"
+      });
     }
 
     function promoId(promo) {
-      if (promo.id) return promo.id;
-      return [
+      return promo.id || [
         promo.accountRef,
         promo.discountType,
         promo.discount,
         promo.minimumSpend,
-        promo.maxSaving,
-        promo.uses,
         promo.expires
       ].join("|");
     }
 
-    function manualState(promo) {
-      return promoStates[promoId(promo)] || null;
+    function localState(promo) {
+      return localStates[promoId(promo)] || null;
     }
 
     function effectiveState(promo) {
-      if (promo.receiptState === "used" || Number(promo.usesRemaining) === 0) return "used";
-      return manualState(promo) || "active";
-    }
-
-    function activePromos() {
-      return promos.filter(promo => effectiveState(promo) === "active");
-    }
-
-    function excludedIds() {
-      return promos
-        .filter(promo => effectiveState(promo) !== "active")
-        .map(promoId);
-    }
-
-    function accountDisplay(promoOrAccount) {
-      return promoOrAccount.accountMasked || promoOrAccount.account || promoOrAccount.accountRef || "Account";
-    }
-
-    function localDate(value, end = false) {
-      if (!value) return null;
-      const parts = String(value).split("-").map(Number);
-      if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
-      return new Date(parts[0], parts[1] - 1, parts[2], end ? 23 : 12, end ? 59 : 0, end ? 59 : 0);
-    }
-
-    function formatDate(value) {
-      const date = localDate(value);
-      return date
-        ? date.toLocaleDateString("en-GB", { day: "numeric", month: "short" })
-        : "No expiry";
-    }
-
-    function formatDateTime(value) {
-      if (!value) return null;
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return null;
-      return date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-    }
-
-    function potentialSaving(promo) {
-      if (promo.maxTotalSaving != null) return Number(promo.maxTotalSaving);
-      if (promo.maxSaving != null) return Number(promo.maxSaving);
-      if (promo.discountType === "fixed" && promo.discount != null) {
-        return Number(promo.discount) * Number(promo.usesRemaining ?? promo.uses ?? 1);
+      if (promo.receiptState === "used" || Number(promo.usesRemaining) === 0) {
+        return "used";
       }
-      if (promo.discountType === "uberCash" && promo.discount != null) return Number(promo.discount);
-      return 0;
+
+      return localState(promo) || "active";
     }
 
-    function singleValue(promo) {
-      if (promo.discountType === "fixed" || promo.discountType === "uberCash") {
-        return Number(promo.discount || 0);
-      }
-      return Number(promo.maxSaving || 0);
+    function isExpired(promo) {
+      if (!promo.expires) return false;
+      const expiry = parseDateOnly(promo.expires, true);
+      return expiry ? expiry < new Date() : false;
     }
 
-    function is15off15(promo) {
-      return promo.discountType === "fixed" &&
-        Number(promo.discount || 0) >= 15 &&
-        Number(promo.minimumSpend || 0) <= 15;
+    function activePromo(promo) {
+      return (
+        promo.service === "Uber Eats" &&
+        !isExpired(promo) &&
+        effectiveState(promo) === "active" &&
+        Number(promo.usesRemaining ?? promo.uses ?? 1) > 0
+      );
     }
 
-    function activityMap() {
-      return new Map((insights.accounts || []).map(item => [item.accountRef, item]));
+    function usablePromos() {
+      return promos.filter(promo => activePromo(promo) && promo.canLogin === true);
     }
 
-    function groupAccounts(items) {
-      const map = new Map();
-      const activity = activityMap();
-
-      items.forEach(promo => {
-        const ref = promo.accountRef || "Unknown";
-
-        if (!map.has(ref)) {
-          map.set(ref, {
-            accountRef: ref,
-            accountMasked: promo.accountMasked || null,
-            promos: [],
-            totalPotential: 0,
-            bestSingle: 0,
-            hasCash: false,
-            has15off15: false,
-            activity: activity.get(ref) || null
-          });
-        }
-
-        const account = map.get(ref);
-        account.promos.push(promo);
-        account.totalPotential += potentialSaving(promo);
-        account.bestSingle = Math.max(account.bestSingle, singleValue(promo));
-        account.hasCash = account.hasCash || promo.discountType === "uberCash";
-        account.has15off15 = account.has15off15 || is15off15(promo);
-      });
-
-      return [...map.values()].map(account => ({
-        ...account,
-        promoCount: account.promos.length
-      }));
-    }
-
-    function sortedAccounts() {
-      let accounts = groupAccounts(activePromos());
-
-      if (mode === "15off15") accounts = accounts.filter(account => account.has15off15);
-      if (mode === "cash") accounts = accounts.filter(account => account.hasCash);
-      if (mode === "multi") accounts = accounts.filter(account => account.promoCount > 1);
-
-      return accounts.sort((a, b) => {
-        if (mode === "multi" && b.promoCount !== a.promoCount) {
-          return b.promoCount - a.promoCount;
-        }
-
-        if (b.totalPotential !== a.totalPotential) {
-          return b.totalPotential - a.totalPotential;
-        }
-
-        return b.bestSingle - a.bestSingle;
-      });
-    }
-
-    function weakAccount(account, strongest) {
-      if (mode !== "best") return false;
-      if (account.has15off15 || account.hasCash || account.promoCount > 1) return false;
-      if (!strongest) return false;
-
-      return account.bestSingle <= 5 ||
-        account.totalPotential < strongest.totalPotential * 0.22;
+    function accountDisplay(accountOrPromo) {
+      return accountOrPromo.accountMasked || "Account";
     }
 
     function promoLabel(promo) {
@@ -969,82 +1223,259 @@
     }
 
     function promoMeta(promo) {
-      const parts = [];
+      const bits = [];
 
-      if (promo.minimumSpend) parts.push(money(promo.minimumSpend) + " minimum");
-      if (promo.maxSaving) parts.push(money(promo.maxSaving) + " max");
+      if (promo.minimumSpend) bits.push(money(promo.minimumSpend) + " min");
+      if (promo.maxSaving) bits.push(money(promo.maxSaving) + " max");
 
-      const left = Number(promo.usesRemaining ?? promo.uses ?? 1);
-      const total = Number(promo.uses || 1);
-      if (total > 1) parts.push(left + " of " + total + " uses left");
+      const totalUses = Number(promo.uses || 1);
+      const remaining = Number(promo.usesRemaining ?? totalUses);
+      if (totalUses > 1) bits.push(remaining + "/" + totalUses + " uses left");
 
-      if (promo.expires) parts.push("Ends " + formatDate(promo.expires));
-      if (promo.receiptState === "partial") parts.push("receipt-confirmed use");
+      if (promo.expires) {
+        const expiry = formatDate(promo.expires);
+        if (expiry) bits.push("Ends " + expiry);
+      } else if (promo.expiryStatus === "unknown") {
+        bits.push("Expiry unknown");
+      }
 
-      return parts.join(" · ");
+      if (promo.receiptState === "partial") bits.push("Receipt-confirmed use");
+
+      return bits.join(" · ");
     }
 
-    function renderIntentCounts() {
-      const accounts = groupAccounts(activePromos());
-
-      document.getElementById("bestCount").textContent =
-        accounts.length ? accounts.length + " accounts" : "0";
-
-      document.getElementById("fifteenCount").textContent =
-        accounts.filter(a => a.has15off15).length || "0";
-
-      document.getElementById("cashCount").textContent =
-        accounts.filter(a => a.hasCash).length || "0";
-
-      document.getElementById("multiCount").textContent =
-        accounts.filter(a => a.promoCount > 1).length || "0";
+    function accountPromos(ref, { includeInactive = false } = {}) {
+      return promos.filter(promo =>
+        promo.accountRef === ref &&
+        (includeInactive || activePromo(promo))
+      );
     }
 
-    function accountCard(account, index) {
+    function is15off15(promo) {
+      return (
+        promo.discountType === "fixed" &&
+        Number(promo.discount || 0) >= 15 &&
+        Number(promo.minimumSpend || 0) <= 15
+      );
+    }
+
+    function currentBasket() {
+      return Number(document.getElementById("basketInput")?.value || 0);
+    }
+
+    function bestForAccount(account, spend = currentBasket()) {
+      return rankPromosForSpend(accountPromos(account.accountRef), spend, {
+        service: "Uber Eats",
+        accountRef: account.accountRef,
+        accessibleOnly: false
+      })[0] || null;
+    }
+
+    function enrichedUsableAccounts() {
+      return accounts
+        .filter(account => account.canLogin === true)
+        .map(account => {
+          const current = accountPromos(account.accountRef);
+          return {
+            ...account,
+            promos: current,
+            promoCount: current.length,
+            hasCash: current.some(promo => promo.discountType === "uberCash"),
+            has15off15: current.some(is15off15),
+            bestNow: bestForAccount(account)
+          };
+        });
+    }
+
+    function filteredDealAccounts() {
+      let list = enrichedUsableAccounts().filter(account => account.promoCount > 0);
+
+      if (currentIntent === "15off15") {
+        list = list.filter(account => account.has15off15);
+      } else if (currentIntent === "cash") {
+        list = list.filter(account => account.hasCash);
+      } else if (currentIntent === "multi") {
+        list = list.filter(account => account.promoCount > 1);
+      }
+
+      return list.sort((a, b) => {
+        const aSaving = a.bestNow?.calculation?.saving || 0;
+        const bSaving = b.bestNow?.calculation?.saving || 0;
+
+        if (bSaving !== aSaving) return bSaving - aSaving;
+        if (b.promoCount !== a.promoCount) return b.promoCount - a.promoCount;
+
+        return String(b.lastPromoAt || "").localeCompare(String(a.lastPromoAt || ""));
+      });
+    }
+
+    function weakAccount(account, strongest) {
+      if (currentIntent !== "best") return false;
+      if (account.has15off15 || account.hasCash || account.promoCount > 1) return false;
+      if (!strongest) return false;
+
+      const strongSaving = strongest.bestNow?.calculation?.saving || 0;
+      const saving = account.bestNow?.calculation?.saving || 0;
+
+      return saving <= 4 || (strongSaving > 0 && saving < strongSaving * 0.45);
+    }
+
+    function renderStatus() {
+      const pill = document.getElementById("scanPill");
+      const label = document.getElementById("scanLabel");
+      const time = document.getElementById("scanTime");
+
+      pill.classList.remove("live", "demo", "stale");
+
+      if (payload.demo) {
+        pill.classList.add("demo");
+        label.textContent = "DEMO";
+        time.textContent = "Waiting for live Mac data";
+        document.getElementById("demoNotice").style.display = "block";
+        return;
+      }
+
+      document.getElementById("demoNotice").style.display = "none";
+
+      const generated = payload.generatedAt ? new Date(payload.generatedAt) : null;
+      const stale =
+        !generated ||
+        Number.isNaN(generated.getTime()) ||
+        Date.now() - generated.getTime() > 24 * 60 * 60 * 1000;
+
+      pill.classList.add(stale ? "stale" : "live");
+      label.textContent = stale ? "STALE" : "LIVE";
+      time.textContent =
+        generated && !Number.isNaN(generated.getTime())
+          ? "Scanned " + generated.toLocaleString("en-GB", {
+              day: "numeric",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit"
+            })
+          : "No recent scan";
+    }
+
+    function renderStats() {
+      const summary = payload.summary || {};
+      const usable = accounts.filter(account => account.canLogin).length;
+      const active = usablePromos().length;
+
+      document.getElementById("savedStat").textContent = money(summary.totalSaved || 0);
+      document.getElementById("usableStat").textContent = usable.toLocaleString("en-GB");
+      document.getElementById("activeStat").textContent = active.toLocaleString("en-GB");
+      document.getElementById("lockedMenuCount").textContent =
+        accounts.filter(account => !account.canLogin).length.toLocaleString("en-GB") +
+        " accounts hidden from recommendations.";
+
+      const fee = Number(summary?.feeModel?.averageExtraOrderFees ?? summary.averageExtraOrderFees);
+      if (!feeTouched && Number.isFinite(fee) && fee > 0) {
+        document.getElementById("feeInput").value = fee.toFixed(2);
+      }
+    }
+
+    function renderPlanner() {
+      const target = document.getElementById("plannerResult");
+      const subtotal = currentBasket();
+      const extraOrderFee = Number(document.getElementById("feeInput").value || 0);
+      const maxOrders = Number(document.getElementById("maxOrders").value || 3);
+
+      if (!accounts.some(account => account.canLogin)) {
+        target.innerHTML =
+          '<div class="empty">No accounts are marked <strong>Can log in</strong> yet. Import your access list on the Mac and the optimiser will switch on.</div>';
+        return;
+      }
+
+      const excludedIds = promos
+        .filter(promo => effectiveState(promo) !== "active")
+        .map(promoId);
+
+      const plan = planBasketSplit(promos, subtotal, {
+        service: "Uber Eats",
+        maxOrders,
+        extraOrderFee,
+        excludedIds,
+        accessibleOnly: true
+      });
+
+      if (!plan.eligible) {
+        target.innerHTML =
+          '<div class="empty">' + escapeHtml(plan.reason || "No usable plan for this basket.") + '</div>';
+        return;
+      }
+
+      const steps = plan.orders.map((order, index) => (
+        '<div class="plan-step">' +
+          '<div class="step-number">' + (index + 1) + '</div>' +
+          '<div>' +
+            '<div class="step-account">' + escapeHtml(accountDisplay(order)) + '</div>' +
+            '<div class="step-promo">' +
+              escapeHtml(order.promo.title || promoLabel(order.promo)) +
+              ' · put about ' + escapeHtml(money(order.subtotal)) + ' here' +
+            '</div>' +
+          '</div>' +
+          '<div class="step-saving">-' + escapeHtml(money(order.saving)) + '</div>' +
+        '</div>'
+      )).join("");
+
+      const comparison = plan.benefitVsSingle > 0.009
+        ? money(plan.benefitVsSingle) + " better than one order"
+        : "Splitting does not meaningfully beat one order";
+
+      target.innerHTML =
+        '<div class="plan-top">' +
+          '<div>' +
+            '<div class="plan-title">Use ' + plan.accountCount +
+              (plan.accountCount === 1 ? ' account' : ' accounts') +
+              ' · ' + plan.orderCount + (plan.orderCount === 1 ? ' order' : ' orders') +
+            '</div>' +
+            '<div class="plan-copy">' + escapeHtml(comparison) + '</div>' +
+          '</div>' +
+          '<div class="plan-save">Save ' + escapeHtml(money(plan.netSaving)) +
+            '<small>after extra split fees</small>' +
+          '</div>' +
+        '</div>' +
+        '<div class="plan-steps">' + steps + '</div>';
+    }
+
+    function accountCard(account, index = 0) {
+      const accountOffers = account.promos || accountPromos(account.accountRef);
+      const best = account.bestNow || bestForAccount(account);
       const badges = [];
 
-      if (index === 0 && mode === "best") badges.push('<span class="badge green">Best overall</span>');
-      if (account.has15off15) badges.push('<span class="badge">£15 off £15</span>');
-      if (account.hasCash) badges.push('<span class="badge">Uber Cash</span>');
-      if (account.promoCount > 1) badges.push('<span class="badge">' + account.promoCount + ' promos</span>');
-
-      if (account.activity?.lastOrderAt) {
-        badges.push('<span class="badge">used ' + escapeHtml(formatDateTime(account.activity.lastOrderAt)) + '</span>');
+      if (index === 0 && currentIntent === "best") badges.push('<span class="badge good">Best now</span>');
+      if (accountOffers.some(is15off15)) badges.push('<span class="badge">£15 off £15</span>');
+      if (accountOffers.some(p => p.discountType === "uberCash")) badges.push('<span class="badge">Uber Cash</span>');
+      if (accountOffers.length > 1) badges.push('<span class="badge">' + accountOffers.length + ' promos</span>');
+      if (account.lastOrderAt) {
+        const last = formatDate(account.lastOrderAt);
+        if (last) badges.push('<span class="badge">Ordered ' + escapeHtml(last) + '</span>');
       }
 
-      const offers = account.promos
-        .slice()
-        .sort((a, b) => potentialSaving(b) - potentialSaving(a))
-        .map(promo => {
-          const id = promoId(promo);
+      const bestTitle =
+        best?.promo?.title ||
+        accountOffers[0]?.title ||
+        (account.activePromoCount ? account.activePromoCount + " active promos" : "No active promos");
 
-          return (
-            '<div class="offer">' +
-              '<div class="offer-main">' +
-                '<div>' +
-                  '<div class="offer-name">' + escapeHtml(promo.title || promoLabel(promo)) + '</div>' +
-                  '<div class="offer-meta">' + escapeHtml(promoMeta(promo)) + '</div>' +
-                '</div>' +
-                '<div class="offer-value">' +
-                  '<strong>' + escapeHtml(promoLabel(promo)) + '</strong>' +
-                  (promo.hasCode ? "code private" : "auto / cash") +
-                '</div>' +
-              '</div>' +
-              '<div class="offer-actions">' +
-                '<button class="mini-btn used" data-promo-state="used" data-promo-id="' + escapeHtml(id) + '">Used</button>' +
-                '<button class="mini-btn ignore" data-promo-state="ignored" data-promo-id="' + escapeHtml(id) + '">Ignore</button>' +
-              '</div>' +
-            '</div>'
-          );
-        }).join("");
+      const saveBlock = best
+        ? '<div class="save-now">-' + escapeHtml(money(best.calculation.saving)) + '<small>on ' + escapeHtml(money(currentBasket())) + '</small></div>'
+        : '<div class="save-now" style="color:var(--muted)">' + accountOffers.length + '<small>active promos</small></div>';
 
-      let activity = "";
-      if (account.activity) {
-        const bits = [];
-        if (account.activity.receiptOrderCount) bits.push(account.activity.receiptOrderCount + " receipt orders");
-        if (account.activity.observedPromoSavings) bits.push(money(account.activity.observedPromoSavings) + " promo savings seen");
-        if (bits.length) activity = '<div class="activity">' + escapeHtml(bits.join(" · ")) + '</div>';
-      }
+      const offers = accountOffers.map(promo => (
+        '<div class="offer">' +
+          '<div class="offer-row">' +
+            '<div>' +
+              '<div class="offer-title">' + escapeHtml(promo.title || promoLabel(promo)) + '</div>' +
+              '<div class="offer-meta">' + escapeHtml(promoMeta(promo)) + '</div>' +
+            '</div>' +
+            '<div class="offer-value">' + escapeHtml(promoLabel(promo)) + '</div>' +
+          '</div>' +
+          '<div class="actions">' +
+            '<button class="mini-btn used" data-promo-state="used" data-promo-id="' + escapeHtml(promoId(promo)) + '">Used</button>' +
+            '<button class="mini-btn ignore" data-promo-state="ignored" data-promo-id="' + escapeHtml(promoId(promo)) + '">Ignore</button>' +
+          '</div>' +
+        '</div>'
+      )).join("");
 
       return (
         '<article class="account-card">' +
@@ -1052,287 +1483,356 @@
             '<div class="account-top">' +
               '<div>' +
                 '<div class="account-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
-                '<div class="account-ref">' + escapeHtml(account.accountRef) + '</div>' +
-                '<div class="account-badges">' + badges.join("") + '</div>' +
+                '<div class="account-caption">' + escapeHtml(bestTitle) + '</div>' +
               '</div>' +
-              '<div class="account-score">' +
-                '<strong>' + escapeHtml(money(account.totalPotential)) + '</strong>' +
-                '<span>potential value</span>' +
-              '</div>' +
+              saveBlock +
             '</div>' +
-            activity +
-            '<div class="offer-list">' + offers + '</div>' +
-            '<div class="account-actions">' +
-              '<button class="mini-btn" data-account-done="' + escapeHtml(account.accountRef) + '">Mark account done</button>' +
-            '</div>' +
+            '<div class="badges">' + badges.join("") + '</div>' +
+            (accountOffers.length
+              ? '<details class="offers-details"><summary>View all offers</summary><div class="offer-list">' + offers + '</div>' +
+                '<div class="actions"><button class="mini-btn" data-account-done="' + escapeHtml(account.accountRef) + '">Mark account done</button></div></details>'
+              : '') +
           '</div>' +
         '</article>'
       );
     }
 
-    function renderAccounts() {
-      const all = sortedAccounts();
-      const strongest = all[0] || null;
-      const weak = all.filter(account => weakAccount(account, strongest));
-      const strong = all.filter(account => !weakAccount(account, strongest));
+    function renderIntentCounts() {
+      const list = enrichedUsableAccounts().filter(account => account.promoCount > 0);
 
-      const headings = {
-        best: ["Best deal", "Accounts to use"],
-        "15off15": ["£15 off £15", "Matching accounts"],
-        cash: ["Uber Cash", "Cash accounts"],
-        multi: ["Multiple promos", "Accounts with several offers"]
+      document.getElementById("bestCount").textContent = list.length;
+      document.getElementById("fifteenCount").textContent = list.filter(account => account.has15off15).length;
+      document.getElementById("cashCount").textContent = list.filter(account => account.hasCash).length;
+      document.getElementById("multiCount").textContent = list.filter(account => account.promoCount > 1).length;
+    }
+
+    function renderDeals() {
+      const list = filteredDealAccounts();
+      const strongest = list[0] || null;
+      const weak = list.filter(account => weakAccount(account, strongest));
+      const strong = list.filter(account => !weakAccount(account, strongest));
+
+      const labels = {
+        best: "Best deal",
+        "15off15": "£15 off £15",
+        cash: "Uber Cash",
+        multi: "Multiple promos"
       };
 
-      document.getElementById("resultsKicker").textContent = headings[mode][0];
-      document.getElementById("resultsTitle").textContent = headings[mode][1];
-      document.getElementById("resultsMeta").textContent =
-        all.length + (all.length === 1 ? " account" : " accounts");
+      document.getElementById("dealKicker").textContent = labels[currentIntent];
+      document.getElementById("dealMeta").textContent =
+        list.length + (list.length === 1 ? " usable account" : " usable accounts");
 
-      const list = document.getElementById("accountList");
+      document.getElementById("dealAccounts").innerHTML =
+        strong.length
+          ? strong.slice(0, 8).map((account, index) => accountCard(account, index)).join("")
+          : '<div class="empty">No usable account matches this category right now.</div>';
 
-      list.innerHTML = strong.length
-        ? strong.map((account, index) => accountCard(account, index)).join("")
-        : '<div class="empty">No active account matches this category right now.</div>';
-
-      const weakBucket = document.getElementById("weakBucket");
-      weakBucket.style.display = weak.length ? "block" : "none";
+      const bucket = document.getElementById("weakBucket");
+      bucket.style.display = weak.length ? "block" : "none";
       document.getElementById("weakSummary").textContent =
-        "Weaker accounts · " + weak.length;
-      document.getElementById("weakList").innerHTML =
-        weak.map((account, index) => accountCard(account, strong.length + index)).join("");
+        "Weaker usable accounts · " + weak.length;
+      document.getElementById("weakAccounts").innerHTML =
+        weak.map(account => accountCard(account)).join("");
+    }
+
+    function renderAccounts() {
+      const search = String(document.getElementById("accountSearch").value || "").trim().toLowerCase();
+
+      let list = enrichedUsableAccounts();
+
+      if (accountFilter === "offers") list = list.filter(account => account.promoCount > 0);
+      if (accountFilter === "cash") list = list.filter(account => account.hasCash);
+
+      if (search) {
+        list = list.filter(account =>
+          String(account.accountMasked || "").toLowerCase().includes(search)
+        );
+      }
+
+      list.sort((a, b) => {
+        if (b.promoCount !== a.promoCount) return b.promoCount - a.promoCount;
+        return String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || ""));
+      });
+
+      document.getElementById("accountsMeta").textContent =
+        list.length + (list.length === 1 ? " account" : " accounts");
+
+      document.getElementById("accountsList").innerHTML =
+        list.length
+          ? list.map(account => accountCard(account)).join("")
+          : '<div class="empty">No accessible account matches this filter.</div>';
     }
 
     function renderUsed() {
       const used = promos.filter(promo => effectiveState(promo) !== "active");
-      const bucket = document.getElementById("usedBucket");
 
-      bucket.style.display = used.length ? "block" : "none";
-      document.getElementById("usedSummary").textContent =
-        "Used / ignored · " + used.length;
+      if (!used.length) {
+        document.getElementById("usedList").innerHTML =
+          '<div class="empty">Nothing used or ignored yet.</div>';
+        return;
+      }
 
       document.getElementById("usedList").innerHTML = used.map(promo => {
-        const state = effectiveState(promo);
-        const receiptLocked = promo.receiptState === "used" || Number(promo.usesRemaining) === 0;
+        const locked = promo.receiptState === "used" || Number(promo.usesRemaining) === 0;
+        const state = locked ? "Receipt confirmed" : localState(promo);
 
         return (
-          '<div class="used-row">' +
+          '<div class="simple-row">' +
             '<div>' +
-              '<div class="used-title">' +
-                escapeHtml(accountDisplay(promo)) + " · " +
-                escapeHtml(promo.title || promoLabel(promo)) +
-              '</div>' +
-              '<div class="used-meta">' +
-                escapeHtml(receiptLocked ? "Confirmed used by receipt" : state) +
-              '</div>' +
+              '<div class="simple-title">' + escapeHtml(accountDisplay(promo)) + '</div>' +
+              '<div class="simple-meta">' + escapeHtml(promo.title || promoLabel(promo)) + ' · ' + escapeHtml(state || "used") + '</div>' +
             '</div>' +
-            (receiptLocked
-              ? '<span class="badge green">confirmed</span>'
-              : '<button class="mini-btn" data-promo-state="active" data-promo-id="' +
-                escapeHtml(promoId(promo)) +
-                '">Undo</button>') +
+            (locked
+              ? '<span class="badge good">Confirmed</span>'
+              : '<button class="mini-btn" data-promo-state="active" data-promo-id="' + escapeHtml(promoId(promo)) + '">Undo</button>') +
           '</div>'
         );
       }).join("");
     }
 
-    function renderPlan() {
-      const target = document.getElementById("planResult");
-      const subtotal = Number(document.getElementById("spendInput").value);
-      const extraFee = Number(document.getElementById("feeInput").value);
-      const maxOrders = Number(document.getElementById("maxOrders").value);
+    function renderLocked() {
+      const search = String(document.getElementById("lockedSearch").value || "").trim().toLowerCase();
+      let list = accounts.filter(account => !account.canLogin);
 
-      const plan = planBasketSplit(promos, subtotal, {
-        service: "Uber Eats",
-        maxOrders,
-        extraOrderFee: extraFee,
-        excludedIds: excludedIds()
-      });
-
-      if (!plan.eligible) {
-        target.innerHTML = '<div class="empty">' + escapeHtml(plan.reason || "No valid plan.") + '</div>';
-        return;
+      if (search) {
+        list = list.filter(account =>
+          String(account.accountMasked || "").toLowerCase().includes(search)
+        );
       }
 
-      const better = plan.benefitVsSingle > 0.009
-        ? '<span class="metric good">' + escapeHtml(money(plan.benefitVsSingle)) + ' better than 1 order</span>'
-        : '<span class="metric">No meaningful gain from extra splitting</span>';
-
-      const steps = plan.orders.map((order, index) => {
-        return (
-          '<div class="plan-step">' +
-            '<div class="step-no">' + (index + 1) + '</div>' +
-            '<div>' +
-              '<div class="step-account">' + escapeHtml(accountDisplay(order)) + '</div>' +
-              '<div class="step-promo">' +
-                escapeHtml(order.promo.title || promoLabel(order.promo)) +
-                ' · put about ' + escapeHtml(money(order.subtotal)) + ' on this order' +
-              '</div>' +
-            '</div>' +
-            '<div class="step-value">' +
-              '<strong>-' + escapeHtml(money(order.saving)) + '</strong>' +
-              'pay ' + escapeHtml(money(order.pay)) +
-            '</div>' +
-          '</div>'
-        );
-      }).join("");
-
-      target.innerHTML =
-        '<div class="plan-summary">' +
-          '<div>' +
-            '<div class="plan-title">' +
-              'Use ' + plan.accountCount + (plan.accountCount === 1 ? ' account' : ' accounts') +
-              ' across ' + plan.orderCount + (plan.orderCount === 1 ? ' order' : ' orders') +
-            '</div>' +
-            '<div class="plan-sub">One tracked account promo per order. Extra-order fee estimate is deducted from the split benefit.</div>' +
-          '</div>' +
-          '<div class="plan-money">' +
-            '<div class="plan-save">Net save ' + escapeHtml(money(plan.netSaving)) + '</div>' +
-            '<div class="plan-pay">Estimated subtotal after promos + extra split fees: ' + escapeHtml(money(plan.estimatedPay)) + '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="plan-metrics">' +
-          '<span class="metric">Promo saving ' + escapeHtml(money(plan.grossSaving)) + '</span>' +
-          '<span class="metric">Extra split fees ' + escapeHtml(money(plan.extraFees)) + '</span>' +
-          better +
-        '</div>' +
-        '<div class="plan-steps">' + steps + '</div>';
+      document.getElementById("lockedList").innerHTML =
+        list.length
+          ? list.map(account => (
+              '<div class="simple-row">' +
+                '<div>' +
+                  '<div class="simple-title">' + escapeHtml(accountDisplay(account)) + '</div>' +
+                  '<div class="simple-meta">' +
+                    Number(account.activePromoCount || 0) + ' active promos · last seen ' +
+                    escapeHtml(formatDate(account.lastSeenAt) || "unknown") +
+                  '</div>' +
+                '</div>' +
+                '<span class="badge warn">Can’t log in</span>' +
+              '</div>'
+            )).join("")
+          : '<div class="empty">No inaccessible account matches that search.</div>';
     }
 
-    function renderStatus(payload) {
-      const pill = document.getElementById("modePill");
-      pill.classList.remove("live", "demo", "stale");
+    function renderSavings() {
+      const summary = payload.summary || {};
+      const top = accounts
+        .filter(account => Number(account.totalSaved || 0) > 0)
+        .slice()
+        .sort((a, b) => Number(b.totalSaved || 0) - Number(a.totalSaved || 0))
+        .slice(0, 8);
 
-      if (payload.demo) {
-        pill.classList.add("demo");
-        document.getElementById("modeText").textContent = "DEMO";
-        document.getElementById("demoNotice").style.display = "block";
-        document.getElementById("scanTime").textContent = "Waiting for first Mac scan";
-        return;
-      }
+      document.getElementById("savingsInsights").innerHTML =
+        '<div class="insight-grid">' +
+          '<div class="insight"><div class="insight-label">Total saved</div><div class="insight-value" style="color:var(--green)">' + escapeHtml(money(summary.totalSaved || 0)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Promo discounts</div><div class="insight-value">' + escapeHtml(money(summary.promoSavings || 0)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Uber Cash used</div><div class="insight-value">' + escapeHtml(money(summary.uberCashUsed || 0)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Average saved / order</div><div class="insight-value">' + escapeHtml(money(summary.averageSavedPerOrder || 0)) + '</div></div>' +
+        '</div>' +
+        '<div class="section-head"><div><div class="eyebrow">Accounts</div><div class="section-title">Most savings seen</div></div></div>' +
+        (top.length
+          ? top.map(account => (
+              '<div class="simple-row"><div><div class="simple-title">' +
+              escapeHtml(accountDisplay(account)) +
+              '</div><div class="simple-meta">' +
+              Number(account.orderCount || 0) + ' tracked orders</div></div>' +
+              '<div class="simple-value">' + escapeHtml(money(account.totalSaved || 0)) + '</div></div>'
+            )).join("")
+          : '<div class="empty">Receipt savings will appear here after the Mac scans your Uber Receipts mailbox.</div>');
+    }
 
-      document.getElementById("demoNotice").style.display = "none";
-      const date = payload.generatedAt ? new Date(payload.generatedAt) : null;
-      const stale = !date || Number.isNaN(date.getTime()) ||
-        Date.now() - date.getTime() > 24 * 60 * 60 * 1000;
+    function renderHealth() {
+      const summary = payload.summary || {};
 
-      pill.classList.add(stale ? "stale" : "live");
-      document.getElementById("modeText").textContent = stale ? "STALE" : "LIVE";
-      document.getElementById("scanTime").textContent =
-        date && !Number.isNaN(date.getTime())
-          ? "Scanned " + date.toLocaleString("en-GB", {
-              day: "numeric",
-              month: "short",
-              hour: "2-digit",
-              minute: "2-digit"
-            })
-          : "No recent Mac scan";
+      document.getElementById("healthInsights").innerHTML =
+        '<div class="insight-grid">' +
+          '<div class="insight"><div class="insight-label">Known accounts</div><div class="insight-value">' + Number(summary.knownAccounts || accounts.length).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Can log in</div><div class="insight-value">' + Number(summary.accessibleAccounts || accounts.filter(a => a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Can’t log in</div><div class="insight-value">' + Number(summary.inaccessibleAccounts || accounts.filter(a => !a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Tracked receipts</div><div class="insight-value">' + Number(summary.trackedOrders || 0).toLocaleString("en-GB") + '</div></div>' +
+        '</div>';
     }
 
     function renderHistory() {
-      const target = document.getElementById("historyList");
-      const recent = history
-        .filter(row => row.service === "Uber Eats")
-        .slice()
-        .sort((a, b) => String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || "")))
-        .slice(0, 12);
+      const rows = history.slice(0, 40);
 
-      target.innerHTML = recent.length
-        ? recent.map(row => (
-            '<div class="history-row">' +
-              '<div class="history-title">' +
-                escapeHtml(row.accountMasked || row.accountRef || "Account") +
-                ' · ' +
-                escapeHtml(row.title || promoLabel(row)) +
-              '</div>' +
-              '<div class="history-meta">' +
-                escapeHtml(row.status || "seen") +
-                (row.expires ? " · ends " + escapeHtml(formatDate(row.expires)) : "") +
-              '</div>' +
-            '</div>'
-          )).join("")
-        : '<div class="empty">No live history yet.</div>';
+      document.getElementById("historyList").innerHTML =
+        rows.length
+          ? rows.map(row => (
+              '<div class="simple-row">' +
+                '<div>' +
+                  '<div class="simple-title">' + escapeHtml(row.accountMasked || "Account") + '</div>' +
+                  '<div class="simple-meta">' + escapeHtml(row.title || promoLabel(row)) +
+                    (row.expires ? ' · ends ' + escapeHtml(formatDate(row.expires) || row.expires) : '') +
+                  '</div>' +
+                '</div>' +
+                '<span class="badge ' + (row.status === "active" ? 'good' : '') + '">' + escapeHtml(row.status || "seen") + '</span>' +
+              '</div>'
+            )).join("")
+          : '<div class="empty">No public promo history yet.</div>';
+    }
+
+    function renderMenuPanel() {
+      document.querySelectorAll(".menu-panel").forEach(panel => {
+        panel.classList.toggle("active", panel.id === "panel-" + menuPanel);
+      });
+
+      if (menuPanel === "locked") renderLocked();
+      if (menuPanel === "savings") renderSavings();
+      if (menuPanel === "health") renderHealth();
+      if (menuPanel === "history") renderHistory();
     }
 
     function renderAll() {
+      renderStatus();
+      renderStats();
+      renderPlanner();
       renderIntentCounts();
+      renderDeals();
       renderAccounts();
       renderUsed();
-      renderPlan();
+      renderMenuPanel();
     }
 
-    async function loadPromos() {
-      try {
-        const response = await fetch("promos.json?v=" + Date.now(), { cache: "no-store" });
-        if (!response.ok) throw new Error("HTTP " + response.status);
+    function switchView(view) {
+      currentView = view;
 
-        const payload = await response.json();
+      document.querySelectorAll(".view").forEach(section => {
+        section.classList.toggle("active", section.id === "view-" + view);
+      });
+
+      document.querySelectorAll("[data-view]").forEach(button => {
+        button.classList.toggle("active", button.dataset.view === view);
+      });
+
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+
+    function deriveAccountsFromPromos() {
+      const map = new Map();
+
+      for (const promo of promos) {
+        if (!promo.accountRef) continue;
+
+        if (!map.has(promo.accountRef)) {
+          map.set(promo.accountRef, {
+            accountRef: promo.accountRef,
+            accountMasked: promo.accountMasked || null,
+            canLogin: Boolean(promo.canLogin),
+            activePromoCount: 0,
+            orderCount: 0,
+            totalSaved: 0,
+            lastSeenAt: promo.emailSentAt || null,
+            lastPromoAt: promo.emailSentAt || null,
+            lastOrderAt: null
+          });
+        }
+
+        if (activePromo(promo)) map.get(promo.accountRef).activePromoCount++;
+      }
+
+      return [...map.values()];
+    }
+
+    async function load() {
+      try {
+        const [promoResponse, historyResponse] = await Promise.all([
+          fetch("promos.json?v=" + Date.now(), { cache: "no-store" }),
+          fetch("history.json?v=" + Date.now(), { cache: "no-store" })
+        ]);
+
+        if (!promoResponse.ok) throw new Error("promos.json HTTP " + promoResponse.status);
+
+        payload = await promoResponse.json();
         promos = (Array.isArray(payload) ? payload : (payload.promos || []))
           .filter(promo => promo.service === "Uber Eats");
 
-        insights = Array.isArray(payload)
-          ? { accounts: [], feeModel: {} }
-          : (payload.insights || { accounts: [], feeModel: {} });
+        accounts = Array.isArray(payload.accounts)
+          ? payload.accounts
+          : deriveAccountsFromPromos();
 
-        renderStatus(Array.isArray(payload)
-          ? { demo: true, generatedAt: null }
-          : payload
-        );
-
-        const estimatedFee = Number(insights?.feeModel?.averageExtraOrderFees);
-        if (!feeTouched && Number.isFinite(estimatedFee) && estimatedFee > 0) {
-          document.getElementById("feeInput").value = estimatedFee.toFixed(2);
+        if (historyResponse.ok) {
+          const historyPayload = await historyResponse.json();
+          history = Array.isArray(historyPayload.records) ? historyPayload.records : [];
         }
 
         renderAll();
       } catch (error) {
         console.error(error);
-        document.getElementById("modeText").textContent = "ERROR";
-        document.getElementById("scanTime").textContent = "Could not load offers";
-        document.getElementById("accountList").innerHTML =
-          '<div class="empty">Could not load promo data.</div>';
+        document.getElementById("scanLabel").textContent = "ERROR";
+        document.getElementById("scanTime").textContent = "Could not load tracker data";
+        document.getElementById("dealAccounts").innerHTML =
+          '<div class="empty">Could not load tracker data.</div>';
       }
     }
 
-    async function loadHistory() {
-      try {
-        const response = await fetch("history.json?v=" + Date.now(), { cache: "no-store" });
-        if (!response.ok) throw new Error("HTTP " + response.status);
-        const payload = await response.json();
-        history = Array.isArray(payload.records) ? payload.records : [];
-        renderHistory();
-      } catch (error) {
-        console.error(error);
-        document.getElementById("historyList").innerHTML =
-          '<div class="empty">History is unavailable.</div>';
-      }
-    }
+    document.getElementById("mainNav").addEventListener("click", event => {
+      const button = event.target.closest("[data-view]");
+      if (button) switchView(button.dataset.view);
+    });
 
     document.getElementById("intentGrid").addEventListener("click", event => {
-      const button = event.target.closest("[data-mode]");
+      const button = event.target.closest("[data-intent]");
       if (!button) return;
 
-      mode = button.dataset.mode;
+      currentIntent = button.dataset.intent;
 
-      document.querySelectorAll(".intent").forEach(item => {
+      document.querySelectorAll("[data-intent]").forEach(item => {
         item.classList.toggle("active", item === button);
       });
 
+      renderDeals();
+    });
+
+    document.querySelectorAll("[data-basket]").forEach(button => {
+      button.addEventListener("click", () => {
+        document.getElementById("basketInput").value = button.dataset.basket;
+        renderPlanner();
+        renderDeals();
+        renderAccounts();
+      });
+    });
+
+    document.getElementById("basketInput").addEventListener("input", () => {
+      renderPlanner();
+      renderDeals();
       renderAccounts();
     });
 
-    document.getElementById("spendInput").addEventListener("input", renderPlan);
-    document.getElementById("maxOrders").addEventListener("change", renderPlan);
-
     document.getElementById("feeInput").addEventListener("input", () => {
       feeTouched = true;
-      renderPlan();
+      renderPlanner();
     });
 
-    document.querySelectorAll("[data-spend]").forEach(button => {
-      button.addEventListener("click", () => {
-        document.getElementById("spendInput").value = button.dataset.spend;
-        renderPlan();
+    document.getElementById("maxOrders").addEventListener("change", renderPlanner);
+
+    document.getElementById("accountSearch").addEventListener("input", renderAccounts);
+    document.getElementById("lockedSearch").addEventListener("input", renderLocked);
+
+    document.querySelector(".seg-row").addEventListener("click", event => {
+      const button = event.target.closest("[data-account-filter]");
+      if (!button) return;
+
+      accountFilter = button.dataset.accountFilter;
+      document.querySelectorAll("[data-account-filter]").forEach(item => {
+        item.classList.toggle("active", item === button);
       });
+      renderAccounts();
+    });
+
+    document.querySelector(".menu-grid").addEventListener("click", event => {
+      const button = event.target.closest("[data-menu-panel]");
+      if (!button) return;
+
+      menuPanel = menuPanel === button.dataset.menuPanel
+        ? null
+        : button.dataset.menuPanel;
+
+      renderMenuPanel();
     });
 
     document.getElementById("app").addEventListener("click", event => {
@@ -1342,10 +1842,10 @@
         const id = stateButton.dataset.promoId;
         const state = stateButton.dataset.promoState;
 
-        if (state === "active") delete promoStates[id];
-        else promoStates[id] = state;
+        if (state === "active") delete localStates[id];
+        else localStates[id] = state;
 
-        saveStates();
+        saveLocalStates();
         renderAll();
         return;
       }
@@ -1353,22 +1853,16 @@
       const accountButton = event.target.closest("[data-account-done]");
 
       if (accountButton) {
-        const ref = accountButton.dataset.accountDone;
+        accountPromos(accountButton.dataset.accountDone).forEach(promo => {
+          localStates[promoId(promo)] = "used";
+        });
 
-        promos
-          .filter(promo => promo.accountRef === ref)
-          .filter(promo => effectiveState(promo) === "active")
-          .forEach(promo => {
-            promoStates[promoId(promo)] = "used";
-          });
-
-        saveStates();
+        saveLocalStates();
         renderAll();
       }
     });
 
-    loadPromos();
-    loadHistory();
+    load();
   </script>
 </body>
 </html>

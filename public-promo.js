@@ -1,6 +1,8 @@
 export function toPublicPromo(promo) {
   return {
+    id: promo.id || promo.offerId || null,
     service: promo.service,
+    offerType: promo.offerType || null,
     title: promo.title,
     discountType: promo.discountType,
     discount: promo.discount,
@@ -14,14 +16,19 @@ export function toPublicPromo(promo) {
     maxTotalSaving: promo.maxTotalSaving,
     minimumSpend: promo.minimumSpend,
     sameAccountOfferCount: promo.sameAccountOfferCount || 1,
-    hasCode: Boolean(promo.code),
+    hasCode: Boolean(promo.code || promo.hasCode),
     expires: promo.expires,
-    expiryBasis: promo.expiryBasis,
+    expiryStatus: promo.expiryStatus || (promo.expires ? "exact" : "unknown"),
+    expiryBasis: promo.expiryBasis || null,
+    classificationConfidence: promo.classificationConfidence || null,
+    expiryConfidence: promo.expiryConfidence || null,
     accountRef: promo.accountRef || null,
     accountMasked: promo.accountMasked || null,
+    canLogin: Boolean(promo.canLogin),
     hasCompanionOffer: Boolean(promo.hasCompanionOffer),
     receiptState: promo.receiptState || null,
     receiptConfirmedUses: Number(promo.receiptConfirmedUses || 0),
-    lastUsedAt: promo.lastUsedAt || null
+    lastUsedAt: promo.lastUsedAt || null,
+    emailSentAt: promo.emailSentAt || null
   };
 }

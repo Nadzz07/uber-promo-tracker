@@ -1,135 +1,371 @@
 import fs from "node:fs/promises";
-import { buildPromoList } from "./processor.js";
-import { toPublicPromo } from "./public-promo.js";
-import { mergeHistory, promoHistoryId, toPublicHistory } from "./history.js";
-import { assignAccountRefs } from "./account-map.js";
+import { parseUberPromo } from "./parser.js";
 import { parseUberEatsReceipt } from "./receipt-parser.js";
-import { mergeReceiptStore } from "./receipt-store.js";
 import { applyReceiptEvidence } from "./receipt-intelligence.js";
+import { toPublicPromo } from "./public-promo.js";
+import {
+  DEFAULT_PRIVATE_DB,
+  ensureAccount,
+  getAccounts,
+  getOffers,
+  getPublicAccountInsights,
+  getReceipts,
+  getSavingsSummary,
+  openPrivateDb,
+  replaceReceiptMatches,
+  updateOfferUsage,
+  upsertMessage,
+  upsertOffer,
+  upsertReceipt
+} from "./private-db.js";
+import {
+  messageKey,
+  offerFingerprint,
+  receiptFingerprint
+} from "./identity.js";
 
 const inputPath = process.argv[2] || "./emails.local.json";
 const outputPath = process.argv[3] || "./promos.json";
 const publicHistoryPath = process.argv[4] || "./history.json";
-const accountMapPath = process.argv[5] || "./accounts.local.json";
-const privateHistoryPath = process.argv[6] || "./history.local.json";
-const receiptStorePath = process.argv[7] || "./receipts.local.json";
+const privateDbPath = process.argv[5] || DEFAULT_PRIVATE_DB;
 
-async function readJson(path, fallback) {
-  try {
-    return JSON.parse(await fs.readFile(path, "utf8"));
-  } catch {
-    return fallback;
+function todayIso() {
+  const date = new Date();
+  return [
+    String(date.getFullYear()).padStart(4, "0"),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
+}
+
+function isExpired(promo, today = todayIso()) {
+  return Boolean(promo.expires && promo.expires < today);
+}
+
+function isRecentUsed(promo, generatedAt) {
+  if (promo.receiptState !== "used" || !promo.lastUsedAt) return false;
+
+  const used = new Date(promo.lastUsedAt).getTime();
+  const now = new Date(generatedAt).getTime();
+  if (Number.isNaN(used) || Number.isNaN(now)) return false;
+
+  return now - used <= 180 * 24 * 60 * 60 * 1000;
+}
+
+function attachAccountOfferContext(promos) {
+  const groups = new Map();
+
+  for (const promo of promos) {
+    if (!promo.accountRef) continue;
+    if (!groups.has(promo.accountRef)) groups.set(promo.accountRef, []);
+    groups.get(promo.accountRef).push(promo);
   }
+
+  for (const accountPromos of groups.values()) {
+    const active = accountPromos.filter(promo =>
+      !isExpired(promo) &&
+      promo.receiptState !== "used" &&
+      Number(promo.usesRemaining ?? promo.uses ?? 1) > 0
+    );
+
+    const companions = active.filter(promo =>
+      promo.discountType === "fixed" ||
+      promo.discountType === "uberCash"
+    );
+
+    for (const promo of accountPromos) {
+      promo.sameAccountOfferCount = active.length;
+      promo.hasCompanionOffer =
+        promo.discountType === "percent" &&
+        companions.some(companion => companion.offerId !== promo.offerId);
+    }
+  }
+
+  return promos;
+}
+
+function receiptStatsByAccount(receipts) {
+  const map = new Map();
+
+  for (const receipt of receipts) {
+    if (!receipt.accountRef) continue;
+
+    if (!map.has(receipt.accountRef)) {
+      map.set(receipt.accountRef, {
+        orderCount: 0,
+        promoSavings: 0,
+        uberCashUsed: 0,
+        totalSaved: 0,
+        lastOrderAt: null
+      });
+    }
+
+    const stats = map.get(receipt.accountRef);
+    const promo = Number(receipt.promotionDiscount || 0);
+    const cash = Number(receipt.uberCashUsed || 0);
+    const when = receipt.sentAt || receipt.receivedAt || null;
+
+    stats.orderCount += 1;
+    stats.promoSavings += promo;
+    stats.uberCashUsed += cash;
+    stats.totalSaved += promo + cash;
+
+    if (!stats.lastOrderAt || String(when || "") > stats.lastOrderAt) {
+      stats.lastOrderAt = when;
+    }
+  }
+
+  for (const stats of map.values()) {
+    stats.promoSavings = Number(stats.promoSavings.toFixed(2));
+    stats.uberCashUsed = Number(stats.uberCashUsed.toFixed(2));
+    stats.totalSaved = Number(stats.totalSaved.toFixed(2));
+  }
+
+  return map;
+}
+
+function historyStatus(promo) {
+  if (promo.receiptState === "used") return "used";
+  if (isExpired(promo)) return "expired";
+  if (Number(promo.usesRemaining ?? promo.uses ?? 1) <= 0) return "used";
+  return "active";
+}
+
+async function loadMessages(path) {
+  const raw = JSON.parse(await fs.readFile(path, "utf8"));
+  const messages = Array.isArray(raw) ? raw : raw.messages;
+
+  if (!Array.isArray(messages)) {
+    throw new Error("Mail export must contain a message array.");
+  }
+
+  return messages;
 }
 
 async function generatePromos() {
-  try {
-    const raw = await fs.readFile(inputPath, "utf8");
-    const emails = JSON.parse(raw);
+  const generatedAt = new Date().toISOString();
+  const db = openPrivateDb(privateDbPath);
 
-    if (!Array.isArray(emails)) {
-      throw new Error("Email input must be a JSON array.");
+  try {
+    const messages = await loadMessages(inputPath);
+
+    for (const email of messages) {
+      const receipt = parseUberEatsReceipt(email);
+      const key = messageKey(email);
+      const sentAt =
+        receipt.sentAt ||
+        email.sentAt ||
+        email.receivedAt ||
+        generatedAt;
+
+      if (receipt.isReceipt) {
+        const account = ensureAccount(db, {
+          alias: receipt.accountAlias,
+          seenAt: sentAt,
+          kind: "receipt"
+        });
+
+        if (!account) continue;
+
+        const storedReceipt = {
+          ...receipt,
+          accountRef: account.accountRef,
+          accountMasked: account.masked,
+          canLogin: account.canLogin,
+          messageKey: key
+        };
+
+        storedReceipt.receiptId = receiptFingerprint(storedReceipt);
+
+        upsertMessage(db, {
+          messageKey: key,
+          messageId: email.messageId || receipt.messageId || null,
+          accountRef: account.accountRef,
+          kind: "receipt",
+          mailbox: email.mailbox || receipt.mailbox || null,
+          sender: email.sender || null,
+          subject: email.subject || null,
+          bodyText: email.body || null,
+          sentAt,
+          receivedAt: receipt.receivedAt,
+          parserVersion: receipt.parserVersion,
+          classification: "receipt",
+          classificationConfidence: receipt.senderConfidence,
+          accepted: true,
+          rejectionReason: null,
+          evidence: receipt.evidence,
+          parsedAt: generatedAt
+        });
+
+        upsertReceipt(db, storedReceipt, generatedAt);
+        continue;
+      }
+
+      const promo = parseUberPromo(email);
+      const account = ensureAccount(db, {
+        alias: promo.accountAlias,
+        seenAt: promo.emailSentAt || promo.receivedAt || sentAt,
+        kind: "promo"
+      });
+
+      upsertMessage(db, {
+        messageKey: key,
+        messageId: email.messageId || promo.messageId || null,
+        accountRef: account?.accountRef || null,
+        kind: promo.isPromo ? "promo" : "other",
+        mailbox: email.mailbox || promo.mailbox || null,
+        sender: email.sender || null,
+        subject: email.subject || null,
+        bodyText: email.body || null,
+        sentAt: promo.emailSentAt,
+        receivedAt: promo.receivedAt,
+        parserVersion: promo.parserVersion,
+        classification: promo.offerType,
+        classificationConfidence: promo.classificationConfidence,
+        accepted: promo.isPromo,
+        rejectionReason: promo.rejectionReason,
+        evidence: promo.evidence,
+        parsedAt: generatedAt
+      });
+
+      if (!promo.isPromo || !account) continue;
+
+      const storedPromo = {
+        ...promo,
+        accountRef: account.accountRef,
+        accountMasked: account.masked,
+        canLogin: account.canLogin,
+        messageKey: key,
+        source: "live_mail",
+        observedLive: true
+      };
+
+      storedPromo.offerId = offerFingerprint(storedPromo);
+      upsertOffer(db, storedPromo, generatedAt);
     }
 
-    const generatedAt = new Date().toISOString();
-
-    const classified = emails.map(email => ({
-      email,
-      receipt: parseUberEatsReceipt(email)
-    }));
-
-    const currentReceipts = classified
-      .map(item => item.receipt)
-      .filter(receipt => receipt.isReceipt);
-
-    const promoEmails = classified
-      .filter(item => !item.receipt.isReceipt)
-      .map(item => item.email);
-
-    const privatePromos = buildPromoList(promoEmails)
-      .filter(promo => promo.service === "Uber Eats");
-
-    const oldAccountMap = await readJson(accountMapPath, {
-      version: 2,
-      nextNumber: 1,
-      accounts: {}
+    const durableOffers = getOffers(db, {
+      service: "Uber Eats",
+      includeHistorical: false
     });
 
-    const promoAssignment = assignAccountRefs(
-      privatePromos,
-      oldAccountMap,
-      generatedAt
+    const receipts = getReceipts(db);
+    const evidence = applyReceiptEvidence(durableOffers, receipts);
+
+    for (const promo of evidence.promos) {
+      updateOfferUsage(db, promo);
+    }
+
+    replaceReceiptMatches(db, evidence.matches, generatedAt);
+
+    const refreshedOffers = attachAccountOfferContext(
+      getOffers(db, {
+        service: "Uber Eats",
+        includeHistorical: false
+      })
     );
 
-    const oldReceiptStore = await readJson(receiptStorePath, {
-      updatedAt: null,
-      records: []
-    });
+    const publicPromos = refreshedOffers
+      .filter(promo =>
+        (!isExpired(promo) && promo.receiptState !== "used") ||
+        isRecentUsed(promo, generatedAt)
+      )
+      .map(promo => toPublicPromo({
+        ...promo,
+        id: promo.offerId
+      }));
 
-    const receiptStore = mergeReceiptStore(
-      oldReceiptStore,
-      currentReceipts,
-      generatedAt
-    );
+    const receiptStats = receiptStatsByAccount(receipts);
+    const accounts = getPublicAccountInsights(db).map(account => {
+      const stats = receiptStats.get(account.accountRef) || {
+        orderCount: 0,
+        promoSavings: 0,
+        uberCashUsed: 0,
+        totalSaved: 0,
+        lastOrderAt: account.lastOrderAt || null
+      };
 
-    const receiptAssignment = assignAccountRefs(
-      receiptStore.records,
-      promoAssignment.state,
-      generatedAt
-    );
-
-    const evidence = applyReceiptEvidence(
-      promoAssignment.promos,
-      receiptAssignment.items
-    );
-
-    const promos = evidence.promos.map(privatePromo => {
-      const publicPromo = toPublicPromo(privatePromo);
       return {
-        id: promoHistoryId(publicPromo),
-        ...publicPromo
+        ...account,
+        orderCount: stats.orderCount,
+        promoSavings: stats.promoSavings,
+        uberCashUsed: stats.uberCashUsed,
+        totalSaved: stats.totalSaved,
+        lastOrderAt: stats.lastOrderAt || account.lastOrderAt || null
       };
     });
 
+    const summary = getSavingsSummary(db);
+    const feeSampleSize = receipts.filter(receipt =>
+      receipt.deliveryFee != null ||
+      receipt.serviceFee != null ||
+      receipt.smallOrderFee != null
+    ).length;
+
     const payload = {
-      schemaVersion: 2,
+      schemaVersion: 3,
       generatedAt,
-      source: "apple-mail",
+      source: "apple-mail-sqlite",
       demo: false,
-      insights: evidence.publicInsights,
-      promos
+      summary: {
+        ...summary,
+        feeModel: {
+          sampleSize: feeSampleSize,
+          averageExtraOrderFees: summary.averageExtraOrderFees
+        }
+      },
+      accounts,
+      promos: publicPromos
     };
 
-    const oldPrivateHistory = await readJson(privateHistoryPath, { records: [] });
-    const privateHistory = mergeHistory(oldPrivateHistory, promos, generatedAt);
-    const publicHistory = toPublicHistory(privateHistory);
+    const allHistoryOffers = attachAccountOfferContext(
+      getOffers(db, {
+        service: "Uber Eats",
+        includeHistorical: true
+      })
+    );
+
+    const publicHistory = {
+      schemaVersion: 3,
+      updatedAt: generatedAt,
+      records: allHistoryOffers
+        .filter(promo => promo.observedLive)
+        .map(promo => ({
+          ...toPublicPromo({
+            ...promo,
+            id: promo.offerId
+          }),
+          status: historyStatus(promo),
+          firstSeenAt: promo.emailSentAt || null,
+          lastSeenAt: promo.emailSentAt || null
+        }))
+        .sort((a, b) =>
+          String(b.emailSentAt || "").localeCompare(String(a.emailSentAt || ""))
+        )
+        .slice(0, 750)
+    };
 
     await fs.writeFile(outputPath, JSON.stringify(payload, null, 2) + "\n");
-    await fs.writeFile(publicHistoryPath, JSON.stringify(publicHistory, null, 2) + "\n");
-    await fs.writeFile(privateHistoryPath, JSON.stringify(privateHistory, null, 2) + "\n");
-    await fs.writeFile(accountMapPath, JSON.stringify(receiptAssignment.state, null, 2) + "\n");
-    await fs.writeFile(receiptStorePath, JSON.stringify(receiptStore, null, 2) + "\n");
+    await fs.writeFile(
+      publicHistoryPath,
+      JSON.stringify(publicHistory, null, 2) + "\n"
+    );
 
-    const activePromos = promos.filter(promo => promo.receiptState !== "used");
-    const accountCount = new Set(
-      activePromos.map(promo => promo.accountRef).filter(Boolean)
-    ).size;
+    const access = getAccounts(db);
+    const accessible = access.filter(account => account.canLogin).length;
 
-    console.log("Generated " + promos.length + " public Uber Eats promo records.");
-    console.log(activePromos.length + " remain active after receipt evidence.");
-    console.log("Active promos span " + accountCount + " anonymous accounts.");
-    console.log("Private receipt store contains " + receiptStore.records.length + " receipts.");
-    console.log("Private history contains " + privateHistory.records.length + " records.");
-    console.log("Public history contains " + publicHistory.records.length + " records.");
-
-    if (activePromos.length > 0) {
-      console.log("Best active promo: " + activePromos[0].title);
-    }
-  } catch (error) {
-    console.error("Could not generate promos:");
-    console.error(error);
-    process.exit(1);
+    console.log("Private DB: " + privateDbPath);
+    console.log("Known accounts: " + access.length + " (" + accessible + " can log in)");
+    console.log("Stored receipts: " + receipts.length);
+    console.log("Public current/recent promos: " + publicPromos.length);
+    console.log("Lifetime receipt saving observed: £" + summary.totalSaved.toFixed(2));
+  } finally {
+    db.close();
   }
 }
 
-generatePromos();
+generatePromos().catch(error => {
+  console.error("Could not generate tracker data:");
+  console.error(error);
+  process.exit(1);
+});

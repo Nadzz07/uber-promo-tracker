@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 function stablePromoFields(promo) {
   return {
     service: promo.service ?? null,
+    offerType: promo.offerType ?? null,
     title: promo.title ?? null,
     discountType: promo.discountType ?? null,
     discount: promo.discount ?? null,
@@ -17,19 +18,24 @@ function stablePromoFields(promo) {
     minimumSpend: promo.minimumSpend ?? 0,
     hasCode: Boolean(promo.hasCode),
     expires: promo.expires ?? null,
+    expiryStatus: promo.expiryStatus ?? "unknown",
     expiryBasis: promo.expiryBasis ?? null,
+    classificationConfidence: promo.classificationConfidence ?? null,
     accountRef: promo.accountRef ?? null,
     accountMasked: promo.accountMasked ?? null,
+    canLogin: Boolean(promo.canLogin),
     hasCompanionOffer: Boolean(promo.hasCompanionOffer),
     receiptState: promo.receiptState ?? null,
     receiptConfirmedUses: Number(promo.receiptConfirmedUses || 0),
-    lastUsedAt: promo.lastUsedAt ?? null
+    lastUsedAt: promo.lastUsedAt ?? null,
+    emailSentAt: promo.emailSentAt ?? null
   };
 }
 
 function identityPromoFields(promo) {
   return {
     service: promo.service ?? null,
+    offerType: promo.offerType ?? null,
     discountType: promo.discountType ?? null,
     discount: promo.discount ?? null,
     maxSaving: promo.maxSaving ?? null,
@@ -56,13 +62,13 @@ export function mergeHistory(previousPayload, currentPromos, generatedAt = new D
     if (!record?.id) continue;
     records.set(record.id, {
       ...record,
-      status: "inactive"
+      status: record.status === "used" ? "used" : "inactive"
     });
   }
 
   for (const promo of currentPromos) {
     const safePromo = stablePromoFields(promo);
-    const id = promoHistoryId(safePromo);
+    const id = promo.id || promoHistoryId(safePromo);
     const existing = records.get(id);
 
     records.set(id, {
@@ -77,40 +83,44 @@ export function mergeHistory(previousPayload, currentPromos, generatedAt = new D
     });
   }
 
-  const sorted = [...records.values()]
-    .sort((a, b) => String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || "")))
-    .slice(0, 2000);
-
   return {
     updatedAt: generatedAt,
-    records: sorted
+    records: [...records.values()]
+      .sort((a, b) =>
+        String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || ""))
+      )
+      .slice(0, 2000)
   };
 }
 
 export function toPublicHistory(privatePayload, { maxRecords = 500 } = {}) {
   const records = Array.isArray(privatePayload?.records) ? privatePayload.records : [];
 
-  const publicRecords = records
-    .filter(record => record.service === "Uber Eats")
-    .filter(record => record.source !== "legacy-db" || record.status === "active" || record.status === "used")
-    .map(record => ({
-      id: record.id,
-      ...stablePromoFields(record),
-      firstSeenAt: record.firstSeenAt ?? null,
-      lastSeenAt: record.lastSeenAt ?? null,
-      scansSeen: Number(record.scansSeen || 0),
-      status:
-        record.status === "used"
-          ? "used"
-          : record.status === "active"
-            ? "active"
-            : "inactive"
-    }))
-    .sort((a, b) => String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || "")))
-    .slice(0, maxRecords);
-
   return {
     updatedAt: privatePayload?.updatedAt || null,
-    records: publicRecords
+    records: records
+      .filter(record => record.service === "Uber Eats")
+      .filter(record =>
+        record.source !== "legacy-db" ||
+        record.status === "active" ||
+        record.status === "used"
+      )
+      .map(record => ({
+        id: record.id,
+        ...stablePromoFields(record),
+        firstSeenAt: record.firstSeenAt ?? null,
+        lastSeenAt: record.lastSeenAt ?? null,
+        scansSeen: Number(record.scansSeen || 0),
+        status:
+          record.status === "used"
+            ? "used"
+            : record.status === "active"
+              ? "active"
+              : "inactive"
+      }))
+      .sort((a, b) =>
+        String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || ""))
+      )
+      .slice(0, maxRecords)
   };
 }

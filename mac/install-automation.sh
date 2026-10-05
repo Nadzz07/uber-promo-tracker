@@ -7,6 +7,11 @@ LOG_DIR="$HOME/Library/Logs/UberPromoTracker"
 
 mkdir -p "$HOME/Library/LaunchAgents" "$LOG_DIR"
 
+NODE_DIR="$(dirname "$(command -v node)")"
+GIT_BIN="$(command -v git 2>/dev/null || printf '/usr/bin/git')"
+GIT_DIR="$(dirname "$GIT_BIN")"
+AUTOMATION_PATH="$NODE_DIR:$GIT_DIR:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
 cat > "$PLIST" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -24,11 +29,20 @@ cat > "$PLIST" <<EOF
   <key>WorkingDirectory</key>
   <string>${REPO_DIR}</string>
 
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>${AUTOMATION_PATH}</string>
+  </dict>
+
   <key>StartInterval</key>
   <integer>3600</integer>
 
   <key>RunAtLoad</key>
   <true/>
+
+  <key>ThrottleInterval</key>
+  <integer>300</integer>
 
   <key>StandardOutPath</key>
   <string>${LOG_DIR}/output.log</string>
@@ -42,5 +56,6 @@ EOF
 launchctl bootout "gui/$(id -u)" "$PLIST" 2>/dev/null || true
 launchctl bootstrap "gui/$(id -u)" "$PLIST"
 
-echo "Hourly Uber Promo Tracker automation installed."
+echo "Hourly Uber Eats Promo Tracker automation installed."
 echo "Logs: $LOG_DIR"
+echo "PATH used by launchd: $AUTOMATION_PATH"

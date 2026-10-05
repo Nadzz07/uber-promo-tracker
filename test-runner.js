@@ -604,7 +604,8 @@ const splitPromos = [
     uses: 1,
     usesRemaining: 1,
     accountRef: "A001",
-    accountMasked: "a…1@icloud.com"
+    accountMasked: "a…1@icloud.com",
+    canLogin: true
   },
   {
     id: "split-b",
@@ -616,7 +617,8 @@ const splitPromos = [
     uses: 1,
     usesRemaining: 1,
     accountRef: "A002",
-    accountMasked: "a…2@icloud.com"
+    accountMasked: "a…2@icloud.com",
+    canLogin: true
   },
   {
     id: "split-c",
@@ -630,7 +632,8 @@ const splitPromos = [
     uses: 1,
     usesRemaining: 1,
     accountRef: "A003",
-    accountMasked: "a…3@icloud.com"
+    accountMasked: "a…3@icloud.com",
+    canLogin: true
   }
 ];
 

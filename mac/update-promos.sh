@@ -3,30 +3,61 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-echo "Updating Uber Promo Tracker from Apple Mail..."
+if [[ -f tracker.local.env ]]; then
+  # shellcheck disable=SC1091
+  source tracker.local.env
+fi
+
+PROMO_FOLDER="${APPLE_MAIL_PROMO_FOLDER:-INBOX}"
+PROMO_DAYS="${APPLE_MAIL_PROMO_DAYS:-60}"
+RECEIPT_FOLDER="${APPLE_MAIL_RECEIPT_FOLDER:-Uber Receipts}"
+RECEIPT_DAYS="${APPLE_MAIL_RECEIPT_DAYS:-3650}"
+PRIVATE_DB="${TRACKER_PRIVATE_DB:-uber-tracker.local.db}"
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "Node.js is required. Install Node 22 or newer, then run this again."
+  exit 1
+fi
+
+NODE_MAJOR="$(node -p 'Number(process.versions.node.split(".")[0])')"
+if (( NODE_MAJOR < 22 )); then
+  echo "Node.js 22+ is required for the private SQLite store. Current: $(node --version)"
+  exit 1
+fi
+
+echo "Updating Uber Eats Promo Tracker..."
+echo "Promo mailbox: $PROMO_FOLDER ($PROMO_DAYS days)"
+echo "Receipt mailbox: $RECEIPT_FOLDER ($RECEIPT_DAYS days)"
 
 if command -v git >/dev/null 2>&1; then
   git pull --ff-only
 fi
 
-osascript -l JavaScript mac/export-uber-mail.js 45 > emails.local.json
+osascript -l JavaScript mac/export-uber-mail.js \
+  "$PROMO_DAYS" "$PROMO_FOLDER" \
+  "$RECEIPT_DAYS" "$RECEIPT_FOLDER" \
+  > emails.local.json
 
 npm test
-npm run generate -- emails.local.json promos.json
+node generate-promos.js \
+  emails.local.json \
+  promos.json \
+  history.json \
+  "$PRIVATE_DB"
 
 if ! command -v git >/dev/null 2>&1; then
-  echo "Git is not installed. promos.json was generated locally but was not published."
+  echo "Git is unavailable. Public JSON was generated locally but not published."
   exit 0
 fi
 
 git add promos.json history.json
 
 if git diff --cached --quiet; then
-  echo "No promo changes to publish."
+  echo "No public tracker changes to publish."
   exit 0
 fi
 
-git commit -m "Update promos from Apple Mail"
+git commit -m "Update Uber Eats tracker from Apple Mail"
 git push
 
-echo "Promo dashboard update published."
+echo "Tracker update published."

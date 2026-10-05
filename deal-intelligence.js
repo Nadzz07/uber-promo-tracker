@@ -113,13 +113,15 @@ export function rankPromosForSpend(
   {
     service = "all",
     accountRef = "all",
-    excludedIds = []
+    excludedIds = [],
+    accessibleOnly = false
   } = {}
 ) {
   const excluded = new Set(excludedIds);
 
   return promos
     .filter(promo => isAvailable(promo, excluded))
+    .filter(promo => !accessibleOnly || promo.canLogin === true)
     .filter(promo => service === "all" || promo.service === service)
     .filter(promo => accountRef === "all" || promo.accountRef === accountRef)
     .map(promo => ({
@@ -149,11 +151,12 @@ export function rankPromosForSpend(
     });
 }
 
-function accountCandidates(promos, subtotal, service, excludedIds) {
+function accountCandidates(promos, subtotal, service, excludedIds, accessibleOnly) {
   const byAccount = new Map();
 
   for (const promo of promos) {
     if (!isAvailable(promo, excludedIds)) continue;
+    if (accessibleOnly && promo.canLogin !== true) continue;
     if (service !== "all" && promo.service !== service) continue;
     if (!promo.accountRef) continue;
 
@@ -168,7 +171,8 @@ function accountCandidates(promos, subtotal, service, excludedIds) {
     .map(([accountRef, accountPromos]) => {
       const fullSpend = rankPromosForSpend(accountPromos, subtotal, {
         service,
-        accountRef
+        accountRef,
+        accessibleOnly
       })[0];
 
       const fallbackPotential = accountPromos.reduce((max, promo) => {
@@ -207,7 +211,8 @@ export function planBasketSplit(
     service = "Uber Eats",
     maxOrders = 3,
     extraOrderFee = 0,
-    excludedIds = []
+    excludedIds = [],
+    accessibleOnly = true
   } = {}
 ) {
   const total = number(subtotal);
@@ -224,7 +229,13 @@ export function planBasketSplit(
     };
   }
 
-  const accounts = accountCandidates(promos, total, service, excluded);
+  const accounts = accountCandidates(
+    promos,
+    total,
+    service,
+    excluded,
+    accessibleOnly
+  );
 
   if (!accounts.length) {
     return {
@@ -242,7 +253,8 @@ export function planBasketSplit(
   if (wholeUnits < 1) {
     const single = rankPromosForSpend(promos, total, {
       service,
-      excludedIds
+      excludedIds,
+      accessibleOnly
     })[0];
 
     if (!single) {
@@ -287,7 +299,8 @@ export function planBasketSplit(
     const spend = roundMoney(units * step);
     const result = rankPromosForSpend(account.promos, spend, {
       service,
-      accountRef: account.accountRef
+      accountRef: account.accountRef,
+      accessibleOnly
     })[0] || null;
 
     bestFor.set(key, result);
