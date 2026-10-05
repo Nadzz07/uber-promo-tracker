@@ -2343,8 +2343,8 @@
       const fee = effectiveFee();
       document.getElementById("feeNote").textContent =
         fee > 0
-          ? "Using " + money(fee) + " estimated extra-order cost"
-          : "No extra-order cost estimate";
+          ? "Includes about " + money(fee) + " per extra split order"
+          : "No extra split-fee estimate yet";
     }
 
     function renderRecommendation() {
