@@ -1,0 +1,8 @@
+# Raw/private mail data must never be committed.
+emails.local.json
+*.eml
+mail-export/
+
+# macOS / editor files
+.DS_Store
+.vscode/
