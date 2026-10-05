@@ -76,6 +76,14 @@ function senderLooksUber(sender) {
   return /(?:ubereats|uber)_at_uber_com(?:[_-][^@\s>]*)?@icloud\.com/i.test(value);
 }
 
+function extractAccountAlias(recipient) {
+  const value = String(recipient || "").trim();
+  if (!value) return null;
+
+  const match = value.match(/([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/i);
+  return match ? match[1].toLowerCase() : null;
+}
+
 function extractExpiry(text, receivedAt) {
   const namedDate = firstMatch(text, [
     /(?:expires?|valid\s+(?:until|through|to)|available\s+until|offer\s+available\s+until|ends?|use\s+by|redeem\s+by)\s*(?:on\s*)?(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})(?:\s+(\d{4}))?/i,
@@ -173,6 +181,7 @@ export function parseUberPromo({
   subject = "",
   body = "",
   sender = "",
+  recipient = "",
   receivedAt = new Date()
 } = {}) {
   const received = asDate(receivedAt);
@@ -180,6 +189,7 @@ export function parseUberPromo({
   const text = raw.replace(/\s+/g, " ").trim();
   const trustedSender = senderLooksUber(sender);
   const senderProvided = String(sender || "").trim().length > 0;
+  const accountAlias = extractAccountAlias(recipient);
   const serviceText = text + " " + sender;
 
   const isUberOne = /\buber\s*one\b/i.test(serviceText);
@@ -276,6 +286,7 @@ export function parseUberPromo({
 
   return {
     isPromo: looksLikePromo,
+    accountAlias,
     service,
     title,
     discountType,
