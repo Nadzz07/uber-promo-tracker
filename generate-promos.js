@@ -25,7 +25,7 @@ async function generatePromos() {
     if (!Array.isArray(emails)) throw new Error("Email input must be a JSON array.");
 
     const generatedAt = new Date().toISOString();
-    const privatePromos = buildPromoList(emails);
+    const privatePromos = buildPromoList(emails).filter(promo => promo.service === "Uber Eats");
 
     const oldAccountMap = await readJson(accountMapPath, {
       version: 1,
