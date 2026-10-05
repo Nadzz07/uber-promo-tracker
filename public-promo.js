@@ -7,6 +7,10 @@ export function toPublicPromo(promo) {
     maxSaving: promo.maxSaving,
     perUseCap: promo.perUseCap,
     uses: promo.uses,
+    usesRemaining:
+      promo.usesRemaining == null
+        ? promo.uses
+        : promo.usesRemaining,
     maxTotalSaving: promo.maxTotalSaving,
     minimumSpend: promo.minimumSpend,
     sameAccountOfferCount: promo.sameAccountOfferCount || 1,
@@ -14,6 +18,10 @@ export function toPublicPromo(promo) {
     expires: promo.expires,
     expiryBasis: promo.expiryBasis,
     accountRef: promo.accountRef || null,
-    hasCompanionOffer: Boolean(promo.hasCompanionOffer)
+    accountMasked: promo.accountMasked || null,
+    hasCompanionOffer: Boolean(promo.hasCompanionOffer),
+    receiptState: promo.receiptState || null,
+    receiptConfirmedUses: Number(promo.receiptConfirmedUses || 0),
+    lastUsedAt: promo.lastUsedAt || null
   };
 }
