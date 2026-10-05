@@ -99,3 +99,29 @@ The current version now:
 - lets the public dashboard filter offers by anonymous account
 
 `accounts.local.json` is ignored by Git and must remain private.
+
+
+## Legacy SQLite migration
+
+The old Python/SQLite tracker can be imported **locally on the Mac** without publishing the old database or its account aliases.
+
+The migration uses a two-tier history model:
+
+- `history.local.json` — full private history used by the tracker; Git-ignored
+- `history.json` — public dashboard projection containing only offers observed by the new live scanner
+
+The temporary SQLite export contains only the legacy account alias, normalised discount/minimum-spend/expiry fields, and a boolean indicating whether a code existed. It does **not** export old senders, message IDs, subjects, or actual promo codes, and it is deleted when the migration finishes.
+
+Run on the Mac:
+
+```bash
+bash mac/migrate-legacy-db.sh "/path/to/uber_promo_tracker.db"
+```
+
+Then scan current Apple Mail and publish current data:
+
+```bash
+bash mac/update-promos.sh
+```
+
+Legacy-only records stay private. If the new live scanner later sees the same offer/account again, the public history can show that offer under its anonymous account label while still keeping the real alias private.
