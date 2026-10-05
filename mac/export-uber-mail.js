@@ -161,7 +161,11 @@ function bulkMailboxIndex(box) {
 
 function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox) {
   const range = dateRange(daysBack, olderThanDays);
+
+  stderr("Reading Mail metadata: " + sourceMailbox + "...");
   const rows = bulkMailboxIndex(box);
+  stderr("Indexed " + rows.length + " messages in " + sourceMailbox + ".");
+
   const results = [];
 
   for (let i = 0; i < rows.length; i++) {
@@ -196,6 +200,10 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox) {
       sourceMailbox: sourceMailbox || null
     });
   }
+
+  stderr(
+    "Exported " + results.length + " Uber message(s) from " + sourceMailbox + "."
+  );
 
   return results;
 }
