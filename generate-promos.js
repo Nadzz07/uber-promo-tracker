@@ -15,7 +15,7 @@ function publicPromo(promo) {
     uses: promo.uses,
     maxTotalSaving: promo.maxTotalSaving,
     minimumSpend: promo.minimumSpend,
-    code: promo.code,
+    hasCode: Boolean(promo.code),
     expires: promo.expires
   };
 }
@@ -24,16 +24,19 @@ async function generatePromos() {
   try {
     const raw = await fs.readFile(inputPath, "utf8");
     const emails = JSON.parse(raw);
-
-    if (!Array.isArray(emails)) {
-      throw new Error("Email input must be a JSON array.");
-    }
+    if (!Array.isArray(emails)) throw new Error("Email input must be a JSON array.");
 
     const promos = buildPromoList(emails).map(publicPromo);
-    await fs.writeFile(outputPath, \`\${JSON.stringify(promos, null, 2)}\n\`);
+    const payload = {
+      generatedAt: new Date().toISOString(),
+      source: "apple-mail",
+      demo: false,
+      promos
+    };
 
-    console.log(\`Generated \${promos.length} public promo records.\`);
-    if (promos.length > 0) console.log(\`Best promo: \${promos[0].title}\`);
+    await fs.writeFile(outputPath, JSON.stringify(payload, null, 2) + "\n");
+    console.log("Generated " + promos.length + " public promo records.");
+    if (promos.length > 0) console.log("Best promo: " + promos[0].title);
   } catch (error) {
     console.error("Could not generate promos:");
     console.error(error);
