@@ -3,6 +3,7 @@ import { parseUberPromo } from "./parser.js";
 import { parseUberEatsReceipt } from "./receipt-parser.js";
 import { applyReceiptEvidence } from "./receipt-intelligence.js";
 import { toPublicPromo } from "./public-promo.js";
+import { estimateReceiptSavings } from "./savings-intelligence.js";
 import {
   DEFAULT_PRIVATE_DB,
   ensureAccount,
@@ -85,43 +86,7 @@ function attachAccountOfferContext(promos) {
 }
 
 function receiptStatsByAccount(receipts) {
-  const map = new Map();
-
-  for (const receipt of receipts) {
-    if (!receipt.accountRef) continue;
-
-    if (!map.has(receipt.accountRef)) {
-      map.set(receipt.accountRef, {
-        orderCount: 0,
-        promoSavings: 0,
-        uberCashUsed: 0,
-        totalSaved: 0,
-        lastOrderAt: null
-      });
-    }
-
-    const stats = map.get(receipt.accountRef);
-    const promo = Number(receipt.promotionDiscount || 0);
-    const cash = Number(receipt.uberCashUsed || 0);
-    const when = receipt.sentAt || receipt.receivedAt || null;
-
-    stats.orderCount += 1;
-    stats.promoSavings += promo;
-    stats.uberCashUsed += cash;
-    stats.totalSaved += promo + cash;
-
-    if (!stats.lastOrderAt || String(when || "") > stats.lastOrderAt) {
-      stats.lastOrderAt = when;
-    }
-  }
-
-  for (const stats of map.values()) {
-    stats.promoSavings = Number(stats.promoSavings.toFixed(2));
-    stats.uberCashUsed = Number(stats.uberCashUsed.toFixed(2));
-    stats.totalSaved = Number(stats.totalSaved.toFixed(2));
-  }
-
-  return map;
+  return estimateReceiptSavings(receipts).byAccount;
 }
 
 function historyStatus(promo) {
@@ -281,7 +246,11 @@ async function generatePromos() {
         orderCount: 0,
         promoSavings: 0,
         uberCashUsed: 0,
-        totalSaved: 0,
+        uberOneConfirmedSavings: 0,
+        otherConfirmedSavings: 0,
+        confirmedSaved: 0,
+        estimatedUberOneSavings: 0,
+        estimatedTotalSaved: 0,
         lastOrderAt: account.lastOrderAt || null
       };
 
@@ -290,7 +259,11 @@ async function generatePromos() {
         orderCount: stats.orderCount,
         promoSavings: stats.promoSavings,
         uberCashUsed: stats.uberCashUsed,
-        totalSaved: stats.totalSaved,
+        uberOneConfirmedSavings: stats.uberOneConfirmedSavings,
+        otherConfirmedSavings: stats.otherConfirmedSavings,
+        totalSaved: stats.confirmedSaved,
+        estimatedUberOneSavings: stats.estimatedUberOneSavings,
+        estimatedTotalSaved: stats.estimatedTotalSaved,
         lastOrderAt: stats.lastOrderAt || account.lastOrderAt || null
       };
     });
@@ -358,7 +331,8 @@ async function generatePromos() {
     console.log("Known accounts: " + access.length + " (" + accessible + " can log in)");
     console.log("Stored receipts: " + receipts.length);
     console.log("Public current/recent promos: " + publicPromos.length);
-    console.log("Lifetime receipt saving observed: £" + summary.totalSaved.toFixed(2));
+    console.log("Lifetime confirmed receipt saving: £" + summary.totalSaved.toFixed(2));
+    console.log("Lifetime estimated saving: £" + summary.estimatedTotalSaved.toFixed(2));
   } finally {
     db.close();
   }

@@ -1,7 +1,8 @@
 import { DatabaseSync } from "node:sqlite";
 import { maskAccountAlias } from "./account-map.js";
+import { estimateReceiptSavings } from "./savings-intelligence.js";
 
-export const PRIVATE_DB_SCHEMA_VERSION = 1;
+export const PRIVATE_DB_SCHEMA_VERSION = 2;
 export const DEFAULT_PRIVATE_DB = "./uber-tracker.local.db";
 
 function normaliseAlias(value) {
@@ -112,6 +113,9 @@ function initSchema(db) {
       small_order_fee REAL,
       tip REAL,
       uber_cash_used REAL,
+      reported_savings REAL,
+      uber_one_savings REAL,
+      uber_one_signal INTEGER NOT NULL DEFAULT 0,
       total REAL,
       first_seen_at TEXT NOT NULL,
       last_seen_at TEXT NOT NULL,
@@ -136,9 +140,22 @@ function initSchema(db) {
     CREATE INDEX IF NOT EXISTS idx_messages_sent ON messages(sent_at);
   `);
 
-  if (getMeta(db, "schema_version") == null) {
-    setMeta(db, "schema_version", PRIVATE_DB_SCHEMA_VERSION);
+
+  const receiptColumns = new Set(
+    db.prepare("PRAGMA table_info(receipts)").all().map(row => row.name)
+  );
+
+  if (!receiptColumns.has("reported_savings")) {
+    db.exec("ALTER TABLE receipts ADD COLUMN reported_savings REAL");
   }
+  if (!receiptColumns.has("uber_one_savings")) {
+    db.exec("ALTER TABLE receipts ADD COLUMN uber_one_savings REAL");
+  }
+  if (!receiptColumns.has("uber_one_signal")) {
+    db.exec("ALTER TABLE receipts ADD COLUMN uber_one_signal INTEGER NOT NULL DEFAULT 0");
+  }
+
+  setMeta(db, "schema_version", PRIVATE_DB_SCHEMA_VERSION);
 
   if (getMeta(db, "next_account_number") == null) {
     setMeta(db, "next_account_number", 1);
@@ -525,8 +542,9 @@ export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
       receipt_id, account_ref, message_key, sent_at, received_at,
       order_id, merchant, subtotal, promotion_discount,
       delivery_fee, service_fee, small_order_fee, tip,
-      uber_cash_used, total, first_seen_at, last_seen_at
-    ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      uber_cash_used, reported_savings, uber_one_savings, uber_one_signal,
+      total, first_seen_at, last_seen_at
+    ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(receipt_id) DO UPDATE SET
       account_ref = excluded.account_ref,
       message_key = excluded.message_key,
@@ -541,6 +559,9 @@ export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
       small_order_fee = excluded.small_order_fee,
       tip = excluded.tip,
       uber_cash_used = excluded.uber_cash_used,
+      reported_savings = excluded.reported_savings,
+      uber_one_savings = excluded.uber_one_savings,
+      uber_one_signal = excluded.uber_one_signal,
       total = excluded.total,
       last_seen_at = excluded.last_seen_at
   `).run(
@@ -558,6 +579,9 @@ export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
     receipt.smallOrderFee ?? null,
     receipt.tip ?? null,
     receipt.uberCashUsed ?? null,
+    receipt.reportedSavings ?? null,
+    receipt.uberOneSavings ?? null,
+    receipt.uberOneSignal ? 1 : 0,
     receipt.total ?? null,
     seenAt,
     seenAt
@@ -590,6 +614,9 @@ export function getReceipts(db) {
     smallOrderFee: row.small_order_fee,
     tip: row.tip,
     uberCashUsed: row.uber_cash_used,
+    reportedSavings: row.reported_savings,
+    uberOneSavings: row.uber_one_savings,
+    uberOneSignal: Boolean(row.uber_one_signal),
     total: row.total
   }));
 }
@@ -636,11 +663,11 @@ export function replaceReceiptMatches(db, matches = [], matchedAt = new Date().t
 }
 
 export function getSavingsSummary(db) {
-  const totals = db.prepare(`
+  const receipts = getReceipts(db);
+  const savings = estimateReceiptSavings(receipts);
+
+  const feeRow = db.prepare(`
     SELECT
-      COUNT(*) AS tracked_orders,
-      COALESCE(SUM(promotion_discount), 0) AS promo_savings,
-      COALESCE(SUM(uber_cash_used), 0) AS uber_cash_used,
       COALESCE(AVG(
         COALESCE(delivery_fee, 0) +
         COALESCE(service_fee, 0) +
@@ -667,19 +694,9 @@ export function getSavingsSummary(db) {
       (expires IS NULL OR expires >= date('now'))
   `).get()?.count || 0;
 
-  const totalSaved =
-    Number(totals.promo_savings || 0) +
-    Number(totals.uber_cash_used || 0);
-
   return {
-    trackedOrders: Number(totals.tracked_orders || 0),
-    promoSavings: Number(Number(totals.promo_savings || 0).toFixed(2)),
-    uberCashUsed: Number(Number(totals.uber_cash_used || 0).toFixed(2)),
-    totalSaved: Number(totalSaved.toFixed(2)),
-    averageSavedPerOrder: totals.tracked_orders
-      ? Number((totalSaved / totals.tracked_orders).toFixed(2))
-      : 0,
-    averageExtraOrderFees: Number(Number(totals.average_fees || 0).toFixed(2)),
+    ...savings.summary,
+    averageExtraOrderFees: Number(Number(feeRow.average_fees || 0).toFixed(2)),
     knownAccounts: Number(accountCounts.known_accounts || 0),
     accessibleAccounts: Number(accountCounts.accessible_accounts || 0),
     inaccessibleAccounts: Number(accountCounts.inaccessible_accounts || 0),

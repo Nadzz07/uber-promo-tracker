@@ -184,7 +184,13 @@ Receipt evidence can:
 
 Chronology is enforced: a receipt from before a promo email cannot consume that later promo.
 
-Lifetime **Total saved** currently means observed receipt Promotion discounts plus observed Uber Cash/credits used. These are also shown separately in Savings insights.
+The Home headline is **Estimated saved**. The tracker keeps a separate confirmed receipt total and only adds a conservative missing-Uber-One estimate when there is enough evidence.
+
+Confirmed receipt saving uses the larger of (a) explicit saving components such as Promotion, Uber Cash and an explicit Uber One saving, or (b) Uber's own “You saved £X”/total-savings line. This prevents double-counting when the receipt prints both a total and its components.
+
+If a receipt mentions Uber One but omits the Uber One amount, the tracker may estimate that missing amount from the median of the user's own receipts that explicitly state an Uber One saving. With fewer than three explicit samples the estimate is discounted, each estimated order is capped conservatively, and receipts where Uber already reports extra saving do not get another estimate added. If there is no usable evidence, the estimate stays at zero rather than inventing a number.
+
+Savings insights expose the confirmed total, estimated missing Uber One, promo discounts, Uber Cash, explicit Uber One savings, the estimate sample size and the estimated total separately.
 
 ## Basket optimiser
 
@@ -358,7 +364,7 @@ The suite includes:
 - original parser/account/history regression tests
 - parser v2 expiry/classification/evidence cases
 - SQLite account/access/history tests
-- receipt parsing and savings tests
+- receipt parsing, reported-savings and conservative Uber One estimation tests
 - accessibility-gated basket splitting
 - end-to-end synthetic Mail → SQLite → receipt → public JSON generation
 - public privacy checks
