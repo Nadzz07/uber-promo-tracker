@@ -2260,6 +2260,9 @@
       }
 
       return list.sort((a, b) => {
+        if (a.accountRef === selectedAccountRef && b.accountRef !== selectedAccountRef) return -1;
+        if (b.accountRef === selectedAccountRef && a.accountRef !== selectedAccountRef) return 1;
+
         const saveA = a.bestNow?.calculation?.saving || 0;
         const saveB = b.bestNow?.calculation?.saving || 0;
 
@@ -2423,7 +2426,9 @@
       const current = account.promos || activePromosForAccount(account.accountRef);
       const pills = [];
 
-      if (index === 0 && currentIntent === "best") {
+      if (account.accountRef === selectedAccountRef) {
+        pills.push('<span class="pill good">Chosen account</span>');
+      } else if (index === 0 && currentIntent === "best") {
         pills.push('<span class="pill good">Best now</span>');
       }
 
@@ -2952,8 +2957,16 @@
               ? escapeHtml(generated.toLocaleString("en-GB", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }))
               : "Demo") +
           '</div></div>' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Private data</div><div class="sheet-row-meta">Raw emails, aliases, receipts and promo codes</div></div><div class="sheet-row-value">Mac only</div></div>' +
-        '</div></div>';
+          '<div class="sheet-row"><div><div class="sheet-row-title">Private database</div><div class="sheet-row-meta">Full accounts, receipts, raw Mail evidence and durable usage</div></div><div class="sheet-row-value">Mac SQLite</div></div>' +
+          '<div class="sheet-row"><div><div class="sheet-row-title">Public app data</div><div class="sheet-row-meta">Masked accounts, safe promo fields and receipt totals</div></div><div class="sheet-row-value">promos.json</div></div>' +
+          '<div class="sheet-row"><div><div class="sheet-row-title">Manual phone actions</div><div class="sheet-row-meta">Used 1, ignore, done and split settings update immediately</div></div><div class="sheet-row-value">This browser</div></div>' +
+        '</div></div>' +
+        '<div class="sheet-section">' +
+          '<div class="settings-explainer">' +
+            '<strong>How it links together</strong>' +
+            '<span>Apple Mail → private Mac SQLite → sanitised JSON → this app. Receipt scans reconcile durable promo usage. Manual phone taps stay local until receipt evidence catches up.</span>' +
+          '</div>' +
+        '</div>';
     }
 
     function renderHistorySheet() {
