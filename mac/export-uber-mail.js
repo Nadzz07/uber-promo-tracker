@@ -20,6 +20,32 @@ function extractRecipient(rawSource) {
   return address ? address[1].toLowerCase() : null;
 }
 
+function firstRecipientAddress(message) {
+  try {
+    const recipients = message.toRecipients();
+    if (recipients && recipients.length) {
+      for (let i = 0; i < recipients.length; i++) {
+        try {
+          const address = String(recipients[i].address() || "");
+          if (address) return address;
+        } catch (_) {}
+      }
+    }
+  } catch (_) {}
+
+  try {
+    const rawSource = String(message.source() || "")
+      .replace(/\r?\n[ \t]+/g, " ");
+    const toHeader = rawSource.match(/^To:\s*([^\r\n]+)/mi);
+    if (toHeader) {
+      const email = toHeader[1].match(/([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/i);
+      if (email) return email[1];
+    }
+  } catch (_) {}
+
+  return "";
+}
+
 function run(argv) {
   const daysBack = Number(argv[0] || 45);
   const cutoff = new Date();
@@ -39,6 +65,7 @@ function run(argv) {
     let sender = "";
     let recipient = null;
     let body = "";
+    let recipient = "";
     let receivedAt = null;
 
     try { subject = String(message.subject() || ""); } catch (_) {}
