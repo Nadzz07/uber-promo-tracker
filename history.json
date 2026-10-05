@@ -3,7 +3,28 @@
   "demo": true,
   "records": [
     {
-      "id": "demo-rides",
+      "id": "demo-account-a-fixed",
+      "service": "Uber Eats",
+      "title": "£15 off your next 5 orders",
+      "discountType": "fixed",
+      "discount": 15,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 5,
+      "maxTotalSaving": 75,
+      "minimumSpend": 15,
+      "hasCode": true,
+      "expires": "2026-10-12",
+      "expiryBasis": "explicit",
+      "accountRef": "A001",
+      "hasCompanionOffer": false,
+      "firstSeenAt": "2026-10-02T08:00:00.000Z",
+      "lastSeenAt": "2026-10-05T08:00:00.000Z",
+      "scansSeen": 4,
+      "status": "active"
+    },
+    {
+      "id": "demo-account-a-rides",
       "service": "Uber",
       "title": "40% off your next 5 Uber trips",
       "discountType": "percent",
@@ -16,14 +37,15 @@
       "hasCode": false,
       "expires": "2026-10-19",
       "expiryBasis": "explicit",
+      "accountRef": "A001",
+      "hasCompanionOffer": true,
       "firstSeenAt": "2026-10-01T08:00:00.000Z",
       "lastSeenAt": "2026-10-05T08:00:00.000Z",
       "scansSeen": 5,
-      "status": "active",
-      "accountId": "acct_demoa001"
+      "status": "active"
     },
     {
-      "id": "demo-old-eats",
+      "id": "demo-account-b-old",
       "service": "Uber Eats",
       "title": "£5 off your next 2 orders",
       "discountType": "fixed",
@@ -36,11 +58,12 @@
       "hasCode": true,
       "expires": "2026-10-04",
       "expiryBasis": "explicit",
+      "accountRef": "A002",
+      "hasCompanionOffer": false,
       "firstSeenAt": "2026-09-25T08:00:00.000Z",
       "lastSeenAt": "2026-10-03T08:00:00.000Z",
       "scansSeen": 8,
-      "status": "inactive",
-      "accountId": "acct_demoa001"
+      "status": "inactive"
     }
   ]
 }
