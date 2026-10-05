@@ -7,6 +7,7 @@ import { parseUberPromo } from "./parser.js";
 import { parseUberEatsReceipt } from "./receipt-parser.js";
 import { toPublicPromo } from "./public-promo.js";
 import { planBasketSplit } from "./deal-intelligence.js";
+import { estimateReceiptSavings } from "./savings-intelligence.js";
 import {
   ensureAccount,
   getAccounts,
@@ -227,7 +228,7 @@ test("Uber display-name fallback is accepted with medium sender confidence", () 
   assert.equal(promo.senderConfidence, "medium");
 });
 
-test("receipt parser extracts savings and fees", () => {
+test("receipt parser extracts reported and Uber One savings without losing fees", () => {
   const receipt = parseUberEatsReceipt({
     sender: "Uber Eats <receipts@uber.com>",
     recipient: "alpha@icloud.com",
@@ -236,6 +237,8 @@ test("receipt parser extracts savings and fees", () => {
       "Thanks for your order",
       "Subtotal £25.00",
       "Promotion -£15.00",
+      "Uber One savings £2.50",
+      "You saved £17.50",
       "Delivery Fee £1.49",
       "Service Fee £1.00",
       "Total £12.49"
@@ -246,9 +249,73 @@ test("receipt parser extracts savings and fees", () => {
   assert.equal(receipt.isReceipt, true);
   assert.equal(receipt.subtotal, 25);
   assert.equal(receipt.promotionDiscount, 15);
+  assert.equal(receipt.uberOneSavings, 2.5);
+  assert.equal(receipt.uberOneSignal, true);
+  assert.equal(receipt.reportedSavings, 17.5);
   assert.equal(receipt.deliveryFee, 1.49);
   assert.equal(receipt.serviceFee, 1);
   assert.ok(receipt.evidence.promotion.includes("Promotion"));
+  assert.ok(receipt.evidence.uberOneSavings.includes("Uber One"));
+});
+
+test("estimated savings only fills missing Uber One from explicit receipt samples", () => {
+  const savings = estimateReceiptSavings([
+    {
+      accountRef: "A001",
+      subtotal: 20,
+      promotionDiscount: 10,
+      uberCashUsed: 0,
+      reportedSavings: 10,
+      uberOneSavings: 2,
+      uberOneSignal: true
+    },
+    {
+      accountRef: "A001",
+      subtotal: 20,
+      promotionDiscount: 5,
+      uberCashUsed: 0,
+      reportedSavings: 5,
+      uberOneSavings: 3,
+      uberOneSignal: true
+    },
+    {
+      accountRef: "A001",
+      subtotal: 20,
+      promotionDiscount: 0,
+      uberCashUsed: 0,
+      reportedSavings: 4,
+      uberOneSavings: 4,
+      uberOneSignal: true
+    },
+    {
+      accountRef: "A001",
+      subtotal: 20,
+      promotionDiscount: 5,
+      uberCashUsed: 0,
+      reportedSavings: 5,
+      uberOneSavings: null,
+      uberOneSignal: true
+    },
+    {
+      accountRef: "A001",
+      subtotal: 20,
+      promotionDiscount: 5,
+      uberCashUsed: 0,
+      reportedSavings: 8,
+      uberOneSavings: null,
+      uberOneSignal: true
+    }
+  ]);
+
+  assert.equal(savings.model.sampleSize, 3);
+  assert.equal(savings.model.baselinePerEligibleOrder, 3);
+  assert.equal(savings.summary.totalSaved, 37);
+  assert.equal(savings.summary.estimatedUberOneSavings, 3);
+  assert.equal(savings.summary.estimatedTotalSaved, 40);
+
+  const account = savings.byAccount.get("A001");
+  assert.equal(account.confirmedSaved, 37);
+  assert.equal(account.estimatedTotalSaved, 40);
 });
 
 test("message identity prefers stable Message-ID", () => {
@@ -393,7 +460,10 @@ try {
     assert.equal(summary.promoSavings, 15);
     assert.equal(summary.uberCashUsed, 5);
     assert.equal(summary.totalSaved, 20);
+    assert.equal(summary.estimatedTotalSaved, 20);
+    assert.equal(summary.estimatedUberOneSavings, 0);
     assert.equal(summary.averageSavedPerOrder, 20);
+    assert.equal(summary.estimatedAverageSavedPerOrder, 20);
   });
 
   test("basket splitter excludes inaccessible accounts by default", () => {
