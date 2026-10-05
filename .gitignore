@@ -1,5 +1,6 @@
 # Raw/private mail data must never be committed.
 emails.local.json
+.account-salt
 *.eml
 mail-export/
 
