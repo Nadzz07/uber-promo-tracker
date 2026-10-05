@@ -37,6 +37,24 @@
     .hero-value { margin-top: 12px; font-size: 22px; font-weight: 750; }
     .reason { margin-top: 8px; color: #a5a5a5; font-size: 14px; }
     .hero-meta { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 20px; }
+    .planner { background: #101010; border: 1px solid #262626; border-radius: 20px; padding: 20px; margin: 0 0 22px; }
+    .planner-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 16px; }
+    .planner h2 { margin: 0; font-size: 21px; }
+    .planner-copy { color: #777; font-size: 12px; margin-top: 5px; }
+    .planner-controls { display: flex; flex-wrap: wrap; gap: 9px; align-items: end; }
+    .planner-field { display: grid; gap: 5px; color: #777; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+    .planner input, .planner select { min-height: 40px; color: #fff; background: #0c0c0c; border: 1px solid #303030; border-radius: 10px; padding: 8px 10px; }
+    .planner input { width: 110px; }
+    .quick-spends { display: flex; flex-wrap: wrap; gap: 7px; }
+    .quick-spend { border: 1px solid #303030; background: #151515; color: #aaa; padding: 9px 11px; border-radius: 10px; cursor: pointer; }
+    .quick-spend:hover { color: #fff; border-color: #444; }
+    .planner-result { margin-top: 17px; padding-top: 17px; border-top: 1px solid #222; }
+    .planner-winner { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 16px; align-items: center; }
+    .planner-title { font-size: 20px; font-weight: 780; letter-spacing: -.02em; }
+    .planner-meta { color: #8f8f8f; font-size: 12px; margin-top: 6px; line-height: 1.55; }
+    .planner-money { text-align: right; }
+    .planner-saving { font-size: 27px; font-weight: 820; }
+    .planner-pay { color: #888; font-size: 12px; margin-top: 3px; }
     .meta-chip { border: 1px solid #303030; background: #151515; color: #bababa; padding: 7px 10px; border-radius: 999px; font-size: 12px; }
     .controls { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 27px 0 15px; }
     .filters { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -77,6 +95,10 @@
       .controls { align-items: flex-start; flex-direction: column; }
       .history-row { grid-template-columns: 1fr 1fr; }
       .history-status { justify-self: start; }
+      .planner-head { display: block; }
+      .planner-controls { margin-top: 14px; }
+      .planner-winner { grid-template-columns: 1fr; }
+      .planner-money { text-align: left; }
     }
     @media (max-width: 520px) {
       .stat-value { font-size: 23px; }
@@ -109,6 +131,36 @@
     </section>
 
     <section id="bestPromo"></section>
+
+    <section class="planner">
+      <div class="planner-head">
+        <div>
+          <h2>Best promo for this spend</h2>
+          <div class="planner-copy">Compare the saving on one trip/order — not the total across every future use.</div>
+        </div>
+        <div class="planner-controls">
+          <label class="planner-field">Spend
+            <input id="spendInput" type="number" min="0" step="0.50" value="25" inputmode="decimal">
+          </label>
+          <label class="planner-field">Service
+            <select id="plannerService">
+              <option value="all">Any</option>
+              <option value="Uber">Rides</option>
+              <option value="Uber Eats">Eats</option>
+              <option value="Uber One">Uber One</option>
+            </select>
+          </label>
+          <div class="quick-spends" aria-label="Quick spend amounts">
+            <button class="quick-spend" data-spend="15">£15</button>
+            <button class="quick-spend" data-spend="25">£25</button>
+            <button class="quick-spend" data-spend="40">£40</button>
+          </div>
+        </div>
+      </div>
+      <div id="plannerResult" class="planner-result">
+        <div class="empty">Loading active promos…</div>
+      </div>
+    </section>
 
     <div class="controls">
       <div class="filters" id="filters">
@@ -144,7 +196,9 @@
     <footer>Uber Promo Tracker · automated parser + ranking engine</footer>
   </main>
 
-  <script>
+  <script type="module">
+    import { rankPromosForSpend } from "./deal-intelligence.js";
+
     let allActivePromos = [];
     let allHistoryRecords = [];
     let currentFilter = "all";
@@ -200,12 +254,6 @@
 
     function money(value) {
       return "£" + Number(value).toLocaleString("en-GB",{maximumFractionDigits:2});
-    }
-
-    function accountLabel(accountId) {
-      if (!accountId) return null;
-      const suffix = String(accountId).replace(/^acct_/, "").slice(-4).toUpperCase();
-      return "Account " + suffix;
     }
 
     function valueLabel(promo) {
@@ -288,7 +336,7 @@
       }).length;
       const multi = promos.filter(function(promo){return (promo.uses || 1)>1;}).length;
       const accounts = new Set(
-        promos.map(function(promo){return promo.accountId;}).filter(Boolean)
+        promos.map(function(promo){return promo.accountRef;}).filter(Boolean)
       ).size;
       document.getElementById("activeCount").textContent = promos.length;
       document.getElementById("bestSaving").textContent = best>0 ? money(best) : "—";
@@ -304,7 +352,7 @@
         return;
       }
       const chips = [escapeHtml(promo.service)];
-      if (promo.accountId) chips.push(escapeHtml(accountLabel(promo.accountId)));
+      if (promo.accountRef) chips.push(escapeHtml(promo.accountRef));
       if ((promo.uses || 1)>1) chips.push(escapeHtml(promo.uses + " uses"));
       chips.push(escapeHtml("Expires " + formatDate(promo.expires)));
       target.innerHTML =
@@ -361,6 +409,55 @@
     }
 
 
+    function renderSpendPlanner() {
+      const target = document.getElementById("plannerResult");
+      const spend = Number(document.getElementById("spendInput").value);
+      const service = document.getElementById("plannerService").value;
+
+      const ranked = rankPromosForSpend(
+        allActivePromos,
+        spend,
+        {
+          service,
+          accountRef: currentAccount
+        }
+      );
+
+      if (!Number.isFinite(spend) || spend <= 0) {
+        target.innerHTML = '<div class="empty">Enter a spend above £0.</div>';
+        return;
+      }
+
+      if (!ranked.length) {
+        target.innerHTML = '<div class="empty">No active calculable promo is eligible for ' + escapeHtml(money(spend)) + ' with these filters.</div>';
+        return;
+      }
+
+      const winner = ranked[0];
+      const promo = winner.promo;
+      const calc = winner.calculation;
+
+      const meta = [
+        promo.service,
+        promo.accountRef || null,
+        calc.reason,
+        (promo.uses || 1) > 1 ? promo.uses + " uses available" : null
+      ].filter(Boolean).join(" · ");
+
+      target.innerHTML =
+        '<div class="planner-winner">' +
+          '<div>' +
+            '<div class="eyebrow">Best for ' + escapeHtml(money(spend)) + '</div>' +
+            '<div class="planner-title">' + escapeHtml(promo.title) + '</div>' +
+            '<div class="planner-meta">' + escapeHtml(meta) + '</div>' +
+          '</div>' +
+          '<div class="planner-money">' +
+            '<div class="planner-saving">Save ' + escapeHtml(money(calc.saving)) + '</div>' +
+            '<div class="planner-pay">Estimated cost after promo: ' + escapeHtml(money(calc.pay)) + '</div>' +
+          '</div>' +
+        '</div>';
+    }
+
     function populateAccountFilter(promos) {
       const select = document.getElementById("accountSelect");
       const refs = [...new Set(promos.map(function(promo){return promo.accountRef;}).filter(Boolean))].sort();
@@ -402,7 +499,7 @@
         return '<div class="history-row">' +
           '<div><div class="history-title">' + escapeHtml(record.title || "Uber offer") + '</div>' +
           '<div class="history-sub">' + escapeHtml(record.service || "Uber") +
-          (record.accountId ? " · " + escapeHtml(accountLabel(record.accountId)) : "") +
+          (record.accountRef ? " · " + escapeHtml(record.accountRef) : "") +
           (value != null ? " · " + escapeHtml(money(value)) + " potential" : "") + '</div></div>' +
           '<div class="history-cell">First seen<br><strong>' + escapeHtml(formatSeen(record.firstSeenAt)) + '</strong></div>' +
           '<div class="history-cell">Last seen<br><strong>' + escapeHtml(formatSeen(record.lastSeenAt)) + '</strong></div>' +
@@ -442,6 +539,7 @@
         populateAccountFilter(allActivePromos);
         renderStats(allActivePromos);
         renderBest(allActivePromos[0]);
+        renderSpendPlanner();
         renderGrid();
       } catch (error) {
         console.error(error);
@@ -462,12 +560,24 @@
 
     document.getElementById("accountSelect").addEventListener("change",function(event){
       currentAccount = event.target.value;
+      renderSpendPlanner();
       renderGrid();
     });
 
     document.getElementById("sortSelect").addEventListener("change",function(event){
       currentSort = event.target.value;
       renderGrid();
+    });
+
+    document.getElementById("spendInput").addEventListener("input",renderSpendPlanner);
+
+    document.getElementById("plannerService").addEventListener("change",renderSpendPlanner);
+
+    document.querySelectorAll(".quick-spend").forEach(function(button){
+      button.addEventListener("click",function(){
+        document.getElementById("spendInput").value = button.dataset.spend;
+        renderSpendPlanner();
+      });
     });
 
     loadPromos();
