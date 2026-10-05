@@ -101,6 +101,7 @@ function run(argv) {
   const listPath = String(argv[0] || "receipt-moves.local.json");
   const targetMailboxName = String(argv[1] || "Uber Receipts");
   const daysBack = Number(argv[2] || 60);
+  const olderThanDays = Number(argv[3] || 0);
 
   const payload = JSON.parse(readUtf8(listPath));
   const wanted = new Set(
@@ -122,11 +123,26 @@ function run(argv) {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - daysBack);
 
+  let upperBound = null;
+  if (olderThanDays > 0) {
+    upperBound = new Date();
+    upperBound.setDate(upperBound.getDate() - olderThanDays);
+  }
+
   let messages;
   try {
-    messages = Mail.inbox.messages.whose({
-      dateReceived: { _greaterThanEquals: cutoff }
-    })();
+    if (upperBound) {
+      messages = Mail.inbox.messages.whose({
+        _and: [
+          { dateReceived: { _greaterThanEquals: cutoff } },
+          { dateReceived: { _lessThan: upperBound } }
+        ]
+      })();
+    } else {
+      messages = Mail.inbox.messages.whose({
+        dateReceived: { _greaterThanEquals: cutoff }
+      })();
+    }
   } catch (error) {
     throw new Error(
       "Mail could not filter Inbox by date; no messages were moved. " +
