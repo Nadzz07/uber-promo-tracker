@@ -82,3 +82,20 @@ Apple Mail recipient addresses are used locally to keep offers from different Ub
 The HMAC secret is generated on the Mac in `.account-salt`, is ignored by Git, and never leaves the machine. The public dashboard can therefore show that multiple offers belong to the same anonymous account without publishing the Hide My Email address.
 
 The tracker treats same-account offers as related context only. It does **not** assume they can be combined or stacked unless the offer terms explicitly say so.
+
+
+## Anonymous multi-account support
+
+The legacy Mac database showed that the tracker needs to treat recipient aliases as separate Uber accounts.
+
+The current version now:
+
+- reads the recipient address locally from Apple Mail when available
+- deduplicates identical promos **within** an account, not across different accounts
+- detects related fixed/Uber Cash offers only on the same account
+- stores the real alias only in `accounts.local.json` on the Mac
+- assigns stable anonymous labels such as `A001`, `A002`, etc.
+- publishes only those anonymous labels to `promos.json` and `history.json`
+- lets the public dashboard filter offers by anonymous account
+
+`accounts.local.json` is ignored by Git and must remain private.
