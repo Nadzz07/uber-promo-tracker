@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#101712">
+  <meta name="description" content="Private Uber Eats promo tracker with account recommendations, usage tracking and receipt-based savings.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Promo Tracker">
   <title>Uber Eats Promo Tracker</title>
   <style>
     * { box-sizing: border-box; }
@@ -150,7 +154,7 @@
     }
 
     .scan-pill.live .scan-dot { background: var(--green); }
-    .scan-pill.demo .scan-dot,
+    .scan-pill.setup .scan-dot,
     .scan-pill.stale .scan-dot { background: var(--amber); }
 
     .scan-time {
@@ -159,7 +163,7 @@
       font-size: 8px;
     }
 
-    .demo-strip {
+    .sync-strip {
       display: none;
       align-items: center;
       gap: 8px;
@@ -173,7 +177,7 @@
       line-height: 1.4;
     }
 
-    .demo-strip strong { color: var(--amber); }
+    .sync-strip strong { color: var(--amber); }
 
     .view { display: none; }
     .view.active { display: block; }
@@ -1806,7 +1810,6 @@
   </style>
 </head>
 <body>
-  <!-- pages-refresh: liquid-glass-round2 -->
   <div id="app" class="app-shell">
     <header class="topbar">
       <div>
@@ -1816,15 +1819,15 @@
       <div class="scan-wrap">
         <div id="scanPill" class="scan-pill">
           <span class="scan-dot"></span>
-          <span id="scanLabel">LOADING</span>
+          <span id="scanLabel">OPENING</span>
         </div>
-        <div id="scanTime" class="scan-time">Checking tracker…</div>
+        <div id="scanTime" class="scan-time">Loading your data…</div>
       </div>
     </header>
 
-    <div id="demoStrip" class="demo-strip">
-      <strong>Demo preview</strong>
-      <span>Connect your Mac to replace this with live accounts and receipts.</span>
+    <div id="syncStrip" class="sync-strip">
+      <strong>Ready for your first sync</strong>
+      <span>Run the Mac sync once to load your accounts, promos and receipt history.</span>
     </div>
 
     <nav id="mainNav" class="bottom-nav" aria-label="Main navigation">
@@ -1893,7 +1896,7 @@
           </label>
 
           <div id="recommendation" class="recommendation">
-            <div class="empty">Loading your usable promos…</div>
+            <div class="empty">Preparing your recommendation…</div>
           </div>
 
           <div class="hero-footer">
@@ -2009,8 +2012,8 @@
       <section id="view-more" class="view">
         <div class="screen-head">
           <div class="eyebrow">More</div>
-          <h1 class="screen-title">Tracker controls.</h1>
-          <div class="screen-copy">Secondary accounts, savings, history and system information stay out of the ordering flow.</div>
+          <h1 class="screen-title">More.</h1>
+          <div class="screen-copy">Savings, account access, history and sync status.</div>
         </div>
 
         <div class="more-grid">
@@ -2026,8 +2029,8 @@
           </button>
           <button class="more-card" data-open-sheet="health">
             <div class="more-icon">◎</div>
-            <div class="more-title">Scan & data</div>
-            <div class="more-copy">Mail scan health, account totals and receipt coverage.</div>
+            <div class="more-title">Sync & data</div>
+            <div class="more-copy">Sync status, account totals and receipt coverage.</div>
           </button>
           <button class="more-card" data-open-sheet="history">
             <div class="more-icon">↺</div>
@@ -2374,19 +2377,22 @@
       const pill = document.getElementById("scanPill");
       const label = document.getElementById("scanLabel");
       const time = document.getElementById("scanTime");
-      const demo = document.getElementById("demoStrip");
+      const syncStrip = document.getElementById("syncStrip");
+      const waitingForFirstSync =
+        payload.configured === false ||
+        (!payload.generatedAt && accounts.length === 0 && promos.length === 0);
 
-      pill.classList.remove("live", "demo", "stale");
+      pill.classList.remove("live", "setup", "stale");
 
-      if (payload.demo) {
-        pill.classList.add("demo");
-        label.textContent = "DEMO";
-        time.textContent = "Preview data";
-        demo.style.display = "flex";
+      if (waitingForFirstSync) {
+        pill.classList.add("setup");
+        label.textContent = "READY";
+        time.textContent = "Waiting for first sync";
+        syncStrip.style.display = "flex";
         return;
       }
 
-      demo.style.display = "none";
+      syncStrip.style.display = "none";
 
       const generated = payload.generatedAt ? new Date(payload.generatedAt) : null;
       const stale =
@@ -2395,7 +2401,7 @@
         Date.now() - generated.getTime() > 24 * 60 * 60 * 1000;
 
       pill.classList.add(stale ? "stale" : "live");
-      label.textContent = stale ? "STALE" : "LIVE";
+      label.textContent = stale ? "UPDATE" : "LIVE";
       time.textContent =
         generated && !Number.isNaN(generated.getTime())
           ? generated.toLocaleString("en-GB", {
@@ -2404,7 +2410,7 @@
               hour: "2-digit",
               minute: "2-digit"
             })
-          : "No recent scan";
+          : "Waiting for sync";
     }
 
     function renderStats() {
@@ -2428,7 +2434,9 @@
 
       if (!accounts.some(account => account.canLogin && isAccountActive(account.accountRef))) {
         target.innerHTML =
-          '<div class="empty">No accounts are marked usable yet. Once your Mac imports the login list, recommendations will appear here.</div>';
+          accounts.length === 0
+            ? '<div class="empty">Your account data hasn’t synced yet. Run the Mac sync to start recommendations.</div>'
+            : '<div class="empty">No usable accounts are active right now.</div>';
         return;
       }
 
@@ -2894,7 +2902,7 @@
         0
       );
 
-      setSheetHeading("Split settings", "Fine-tune how far the optimiser is allowed to split one basket.");
+      setSheetHeading("Split settings", "Choose how many separate orders a recommendation can use.");
 
       document.getElementById("sheetBody").innerHTML =
         '<div class="settings-explainer">' +
@@ -2915,13 +2923,13 @@
               ? '<em>Receipt estimate ' + escapeHtml(money(learned)) + '</em>'
               : '<em>Manual estimate</em>') +
           '</label>' +
-          '<div class="setting-note">Example: if a second order costs about £2.49 extra in fees, the optimiser subtracts that before saying how much you really save.</div>' +
+          '<div class="setting-note">If another order adds about £2.49 in fees, that cost is subtracted before your saving is shown.</div>' +
         '</div>' +
         '<div class="setting-card">' +
           '<div class="setting-card-head">' +
             '<div class="setting-icon">#</div>' +
             '<div><div class="setting-title">Maximum split orders</div>' +
-            '<div class="setting-copy">The most separate Uber Eats orders/accounts the optimiser may suggest for one basket.</div></div>' +
+            '<div class="setting-copy">The most separate Uber Eats orders or accounts a recommendation can use for one basket.</div></div>' +
           '</div>' +
           '<div class="max-order-grid" role="group" aria-label="Maximum split orders">' +
             [1,2,3,4].map(value =>
@@ -2940,7 +2948,7 @@
         .filter(account => !account.canLogin)
         .sort((a, b) => String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || "")));
 
-      setSheetHeading("Can’t log in", locked.length + " accounts are excluded from every recommendation.");
+      setSheetHeading("Can’t log in", locked.length + " accounts are hidden from recommendations.");
 
       document.getElementById("sheetBody").innerHTML =
         '<div class="sheet-section"><input id="sheetLockedSearch" class="sheet-input" type="search" placeholder="Search masked email…"></div>' +
@@ -2975,7 +2983,7 @@
             (list.length > shown.length
               ? '<div class="sheet-help" style="margin-top:8px">Showing ' + shown.length + ' of ' + list.length + '. Search the masked email to narrow it down.</div>'
               : "")
-          : '<div class="empty">No inaccessible account matches that search.</div>';
+          : '<div class="empty">No account matches that search.</div>';
     }
 
     function renderSavingsSheet() {
@@ -3001,14 +3009,14 @@
         )
         .slice(0, 10);
 
-      setSheetHeading("Savings", "Confirmed receipt savings plus a conservative Uber One estimate where the receipt gives enough evidence.");
+      setSheetHeading("Savings", "Confirmed receipt savings plus a conservative Uber One estimate when the full saving is not shown.");
 
       document.getElementById("sheetBody").innerHTML =
         '<div class="savings-hero">' +
           '<div class="savings-hero-label">Estimated saved</div>' +
           '<div class="savings-hero-value">' + escapeHtml(money(estimatedTotal)) + '</div>' +
           '<div class="savings-confidence"><span class="status-dot"></span>' + escapeHtml(confidence) + '</div>' +
-          '<div class="savings-hero-copy">The estimate never blindly adds Uber One. Confirmed receipt totals win, and missing Uber One is only estimated from your own explicit Uber One receipt samples.</div>' +
+          '<div class="savings-hero-copy">Confirmed receipt totals are never double-counted. Missing Uber One savings are estimated only from your own receipt history.</div>' +
         '</div>' +
         '<div class="sheet-section"><div class="insight-grid">' +
           '<div class="insight"><div class="insight-label">Confirmed receipts</div><div class="insight-value">' + escapeHtml(money(confirmedTotal)) + '</div></div>' +
@@ -3019,10 +3027,10 @@
           '<div class="insight"><div class="insight-label">Estimated average / order</div><div class="insight-value">' + escapeHtml(money(summary.estimatedAverageSavedPerOrder ?? summary.averageSavedPerOrder ?? 0)) + '</div></div>' +
         '</div></div>' +
         '<div class="sheet-section">' +
-          '<div class="sheet-label">Uber One estimate basis</div>' +
+          '<div class="sheet-label">How the Uber One estimate is calculated</div>' +
           '<div class="sheet-list">' +
-            '<div class="sheet-row"><div><div class="sheet-row-title">Explicit Uber One samples</div><div class="sheet-row-meta">Receipts where Uber states the Uber One saving amount</div></div><div class="sheet-row-value">' + Number(model.sampleSize || 0) + '</div></div>' +
-            '<div class="sheet-row"><div><div class="sheet-row-title">Conservative amount / eligible receipt</div><div class="sheet-row-meta">Only applied when Uber One is mentioned but the amount is missing</div></div><div class="sheet-row-value">' + escapeHtml(money(model.baselinePerEligibleOrder || 0)) + '</div></div>' +
+            '<div class="sheet-row"><div><div class="sheet-row-title">Receipts with Uber One saving shown</div><div class="sheet-row-meta">Used to learn a conservative personal estimate</div></div><div class="sheet-row-value">' + Number(model.sampleSize || 0) + '</div></div>' +
+            '<div class="sheet-row"><div><div class="sheet-row-title">Estimate used when the amount is missing</div><div class="sheet-row-meta">Only used when the receipt mentions Uber One without showing the saving</div></div><div class="sheet-row-value">' + escapeHtml(money(model.baselinePerEligibleOrder || 0)) + '</div></div>' +
           '</div>' +
         '</div>' +
         '<div class="sheet-section">' +
@@ -3035,7 +3043,7 @@
                 '<div class="sheet-row-value">~' + escapeHtml(money(account.estimatedTotalSaved ?? account.totalSaved ?? 0)) + '</div></div>'
               )).join("") +
               '</div>'
-            : '<div class="empty">Savings insights will build after the Mac scans real receipts.</div>') +
+            : '<div class="empty">Your savings history will appear after receipts sync.</div>') +
         '</div>';
     }
 
@@ -3043,7 +3051,7 @@
       const summary = payload.summary || {};
       const generated = payload.generatedAt ? new Date(payload.generatedAt) : null;
 
-      setSheetHeading("Scan & data", "A quick health check for the tracker.");
+      setSheetHeading("Sync & data", "See when your tracker last updated and what data is available.");
 
       document.getElementById("sheetBody").innerHTML =
         '<div class="sheet-section"><div class="insight-grid">' +
@@ -3053,20 +3061,20 @@
           '<div class="insight"><div class="insight-label">Tracked receipts</div><div class="insight-value">' + Number(summary.trackedOrders || 0).toLocaleString("en-GB") + '</div></div>' +
         '</div></div>' +
         '<div class="sheet-section"><div class="sheet-list">' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Last public scan</div><div class="sheet-row-meta">Sanitised snapshot generation time</div></div>' +
+          '<div class="sheet-row"><div><div class="sheet-row-title">Last sync</div><div class="sheet-row-meta">Last safe update published from your Mac</div></div>' +
           '<div class="sheet-row-value">' +
             (generated && !Number.isNaN(generated.getTime())
               ? escapeHtml(generated.toLocaleString("en-GB", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }))
-              : "Demo") +
+              : "Not synced yet") +
           '</div></div>' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Private database</div><div class="sheet-row-meta">Full accounts, receipts, raw Mail evidence and durable usage</div></div><div class="sheet-row-value">Mac SQLite</div></div>' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Public app data</div><div class="sheet-row-meta">Masked accounts, safe promo fields and receipt totals</div></div><div class="sheet-row-value">promos.json</div></div>' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Manual phone actions</div><div class="sheet-row-meta">Used 1, ignore, done and split settings update immediately</div></div><div class="sheet-row-value">This browser</div></div>' +
+          '<div class="sheet-row"><div><div class="sheet-row-title">Private source</div><div class="sheet-row-meta">Full accounts, receipts, Mail evidence and durable usage</div></div><div class="sheet-row-value">On your Mac</div></div>' +
+          '<div class="sheet-row"><div><div class="sheet-row-title">Phone & web data</div><div class="sheet-row-meta">Masked accounts, promo details and savings totals</div></div><div class="sheet-row-value">Safe sync</div></div>' +
+          '<div class="sheet-row"><div><div class="sheet-row-title">Changes on this device</div><div class="sheet-row-meta">Used, ignore, done and split settings update immediately</div></div><div class="sheet-row-value">Saved locally</div></div>' +
         '</div></div>' +
         '<div class="sheet-section">' +
           '<div class="settings-explainer">' +
-            '<strong>How it links together</strong>' +
-            '<span>Apple Mail → private Mac SQLite → sanitised JSON → this app. Receipt scans reconcile durable promo usage. Manual phone taps stay local until receipt evidence catches up.</span>' +
+            '<strong>How syncing works</strong>' +
+            '<span>Your Mac reads Apple Mail privately and publishes only masked account and savings data to this app. Receipt syncs confirm durable promo usage, while changes you make here stay on this device until receipt evidence catches up.</span>' +
           '</div>' +
         '</div>';
     }
@@ -3088,7 +3096,7 @@
                 escapeHtml(row.status || "seen") + '</span></div>'
               )).join("") +
               '</div>'
-            : '<div class="empty">No public promo history yet.</div>') +
+            : '<div class="empty">No promo history yet.</div>') +
         '</div>';
     }
 
@@ -3214,10 +3222,10 @@
         renderAll();
       } catch (error) {
         console.error(error);
-        document.getElementById("scanLabel").textContent = "ERROR";
-        document.getElementById("scanTime").textContent = "Could not load tracker";
+        document.getElementById("scanLabel").textContent = "OFFLINE";
+        document.getElementById("scanTime").textContent = "Unable to load data";
         document.getElementById("homeAccounts").innerHTML =
-          '<div class="empty">Could not load tracker data.</div>';
+          '<div class="empty">The tracker data could not be loaded. Refresh and try again.</div>';
       }
     }
 

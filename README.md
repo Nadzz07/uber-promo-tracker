@@ -380,7 +380,7 @@ GitHub Pages:
 https://nadzz07.github.io/uber-promo-tracker/
 ```
 
-Until the first live Mac scan after setup, the repository contains clearly marked synthetic demo data.
+The public site ships in a clean first-sync state with no synthetic accounts or savings totals. The first successful Mac sync replaces that empty state with the sanitised live snapshot.
 
 ## Files that must stay private
 
