@@ -185,7 +185,7 @@ export function extractExpiry(text, receivedAtValue) {
       expires: null,
       expiresAt: null,
       expiryStatus: "unknown",
-      expiryBasis: "activation_date_unknown",
+      expiryBasis: null,
       expiryConfidence: null,
       expirySourceText: sourceSnippet(text, duration)
     };
