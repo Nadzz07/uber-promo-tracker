@@ -40,7 +40,12 @@ assert.ok(html.includes("Mark fully used"));
 assert.ok(html.includes("Mark account done"));
 assert.ok(html.includes("Multi-use"));
 assert.ok(html.includes("Weaker usable accounts"));
-assert.ok(html.includes("Total saved"));
+assert.ok(html.includes("Estimated saved"));
+assert.ok(html.includes("Confirmed receipts"));
+assert.ok(html.includes("Estimated missing Uber One"));
+assert.ok(html.includes("Uber One estimate basis"));
+assert.ok(html.includes("savings-hero"));
+assert.ok(html.includes("grid-template-columns: auto minmax(0,1fr) 36px"));
 assert.ok(html.includes("Can’t log in"));
 
 assert.ok(
@@ -155,4 +160,4 @@ assert.deepEqual(
   "every visible button must have an explicit action marker, id handler, or be disabled"
 );
 
-console.log("✓ Round-3 UI, action wiring and data-flow guard");
+console.log("✓ Round-4 UI, savings estimate, action wiring and data-flow guard");
