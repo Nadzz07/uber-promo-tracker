@@ -1207,6 +1207,478 @@
       letter-spacing: -.04em;
     }
 
+    /* Round 3: stronger app hierarchy and clearer touch controls */
+    .home-intro {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 14px 2px 10px;
+    }
+
+    .home-intro-copy {
+      max-width: 245px;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.4;
+      text-align: right;
+    }
+
+    .brand-kicker {
+      color: #b8ff8f;
+    }
+
+    .brand-title {
+      font-size: 27px;
+      text-shadow: 0 0 28px rgba(155,234,114,.10);
+    }
+
+    .hero-card {
+      padding: 18px;
+      background:
+        radial-gradient(circle at 88% 8%, rgba(184,255,143,.20), transparent 14rem),
+        radial-gradient(circle at 10% 100%, rgba(83,175,104,.12), transparent 18rem),
+        linear-gradient(155deg, rgba(48,65,53,.82), rgba(23,32,27,.72));
+      border-color: rgba(184,255,143,.18);
+    }
+
+    .hero-heading {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 15px;
+    }
+
+    .hero-title {
+      margin: 5px 0 0;
+      max-width: 285px;
+      font-size: clamp(27px, 7.5vw, 38px);
+      line-height: .98;
+      letter-spacing: -.06em;
+    }
+
+    .hero-spark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      flex: 0 0 auto;
+      border-radius: 13px;
+      background: linear-gradient(145deg, rgba(184,255,143,.22), rgba(155,234,114,.07));
+      color: var(--green-strong);
+      box-shadow: var(--inner), 0 0 28px rgba(155,234,114,.12);
+      font-size: 17px;
+    }
+
+    .basket-editor {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 76px;
+      padding: 12px 13px;
+      border: 1px solid rgba(184,255,143,.24);
+      border-radius: 18px;
+      background: rgba(4,10,6,.30);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 12px 35px rgba(0,0,0,.16);
+      cursor: text;
+    }
+
+    .basket-editor:focus-within {
+      border-color: rgba(184,255,143,.72);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 0 0 3px rgba(155,234,114,.10), 0 16px 44px rgba(0,0,0,.2);
+    }
+
+    .basket-editor-copy {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .basket-editor-copy strong {
+      font-size: 11px;
+      letter-spacing: -.01em;
+    }
+
+    .basket-editor-copy small {
+      color: var(--muted);
+      font-size: 8px;
+    }
+
+    .basket-value-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    .basket-value-wrap .basket-currency {
+      color: var(--green-strong);
+      font-size: 24px;
+    }
+
+    .basket-value-wrap .basket-input {
+      width: 118px;
+      text-align: right;
+      font-size: 31px;
+      color: #fff;
+      caret-color: var(--green);
+    }
+
+    .basket-edit-icon {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      margin-left: 6px;
+      border-radius: 9px;
+      background: rgba(255,255,255,.07);
+      color: var(--green);
+      font-size: 13px;
+    }
+
+    .recommendation {
+      margin-top: 14px;
+      padding-top: 15px;
+      border-color: rgba(255,255,255,.09);
+    }
+
+    .advanced-btn {
+      min-height: 40px;
+      padding: 0 13px;
+      border-color: rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: #d6ded7;
+      font-size: 9px;
+    }
+
+    .advanced-btn span {
+      margin-left: 5px;
+      color: var(--green);
+      font-size: 15px;
+      vertical-align: -1px;
+    }
+
+    .stat-card {
+      background: linear-gradient(155deg, rgba(44,58,49,.62), rgba(27,36,30,.5));
+    }
+
+    .quick-card,
+    .account-card,
+    .more-card {
+      background: linear-gradient(155deg, rgba(43,57,48,.62), rgba(26,35,29,.52));
+    }
+
+    .account-card.picked {
+      border-color: rgba(184,255,143,.7);
+      box-shadow: var(--inner), 0 0 0 3px rgba(155,234,114,.09), 0 18px 50px rgba(0,0,0,.22);
+    }
+
+    .settings-explainer {
+      display: grid;
+      gap: 3px;
+      margin: 2px 0 12px;
+      padding: 11px 12px;
+      border: 1px solid rgba(155,234,114,.16);
+      border-radius: 14px;
+      background: rgba(155,234,114,.06);
+      color: var(--muted);
+      font-size: 8.5px;
+      line-height: 1.4;
+    }
+
+    .settings-explainer strong {
+      color: var(--text);
+      font-size: 10px;
+    }
+
+    .setting-card {
+      margin-top: 10px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 19px;
+      background: rgba(255,255,255,.045);
+      box-shadow: var(--inner);
+    }
+
+    .setting-card-head {
+      display: grid;
+      grid-template-columns: 38px minmax(0,1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .setting-icon {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--green-soft);
+      color: var(--green-strong);
+      font-size: 14px;
+      font-weight: 950;
+    }
+
+    .setting-title {
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .setting-copy {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 8.5px;
+      line-height: 1.4;
+    }
+
+    .setting-money {
+      display: grid;
+      grid-template-columns: auto minmax(0,1fr) auto;
+      gap: 7px;
+      align-items: center;
+      min-height: 58px;
+      margin-top: 12px;
+      padding: 0 11px;
+      border: 1px solid rgba(184,255,143,.25);
+      border-radius: 15px;
+      background: rgba(0,0,0,.18);
+    }
+
+    .setting-money > span {
+      color: var(--green);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .setting-money input {
+      min-width: 0;
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: 25px;
+      font-weight: 950;
+    }
+
+    .setting-money em {
+      color: var(--green);
+      font-size: 7px;
+      font-style: normal;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .setting-note {
+      margin-top: 8px;
+      color: var(--dim);
+      font-size: 7.5px;
+      line-height: 1.45;
+    }
+
+    .max-order-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .max-order-btn {
+      min-height: 70px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 2px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      cursor: pointer;
+      box-shadow: var(--inner);
+    }
+
+    .max-order-btn strong {
+      font-size: 21px;
+      line-height: 1;
+    }
+
+    .max-order-btn span {
+      font-size: 7px;
+      font-weight: 800;
+    }
+
+    .max-order-btn.active {
+      border-color: rgba(184,255,143,.55);
+      background: linear-gradient(145deg, rgba(155,234,114,.20), rgba(155,234,114,.08));
+      color: var(--green-strong);
+      box-shadow: var(--inner), 0 0 24px rgba(155,234,114,.08);
+    }
+
+    .settings-reset {
+      width: 100%;
+      min-height: 47px;
+      margin: 12px 0 4px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.045);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 9px;
+      font-weight: 850;
+    }
+
+    .account-sheet-hero {
+      margin: 0 0 12px;
+      padding: 15px;
+      border: 1px solid rgba(184,255,143,.16);
+      border-radius: 21px;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(155,234,114,.15), transparent 12rem),
+        linear-gradient(150deg, rgba(49,65,54,.78), rgba(27,36,30,.62));
+      box-shadow: var(--inner);
+    }
+
+    .account-sheet-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .account-sheet-label {
+      color: var(--dim);
+      font-size: 7.5px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .account-sheet-email {
+      margin-top: 4px;
+      overflow: hidden;
+      max-width: 225px;
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing: -.035em;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .account-status-badge {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 34px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 8px;
+      font-weight: 900;
+      box-shadow: var(--inner);
+    }
+
+    .account-status-badge.ok {
+      border: 1px solid rgba(155,234,114,.34);
+      background: rgba(155,234,114,.12);
+      color: var(--green-strong);
+    }
+
+    .account-status-badge.no {
+      border: 1px solid rgba(241,198,109,.3);
+      background: rgba(241,198,109,.10);
+      color: var(--amber);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    .account-sheet-summary {
+      display: grid;
+      grid-template-columns: repeat(3,minmax(0,1fr));
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .account-sheet-summary > div {
+      min-width: 0;
+      padding: 9px;
+      border: 1px solid var(--line-soft);
+      border-radius: 12px;
+      background: rgba(0,0,0,.13);
+    }
+
+    .account-sheet-summary span {
+      display: block;
+      color: var(--dim);
+      font-size: 7px;
+      font-weight: 800;
+    }
+
+    .account-sheet-summary strong {
+      display: block;
+      margin-top: 5px;
+      overflow: hidden;
+      font-size: 13px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .account-sheet-actions {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .account-primary,
+    .account-secondary {
+      min-height: 49px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .account-primary {
+      border: 1px solid rgba(184,255,143,.35);
+      background: var(--green);
+      color: #0b120d;
+      box-shadow: 0 10px 30px rgba(155,234,114,.16);
+    }
+
+    .account-secondary {
+      min-width: 92px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.045);
+      color: var(--muted);
+    }
+
+    .sheet-section-title {
+      margin-bottom: 9px;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 900;
+    }
+
+    .offers-section .offer-card {
+      background: rgba(255,255,255,.055);
+    }
+
+    .offer-actions .action-btn {
+      min-height: 46px;
+      font-size: 9px;
+    }
+
     @media (min-width: 760px) {
       body { padding-bottom: 44px; }
       .app-shell { padding: 22px 24px 54px; }
@@ -1266,7 +1738,7 @@
   <div id="app" class="app-shell">
     <header class="topbar">
       <div>
-        <div class="brand-kicker">Uber Eats</div>
+        <div class="brand-kicker">Promo tracker</div>
         <div class="brand-title">Uber Eats Promo Tracker</div>
       </div>
       <div class="scan-wrap">
@@ -1304,10 +1776,9 @@
 
     <main>
       <section id="view-home" class="view active">
-        <div class="screen-head">
-          <div class="eyebrow">Ready to order?</div>
-          <h1 class="screen-title">Find the best move.</h1>
-          <div class="screen-copy">Your usable accounts, remaining promo uses and receipt history all feed the recommendation.</div>
+        <div class="home-intro">
+          <div class="eyebrow">Home</div>
+          <div class="home-intro-copy">Your live promos, usable accounts and receipt history are ready when you are.</div>
         </div>
 
         <div class="stats-row">
@@ -1329,25 +1800,32 @@
         </div>
 
         <section class="hero-card glass">
-          <div class="hero-label">Basket subtotal</div>
-          <div class="basket-line">
-            <span class="basket-currency">£</span>
-            <input id="basketInput" class="basket-input" type="number" min="0" step="0.50" value="50" inputmode="decimal" aria-label="Basket subtotal">
+          <div class="hero-heading">
+            <div>
+              <div class="eyebrow">Order planner</div>
+              <h1 class="hero-title">Best move for this basket</h1>
+            </div>
+            <span class="hero-spark">✦</span>
           </div>
 
-          <div class="quick-baskets">
-            <button class="quick-btn" data-basket="15">£15</button>
-            <button class="quick-btn" data-basket="25">£25</button>
-            <button class="quick-btn" data-basket="40">£40</button>
-            <button class="quick-btn" data-basket="50">£50</button>
-          </div>
+          <label class="basket-editor" for="basketInput">
+            <span class="basket-editor-copy">
+              <strong>Basket subtotal</strong>
+              <small>Tap the amount to edit</small>
+            </span>
+            <span class="basket-value-wrap">
+              <span class="basket-currency">£</span>
+              <input id="basketInput" class="basket-input" type="number" min="0" step="0.01" value="50.00" inputmode="decimal" aria-label="Basket subtotal">
+              <span class="basket-edit-icon" aria-hidden="true">✎</span>
+            </span>
+          </label>
 
           <div id="recommendation" class="recommendation">
             <div class="empty">Loading your usable promos…</div>
           </div>
 
           <div class="hero-footer">
-            <button class="advanced-btn" data-open-sheet="advanced">Advanced split settings</button>
+            <button class="advanced-btn" data-open-sheet="advanced">Split settings <span aria-hidden="true">›</span></button>
             <div id="feeNote" class="fee-note"></div>
           </div>
         </section>
@@ -1543,6 +2021,7 @@
     let currentIntent = "best";
     let accountFilter = "all";
     let accountDisplayLimit = 48;
+    let selectedAccountRef = null;
     let manualStore = readManualStore();
     let plannerSettings = readPlannerSettings();
     let openSheetType = null;
@@ -1972,7 +2451,7 @@
           : '<div class="save-now" style="color:var(--muted)">—<small>no eligible saving</small></div>';
 
       return (
-        '<article class="account-card">' +
+        '<article class="account-card' + (account.accountRef === selectedAccountRef ? ' picked' : '') + '" data-card-account="' + escapeHtml(account.accountRef) + '">' +
           '<div class="account-top">' +
             '<div style="min-width:0">' +
               '<div class="account-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
@@ -2269,7 +2748,7 @@
       openSheetType = "account";
       openAccountRef = accountRef;
 
-      setSheetHeading(accountDisplay(account), "Manage promo uses for this account.");
+      setSheetHeading("Account", "Choose an offer, log a use or mark this account done.");
       renderAccountSheet();
       showSheet();
     }
@@ -2290,21 +2769,38 @@
           return String(b.emailSentAt || "").localeCompare(String(a.emailSentAt || ""));
         });
 
+      const liveItems = items.filter(isPromoActive);
+      const best = bestForAccount(account);
+      const bestSaving = Number(best?.calculation?.saving || 0);
+
       const body =
-        '<div class="sheet-section">' +
-          '<div class="pill-row">' +
-            '<span class="pill ' + (account.canLogin ? 'good' : 'warn') + '">' +
+        '<div class="account-sheet-hero">' +
+          '<div class="account-sheet-top">' +
+            '<div style="min-width:0">' +
+              '<div class="account-sheet-label">Uber Eats account</div>' +
+              '<div class="account-sheet-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
+            '</div>' +
+            '<div class="account-status-badge ' + (account.canLogin ? 'ok' : 'no') + '">' +
+              '<span class="status-dot"></span>' +
               (account.canLogin ? 'Can log in' : 'Can’t log in') +
-            '</span>' +
-            (accountDone ? '<span class="pill warn">Account done</span>' : '') +
+            '</div>' +
           '</div>' +
-          '<div style="margin-top:10px">' +
+          '<div class="account-sheet-summary">' +
+            '<div><span>Live offers</span><strong>' + liveItems.length + '</strong></div>' +
+            '<div><span>Save now</span><strong>' + (bestSaving > 0 ? escapeHtml(money(bestSaving)) : '—') + '</strong></div>' +
+            '<div><span>Status</span><strong>' + (accountDone ? 'Done' : 'Ready') + '</strong></div>' +
+          '</div>' +
+          '<div class="account-sheet-actions">' +
             (accountDone
-              ? '<button class="action-btn primary" data-sheet-account-done="false">Restore account</button>'
-              : '<button class="action-btn" data-sheet-account-done="true">Mark account done</button>') +
+              ? '<button class="account-primary" data-sheet-account-done="false">Restore account</button>'
+              : '<button class="account-primary" data-use-this-account="' + escapeHtml(account.accountRef) + '">Use this account</button>') +
+            (accountDone
+              ? ''
+              : '<button class="account-secondary" data-sheet-account-done="true">Mark done</button>') +
           '</div>' +
         '</div>' +
-        '<div class="sheet-section">' +
+        '<div class="sheet-section offers-section">' +
+          '<div class="sheet-section-title">Offers on this account</div>' +
           (items.length
             ? items.map(offerSheetCard).join("")
             : '<div class="empty">No offers stored for this account.</div>') +
@@ -2320,31 +2816,45 @@
         0
       );
 
-      setSheetHeading("Advanced split settings", "These settings only affect basket recommendations.");
+      setSheetHeading("Split settings", "Fine-tune how far the optimiser is allowed to split one basket.");
 
       document.getElementById("sheetBody").innerHTML =
-        '<div class="sheet-section">' +
-          '<div class="sheet-label">Extra order cost</div>' +
-          '<input id="sheetFeeInput" class="sheet-input" type="number" min="0" step="0.10" value="' +
-            escapeHtml(effectiveFee().toFixed(2)) + '">' +
-          '<div class="sheet-help">Estimated extra delivery, service and small-order fees for each additional split order.' +
-            (learned > 0 ? ' Receipt-derived estimate: ' + escapeHtml(money(learned)) + '.' : '') +
+        '<div class="settings-explainer">' +
+          '<strong>These only change the recommendation.</strong>' +
+          '<span>Your promos and account data are not changed.</span>' +
+        '</div>' +
+        '<div class="setting-card">' +
+          '<div class="setting-card-head">' +
+            '<div class="setting-icon">£</div>' +
+            '<div><div class="setting-title">Extra fee per extra order</div>' +
+            '<div class="setting-copy">What another split order is likely to add in delivery, service or small-order fees.</div></div>' +
+          '</div>' +
+          '<label class="setting-money" for="sheetFeeInput">' +
+            '<span>£</span>' +
+            '<input id="sheetFeeInput" type="number" min="0" step="0.01" value="' +
+              escapeHtml(effectiveFee().toFixed(2)) + '">' +
+            (learned > 0
+              ? '<em>Receipt estimate ' + escapeHtml(money(learned)) + '</em>'
+              : '<em>Manual estimate</em>') +
+          '</label>' +
+          '<div class="setting-note">Example: if a second order costs about £2.49 extra in fees, the optimiser subtracts that before saying how much you really save.</div>' +
+        '</div>' +
+        '<div class="setting-card">' +
+          '<div class="setting-card-head">' +
+            '<div class="setting-icon">#</div>' +
+            '<div><div class="setting-title">Maximum split orders</div>' +
+            '<div class="setting-copy">The most separate Uber Eats orders/accounts the optimiser may suggest for one basket.</div></div>' +
+          '</div>' +
+          '<div class="max-order-grid" role="group" aria-label="Maximum split orders">' +
+            [1,2,3,4].map(value =>
+              '<button class="max-order-btn' + (plannerSettings.maxOrders === value ? ' active' : '') +
+              '" data-max-orders="' + value + '">' +
+                '<strong>' + value + '</strong><span>' + (value === 1 ? 'order' : 'orders') + '</span>' +
+              '</button>'
+            ).join("") +
           '</div>' +
         '</div>' +
-        '<div class="sheet-section">' +
-          '<div class="sheet-label">Split limit</div>' +
-          '<select id="sheetMaxOrders" class="sheet-select">' +
-            [1,2,3,4].map(value =>
-              '<option value="' + value + '"' + (plannerSettings.maxOrders === value ? ' selected' : '') + '>' +
-                value + (value === 1 ? ' order' : ' orders') +
-              '</option>'
-            ).join("") +
-          '</select>' +
-          '<div class="sheet-help">Maximum number of separate Uber Eats orders/accounts the optimiser is allowed to suggest.</div>' +
-        '</div>' +
-        '<div class="sheet-section">' +
-          '<button id="resetPlannerSettings" class="action-btn" style="width:100%">Use receipt-derived defaults</button>' +
-        '</div>';
+        '<button id="resetPlannerSettings" class="settings-reset">Use automatic defaults</button>';
     }
 
     function renderLockedSheet() {
@@ -2611,15 +3121,6 @@
       renderHomeAccounts();
     });
 
-    document.querySelectorAll("[data-basket]").forEach(button => {
-      button.addEventListener("click", () => {
-        document.getElementById("basketInput").value = button.dataset.basket;
-        renderRecommendation();
-        renderHomeAccounts();
-        renderAccounts();
-      });
-    });
-
     document.getElementById("basketInput").addEventListener("input", () => {
       renderRecommendation();
       renderHomeAccounts();
@@ -2716,6 +3217,32 @@
     });
 
     document.getElementById("sheetBody").addEventListener("click", event => {
+      const useThisAccount = event.target.closest("[data-use-this-account]");
+      if (useThisAccount) {
+        selectedAccountRef = useThisAccount.dataset.useThisAccount;
+        currentIntent = "best";
+        document.querySelectorAll("[data-intent]").forEach(item => {
+          item.classList.toggle("active", item.dataset.intent === "best");
+        });
+        closeSheet();
+        renderHomeAccounts();
+        switchView("home");
+        requestAnimationFrame(() => {
+          const card = document.querySelector('[data-card-account="' + CSS.escape(selectedAccountRef) + '"]');
+          card?.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+        return;
+      }
+
+      const maxOrdersButton = event.target.closest("[data-max-orders]");
+      if (maxOrdersButton) {
+        plannerSettings.maxOrders = Number(maxOrdersButton.dataset.maxOrders || 3);
+        savePlannerSettings();
+        renderAdvancedSheet();
+        renderRecommendation();
+        return;
+      }
+
       const useButton = event.target.closest("[data-use-one]");
       if (useButton) {
         const promo = promoByKey(useButton.dataset.useOne);
@@ -2799,14 +3326,6 @@
 
       if (event.target.id === "sheetLockedSearch") {
         renderLockedSearch(event.target.value);
-      }
-    });
-
-    document.getElementById("sheetBody").addEventListener("change", event => {
-      if (event.target.id === "sheetMaxOrders") {
-        plannerSettings.maxOrders = Number(event.target.value || 3);
-        savePlannerSettings();
-        renderRecommendation();
       }
     });
 
