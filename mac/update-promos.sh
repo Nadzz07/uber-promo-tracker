@@ -11,8 +11,16 @@ fi
 PROMO_FOLDERS="${APPLE_MAIL_PROMO_FOLDERS:-${APPLE_MAIL_PROMO_FOLDER:-INBOX}}"
 PROMO_DAYS="${APPLE_MAIL_PROMO_DAYS:-60}"
 RECEIPT_FOLDER="${APPLE_MAIL_RECEIPT_FOLDER:-Uber Receipts}"
-RECEIPT_DAYS="${APPLE_MAIL_RECEIPT_DAYS:-3650}"
+CONFIGURED_RECEIPT_DAYS="${APPLE_MAIL_RECEIPT_DAYS:-90}"
 PRIVATE_DB="${TRACKER_PRIVATE_DB:-uber-tracker.local.db}"
+MOVE_INBOX_RECEIPTS="${APPLE_MAIL_MOVE_INBOX_RECEIPTS:-false}"
+
+RECEIPT_DAYS="$CONFIGURED_RECEIPT_DAYS"
+if (( RECEIPT_DAYS > 365 )); then
+  echo "Routine receipt lookback was set to $RECEIPT_DAYS days."
+  echo "Using 90 days for the normal sync; historical receipts belong in mac/backfill-receipts.sh."
+  RECEIPT_DAYS=90
+fi
 
 if ! command -v node >/dev/null 2>&1; then
   echo "Node.js is required. Install Node 22 or newer, then run this again."
@@ -44,6 +52,16 @@ node generate-promos.js \
   promos.json \
   history.json \
   "$PRIVATE_DB"
+
+if [[ "$MOVE_INBOX_RECEIPTS" == "true" ]]; then
+  node mac/find-inbox-receipts.js emails.local.json receipt-moves.local.json
+  MOVE_RESULT="$(
+    osascript -l JavaScript mac/move-inbox-receipts.js \
+      receipt-moves.local.json "$RECEIPT_FOLDER" "$PROMO_DAYS"
+  )"
+  echo "Inbox receipt filing: $MOVE_RESULT"
+  rm -f receipt-moves.local.json
+fi
 
 if ! command -v git >/dev/null 2>&1; then
   echo "Git is unavailable. Public JSON was generated locally but not published."

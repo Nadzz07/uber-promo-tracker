@@ -3,6 +3,7 @@ emails.local.json
 accounts.local.json
 history.local.json
 receipts.local.json
+receipt-moves.local.json
 legacy-promos.local.json
 account-access.local.csv
 accessible-accounts.local.txt

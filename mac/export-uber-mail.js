@@ -106,11 +106,51 @@ function looksUber(subject, sender) {
   );
 }
 
-function scanMailbox(box, role, daysBack) {
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - Number(daysBack || 60));
+function dateRange(daysBack, olderThanDays) {
+  const now = new Date();
+  const start = new Date(now);
+  start.setDate(start.getDate() - Number(daysBack || 0));
 
-  const messages = box.messages();
+  let end = null;
+  if (Number(olderThanDays || 0) > 0) {
+    end = new Date(now);
+    end.setDate(end.getDate() - Number(olderThanDays));
+  }
+
+  return { start, end };
+}
+
+function messagesInRange(box, daysBack, olderThanDays) {
+  const range = dateRange(daysBack, olderThanDays);
+  let selector;
+
+  try {
+    if (range.end) {
+      selector = box.messages.whose({
+        _and: [
+          { dateReceived: { _greaterThanEquals: range.start } },
+          { dateReceived: { _lessThan: range.end } }
+        ]
+      });
+    } else {
+      selector = box.messages.whose({
+        dateReceived: { _greaterThanEquals: range.start }
+      });
+    }
+
+    return selector();
+  } catch (error) {
+    throw new Error(
+      "Mail could not apply the date filter before reading messages. " +
+      "The full mailbox scan was intentionally not attempted. " +
+      String(error)
+    );
+  }
+}
+
+function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox) {
+  const range = dateRange(daysBack, olderThanDays);
+  const messages = messagesInRange(box, daysBack, olderThanDays);
   const results = [];
 
   for (let i = 0; i < messages.length; i++) {
@@ -126,7 +166,8 @@ function scanMailbox(box, role, daysBack) {
     try { receivedAt = new Date(message.dateReceived()); } catch (_) { receivedAt = new Date(0); }
     try { sentAt = new Date(message.dateSent()); } catch (_) { sentAt = receivedAt; }
 
-    if (Number.isNaN(receivedAt.getTime()) || receivedAt < cutoff) continue;
+    if (Number.isNaN(receivedAt.getTime()) || receivedAt < range.start) continue;
+    if (range.end && receivedAt >= range.end) continue;
     if (!looksUber(subject, sender)) continue;
 
     let rawSource = "";
@@ -147,13 +188,13 @@ function scanMailbox(box, role, daysBack) {
       sentAt: isoDate(sentAt),
       receivedAt: isoDate(receivedAt),
       messageId: rawMessageId || null,
-      mailbox: role
+      mailbox: role,
+      sourceMailbox: sourceMailbox || null
     });
   }
 
   return results;
 }
-
 
 function splitMailboxNames(value) {
   return String(value || "")
@@ -188,8 +229,10 @@ function dedupeMessages(messages) {
 function run(argv) {
   const promoDays = Number(argv[0] || 60);
   const promoMailboxNames = splitMailboxNames(argv[1] || "INBOX");
-  const receiptDays = Number(argv[2] || 3650);
+  const receiptDays = Number(argv[2] || 90);
   const receiptMailboxName = String(argv[3] || "Uber Receipts");
+  const receiptOlderThanDays = Number(argv[4] || 0);
+  const promoOlderThanDays = Number(argv[5] || 0);
 
   const Mail = Application("Mail");
   Mail.includeStandardAdditions = false;
@@ -197,47 +240,71 @@ function run(argv) {
   const messages = [];
   const scannedMailboxes = [];
 
-  let foundPromoMailbox = false;
+  if (promoDays > 0) {
+    let foundPromoMailbox = false;
 
-  for (const promoMailboxName of promoMailboxNames) {
-    const promoMailbox = findMailbox(Mail, promoMailboxName);
+    for (const promoMailboxName of promoMailboxNames) {
+      const promoMailbox = findMailbox(Mail, promoMailboxName);
 
-    if (!promoMailbox) {
-      stderr("Warning: promo mailbox '" + promoMailboxName + "' was not found.");
-      continue;
+      if (!promoMailbox) {
+        stderr("Warning: promo mailbox '" + promoMailboxName + "' was not found.");
+        continue;
+      }
+
+      foundPromoMailbox = true;
+      messages.push.apply(
+        messages,
+        scanMailbox(
+          promoMailbox,
+          "promo",
+          promoDays,
+          promoOlderThanDays,
+          promoMailboxName
+        )
+      );
+      scannedMailboxes.push({
+        role: "promo",
+        name: promoMailboxName,
+        daysBack: promoDays,
+        olderThanDays: promoOlderThanDays
+      });
     }
 
-    foundPromoMailbox = true;
-    messages.push.apply(messages, scanMailbox(promoMailbox, "promo", promoDays));
-    scannedMailboxes.push({
-      role: "promo",
-      name: promoMailboxName,
-      daysBack: promoDays
-    });
+    if (!foundPromoMailbox) {
+      throw new Error(
+        "Could not find any configured promo mailbox: " +
+        promoMailboxNames.join(" | ")
+      );
+    }
   }
 
-  if (!foundPromoMailbox) {
-    throw new Error(
-      "Could not find any configured promo mailbox: " +
-      promoMailboxNames.join(" | ")
-    );
-  }
+  if (receiptDays > 0) {
+    const receiptMailbox = findMailbox(Mail, receiptMailboxName);
 
-  const receiptMailbox = findMailbox(Mail, receiptMailboxName);
-
-  if (receiptMailbox) {
-    messages.push.apply(messages, scanMailbox(receiptMailbox, "receipt", receiptDays));
-    scannedMailboxes.push({
-      role: "receipt",
-      name: receiptMailboxName,
-      daysBack: receiptDays
-    });
-  } else {
-    stderr(
-      "Warning: receipt mailbox '" +
-      receiptMailboxName +
-      "' was not found. Promo scanning will continue."
-    );
+    if (receiptMailbox) {
+      messages.push.apply(
+        messages,
+        scanMailbox(
+          receiptMailbox,
+          "receipt",
+          receiptDays,
+          receiptOlderThanDays,
+          receiptMailboxName
+        )
+      );
+      scannedMailboxes.push({
+        role: "receipt",
+        name: receiptMailboxName,
+        daysBack: receiptDays,
+        olderThanDays: receiptOlderThanDays
+      });
+    } else {
+      stderr(
+        "Warning: receipt mailbox '" +
+        receiptMailboxName +
+        "' was not found. Promo scanning will continue."
+      );
+    }
   }
 
   return JSON.stringify({
