@@ -1541,6 +1541,7 @@
     let currentView = "home";
     let currentIntent = "best";
     let accountFilter = "all";
+    let accountDisplayLimit = 48;
     let manualStore = readManualStore();
     let plannerSettings = readPlannerSettings();
     let openSheetType = null;
@@ -2023,7 +2024,10 @@
       document.getElementById("weakSummary").textContent =
         "Weaker usable accounts · " + weak.length;
       document.getElementById("weakAccounts").innerHTML =
-        weak.map(account => accountCard(account)).join("");
+        weak.slice(0, 16).map(account => accountCard(account)).join("") +
+        (weak.length > 16
+          ? '<button class="ghost-btn" style="width:100%;margin-top:8px;text-align:center" data-jump-accounts="true">View all usable accounts</button>'
+          : "");
     }
 
     function renderAccounts() {
@@ -2055,9 +2059,15 @@
       document.getElementById("accountsMeta").textContent =
         list.length + (list.length === 1 ? " account" : " accounts");
 
+      const shown = list.slice(0, accountDisplayLimit);
+
       document.getElementById("accountsList").innerHTML =
-        list.length
-          ? list.map(account => accountCard(account)).join("")
+        shown.length
+          ? shown.map(account => accountCard(account)).join("") +
+            (list.length > shown.length
+              ? '<button class="ghost-btn" style="width:100%;min-height:44px;text-align:center" data-show-more-accounts="true">Show ' +
+                Math.min(48, list.length - shown.length) + ' more</button>'
+              : "")
           : '<div class="empty">No usable account matches this filter.</div>';
     }
 
@@ -2359,10 +2369,12 @@
         .filter(account => !account.canLogin)
         .filter(account => !term || String(account.accountMasked || "").toLowerCase().includes(term));
 
+      const shown = term ? list.slice(0, 120) : list.slice(0, 80);
+
       target.innerHTML =
-        list.length
+        shown.length
           ? '<div class="sheet-list">' +
-            list.map(account => (
+            shown.map(account => (
               '<div class="sheet-row">' +
                 '<div><div class="sheet-row-title">' + escapeHtml(accountDisplay(account)) + '</div>' +
                 '<div class="sheet-row-meta">' + Number(account.activePromoCount || 0) + ' active promos · last seen ' +
@@ -2370,7 +2382,10 @@
                 '<span class="pill warn">Can’t log in</span>' +
               '</div>'
             )).join("") +
-            '</div>'
+            '</div>' +
+            (list.length > shown.length
+              ? '<div class="sheet-help" style="margin-top:8px">Showing ' + shown.length + ' of ' + list.length + '. Search the masked email to narrow it down.</div>'
+              : "")
           : '<div class="empty">No inaccessible account matches that search.</div>';
     }
 
@@ -2610,13 +2625,17 @@
       renderAccounts();
     });
 
-    document.getElementById("accountSearch").addEventListener("input", renderAccounts);
+    document.getElementById("accountSearch").addEventListener("input", () => {
+      accountDisplayLimit = 48;
+      renderAccounts();
+    });
 
     document.getElementById("accountFilters").addEventListener("click", event => {
       const button = event.target.closest("[data-account-filter]");
       if (!button) return;
 
       accountFilter = button.dataset.accountFilter;
+      accountDisplayLimit = 48;
 
       document.querySelectorAll("[data-account-filter]").forEach(item => {
         item.classList.toggle("active", item === button);
@@ -2626,6 +2645,19 @@
     });
 
     document.getElementById("app").addEventListener("click", event => {
+      const showMore = event.target.closest("[data-show-more-accounts]");
+      if (showMore) {
+        accountDisplayLimit += 48;
+        renderAccounts();
+        return;
+      }
+
+      const jumpAccounts = event.target.closest("[data-jump-accounts]");
+      if (jumpAccounts) {
+        switchView("accounts");
+        return;
+      }
+
       const sheetButton = event.target.closest("[data-open-sheet]");
       if (sheetButton) {
         openUtilitySheet(sheetButton.dataset.openSheet);
