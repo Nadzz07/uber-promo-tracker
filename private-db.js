@@ -393,12 +393,30 @@ export function upsertOffer(db, promo, seenAt = new Date().toISOString()) {
       END,
       message_key = CASE WHEN ? = 1 THEN ? ELSE message_key END,
       title = CASE WHEN ? = 1 THEN ? ELSE title END,
-      promo_code = CASE WHEN ? = 1 THEN ? ELSE promo_code END,
-      expires = CASE WHEN ? = 1 THEN ? ELSE expires END,
-      expires_at = CASE WHEN ? = 1 THEN ? ELSE expires_at END,
-      expiry_status = CASE WHEN ? = 1 THEN ? ELSE expiry_status END,
-      expiry_basis = CASE WHEN ? = 1 THEN ? ELSE expiry_basis END,
-      expiry_confidence = CASE WHEN ? = 1 THEN ? ELSE expiry_confidence END,
+      promo_code = CASE
+        WHEN ? = 1 AND ? IS NOT NULL THEN ?
+        ELSE promo_code
+      END,
+      expires = CASE
+        WHEN ? = 1 AND ? IS NOT NULL THEN ?
+        ELSE expires
+      END,
+      expires_at = CASE
+        WHEN ? = 1 AND ? IS NOT NULL THEN ?
+        ELSE expires_at
+      END,
+      expiry_status = CASE
+        WHEN ? = 1 AND ? IS NOT NULL THEN ?
+        ELSE expiry_status
+      END,
+      expiry_basis = CASE
+        WHEN ? = 1 AND ? IS NOT NULL THEN ?
+        ELSE expiry_basis
+      END,
+      expiry_confidence = CASE
+        WHEN ? = 1 AND ? IS NOT NULL THEN ?
+        ELSE expiry_confidence
+      END,
       classification_confidence = CASE WHEN ? = 1 THEN ? ELSE classification_confidence END,
       evidence_json = CASE WHEN ? = 1 THEN ? ELSE evidence_json END,
       status = CASE WHEN observed_live = 1 OR ? = 1 THEN 'active' ELSE status END
@@ -417,15 +435,21 @@ export function upsertOffer(db, promo, seenAt = new Date().toISOString()) {
     promo.title || null,
     incomingIsNewer ? 1 : 0,
     promo.code || null,
+    promo.code || null,
     incomingIsNewer ? 1 : 0,
+    promo.expires || null,
     promo.expires || null,
     incomingIsNewer ? 1 : 0,
     promo.expiresAt || null,
+    promo.expiresAt || null,
     incomingIsNewer ? 1 : 0,
+    promo.expires ? (promo.expiryStatus || "exact") : null,
     promo.expiryStatus || "unknown",
     incomingIsNewer ? 1 : 0,
     promo.expiryBasis || null,
+    promo.expiryBasis || null,
     incomingIsNewer ? 1 : 0,
+    promo.expiryConfidence || null,
     promo.expiryConfidence || null,
     incomingIsNewer ? 1 : 0,
     promo.classificationConfidence || null,
