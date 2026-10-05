@@ -66,7 +66,27 @@ try {
   assert.equal(result.count, 1);
   assert.deepEqual(result.messageIds, ["<receipt-inbox@uber.com>"]);
 
+  const exporterSource = fs.readFileSync("mac/export-uber-mail.js", "utf8");
+  const moverSource = fs.readFileSync("mac/move-inbox-receipts.js", "utf8");
+
+  assert.equal(
+    exporterSource.includes(".whose("),
+    false,
+    "exporter must not reintroduce Mail whose queries on large mailboxes"
+  );
+  assert.equal(
+    moverSource.includes(".whose("),
+    false,
+    "receipt mover must not reintroduce Mail whose queries on Inbox"
+  );
+  assert.equal(
+    exporterSource.includes("box.messages.dateReceived()"),
+    true,
+    "exporter should bulk-fetch date metadata before opening message bodies"
+  );
+
   console.log("✓ Inbox receipt routing only selects parsed receipts");
+  console.log("✓ Mail exporter and receipt mover avoid timeout-prone whose queries");
 } finally {
   fs.rmSync(dir, { recursive: true, force: true });
 }
