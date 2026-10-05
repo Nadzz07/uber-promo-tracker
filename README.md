@@ -58,3 +58,19 @@ The exporter looks back 45 days and only reads messages whose sender or subject 
 ## Public site
 
 GitHub Pages serves the dashboard from the `main` branch. While real Mail data is not yet connected, `promos.json` is clearly marked as demo data.
+
+
+## Legacy Mac project review
+
+The earlier Mac project was reviewed and its useful ideas have been folded into this version without publishing its private database or configuration.
+
+Useful behaviours now carried forward include:
+
+- validating a real Uber sender when Mail provides sender data
+- recognising Apple's Uber relay sender shape
+- parsing Uber Cash offers
+- handling “first N orders” multi-use offers
+- handling both “minimum spend £15” and “£15 minimum spend”
+- keeping activation-based expiry wording unknown instead of inventing an expiry date
+
+The older project also contains a SQLite history model and account-alias matching. Those are being treated as the basis for the next history/account layer, while the current tracker remains broader than the old Eats-focused rules.
