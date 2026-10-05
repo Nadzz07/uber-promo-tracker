@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import { parseUberPromo } from "./parser.js";
 import { buildPromoList, estimatedValue } from "./processor.js";
 import { toPublicPromo } from "./public-promo.js";
-import { mergeHistory } from "./history.js";
+import { mergeHistory, toPublicHistory } from "./history.js";
 import { assignAccountRefs } from "./account-map.js";
+import { migrateLegacyRows } from "./legacy-migration.js";
 
 const parserCases = [
   {
@@ -315,4 +316,117 @@ assert.equal("code" in secondHistory.records[0], false);
 
 console.log("✓ Sanitised account-aware history persists across scans");
 
-console.log("All " + (parserCases.length + 4) + " automated tests passed.");
+const migrated = migrateLegacyRows({
+  rows: [
+    {
+      account_alias: "legacy-account@icloud.com",
+      platform: "Uber Eats",
+      has_code: 1,
+      discount_value: "£10 off your first 2 orders",
+      minimum_spend: "£15 minimum spend",
+      expiry_timestamp: "2026-10-20 23:59:59",
+      expiry_basis: "explicit_in_offer_terms"
+    },
+    {
+      account_alias: "legacy-account@icloud.com",
+      platform: "Uber Eats",
+      has_code: 1,
+      discount_value: "£10 off your first 2 orders",
+      minimum_spend: "£15 minimum spend",
+      expiry_timestamp: "2026-10-20 23:59:59",
+      expiry_basis: "explicit_in_offer_terms"
+    }
+  ],
+  accountState: {
+    version: 1,
+    nextNumber: 1,
+    accounts: {}
+  },
+  privateHistory: {
+    updatedAt: null,
+    records: []
+  },
+  importedAt: "2026-10-05T12:00:00.000Z"
+});
+
+assert.equal(
+  migrated.importedRows,
+  2,
+  "both accepted legacy rows should be processed privately"
+);
+
+assert.equal(
+  migrated.dedupedLegacyRecords,
+  1,
+  "duplicate legacy campaign rows should collapse into one private history record"
+);
+
+assert.equal(
+  migrated.privateHistory.records.length,
+  1,
+  "legacy history should be preserved locally"
+);
+
+assert.equal(
+  migrated.privateHistory.records[0].legacyOccurrences,
+  2,
+  "legacy duplicate count should be retained privately"
+);
+
+assert.equal(
+  migrated.publicHistory.records.length,
+  0,
+  "legacy-only records must not be published"
+);
+
+assert.equal(
+  "account_alias" in migrated.publicHistory,
+  false,
+  "public history payload must never expose a real alias"
+);
+
+const legacyRef = migrated.privateHistory.records[0].accountRef;
+assert.ok(/^A\d{3,}$/.test(legacyRef));
+
+const matchingLivePrivate = {
+  ...parseUberPromo({
+    sender: "Uber Eats <offers@uber.com>",
+    recipient: "legacy-account@icloud.com",
+    subject: "£10 off your first 2 orders",
+    body: "Get £10 off your first 2 orders. £15 minimum spend. Expires 20 Oct 2026.",
+    receivedAt: "2026-10-05"
+  }),
+  accountRef: legacyRef
+};
+
+const matchingLivePublic = toPublicPromo(matchingLivePrivate);
+
+const historyAfterLiveScan = mergeHistory(
+  migrated.privateHistory,
+  [matchingLivePublic],
+  "2026-10-05T13:00:00.000Z"
+);
+
+const publicAfterLiveScan = toPublicHistory(historyAfterLiveScan);
+
+assert.equal(
+  publicAfterLiveScan.records.length,
+  1,
+  "a migrated offer may become public only after a real live scan sees it"
+);
+
+assert.equal(
+  publicAfterLiveScan.records[0].accountRef,
+  legacyRef,
+  "live scan should reuse the anonymous account ref from private migration"
+);
+
+assert.equal(
+  "accountAlias" in publicAfterLiveScan.records[0],
+  false,
+  "public migrated history must never contain the real account alias"
+);
+
+console.log("✓ Legacy database migration stays private until live re-observation");
+
+console.log("All " + (parserCases.length + 5) + " automated tests passed.");
