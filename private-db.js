@@ -340,7 +340,7 @@ export function upsertOffer(db, promo, seenAt = new Date().toISOString()) {
         last_used_at, status
       ) VALUES(
         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?, NULL, 0, NULL, 'active'
+        ?, ?, ?, ?, ?, ?, NULL, 0, NULL, ?
       )
     `).run(
       promo.offerId,
@@ -370,7 +370,8 @@ export function upsertOffer(db, promo, seenAt = new Date().toISOString()) {
       seenAt,
       seenAt,
       promo.source || "live_mail",
-      promo.observedLive === false ? 0 : 1
+      promo.observedLive === false ? 0 : 1,
+      promo.observedLive === false ? "historical" : "active"
     );
 
     return;
