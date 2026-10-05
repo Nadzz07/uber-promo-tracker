@@ -1,0 +1,15 @@
+export function toPublicPromo(promo) {
+  return {
+    service: promo.service,
+    title: promo.title,
+    discountType: promo.discountType,
+    discount: promo.discount,
+    maxSaving: promo.maxSaving,
+    perUseCap: promo.perUseCap,
+    uses: promo.uses,
+    maxTotalSaving: promo.maxTotalSaving,
+    minimumSpend: promo.minimumSpend,
+    hasCode: Boolean(promo.code),
+    expires: promo.expires
+  };
+}
