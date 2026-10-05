@@ -1,0 +1,44 @@
+{
+  "updatedAt": null,
+  "demo": true,
+  "records": [
+    {
+      "id": "demo-rides",
+      "service": "Uber",
+      "title": "40% off your next 5 Uber trips",
+      "discountType": "percent",
+      "discount": 40,
+      "maxSaving": 10,
+      "perUseCap": 10,
+      "uses": 5,
+      "maxTotalSaving": 50,
+      "minimumSpend": 0,
+      "hasCode": false,
+      "expires": "2026-10-19",
+      "expiryBasis": "explicit",
+      "firstSeenAt": "2026-10-01T08:00:00.000Z",
+      "lastSeenAt": "2026-10-05T08:00:00.000Z",
+      "scansSeen": 5,
+      "status": "active"
+    },
+    {
+      "id": "demo-old-eats",
+      "service": "Uber Eats",
+      "title": "£5 off your next 2 orders",
+      "discountType": "fixed",
+      "discount": 5,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 2,
+      "maxTotalSaving": 10,
+      "minimumSpend": 10,
+      "hasCode": true,
+      "expires": "2026-10-04",
+      "expiryBasis": "explicit",
+      "firstSeenAt": "2026-09-25T08:00:00.000Z",
+      "lastSeenAt": "2026-10-03T08:00:00.000Z",
+      "scansSeen": 8,
+      "status": "inactive"
+    }
+  ]
+}
