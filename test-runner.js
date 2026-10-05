@@ -5,6 +5,7 @@ import { toPublicPromo } from "./public-promo.js";
 import { mergeHistory, toPublicHistory } from "./history.js";
 import { assignAccountRefs } from "./account-map.js";
 import { migrateLegacyRows } from "./legacy-migration.js";
+import { savingForSpend, rankPromosForSpend } from "./deal-intelligence.js";
 
 const parserCases = [
   {
@@ -429,4 +430,80 @@ assert.equal(
 
 console.log("✓ Legacy database migration stays private until live re-observation");
 
-console.log("All " + (parserCases.length + 5) + " automated tests passed.");
+const percentageSpendPromo = {
+  service: "Uber Eats",
+  discountType: "percent",
+  discount: 25,
+  maxSaving: 8,
+  perUseCap: null,
+  minimumSpend: 15,
+  uses: 1,
+  accountRef: "A001"
+};
+
+assert.deepEqual(
+  savingForSpend(percentageSpendPromo, 10).eligible,
+  false,
+  "minimum spend should make a too-small order ineligible"
+);
+
+assert.equal(
+  savingForSpend(percentageSpendPromo, 20).saving,
+  5,
+  "25% of £20 should save £5"
+);
+
+assert.equal(
+  savingForSpend(percentageSpendPromo, 40).saving,
+  8,
+  "percentage saving should respect the £8 cap"
+);
+
+const multiRideSpendPromo = {
+  service: "Uber",
+  discountType: "percent",
+  discount: 40,
+  perUseCap: 10,
+  maxSaving: 10,
+  maxTotalSaving: 50,
+  minimumSpend: 0,
+  uses: 5,
+  accountRef: "A001"
+};
+
+assert.equal(
+  savingForSpend(multiRideSpendPromo, 40).saving,
+  10,
+  "spend intelligence must use one-use saving, not the £50 total across five rides"
+);
+
+const fixedSpendPromo = {
+  service: "Uber Eats",
+  discountType: "fixed",
+  discount: 15,
+  minimumSpend: 15,
+  uses: 5,
+  accountRef: "A001"
+};
+
+const rankedForSpend = rankPromosForSpend(
+  [percentageSpendPromo, fixedSpendPromo],
+  25,
+  { service: "Uber Eats", accountRef: "A001" }
+);
+
+assert.equal(
+  rankedForSpend[0].promo.discountType,
+  "fixed",
+  "£15 fixed off should beat 25% off a £25 order"
+);
+
+assert.equal(
+  rankedForSpend[0].calculation.saving,
+  15,
+  "planner should show the actual £15 transaction saving"
+);
+
+console.log("✓ Spend-specific deal intelligence");
+
+console.log("All " + (parserCases.length + 6) + " automated tests passed.");
