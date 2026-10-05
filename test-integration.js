@@ -80,6 +80,7 @@ try {
   assert.equal(publicPayload.summary.trackedOrders, 1);
   assert.equal(publicPayload.summary.promoSavings, 15);
   assert.equal(publicPayload.summary.totalSaved, 15);
+  assert.equal(publicPayload.summary.estimatedTotalSaved, 15);
   assert.equal(publicPayload.accounts.length, 2);
   assert.equal(publicPayload.accounts.every(account => account.canLogin === false), true);
 
@@ -112,6 +113,7 @@ try {
   assert.equal(usedPromo.receiptState, "used");
   assert.equal(usedPromo.usesRemaining, 0);
   assert.equal(publicPayload.summary.totalSaved, 15, "rescans must not double-count receipts");
+  assert.equal(publicPayload.summary.estimatedTotalSaved, 15, "rescans must not double-count estimated savings");
 
   console.log("✓ End-to-end Mail → SQLite → receipt → public JSON integration");
 } finally {
