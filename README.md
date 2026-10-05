@@ -321,7 +321,19 @@ bash mac/preview-sync.sh
 
 This is fail-fast: if Mail export fails, no parser/import/move step runs afterward. It updates the private SQLite database, can file confirmed Inbox receipts, and writes public-output previews only to a temporary directory. It does **not** commit or push anything.
 
+### Run a private preview first
+
+Before the first publish, use the fail-fast private preview:
+
+```bash
+bash mac/preview-sync.sh
+```
+
+It exports recent Mail, validates the JSON, runs the full tests, updates only the private SQLite database, and optionally files confirmed Inbox receipts. It does **not** commit or push the public JSON.
+
 ### Run a live scan
+
+After the private preview looks correct:
 
 ```bash
 bash mac/update-promos.sh
