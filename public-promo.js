@@ -1,6 +1,5 @@
-export function toPublicPromo(promo, { accountId = null } = {}) {
+export function toPublicPromo(promo) {
   return {
-    accountId,
     service: promo.service,
     title: promo.title,
     discountType: promo.discountType,
