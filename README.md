@@ -211,14 +211,44 @@ The site is mobile-first because the primary use is while ordering food.
 
 Main navigation:
 
-- **Deals** — basket optimiser, quick categories and best usable accounts
+- **Home** — basket optimiser, quick categories and best usable accounts
 - **Accounts** — searchable accounts you can actually log into
-- **Used** — receipt-confirmed/manual used and ignored promos
-- **Menu** — inaccessible accounts, savings insights, scan/data health and history
+- **Used** — partial usage, fully used offers, done accounts, expired offers and ignored offers
+- **More** — inaccessible accounts, savings insights, scan/data health and history
 
 Inaccessible accounts are deliberately hidden from the normal ordering flow.
 
-The UI uses softer charcoal surfaces rather than pure OLED black, equal-size quick tiles, compact phone spacing, and “saving on this basket” instead of “potential value”.
+The UI uses a dark liquid-glass treatment with translucent panels, blur, equal-size quick tiles, compact phone spacing and a floating glass navigation bar. “Potential value” is intentionally not shown. Account cards instead focus on what the account saves on the current basket, remaining uses and expiry.
+
+Advanced basket-splitting controls are hidden behind **Advanced split settings**. The normal Home view only asks for the basket subtotal and shows the recommended order/account split.
+
+
+## Manual multi-use state
+
+The browser supports immediate usage adjustments before the next receipt scan.
+
+For a promotion such as:
+
+`£12 off £15 on 5 orders`
+
+if one receipt-confirmed use already exists, the UI shows:
+
+`1 of 5 used · 4 left`
+
+Tapping **Used 1 order** creates one pending manual use, so the UI immediately shows 3 left. When a later receipt confirms that same use, the pending adjustment is reconciled instead of being counted a second time.
+
+Offer controls live inside the account's **View offers** bottom sheet rather than on the main account cards:
+
+- **Used 1 order**
+- **Undo manual use**
+- **Mark fully used**
+- **Ignore offer / Restore offer**
+
+A partially used multi-use offer remains active and eligible for recommendations until its effective remaining uses reach zero or the offer expires.
+
+**Mark account done** is separate from individual offer usage. It removes that account from active account lists and optimiser recommendations on that browser without deleting its history. The Used screen allows the account to be restored.
+
+Receipt-confirmed state remains the durable private truth in SQLite; browser manual state is an immediate convenience layer that reconciles as receipt evidence catches up.
 
 ## Mac setup
 
