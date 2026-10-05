@@ -114,7 +114,7 @@ export function rankPromosForSpend(
     service = "all",
     accountRef = "all",
     excludedIds = [],
-    accessibleOnly = true
+    accessibleOnly = false
   } = {}
 ) {
   const excluded = new Set(excludedIds);
