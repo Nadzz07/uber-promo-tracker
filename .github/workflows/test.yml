@@ -35,6 +35,8 @@ jobs:
       - name: Check Mac JavaScript automation syntax
         run: |
           node --check mac/export-uber-mail.js
+          node --check mac/find-inbox-receipts.js
+          node --check mac/move-inbox-receipts.js
           node --check mac/list-mailboxes.js
           node --check mac/import-account-access.js
           node --check mac/import-legacy-db.js
@@ -43,5 +45,6 @@ jobs:
       - name: Check shell scripts
         run: |
           bash -n mac/update-promos.sh
+          bash -n mac/backfill-receipts.sh
           bash -n mac/install-automation.sh
           bash -n mac/setup-v2.sh
