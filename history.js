@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 
 function stablePromoFields(promo) {
   return {
+    accountId: promo.accountId ?? null,
     service: promo.service ?? null,
     title: promo.title ?? null,
     discountType: promo.discountType ?? null,
