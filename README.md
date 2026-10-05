@@ -73,4 +73,12 @@ Useful behaviours now carried forward include:
 - handling both “minimum spend £15” and “£15 minimum spend”
 - keeping activation-based expiry wording unknown instead of inventing an expiry date
 
-The older project also contains a SQLite history model and account-alias matching. Those are being treated as the basis for the next history/account layer, while the current tracker remains broader than the old Eats-focused rules.
+The older project also contained a SQLite history model and account-alias matching. That idea is now implemented in the new tracker without exposing the actual aliases.
+
+## Anonymous account matching
+
+Apple Mail recipient addresses are used locally to keep offers from different Uber accounts separate. Before anything reaches GitHub, each alias is converted with an HMAC into a stable anonymous ID such as `acct_a1b2c3d4`.
+
+The HMAC secret is generated on the Mac in `.account-salt`, is ignored by Git, and never leaves the machine. The public dashboard can therefore show that multiple offers belong to the same anonymous account without publishing the Hide My Email address.
+
+The tracker treats same-account offers as related context only. It does **not** assume they can be combined or stacked unless the offer terms explicitly say so.
