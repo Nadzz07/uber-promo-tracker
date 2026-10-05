@@ -14,7 +14,9 @@ function stablePromoFields(promo) {
     minimumSpend: promo.minimumSpend ?? 0,
     hasCode: Boolean(promo.hasCode),
     expires: promo.expires ?? null,
-    expiryBasis: promo.expiryBasis ?? null
+    expiryBasis: promo.expiryBasis ?? null,
+    accountRef: promo.accountRef ?? null,
+    hasCompanionOffer: Boolean(promo.hasCompanionOffer)
   };
 }
 
