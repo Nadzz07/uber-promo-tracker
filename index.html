@@ -26,7 +26,7 @@
     .mode-pill.demo .dot { background: var(--warn); }
     .scan-time { margin-top: 8px; color: #777; font-size: 12px; }
     .notice { display: none; margin-bottom: 20px; padding: 12px 15px; border-radius: 13px; border: 1px solid #3a3420; background: #17150d; color: #d9c983; font-size: 13px; }
-    .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 12px; margin-bottom: 20px; }
     .stat, .hero, .card { background: var(--panel); border: 1px solid var(--border); }
     .stat { border-radius: 17px; padding: 17px; min-height: 92px; }
     .stat-label { color: #7e7e7e; font-size: 11px; text-transform: uppercase; letter-spacing: .09em; }
@@ -105,6 +105,7 @@
       <div class="stat"><div class="stat-label">Best saving</div><div id="bestSaving" class="stat-value">—</div></div>
       <div class="stat"><div class="stat-label">Expiring ≤ 2 days</div><div id="expiringCount" class="stat-value">—</div></div>
       <div class="stat"><div class="stat-label">Multi-use deals</div><div id="multiCount" class="stat-value">—</div></div>
+      <div class="stat"><div class="stat-label">Accounts with offers</div><div id="accountCount" class="stat-value">—</div></div>
     </section>
 
     <section id="bestPromo"></section>
@@ -197,6 +198,12 @@
       return "£" + Number(value).toLocaleString("en-GB",{maximumFractionDigits:2});
     }
 
+    function accountLabel(accountId) {
+      if (!accountId) return null;
+      const suffix = String(accountId).replace(/^acct_/, "").slice(-4).toUpperCase();
+      return "Account " + suffix;
+    }
+
     function valueLabel(promo) {
       const value = potentialSaving(promo);
       if (value != null) return "Up to " + money(value);
@@ -211,6 +218,9 @@
       if (promo.perUseCap != null) parts.push(money(promo.perUseCap) + " cap each");
       if (promo.discountType === "percent" && promo.discount != null) parts.push(promo.discount + "% discount");
       if (promo.minimumSpend) parts.push(money(promo.minimumSpend) + " minimum spend");
+      if ((promo.sameAccountOfferCount || 1) > 1) {
+        parts.push(promo.sameAccountOfferCount + " active offers on the same account");
+      }
       return parts.length ? parts.join(" · ") : "Highest ranked active offer";
     }
 
@@ -228,6 +238,10 @@
       if (promo.perUseCap != null) lines.push("<strong>Per-use cap:</strong> " + money(promo.perUseCap));
       else if (promo.maxSaving != null) lines.push("<strong>Max saving:</strong> " + money(promo.maxSaving));
       if (promo.minimumSpend) lines.push("<strong>Minimum spend:</strong> " + money(promo.minimumSpend));
+      if (promo.accountId) lines.push("<strong>Account:</strong> " + escapeHtml(accountLabel(promo.accountId)));
+      if ((promo.sameAccountOfferCount || 1) > 1) {
+        lines.push("<strong>Same account:</strong> " + escapeHtml(promo.sameAccountOfferCount) + " active offers");
+      }
       if (promo.hasCode) lines.push("<strong>Promo code:</strong> kept private");
       lines.push("<strong>Expires:</strong> " + escapeHtml(formatDate(promo.expires)));
       return lines.join("<br>");
@@ -267,10 +281,14 @@
         return days != null && days >= 0 && days <= 2;
       }).length;
       const multi = promos.filter(function(promo){return (promo.uses || 1)>1;}).length;
+      const accounts = new Set(
+        promos.map(function(promo){return promo.accountId;}).filter(Boolean)
+      ).size;
       document.getElementById("activeCount").textContent = promos.length;
       document.getElementById("bestSaving").textContent = best>0 ? money(best) : "—";
       document.getElementById("expiringCount").textContent = expiring;
       document.getElementById("multiCount").textContent = multi;
+      document.getElementById("accountCount").textContent = accounts || "—";
     }
 
     function renderBest(promo) {
@@ -280,6 +298,7 @@
         return;
       }
       const chips = [escapeHtml(promo.service)];
+      if (promo.accountId) chips.push(escapeHtml(accountLabel(promo.accountId)));
       if ((promo.uses || 1)>1) chips.push(escapeHtml(promo.uses + " uses"));
       chips.push(escapeHtml("Expires " + formatDate(promo.expires)));
       target.innerHTML =
@@ -359,7 +378,9 @@
         const statusText = record.status === "active" ? "Active now" : "Previously seen";
         return '<div class="history-row">' +
           '<div><div class="history-title">' + escapeHtml(record.title || "Uber offer") + '</div>' +
-          '<div class="history-sub">' + escapeHtml(record.service || "Uber") + (value != null ? " · " + escapeHtml(money(value)) + " potential" : "") + '</div></div>' +
+          '<div class="history-sub">' + escapeHtml(record.service || "Uber") +
+          (record.accountId ? " · " + escapeHtml(accountLabel(record.accountId)) : "") +
+          (value != null ? " · " + escapeHtml(money(value)) + " potential" : "") + '</div></div>' +
           '<div class="history-cell">First seen<br><strong>' + escapeHtml(formatSeen(record.firstSeenAt)) + '</strong></div>' +
           '<div class="history-cell">Last seen<br><strong>' + escapeHtml(formatSeen(record.lastSeenAt)) + '</strong></div>' +
           '<div class="history-status ' + (record.status === "active" ? "active" : "") + '">' + escapeHtml(statusText) + ' · ' + escapeHtml(record.scansSeen || 1) + ' scans</div>' +
