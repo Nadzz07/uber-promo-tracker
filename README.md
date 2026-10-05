@@ -1,6 +1,6 @@
-# Uber Promo Tracker
+# Uber Eats Promo Tracker
 
-A small automated dashboard for ranking Uber and Uber Eats promotions.
+An automated, account-aware Uber Eats promo finder designed to answer one question quickly: which account should be used for an order?
 
 ## Current architecture
 
@@ -10,7 +10,7 @@ The public site reads only `promos.json`. Raw email bodies stay on the Mac in `e
 
 ## What already works
 
-- Detects Uber / Uber Eats promo emails.
+- Publishes Uber Eats promos only; ride and Uber One offers are excluded from the public tracker.
 - Ignores normal Uber receipts.
 - Extracts percentage or fixed discounts, minimum spend, promo codes and expiry dates.
 - Understands multi-use offers such as “40% off your next 5 trips, up to £10 per trip”.
@@ -127,7 +127,7 @@ Legacy-only records stay private. If the new live scanner later sees the same of
 
 ## Spend-specific deal intelligence
 
-The dashboard can compare active promos against a planned trip/order amount such as £15, £25 or £40.
+The dashboard can compare active Uber Eats promos against a planned order amount such as £15, £25 or £40.
 
 For a single transaction it:
 
@@ -139,4 +139,4 @@ For a single transaction it:
 - does **not** multiply a multi-use promo by all future uses when deciding what saves the most right now
 - can filter the recommendation by service and anonymous account
 
-Example: a 40%-off promo valid for five rides with a £10 cap per ride is worth **£10 on a £40 ride today**, even though its full five-use potential is £50.
+The OLED dashboard is account-first: Best deal, £15 off £15, Uber Cash, and Multiple promos. A basket helper then recommends the best account for a planned order total.
