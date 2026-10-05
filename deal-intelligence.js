@@ -136,6 +136,15 @@ export function rankPromosForSpend(
         return b.calculation.effectivePercent - a.calculation.effectivePercent;
       }
 
+      const aExpiry = a.promo.expires
+        ? new Date(a.promo.expires + "T23:59:59").getTime()
+        : Number.MAX_SAFE_INTEGER;
+      const bExpiry = b.promo.expires
+        ? new Date(b.promo.expires + "T23:59:59").getTime()
+        : Number.MAX_SAFE_INTEGER;
+
+      if (aExpiry !== bExpiry) return aExpiry - bExpiry;
+
       return remainingUses(b.promo) - remainingUses(a.promo);
     });
 }
