@@ -286,6 +286,7 @@ export function parseUberPromo({
 
   return {
     isPromo: looksLikePromo,
+    receivedAt: received.toISOString(),
     accountAlias,
     service,
     title,
