@@ -1,0 +1,22 @@
+[
+  {
+    "service": "Uber",
+    "title": "40% off your next ride",
+    "discountType": "percent",
+    "discount": 40,
+    "maxSaving": 10,
+    "minimumSpend": 0,
+    "code": null,
+    "expires": "2026-10-12"
+  },
+  {
+    "service": "Uber Eats",
+    "title": "25% off your next order",
+    "discountType": "percent",
+    "discount": 25,
+    "maxSaving": 8,
+    "minimumSpend": 15,
+    "code": null,
+    "expires": "2026-10-09"
+  }
+]
