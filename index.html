@@ -290,7 +290,6 @@
       if (promo.perUseCap != null) lines.push("<strong>Per-use cap:</strong> " + money(promo.perUseCap));
       else if (promo.maxSaving != null) lines.push("<strong>Max saving:</strong> " + money(promo.maxSaving));
       if (promo.minimumSpend) lines.push("<strong>Minimum spend:</strong> " + money(promo.minimumSpend));
-      if (promo.accountId) lines.push("<strong>Account:</strong> " + escapeHtml(accountLabel(promo.accountId)));
       if ((promo.sameAccountOfferCount || 1) > 1) {
         lines.push("<strong>Same account:</strong> " + escapeHtml(promo.sameAccountOfferCount) + " active offers");
       }
