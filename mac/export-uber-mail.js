@@ -8,26 +8,15 @@ function isoDate(dateValue) {
   return date.toISOString();
 }
 
-function extractRecipient(rawSource) {
-  const headerBlock = String(rawSource || "")
-    .split(/\r?\n\r?\n/, 1)[0]
-    .replace(/\r?\n[ \t]+/g, " ");
-
-  const toHeader = headerBlock.match(/^To:\s*(.+)$/im);
-  if (!toHeader) return null;
-
-  const address = toHeader[1].match(/([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/i);
-  return address ? address[1].toLowerCase() : null;
-}
-
 function firstRecipientAddress(message) {
   try {
     const recipients = message.toRecipients();
+
     if (recipients && recipients.length) {
       for (let i = 0; i < recipients.length; i++) {
         try {
           const address = String(recipients[i].address() || "");
-          if (address) return address;
+          if (address) return address.toLowerCase();
         } catch (_) {}
       }
     }
@@ -36,10 +25,12 @@ function firstRecipientAddress(message) {
   try {
     const rawSource = String(message.source() || "")
       .replace(/\r?\n[ \t]+/g, " ");
+
     const toHeader = rawSource.match(/^To:\s*([^\r\n]+)/mi);
+
     if (toHeader) {
       const email = toHeader[1].match(/([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/i);
-      if (email) return email[1];
+      if (email) return email[1].toLowerCase();
     }
   } catch (_) {}
 
@@ -63,14 +54,13 @@ function run(argv) {
 
     let subject = "";
     let sender = "";
-    let recipient = null;
-    let body = "";
     let recipient = "";
+    let body = "";
     let receivedAt = null;
 
     try { subject = String(message.subject() || ""); } catch (_) {}
     try { sender = String(message.sender() || ""); } catch (_) {}
-    try { recipient = extractRecipient(String(message.source() || "")); } catch (_) {}
+    try { recipient = firstRecipientAddress(message); } catch (_) {}
     try { receivedAt = new Date(message.dateReceived()); } catch (_) { receivedAt = new Date(0); }
 
     if (Number.isNaN(receivedAt.getTime()) || receivedAt < cutoff) continue;
