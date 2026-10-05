@@ -7,8 +7,8 @@
     "trackedOrders": 126,
     "promoSavings": 742.5,
     "uberCashUsed": 98,
-    "totalSaved": 840.5,
-    "averageSavedPerOrder": 6.67,
+    "totalSaved": 977.5,
+    "averageSavedPerOrder": 7.76,
     "averageExtraOrderFees": 2.49,
     "knownAccounts": 300,
     "accessibleAccounts": 180,
@@ -17,6 +17,17 @@
     "feeModel": {
       "sampleSize": 118,
       "averageExtraOrderFees": 2.49
+    },
+    "uberOneConfirmedSavings": 112.4,
+    "otherConfirmedSavings": 24.6,
+    "confirmedSaved": 977.5,
+    "estimatedUberOneSavings": 181.35,
+    "estimatedTotalSaved": 1158.85,
+    "estimatedAverageSavedPerOrder": 9.2,
+    "uberOneEstimateModel": {
+      "sampleSize": 38,
+      "baselinePerEligibleOrder": 3.15,
+      "confidence": "strong"
     }
   },
   "accounts": [
@@ -31,7 +42,11 @@
       "orderCount": 31,
       "promoSavings": 248,
       "uberCashUsed": 20,
-      "totalSaved": 268
+      "totalSaved": 310.5,
+      "uberOneConfirmedSavings": 31.5,
+      "otherConfirmedSavings": 11,
+      "estimatedUberOneSavings": 61.2,
+      "estimatedTotalSaved": 371.7
     },
     {
       "accountRef": "A002",
@@ -44,7 +59,11 @@
       "orderCount": 19,
       "promoSavings": 102,
       "uberCashUsed": 35,
-      "totalSaved": 137
+      "totalSaved": 159.4,
+      "uberOneConfirmedSavings": 17.4,
+      "otherConfirmedSavings": 5,
+      "estimatedUberOneSavings": 34.8,
+      "estimatedTotalSaved": 194.2
     },
     {
       "accountRef": "A003",
@@ -57,7 +76,11 @@
       "orderCount": 22,
       "promoSavings": 166,
       "uberCashUsed": 0,
-      "totalSaved": 166
+      "totalSaved": 194.1,
+      "uberOneConfirmedSavings": 21.1,
+      "otherConfirmedSavings": 7,
+      "estimatedUberOneSavings": 45.3,
+      "estimatedTotalSaved": 239.4
     },
     {
       "accountRef": "A004",
@@ -70,7 +93,11 @@
       "orderCount": 0,
       "promoSavings": 0,
       "uberCashUsed": 0,
-      "totalSaved": 0
+      "totalSaved": 0,
+      "uberOneConfirmedSavings": 0,
+      "otherConfirmedSavings": 0,
+      "estimatedUberOneSavings": 0,
+      "estimatedTotalSaved": 0
     },
     {
       "accountRef": "A005",
@@ -83,7 +110,11 @@
       "orderCount": 0,
       "promoSavings": 0,
       "uberCashUsed": 0,
-      "totalSaved": 0
+      "totalSaved": 0,
+      "uberOneConfirmedSavings": 0,
+      "otherConfirmedSavings": 0,
+      "estimatedUberOneSavings": 0,
+      "estimatedTotalSaved": 0
     },
     {
       "accountRef": "A006",
@@ -96,7 +127,11 @@
       "orderCount": 0,
       "promoSavings": 0,
       "uberCashUsed": 0,
-      "totalSaved": 0
+      "totalSaved": 0,
+      "uberOneConfirmedSavings": 0,
+      "otherConfirmedSavings": 0,
+      "estimatedUberOneSavings": 0,
+      "estimatedTotalSaved": 0
     }
   ],
   "promos": [
