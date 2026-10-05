@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { parseUberPromo } from "./parser.js";
-import { buildPromoList } from "./processor.js";
+import { buildPromoList, estimatedValue } from "./processor.js";
 import { toPublicPromo } from "./public-promo.js";
 import { mergeHistory } from "./history.js";
 import { assignAccountRefs } from "./account-map.js";
@@ -239,7 +239,7 @@ assert.equal(
 );
 
 assert.equal(
-  promos[0].maxTotalSaving,
+  estimatedValue(promos[0]),
   15,
   "the £15 fixed companion should rank above the capped percentage offer"
 );
