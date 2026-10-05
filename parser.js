@@ -196,7 +196,7 @@ export function parseUberPromo({
 
   const fixedMatch = firstMatch(text, [
     /£\s*(\d+(?:\.\d{1,2})?)\s*(?:off|discount)/i,
-    /(?:save|get)\s*£\s*(\d+(?:\.\d{1,2})?)/i
+    /(?:save|get)\s*£\s*(\d+(?:\.\d{1,2})?)\s*(?:off|discount)\b/i
   ]);
 
   const uberCashMatch = firstMatch(text, [
