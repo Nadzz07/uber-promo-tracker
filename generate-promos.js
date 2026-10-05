@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import { buildPromoList } from "./processor.js";
 import { toPublicPromo } from "./public-promo.js";
 import { mergeHistory } from "./history.js";
+import { accountIdForAlias, loadOrCreateAccountSecret } from "./account-id.js";
 
 const inputPath = process.argv[2] || "./emails.local.json";
 const outputPath = process.argv[3] || "./promos.json";
@@ -22,7 +23,17 @@ async function generatePromos() {
     if (!Array.isArray(emails)) throw new Error("Email input must be a JSON array.");
 
     const generatedAt = new Date().toISOString();
-    const promos = buildPromoList(emails).map(toPublicPromo);
+    const privatePromos = buildPromoList(emails);
+    const needsAccountSecret = privatePromos.some(promo => Boolean(promo.accountAlias));
+    const accountSecret = needsAccountSecret
+      ? await loadOrCreateAccountSecret()
+      : null;
+
+    const promos = privatePromos.map(promo =>
+      toPublicPromo(promo, {
+        accountId: accountIdForAlias(promo.accountAlias, accountSecret)
+      })
+    );
     const payload = {
       generatedAt,
       source: "apple-mail",
