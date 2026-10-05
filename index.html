@@ -1316,7 +1316,7 @@
             <div class="stat-sub">from receipts</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Usable</div>
+            <div class="stat-label">Can log in</div>
             <div id="usableStat" class="stat-value">0</div>
             <div class="stat-sub">accounts</div>
           </div>
@@ -1852,7 +1852,7 @@
 
     function renderStats() {
       const summary = payload.summary || {};
-      const usable = accounts.filter(account => account.canLogin && isAccountActive(account.accountRef)).length;
+      const usable = accounts.filter(account => account.canLogin).length;
       const live = promos.filter(promo => promo.canLogin && isAccountActive(promo.accountRef) && isPromoActive(promo)).length;
 
       document.getElementById("savedStat").textContent = money(summary.totalSaved || 0);
@@ -2187,21 +2187,32 @@
 
     function offerSheetCard(promo) {
       const total = Math.max(1, Number(promo.uses || 1));
-      const remaining = effectiveRemainingUses(manualStore, promo);
-      const used = Math.max(0, total - remaining);
       const confirmed = confirmedUses(promo);
       const pending = pendingManualUses(manualStore, promo);
       const activity = manualActivity(manualStore, promo);
+      const rawRemaining = Math.max(
+        0,
+        Number(promo.usesRemaining ?? promo.uses ?? 1) - pending
+      );
+      const remaining = activity.ignored
+        ? rawRemaining
+        : effectiveRemainingUses(manualStore, promo);
+      const used = Math.max(0, total - remaining);
       const progress = Math.max(0, Math.min(100, (used / total) * 100));
       const state = effectivePromoState(manualStore, promo);
 
       let status = "";
-      if (activity.ignored) status = '<span class="pill warn">Ignored</span>';
+      if (activity.ignored) status = '<span class="pill warn">Ignored · uses preserved</span>';
+      else if (isExpired(promo)) status = '<span class="pill warn">Expired</span>';
       else if (promo.receiptState === "used") status = '<span class="pill good">Receipt confirmed</span>';
       else if (state === "used") status = '<span class="pill">Fully used</span>';
       else if (pending > 0) status = '<span class="pill good">' + pending + ' awaiting receipt</span>';
 
-      const useButtonDisabled = remaining <= 0 || activity.ignored || state === "used";
+      const useButtonDisabled =
+        remaining <= 0 ||
+        activity.ignored ||
+        state === "used" ||
+        isExpired(promo);
       const undoDisabled = pending <= 0;
 
       return (
