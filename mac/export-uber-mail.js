@@ -36,6 +36,8 @@ function run(argv) {
 
     const looksUber =
       /\buber\b/i.test(subject) ||
+      /@(?:[a-z0-9-]+\.)?uber\.com/i.test(sender) ||
+      /(?:ubereats|uber)_at_uber_com/i.test(sender) ||
       /\buber\b/i.test(sender);
 
     if (!looksUber) continue;
@@ -44,6 +46,7 @@ function run(argv) {
 
     results.push({
       subject,
+      sender,
       body,
       receivedAt: isoDate(receivedAt)
     });
