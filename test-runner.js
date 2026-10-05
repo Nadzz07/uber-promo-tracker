@@ -5,6 +5,46 @@ import { toPublicPromo } from "./public-promo.js";
 
 const parserCases = [
   {
+    name: "Trusted sender can carry an offer without Uber in the subject",
+    email: {
+      sender: "Uber Eats <offers@uber.com>",
+      subject: "Want £15 off 5 orders?",
+      body: "Enjoy £15 off your next 5 orders. £15 minimum spend. Use promo code EATSUK15NEWBIESTSE. Offer available until 7 Oct 2026 3:00AM.",
+      receivedAt: "2026-10-05"
+    },
+    expected: { isPromo: true, service: "Uber Eats", discountType: "fixed", discount: 15, uses: 5, maxTotalSaving: 75, minimumSpend: 15, expires: "2026-10-07", senderVerified: true }
+  },
+  {
+    name: "Uber Cash is recognised as value",
+    email: {
+      sender: "Uber Eats <ubereats_at_uber_com_abc@icloud.com>",
+      subject: "Want £10 in Uber Cash off your first order?",
+      body: "Get £10 in Uber Cash off. Uber Cash expires on 03/10/2026.",
+      receivedAt: "2026-10-01"
+    },
+    expected: { isPromo: true, service: "Uber Eats", discountType: "uberCash", discount: 10, maxTotalSaving: 10, expires: "2026-10-03", senderVerified: true }
+  },
+  {
+    name: "Untrusted sender is rejected when sender data is available",
+    email: {
+      sender: "Not Uber <offers@example.com>",
+      subject: "Uber 50% off",
+      body: "Get 50% off your next ride, up to £10.",
+      receivedAt: "2026-10-05"
+    },
+    expected: { isPromo: false, senderVerified: false, rejectionReason: "sender_not_uber" }
+  },
+  {
+    name: "Activation-based duration expiry stays unknown",
+    email: {
+      sender: "Uber Eats <offers@uber.com>",
+      subject: "You have £12 in Uber Cash waiting in your account",
+      body: "You have £12 in Uber Cash. Uber Cash is valid for 35 days since it was applied to the user's account.",
+      receivedAt: "2026-10-05"
+    },
+    expected: { isPromo: true, discountType: "uberCash", discount: 12, expires: null, expiryBasis: null }
+  },
+  {
     name: "Uber ride percentage offer",
     email: {
       subject: "40% off your next Uber trip",
