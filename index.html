@@ -1274,16 +1274,15 @@
 
     .basket-editor {
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      min-height: 76px;
-      padding: 12px 13px;
+      display: block;
+      min-height: 102px;
+      padding: 14px 15px 13px;
       border: 1px solid rgba(184,255,143,.24);
-      border-radius: 18px;
-      background: rgba(4,10,6,.30);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 12px 35px rgba(0,0,0,.16);
+      border-radius: 19px;
+      background:
+        linear-gradient(145deg, rgba(8,16,10,.43), rgba(10,20,13,.24)),
+        rgba(4,10,6,.26);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.075), 0 12px 35px rgba(0,0,0,.16);
       cursor: text;
     }
 
@@ -1293,51 +1292,71 @@
     }
 
     .basket-editor-copy {
-      display: grid;
-      gap: 3px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
       min-width: 0;
     }
 
     .basket-editor-copy strong {
-      font-size: 11px;
-      letter-spacing: -.01em;
+      font-size: 10px;
+      letter-spacing: .01em;
+      text-transform: uppercase;
     }
 
     .basket-editor-copy small {
-      color: var(--muted);
-      font-size: 8px;
+      color: var(--dim);
+      font-size: 7.5px;
+      white-space: nowrap;
     }
 
     .basket-value-wrap {
-      display: flex;
+      display: grid;
+      grid-template-columns: auto minmax(0,1fr) 36px;
       align-items: center;
-      justify-content: flex-end;
+      gap: 5px;
+      width: 100%;
       min-width: 0;
+      margin-top: 7px;
     }
 
     .basket-value-wrap .basket-currency {
       color: var(--green-strong);
-      font-size: 24px;
+      font-size: 31px;
+      line-height: 1;
+      font-weight: 950;
+      letter-spacing: -.04em;
     }
 
     .basket-value-wrap .basket-input {
-      width: 118px;
-      text-align: right;
-      font-size: 31px;
+      width: 100%;
+      min-width: 0;
+      text-align: left;
+      font-size: clamp(32px, 9vw, 39px);
+      line-height: 1;
       color: #fff;
       caret-color: var(--green);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .basket-value-wrap .basket-input::-webkit-inner-spin-button,
+    .basket-value-wrap .basket-input::-webkit-outer-spin-button {
+      margin: 0;
+      -webkit-appearance: none;
     }
 
     .basket-edit-icon {
-      width: 28px;
-      height: 28px;
+      width: 36px;
+      height: 36px;
       display: grid;
       place-items: center;
-      margin-left: 6px;
-      border-radius: 9px;
-      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      background: rgba(255,255,255,.065);
       color: var(--green);
-      font-size: 13px;
+      box-shadow: var(--inner);
+      font-size: 14px;
     }
 
     .recommendation {
@@ -1375,6 +1394,59 @@
     .account-card.picked {
       border-color: rgba(184,255,143,.7);
       box-shadow: var(--inner), 0 0 0 3px rgba(155,234,114,.09), 0 18px 50px rgba(0,0,0,.22);
+    }
+
+    .savings-hero {
+      position: relative;
+      overflow: hidden;
+      padding: 17px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(184,255,143,.19);
+      border-radius: 21px;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(155,234,114,.18), transparent 12rem),
+        linear-gradient(150deg, rgba(48,66,53,.76), rgba(25,35,29,.66));
+      box-shadow: var(--inner);
+    }
+
+    .savings-hero-label {
+      color: var(--muted);
+      font-size: 8px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .savings-hero-value {
+      margin-top: 5px;
+      color: var(--green-strong);
+      font-size: 37px;
+      line-height: 1;
+      font-weight: 950;
+      letter-spacing: -.055em;
+    }
+
+    .savings-confidence {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 28px;
+      margin-top: 10px;
+      padding: 0 9px;
+      border: 1px solid rgba(155,234,114,.22);
+      border-radius: 999px;
+      background: rgba(155,234,114,.09);
+      color: var(--green);
+      font-size: 7.5px;
+      font-weight: 850;
+    }
+
+    .savings-hero-copy {
+      margin-top: 10px;
+      max-width: 470px;
+      color: var(--muted);
+      font-size: 8.5px;
+      line-height: 1.45;
     }
 
     .settings-explainer {
@@ -1783,9 +1855,9 @@
 
         <div class="stats-row">
           <div class="stat-card">
-            <div class="stat-label">Total saved</div>
+            <div class="stat-label">Estimated saved</div>
             <div id="savedStat" class="stat-value green">£0</div>
-            <div class="stat-sub">from receipts</div>
+            <div class="stat-sub">receipts + Uber One estimate</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Can log in</div>
@@ -2340,7 +2412,7 @@
       const usable = accounts.filter(account => account.canLogin).length;
       const live = promos.filter(promo => promo.canLogin && isAccountActive(promo.accountRef) && isPromoActive(promo)).length;
 
-      document.getElementById("savedStat").textContent = money(summary.totalSaved || 0);
+      document.getElementById("savedStat").textContent = money(summary.estimatedTotalSaved ?? summary.totalSaved ?? 0);
       document.getElementById("usableStat").textContent = usable.toLocaleString("en-GB");
       document.getElementById("activeStat").textContent = live.toLocaleString("en-GB");
 
@@ -2908,21 +2980,51 @@
 
     function renderSavingsSheet() {
       const summary = payload.summary || {};
+      const estimatedTotal = Number(summary.estimatedTotalSaved ?? summary.totalSaved ?? 0);
+      const confirmedTotal = Number(summary.totalSaved || 0);
+      const estimatedUberOne = Number(summary.estimatedUberOneSavings || 0);
+      const confirmedUberOne = Number(summary.uberOneConfirmedSavings || 0);
+      const model = summary.uberOneEstimateModel || {};
+      const confidence =
+        model.confidence === "strong"
+          ? "Good estimate"
+          : model.confidence === "limited"
+            ? "Early estimate"
+            : "Confirmed only";
+
       const top = accounts
-        .filter(account => Number(account.totalSaved || 0) > 0)
+        .filter(account => Number(account.estimatedTotalSaved ?? account.totalSaved ?? 0) > 0)
         .slice()
-        .sort((a, b) => Number(b.totalSaved || 0) - Number(a.totalSaved || 0))
+        .sort((a, b) =>
+          Number(b.estimatedTotalSaved ?? b.totalSaved ?? 0) -
+          Number(a.estimatedTotalSaved ?? a.totalSaved ?? 0)
+        )
         .slice(0, 10);
 
-      setSheetHeading("Savings", "Receipt-based totals from tracked Uber Eats orders.");
+      setSheetHeading("Savings", "Confirmed receipt savings plus a conservative Uber One estimate where the receipt gives enough evidence.");
 
       document.getElementById("sheetBody").innerHTML =
+        '<div class="savings-hero">' +
+          '<div class="savings-hero-label">Estimated saved</div>' +
+          '<div class="savings-hero-value">' + escapeHtml(money(estimatedTotal)) + '</div>' +
+          '<div class="savings-confidence"><span class="status-dot"></span>' + escapeHtml(confidence) + '</div>' +
+          '<div class="savings-hero-copy">The estimate never blindly adds Uber One. Confirmed receipt totals win, and missing Uber One is only estimated from your own explicit Uber One receipt samples.</div>' +
+        '</div>' +
         '<div class="sheet-section"><div class="insight-grid">' +
-          '<div class="insight"><div class="insight-label">Total saved</div><div class="insight-value" style="color:var(--green)">' + escapeHtml(money(summary.totalSaved || 0)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Confirmed receipts</div><div class="insight-value">' + escapeHtml(money(confirmedTotal)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Estimated missing Uber One</div><div class="insight-value" style="color:var(--green)">' + escapeHtml(money(estimatedUberOne)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Promo discounts</div><div class="insight-value">' + escapeHtml(money(summary.promoSavings || 0)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Uber Cash used</div><div class="insight-value">' + escapeHtml(money(summary.uberCashUsed || 0)) + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Average / order</div><div class="insight-value">' + escapeHtml(money(summary.averageSavedPerOrder || 0)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Explicit Uber One</div><div class="insight-value">' + escapeHtml(money(confirmedUberOne)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Estimated average / order</div><div class="insight-value">' + escapeHtml(money(summary.estimatedAverageSavedPerOrder ?? summary.averageSavedPerOrder ?? 0)) + '</div></div>' +
         '</div></div>' +
+        '<div class="sheet-section">' +
+          '<div class="sheet-label">Uber One estimate basis</div>' +
+          '<div class="sheet-list">' +
+            '<div class="sheet-row"><div><div class="sheet-row-title">Explicit Uber One samples</div><div class="sheet-row-meta">Receipts where Uber states the Uber One saving amount</div></div><div class="sheet-row-value">' + Number(model.sampleSize || 0) + '</div></div>' +
+            '<div class="sheet-row"><div><div class="sheet-row-title">Conservative amount / eligible receipt</div><div class="sheet-row-meta">Only applied when Uber One is mentioned but the amount is missing</div></div><div class="sheet-row-value">' + escapeHtml(money(model.baselinePerEligibleOrder || 0)) + '</div></div>' +
+          '</div>' +
+        '</div>' +
         '<div class="sheet-section">' +
           '<div class="sheet-label">Strongest accounts historically</div>' +
           (top.length
@@ -2930,7 +3032,7 @@
               top.map(account => (
                 '<div class="sheet-row"><div><div class="sheet-row-title">' + escapeHtml(accountDisplay(account)) + '</div>' +
                 '<div class="sheet-row-meta">' + Number(account.orderCount || 0) + ' tracked orders</div></div>' +
-                '<div class="sheet-row-value">' + escapeHtml(money(account.totalSaved || 0)) + '</div></div>'
+                '<div class="sheet-row-value">~' + escapeHtml(money(account.estimatedTotalSaved ?? account.totalSaved ?? 0)) + '</div></div>'
               )).join("") +
               '</div>'
             : '<div class="empty">Savings insights will build after the Mac scans real receipts.</div>') +
