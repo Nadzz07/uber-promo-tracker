@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1">
+
+<title>Uber Promo Parser Test</title>
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: white;
+    max-width: 900px;
+    margin: auto;
+    padding: 40px 20px;
+}
+
+.test {
+    background: #1d1d1d;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 14px;
+}
+
+.pass {
+    font-weight: bold;
+}
+
+pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    background: #080808;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Uber Promo Parser</h1>
+
+<p>
+Developer test page — this checks whether
+Uber emails can automatically be converted
+into promo data.
+</p>
+
+<div id="results"></div>
+
+
+<script type="module">
+
+import {
+    parseUberPromo
+}
+from "./parser.js";
+
+
+const tests = [
+
+    {
+
+        name:
+            "Uber ride percentage offer",
+
+        email: {
+
+            subject:
+                "40% off your next Uber trip",
+
+            body:
+                "Save 40% off your next ride, up to £10. Valid until 12 October 2026.",
+
+            receivedAt:
+                "2026-10-05"
+
+        },
+
+        expected: {
+
+            service:
+                "Uber",
+
+            discount:
+                40,
+
+            maxSaving:
+                10,
+
+            expires:
+                "2026-10-12"
+
+        }
+
+    },
+
+
+    {
+
+        name:
+            "Uber Eats offer",
+
+        email: {
+
+            subject:
+                "25% off Uber Eats",
+
+            body:
+                "Get 25% off your next order. Minimum spend £15. Maximum discount £8. Use code EATS25. Expires 9 Oct 2026.",
+
+            receivedAt:
+                "2026-10-05"
+
+        },
+
+        expected: {
+
+            service:
+                "Uber Eats",
+
+            discount:
+                25,
+
+            maxSaving:
+                8,
+
+            minimumSpend:
+                15,
+
+            code:
+                "EATS25",
+
+            expires:
+                "2026-10-09"
+
+        }
+
+    },
+
+
+    {
+
+        name:
+            "Fixed £5 Uber discount",
+
+        email: {
+
+            subject:
+                "Save £5 with Uber",
+
+            body:
+                "Save £5 off when you spend £15. Use by 6/10/2026.",
+
+            receivedAt:
+                "2026-10-05"
+
+        },
+
+        expected: {
+
+            service:
+                "Uber",
+
+            discountType:
+                "fixed",
+
+            discount:
+                5,
+
+            minimumSpend:
+                15,
+
+            expires:
+                "2026-10-06"
+
+        }
+
+    }
+
+];
+
+
+const results =
+    document.getElementById("results");
+
+
+function matchesExpected(result, expected) {
+
+    return Object.entries(expected)
+        .every(
+            ([key, value]) =>
+                result[key] === value
+        );
+
+}
+
+
+tests.forEach(test => {
+
+    const result =
+        parseUberPromo(test.email);
+
+
+    const passed =
+        matchesExpected(
+            result,
+            test.expected
+        );
+
+
+    const box =
+        document.createElement("div");
+
+
+    box.className =
+        "test";
+
+
+    box.innerHTML = `
+
+        <h2>
+            ${passed ? "✅" : "❌"}
+            ${test.name}
+        </h2>
+
+        <div class="pass">
+
+            ${passed
+                ? "PASSED"
+                : "FAILED"
+            }
+
+        </div>
+
+        <h3>Parser output</h3>
+
+        <pre>${
+            JSON.stringify(
+                result,
+                null,
+                2
+            )
+        }</pre>
+
+    `;
+
+
+    results.appendChild(box);
+
+});
+
+</script>
+
+</body>
+
+</html>
