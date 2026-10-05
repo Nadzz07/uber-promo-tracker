@@ -565,6 +565,34 @@ assert.equal(receiptEvidence.publicInsights.feeModel.averageExtraOrderFees, 2.49
 
 console.log("✓ Receipt evidence confirms promo usage and fee model");
 
+const chronologicalEvidence = applyReceiptEvidence(
+  [{
+    service: "Uber Eats",
+    title: "£15 off",
+    discountType: "fixed",
+    discount: 15,
+    minimumSpend: 15,
+    uses: 1,
+    receivedAt: "2026-10-06T09:00:00.000Z",
+    expires: "2026-10-12",
+    accountRef: "A001"
+  }],
+  [{
+    ...parsedReceipt,
+    id: "receipt-before-promo",
+    receivedAt: "2026-10-05T18:00:00.000Z",
+    accountRef: "A001"
+  }]
+);
+
+assert.equal(
+  chronologicalEvidence.promos[0].usesRemaining,
+  1,
+  "a receipt from before the promo email must not consume the new offer"
+);
+
+console.log("✓ Receipt chronology prevents false consumption");
+
 const splitPromos = [
   {
     id: "split-a",
@@ -632,4 +660,4 @@ assert.equal(
 
 console.log("✓ Fee-aware multi-account basket splitting");
 
-console.log("All " + (parserCases.length + 9) + " automated tests passed.");
+console.log("All " + (parserCases.length + 10) + " automated tests passed.");
