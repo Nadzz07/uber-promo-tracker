@@ -77,4 +77,82 @@ assert.equal(
   "generic Find the best move heading should not compete with the product title"
 );
 
-console.log("✓ Round-3 home, split-settings and account-sheet guard");
+
+const actionWiring = [
+  ['data-view=', 'closest("[data-view]")'],
+  ['data-intent=', 'closest("[data-intent]")'],
+  ['data-account-filter=', 'closest("[data-account-filter]")'],
+  ['data-open-sheet=', 'closest("[data-open-sheet]")'],
+  ['data-account-offers=', 'closest("[data-account-offers]")'],
+  ['data-account-done=', 'closest("[data-account-done]")'],
+  ['data-restore-account=', 'closest("[data-restore-account]")'],
+  ['data-restore-offer=', 'closest("[data-restore-offer]")'],
+  ['data-unignore-offer=', 'closest("[data-unignore-offer]")'],
+  ['data-use-this-account=', 'closest("[data-use-this-account]")'],
+  ['data-max-orders=', 'closest("[data-max-orders]")'],
+  ['data-use-one=', 'closest("[data-use-one]")'],
+  ['data-undo-use=', 'closest("[data-undo-use]")'],
+  ['data-toggle-ignore=', 'closest("[data-toggle-ignore]")'],
+  ['data-mark-offer-done=', 'closest("[data-mark-offer-done]")'],
+  ['data-sheet-account-done=', 'closest("[data-sheet-account-done]")'],
+  ['data-show-more-accounts=', 'closest("[data-show-more-accounts]")'],
+  ['data-jump-accounts=', 'closest("[data-jump-accounts]")']
+];
+
+for (const [controlMarker, handlerMarker] of actionWiring) {
+  assert.ok(
+    html.includes(controlMarker),
+    `expected UI control marker ${controlMarker}`
+  );
+  assert.ok(
+    html.includes(handlerMarker),
+    `expected event wiring for ${controlMarker}`
+  );
+}
+
+assert.ok(
+  html.includes('event.target.id === "resetPlannerSettings"'),
+  "automatic-defaults button must be wired"
+);
+
+assert.ok(
+  html.includes('event.target.id === "sheetFeeInput"'),
+  "split-fee input must update planner settings"
+);
+
+assert.ok(
+  html.includes('event.target.id === "sheetLockedSearch"'),
+  "inaccessible-account search must be wired"
+);
+
+for (const sheetType of ["advanced", "locked", "savings", "health", "history"]) {
+  assert.ok(
+    html.includes(`type === "${sheetType}"`),
+    `sheet route ${sheetType} must render a real panel`
+  );
+}
+
+assert.ok(
+  html.includes("Apple Mail → private Mac SQLite → sanitised JSON → this app."),
+  "data-health sheet must explain the real private-to-public data path"
+);
+
+assert.ok(
+  html.includes("Chosen account"),
+  "Use this account must create visible selected-account state"
+);
+
+const buttonOpenings = [...html.matchAll(/<button\b[^>]*>/g)].map(match => match[0]);
+const deadButtons = buttonOpenings.filter(tag =>
+  !/\bdata-[\w-]+=/.test(tag) &&
+  !/\bid=/.test(tag) &&
+  !/\bdisabled\b/.test(tag)
+);
+
+assert.deepEqual(
+  deadButtons,
+  [],
+  "every visible button must have an explicit action marker, id handler, or be disabled"
+);
+
+console.log("✓ Round-3 UI, action wiring and data-flow guard");
