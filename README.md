@@ -77,9 +77,7 @@ The older project also contained a SQLite history model and account-alias matchi
 
 ## Anonymous account matching
 
-Apple Mail recipient addresses are used locally to keep offers from different Uber accounts separate. Before anything reaches GitHub, each alias is converted with an HMAC into a stable anonymous ID such as `acct_a1b2c3d4`.
-
-The HMAC secret is generated on the Mac in `.account-salt`, is ignored by Git, and never leaves the machine. The public dashboard can therefore show that multiple offers belong to the same anonymous account without publishing the Hide My Email address.
+Apple Mail recipient addresses are used locally to keep offers from different Uber accounts separate. The real aliases stay only in the Git-ignored `accounts.local.json` file. Public promo data uses stable anonymous labels such as `A001`, `A002`, etc.
 
 The tracker treats same-account offers as related context only. It does **not** assume they can be combined or stacked unless the offer terms explicitly say so.
 
@@ -125,3 +123,20 @@ bash mac/update-promos.sh
 ```
 
 Legacy-only records stay private. If the new live scanner later sees the same offer/account again, the public history can show that offer under its anonymous account label while still keeping the real alias private.
+
+
+## Spend-specific deal intelligence
+
+The dashboard can compare active promos against a planned trip/order amount such as £15, £25 or £40.
+
+For a single transaction it:
+
+- rejects promos whose minimum spend is not met
+- calculates percentage savings from the planned spend
+- applies the per-use or maximum saving cap
+- treats fixed discounts as the saving for that one use
+- treats Uber Cash as nominal cash value up to the transaction amount
+- does **not** multiply a multi-use promo by all future uses when deciding what saves the most right now
+- can filter the recommendation by service and anonymous account
+
+Example: a 40%-off promo valid for five rides with a £10 cap per ride is worth **£10 on a £40 ride today**, even though its full five-use potential is £50.
