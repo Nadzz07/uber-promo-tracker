@@ -70,19 +70,36 @@ export function buildPromoList(emails = [], { now = new Date(), includeExpired =
 
   const promos = [...uniquePromos.values()];
 
-  const countsByAccount = new Map();
-  for (const promo of promos) {
-    if (!promo.accountAlias) continue;
-    countsByAccount.set(
-      promo.accountAlias,
-      (countsByAccount.get(promo.accountAlias) || 0) + 1
-    );
-  }
+  const byAccount = new Map();
 
   for (const promo of promos) {
-    promo.sameAccountOfferCount = promo.accountAlias
-      ? countsByAccount.get(promo.accountAlias) || 1
-      : 1;
+    promo.sameAccountOfferCount = 1;
+    promo.hasCompanionOffer = false;
+
+    if (!promo.accountAlias) continue;
+
+    if (!byAccount.has(promo.accountAlias)) {
+      byAccount.set(promo.accountAlias, []);
+    }
+
+    byAccount.get(promo.accountAlias).push(promo);
+  }
+
+  for (const accountPromos of byAccount.values()) {
+    const companionOffers = accountPromos.filter(promo =>
+      promo.discountType === "fixed" ||
+      promo.discountType === "uberCash"
+    );
+
+    for (const promo of accountPromos) {
+      promo.sameAccountOfferCount = accountPromos.length;
+
+      if (promo.discountType === "percent") {
+        promo.hasCompanionOffer = companionOffers.some(companion =>
+          companion !== promo
+        );
+      }
+    }
   }
 
   return promos.sort((a, b) => scorePromo(b) - scorePromo(a));
