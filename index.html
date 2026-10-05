@@ -5,58 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#000000">
-  <title>Uber Eats Promo Tracker</title>
+  <title>Uber Eats Promo Finder</title>
   <style>
     * { box-sizing: border-box; }
 
     :root {
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       --bg: #000;
-      --card: #080808;
-      --card-2: #0c0c0c;
-      --line: #1d1d1d;
-      --line-2: #2b2b2b;
+      --card: #070707;
+      --card-2: #0b0b0b;
+      --line: #1b1b1b;
+      --line-2: #2a2a2a;
       --text: #fff;
-      --muted: #8b8b8b;
-      --dim: #575757;
+      --muted: #8a8a8a;
+      --dim: #525252;
       --green: #a6ff00;
-      --green-soft: rgba(166,255,0,.10);
+      --green-soft: rgba(166,255,0,.09);
       --amber: #ffcf66;
       --red: #ff7d7d;
     }
 
-    html { background: #000; }
-    body {
+    html, body {
       margin: 0;
-      min-height: 100vh;
+      min-height: 100%;
       background: #000;
       color: var(--text);
     }
 
+    body { min-height: 100vh; }
     button, input, select { font: inherit; }
     button { color: inherit; }
 
     .app {
-      width: min(760px, calc(100% - 24px));
+      width: min(780px, calc(100% - 22px));
       margin: 0 auto;
-      padding: 18px 0 64px;
+      padding: 14px 0 64px;
     }
 
     .topbar {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
       gap: 16px;
-      margin-bottom: 28px;
+      align-items: flex-start;
+      margin-bottom: 26px;
     }
 
-    .brand {
-      min-width: 0;
-    }
-
-    .brand-kicker {
+    .brand-kicker, .kicker {
       color: var(--green);
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 900;
       letter-spacing: .12em;
       text-transform: uppercase;
@@ -64,27 +60,24 @@
 
     .brand h1 {
       margin: 5px 0 0;
-      font-size: 27px;
+      font-size: 26px;
       line-height: 1;
       letter-spacing: -.045em;
     }
 
-    .status {
-      text-align: right;
-      flex: 0 0 auto;
-    }
+    .status { text-align: right; }
 
     .status-pill {
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      min-height: 30px;
+      min-height: 29px;
       padding: 0 10px;
       border: 1px solid var(--line);
       border-radius: 999px;
       background: #050505;
-      color: #bdbdbd;
-      font-size: 10px;
+      color: #b8b8b8;
+      font-size: 9px;
       font-weight: 900;
       letter-spacing: .08em;
     }
@@ -97,29 +90,26 @@
     }
 
     .status-pill.live .status-dot { background: var(--green); }
-    .status-pill.demo .status-dot { background: var(--amber); }
+    .status-pill.demo .status-dot,
+    .status-pill.stale .status-dot { background: var(--amber); }
 
     .scan-time {
       margin-top: 6px;
+      max-width: 190px;
       color: var(--dim);
-      font-size: 10px;
-      max-width: 170px;
+      font-size: 9px;
     }
 
-    .demo {
+    .notice {
       display: none;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       padding: 11px 13px;
-      border: 1px solid #3a3020;
+      border: 1px solid #382f1e;
       border-radius: 12px;
-      background: #0d0a04;
-      color: #c6ae77;
-      font-size: 11px;
-      line-height: 1.5;
-    }
-
-    .hero {
-      margin-bottom: 28px;
+      background: #0c0903;
+      color: #c6ad73;
+      font-size: 10px;
+      line-height: 1.45;
     }
 
     .hero-label {
@@ -129,72 +119,69 @@
 
     .hero-title {
       margin: 8px 0 0;
+      max-width: 700px;
       font-size: clamp(38px, 9vw, 62px);
       line-height: .98;
       letter-spacing: -.06em;
-      max-width: 680px;
     }
 
     .hero-title span { color: var(--green); }
 
     .hero-copy {
-      margin-top: 12px;
-      max-width: 560px;
+      margin-top: 11px;
+      max-width: 590px;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
       line-height: 1.6;
     }
 
     .intent-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 20px;
+      gap: 8px;
+      margin-top: 19px;
     }
 
     .intent {
       position: relative;
-      min-height: 142px;
-      padding: 17px;
+      min-height: 132px;
+      padding: 15px;
       border: 1px solid var(--line);
-      border-radius: 18px;
+      border-radius: 17px;
       background: var(--card);
       text-align: left;
       cursor: pointer;
-      transition: .15s ease;
     }
 
-    .intent:hover,
     .intent.active {
-      border-color: #3b3b3b;
-      background: #0b0b0b;
-    }
-
-    .intent.active::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border: 1px solid var(--green);
-      border-radius: 18px;
-      pointer-events: none;
+      border-color: var(--green);
+      box-shadow: inset 0 0 0 1px rgba(166,255,0,.16);
     }
 
     .intent-icon {
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       display: grid;
       place-items: center;
-      border-radius: 11px;
-      background: #111;
       border: 1px solid #202020;
+      border-radius: 10px;
+      background: #101010;
       color: var(--green);
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 900;
     }
 
+    .intent-count {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      color: var(--dim);
+      font-size: 9px;
+    }
+
     .intent-title {
-      margin-top: 18px;
-      font-size: 17px;
+      margin-top: 16px;
+      font-size: 16px;
       font-weight: 850;
       letter-spacing: -.025em;
     }
@@ -202,199 +189,243 @@
     .intent-sub {
       margin-top: 4px;
       color: var(--muted);
-      font-size: 11px;
+      font-size: 10px;
       line-height: 1.45;
     }
 
-    .intent-count {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      color: var(--dim);
-      font-size: 11px;
-    }
-
-    .section {
-      margin-top: 30px;
-    }
+    .section { margin-top: 30px; }
 
     .section-head {
       display: flex;
-      align-items: flex-end;
       justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 12px;
-    }
-
-    .section-kicker {
-      color: var(--green);
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: .11em;
-      text-transform: uppercase;
+      gap: 14px;
+      align-items: flex-end;
+      margin-bottom: 11px;
     }
 
     .section-title {
       margin: 5px 0 0;
-      font-size: 23px;
+      font-size: 22px;
       letter-spacing: -.035em;
     }
 
     .section-meta {
       color: var(--dim);
-      font-size: 10px;
+      font-size: 9px;
       text-align: right;
     }
 
-    .order-helper {
-      padding: 16px;
+    .planner {
+      padding: 15px;
       border: 1px solid var(--line);
       border-radius: 18px;
       background: #050505;
     }
 
-    .helper-top {
-      display: flex;
+    .planner-inputs {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) 118px 90px;
+      gap: 8px;
       align-items: end;
-      gap: 9px;
     }
 
-    .money-field {
-      flex: 1;
+    .field {
       display: grid;
-      gap: 6px;
+      gap: 5px;
       color: var(--dim);
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 800;
       letter-spacing: .07em;
       text-transform: uppercase;
     }
 
-    .money-field input {
+    .field input, .field select {
       width: 100%;
-      min-height: 48px;
-      padding: 0 14px;
+      min-height: 45px;
+      padding: 0 11px;
       border: 1px solid var(--line-2);
-      border-radius: 13px;
+      border-radius: 12px;
       outline: none;
       background: #000;
       color: #fff;
-      font-size: 18px;
       font-weight: 800;
     }
 
-    .money-field input:focus {
-      border-color: var(--green);
-    }
+    .field input:focus, .field select:focus { border-color: var(--green); }
 
     .quick {
       display: flex;
-      gap: 7px;
+      gap: 6px;
+      margin-top: 8px;
     }
 
     .quick button {
-      min-height: 48px;
-      min-width: 50px;
+      flex: 1;
+      min-height: 37px;
       border: 1px solid var(--line);
-      border-radius: 13px;
-      background: #0a0a0a;
-      color: #bbb;
+      border-radius: 10px;
+      background: #090909;
+      color: #aaa;
       cursor: pointer;
+      font-size: 11px;
     }
 
-    .helper-result {
+    .plan-result {
       margin-top: 14px;
       padding-top: 14px;
       border-top: 1px solid var(--line);
     }
 
-    .helper-best {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: center;
-    }
-
-    .helper-account {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .helper-offer {
-      margin-top: 3px;
-      font-size: 18px;
-      font-weight: 850;
-      letter-spacing: -.025em;
-    }
-
-    .helper-save {
-      text-align: right;
-      color: var(--green);
-      font-size: 24px;
-      font-weight: 950;
-      letter-spacing: -.04em;
-    }
-
-    .helper-pay {
-      margin-top: 2px;
-      text-align: right;
-      color: var(--dim);
-      font-size: 10px;
-    }
-
-    .account-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .account-card {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: var(--card);
-      overflow: hidden;
-    }
-
-    .account-main {
-      padding: 17px;
-    }
-
-    .account-top {
+    .plan-summary {
       display: flex;
       justify-content: space-between;
       gap: 14px;
       align-items: flex-start;
     }
 
-    .account-name {
-      font-size: 21px;
+    .plan-title {
+      font-size: 19px;
       font-weight: 900;
-      letter-spacing: -.035em;
+      letter-spacing: -.03em;
+    }
+
+    .plan-sub {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    .plan-money { text-align: right; }
+
+    .plan-save {
+      color: var(--green);
+      font-size: 25px;
+      font-weight: 950;
+      letter-spacing: -.04em;
+    }
+
+    .plan-pay {
+      margin-top: 2px;
+      color: var(--dim);
+      font-size: 9px;
+    }
+
+    .plan-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .metric, .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 23px;
+      padding: 0 8px;
+      border: 1px solid #202020;
+      border-radius: 999px;
+      background: #0a0a0a;
+      color: #8f8f8f;
+      font-size: 9px;
+      font-weight: 750;
+    }
+
+    .metric.good, .badge.green {
+      color: var(--green);
+      border-color: #27370e;
+      background: #070b02;
+    }
+
+    .plan-steps {
+      display: grid;
+      gap: 7px;
+      margin-top: 13px;
+    }
+
+    .plan-step {
+      display: grid;
+      grid-template-columns: 26px minmax(0,1fr) auto;
+      gap: 9px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid #181818;
+      border-radius: 12px;
+      background: #020202;
+    }
+
+    .step-no {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: #101010;
+      color: var(--green);
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .step-account {
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .step-promo {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.4;
+    }
+
+    .step-value {
+      text-align: right;
+      font-size: 10px;
+      color: #aaa;
+    }
+
+    .step-value strong {
+      display: block;
+      color: var(--green);
+      font-size: 13px;
+    }
+
+    .account-list { display: grid; gap: 9px; }
+
+    .account-card {
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: var(--card);
+      overflow: hidden;
+    }
+
+    .account-main { padding: 15px; }
+
+    .account-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 13px;
+      align-items: flex-start;
+    }
+
+    .account-email {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -.03em;
+      word-break: break-word;
+    }
+
+    .account-ref {
+      margin-top: 3px;
+      color: var(--dim);
+      font-size: 9px;
     }
 
     .account-badges {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 5px;
       margin-top: 8px;
-    }
-
-    .badge {
-      display: inline-flex;
-      min-height: 24px;
-      align-items: center;
-      padding: 0 8px;
-      border: 1px solid #222;
-      border-radius: 999px;
-      background: #0c0c0c;
-      color: #9d9d9d;
-      font-size: 9px;
-      font-weight: 800;
-    }
-
-    .badge.green {
-      color: var(--green);
-      border-color: #26350e;
-      background: #080c02;
     }
 
     .account-score {
@@ -402,168 +433,212 @@
       text-align: right;
     }
 
-    .account-score-value {
+    .account-score strong {
+      display: block;
       color: var(--green);
-      font-size: 26px;
-      font-weight: 950;
+      font-size: 23px;
       letter-spacing: -.04em;
     }
 
-    .account-score-label {
+    .account-score span {
       color: var(--dim);
+      font-size: 8px;
+    }
+
+    .activity {
+      margin-top: 9px;
+      color: #666;
       font-size: 9px;
     }
 
     .offer-list {
-      margin-top: 15px;
       display: grid;
-      gap: 7px;
+      gap: 6px;
+      margin-top: 13px;
     }
 
     .offer {
+      padding: 10px;
+      border: 1px solid #171717;
+      border-radius: 12px;
+      background: #020202;
+    }
+
+    .offer-main {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 12px;
-      align-items: center;
-      padding: 11px 12px;
-      border: 1px solid #181818;
-      border-radius: 13px;
-      background: #030303;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 10px;
+      align-items: start;
     }
 
     .offer-name {
-      font-size: 13px;
-      font-weight: 750;
-      line-height: 1.3;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.35;
     }
 
     .offer-meta {
-      margin-top: 4px;
+      margin-top: 3px;
       color: var(--dim);
-      font-size: 10px;
+      font-size: 9px;
       line-height: 1.45;
     }
 
     .offer-value {
       text-align: right;
-      color: #d9d9d9;
-      font-size: 12px;
-      font-weight: 800;
+      color: #bbb;
+      font-size: 9px;
     }
 
     .offer-value strong {
       display: block;
       color: var(--green);
-      font-size: 15px;
+      font-size: 13px;
+    }
+
+    .offer-actions, .account-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .mini-btn {
+      min-height: 27px;
+      padding: 0 8px;
+      border: 1px solid #202020;
+      border-radius: 8px;
+      background: #090909;
+      color: #777;
+      cursor: pointer;
+      font-size: 8px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .mini-btn:hover { color: #fff; border-color: #333; }
+    .mini-btn.used { color: var(--green); }
+    .mini-btn.ignore { color: var(--amber); }
+
+    details.bucket {
+      margin-top: 12px;
+      border: 1px solid #151515;
+      border-radius: 14px;
+      background: #030303;
+      overflow: hidden;
+    }
+
+    details.bucket summary {
+      padding: 12px;
+      cursor: pointer;
+      list-style: none;
+      color: #999;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    details.bucket summary::-webkit-details-marker { display: none; }
+
+    .bucket-body {
+      padding: 0 9px 9px;
+    }
+
+    .used-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      padding: 9px;
+      border-top: 1px solid #141414;
+    }
+
+    .used-title {
+      font-size: 10px;
+      font-weight: 750;
+    }
+
+    .used-meta {
+      margin-top: 2px;
+      color: var(--dim);
+      font-size: 8px;
     }
 
     .empty {
-      padding: 24px 16px;
+      padding: 22px 14px;
       border: 1px dashed #242424;
-      border-radius: 16px;
+      border-radius: 15px;
       color: var(--muted);
       text-align: center;
-      font-size: 12px;
-      line-height: 1.6;
+      font-size: 11px;
+      line-height: 1.55;
     }
 
-    details.history {
-      margin-top: 30px;
+    .history {
+      margin-top: 28px;
+      padding-top: 17px;
       border-top: 1px solid var(--line);
-      padding-top: 18px;
     }
 
-    details.history summary {
+    .history summary {
       cursor: pointer;
-      color: #b5b5b5;
-      font-size: 12px;
-      font-weight: 800;
       list-style: none;
+      color: #9e9e9e;
+      font-size: 10px;
+      font-weight: 800;
     }
 
-    details.history summary::-webkit-details-marker { display: none; }
+    .history summary::-webkit-details-marker { display: none; }
 
     .history-list {
-      margin-top: 12px;
       display: grid;
-      gap: 7px;
+      gap: 6px;
+      margin-top: 10px;
     }
 
     .history-row {
-      padding: 11px 12px;
-      border: 1px solid #171717;
-      border-radius: 12px;
-      background: #040404;
+      padding: 9px 10px;
+      border: 1px solid #151515;
+      border-radius: 11px;
+      background: #030303;
     }
 
     .history-title {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 750;
     }
 
     .history-meta {
-      margin-top: 3px;
+      margin-top: 2px;
       color: var(--dim);
-      font-size: 9px;
+      font-size: 8px;
     }
 
     .privacy {
-      margin-top: 24px;
-      color: #3f3f3f;
-      font-size: 9px;
+      margin-top: 22px;
+      color: #3d3d3d;
+      font-size: 8px;
       line-height: 1.55;
       text-align: center;
     }
 
     @media (max-width: 560px) {
-      .app {
-        width: min(100% - 18px, 760px);
-        padding-top: 12px;
-      }
-
-      .intent-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-      }
-
-      .intent {
-        min-height: 132px;
-        padding: 14px;
-      }
-
-      .intent-title {
-        margin-top: 15px;
-        font-size: 15px;
-      }
-
-      .helper-top {
-        display: block;
-      }
-
-      .quick {
-        margin-top: 8px;
-      }
-
-      .quick button {
-        flex: 1;
-      }
-
-      .helper-best {
-        align-items: flex-start;
-      }
-
-      .account-score-value {
-        font-size: 22px;
-      }
+      .app { width: min(100% - 16px, 780px); }
+      .planner-inputs { grid-template-columns: 1fr 1fr; }
+      .planner-inputs .field:first-child { grid-column: 1 / -1; }
+      .plan-summary { display: block; }
+      .plan-money { margin-top: 9px; text-align: left; }
     }
 
     @media (max-width: 360px) {
       .intent-grid { grid-template-columns: 1fr; }
+      .account-top { display: block; }
+      .account-score { margin-top: 8px; text-align: left; }
     }
   </style>
 </head>
 <body>
-  <main class="app">
+  <main id="app" class="app">
     <header class="topbar">
       <div class="brand">
         <div class="brand-kicker">Uber Eats</div>
@@ -579,15 +654,15 @@
       </div>
     </header>
 
-    <div id="demoNotice" class="demo">
-      Demo offers are showing. Your live Apple Mail data will replace them on the Mac.
+    <div id="demoNotice" class="notice">
+      Demo data is showing. Live Apple Mail promos and receipts will replace it on the Mac.
     </div>
 
-    <section class="hero">
+    <section>
       <div class="hero-label">What are you looking for?</div>
-      <h2 class="hero-title">Pick the kind of <span>deal</span> you want.</h2>
+      <h2 class="hero-title">Choose the account that gives you the <span>best order.</span></h2>
       <div class="hero-copy">
-        Choose what matters right now and the tracker will show which Uber Eats account to use.
+        Your email recipient identifies the Uber Eats account. The public page shows only a masked version.
       </div>
 
       <div id="intentGrid" class="intent-grid">
@@ -595,28 +670,28 @@
           <span id="bestCount" class="intent-count"></span>
           <div class="intent-icon">★</div>
           <div class="intent-title">Best deal</div>
-          <div class="intent-sub">Show the strongest accounts overall.</div>
+          <div class="intent-sub">Strongest accounts overall.</div>
         </button>
 
         <button class="intent" data-mode="15off15">
           <span id="fifteenCount" class="intent-count"></span>
           <div class="intent-icon">15</div>
           <div class="intent-title">£15 off £15</div>
-          <div class="intent-sub">Find accounts with the full £15-off minimum-spend deal.</div>
+          <div class="intent-sub">Accounts with a full £15-off minimum-spend deal.</div>
         </button>
 
         <button class="intent" data-mode="cash">
           <span id="cashCount" class="intent-count"></span>
           <div class="intent-icon">£</div>
           <div class="intent-title">Uber Cash</div>
-          <div class="intent-sub">Find accounts carrying Uber Cash offers.</div>
+          <div class="intent-sub">Accounts carrying Uber Cash value.</div>
         </button>
 
         <button class="intent" data-mode="multi">
           <span id="multiCount" class="intent-count"></span>
           <div class="intent-icon">+</div>
           <div class="intent-title">Multiple promos</div>
-          <div class="intent-sub">Accounts with more than one active offer.</div>
+          <div class="intent-sub">Accounts with several active offers.</div>
         </button>
       </div>
     </section>
@@ -624,26 +699,42 @@
     <section class="section">
       <div class="section-head">
         <div>
-          <div class="section-kicker">Ordering now?</div>
-          <h2 class="section-title">Best deal for your basket</h2>
+          <div class="kicker">Basket optimiser</div>
+          <h2 class="section-title">How should I split this order?</h2>
         </div>
       </div>
 
-      <div class="order-helper">
-        <div class="helper-top">
-          <label class="money-field">
-            Basket total
-            <input id="spendInput" type="number" min="0" step="0.50" value="25" inputmode="decimal">
+      <div class="planner">
+        <div class="planner-inputs">
+          <label class="field">
+            Basket subtotal
+            <input id="spendInput" type="number" min="0" step="0.50" value="50" inputmode="decimal">
           </label>
 
-          <div class="quick">
-            <button data-spend="15">£15</button>
-            <button data-spend="25">£25</button>
-            <button data-spend="40">£40</button>
-          </div>
+          <label class="field">
+            Extra fee / added order
+            <input id="feeInput" type="number" min="0" step="0.10" value="0" inputmode="decimal">
+          </label>
+
+          <label class="field">
+            Max orders
+            <select id="maxOrders">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3" selected>3</option>
+              <option value="4">4</option>
+            </select>
+          </label>
         </div>
 
-        <div id="helperResult" class="helper-result">
+        <div class="quick">
+          <button data-spend="15">£15</button>
+          <button data-spend="25">£25</button>
+          <button data-spend="40">£40</button>
+          <button data-spend="50">£50</button>
+        </div>
+
+        <div id="planResult" class="plan-result">
           <div class="empty">Loading offers…</div>
         </div>
       </div>
@@ -652,13 +743,23 @@
     <section class="section">
       <div class="section-head">
         <div>
-          <div id="resultsKicker" class="section-kicker">Best deal</div>
+          <div id="resultsKicker" class="kicker">Best deal</div>
           <h2 id="resultsTitle" class="section-title">Accounts to use</h2>
         </div>
         <div id="resultsMeta" class="section-meta"></div>
       </div>
 
       <div id="accountList" class="account-list"></div>
+
+      <details id="weakBucket" class="bucket">
+        <summary id="weakSummary">Weaker accounts</summary>
+        <div id="weakList" class="bucket-body"></div>
+      </details>
+
+      <details id="usedBucket" class="bucket">
+        <summary id="usedSummary">Used / ignored</summary>
+        <div id="usedList" class="bucket-body"></div>
+      </details>
     </section>
 
     <details class="history">
@@ -667,17 +768,22 @@
     </details>
 
     <div class="privacy">
-      Real iCloud aliases, raw emails and actual promo codes stay private on your Mac.
-      The site only sees anonymous account labels such as A001.
+      Raw emails, full iCloud aliases, receipt details and promo codes stay private on your Mac.
+      Manual Used/Ignore choices are stored only in this browser.
     </div>
   </main>
 
   <script type="module">
-    import { rankPromosForSpend } from "./deal-intelligence.js";
+    import { planBasketSplit } from "./deal-intelligence.js";
+
+    const STATE_KEY = "uber-eats-promo-finder:promo-state:v1";
 
     let promos = [];
     let history = [];
+    let insights = { accounts: [], feeModel: {} };
     let mode = "best";
+    let promoStates = loadStates();
+    let feeTouched = false;
 
     function escapeHtml(value) {
       return String(value == null ? "" : value)
@@ -689,57 +795,97 @@
     }
 
     function money(value) {
-      return "£" + Number(value).toLocaleString("en-GB", {
-        minimumFractionDigits: 0,
+      return "£" + Number(value || 0).toLocaleString("en-GB", {
         maximumFractionDigits: 2
       });
     }
 
-    function localDate(dateString, endOfDay = false) {
-      if (!dateString) return null;
-      const parts = String(dateString).split("-").map(Number);
-      if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+    function loadStates() {
+      try {
+        return JSON.parse(localStorage.getItem(STATE_KEY) || "{}");
+      } catch {
+        return {};
+      }
+    }
 
-      return new Date(
-        parts[0],
-        parts[1] - 1,
-        parts[2],
-        endOfDay ? 23 : 12,
-        endOfDay ? 59 : 0,
-        endOfDay ? 59 : 0
-      );
+    function saveStates() {
+      try {
+        localStorage.setItem(STATE_KEY, JSON.stringify(promoStates));
+      } catch {}
+    }
+
+    function promoId(promo) {
+      if (promo.id) return promo.id;
+      return [
+        promo.accountRef,
+        promo.discountType,
+        promo.discount,
+        promo.minimumSpend,
+        promo.maxSaving,
+        promo.uses,
+        promo.expires
+      ].join("|");
+    }
+
+    function manualState(promo) {
+      return promoStates[promoId(promo)] || null;
+    }
+
+    function effectiveState(promo) {
+      if (promo.receiptState === "used" || Number(promo.usesRemaining) === 0) return "used";
+      return manualState(promo) || "active";
+    }
+
+    function activePromos() {
+      return promos.filter(promo => effectiveState(promo) === "active");
+    }
+
+    function excludedIds() {
+      return promos
+        .filter(promo => effectiveState(promo) !== "active")
+        .map(promoId);
+    }
+
+    function accountDisplay(promoOrAccount) {
+      return promoOrAccount.accountMasked || promoOrAccount.account || promoOrAccount.accountRef || "Account";
+    }
+
+    function localDate(value, end = false) {
+      if (!value) return null;
+      const parts = String(value).split("-").map(Number);
+      if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+      return new Date(parts[0], parts[1] - 1, parts[2], end ? 23 : 12, end ? 59 : 0, end ? 59 : 0);
     }
 
     function formatDate(value) {
       const date = localDate(value);
-      if (!date) return "No expiry";
-      return date.toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short"
-      });
+      return date
+        ? date.toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+        : "No expiry";
+    }
+
+    function formatDateTime(value) {
+      if (!value) return null;
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return null;
+      return date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
     }
 
     function potentialSaving(promo) {
       if (promo.maxTotalSaving != null) return Number(promo.maxTotalSaving);
       if (promo.maxSaving != null) return Number(promo.maxSaving);
       if (promo.discountType === "fixed" && promo.discount != null) {
-        return Number(promo.discount) * Number(promo.uses || 1);
+        return Number(promo.discount) * Number(promo.usesRemaining ?? promo.uses ?? 1);
       }
-      if (promo.discountType === "uberCash" && promo.discount != null) {
-        return Number(promo.discount);
-      }
+      if (promo.discountType === "uberCash" && promo.discount != null) return Number(promo.discount);
       return 0;
     }
 
-    function singleUseValue(promo) {
-      if (promo.discountType === "fixed" && promo.discount != null) {
-        return Number(promo.discount);
+    function singleValue(promo) {
+      if (promo.discountType === "fixed" || promo.discountType === "uberCash") {
+        return Number(promo.discount || 0);
       }
-      if (promo.discountType === "uberCash" && promo.discount != null) {
-        return Number(promo.discount);
-      }
-      if (promo.maxSaving != null) return Number(promo.maxSaving);
-      return 0;
+      return Number(promo.maxSaving || 0);
     }
 
     function is15off15(promo) {
@@ -748,51 +894,50 @@
         Number(promo.minimumSpend || 0) <= 15;
     }
 
+    function activityMap() {
+      return new Map((insights.accounts || []).map(item => [item.accountRef, item]));
+    }
+
     function groupAccounts(items) {
       const map = new Map();
+      const activity = activityMap();
 
       items.forEach(promo => {
-        const account = promo.accountRef || "Unknown";
+        const ref = promo.accountRef || "Unknown";
 
-        if (!map.has(account)) {
-          map.set(account, {
-            account,
+        if (!map.has(ref)) {
+          map.set(ref, {
+            accountRef: ref,
+            accountMasked: promo.accountMasked || null,
             promos: [],
             totalPotential: 0,
             bestSingle: 0,
             hasCash: false,
-            has15off15: false
+            has15off15: false,
+            activity: activity.get(ref) || null
           });
         }
 
-        const record = map.get(account);
-        record.promos.push(promo);
-        record.totalPotential += potentialSaving(promo);
-        record.bestSingle = Math.max(record.bestSingle, singleUseValue(promo));
-        record.hasCash = record.hasCash || promo.discountType === "uberCash";
-        record.has15off15 = record.has15off15 || is15off15(promo);
+        const account = map.get(ref);
+        account.promos.push(promo);
+        account.totalPotential += potentialSaving(promo);
+        account.bestSingle = Math.max(account.bestSingle, singleValue(promo));
+        account.hasCash = account.hasCash || promo.discountType === "uberCash";
+        account.has15off15 = account.has15off15 || is15off15(promo);
       });
 
-      return [...map.values()].map(record => ({
-        ...record,
-        promoCount: record.promos.length,
-        earliestExpiry: record.promos
-          .map(p => p.expires)
-          .filter(Boolean)
-          .sort()[0] || null
+      return [...map.values()].map(account => ({
+        ...account,
+        promoCount: account.promos.length
       }));
     }
 
-    function matchingAccounts() {
-      let accounts = groupAccounts(promos);
+    function sortedAccounts() {
+      let accounts = groupAccounts(activePromos());
 
-      if (mode === "15off15") {
-        accounts = accounts.filter(account => account.has15off15);
-      } else if (mode === "cash") {
-        accounts = accounts.filter(account => account.hasCash);
-      } else if (mode === "multi") {
-        accounts = accounts.filter(account => account.promoCount > 1);
-      }
+      if (mode === "15off15") accounts = accounts.filter(account => account.has15off15);
+      if (mode === "cash") accounts = accounts.filter(account => account.hasCash);
+      if (mode === "multi") accounts = accounts.filter(account => account.promoCount > 1);
 
       return accounts.sort((a, b) => {
         if (mode === "multi" && b.promoCount !== a.promoCount) {
@@ -807,35 +952,40 @@
       });
     }
 
+    function weakAccount(account, strongest) {
+      if (mode !== "best") return false;
+      if (account.has15off15 || account.hasCash || account.promoCount > 1) return false;
+      if (!strongest) return false;
+
+      return account.bestSingle <= 5 ||
+        account.totalPotential < strongest.totalPotential * 0.22;
+    }
+
     function promoLabel(promo) {
-      if (promo.discountType === "uberCash") {
-        return money(promo.discount || 0) + " Uber Cash";
-      }
-
-      if (promo.discountType === "fixed") {
-        return money(promo.discount || 0) + " off";
-      }
-
-      if (promo.discountType === "percent") {
-        return Number(promo.discount || 0) + "% off";
-      }
-
+      if (promo.discountType === "uberCash") return money(promo.discount) + " Uber Cash";
+      if (promo.discountType === "fixed") return money(promo.discount) + " off";
+      if (promo.discountType === "percent") return Number(promo.discount || 0) + "% off";
       return "Offer";
     }
 
     function promoMeta(promo) {
-      const bits = [];
+      const parts = [];
 
-      if (promo.minimumSpend) bits.push(money(promo.minimumSpend) + " minimum");
-      if (promo.maxSaving) bits.push(money(promo.maxSaving) + " max");
-      if ((promo.uses || 1) > 1) bits.push((promo.uses || 1) + " uses");
-      if (promo.expires) bits.push("Ends " + formatDate(promo.expires));
+      if (promo.minimumSpend) parts.push(money(promo.minimumSpend) + " minimum");
+      if (promo.maxSaving) parts.push(money(promo.maxSaving) + " max");
 
-      return bits.join(" · ");
+      const left = Number(promo.usesRemaining ?? promo.uses ?? 1);
+      const total = Number(promo.uses || 1);
+      if (total > 1) parts.push(left + " of " + total + " uses left");
+
+      if (promo.expires) parts.push("Ends " + formatDate(promo.expires));
+      if (promo.receiptState === "partial") parts.push("receipt-confirmed use");
+
+      return parts.join(" · ");
     }
 
     function renderIntentCounts() {
-      const accounts = groupAccounts(promos);
+      const accounts = groupAccounts(activePromos());
 
       document.getElementById("bestCount").textContent =
         accounts.length ? accounts.length + " accounts" : "0";
@@ -850,9 +1000,81 @@
         accounts.filter(a => a.promoCount > 1).length || "0";
     }
 
+    function accountCard(account, index) {
+      const badges = [];
+
+      if (index === 0 && mode === "best") badges.push('<span class="badge green">Best overall</span>');
+      if (account.has15off15) badges.push('<span class="badge">£15 off £15</span>');
+      if (account.hasCash) badges.push('<span class="badge">Uber Cash</span>');
+      if (account.promoCount > 1) badges.push('<span class="badge">' + account.promoCount + ' promos</span>');
+
+      if (account.activity?.lastOrderAt) {
+        badges.push('<span class="badge">used ' + escapeHtml(formatDateTime(account.activity.lastOrderAt)) + '</span>');
+      }
+
+      const offers = account.promos
+        .slice()
+        .sort((a, b) => potentialSaving(b) - potentialSaving(a))
+        .map(promo => {
+          const id = promoId(promo);
+
+          return (
+            '<div class="offer">' +
+              '<div class="offer-main">' +
+                '<div>' +
+                  '<div class="offer-name">' + escapeHtml(promo.title || promoLabel(promo)) + '</div>' +
+                  '<div class="offer-meta">' + escapeHtml(promoMeta(promo)) + '</div>' +
+                '</div>' +
+                '<div class="offer-value">' +
+                  '<strong>' + escapeHtml(promoLabel(promo)) + '</strong>' +
+                  (promo.hasCode ? "code private" : "auto / cash") +
+                '</div>' +
+              '</div>' +
+              '<div class="offer-actions">' +
+                '<button class="mini-btn used" data-promo-state="used" data-promo-id="' + escapeHtml(id) + '">Used</button>' +
+                '<button class="mini-btn ignore" data-promo-state="ignored" data-promo-id="' + escapeHtml(id) + '">Ignore</button>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join("");
+
+      let activity = "";
+      if (account.activity) {
+        const bits = [];
+        if (account.activity.receiptOrderCount) bits.push(account.activity.receiptOrderCount + " receipt orders");
+        if (account.activity.observedPromoSavings) bits.push(money(account.activity.observedPromoSavings) + " promo savings seen");
+        if (bits.length) activity = '<div class="activity">' + escapeHtml(bits.join(" · ")) + '</div>';
+      }
+
+      return (
+        '<article class="account-card">' +
+          '<div class="account-main">' +
+            '<div class="account-top">' +
+              '<div>' +
+                '<div class="account-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
+                '<div class="account-ref">' + escapeHtml(account.accountRef) + '</div>' +
+                '<div class="account-badges">' + badges.join("") + '</div>' +
+              '</div>' +
+              '<div class="account-score">' +
+                '<strong>' + escapeHtml(money(account.totalPotential)) + '</strong>' +
+                '<span>potential value</span>' +
+              '</div>' +
+            '</div>' +
+            activity +
+            '<div class="offer-list">' + offers + '</div>' +
+            '<div class="account-actions">' +
+              '<button class="mini-btn" data-account-done="' + escapeHtml(account.accountRef) + '">Mark account done</button>' +
+            '</div>' +
+          '</div>' +
+        '</article>'
+      );
+    }
+
     function renderAccounts() {
-      const list = document.getElementById("accountList");
-      const accounts = matchingAccounts();
+      const all = sortedAccounts();
+      const strongest = all[0] || null;
+      const weak = all.filter(account => weakAccount(account, strongest));
+      const strong = all.filter(account => !weakAccount(account, strongest));
 
       const headings = {
         best: ["Best deal", "Accounts to use"],
@@ -864,155 +1086,178 @@
       document.getElementById("resultsKicker").textContent = headings[mode][0];
       document.getElementById("resultsTitle").textContent = headings[mode][1];
       document.getElementById("resultsMeta").textContent =
-        accounts.length + (accounts.length === 1 ? " account" : " accounts");
+        all.length + (all.length === 1 ? " account" : " accounts");
 
-      if (!accounts.length) {
-        list.innerHTML = '<div class="empty">No active account matches this category right now.</div>';
-        return;
-      }
+      const list = document.getElementById("accountList");
 
-      list.innerHTML = accounts.map((account, index) => {
-        const badges = [];
+      list.innerHTML = strong.length
+        ? strong.map((account, index) => accountCard(account, index)).join("")
+        : '<div class="empty">No active account matches this category right now.</div>';
 
-        if (index === 0 && mode === "best") badges.push('<span class="badge green">Best overall</span>');
-        if (account.has15off15) badges.push('<span class="badge">£15 off £15</span>');
-        if (account.hasCash) badges.push('<span class="badge">Uber Cash</span>');
-        if (account.promoCount > 1) badges.push('<span class="badge">' + account.promoCount + ' promos</span>');
+      const weakBucket = document.getElementById("weakBucket");
+      weakBucket.style.display = weak.length ? "block" : "none";
+      document.getElementById("weakSummary").textContent =
+        "Weaker accounts · " + weak.length;
+      document.getElementById("weakList").innerHTML =
+        weak.map((account, index) => accountCard(account, strong.length + index)).join("");
+    }
 
-        const offers = account.promos
-          .slice()
-          .sort((a, b) => potentialSaving(b) - potentialSaving(a))
-          .map(promo => {
-            return (
-              '<div class="offer">' +
-                '<div>' +
-                  '<div class="offer-name">' + escapeHtml(promo.title || promoLabel(promo)) + '</div>' +
-                  '<div class="offer-meta">' + escapeHtml(promoMeta(promo)) + '</div>' +
-                '</div>' +
-                '<div class="offer-value">' +
-                  '<strong>' + escapeHtml(promoLabel(promo)) + '</strong>' +
-                  (promo.hasCode ? "code private" : "auto/unknown") +
-                '</div>' +
-              '</div>'
-            );
-          }).join("");
+    function renderUsed() {
+      const used = promos.filter(promo => effectiveState(promo) !== "active");
+      const bucket = document.getElementById("usedBucket");
+
+      bucket.style.display = used.length ? "block" : "none";
+      document.getElementById("usedSummary").textContent =
+        "Used / ignored · " + used.length;
+
+      document.getElementById("usedList").innerHTML = used.map(promo => {
+        const state = effectiveState(promo);
+        const receiptLocked = promo.receiptState === "used" || Number(promo.usesRemaining) === 0;
 
         return (
-          '<article class="account-card">' +
-            '<div class="account-main">' +
-              '<div class="account-top">' +
-                '<div>' +
-                  '<div class="account-name">' + escapeHtml(account.account) + '</div>' +
-                  '<div class="account-badges">' + badges.join("") + '</div>' +
-                '</div>' +
-                '<div class="account-score">' +
-                  '<div class="account-score-value">' + escapeHtml(money(account.totalPotential)) + '</div>' +
-                  '<div class="account-score-label">total potential</div>' +
-                '</div>' +
+          '<div class="used-row">' +
+            '<div>' +
+              '<div class="used-title">' +
+                escapeHtml(accountDisplay(promo)) + " · " +
+                escapeHtml(promo.title || promoLabel(promo)) +
               '</div>' +
-              '<div class="offer-list">' + offers + '</div>' +
+              '<div class="used-meta">' +
+                escapeHtml(receiptLocked ? "Confirmed used by receipt" : state) +
+              '</div>' +
             '</div>' +
-          '</article>'
+            (receiptLocked
+              ? '<span class="badge green">confirmed</span>'
+              : '<button class="mini-btn" data-promo-state="active" data-promo-id="' +
+                escapeHtml(promoId(promo)) +
+                '">Undo</button>') +
+          '</div>'
         );
       }).join("");
     }
 
-    function renderHelper() {
-      const target = document.getElementById("helperResult");
-      const spend = Number(document.getElementById("spendInput").value);
+    function renderPlan() {
+      const target = document.getElementById("planResult");
+      const subtotal = Number(document.getElementById("spendInput").value);
+      const extraFee = Number(document.getElementById("feeInput").value);
+      const maxOrders = Number(document.getElementById("maxOrders").value);
 
-      if (!Number.isFinite(spend) || spend <= 0) {
-        target.innerHTML = '<div class="empty">Enter your basket total.</div>';
-        return;
-      }
-
-      const ranked = rankPromosForSpend(promos, spend, {
+      const plan = planBasketSplit(promos, subtotal, {
         service: "Uber Eats",
-        accountRef: "all"
+        maxOrders,
+        extraOrderFee: extraFee,
+        excludedIds: excludedIds()
       });
 
-      if (!ranked.length) {
-        target.innerHTML =
-          '<div class="empty">No active offer is eligible for ' +
-          escapeHtml(money(spend)) +
-          ' right now.</div>';
+      if (!plan.eligible) {
+        target.innerHTML = '<div class="empty">' + escapeHtml(plan.reason || "No valid plan.") + '</div>';
         return;
       }
 
-      const winner = ranked[0];
+      const better = plan.benefitVsSingle > 0.009
+        ? '<span class="metric good">' + escapeHtml(money(plan.benefitVsSingle)) + ' better than 1 order</span>'
+        : '<span class="metric">No meaningful gain from extra splitting</span>';
 
-      target.innerHTML =
-        '<div class="helper-best">' +
-          '<div>' +
-            '<div class="helper-account">Use ' + escapeHtml(winner.promo.accountRef || "this account") + '</div>' +
-            '<div class="helper-offer">' + escapeHtml(winner.promo.title || promoLabel(winner.promo)) + '</div>' +
-          '</div>' +
-          '<div>' +
-            '<div class="helper-save">Save ' + escapeHtml(money(winner.calculation.saving)) + '</div>' +
-            '<div class="helper-pay">Pay about ' + escapeHtml(money(winner.calculation.pay)) + '</div>' +
-          '</div>' +
-        '</div>';
-    }
-
-    function renderStatus(meta) {
-      const pill = document.getElementById("modePill");
-      pill.classList.remove("live", "demo");
-
-      if (meta.demo) {
-        pill.classList.add("demo");
-        document.getElementById("modeText").textContent = "DEMO";
-        document.getElementById("demoNotice").style.display = "block";
-      } else {
-        pill.classList.add("live");
-        document.getElementById("modeText").textContent = "LIVE";
-        document.getElementById("demoNotice").style.display = "none";
-      }
-
-      if (!meta.generatedAt) {
-        document.getElementById("scanTime").textContent = "Waiting for first Mac scan";
-        return;
-      }
-
-      const date = new Date(meta.generatedAt);
-
-      document.getElementById("scanTime").textContent = Number.isNaN(date.getTime())
-        ? "Last scan unavailable"
-        : "Scanned " + date.toLocaleString("en-GB", {
-            day: "numeric",
-            month: "short",
-            hour: "2-digit",
-            minute: "2-digit"
-          });
-    }
-
-    function renderHistory() {
-      const target = document.getElementById("historyList");
-      const eatsHistory = history
-        .filter(row => row.service === "Uber Eats")
-        .slice()
-        .sort((a, b) => String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || "")))
-        .slice(0, 10);
-
-      if (!eatsHistory.length) {
-        target.innerHTML = '<div class="empty">No live history yet.</div>';
-        return;
-      }
-
-      target.innerHTML = eatsHistory.map(row => {
+      const steps = plan.orders.map((order, index) => {
         return (
-          '<div class="history-row">' +
-            '<div class="history-title">' +
-              escapeHtml(row.accountRef || "Account") +
-              ' · ' +
-              escapeHtml(row.title || promoLabel(row)) +
+          '<div class="plan-step">' +
+            '<div class="step-no">' + (index + 1) + '</div>' +
+            '<div>' +
+              '<div class="step-account">' + escapeHtml(accountDisplay(order)) + '</div>' +
+              '<div class="step-promo">' +
+                escapeHtml(order.promo.title || promoLabel(order.promo)) +
+                ' · put about ' + escapeHtml(money(order.subtotal)) + ' on this order' +
+              '</div>' +
             '</div>' +
-            '<div class="history-meta">' +
-              escapeHtml(row.status === "active" ? "Active" : "Previously seen") +
-              (row.expires ? " · Ends " + escapeHtml(formatDate(row.expires)) : "") +
+            '<div class="step-value">' +
+              '<strong>-' + escapeHtml(money(order.saving)) + '</strong>' +
+              'pay ' + escapeHtml(money(order.pay)) +
             '</div>' +
           '</div>'
         );
       }).join("");
+
+      target.innerHTML =
+        '<div class="plan-summary">' +
+          '<div>' +
+            '<div class="plan-title">' +
+              'Use ' + plan.accountCount + (plan.accountCount === 1 ? ' account' : ' accounts') +
+              ' across ' + plan.orderCount + (plan.orderCount === 1 ? ' order' : ' orders') +
+            '</div>' +
+            '<div class="plan-sub">One tracked account promo per order. Extra-order fee estimate is deducted from the split benefit.</div>' +
+          '</div>' +
+          '<div class="plan-money">' +
+            '<div class="plan-save">Net save ' + escapeHtml(money(plan.netSaving)) + '</div>' +
+            '<div class="plan-pay">Estimated subtotal after promos + extra split fees: ' + escapeHtml(money(plan.estimatedPay)) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="plan-metrics">' +
+          '<span class="metric">Promo saving ' + escapeHtml(money(plan.grossSaving)) + '</span>' +
+          '<span class="metric">Extra split fees ' + escapeHtml(money(plan.extraFees)) + '</span>' +
+          better +
+        '</div>' +
+        '<div class="plan-steps">' + steps + '</div>';
+    }
+
+    function renderStatus(payload) {
+      const pill = document.getElementById("modePill");
+      pill.classList.remove("live", "demo", "stale");
+
+      if (payload.demo) {
+        pill.classList.add("demo");
+        document.getElementById("modeText").textContent = "DEMO";
+        document.getElementById("demoNotice").style.display = "block";
+        document.getElementById("scanTime").textContent = "Waiting for first Mac scan";
+        return;
+      }
+
+      document.getElementById("demoNotice").style.display = "none";
+      const date = payload.generatedAt ? new Date(payload.generatedAt) : null;
+      const stale = !date || Number.isNaN(date.getTime()) ||
+        Date.now() - date.getTime() > 24 * 60 * 60 * 1000;
+
+      pill.classList.add(stale ? "stale" : "live");
+      document.getElementById("modeText").textContent = stale ? "STALE" : "LIVE";
+      document.getElementById("scanTime").textContent =
+        date && !Number.isNaN(date.getTime())
+          ? "Scanned " + date.toLocaleString("en-GB", {
+              day: "numeric",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit"
+            })
+          : "No recent Mac scan";
+    }
+
+    function renderHistory() {
+      const target = document.getElementById("historyList");
+      const recent = history
+        .filter(row => row.service === "Uber Eats")
+        .slice()
+        .sort((a, b) => String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || "")))
+        .slice(0, 12);
+
+      target.innerHTML = recent.length
+        ? recent.map(row => (
+            '<div class="history-row">' +
+              '<div class="history-title">' +
+                escapeHtml(row.accountMasked || row.accountRef || "Account") +
+                ' · ' +
+                escapeHtml(row.title || promoLabel(row)) +
+              '</div>' +
+              '<div class="history-meta">' +
+                escapeHtml(row.status || "seen") +
+                (row.expires ? " · ends " + escapeHtml(formatDate(row.expires)) : "") +
+              '</div>' +
+            '</div>'
+          )).join("")
+        : '<div class="empty">No live history yet.</div>';
+    }
+
+    function renderAll() {
+      renderIntentCounts();
+      renderAccounts();
+      renderUsed();
+      renderPlan();
     }
 
     async function loadPromos() {
@@ -1021,25 +1266,24 @@
         if (!response.ok) throw new Error("HTTP " + response.status);
 
         const payload = await response.json();
-        const source = Array.isArray(payload) ? payload : (payload.promos || []);
-        const now = new Date();
+        promos = (Array.isArray(payload) ? payload : (payload.promos || []))
+          .filter(promo => promo.service === "Uber Eats");
 
-        promos = source
-          .filter(promo => promo.service === "Uber Eats")
-          .filter(promo => {
-            if (!promo.expires) return true;
-            const expiry = localDate(promo.expires, true);
-            return expiry && expiry >= now;
-          });
+        insights = Array.isArray(payload)
+          ? { accounts: [], feeModel: {} }
+          : (payload.insights || { accounts: [], feeModel: {} });
 
         renderStatus(Array.isArray(payload)
           ? { demo: true, generatedAt: null }
           : payload
         );
 
-        renderIntentCounts();
-        renderAccounts();
-        renderHelper();
+        const estimatedFee = Number(insights?.feeModel?.averageExtraOrderFees);
+        if (!feeTouched && Number.isFinite(estimatedFee) && estimatedFee > 0) {
+          document.getElementById("feeInput").value = estimatedFee.toFixed(2);
+        }
+
+        renderAll();
       } catch (error) {
         console.error(error);
         document.getElementById("modeText").textContent = "ERROR";
@@ -1076,13 +1320,51 @@
       renderAccounts();
     });
 
-    document.getElementById("spendInput").addEventListener("input", renderHelper);
+    document.getElementById("spendInput").addEventListener("input", renderPlan);
+    document.getElementById("maxOrders").addEventListener("change", renderPlan);
+
+    document.getElementById("feeInput").addEventListener("input", () => {
+      feeTouched = true;
+      renderPlan();
+    });
 
     document.querySelectorAll("[data-spend]").forEach(button => {
       button.addEventListener("click", () => {
         document.getElementById("spendInput").value = button.dataset.spend;
-        renderHelper();
+        renderPlan();
       });
+    });
+
+    document.getElementById("app").addEventListener("click", event => {
+      const stateButton = event.target.closest("[data-promo-state]");
+
+      if (stateButton) {
+        const id = stateButton.dataset.promoId;
+        const state = stateButton.dataset.promoState;
+
+        if (state === "active") delete promoStates[id];
+        else promoStates[id] = state;
+
+        saveStates();
+        renderAll();
+        return;
+      }
+
+      const accountButton = event.target.closest("[data-account-done]");
+
+      if (accountButton) {
+        const ref = accountButton.dataset.accountDone;
+
+        promos
+          .filter(promo => promo.accountRef === ref)
+          .filter(promo => effectiveState(promo) === "active")
+          .forEach(promo => {
+            promoStates[promoId(promo)] = "used";
+          });
+
+        saveStates();
+        renderAll();
+      }
     });
 
     loadPromos();
