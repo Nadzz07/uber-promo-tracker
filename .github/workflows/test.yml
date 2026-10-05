@@ -21,3 +21,7 @@ jobs:
           node-version: 22
       - name: Run tests
         run: npm test
+      - name: Check generator syntax
+        run: node --check generate-promos.js
+      - name: Check Apple Mail exporter syntax
+        run: node --check mac/export-uber-mail.js
