@@ -13,6 +13,8 @@ export function toPublicPromo(promo, { accountId = null } = {}) {
     sameAccountOfferCount: promo.sameAccountOfferCount || 1,
     hasCode: Boolean(promo.code),
     expires: promo.expires,
-    expiryBasis: promo.expiryBasis
+    expiryBasis: promo.expiryBasis,
+    accountRef: promo.accountRef || null,
+    hasCompanionOffer: Boolean(promo.hasCompanionOffer)
   };
 }
