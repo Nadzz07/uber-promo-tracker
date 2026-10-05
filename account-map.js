@@ -2,6 +2,26 @@ function normaliseAlias(value) {
   return String(value || "").trim().toLowerCase();
 }
 
+export function maskAccountAlias(value) {
+  const alias = normaliseAlias(value);
+  if (!alias || !alias.includes("@")) return null;
+
+  const [local, ...domainParts] = alias.split("@");
+  const domain = domainParts.join("@");
+
+  if (!local || !domain) return null;
+
+  if (local.length <= 2) {
+    return local.charAt(0) + "…@" + domain;
+  }
+
+  if (local.length <= 5) {
+    return local.charAt(0) + "…" + local.charAt(local.length - 1) + "@" + domain;
+  }
+
+  return local.slice(0, 2) + "…" + local.slice(-2) + "@" + domain;
+}
+
 export function normaliseAccountMap(payload = {}) {
   const accounts =
     payload && typeof payload.accounts === "object" && payload.accounts
@@ -13,14 +33,14 @@ export function normaliseAccountMap(payload = {}) {
     : 1;
 
   return {
-    version: 1,
+    version: 2,
     nextNumber,
     accounts
   };
 }
 
 export function assignAccountRefs(
-  promos = [],
+  items = [],
   previousState = {},
   seenAt = new Date().toISOString()
 ) {
@@ -28,21 +48,24 @@ export function assignAccountRefs(
   const accounts = { ...state.accounts };
   let nextNumber = state.nextNumber;
 
-  const mappedPromos = promos.map(promo => {
-    const alias = normaliseAlias(promo.accountAlias);
+  const mappedItems = items.map(item => {
+    const alias = normaliseAlias(item.accountAlias);
 
     if (!alias) {
       return {
-        ...promo,
-        accountRef: null
+        ...item,
+        accountRef: item.accountRef || null,
+        accountMasked: item.accountMasked || null
       };
     }
 
     let record = accounts[alias];
+    const masked = maskAccountAlias(alias);
 
     if (!record || !record.ref) {
       record = {
         ref: "A" + String(nextNumber).padStart(3, "0"),
+        masked,
         firstSeenAt: seenAt,
         lastSeenAt: seenAt
       };
@@ -51,20 +74,23 @@ export function assignAccountRefs(
     } else {
       accounts[alias] = {
         ...record,
+        masked: record.masked || masked,
         lastSeenAt: seenAt
       };
     }
 
     return {
-      ...promo,
-      accountRef: accounts[alias].ref
+      ...item,
+      accountRef: accounts[alias].ref,
+      accountMasked: accounts[alias].masked || masked
     };
   });
 
   return {
-    promos: mappedPromos,
+    promos: mappedItems,
+    items: mappedItems,
     state: {
-      version: 1,
+      version: 2,
       nextNumber,
       accounts
     }
