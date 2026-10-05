@@ -2271,6 +2271,7 @@
     }
 
     function weakAccount(account, strongest) {
+      if (account.accountRef === selectedAccountRef) return false;
       if (currentIntent !== "best" || !strongest) return false;
       if (account.has15off15 || account.hasCash || account.hasMultiUse || account.promoCount > 1) return false;
 
