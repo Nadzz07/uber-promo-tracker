@@ -148,9 +148,38 @@ function messagesInRange(box, daysBack, olderThanDays) {
   }
 }
 
-function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox) {
-  const range = dateRange(daysBack, olderThanDays);
-  const messages = messagesInRange(box, daysBack, olderThanDays);
+function filteredMessages(box, startDate, endDate = null) {
+  const clauses = [];
+
+  if (startDate) {
+    clauses.push({ dateReceived: { ">=": startDate } });
+  }
+
+  if (endDate) {
+    clauses.push({ dateReceived: { "<": endDate } });
+  }
+
+  if (!clauses.length) {
+    throw new Error("Refusing to scan an unbounded mailbox.");
+  }
+
+  const filter = clauses.length === 1
+    ? clauses[0]
+    : { _and: clauses };
+
+  try {
+    return box.messages.whose(filter)();
+  } catch (error) {
+    throw new Error(
+      "Apple Mail could not filter the mailbox by date. " +
+      "The tracker will not fall back to a full-mailbox crawl. " +
+      String(error)
+    );
+  }
+}
+
+function scanMailboxRange(box, role, startDate, endDate = null) {
+  const messages = filteredMessages(box, startDate, endDate);
   const results = [];
 
   for (let i = 0; i < messages.length; i++) {
@@ -166,8 +195,7 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox) {
     try { receivedAt = new Date(message.dateReceived()); } catch (_) { receivedAt = new Date(0); }
     try { sentAt = new Date(message.dateSent()); } catch (_) { sentAt = receivedAt; }
 
-    if (Number.isNaN(receivedAt.getTime()) || receivedAt < range.start) continue;
-    if (range.end && receivedAt >= range.end) continue;
+    if (Number.isNaN(receivedAt.getTime())) continue;
     if (!looksUber(subject, sender)) continue;
 
     let rawSource = "";
@@ -188,12 +216,17 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox) {
       sentAt: isoDate(sentAt),
       receivedAt: isoDate(receivedAt),
       messageId: rawMessageId || null,
-      mailbox: role,
-      sourceMailbox: sourceMailbox || null
+      mailbox: role
     });
   }
 
   return results;
+}
+
+function scanMailboxDays(box, role, daysBack) {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - Number(daysBack || 60));
+  return scanMailboxRange(box, role, cutoff, null);
 }
 
 function splitMailboxNames(value) {
