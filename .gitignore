@@ -1,18 +1,25 @@
-# Raw/private mail and receipt data must never be committed.
+# Raw/private Mail, account and receipt data must never be committed.
 emails.local.json
 accounts.local.json
 history.local.json
 receipts.local.json
 legacy-promos.local.json
-.account-salt
+account-access.local.csv
+accessible-accounts.local.txt
+tracker.local.env
+uber-tracker.local.db
+uber-tracker.local.db-*
 *.eml
 mail-export/
+.account-salt
 
 # Legacy/private project material.
 .env
 .env.*
 *.db
 *.db.*
+*.sqlite
+*.sqlite-*
 .venv/
 venv/
 __pycache__/
