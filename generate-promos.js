@@ -1,13 +1,14 @@
 import fs from "node:fs/promises";
 import { buildPromoList } from "./processor.js";
 import { toPublicPromo } from "./public-promo.js";
-import { mergeHistory } from "./history.js";
+import { mergeHistory, toPublicHistory } from "./history.js";
 import { assignAccountRefs } from "./account-map.js";
 
 const inputPath = process.argv[2] || "./emails.local.json";
 const outputPath = process.argv[3] || "./promos.json";
-const historyPath = process.argv[4] || "./history.json";
+const publicHistoryPath = process.argv[4] || "./history.json";
 const accountMapPath = process.argv[5] || "./accounts.local.json";
+const privateHistoryPath = process.argv[6] || "./history.local.json";
 
 async function readJson(path, fallback) {
   try {
@@ -47,11 +48,13 @@ async function generatePromos() {
       promos
     };
 
-    const oldHistory = await readJson(historyPath, { records: [] });
-    const history = mergeHistory(oldHistory, promos, generatedAt);
+    const oldPrivateHistory = await readJson(privateHistoryPath, { records: [] });
+    const privateHistory = mergeHistory(oldPrivateHistory, promos, generatedAt);
+    const publicHistory = toPublicHistory(privateHistory);
 
     await fs.writeFile(outputPath, JSON.stringify(payload, null, 2) + "\n");
-    await fs.writeFile(historyPath, JSON.stringify(history, null, 2) + "\n");
+    await fs.writeFile(publicHistoryPath, JSON.stringify(publicHistory, null, 2) + "\n");
+    await fs.writeFile(privateHistoryPath, JSON.stringify(privateHistory, null, 2) + "\n");
     await fs.writeFile(accountMapPath, JSON.stringify(assigned.state, null, 2) + "\n");
 
     const accountCount = new Set(
@@ -60,7 +63,8 @@ async function generatePromos() {
 
     console.log("Generated " + promos.length + " public promo records.");
     console.log("Active promos span " + accountCount + " anonymous accounts.");
-    console.log("History contains " + history.records.length + " sanitised offer records.");
+    console.log("Private history contains " + privateHistory.records.length + " records.");
+    console.log("Public history contains " + publicHistory.records.length + " records.");
     if (promos.length > 0) console.log("Best promo: " + promos[0].title);
   } catch (error) {
     console.error("Could not generate promos:");
