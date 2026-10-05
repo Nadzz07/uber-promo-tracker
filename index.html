@@ -1,94 +1,204 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Uber Promo Tracker</title>
-
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #111;
-            color: white;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: auto;
-            padding: 40px 20px;
-        }
-
-        h1 {
-            font-size: 40px;
-            margin-bottom: 5px;
-        }
-
-        .subtitle {
-            color: #aaa;
-            margin-bottom: 35px;
-        }
-
-        .promo-card {
-            background: #1c1c1c;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .promo-card h2 {
-            margin-top: 0;
-        }
-
-        .discount {
-            font-size: 30px;
-            font-weight: bold;
-            color: #4ade80;
-        }
-
-        button {
-            background: white;
-            color: black;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #ddd;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>Uber Promo Tracker</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { margin: 0; background: #0b0b0b; color: #fff; }
+    .shell { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 64px; }
+    header { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 30px; }
+    h1 { font-size: clamp(34px, 7vw, 58px); letter-spacing: -0.045em; margin: 0; }
+    .subtitle { color: #a8a8a8; margin: 8px 0 0; }
+    .privacy { color: #7f7f7f; font-size: 13px; text-align: right; max-width: 300px; }
+    .banner { display: none; padding: 12px 16px; border: 1px solid #3b3b3b; border-radius: 12px; color: #d8d8d8; margin-bottom: 22px; background: #151515; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
+    .stat, .hero, .card { background: #171717; border: 1px solid #282828; }
+    .stat { border-radius: 16px; padding: 18px; }
+    .stat-label { color: #858585; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+    .stat-value { font-size: 27px; font-weight: 750; margin-top: 6px; }
+    .hero { border-radius: 22px; padding: 28px; margin-bottom: 30px; background: linear-gradient(135deg, #191919, #111); }
+    .eyebrow { color: #8f8f8f; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; }
+    .hero h2 { margin: 10px 0 8px; font-size: clamp(27px, 5vw, 42px); letter-spacing: -0.03em; }
+    .hero-value { font-size: 18px; color: #d9d9d9; }
+    .meta { color: #9d9d9d; line-height: 1.7; margin-top: 13px; }
+    .section-head { display: flex; justify-content: space-between; align-items: center; margin: 0 0 14px; }
+    .section-head h2 { margin: 0; font-size: 22px; }
+    .refresh { font-size: 13px; color: #777; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+    .card { border-radius: 18px; padding: 20px; }
+    .badge { display: inline-block; padding: 5px 9px; border-radius: 999px; background: #252525; color: #c9c9c9; font-size: 12px; }
+    .card h3 { margin: 14px 0 8px; font-size: 21px; line-height: 1.25; }
+    .saving { font-size: 24px; font-weight: 750; margin: 10px 0; }
+    .details { color: #a9a9a9; line-height: 1.65; font-size: 14px; }
+    .status { margin-top: 16px; font-size: 12px; color: #d2d2d2; }
+    .empty { padding: 28px; border: 1px dashed #343434; border-radius: 18px; color: #999; }
+    footer { margin-top: 44px; color: #5f5f5f; font-size: 12px; }
+    @media (max-width: 700px) {
+      header { display: block; }
+      .privacy { text-align: left; margin-top: 12px; }
+      .stats { grid-template-columns: 1fr; }
+      .shell { padding-top: 30px; }
+    }
+  </style>
 </head>
-
 <body>
-
-    <div class="container">
-
+  <main class="shell">
+    <header>
+      <div>
         <h1>Uber Promo Tracker</h1>
+        <p class="subtitle">Automatically ranks the Uber offers worth using.</p>
+      </div>
+      <div class="privacy">Public dashboard stores promo details only — never raw email content.</div>
+    </header>
 
-        <p class="subtitle">
-            Find and track your best Uber promotions.
-        </p>
+    <div id="demoBanner" class="banner">Demo data — waiting for the Mac Mail connection to supply real promos.</div>
 
-        <div class="promo-card">
+    <section class="stats" aria-label="Promo summary">
+      <div class="stat"><div class="stat-label">Active promos</div><div id="activeCount" class="stat-value">—</div></div>
+      <div class="stat"><div class="stat-label">Best potential saving</div><div id="bestSaving" class="stat-value">—</div></div>
+      <div class="stat"><div class="stat-label">Expiring soon</div><div id="expiringCount" class="stat-value">—</div></div>
+    </section>
 
-            <h2>Current Best Promo</h2>
+    <section id="bestPromo"></section>
 
-            <p class="discount">
-                40% OFF
-            </p>
-
-            <p>
-                Up to £10 off your next ride.
-            </p>
-
-            <button>
-                View Promo
-            </button>
-
-        </div>
-
+    <div class="section-head">
+      <h2>Active promos</h2>
+      <div id="loadedAt" class="refresh"></div>
     </div>
+    <section id="promoGrid" class="grid"></section>
 
+    <footer>Uber Promo Tracker · parser + ranking engine ready · Apple Mail connection next</footer>
+  </main>
+
+  <script>
+    function localDate(dateString, endOfDay = false) {
+      if (!dateString) return null;
+      const [year, month, day] = dateString.split("-").map(Number);
+      return new Date(year, month - 1, day, endOfDay ? 23 : 12, endOfDay ? 59 : 0, endOfDay ? 59 : 0);
+    }
+
+    function formatDate(dateString) {
+      const date = localDate(dateString);
+      return date ? date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "No expiry found";
+    }
+
+    function daysRemaining(dateString) {
+      const expiry = localDate(dateString, true);
+      if (!expiry) return null;
+      return Math.ceil((expiry - new Date()) / 86400000);
+    }
+
+    function potentialSaving(promo) {
+      if (promo.maxTotalSaving != null) return promo.maxTotalSaving;
+      if (promo.maxSaving != null) return promo.maxSaving;
+      if (promo.discountType === "fixed" && promo.discount != null) return promo.discount * (promo.uses || 1);
+      return null;
+    }
+
+    function rankingScore(promo) {
+      const value = potentialSaving(promo);
+      let score = value != null ? value * 100 : 0;
+      if (promo.discountType === "percent" && promo.discount != null) score += promo.discount;
+      if (promo.discountType === "fixed" && promo.discount != null) score += promo.discount * 10;
+      if (promo.minimumSpend) score -= promo.minimumSpend;
+      return score;
+    }
+
+    function money(value) {
+      return \`£\${Number(value).toLocaleString("en-GB", { maximumFractionDigits: 2 })}\`;
+    }
+
+    function promoDetails(promo) {
+      const lines = [];
+      if (promo.uses > 1) lines.push(\`\${promo.uses} uses\`);
+      if (promo.perUseCap != null) lines.push(\`Cap \${money(promo.perUseCap)} per use\`);
+      else if (promo.maxSaving != null) lines.push(\`Maximum saving \${money(promo.maxSaving)}\`);
+      if (promo.minimumSpend) lines.push(\`Minimum spend \${money(promo.minimumSpend)}\`);
+      if (promo.code) lines.push(\`Code \${promo.code}\`);
+      lines.push(\`Expires \${formatDate(promo.expires)}\`);
+      return lines.join("<br>");
+    }
+
+    async function loadPromos() {
+      const grid = document.getElementById("promoGrid");
+      try {
+        const response = await fetch(\`promos.json?v=\${Date.now()}\`, { cache: "no-store" });
+        if (!response.ok) throw new Error(\`HTTP \${response.status}\`);
+        const allPromos = await response.json();
+        if (!Array.isArray(allPromos)) throw new Error("promos.json must contain an array");
+
+        const now = new Date();
+        const active = allPromos
+          .filter(promo => !promo.expires || localDate(promo.expires, true) >= now)
+          .sort((a, b) => rankingScore(b) - rankingScore(a));
+
+        const demo = active.length > 0 && active.every(promo => promo.demo === true);
+        document.getElementById("demoBanner").style.display = demo ? "block" : "none";
+
+        const bestValue = active.reduce((max, promo) => Math.max(max, potentialSaving(promo) || 0), 0);
+        const expiring = active.filter(promo => {
+          const days = daysRemaining(promo.expires);
+          return days != null && days >= 0 && days <= 2;
+        }).length;
+
+        document.getElementById("activeCount").textContent = active.length;
+        document.getElementById("bestSaving").textContent = bestValue > 0 ? money(bestValue) : "—";
+        document.getElementById("expiringCount").textContent = expiring;
+        document.getElementById("loadedAt").textContent = \`Loaded \${new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}\`;
+
+        renderBest(active[0]);
+        renderGrid(active);
+      } catch (error) {
+        console.error(error);
+        document.getElementById("bestPromo").innerHTML = "";
+        grid.innerHTML = \`<div class="empty">Could not load promo data. Check promos.json and the latest GitHub Pages deployment.</div>\`;
+      }
+    }
+
+    function renderBest(promo) {
+      const target = document.getElementById("bestPromo");
+      if (!promo) {
+        target.innerHTML = \`<div class="hero"><div class="eyebrow">Best current promo</div><h2>No active promos</h2><div class="hero-value">The next scan will update this automatically.</div></div>\`;
+        return;
+      }
+
+      const value = potentialSaving(promo);
+      target.innerHTML = \`
+        <div class="hero">
+          <div class="eyebrow">🔥 Best current promo · \${promo.service}</div>
+          <h2>\${promo.title}</h2>
+          <div class="hero-value">\${value != null ? \`Potential saving up to \${money(value)}\` : "Offer detected"}</div>
+          <div class="meta">\${promoDetails(promo)}</div>
+        </div>\`;
+    }
+
+    function renderGrid(promos) {
+      const grid = document.getElementById("promoGrid");
+      if (!promos.length) {
+        grid.innerHTML = \`<div class="empty">No active promos found.</div>\`;
+        return;
+      }
+
+      grid.innerHTML = promos.map(promo => {
+        const value = potentialSaving(promo);
+        const days = daysRemaining(promo.expires);
+        const status = days == null ? "Active" : days <= 2 ? "Expiring soon" : \`\${days} days left\`;
+        return \`
+          <article class="card">
+            <span class="badge">\${promo.service}</span>
+            <h3>\${promo.title}</h3>
+            <div class="saving">\${value != null ? \`Up to \${money(value)}\` : "Offer detected"}</div>
+            <div class="details">\${promoDetails(promo)}</div>
+            <div class="status">\${status}</div>
+          </article>\`;
+      }).join("");
+    }
+
+    loadPromos();
+  </script>
 </body>
 </html>
