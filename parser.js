@@ -67,6 +67,11 @@ function nextWeekday(receivedAt, weekday) {
   return toIsoDate(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
+function extractAccountAlias(recipient) {
+  const match = String(recipient || "").match(/([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/i);
+  return match ? match[1].toLowerCase() : null;
+}
+
 function senderLooksUber(sender) {
   const value = String(sender || "").toLowerCase();
   if (!value) return false;
@@ -300,6 +305,7 @@ export function parseUberPromo({
     expires: expiry.expires,
     expiryBasis: expiry.expiryBasis,
     senderVerified: senderProvided ? trustedSender : null,
-    rejectionReason: senderProvided && !trustedSender ? "sender_not_uber" : null
+    rejectionReason: senderProvided && !trustedSender ? "sender_not_uber" : null,
+    accountAlias
   };
 }
