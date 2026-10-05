@@ -8,7 +8,7 @@ if [[ -f tracker.local.env ]]; then
   source tracker.local.env
 fi
 
-PROMO_FOLDER="${APPLE_MAIL_PROMO_FOLDER:-INBOX}"
+PROMO_FOLDERS="${APPLE_MAIL_PROMO_FOLDERS:-${APPLE_MAIL_PROMO_FOLDER:-INBOX}}"
 PROMO_DAYS="${APPLE_MAIL_PROMO_DAYS:-60}"
 RECEIPT_FOLDER="${APPLE_MAIL_RECEIPT_FOLDER:-Uber Receipts}"
 RECEIPT_DAYS="${APPLE_MAIL_RECEIPT_DAYS:-3650}"
@@ -26,7 +26,7 @@ if (( NODE_MAJOR < 22 )); then
 fi
 
 echo "Updating Uber Eats Promo Tracker..."
-echo "Promo mailbox: $PROMO_FOLDER ($PROMO_DAYS days)"
+echo "Promo mailboxes: $PROMO_FOLDERS ($PROMO_DAYS days)"
 echo "Receipt mailbox: $RECEIPT_FOLDER ($RECEIPT_DAYS days)"
 
 if command -v git >/dev/null 2>&1; then
@@ -34,7 +34,7 @@ if command -v git >/dev/null 2>&1; then
 fi
 
 osascript -l JavaScript mac/export-uber-mail.js \
-  "$PROMO_DAYS" "$PROMO_FOLDER" \
+  "$PROMO_DAYS" "$PROMO_FOLDERS" \
   "$RECEIPT_DAYS" "$RECEIPT_FOLDER" \
   > emails.local.json
 

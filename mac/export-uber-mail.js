@@ -154,9 +154,40 @@ function scanMailbox(box, role, daysBack) {
   return results;
 }
 
+
+function splitMailboxNames(value) {
+  return String(value || "")
+    .split("|")
+    .map(name => name.trim())
+    .filter(Boolean);
+}
+
+function dedupeMessages(messages) {
+  const seen = new Set();
+  const result = [];
+
+  for (const message of messages) {
+    const key = message.messageId
+      ? "id:" + String(message.messageId).toLowerCase()
+      : [
+          message.sender || "",
+          message.recipient || "",
+          message.subject || "",
+          message.sentAt || "",
+          message.receivedAt || ""
+        ].join("|");
+
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push(message);
+  }
+
+  return result;
+}
+
 function run(argv) {
   const promoDays = Number(argv[0] || 60);
-  const promoMailboxName = String(argv[1] || "INBOX");
+  const promoMailboxNames = splitMailboxNames(argv[1] || "INBOX");
   const receiptDays = Number(argv[2] || 3650);
   const receiptMailboxName = String(argv[3] || "Uber Receipts");
 
@@ -166,18 +197,31 @@ function run(argv) {
   const messages = [];
   const scannedMailboxes = [];
 
-  const promoMailbox = findMailbox(Mail, promoMailboxName);
+  let foundPromoMailbox = false;
 
-  if (!promoMailbox) {
-    throw new Error("Could not find promo mailbox: " + promoMailboxName);
+  for (const promoMailboxName of promoMailboxNames) {
+    const promoMailbox = findMailbox(Mail, promoMailboxName);
+
+    if (!promoMailbox) {
+      stderr("Warning: promo mailbox '" + promoMailboxName + "' was not found.");
+      continue;
+    }
+
+    foundPromoMailbox = true;
+    messages.push.apply(messages, scanMailbox(promoMailbox, "promo", promoDays));
+    scannedMailboxes.push({
+      role: "promo",
+      name: promoMailboxName,
+      daysBack: promoDays
+    });
   }
 
-  messages.push.apply(messages, scanMailbox(promoMailbox, "promo", promoDays));
-  scannedMailboxes.push({
-    role: "promo",
-    name: promoMailboxName,
-    daysBack: promoDays
-  });
+  if (!foundPromoMailbox) {
+    throw new Error(
+      "Could not find any configured promo mailbox: " +
+      promoMailboxNames.join(" | ")
+    );
+  }
 
   const receiptMailbox = findMailbox(Mail, receiptMailboxName);
 
@@ -199,6 +243,6 @@ function run(argv) {
   return JSON.stringify({
     exportedAt: new Date().toISOString(),
     mailboxes: scannedMailboxes,
-    messages
+    messages: dedupeMessages(messages)
   }, null, 2);
 }

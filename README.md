@@ -278,10 +278,18 @@ Apple may ask permission for Terminal/osascript to control Mail. Allow it.
 
 The default assumptions are:
 
-- promo folder: `INBOX`
+- promo folders: `INBOX`
 - promo lookback: 60 days
 - receipt folder: `Uber Receipts`
 - receipt lookback: 3650 days
+
+Multiple promo folders are supported with a pipe-separated value, for example:
+
+```bash
+APPLE_MAIL_PROMO_FOLDERS="INBOX|Uber High Promos|Uber Cash"
+```
+
+Messages found in more than one configured folder are deduplicated before import.
 
 If your Mail folder has a different name:
 
@@ -289,7 +297,7 @@ If your Mail folder has a different name:
 cp tracker.example.env tracker.local.env
 ```
 
-Edit `tracker.local.env` and set the exact mailbox name shown by:
+Edit `tracker.local.env` and set the exact mailbox name(s) shown by:
 
 ```bash
 osascript -l JavaScript mac/list-mailboxes.js

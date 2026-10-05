@@ -25,8 +25,9 @@ echo "Apple Mail folders visible to scripting:"
 osascript -l JavaScript mac/list-mailboxes.js
 
 echo
-echo "If your receipt folder is not literally 'Uber Receipts', copy"
-echo "tracker.example.env to tracker.local.env and set APPLE_MAIL_RECEIPT_FOLDER."
+echo "Copy tracker.example.env to tracker.local.env if you need custom folders."
+echo "Multiple promo folders can be pipe-separated in APPLE_MAIL_PROMO_FOLDERS."
+echo "Set APPLE_MAIL_RECEIPT_FOLDER if your receipt folder has a different name."
 echo
 echo "Then run:"
 echo "  bash mac/update-promos.sh"
