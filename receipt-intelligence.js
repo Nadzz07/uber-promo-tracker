@@ -80,9 +80,30 @@ export function applyReceiptEvidence(promos = [], receipts = []) {
     if (observed == null || observed <= 0 || subtotal == null || subtotal <= 0) continue;
     if (!receipt.accountRef) continue;
 
+    const receiptTime = receipt.receivedAt ? new Date(receipt.receivedAt).getTime() : null;
+
     const candidates = tracked
       .filter(promo => promo.accountRef === receipt.accountRef)
       .filter(promo => promo.usesRemaining > 0)
+      .filter(promo => {
+        if (receiptTime == null || Number.isNaN(receiptTime)) return true;
+
+        if (promo.receivedAt) {
+          const promoTime = new Date(promo.receivedAt).getTime();
+          if (!Number.isNaN(promoTime) && receiptTime + 60 * 60 * 1000 < promoTime) {
+            return false;
+          }
+        }
+
+        if (promo.expires) {
+          const expiryTime = new Date(promo.expires + "T23:59:59").getTime();
+          if (!Number.isNaN(expiryTime) && receiptTime > expiryTime) {
+            return false;
+          }
+        }
+
+        return true;
+      })
       .map(promo => {
         const calculation = savingForSpend(promo, subtotal);
         if (!calculation.eligible || calculation.saving <= 0) return null;
