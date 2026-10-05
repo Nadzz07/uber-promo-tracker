@@ -2,17 +2,18 @@ import fs from "node:fs/promises";
 import { buildPromoList } from "./processor.js";
 import { toPublicPromo } from "./public-promo.js";
 import { mergeHistory } from "./history.js";
-import { accountIdForAlias, loadOrCreateAccountSecret } from "./account-id.js";
+import { assignAccountRefs } from "./account-map.js";
 
 const inputPath = process.argv[2] || "./emails.local.json";
 const outputPath = process.argv[3] || "./promos.json";
 const historyPath = process.argv[4] || "./history.json";
+const accountMapPath = process.argv[5] || "./accounts.local.json";
 
-async function readHistory() {
+async function readJson(path, fallback) {
   try {
-    return JSON.parse(await fs.readFile(historyPath, "utf8"));
+    return JSON.parse(await fs.readFile(path, "utf8"));
   } catch {
-    return { records: [] };
+    return fallback;
   }
 }
 
@@ -24,16 +25,21 @@ async function generatePromos() {
 
     const generatedAt = new Date().toISOString();
     const privatePromos = buildPromoList(emails);
-    const needsAccountSecret = privatePromos.some(promo => Boolean(promo.accountAlias));
-    const accountSecret = needsAccountSecret
-      ? await loadOrCreateAccountSecret()
-      : null;
 
-    const promos = privatePromos.map(promo =>
-      toPublicPromo(promo, {
-        accountId: accountIdForAlias(promo.accountAlias, accountSecret)
-      })
+    const oldAccountMap = await readJson(accountMapPath, {
+      version: 1,
+      nextNumber: 1,
+      accounts: {}
+    });
+
+    const assigned = assignAccountRefs(
+      privatePromos,
+      oldAccountMap,
+      generatedAt
     );
+
+    const promos = assigned.promos.map(toPublicPromo);
+
     const payload = {
       generatedAt,
       source: "apple-mail",
@@ -41,13 +47,19 @@ async function generatePromos() {
       promos
     };
 
-    const oldHistory = await readHistory();
+    const oldHistory = await readJson(historyPath, { records: [] });
     const history = mergeHistory(oldHistory, promos, generatedAt);
 
     await fs.writeFile(outputPath, JSON.stringify(payload, null, 2) + "\n");
     await fs.writeFile(historyPath, JSON.stringify(history, null, 2) + "\n");
+    await fs.writeFile(accountMapPath, JSON.stringify(assigned.state, null, 2) + "\n");
+
+    const accountCount = new Set(
+      promos.map(promo => promo.accountRef).filter(Boolean)
+    ).size;
 
     console.log("Generated " + promos.length + " public promo records.");
+    console.log("Active promos span " + accountCount + " anonymous accounts.");
     console.log("History contains " + history.records.length + " sanitised offer records.");
     if (promos.length > 0) console.log("Best promo: " + promos[0].title);
   } catch (error) {
