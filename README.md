@@ -281,7 +281,9 @@ The default assumptions are:
 - promo folders: `INBOX`
 - promo lookback: 60 days
 - receipt folder: `Uber Receipts`
-- receipt lookback: 3650 days
+- normal receipt lookback: 90 days
+- historical receipt depth: 3650 days
+- historical backfill chunk: 180 days
 
 Multiple promo folders are supported with a pipe-separated value, for example:
 
@@ -290,6 +292,10 @@ APPLE_MAIL_PROMO_FOLDERS="INBOX|Uber High Promos|Uber Cash"
 ```
 
 Messages found in more than one configured folder are deduplicated before import.
+
+The normal updater deliberately keeps receipt scanning recent. It asks Apple Mail to apply the date filter before message bodies are read, avoiding the old behaviour where a large receipt archive could peg Mail while JavaScript walked the entire mailbox.
+
+Historical receipts are imported separately in bounded chunks and accumulated in the private SQLite database.
 
 If your Mail folder has a different name:
 
@@ -314,13 +320,35 @@ bash mac/update-promos.sh
 The updater:
 
 1. pulls the repo
-2. exports current Uber messages from the configured Mail folders
+2. exports recent Uber messages from the configured Mail folders using Mail-side date filters
 3. runs the full tests
 4. updates the private SQLite store
-5. generates sanitised `promos.json` and `history.json`
-6. commits/pushes only those public files when they changed
+5. recognises Uber Eats receipts found in `INBOX`
+6. optionally files those already-imported receipts into `Uber Receipts`
+7. generates sanitised `promos.json` and `history.json`
+8. commits/pushes only those public files when they changed
 
-It does not mark Mail messages as read.
+Receipt messages found in `INBOX` contribute to account/order/savings statistics in the same run before any optional move happens. The Mail move is only filing; SQLite is the durable tracker state.
+
+To enable Inbox filing:
+
+```bash
+APPLE_MAIL_MOVE_INBOX_RECEIPTS=true
+```
+
+in `tracker.local.env`.
+
+The updater does not mark Mail messages as read.
+
+### Historical receipt backfill
+
+After the first normal sync works, import older receipt history in bounded chunks:
+
+```bash
+bash mac/backfill-receipts.sh
+```
+
+The default backfill covers up to 3650 days in 180-day chunks. Each chunk is idempotently merged into the private SQLite database, so rerunning after an interruption is safe. The script does not push to GitHub by itself; run the normal updater afterward when you are ready to publish the refreshed sanitised snapshot.
 
 ### Hourly automation
 
@@ -408,7 +436,7 @@ Do not force-add these files.
 
 ## Current limitations
 
-- Real Apple Mail folder naming/JXA behaviour still needs to be validated on the actual Mac.
+- Apple Mail date-filter and move behaviour is validated by CI for syntax but still requires live validation on the actual Mac.
 - Receipt wording varies; the parser is conservative and ambiguous promo matches do not automatically consume an offer.
 - Restaurant/item/location eligibility cannot be proven from email text alone.
 - Manual Used/Ignore choices are browser-local; receipt-confirmed state is durable in SQLite.
