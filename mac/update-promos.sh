@@ -19,7 +19,7 @@ if ! command -v git >/dev/null 2>&1; then
   exit 0
 fi
 
-git add promos.json
+git add promos.json history.json
 
 if git diff --cached --quiet; then
   echo "No promo changes to publish."
