@@ -19,7 +19,8 @@
       "firstSeenAt": "2026-10-01T08:00:00.000Z",
       "lastSeenAt": "2026-10-05T08:00:00.000Z",
       "scansSeen": 5,
-      "status": "active"
+      "status": "active",
+      "accountId": "acct_demoa001"
     },
     {
       "id": "demo-old-eats",
@@ -38,7 +39,8 @@
       "firstSeenAt": "2026-09-25T08:00:00.000Z",
       "lastSeenAt": "2026-10-03T08:00:00.000Z",
       "scansSeen": 8,
-      "status": "inactive"
+      "status": "inactive",
+      "accountId": "acct_demoa001"
     }
   ]
 }
