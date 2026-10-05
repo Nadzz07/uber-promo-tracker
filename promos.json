@@ -15,9 +15,25 @@
       "minimumSpend": 0,
       "hasCode": false,
       "expires": "2026-10-19",
-      "accountId": "acct_demoa001",
-      "sameAccountOfferCount": 2,
-      "expiryBasis": "explicit"
+      "expiryBasis": "explicit",
+      "accountRef": "A001",
+      "hasCompanionOffer": true
+    },
+    {
+      "service": "Uber Eats",
+      "title": "£15 off your next 5 orders",
+      "discountType": "fixed",
+      "discount": 15,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 5,
+      "maxTotalSaving": 75,
+      "minimumSpend": 15,
+      "hasCode": true,
+      "expires": "2026-10-12",
+      "expiryBasis": "explicit",
+      "accountRef": "A001",
+      "hasCompanionOffer": false
     },
     {
       "service": "Uber Eats",
@@ -31,9 +47,9 @@
       "minimumSpend": 15,
       "hasCode": true,
       "expires": "2026-10-09",
-      "accountId": "acct_demoa001",
-      "sameAccountOfferCount": 2,
-      "expiryBasis": "explicit"
+      "expiryBasis": "explicit",
+      "accountRef": "A002",
+      "hasCompanionOffer": false
     }
   ]
 }
