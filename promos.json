@@ -1,9 +1,38 @@
 {
+  "schemaVersion": 2,
   "generatedAt": null,
   "source": "demo",
   "demo": true,
+  "insights": {
+    "receiptCount": 7,
+    "feeModel": {
+      "sampleSize": 6,
+      "averageExtraOrderFees": 2.49
+    },
+    "accounts": [
+      {
+        "accountRef": "A001",
+        "accountMasked": "na…01@icloud.com",
+        "receiptOrderCount": 3,
+        "lastOrderAt": "2026-10-04T19:30:00.000Z",
+        "observedPromoSavings": 27,
+        "confirmedPromoUses": 2,
+        "uberCashUsed": 0
+      },
+      {
+        "accountRef": "A003",
+        "accountMasked": "na…03@icloud.com",
+        "receiptOrderCount": 2,
+        "lastOrderAt": "2026-10-02T18:10:00.000Z",
+        "observedPromoSavings": 16,
+        "confirmedPromoUses": 1,
+        "uberCashUsed": 0
+      }
+    ]
+  },
   "promos": [
     {
+      "id": "demo-a001-fixed15",
       "service": "Uber Eats",
       "title": "£15 off your next order",
       "discountType": "fixed",
@@ -11,15 +40,22 @@
       "maxSaving": null,
       "perUseCap": null,
       "uses": 1,
+      "usesRemaining": 1,
       "maxTotalSaving": 15,
       "minimumSpend": 15,
+      "sameAccountOfferCount": 2,
       "hasCode": true,
       "expires": "2026-10-12",
       "expiryBasis": "explicit",
       "accountRef": "A001",
-      "hasCompanionOffer": true
+      "accountMasked": "na…01@icloud.com",
+      "hasCompanionOffer": true,
+      "receiptState": null,
+      "receiptConfirmedUses": 0,
+      "lastUsedAt": null
     },
     {
+      "id": "demo-a001-percent25",
       "service": "Uber Eats",
       "title": "25% off your next 3 orders",
       "discountType": "percent",
@@ -27,15 +63,22 @@
       "maxSaving": 8,
       "perUseCap": 8,
       "uses": 3,
+      "usesRemaining": 2,
       "maxTotalSaving": 24,
       "minimumSpend": 15,
+      "sameAccountOfferCount": 2,
       "hasCode": true,
       "expires": "2026-10-14",
       "expiryBasis": "explicit",
       "accountRef": "A001",
-      "hasCompanionOffer": true
+      "accountMasked": "na…01@icloud.com",
+      "hasCompanionOffer": true,
+      "receiptState": "partial",
+      "receiptConfirmedUses": 1,
+      "lastUsedAt": "2026-10-04T19:30:00.000Z"
     },
     {
+      "id": "demo-a002-cash10",
       "service": "Uber Eats",
       "title": "£10 Uber Cash",
       "discountType": "uberCash",
@@ -43,15 +86,22 @@
       "maxSaving": null,
       "perUseCap": null,
       "uses": 1,
+      "usesRemaining": 1,
       "maxTotalSaving": 10,
       "minimumSpend": 0,
+      "sameAccountOfferCount": 1,
       "hasCode": false,
       "expires": "2026-10-18",
       "expiryBasis": "explicit",
       "accountRef": "A002",
-      "hasCompanionOffer": false
+      "accountMasked": "na…02@icloud.com",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "receiptConfirmedUses": 0,
+      "lastUsedAt": null
     },
     {
+      "id": "demo-a003-percent40",
       "service": "Uber Eats",
       "title": "40% off your next 2 orders",
       "discountType": "percent",
@@ -59,15 +109,22 @@
       "maxSaving": 12,
       "perUseCap": 12,
       "uses": 2,
+      "usesRemaining": 2,
       "maxTotalSaving": 24,
       "minimumSpend": 20,
+      "sameAccountOfferCount": 2,
       "hasCode": true,
       "expires": "2026-10-10",
       "expiryBasis": "explicit",
       "accountRef": "A003",
-      "hasCompanionOffer": false
+      "accountMasked": "na…03@icloud.com",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "receiptConfirmedUses": 0,
+      "lastUsedAt": null
     },
     {
+      "id": "demo-a003-fixed8",
       "service": "Uber Eats",
       "title": "£8 off when you spend £20",
       "discountType": "fixed",
@@ -75,13 +132,65 @@
       "maxSaving": null,
       "perUseCap": null,
       "uses": 1,
+      "usesRemaining": 1,
       "maxTotalSaving": 8,
       "minimumSpend": 20,
+      "sameAccountOfferCount": 2,
       "hasCode": true,
       "expires": "2026-10-11",
       "expiryBasis": "explicit",
       "accountRef": "A003",
-      "hasCompanionOffer": false
+      "accountMasked": "na…03@icloud.com",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "receiptConfirmedUses": 0,
+      "lastUsedAt": null
+    },
+    {
+      "id": "demo-a004-weak3",
+      "service": "Uber Eats",
+      "title": "£3 off when you spend £20",
+      "discountType": "fixed",
+      "discount": 3,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 1,
+      "usesRemaining": 1,
+      "maxTotalSaving": 3,
+      "minimumSpend": 20,
+      "sameAccountOfferCount": 1,
+      "hasCode": true,
+      "expires": "2026-10-16",
+      "expiryBasis": "explicit",
+      "accountRef": "A004",
+      "accountMasked": "na…04@icloud.com",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "receiptConfirmedUses": 0,
+      "lastUsedAt": null
+    },
+    {
+      "id": "demo-a005-used10",
+      "service": "Uber Eats",
+      "title": "50% off up to £10",
+      "discountType": "percent",
+      "discount": 50,
+      "maxSaving": 10,
+      "perUseCap": 10,
+      "uses": 1,
+      "usesRemaining": 0,
+      "maxTotalSaving": 10,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": true,
+      "expires": "2026-10-17",
+      "expiryBasis": "explicit",
+      "accountRef": "A005",
+      "accountMasked": "na…05@icloud.com",
+      "hasCompanionOffer": false,
+      "receiptState": "used",
+      "receiptConfirmedUses": 1,
+      "lastUsedAt": "2026-10-05T12:00:00.000Z"
     }
   ]
 }
