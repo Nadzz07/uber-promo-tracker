@@ -9,9 +9,16 @@ import {
 
 const args = process.argv.slice(2);
 const reset = args.includes("--reset");
-const filePath = args.find(arg => !arg.startsWith("--")) || "account-access.local.csv";
 const dbArgIndex = args.indexOf("--db");
 const dbPath = dbArgIndex >= 0 ? args[dbArgIndex + 1] : "./uber-tracker.local.db";
+
+const positional = args.filter((arg, index) => {
+  if (arg === "--reset" || arg === "--db") return false;
+  if (dbArgIndex >= 0 && index === dbArgIndex + 1) return false;
+  return !arg.startsWith("--");
+});
+
+const filePath = positional[0] || "account-access.local.csv";
 
 if (!fs.existsSync(filePath)) {
   console.error("Access file not found: " + filePath);
