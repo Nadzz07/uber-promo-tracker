@@ -9,13 +9,21 @@ function stablePromoFields(promo) {
     maxSaving: promo.maxSaving ?? null,
     perUseCap: promo.perUseCap ?? null,
     uses: promo.uses ?? 1,
+    usesRemaining:
+      promo.usesRemaining == null
+        ? (promo.uses ?? 1)
+        : promo.usesRemaining,
     maxTotalSaving: promo.maxTotalSaving ?? null,
     minimumSpend: promo.minimumSpend ?? 0,
     hasCode: Boolean(promo.hasCode),
     expires: promo.expires ?? null,
     expiryBasis: promo.expiryBasis ?? null,
     accountRef: promo.accountRef ?? null,
-    hasCompanionOffer: Boolean(promo.hasCompanionOffer)
+    accountMasked: promo.accountMasked ?? null,
+    hasCompanionOffer: Boolean(promo.hasCompanionOffer),
+    receiptState: promo.receiptState ?? null,
+    receiptConfirmedUses: Number(promo.receiptConfirmedUses || 0),
+    lastUsedAt: promo.lastUsedAt ?? null
   };
 }
 
@@ -65,7 +73,7 @@ export function mergeHistory(previousPayload, currentPromos, generatedAt = new D
       scansSeen: Number(existing?.scansSeen || 0) + 1,
       legacyOccurrences: Number(existing?.legacyOccurrences || 0),
       source: "live-scan",
-      status: "active"
+      status: safePromo.receiptState === "used" ? "used" : "active"
     });
   }
 
@@ -84,14 +92,19 @@ export function toPublicHistory(privatePayload, { maxRecords = 500 } = {}) {
 
   const publicRecords = records
     .filter(record => record.service === "Uber Eats")
-    .filter(record => record.source !== "legacy-db" || record.status === "active")
+    .filter(record => record.source !== "legacy-db" || record.status === "active" || record.status === "used")
     .map(record => ({
       id: record.id,
       ...stablePromoFields(record),
       firstSeenAt: record.firstSeenAt ?? null,
       lastSeenAt: record.lastSeenAt ?? null,
       scansSeen: Number(record.scansSeen || 0),
-      status: record.status === "active" ? "active" : "inactive"
+      status:
+        record.status === "used"
+          ? "used"
+          : record.status === "active"
+            ? "active"
+            : "inactive"
     }))
     .sort((a, b) => String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || "")))
     .slice(0, maxRecords);
