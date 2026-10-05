@@ -10,6 +10,7 @@ export function toPublicPromo(promo) {
     maxTotalSaving: promo.maxTotalSaving,
     minimumSpend: promo.minimumSpend,
     hasCode: Boolean(promo.code),
-    expires: promo.expires
+    expires: promo.expires,
+    expiryBasis: promo.expiryBasis
   };
 }
