@@ -1761,7 +1761,7 @@
             promoCount: current.length,
             hasCash: current.some(promo => promo.discountType === "uberCash"),
             has15off15: current.some(is15off15),
-            hasMultiUse: current.some(promo => effectiveRemainingUses(manualStore, promo) > 1),
+            hasMultiUse: current.some(promo => Number(promo.usesRemaining || 0) > 1),
             bestNow: bestForAccount(account)
           };
         });
@@ -1927,7 +1927,7 @@
 
     function offerUsePill(promo) {
       const total = Math.max(1, Number(promo.uses || 1));
-      const remaining = effectiveRemainingUses(manualStore, promo);
+      const remaining = Number(promo.usesRemaining ?? promo.uses ?? 1);
 
       if (total > 1) {
         return '<span class="pill good">' + remaining + ' of ' + total + ' uses left</span>';
@@ -1948,7 +1948,7 @@
       if (current.some(is15off15)) pills.push('<span class="pill">£15 off £15</span>');
       if (current.some(promo => promo.discountType === "uberCash")) pills.push('<span class="pill">Uber Cash</span>');
 
-      const multi = current.find(promo => effectiveRemainingUses(manualStore, promo) > 1);
+      const multi = current.find(promo => Number(promo.usesRemaining || 0) > 1);
       if (multi) pills.push(offerUsePill(multi));
 
       if (current.length > 1) pills.push('<span class="pill">' + current.length + ' live promos</span>');
@@ -2230,9 +2230,11 @@
             (activity.ignored
               ? '<button class="action-btn warning" data-toggle-ignore="' + escapeHtml(promoStateKey(promo)) + '" data-ignore="false">Restore offer</button>'
               : '<button class="action-btn warning" data-toggle-ignore="' + escapeHtml(promoStateKey(promo)) + '" data-ignore="true">Ignore offer</button>') +
-            (state === "used" && promo.receiptState !== "used"
-              ? '<button class="action-btn" data-mark-offer-done="' + escapeHtml(promoStateKey(promo)) + '" data-done="false">Restore uses</button>'
-              : '<button class="action-btn danger" data-mark-offer-done="' + escapeHtml(promoStateKey(promo)) + '" data-done="true">Mark fully used</button>') +
+            (activity.forceDone
+              ? '<button class="action-btn" data-mark-offer-done="' + escapeHtml(promoStateKey(promo)) + '" data-done="false">Restore offer</button>'
+              : state === "used"
+                ? '<button class="action-btn" disabled>Fully used</button>'
+                : '<button class="action-btn danger" data-mark-offer-done="' + escapeHtml(promoStateKey(promo)) + '" data-done="true">Mark fully used</button>') +
           '</div>' +
         '</div>'
       );
