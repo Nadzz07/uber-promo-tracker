@@ -1,24 +1,9 @@
 import fs from "node:fs/promises";
 import { buildPromoList } from "./processor.js";
+import { toPublicPromo } from "./public-promo.js";
 
 const inputPath = process.argv[2] || "./emails.local.json";
 const outputPath = process.argv[3] || "./promos.json";
-
-function publicPromo(promo) {
-  return {
-    service: promo.service,
-    title: promo.title,
-    discountType: promo.discountType,
-    discount: promo.discount,
-    maxSaving: promo.maxSaving,
-    perUseCap: promo.perUseCap,
-    uses: promo.uses,
-    maxTotalSaving: promo.maxTotalSaving,
-    minimumSpend: promo.minimumSpend,
-    hasCode: Boolean(promo.code),
-    expires: promo.expires
-  };
-}
 
 async function generatePromos() {
   try {
@@ -26,7 +11,7 @@ async function generatePromos() {
     const emails = JSON.parse(raw);
     if (!Array.isArray(emails)) throw new Error("Email input must be a JSON array.");
 
-    const promos = buildPromoList(emails).map(publicPromo);
+    const promos = buildPromoList(emails).map(toPublicPromo);
     const payload = {
       generatedAt: new Date().toISOString(),
       source: "apple-mail",
