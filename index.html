@@ -4,93 +4,141 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#111512">
-  <title>Uber Eats Promo Finder</title>
+  <meta name="theme-color" content="#101712">
+  <title>Uber Eats Promo Tracker</title>
   <style>
     * { box-sizing: border-box; }
 
     :root {
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --bg: #111512;
-      --surface: #191e1a;
-      --surface-2: #202621;
-      --surface-3: #262d27;
-      --line: #303932;
-      --line-soft: #252c27;
-      --text: #f5f8f5;
-      --muted: #a7b0a9;
-      --dim: #747e76;
-      --green: #9fe870;
-      --green-strong: #b6f58e;
-      --green-soft: rgba(159,232,112,.12);
-      --amber: #f2c66d;
-      --red: #f08a8a;
-      --shadow: 0 12px 30px rgba(0,0,0,.18);
+      --bg: #101712;
+      --bg-deep: #0b100c;
+      --glass: rgba(35, 48, 39, .58);
+      --glass-strong: rgba(42, 56, 46, .78);
+      --glass-soft: rgba(255, 255, 255, .045);
+      --line: rgba(255, 255, 255, .105);
+      --line-soft: rgba(255, 255, 255, .065);
+      --text: #f7faf7;
+      --muted: #a9b4ab;
+      --dim: #758179;
+      --green: #9bea72;
+      --green-strong: #b9fa96;
+      --green-soft: rgba(155, 234, 114, .14);
+      --amber: #f1c66d;
+      --amber-soft: rgba(241, 198, 109, .12);
+      --red: #f28e8e;
+      --shadow: 0 22px 60px rgba(0, 0, 0, .3);
+      --inner: inset 0 1px 0 rgba(255,255,255,.08);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 17px;
+      --radius-sm: 13px;
     }
 
     html, body {
       margin: 0;
       min-height: 100%;
-      background: var(--bg);
+      background: var(--bg-deep);
       color: var(--text);
     }
 
     body {
       min-height: 100vh;
-      padding-bottom: calc(78px + env(safe-area-inset-bottom));
+      overflow-x: hidden;
+      padding-bottom: calc(108px + env(safe-area-inset-bottom));
+      background:
+        radial-gradient(circle at 8% 4%, rgba(116, 201, 91, .13), transparent 30rem),
+        radial-gradient(circle at 100% 28%, rgba(71, 135, 83, .11), transparent 32rem),
+        linear-gradient(180deg, #111914 0%, #0c120e 58%, #09100b 100%);
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      z-index: -1;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      filter: blur(74px);
+      pointer-events: none;
+      opacity: .45;
+    }
+
+    body::before {
+      top: 14%;
+      left: -130px;
+      background: rgba(111, 213, 89, .16);
+    }
+
+    body::after {
+      right: -150px;
+      bottom: 12%;
+      background: rgba(72, 132, 89, .14);
     }
 
     button, input, select { font: inherit; }
-    button { color: inherit; }
-    a { color: inherit; }
+    button { color: inherit; -webkit-tap-highlight-color: transparent; }
+    input, select { color-scheme: dark; }
 
-    .shell {
-      width: min(1080px, 100%);
+    .app-shell {
+      width: min(1060px, 100%);
       margin: 0 auto;
-      padding: 14px 14px 32px;
+      padding: max(16px, env(safe-area-inset-top)) 15px 38px;
+    }
+
+    .glass {
+      border: 1px solid var(--line);
+      background: var(--glass);
+      box-shadow: var(--inner), var(--shadow);
+      backdrop-filter: blur(24px) saturate(135%);
+      -webkit-backdrop-filter: blur(24px) saturate(135%);
     }
 
     .topbar {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: flex-start;
       gap: 14px;
-      min-height: 52px;
-      margin-bottom: 10px;
+      min-height: 64px;
+      padding: 5px 1px 0;
     }
 
     .brand-kicker {
       color: var(--green);
       font-size: 10px;
       font-weight: 900;
-      letter-spacing: .12em;
+      letter-spacing: .16em;
       text-transform: uppercase;
     }
 
     .brand-title {
-      margin-top: 3px;
-      font-size: 20px;
-      font-weight: 900;
-      letter-spacing: -.035em;
+      margin-top: 4px;
+      max-width: 260px;
+      font-size: 24px;
+      line-height: 1.02;
+      font-weight: 950;
+      letter-spacing: -.055em;
     }
 
-    .scan {
-      text-align: right;
-    }
+    .scan-wrap { text-align: right; }
 
     .scan-pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      min-height: 28px;
-      padding: 0 9px;
+      gap: 7px;
+      min-height: 31px;
+      padding: 0 11px;
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: var(--surface);
+      background: rgba(34, 45, 38, .64);
+      box-shadow: var(--inner);
       color: var(--muted);
       font-size: 9px;
       font-weight: 900;
-      letter-spacing: .06em;
+      letter-spacing: .08em;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
     }
 
     .scan-dot {
@@ -98,6 +146,7 @@
       height: 7px;
       border-radius: 50%;
       background: var(--dim);
+      box-shadow: 0 0 0 4px rgba(255,255,255,.025);
     }
 
     .scan-pill.live .scan-dot { background: var(--green); }
@@ -105,86 +154,90 @@
     .scan-pill.stale .scan-dot { background: var(--amber); }
 
     .scan-time {
-      margin-top: 4px;
+      margin-top: 5px;
       color: var(--dim);
+      font-size: 8px;
+    }
+
+    .demo-strip {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin: 10px 0 6px;
+      padding: 9px 11px;
+      border: 1px solid rgba(241,198,109,.2);
+      border-radius: 13px;
+      background: rgba(83, 67, 32, .17);
+      color: #d6c18f;
       font-size: 9px;
+      line-height: 1.4;
     }
 
-    .notice {
-      display: none;
-      margin: 6px 0 14px;
-      padding: 11px 12px;
-      border: 1px solid #4b4129;
-      border-radius: 12px;
-      background: #242116;
-      color: #d8c18d;
-      font-size: 10px;
-      line-height: 1.45;
-    }
-
-    .desktop-nav {
-      display: none;
-    }
+    .demo-strip strong { color: var(--amber); }
 
     .view { display: none; }
     .view.active { display: block; }
 
-    .page-head {
-      margin: 15px 0 14px;
+    .screen-head {
+      margin: 18px 2px 14px;
     }
 
     .eyebrow {
       color: var(--green);
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 900;
-      letter-spacing: .1em;
+      letter-spacing: .13em;
       text-transform: uppercase;
     }
 
-    .page-title {
+    .screen-title {
       margin: 5px 0 0;
-      font-size: clamp(28px, 8vw, 42px);
+      font-size: clamp(29px, 8vw, 42px);
       line-height: 1;
-      letter-spacing: -.055em;
+      letter-spacing: -.06em;
     }
 
-    .page-copy {
+    .screen-copy {
       margin-top: 8px;
-      max-width: 650px;
+      max-width: 620px;
       color: var(--muted);
       font-size: 11px;
-      line-height: 1.55;
+      line-height: 1.5;
     }
 
-    .stats-grid {
+    .stats-row {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
-      margin: 14px 0;
+      margin: 13px 0 14px;
     }
 
-    .stat {
+    .stat-card {
       min-width: 0;
       min-height: 84px;
-      padding: 12px;
+      padding: 12px 11px;
+      border-radius: var(--radius-md);
       border: 1px solid var(--line-soft);
-      border-radius: 15px;
-      background: var(--surface);
+      background: rgba(36, 48, 40, .47);
+      box-shadow: var(--inner);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
     }
 
     .stat-label {
       color: var(--dim);
-      font-size: 9px;
-      font-weight: 800;
+      font-size: 8px;
+      font-weight: 850;
     }
 
     .stat-value {
-      margin-top: 8px;
+      margin-top: 9px;
+      overflow: hidden;
+      color: var(--text);
       font-size: clamp(19px, 5.2vw, 28px);
       font-weight: 950;
-      letter-spacing: -.045em;
+      letter-spacing: -.05em;
       white-space: nowrap;
-      overflow: hidden;
       text-overflow: ellipsis;
     }
 
@@ -193,18 +246,217 @@
     .stat-sub {
       margin-top: 2px;
       color: var(--muted);
-      font-size: 8px;
+      font-size: 7.5px;
     }
 
-    .card {
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      padding: 17px;
+      border-radius: var(--radius-xl);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      top: -100px;
+      right: -75px;
+      border-radius: 50%;
+      background: rgba(155,234,114,.13);
+      filter: blur(18px);
+      pointer-events: none;
+    }
+
+    .hero-label {
+      position: relative;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 850;
+    }
+
+    .basket-line {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 4px;
+    }
+
+    .basket-currency {
+      color: var(--muted);
+      font-size: 27px;
+      font-weight: 850;
+    }
+
+    .basket-input {
+      width: 150px;
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: 38px;
+      line-height: 1;
+      font-weight: 950;
+      letter-spacing: -.06em;
+    }
+
+    .quick-baskets {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 7px;
+      margin-top: 13px;
+    }
+
+    .quick-btn,
+    .ghost-btn,
+    .solid-btn,
+    .filter-btn,
+    .action-btn {
+      min-height: 39px;
       border: 1px solid var(--line);
-      border-radius: 18px;
-      background: var(--surface);
-      box-shadow: var(--shadow);
+      border-radius: 12px;
+      background: rgba(255,255,255,.045);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 9px;
+      font-weight: 850;
+      box-shadow: var(--inner);
     }
 
-    .planner {
-      padding: 14px;
+    .quick-btn:active,
+    .filter-btn.active {
+      border-color: rgba(155,234,114,.46);
+      background: var(--green-soft);
+      color: var(--green-strong);
+    }
+
+    .recommendation {
+      position: relative;
+      margin-top: 16px;
+      padding-top: 15px;
+      border-top: 1px solid var(--line-soft);
+    }
+
+    .recommendation-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .recommendation-title {
+      font-size: 17px;
+      font-weight: 950;
+      letter-spacing: -.035em;
+    }
+
+    .recommendation-copy {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 8.5px;
+      line-height: 1.45;
+    }
+
+    .recommendation-save {
+      flex: 0 0 auto;
+      color: var(--green);
+      text-align: right;
+      font-size: 23px;
+      font-weight: 950;
+      letter-spacing: -.05em;
+    }
+
+    .recommendation-save small {
+      display: block;
+      margin-top: 2px;
+      color: var(--dim);
+      font-size: 7px;
+      font-weight: 750;
+      letter-spacing: 0;
+    }
+
+    .plan-list {
+      display: grid;
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .plan-row {
+      display: grid;
+      grid-template-columns: 31px minmax(0,1fr) auto;
+      align-items: center;
+      gap: 9px;
+      padding: 10px;
+      border: 1px solid var(--line-soft);
+      border-radius: 13px;
+      background: rgba(255,255,255,.035);
+    }
+
+    .plan-number {
+      width: 31px;
+      height: 31px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 10px;
+      font-weight: 950;
+    }
+
+    .plan-account {
+      overflow: hidden;
+      font-size: 10.5px;
+      font-weight: 900;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .plan-promo {
+      margin-top: 2px;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 7.5px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .plan-saving {
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .hero-footer {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      gap: 9px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .advanced-btn {
+      min-height: 34px;
+      padding: 0 10px;
+      border: 1px solid var(--line-soft);
+      border-radius: 999px;
+      background: rgba(255,255,255,.035);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 8px;
+      font-weight: 850;
+    }
+
+    .fee-note {
+      color: var(--dim);
+      font-size: 7.5px;
+      text-align: right;
     }
 
     .section-head {
@@ -212,539 +464,721 @@
       align-items: flex-end;
       justify-content: space-between;
       gap: 12px;
-      margin: 22px 0 10px;
+      margin: 24px 2px 11px;
     }
 
     .section-title {
-      margin: 3px 0 0;
+      margin-top: 3px;
       font-size: 19px;
-      font-weight: 900;
-      letter-spacing: -.035em;
+      font-weight: 930;
+      letter-spacing: -.04em;
     }
 
     .section-meta {
       color: var(--dim);
-      font-size: 9px;
-      text-align: right;
-    }
-
-    .field-label {
-      display: block;
-      margin-bottom: 6px;
-      color: var(--dim);
-      font-size: 9px;
-      font-weight: 900;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-    }
-
-    .money-input-wrap {
-      display: flex;
-      align-items: center;
-      min-height: 52px;
-      padding: 0 13px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--surface-2);
-    }
-
-    .currency {
-      margin-right: 5px;
-      color: var(--muted);
-      font-size: 19px;
-      font-weight: 850;
-    }
-
-    .money-input {
-      width: 100%;
-      border: 0;
-      outline: 0;
-      background: transparent;
-      color: var(--text);
-      font-size: 24px;
-      font-weight: 900;
-      letter-spacing: -.03em;
-    }
-
-    .quick-row {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
-      gap: 7px;
-      margin-top: 8px;
-    }
-
-    .chip-btn,
-    .seg-btn {
-      min-height: 38px;
-      border: 1px solid var(--line);
-      border-radius: 11px;
-      background: var(--surface-2);
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 10px;
-      font-weight: 850;
-    }
-
-    .chip-btn:active,
-    .seg-btn.active {
-      border-color: #5c7f49;
-      background: var(--green-soft);
-      color: var(--green-strong);
-    }
-
-    .planner-options {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .small-field input,
-    .small-field select,
-    .search-input {
-      width: 100%;
-      min-height: 42px;
-      padding: 0 11px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      outline: 0;
-      background: var(--surface-2);
-      color: var(--text);
-      font-size: 11px;
-      font-weight: 750;
-    }
-
-    .planner-result {
-      margin-top: 13px;
-      padding-top: 13px;
-      border-top: 1px solid var(--line-soft);
-    }
-
-    .plan-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .plan-title {
-      font-size: 17px;
-      font-weight: 900;
-      letter-spacing: -.03em;
-    }
-
-    .plan-copy {
-      margin-top: 3px;
-      color: var(--muted);
-      font-size: 9px;
-      line-height: 1.45;
-    }
-
-    .plan-save {
-      flex: 0 0 auto;
-      text-align: right;
-      color: var(--green);
-      font-size: 21px;
-      font-weight: 950;
-      letter-spacing: -.035em;
-    }
-
-    .plan-save small {
-      display: block;
-      margin-top: 2px;
-      color: var(--dim);
       font-size: 8px;
-      font-weight: 700;
-    }
-
-    .plan-steps {
-      display: grid;
-      gap: 7px;
-      margin-top: 11px;
-    }
-
-    .plan-step {
-      display: grid;
-      grid-template-columns: 28px minmax(0,1fr) auto;
-      gap: 9px;
-      align-items: center;
-      padding: 10px;
-      border: 1px solid var(--line-soft);
-      border-radius: 12px;
-      background: var(--surface-2);
-    }
-
-    .step-number {
-      width: 28px;
-      height: 28px;
-      display: grid;
-      place-items: center;
-      border-radius: 9px;
-      background: var(--green-soft);
-      color: var(--green);
-      font-size: 10px;
-      font-weight: 950;
-    }
-
-    .step-account {
-      font-size: 11px;
-      font-weight: 900;
-      word-break: break-word;
-    }
-
-    .step-promo {
-      margin-top: 2px;
-      color: var(--muted);
-      font-size: 8px;
-      line-height: 1.4;
-    }
-
-    .step-saving {
       text-align: right;
-      color: var(--green);
-      font-size: 12px;
-      font-weight: 900;
     }
 
-    .intent-grid {
+    .quick-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0,1fr));
       grid-auto-rows: 112px;
       gap: 8px;
     }
 
-    .intent {
-      position: relative;
+    .quick-card {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       min-width: 0;
       padding: 13px;
       border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--surface);
-      text-align: left;
+      border-radius: var(--radius-md);
+      background: rgba(37, 49, 41, .5);
+      box-shadow: var(--inner);
       cursor: pointer;
+      text-align: left;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
     }
 
-    .intent.active {
-      border-color: #5c7f49;
-      background: var(--green-soft);
+    .quick-card.active {
+      border-color: rgba(155,234,114,.48);
+      background: linear-gradient(145deg, rgba(155,234,114,.15), rgba(37,49,41,.55));
     }
 
-    .intent-top {
+    .quick-top {
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 7px;
     }
 
-    .intent-icon {
-      width: 31px;
-      height: 31px;
+    .quick-icon {
+      width: 32px;
+      height: 32px;
       display: grid;
       place-items: center;
-      border-radius: 10px;
-      background: var(--surface-3);
+      border-radius: 11px;
+      background: rgba(255,255,255,.055);
       color: var(--green);
       font-size: 12px;
       font-weight: 950;
+      box-shadow: var(--inner);
     }
 
-    .intent-count {
+    .quick-count {
       color: var(--dim);
-      font-size: 9px;
+      font-size: 8px;
+      font-weight: 800;
     }
 
-    .intent-title {
+    .quick-title {
       font-size: 14px;
       font-weight: 900;
       letter-spacing: -.025em;
     }
 
-    .intent-sub {
+    .quick-sub {
       margin-top: 2px;
       color: var(--muted);
-      font-size: 9px;
+      font-size: 8px;
       line-height: 1.35;
     }
 
     .account-list {
       display: grid;
-      gap: 8px;
+      gap: 9px;
     }
 
     .account-card {
+      min-width: 0;
+      padding: 14px;
       border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--surface);
-      overflow: hidden;
-    }
-
-    .account-main {
-      padding: 13px;
+      border-radius: var(--radius-lg);
+      background: rgba(35, 47, 39, .55);
+      box-shadow: var(--inner);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
     .account-top {
       display: flex;
-      justify-content: space-between;
-      gap: 12px;
       align-items: flex-start;
+      justify-content: space-between;
+      gap: 11px;
     }
 
     .account-email {
-      font-size: 14px;
-      font-weight: 900;
+      overflow: hidden;
+      font-size: 13.5px;
+      font-weight: 930;
       letter-spacing: -.02em;
-      word-break: break-word;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .account-caption {
+    .account-offer {
       margin-top: 3px;
       color: var(--muted);
       font-size: 9px;
-      line-height: 1.4;
+      line-height: 1.35;
     }
 
     .save-now {
       flex: 0 0 auto;
-      text-align: right;
       color: var(--green);
+      text-align: right;
       font-size: 17px;
       font-weight: 950;
+      letter-spacing: -.04em;
     }
 
     .save-now small {
       display: block;
       margin-top: 2px;
       color: var(--dim);
-      font-size: 8px;
+      font-size: 7px;
       font-weight: 700;
+      letter-spacing: 0;
     }
 
-    .badges {
+    .pill-row {
       display: flex;
       flex-wrap: wrap;
       gap: 5px;
       margin-top: 9px;
     }
 
-    .badge {
+    .pill {
       display: inline-flex;
       align-items: center;
-      min-height: 22px;
-      padding: 0 7px;
-      border: 1px solid var(--line);
+      min-height: 23px;
+      padding: 0 8px;
+      border: 1px solid var(--line-soft);
       border-radius: 999px;
-      background: var(--surface-2);
+      background: rgba(255,255,255,.035);
       color: var(--muted);
-      font-size: 8px;
+      font-size: 7.5px;
       font-weight: 800;
     }
 
-    .badge.good {
-      border-color: #4a6940;
+    .pill.good {
+      border-color: rgba(155,234,114,.34);
       background: var(--green-soft);
       color: var(--green);
     }
 
-    .badge.warn {
-      border-color: #655435;
+    .pill.warn {
+      border-color: rgba(241,198,109,.3);
+      background: var(--amber-soft);
       color: var(--amber);
     }
 
-    .offers-details {
-      margin-top: 10px;
+    .account-actions {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 7px;
+      margin-top: 12px;
+      padding-top: 11px;
       border-top: 1px solid var(--line-soft);
-      padding-top: 9px;
     }
 
-    .offers-details summary {
-      cursor: pointer;
+    .ghost-btn {
+      min-height: 38px;
+      padding: 0 12px;
+      text-align: left;
+    }
+
+    .done-btn {
+      min-width: 82px;
+      padding: 0 10px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .weak-wrap {
+      margin-top: 10px;
+      overflow: hidden;
+      border: 1px solid var(--line-soft);
+      border-radius: 16px;
+      background: rgba(255,255,255,.025);
+    }
+
+    .weak-wrap summary {
+      padding: 12px 13px;
       list-style: none;
       color: var(--muted);
+      cursor: pointer;
       font-size: 9px;
       font-weight: 850;
     }
 
-    .offers-details summary::-webkit-details-marker { display: none; }
+    .weak-wrap summary::-webkit-details-marker { display: none; }
 
-    .offer-list {
-      display: grid;
-      gap: 6px;
-      margin-top: 8px;
+    .weak-inner {
+      padding: 0 8px 8px;
     }
 
-    .offer {
-      padding: 9px;
-      border: 1px solid var(--line-soft);
-      border-radius: 11px;
-      background: var(--surface-2);
-    }
+    .search-wrap { margin: 14px 0 9px; }
 
-    .offer-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: flex-start;
-    }
-
-    .offer-title {
-      font-size: 10px;
-      font-weight: 850;
-      line-height: 1.35;
-    }
-
-    .offer-meta {
-      margin-top: 3px;
-      color: var(--dim);
-      font-size: 8px;
-      line-height: 1.45;
-    }
-
-    .offer-value {
-      flex: 0 0 auto;
-      color: var(--green);
-      font-size: 11px;
-      font-weight: 900;
-      text-align: right;
-    }
-
-    .actions {
-      display: flex;
-      gap: 6px;
-      margin-top: 7px;
-    }
-
-    .mini-btn {
-      min-height: 29px;
-      padding: 0 9px;
+    .search-input {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 14px;
       border: 1px solid var(--line);
-      border-radius: 9px;
-      background: var(--surface-3);
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 8px;
-      font-weight: 850;
+      border-radius: 15px;
+      outline: none;
+      background: rgba(38, 50, 42, .58);
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 750;
+      box-shadow: var(--inner);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
     }
 
-    .mini-btn.used { color: var(--green); }
-    .mini-btn.ignore { color: var(--amber); }
-
-    .bucket {
-      margin-top: 10px;
-      border: 1px solid var(--line-soft);
-      border-radius: 14px;
-      background: var(--surface);
-      overflow: hidden;
-    }
-
-    .bucket summary {
-      padding: 12px;
-      cursor: pointer;
-      list-style: none;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 850;
-    }
-
-    .bucket summary::-webkit-details-marker { display: none; }
-
-    .bucket-body {
-      padding: 0 9px 9px;
-    }
-
-    .search-wrap {
-      margin: 12px 0 10px;
-    }
-
-    .seg-row {
+    .filter-row {
       display: flex;
       gap: 7px;
-      margin-bottom: 10px;
+      margin: 9px 0 12px;
       overflow-x: auto;
       scrollbar-width: none;
     }
 
-    .seg-row::-webkit-scrollbar { display: none; }
-    .seg-btn { padding: 0 12px; white-space: nowrap; }
+    .filter-row::-webkit-scrollbar { display: none; }
 
-    .simple-row {
+    .filter-btn {
+      flex: 0 0 auto;
+      padding: 0 12px;
+      white-space: nowrap;
+    }
+
+    .activity-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 8px;
+      margin-bottom: 17px;
+    }
+
+    .activity-card {
+      min-height: 80px;
+      padding: 11px;
+      border: 1px solid var(--line-soft);
+      border-radius: 15px;
+      background: rgba(36,48,40,.46);
+      box-shadow: var(--inner);
+    }
+
+    .activity-card strong {
+      display: block;
+      margin-top: 7px;
+      font-size: 20px;
+      letter-spacing: -.04em;
+    }
+
+    .activity-card span {
+      color: var(--dim);
+      font-size: 8px;
+      font-weight: 800;
+    }
+
+    .activity-section { margin-top: 20px; }
+
+    .activity-title {
+      margin: 0 2px 8px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .activity-list {
+      overflow: hidden;
+      border: 1px solid var(--line-soft);
+      border-radius: 17px;
+      background: rgba(35,47,39,.45);
+      box-shadow: var(--inner);
+    }
+
+    .activity-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 11px 3px;
+      gap: 11px;
+      min-height: 64px;
+      padding: 11px 12px;
       border-bottom: 1px solid var(--line-soft);
     }
 
-    .simple-row:last-child { border-bottom: 0; }
+    .activity-row:last-child { border-bottom: 0; }
 
-    .simple-title {
-      font-size: 11px;
-      font-weight: 850;
-      word-break: break-word;
+    .activity-email {
+      font-size: 10.5px;
+      font-weight: 900;
     }
 
-    .simple-meta {
-      margin-top: 2px;
-      color: var(--dim);
+    .activity-meta {
+      margin-top: 3px;
+      color: var(--muted);
       font-size: 8px;
+      line-height: 1.35;
     }
 
-    .simple-value {
+    .restore-btn {
       flex: 0 0 auto;
-      color: var(--muted);
-      font-size: 9px;
-      text-align: right;
+      min-height: 31px;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255,255,255,.04);
+      color: var(--green);
+      cursor: pointer;
+      font-size: 8px;
+      font-weight: 850;
     }
 
-    .empty {
-      padding: 22px 14px;
-      border: 1px dashed var(--line);
-      border-radius: 14px;
-      background: rgba(255,255,255,.015);
-      color: var(--muted);
-      text-align: center;
-      font-size: 10px;
-      line-height: 1.55;
-    }
-
-    .menu-grid {
+    .more-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
       gap: 8px;
     }
 
-    .menu-card {
-      min-height: 104px;
-      padding: 13px;
+    .more-card {
+      position: relative;
+      min-height: 112px;
+      padding: 14px;
       border: 1px solid var(--line);
-      border-radius: 15px;
-      background: var(--surface);
+      border-radius: 19px;
+      background: rgba(37, 49, 41, .5);
+      box-shadow: var(--inner);
       cursor: pointer;
       text-align: left;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
-    .menu-card strong {
-      display: block;
+    .more-card::after {
+      content: "";
+      position: absolute;
+      right: -35px;
+      bottom: -45px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(155,234,114,.06);
+      filter: blur(8px);
+    }
+
+    .more-icon {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+      border-radius: 11px;
+      background: rgba(255,255,255,.055);
+      color: var(--green);
       font-size: 13px;
-      letter-spacing: -.02em;
+      font-weight: 950;
+      box-shadow: var(--inner);
     }
 
-    .menu-card span {
-      display: block;
+    .more-title {
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .more-copy {
       margin-top: 4px;
+      color: var(--muted);
+      font-size: 8.5px;
+      line-height: 1.4;
+    }
+
+    .empty {
+      padding: 22px 15px;
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.02);
+      color: var(--muted);
+      text-align: center;
+      font-size: 9px;
+      line-height: 1.55;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: calc(9px + env(safe-area-inset-bottom));
+      z-index: 30;
+      width: min(calc(100% - 18px), 520px);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 3px;
+      padding: 5px;
+      border: 1px solid rgba(255,255,255,.115);
+      border-radius: 22px;
+      background: rgba(30, 41, 34, .68);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 18px 45px rgba(0,0,0,.36);
+      backdrop-filter: blur(28px) saturate(145%);
+      -webkit-backdrop-filter: blur(28px) saturate(145%);
+    }
+
+    .nav-btn {
+      min-height: 55px;
+      border: 0;
+      border-radius: 17px;
+      background: transparent;
+      color: var(--dim);
+      cursor: pointer;
+      font-size: 8px;
+      font-weight: 850;
+    }
+
+    .nav-btn svg {
+      display: block;
+      width: 18px;
+      height: 18px;
+      margin: 0 auto 4px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-btn.active {
+      background: rgba(255,255,255,.07);
+      color: var(--green);
+      box-shadow: var(--inner);
+    }
+
+    .privacy {
+      margin: 25px 18px 4px;
+      color: #657067;
+      font-size: 7.5px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+      background: rgba(2, 6, 3, .55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .sheet-backdrop.open { display: flex; }
+
+    .sheet {
+      width: min(100%, 620px);
+      max-height: min(86vh, 820px);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.13);
+      border-bottom: 0;
+      border-radius: 28px 28px 0 0;
+      background:
+        linear-gradient(180deg, rgba(47,62,52,.95), rgba(22,31,25,.97));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.11), 0 -24px 70px rgba(0,0,0,.48);
+      backdrop-filter: blur(34px) saturate(140%);
+      -webkit-backdrop-filter: blur(34px) saturate(140%);
+      animation: sheetIn .22s ease-out;
+    }
+
+    @keyframes sheetIn {
+      from { transform: translateY(18px); opacity: .65; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .sheet-handle {
+      width: 42px;
+      height: 4px;
+      margin: 9px auto 3px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.2);
+    }
+
+    .sheet-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 13px;
+      padding: 13px 16px 12px;
+    }
+
+    .sheet-title {
+      font-size: 20px;
+      font-weight: 950;
+      letter-spacing: -.04em;
+    }
+
+    .sheet-sub {
+      margin-top: 3px;
       color: var(--muted);
       font-size: 9px;
       line-height: 1.4;
     }
 
-    .menu-panel {
-      display: none;
-      margin-top: 12px;
+    .sheet-close {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: rgba(255,255,255,.055);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
     }
 
-    .menu-panel.active { display: block; }
+    .sheet-body {
+      max-height: calc(min(86vh, 820px) - 78px);
+      overflow-y: auto;
+      padding: 0 16px calc(22px + env(safe-area-inset-bottom));
+      overscroll-behavior: contain;
+    }
+
+    .sheet-section {
+      padding: 13px 0;
+      border-top: 1px solid var(--line-soft);
+    }
+
+    .sheet-section:first-child { border-top: 0; }
+
+    .sheet-label {
+      margin-bottom: 7px;
+      color: var(--dim);
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .sheet-input,
+    .sheet-select {
+      width: 100%;
+      min-height: 47px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      outline: none;
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 800;
+      box-shadow: var(--inner);
+    }
+
+    .sheet-help {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 8px;
+      line-height: 1.45;
+    }
+
+    .offer-card {
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: rgba(255,255,255,.04);
+      box-shadow: var(--inner);
+    }
+
+    .offer-card + .offer-card { margin-top: 8px; }
+
+    .offer-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 11px;
+      align-items: flex-start;
+    }
+
+    .offer-name {
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .offer-value {
+      flex: 0 0 auto;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .offer-details {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 8px;
+      line-height: 1.45;
+    }
+
+    .use-progress {
+      margin-top: 11px;
+    }
+
+    .use-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 8px;
+      font-weight: 800;
+    }
+
+    .progress-track {
+      height: 7px;
+      margin-top: 7px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255,255,255,.07);
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #75d854, #b4f18f);
+      box-shadow: 0 0 16px rgba(155,234,114,.24);
+    }
+
+    .offer-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-top: 11px;
+    }
+
+    .action-btn {
+      padding: 0 9px;
+      min-height: 40px;
+    }
+
+    .action-btn.primary {
+      border-color: rgba(155,234,114,.37);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .action-btn.warning { color: var(--amber); }
+    .action-btn.danger { color: var(--red); }
+    .action-btn:disabled { opacity: .35; cursor: default; }
+
+    .offer-more {
+      display: flex;
+      gap: 7px;
+      margin-top: 7px;
+    }
+
+    .offer-more .action-btn { flex: 1; }
+
+    .sheet-list {
+      overflow: hidden;
+      border: 1px solid var(--line-soft);
+      border-radius: 15px;
+      background: rgba(255,255,255,.03);
+    }
+
+    .sheet-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 11px;
+      align-items: center;
+      min-height: 58px;
+      padding: 10px 11px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .sheet-row:last-child { border-bottom: 0; }
+
+    .sheet-row-title {
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .sheet-row-meta {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 7.5px;
+    }
+
+    .sheet-row-value {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 850;
+      text-align: right;
+    }
 
     .insight-grid {
       display: grid;
@@ -756,8 +1190,8 @@
       min-height: 88px;
       padding: 12px;
       border: 1px solid var(--line-soft);
-      border-radius: 14px;
-      background: var(--surface);
+      border-radius: 15px;
+      background: rgba(255,255,255,.035);
     }
 
     .insight-label {
@@ -773,189 +1207,149 @@
       letter-spacing: -.04em;
     }
 
-    .bottom-nav {
-      position: fixed;
-      left: 50%;
-      bottom: calc(8px + env(safe-area-inset-bottom));
-      z-index: 20;
-      width: min(calc(100% - 18px), 520px);
-      transform: translateX(-50%);
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 4px;
-      padding: 5px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: rgba(25,30,26,.96);
-      backdrop-filter: blur(16px);
-      box-shadow: 0 16px 36px rgba(0,0,0,.3);
-    }
-
-    .nav-btn {
-      min-height: 51px;
-      border: 0;
-      border-radius: 13px;
-      background: transparent;
-      color: var(--dim);
-      cursor: pointer;
-      font-size: 9px;
-      font-weight: 850;
-    }
-
-    .nav-icon {
-      display: block;
-      margin-bottom: 3px;
-      font-size: 15px;
-      line-height: 1;
-    }
-
-    .nav-btn.active {
-      background: var(--surface-3);
-      color: var(--green);
-    }
-
-    .privacy {
-      margin: 24px 0 4px;
-      color: #667067;
-      font-size: 8px;
-      line-height: 1.5;
-      text-align: center;
-    }
-
     @media (min-width: 760px) {
-      body { padding-bottom: 0; }
-
-      .shell { padding: 20px 24px 54px; }
-
-      .topbar {
-        min-height: 62px;
-        margin-bottom: 4px;
-      }
-
-      .brand-title { font-size: 24px; }
-
+      body { padding-bottom: 44px; }
+      .app-shell { padding: 22px 24px 54px; }
+      .topbar { min-height: 72px; }
+      .brand-title { max-width: none; font-size: 29px; }
       .bottom-nav {
-        position: static;
+        position: sticky;
         left: auto;
         bottom: auto;
-        width: 100%;
-        max-width: 560px;
         transform: none;
-        margin: 8px 0 22px;
-        box-shadow: none;
-        backdrop-filter: none;
+        width: min(520px, 100%);
+        margin: 7px 0 24px;
       }
-
-      .nav-btn { min-height: 44px; }
-      .nav-icon { display: inline; margin: 0 5px 0 0; }
-
-      .page-head { margin-top: 6px; }
-      .stats-grid { max-width: 720px; }
-      .intent-grid { grid-template-columns: repeat(4, minmax(0,1fr)); grid-auto-rows: 120px; }
+      .nav-btn { min-height: 48px; }
+      .nav-btn svg { display: inline-block; vertical-align: -4px; margin: 0 5px 0 0; }
+      .stats-row { max-width: 700px; }
+      .hero-card { padding: 20px; }
+      .quick-grid { grid-template-columns: repeat(4, minmax(0,1fr)); grid-auto-rows: 118px; }
       .account-list { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .account-card { height: 100%; }
-      .planner { padding: 17px; }
-      .planner-options { max-width: 480px; }
-      .menu-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
-      .insight-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .more-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .activity-list { max-width: 760px; }
+      .sheet-backdrop { align-items: center; padding: 24px; }
+      .sheet {
+        border-bottom: 1px solid rgba(255,255,255,.13);
+        border-radius: 28px;
+      }
     }
 
     @media (max-width: 370px) {
-      .shell { padding-left: 10px; padding-right: 10px; }
-      .stats-grid { gap: 6px; }
-      .stat { padding: 10px 8px; }
-      .intent-grid { gap: 6px; }
-      .planner-options { grid-template-columns: 1fr; }
+      .app-shell { padding-left: 10px; padding-right: 10px; }
+      .stats-row { gap: 6px; }
+      .stat-card { padding: 10px 8px; }
+      .quick-grid { gap: 6px; }
+      .hero-card { padding: 14px; }
+      .recommendation-top { display: block; }
+      .recommendation-save { margin-top: 8px; text-align: left; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+
+    @supports not ((backdrop-filter: blur(4px)) or (-webkit-backdrop-filter: blur(4px))) {
+      .glass, .bottom-nav, .account-card, .quick-card, .more-card, .search-input, .sheet {
+        background: #1d2921;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="app" class="shell">
+  <div id="app" class="app-shell">
     <header class="topbar">
       <div>
         <div class="brand-kicker">Uber Eats</div>
-        <div class="brand-title">Promo Finder</div>
+        <div class="brand-title">Uber Eats Promo Tracker</div>
       </div>
-      <div class="scan">
+      <div class="scan-wrap">
         <div id="scanPill" class="scan-pill">
           <span class="scan-dot"></span>
           <span id="scanLabel">LOADING</span>
         </div>
-        <div id="scanTime" class="scan-time">Checking data…</div>
+        <div id="scanTime" class="scan-time">Checking tracker…</div>
       </div>
     </header>
 
-    <div id="demoNotice" class="notice">
-      Demo data is showing. Your private Mac database will replace this after the first live scan.
+    <div id="demoStrip" class="demo-strip">
+      <strong>Demo preview</strong>
+      <span>Connect your Mac to replace this with live accounts and receipts.</span>
     </div>
 
     <nav id="mainNav" class="bottom-nav" aria-label="Main navigation">
-      <button class="nav-btn active" data-view="deals"><span class="nav-icon">⌂</span>Deals</button>
-      <button class="nav-btn" data-view="accounts"><span class="nav-icon">@</span>Accounts</button>
-      <button class="nav-btn" data-view="used"><span class="nav-icon">✓</span>Used</button>
-      <button class="nav-btn" data-view="menu"><span class="nav-icon">•••</span>Menu</button>
+      <button class="nav-btn active" data-view="home">
+        <svg viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.8l8.5 6.7v9.2a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1Z"/></svg>
+        Home
+      </button>
+      <button class="nav-btn" data-view="accounts">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c.5-4.2 2.8-6.3 7-6.3s6.5 2.1 7 6.3"/></svg>
+        Accounts
+      </button>
+      <button class="nav-btn" data-view="used">
+        <svg viewBox="0 0 24 24"><path d="m5 12.5 4.1 4.1L19.5 6.8"/></svg>
+        Used
+      </button>
+      <button class="nav-btn" data-view="more">
+        <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        More
+      </button>
     </nav>
 
     <main>
-      <section id="view-deals" class="view active">
-        <div class="page-head">
-          <div class="eyebrow">Ordering now</div>
-          <h1 class="page-title">Use the right account.</h1>
-          <div class="page-copy">Only accounts you can actually log into are considered for recommendations.</div>
+      <section id="view-home" class="view active">
+        <div class="screen-head">
+          <div class="eyebrow">Ready to order?</div>
+          <h1 class="screen-title">Find the best move.</h1>
+          <div class="screen-copy">Your usable accounts, remaining promo uses and receipt history all feed the recommendation.</div>
         </div>
 
-        <div class="stats-grid">
-          <div class="stat">
+        <div class="stats-row">
+          <div class="stat-card">
             <div class="stat-label">Total saved</div>
             <div id="savedStat" class="stat-value green">£0</div>
             <div class="stat-sub">from receipts</div>
           </div>
-          <div class="stat">
-            <div class="stat-label">Can log in</div>
+          <div class="stat-card">
+            <div class="stat-label">Usable</div>
             <div id="usableStat" class="stat-value">0</div>
             <div class="stat-sub">accounts</div>
           </div>
-          <div class="stat">
-            <div class="stat-label">Active deals</div>
+          <div class="stat-card">
+            <div class="stat-label">Live promos</div>
             <div id="activeStat" class="stat-value">0</div>
-            <div class="stat-sub">usable promos</div>
+            <div class="stat-sub">ready to use</div>
           </div>
         </div>
 
-        <div class="card planner">
-          <label class="field-label" for="basketInput">Basket subtotal</label>
-          <div class="money-input-wrap">
-            <span class="currency">£</span>
-            <input id="basketInput" class="money-input" type="number" min="0" step="0.50" value="50" inputmode="decimal">
+        <section class="hero-card glass">
+          <div class="hero-label">Basket subtotal</div>
+          <div class="basket-line">
+            <span class="basket-currency">£</span>
+            <input id="basketInput" class="basket-input" type="number" min="0" step="0.50" value="50" inputmode="decimal" aria-label="Basket subtotal">
           </div>
 
-          <div class="quick-row">
-            <button class="chip-btn" data-basket="15">£15</button>
-            <button class="chip-btn" data-basket="25">£25</button>
-            <button class="chip-btn" data-basket="40">£40</button>
-            <button class="chip-btn" data-basket="50">£50</button>
+          <div class="quick-baskets">
+            <button class="quick-btn" data-basket="15">£15</button>
+            <button class="quick-btn" data-basket="25">£25</button>
+            <button class="quick-btn" data-basket="40">£40</button>
+            <button class="quick-btn" data-basket="50">£50</button>
           </div>
 
-          <div class="planner-options">
-            <label class="small-field">
-              <span class="field-label">Extra fee / extra order</span>
-              <input id="feeInput" type="number" min="0" step="0.10" value="0">
-            </label>
-            <label class="small-field">
-              <span class="field-label">Max orders</span>
-              <select id="maxOrders">
-                <option value="1">1 order</option>
-                <option value="2">2 orders</option>
-                <option value="3" selected>3 orders</option>
-                <option value="4">4 orders</option>
-              </select>
-            </label>
+          <div id="recommendation" class="recommendation">
+            <div class="empty">Loading your usable promos…</div>
           </div>
 
-          <div id="plannerResult" class="planner-result">
-            <div class="empty">Loading your usable deals…</div>
+          <div class="hero-footer">
+            <button class="advanced-btn" data-open-sheet="advanced">Advanced split settings</button>
+            <div id="feeNote" class="fee-note"></div>
           </div>
-        </div>
+        </section>
 
         <div class="section-head">
           <div>
@@ -964,165 +1358,243 @@
           </div>
         </div>
 
-        <div id="intentGrid" class="intent-grid">
-          <button class="intent active" data-intent="best">
-            <div class="intent-top"><span class="intent-icon">★</span><span id="bestCount" class="intent-count">0</span></div>
-            <div><div class="intent-title">Best deal</div><div class="intent-sub">Strongest usable accounts.</div></div>
+        <div id="quickGrid" class="quick-grid">
+          <button class="quick-card active" data-intent="best">
+            <div class="quick-top"><span class="quick-icon">★</span><span id="bestCount" class="quick-count">0</span></div>
+            <div><div class="quick-title">Best deal</div><div class="quick-sub">Strongest usable account right now.</div></div>
           </button>
-          <button class="intent" data-intent="15off15">
-            <div class="intent-top"><span class="intent-icon">15</span><span id="fifteenCount" class="intent-count">0</span></div>
-            <div><div class="intent-title">£15 off £15</div><div class="intent-sub">Full-value minimum spend deals.</div></div>
+          <button class="quick-card" data-intent="15off15">
+            <div class="quick-top"><span class="quick-icon">15</span><span id="fifteenCount" class="quick-count">0</span></div>
+            <div><div class="quick-title">£15 off £15</div><div class="quick-sub">Full-value minimum-spend offers.</div></div>
           </button>
-          <button class="intent" data-intent="cash">
-            <div class="intent-top"><span class="intent-icon">£</span><span id="cashCount" class="intent-count">0</span></div>
-            <div><div class="intent-title">Uber Cash</div><div class="intent-sub">Usable cash-value accounts.</div></div>
+          <button class="quick-card" data-intent="cash">
+            <div class="quick-top"><span class="quick-icon">£</span><span id="cashCount" class="quick-count">0</span></div>
+            <div><div class="quick-title">Uber Cash</div><div class="quick-sub">Accounts with cash value ready.</div></div>
           </button>
-          <button class="intent" data-intent="multi">
-            <div class="intent-top"><span class="intent-icon">+</span><span id="multiCount" class="intent-count">0</span></div>
-            <div><div class="intent-title">Multiple promos</div><div class="intent-sub">More than one active option.</div></div>
+          <button class="quick-card" data-intent="multi">
+            <div class="quick-top"><span class="quick-icon">×</span><span id="multiCount" class="quick-count">0</span></div>
+            <div><div class="quick-title">Multi-use</div><div class="quick-sub">Promos with more than one order left.</div></div>
           </button>
         </div>
 
         <div class="section-head">
           <div>
-            <div id="dealKicker" class="eyebrow">Best deal</div>
-            <div class="section-title">Accounts to use</div>
+            <div id="accountsKicker" class="eyebrow">Best deal</div>
+            <div class="section-title">Best accounts now</div>
           </div>
-          <div id="dealMeta" class="section-meta"></div>
+          <div id="homeAccountMeta" class="section-meta"></div>
         </div>
 
-        <div id="dealAccounts" class="account-list"></div>
+        <div id="homeAccounts" class="account-list"></div>
 
-        <details id="weakBucket" class="bucket">
+        <details id="weakWrap" class="weak-wrap">
           <summary id="weakSummary">Weaker usable accounts</summary>
-          <div id="weakAccounts" class="bucket-body account-list"></div>
+          <div id="weakAccounts" class="weak-inner account-list"></div>
         </details>
       </section>
 
       <section id="view-accounts" class="view">
-        <div class="page-head">
+        <div class="screen-head">
           <div class="eyebrow">Your logins</div>
-          <h1 class="page-title">Accounts you can use.</h1>
-          <div class="page-copy">Search by the masked email you recognise. Inaccessible accounts stay out of this screen.</div>
+          <h1 class="screen-title">Usable accounts.</h1>
+          <div class="screen-copy">Search by the masked email you recognise. Accounts marked done stay out of this active list.</div>
         </div>
 
         <div class="search-wrap">
-          <input id="accountSearch" class="search-input" type="search" placeholder="Search email…">
+          <input id="accountSearch" class="search-input" type="search" placeholder="Search email…" autocomplete="off">
         </div>
 
-        <div class="seg-row">
-          <button class="seg-btn active" data-account-filter="all">All usable</button>
-          <button class="seg-btn" data-account-filter="offers">With promos</button>
-          <button class="seg-btn" data-account-filter="cash">Uber Cash</button>
+        <div id="accountFilters" class="filter-row">
+          <button class="filter-btn active" data-account-filter="all">All usable</button>
+          <button class="filter-btn" data-account-filter="offers">Has promos</button>
+          <button class="filter-btn" data-account-filter="cash">Uber Cash</button>
+          <button class="filter-btn" data-account-filter="multi">Multi-use</button>
+          <button class="filter-btn" data-account-filter="expiring">Expiring soon</button>
         </div>
 
-        <div id="accountsMeta" class="section-meta" style="text-align:left;margin-bottom:10px;"></div>
+        <div id="accountsMeta" class="section-meta" style="text-align:left;margin:0 2px 10px;"></div>
         <div id="accountsList" class="account-list"></div>
       </section>
 
       <section id="view-used" class="view">
-        <div class="page-head">
-          <div class="eyebrow">Promo state</div>
-          <h1 class="page-title">Used & ignored.</h1>
-          <div class="page-copy">Receipt-confirmed usage is automatic. Manual Used/Ignore choices stay private in this browser.</div>
+        <div class="screen-head">
+          <div class="eyebrow">Activity & state</div>
+          <h1 class="screen-title">Used, done & expired.</h1>
+          <div class="screen-copy">Using one order from a multi-use promo does not remove it. It stays active until its remaining uses reach zero or it expires.</div>
         </div>
 
-        <div id="usedList"></div>
+        <div class="activity-summary">
+          <div class="activity-card"><span>Recent uses</span><strong id="recentUseCount">0</strong></div>
+          <div class="activity-card"><span>Fully used</span><strong id="fullyUsedCount">0</strong></div>
+          <div class="activity-card"><span>Done accounts</span><strong id="doneAccountCount">0</strong></div>
+        </div>
+
+        <div id="recentActivitySection" class="activity-section">
+          <div class="activity-title">Recent / partial usage</div>
+          <div id="recentActivity" class="activity-list"></div>
+        </div>
+
+        <div id="fullyUsedSection" class="activity-section">
+          <div class="activity-title">Fully used</div>
+          <div id="fullyUsedList" class="activity-list"></div>
+        </div>
+
+        <div id="doneAccountsSection" class="activity-section">
+          <div class="activity-title">Accounts marked done</div>
+          <div id="doneAccountsList" class="activity-list"></div>
+        </div>
+
+        <div id="expiredSection" class="activity-section">
+          <div class="activity-title">Expired</div>
+          <div id="expiredList" class="activity-list"></div>
+        </div>
+
+        <div id="ignoredSection" class="activity-section">
+          <div class="activity-title">Ignored offers</div>
+          <div id="ignoredList" class="activity-list"></div>
+        </div>
       </section>
 
-      <section id="view-menu" class="view">
-        <div class="page-head">
+      <section id="view-more" class="view">
+        <div class="screen-head">
           <div class="eyebrow">More</div>
-          <h1 class="page-title">Tracker details.</h1>
+          <h1 class="screen-title">Tracker controls.</h1>
+          <div class="screen-copy">Secondary accounts, savings, history and system information stay out of the ordering flow.</div>
         </div>
 
-        <div class="menu-grid">
-          <button class="menu-card" data-menu-panel="locked">
-            <strong>Can’t access</strong>
-            <span id="lockedMenuCount">0 accounts hidden from recommendations.</span>
+        <div class="more-grid">
+          <button class="more-card" data-open-sheet="locked">
+            <div class="more-icon">×</div>
+            <div class="more-title">Can’t log in</div>
+            <div id="lockedCardCopy" class="more-copy">0 accounts hidden from recommendations.</div>
           </button>
-          <button class="menu-card" data-menu-panel="savings">
-            <strong>Savings</strong>
-            <span>Receipt-based totals and top accounts.</span>
+          <button class="more-card" data-open-sheet="savings">
+            <div class="more-icon">£</div>
+            <div class="more-title">Savings</div>
+            <div class="more-copy">Receipt totals, average savings and strongest accounts.</div>
           </button>
-          <button class="menu-card" data-menu-panel="health">
-            <strong>Scan & data</strong>
-            <span>Mail scan status and account totals.</span>
+          <button class="more-card" data-open-sheet="health">
+            <div class="more-icon">◎</div>
+            <div class="more-title">Scan & data</div>
+            <div class="more-copy">Mail scan health, account totals and receipt coverage.</div>
           </button>
-          <button class="menu-card" data-menu-panel="history">
-            <strong>History</strong>
-            <span>Recent active, used and expired promos.</span>
+          <button class="more-card" data-open-sheet="history">
+            <div class="more-icon">↺</div>
+            <div class="more-title">History</div>
+            <div class="more-copy">Recent active, used and expired offer history.</div>
           </button>
-        </div>
-
-        <div id="panel-locked" class="menu-panel">
-          <div class="section-head">
-            <div><div class="eyebrow">Hidden</div><div class="section-title">Can’t log in</div></div>
-          </div>
-          <input id="lockedSearch" class="search-input" type="search" placeholder="Search inaccessible email…">
-          <div id="lockedList" style="margin-top:8px;"></div>
-        </div>
-
-        <div id="panel-savings" class="menu-panel">
-          <div class="section-head">
-            <div><div class="eyebrow">Receipts</div><div class="section-title">Savings insights</div></div>
-          </div>
-          <div id="savingsInsights"></div>
-        </div>
-
-        <div id="panel-health" class="menu-panel">
-          <div class="section-head">
-            <div><div class="eyebrow">System</div><div class="section-title">Scan & data</div></div>
-          </div>
-          <div id="healthInsights"></div>
-        </div>
-
-        <div id="panel-history" class="menu-panel">
-          <div class="section-head">
-            <div><div class="eyebrow">Timeline</div><div class="section-title">Recent promo history</div></div>
-          </div>
-          <div id="historyList"></div>
         </div>
       </section>
     </main>
 
     <div class="privacy">
-      Full emails, raw Mail content, receipt details and promo codes stay on your Mac.
-      This site receives masked account labels and safe derived totals only.
+      Full emails, raw Mail content, receipt details and promo codes stay private on your Mac.
+      The website receives masked account identities and safe derived totals only.
+    </div>
+  </div>
+
+  <div id="sheetBackdrop" class="sheet-backdrop" aria-hidden="true">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div>
+          <div id="sheetTitle" class="sheet-title">Details</div>
+          <div id="sheetSub" class="sheet-sub"></div>
+        </div>
+        <button id="sheetClose" class="sheet-close" aria-label="Close">×</button>
+      </div>
+      <div id="sheetBody" class="sheet-body"></div>
     </div>
   </div>
 
   <script type="module">
     import {
       planBasketSplit,
-      rankPromosForSpend,
-      savingForSpend
+      rankPromosForSpend
     } from "./deal-intelligence.js";
 
-    const STATE_KEY = "uber-eats-promo-finder:promo-state:v2";
+    import {
+      confirmedUses,
+      consumeManualUse,
+      effectivePromoState,
+      effectiveRemainingUses,
+      isAccountDone,
+      manualActivity,
+      normaliseManualStore,
+      pendingManualUses,
+      promoForDecision,
+      promoStateKey,
+      setAccountDone,
+      setOfferDone,
+      setOfferIgnored,
+      undoManualUse
+    } from "./manual-state.js";
+
+    const STATE_KEY = "uber-eats-promo-tracker:manual-state:v3";
+    const LEGACY_STATE_KEY = "uber-eats-promo-finder:promo-state:v2";
+    const SETTINGS_KEY = "uber-eats-promo-tracker:planner-settings:v1";
 
     let payload = {};
     let promos = [];
     let accounts = [];
     let history = [];
-    let currentView = "deals";
+    let currentView = "home";
     let currentIntent = "best";
     let accountFilter = "all";
-    let menuPanel = null;
-    let localStates = readLocalStates();
-    let feeTouched = false;
+    let manualStore = readManualStore();
+    let plannerSettings = readPlannerSettings();
+    let openSheetType = null;
+    let openAccountRef = null;
 
-    function readLocalStates() {
+    function readManualStore() {
       try {
-        return JSON.parse(localStorage.getItem(STATE_KEY) || "{}");
+        const current = localStorage.getItem(STATE_KEY);
+        if (current) return normaliseManualStore(JSON.parse(current));
+
+        const old = JSON.parse(localStorage.getItem(LEGACY_STATE_KEY) || "{}");
+        const migrated = normaliseManualStore();
+
+        for (const [id, state] of Object.entries(old)) {
+          if (state === "ignored") {
+            migrated.offers[id] = { ignored: true };
+          } else if (state === "used") {
+            migrated.offers[id] = { forceDone: true };
+          }
+        }
+
+        return migrated;
       } catch {
-        return {};
+        return normaliseManualStore();
       }
     }
 
-    function saveLocalStates() {
+    function saveManualStore() {
       try {
-        localStorage.setItem(STATE_KEY, JSON.stringify(localStates));
+        localStorage.setItem(STATE_KEY, JSON.stringify(manualStore));
+      } catch {}
+    }
+
+    function readPlannerSettings() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+        return {
+          maxOrders: [1,2,3,4].includes(Number(stored.maxOrders))
+            ? Number(stored.maxOrders)
+            : 3,
+          extraOrderFee:
+            Number.isFinite(Number(stored.extraOrderFee))
+              ? Math.max(0, Number(stored.extraOrderFee))
+              : null,
+          feeTouched: Boolean(stored.feeTouched)
+        };
+      } catch {
+        return { maxOrders: 3, extraOrderFee: null, feeTouched: false };
+      }
+    }
+
+    function savePlannerSettings() {
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(plannerSettings));
       } catch {}
     }
 
@@ -1142,27 +1614,28 @@
       });
     }
 
-    function parseDateOnly(value, endOfDay = false) {
+    function parseDateOnly(value, end = false) {
       if (!value) return null;
       const parts = String(value).split("-").map(Number);
-      if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
 
-      return new Date(
-        parts[0],
-        parts[1] - 1,
-        parts[2],
-        endOfDay ? 23 : 12,
-        endOfDay ? 59 : 0,
-        endOfDay ? 59 : 0
-      );
+      if (parts.length === 3 && !parts.some(Number.isNaN)) {
+        return new Date(
+          parts[0],
+          parts[1] - 1,
+          parts[2],
+          end ? 23 : 12,
+          end ? 59 : 0,
+          end ? 59 : 0
+        );
+      }
+
+      const parsed = new Date(value);
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
     }
 
     function formatDate(value) {
-      const date = String(value || "").includes("T")
-        ? new Date(value)
-        : parseDateOnly(value);
-
-      if (!date || Number.isNaN(date.getTime())) return null;
+      const date = parseDateOnly(value);
+      if (!date) return null;
 
       return date.toLocaleDateString("en-GB", {
         day: "numeric",
@@ -1170,49 +1643,24 @@
       });
     }
 
-    function promoId(promo) {
-      return promo.id || [
-        promo.accountRef,
-        promo.discountType,
-        promo.discount,
-        promo.minimumSpend,
-        promo.expires
-      ].join("|");
-    }
-
-    function localState(promo) {
-      return localStates[promoId(promo)] || null;
-    }
-
-    function effectiveState(promo) {
-      if (promo.receiptState === "used" || Number(promo.usesRemaining) === 0) {
-        return "used";
-      }
-
-      return localState(promo) || "active";
+    function daysUntil(value) {
+      const date = parseDateOnly(value, true);
+      if (!date) return null;
+      return Math.ceil((date.getTime() - Date.now()) / (24 * 60 * 60 * 1000));
     }
 
     function isExpired(promo) {
-      if (!promo.expires) return false;
-      const expiry = parseDateOnly(promo.expires, true);
-      return expiry ? expiry < new Date() : false;
+      const days = daysUntil(promo.expires);
+      return days != null && days < 0;
     }
 
-    function activePromo(promo) {
-      return (
-        promo.service === "Uber Eats" &&
-        !isExpired(promo) &&
-        effectiveState(promo) === "active" &&
-        Number(promo.usesRemaining ?? promo.uses ?? 1) > 0
-      );
+    function isExpiringSoon(promo) {
+      const days = daysUntil(promo.expires);
+      return days != null && days >= 0 && days <= 3;
     }
 
-    function usablePromos() {
-      return promos.filter(promo => activePromo(promo) && promo.canLogin === true);
-    }
-
-    function accountDisplay(accountOrPromo) {
-      return accountOrPromo.accountMasked || "Account";
+    function accountDisplay(value) {
+      return value?.accountMasked || "Account";
     }
 
     function promoLabel(promo) {
@@ -1222,33 +1670,75 @@
       return "Offer";
     }
 
-    function promoMeta(promo) {
+    function serverPromoMeta(promo) {
       const bits = [];
 
-      if (promo.minimumSpend) bits.push(money(promo.minimumSpend) + " min");
+      if (promo.minimumSpend) bits.push(money(promo.minimumSpend) + " minimum");
       if (promo.maxSaving) bits.push(money(promo.maxSaving) + " max");
 
-      const totalUses = Number(promo.uses || 1);
-      const remaining = Number(promo.usesRemaining ?? totalUses);
-      if (totalUses > 1) bits.push(remaining + "/" + totalUses + " uses left");
-
       if (promo.expires) {
-        const expiry = formatDate(promo.expires);
-        if (expiry) bits.push("Ends " + expiry);
-      } else if (promo.expiryStatus === "unknown") {
+        const date = formatDate(promo.expires);
+        if (date) bits.push("Ends " + date);
+      } else {
         bits.push("Expiry unknown");
       }
-
-      if (promo.receiptState === "partial") bits.push("Receipt-confirmed use");
 
       return bits.join(" · ");
     }
 
-    function accountPromos(ref, { includeInactive = false } = {}) {
-      return promos.filter(promo =>
-        promo.accountRef === ref &&
-        (includeInactive || activePromo(promo))
+    function effectivePromo(promo) {
+      return promoForDecision(manualStore, promo);
+    }
+
+    function isPromoActive(promo) {
+      return (
+        promo.service === "Uber Eats" &&
+        !isExpired(promo) &&
+        effectivePromoState(manualStore, promo) === "active" &&
+        effectiveRemainingUses(manualStore, promo) > 0
       );
+    }
+
+    function isAccountActive(accountRef) {
+      return !isAccountDone(manualStore, accountRef);
+    }
+
+    function decisionPromos() {
+      return promos
+        .filter(promo => promo.service === "Uber Eats" && !isExpired(promo))
+        .map(promo => {
+          const decision = effectivePromo(promo);
+          return {
+            ...decision,
+            canLogin: Boolean(promo.canLogin) && isAccountActive(promo.accountRef)
+          };
+        });
+    }
+
+    function activePromosForAccount(accountRef) {
+      if (!isAccountActive(accountRef)) return [];
+      return promos
+        .filter(promo => promo.accountRef === accountRef)
+        .filter(isPromoActive)
+        .map(effectivePromo);
+    }
+
+    function allPromosForAccount(accountRef) {
+      return promos.filter(promo => promo.accountRef === accountRef);
+    }
+
+    function currentBasket() {
+      return Math.max(0, Number(document.getElementById("basketInput")?.value || 0));
+    }
+
+    function bestForAccount(account, basket = currentBasket()) {
+      const items = activePromosForAccount(account.accountRef);
+
+      return rankPromosForSpend(items, basket, {
+        service: "Uber Eats",
+        accountRef: account.accountRef,
+        accessibleOnly: false
+      })[0] || null;
     }
 
     function is15off15(promo) {
@@ -1259,35 +1749,25 @@
       );
     }
 
-    function currentBasket() {
-      return Number(document.getElementById("basketInput")?.value || 0);
-    }
-
-    function bestForAccount(account, spend = currentBasket()) {
-      return rankPromosForSpend(accountPromos(account.accountRef), spend, {
-        service: "Uber Eats",
-        accountRef: account.accountRef,
-        accessibleOnly: false
-      })[0] || null;
-    }
-
-    function enrichedUsableAccounts() {
+    function enrichedUsableAccounts({ includeDone = false } = {}) {
       return accounts
         .filter(account => account.canLogin === true)
+        .filter(account => includeDone || isAccountActive(account.accountRef))
         .map(account => {
-          const current = accountPromos(account.accountRef);
+          const current = activePromosForAccount(account.accountRef);
           return {
             ...account,
             promos: current,
             promoCount: current.length,
             hasCash: current.some(promo => promo.discountType === "uberCash"),
             has15off15: current.some(is15off15),
+            hasMultiUse: current.some(promo => effectiveRemainingUses(manualStore, promo) > 1),
             bestNow: bestForAccount(account)
           };
         });
     }
 
-    function filteredDealAccounts() {
+    function homeAccountsByIntent() {
       let list = enrichedUsableAccounts().filter(account => account.promoCount > 0);
 
       if (currentIntent === "15off15") {
@@ -1295,14 +1775,14 @@
       } else if (currentIntent === "cash") {
         list = list.filter(account => account.hasCash);
       } else if (currentIntent === "multi") {
-        list = list.filter(account => account.promoCount > 1);
+        list = list.filter(account => account.hasMultiUse);
       }
 
       return list.sort((a, b) => {
-        const aSaving = a.bestNow?.calculation?.saving || 0;
-        const bSaving = b.bestNow?.calculation?.saving || 0;
+        const saveA = a.bestNow?.calculation?.saving || 0;
+        const saveB = b.bestNow?.calculation?.saving || 0;
 
-        if (bSaving !== aSaving) return bSaving - aSaving;
+        if (saveB !== saveA) return saveB - saveA;
         if (b.promoCount !== a.promoCount) return b.promoCount - a.promoCount;
 
         return String(b.lastPromoAt || "").localeCompare(String(a.lastPromoAt || ""));
@@ -1310,32 +1790,46 @@
     }
 
     function weakAccount(account, strongest) {
-      if (currentIntent !== "best") return false;
-      if (account.has15off15 || account.hasCash || account.promoCount > 1) return false;
-      if (!strongest) return false;
+      if (currentIntent !== "best" || !strongest) return false;
+      if (account.has15off15 || account.hasCash || account.hasMultiUse || account.promoCount > 1) return false;
 
-      const strongSaving = strongest.bestNow?.calculation?.saving || 0;
-      const saving = account.bestNow?.calculation?.saving || 0;
+      const best = Number(account.bestNow?.calculation?.saving || 0);
+      const strongestSaving = Number(strongest.bestNow?.calculation?.saving || 0);
 
-      return saving <= 4 || (strongSaving > 0 && saving < strongSaving * 0.45);
+      return best <= 4 || (strongestSaving > 0 && best < strongestSaving * .45);
+    }
+
+    function effectiveFee() {
+      const learned = Number(
+        payload?.summary?.feeModel?.averageExtraOrderFees ??
+        payload?.summary?.averageExtraOrderFees ??
+        0
+      );
+
+      if (!plannerSettings.feeTouched && plannerSettings.extraOrderFee == null) {
+        return Number.isFinite(learned) ? Math.max(0, learned) : 0;
+      }
+
+      return Math.max(0, Number(plannerSettings.extraOrderFee || 0));
     }
 
     function renderStatus() {
       const pill = document.getElementById("scanPill");
       const label = document.getElementById("scanLabel");
       const time = document.getElementById("scanTime");
+      const demo = document.getElementById("demoStrip");
 
       pill.classList.remove("live", "demo", "stale");
 
       if (payload.demo) {
         pill.classList.add("demo");
         label.textContent = "DEMO";
-        time.textContent = "Waiting for live Mac data";
-        document.getElementById("demoNotice").style.display = "block";
+        time.textContent = "Preview data";
+        demo.style.display = "flex";
         return;
       }
 
-      document.getElementById("demoNotice").style.display = "none";
+      demo.style.display = "none";
 
       const generated = payload.generatedAt ? new Date(payload.generatedAt) : null;
       const stale =
@@ -1347,7 +1841,7 @@
       label.textContent = stale ? "STALE" : "LIVE";
       time.textContent =
         generated && !Number.isNaN(generated.getTime())
-          ? "Scanned " + generated.toLocaleString("en-GB", {
+          ? generated.toLocaleString("en-GB", {
               day: "numeric",
               month: "short",
               hour: "2-digit",
@@ -1358,178 +1852,174 @@
 
     function renderStats() {
       const summary = payload.summary || {};
-      const usable = accounts.filter(account => account.canLogin).length;
-      const active = usablePromos().length;
+      const usable = accounts.filter(account => account.canLogin && isAccountActive(account.accountRef)).length;
+      const live = promos.filter(promo => promo.canLogin && isAccountActive(promo.accountRef) && isPromoActive(promo)).length;
 
       document.getElementById("savedStat").textContent = money(summary.totalSaved || 0);
       document.getElementById("usableStat").textContent = usable.toLocaleString("en-GB");
-      document.getElementById("activeStat").textContent = active.toLocaleString("en-GB");
-      document.getElementById("lockedMenuCount").textContent =
-        accounts.filter(account => !account.canLogin).length.toLocaleString("en-GB") +
-        " accounts hidden from recommendations.";
+      document.getElementById("activeStat").textContent = live.toLocaleString("en-GB");
 
-      const fee = Number(summary?.feeModel?.averageExtraOrderFees ?? summary.averageExtraOrderFees);
-      if (!feeTouched && Number.isFinite(fee) && fee > 0) {
-        document.getElementById("feeInput").value = fee.toFixed(2);
-      }
+      const fee = effectiveFee();
+      document.getElementById("feeNote").textContent =
+        fee > 0
+          ? "Using " + money(fee) + " estimated extra-order cost"
+          : "No extra-order cost estimate";
     }
 
-    function renderPlanner() {
-      const target = document.getElementById("plannerResult");
-      const subtotal = currentBasket();
-      const extraOrderFee = Number(document.getElementById("feeInput").value || 0);
-      const maxOrders = Number(document.getElementById("maxOrders").value || 3);
+    function renderRecommendation() {
+      const target = document.getElementById("recommendation");
 
-      if (!accounts.some(account => account.canLogin)) {
+      if (!accounts.some(account => account.canLogin && isAccountActive(account.accountRef))) {
         target.innerHTML =
-          '<div class="empty">No accounts are marked <strong>Can log in</strong> yet. Import your access list on the Mac and the optimiser will switch on.</div>';
+          '<div class="empty">No accounts are marked usable yet. Once your Mac imports the login list, recommendations will appear here.</div>';
         return;
       }
 
-      const excludedIds = promos
-        .filter(promo => effectiveState(promo) !== "active")
-        .map(promoId);
-
-      const plan = planBasketSplit(promos, subtotal, {
-        service: "Uber Eats",
-        maxOrders,
-        extraOrderFee,
-        excludedIds,
-        accessibleOnly: true
-      });
+      const plan = planBasketSplit(
+        decisionPromos(),
+        currentBasket(),
+        {
+          service: "Uber Eats",
+          maxOrders: plannerSettings.maxOrders,
+          extraOrderFee: effectiveFee(),
+          accessibleOnly: true
+        }
+      );
 
       if (!plan.eligible) {
         target.innerHTML =
-          '<div class="empty">' + escapeHtml(plan.reason || "No usable plan for this basket.") + '</div>';
+          '<div class="empty">' + escapeHtml(plan.reason || "No usable offer fits this basket.") + '</div>';
         return;
       }
 
-      const steps = plan.orders.map((order, index) => (
-        '<div class="plan-step">' +
-          '<div class="step-number">' + (index + 1) + '</div>' +
+      const comparison =
+        plan.benefitVsSingle > .009
+          ? money(plan.benefitVsSingle) + " better than one order"
+          : "Best result without unnecessary extra orders";
+
+      const rows = plan.orders.map((order, index) => (
+        '<div class="plan-row">' +
+          '<div class="plan-number">' + (index + 1) + '</div>' +
           '<div>' +
-            '<div class="step-account">' + escapeHtml(accountDisplay(order)) + '</div>' +
-            '<div class="step-promo">' +
+            '<div class="plan-account">' + escapeHtml(accountDisplay(order)) + '</div>' +
+            '<div class="plan-promo">' +
               escapeHtml(order.promo.title || promoLabel(order.promo)) +
-              ' · put about ' + escapeHtml(money(order.subtotal)) + ' here' +
+              ' · about ' + escapeHtml(money(order.subtotal)) +
             '</div>' +
           '</div>' +
-          '<div class="step-saving">-' + escapeHtml(money(order.saving)) + '</div>' +
+          '<div class="plan-saving">-' + escapeHtml(money(order.saving)) + '</div>' +
         '</div>'
       )).join("");
 
-      const comparison = plan.benefitVsSingle > 0.009
-        ? money(plan.benefitVsSingle) + " better than one order"
-        : "Splitting does not meaningfully beat one order";
-
       target.innerHTML =
-        '<div class="plan-top">' +
+        '<div class="recommendation-top">' +
           '<div>' +
-            '<div class="plan-title">Use ' + plan.accountCount +
-              (plan.accountCount === 1 ? ' account' : ' accounts') +
-              ' · ' + plan.orderCount + (plan.orderCount === 1 ? ' order' : ' orders') +
-            '</div>' +
-            '<div class="plan-copy">' + escapeHtml(comparison) + '</div>' +
+            '<div class="recommendation-title">Best move · ' + plan.orderCount +
+              (plan.orderCount === 1 ? ' order' : ' orders') + '</div>' +
+            '<div class="recommendation-copy">' + escapeHtml(comparison) + '</div>' +
           '</div>' +
-          '<div class="plan-save">Save ' + escapeHtml(money(plan.netSaving)) +
-            '<small>after extra split fees</small>' +
+          '<div class="recommendation-save">Save ' + escapeHtml(money(plan.netSaving)) +
+            '<small>after estimated split costs</small>' +
           '</div>' +
         '</div>' +
-        '<div class="plan-steps">' + steps + '</div>';
+        '<div class="plan-list">' + rows + '</div>';
+    }
+
+    function offerUsePill(promo) {
+      const total = Math.max(1, Number(promo.uses || 1));
+      const remaining = effectiveRemainingUses(manualStore, promo);
+
+      if (total > 1) {
+        return '<span class="pill good">' + remaining + ' of ' + total + ' uses left</span>';
+      }
+
+      return "";
     }
 
     function accountCard(account, index = 0) {
-      const accountOffers = account.promos || accountPromos(account.accountRef);
       const best = account.bestNow || bestForAccount(account);
-      const badges = [];
+      const current = account.promos || activePromosForAccount(account.accountRef);
+      const pills = [];
 
-      if (index === 0 && currentIntent === "best") badges.push('<span class="badge good">Best now</span>');
-      if (accountOffers.some(is15off15)) badges.push('<span class="badge">£15 off £15</span>');
-      if (accountOffers.some(p => p.discountType === "uberCash")) badges.push('<span class="badge">Uber Cash</span>');
-      if (accountOffers.length > 1) badges.push('<span class="badge">' + accountOffers.length + ' promos</span>');
-      if (account.lastOrderAt) {
-        const last = formatDate(account.lastOrderAt);
-        if (last) badges.push('<span class="badge">Ordered ' + escapeHtml(last) + '</span>');
+      if (index === 0 && currentIntent === "best") {
+        pills.push('<span class="pill good">Best now</span>');
       }
 
-      const bestTitle =
+      if (current.some(is15off15)) pills.push('<span class="pill">£15 off £15</span>');
+      if (current.some(promo => promo.discountType === "uberCash")) pills.push('<span class="pill">Uber Cash</span>');
+
+      const multi = current.find(promo => effectiveRemainingUses(manualStore, promo) > 1);
+      if (multi) pills.push(offerUsePill(multi));
+
+      if (current.length > 1) pills.push('<span class="pill">' + current.length + ' live promos</span>');
+
+      if (account.lastOrderAt) {
+        const date = formatDate(account.lastOrderAt);
+        if (date) pills.push('<span class="pill">Ordered ' + escapeHtml(date) + '</span>');
+      }
+
+      const headline =
         best?.promo?.title ||
-        accountOffers[0]?.title ||
-        (account.activePromoCount ? account.activePromoCount + " active promos" : "No active promos");
+        current[0]?.title ||
+        "No active promos";
 
-      const saveBlock = best
-        ? '<div class="save-now">-' + escapeHtml(money(best.calculation.saving)) + '<small>on ' + escapeHtml(money(currentBasket())) + '</small></div>'
-        : '<div class="save-now" style="color:var(--muted)">' + accountOffers.length + '<small>active promos</small></div>';
-
-      const offers = accountOffers.map(promo => (
-        '<div class="offer">' +
-          '<div class="offer-row">' +
-            '<div>' +
-              '<div class="offer-title">' + escapeHtml(promo.title || promoLabel(promo)) + '</div>' +
-              '<div class="offer-meta">' + escapeHtml(promoMeta(promo)) + '</div>' +
-            '</div>' +
-            '<div class="offer-value">' + escapeHtml(promoLabel(promo)) + '</div>' +
-          '</div>' +
-          '<div class="actions">' +
-            '<button class="mini-btn used" data-promo-state="used" data-promo-id="' + escapeHtml(promoId(promo)) + '">Used</button>' +
-            '<button class="mini-btn ignore" data-promo-state="ignored" data-promo-id="' + escapeHtml(promoId(promo)) + '">Ignore</button>' +
-          '</div>' +
-        '</div>'
-      )).join("");
+      const save =
+        best
+          ? '<div class="save-now">-' + escapeHtml(money(best.calculation.saving)) +
+              '<small>on ' + escapeHtml(money(currentBasket())) + '</small></div>'
+          : '<div class="save-now" style="color:var(--muted)">—<small>no eligible saving</small></div>';
 
       return (
         '<article class="account-card">' +
-          '<div class="account-main">' +
-            '<div class="account-top">' +
-              '<div>' +
-                '<div class="account-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
-                '<div class="account-caption">' + escapeHtml(bestTitle) + '</div>' +
-              '</div>' +
-              saveBlock +
+          '<div class="account-top">' +
+            '<div style="min-width:0">' +
+              '<div class="account-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
+              '<div class="account-offer">' + escapeHtml(headline) + '</div>' +
             '</div>' +
-            '<div class="badges">' + badges.join("") + '</div>' +
-            (accountOffers.length
-              ? '<details class="offers-details"><summary>View all offers</summary><div class="offer-list">' + offers + '</div>' +
-                '<div class="actions"><button class="mini-btn" data-account-done="' + escapeHtml(account.accountRef) + '">Mark account done</button></div></details>'
-              : '') +
+            save +
+          '</div>' +
+          '<div class="pill-row">' + pills.join("") + '</div>' +
+          '<div class="account-actions">' +
+            '<button class="ghost-btn" data-account-offers="' + escapeHtml(account.accountRef) + '">View offers</button>' +
+            '<button class="ghost-btn done-btn" data-account-done="' + escapeHtml(account.accountRef) + '">Done</button>' +
           '</div>' +
         '</article>'
       );
     }
 
-    function renderIntentCounts() {
+    function renderQuickCounts() {
       const list = enrichedUsableAccounts().filter(account => account.promoCount > 0);
 
       document.getElementById("bestCount").textContent = list.length;
       document.getElementById("fifteenCount").textContent = list.filter(account => account.has15off15).length;
       document.getElementById("cashCount").textContent = list.filter(account => account.hasCash).length;
-      document.getElementById("multiCount").textContent = list.filter(account => account.promoCount > 1).length;
+      document.getElementById("multiCount").textContent = list.filter(account => account.hasMultiUse).length;
     }
 
-    function renderDeals() {
-      const list = filteredDealAccounts();
-      const strongest = list[0] || null;
-      const weak = list.filter(account => weakAccount(account, strongest));
-      const strong = list.filter(account => !weakAccount(account, strongest));
+    function renderHomeAccounts() {
+      const all = homeAccountsByIntent();
+      const strongest = all[0] || null;
+      const weak = all.filter(account => weakAccount(account, strongest));
+      const strong = all.filter(account => !weakAccount(account, strongest));
 
-      const labels = {
+      const names = {
         best: "Best deal",
         "15off15": "£15 off £15",
         cash: "Uber Cash",
-        multi: "Multiple promos"
+        multi: "Multi-use"
       };
 
-      document.getElementById("dealKicker").textContent = labels[currentIntent];
-      document.getElementById("dealMeta").textContent =
-        list.length + (list.length === 1 ? " usable account" : " usable accounts");
+      document.getElementById("accountsKicker").textContent = names[currentIntent];
+      document.getElementById("homeAccountMeta").textContent =
+        all.length + (all.length === 1 ? " usable account" : " usable accounts");
 
-      document.getElementById("dealAccounts").innerHTML =
+      document.getElementById("homeAccounts").innerHTML =
         strong.length
           ? strong.slice(0, 8).map((account, index) => accountCard(account, index)).join("")
           : '<div class="empty">No usable account matches this category right now.</div>';
 
-      const bucket = document.getElementById("weakBucket");
-      bucket.style.display = weak.length ? "block" : "none";
+      const wrap = document.getElementById("weakWrap");
+      wrap.style.display = weak.length ? "block" : "none";
       document.getElementById("weakSummary").textContent =
         "Weaker usable accounts · " + weak.length;
       document.getElementById("weakAccounts").innerHTML =
@@ -1538,11 +2028,16 @@
 
     function renderAccounts() {
       const search = String(document.getElementById("accountSearch").value || "").trim().toLowerCase();
-
       let list = enrichedUsableAccounts();
 
       if (accountFilter === "offers") list = list.filter(account => account.promoCount > 0);
       if (accountFilter === "cash") list = list.filter(account => account.hasCash);
+      if (accountFilter === "multi") list = list.filter(account => account.hasMultiUse);
+      if (accountFilter === "expiring") {
+        list = list.filter(account =>
+          account.promos.some(promo => isExpiringSoon(promo))
+        );
+      }
 
       if (search) {
         list = list.filter(account =>
@@ -1551,7 +2046,9 @@
       }
 
       list.sort((a, b) => {
-        if (b.promoCount !== a.promoCount) return b.promoCount - a.promoCount;
+        const saveA = a.bestNow?.calculation?.saving || 0;
+        const saveB = b.bestNow?.calculation?.saving || 0;
+        if (saveB !== saveA) return saveB - saveA;
         return String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || ""));
       });
 
@@ -1561,141 +2058,438 @@
       document.getElementById("accountsList").innerHTML =
         list.length
           ? list.map(account => accountCard(account)).join("")
-          : '<div class="empty">No accessible account matches this filter.</div>';
+          : '<div class="empty">No usable account matches this filter.</div>';
+    }
+
+    function activityRow(promo, meta, actionHtml = "") {
+      return (
+        '<div class="activity-row">' +
+          '<div style="min-width:0">' +
+            '<div class="activity-email">' + escapeHtml(accountDisplay(promo)) + '</div>' +
+            '<div class="activity-meta">' + escapeHtml(meta) + '</div>' +
+          '</div>' +
+          actionHtml +
+        '</div>'
+      );
     }
 
     function renderUsed() {
-      const used = promos.filter(promo => effectiveState(promo) !== "active");
+      const recent = [];
+      const fullyUsed = [];
+      const expired = [];
+      const ignored = [];
 
-      if (!used.length) {
-        document.getElementById("usedList").innerHTML =
-          '<div class="empty">Nothing used or ignored yet.</div>';
-        return;
+      for (const promo of promos.filter(p => p.service === "Uber Eats")) {
+        const activity = manualActivity(manualStore, promo);
+        const confirmed = confirmedUses(promo);
+        const total = Math.max(1, Number(promo.uses || 1));
+        const remaining = effectiveRemainingUses(manualStore, promo);
+
+        if (activity.ignored) {
+          ignored.push(promo);
+          continue;
+        }
+
+        if (isExpired(promo) && activity.effectiveState !== "used") {
+          expired.push(promo);
+          continue;
+        }
+
+        if (activity.effectiveState === "used") {
+          fullyUsed.push(promo);
+          continue;
+        }
+
+        if (confirmed > 0 || activity.pendingManualUses > 0) {
+          recent.push(promo);
+        }
       }
 
-      document.getElementById("usedList").innerHTML = used.map(promo => {
-        const locked = promo.receiptState === "used" || Number(promo.usesRemaining) === 0;
-        const state = locked ? "Receipt confirmed" : localState(promo);
+      const doneAccounts = accounts.filter(account =>
+        isAccountDone(manualStore, account.accountRef)
+      );
 
-        return (
-          '<div class="simple-row">' +
-            '<div>' +
-              '<div class="simple-title">' + escapeHtml(accountDisplay(promo)) + '</div>' +
-              '<div class="simple-meta">' + escapeHtml(promo.title || promoLabel(promo)) + ' · ' + escapeHtml(state || "used") + '</div>' +
-            '</div>' +
-            (locked
-              ? '<span class="badge good">Confirmed</span>'
-              : '<button class="mini-btn" data-promo-state="active" data-promo-id="' + escapeHtml(promoId(promo)) + '">Undo</button>') +
-          '</div>'
+      document.getElementById("recentUseCount").textContent = recent.length;
+      document.getElementById("fullyUsedCount").textContent = fullyUsed.length;
+      document.getElementById("doneAccountCount").textContent = doneAccounts.length;
+
+      const renderRecent = recent.map(promo => {
+        const total = Math.max(1, Number(promo.uses || 1));
+        const remaining = effectiveRemainingUses(manualStore, promo);
+        const used = Math.max(0, total - remaining);
+        const pending = pendingManualUses(manualStore, promo);
+        const suffix = pending > 0 ? " · " + pending + " awaiting receipt" : "";
+
+        return activityRow(
+          promo,
+          (promo.title || promoLabel(promo)) + " · " + used + " of " + total +
+          " used · " + remaining + " left" + suffix,
+          '<button class="restore-btn" data-account-offers="' + escapeHtml(promo.accountRef) + '">Open</button>'
         );
       }).join("");
-    }
 
-    function renderLocked() {
-      const search = String(document.getElementById("lockedSearch").value || "").trim().toLowerCase();
-      let list = accounts.filter(account => !account.canLogin);
+      document.getElementById("recentActivity").innerHTML =
+        renderRecent || '<div class="empty">No partial-use activity yet.</div>';
 
-      if (search) {
-        list = list.filter(account =>
-          String(account.accountMasked || "").toLowerCase().includes(search)
-        );
-      }
+      document.getElementById("fullyUsedList").innerHTML =
+        fullyUsed.length
+          ? fullyUsed.map(promo =>
+              activityRow(
+                promo,
+                (promo.title || promoLabel(promo)) + " · fully used",
+                promo.receiptState === "used"
+                  ? '<span class="pill good">Receipt confirmed</span>'
+                  : '<button class="restore-btn" data-restore-offer="' + escapeHtml(promoStateKey(promo)) + '">Restore</button>'
+              )
+            ).join("")
+          : '<div class="empty">No fully used offers yet.</div>';
 
-      document.getElementById("lockedList").innerHTML =
-        list.length
-          ? list.map(account => (
-              '<div class="simple-row">' +
-                '<div>' +
-                  '<div class="simple-title">' + escapeHtml(accountDisplay(account)) + '</div>' +
-                  '<div class="simple-meta">' +
-                    Number(account.activePromoCount || 0) + ' active promos · last seen ' +
-                    escapeHtml(formatDate(account.lastSeenAt) || "unknown") +
-                  '</div>' +
-                '</div>' +
-                '<span class="badge warn">Can’t log in</span>' +
+      document.getElementById("doneAccountsList").innerHTML =
+        doneAccounts.length
+          ? doneAccounts.map(account => (
+              '<div class="activity-row">' +
+                '<div><div class="activity-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
+                '<div class="activity-meta">Account manually marked done</div></div>' +
+                '<button class="restore-btn" data-restore-account="' + escapeHtml(account.accountRef) + '">Restore</button>' +
               '</div>'
             )).join("")
+          : '<div class="empty">No accounts marked done.</div>';
+
+      document.getElementById("expiredList").innerHTML =
+        expired.length
+          ? expired.map(promo =>
+              activityRow(
+                promo,
+                (promo.title || promoLabel(promo)) + " · expired " +
+                escapeHtml(formatDate(promo.expires) || "")
+              )
+            ).join("")
+          : '<div class="empty">No expired offers in the current snapshot.</div>';
+
+      document.getElementById("ignoredList").innerHTML =
+        ignored.length
+          ? ignored.map(promo =>
+              activityRow(
+                promo,
+                (promo.title || promoLabel(promo)) + " · ignored",
+                '<button class="restore-btn" data-unignore-offer="' + escapeHtml(promoStateKey(promo)) + '">Restore</button>'
+              )
+            ).join("")
+          : '<div class="empty">No ignored offers.</div>';
+    }
+
+    function renderMore() {
+      const locked = accounts.filter(account => !account.canLogin).length;
+      document.getElementById("lockedCardCopy").textContent =
+        locked.toLocaleString("en-GB") +
+        (locked === 1 ? " account hidden from recommendations." : " accounts hidden from recommendations.");
+    }
+
+    function offerSheetCard(promo) {
+      const total = Math.max(1, Number(promo.uses || 1));
+      const remaining = effectiveRemainingUses(manualStore, promo);
+      const used = Math.max(0, total - remaining);
+      const confirmed = confirmedUses(promo);
+      const pending = pendingManualUses(manualStore, promo);
+      const activity = manualActivity(manualStore, promo);
+      const progress = Math.max(0, Math.min(100, (used / total) * 100));
+      const state = effectivePromoState(manualStore, promo);
+
+      let status = "";
+      if (activity.ignored) status = '<span class="pill warn">Ignored</span>';
+      else if (promo.receiptState === "used") status = '<span class="pill good">Receipt confirmed</span>';
+      else if (state === "used") status = '<span class="pill">Fully used</span>';
+      else if (pending > 0) status = '<span class="pill good">' + pending + ' awaiting receipt</span>';
+
+      const useButtonDisabled = remaining <= 0 || activity.ignored || state === "used";
+      const undoDisabled = pending <= 0;
+
+      return (
+        '<div class="offer-card">' +
+          '<div class="offer-top">' +
+            '<div style="min-width:0">' +
+              '<div class="offer-name">' + escapeHtml(promo.title || promoLabel(promo)) + '</div>' +
+              '<div class="offer-details">' + escapeHtml(serverPromoMeta(promo)) + '</div>' +
+            '</div>' +
+            '<div class="offer-value">' + escapeHtml(promoLabel(promo)) + '</div>' +
+          '</div>' +
+          '<div class="pill-row">' + status +
+            (confirmed > 0 ? '<span class="pill">' + confirmed + ' receipt-confirmed</span>' : '') +
+          '</div>' +
+          '<div class="use-progress">' +
+            '<div class="use-line"><span>' + used + ' of ' + total + ' used</span><span>' + remaining + ' left</span></div>' +
+            '<div class="progress-track"><div class="progress-fill" style="width:' + progress + '%"></div></div>' +
+          '</div>' +
+          '<div class="offer-actions">' +
+            '<button class="action-btn primary" data-use-one="' + escapeHtml(promoStateKey(promo)) + '"' +
+              (useButtonDisabled ? ' disabled' : '') + '>Used 1 order</button>' +
+            '<button class="action-btn" data-undo-use="' + escapeHtml(promoStateKey(promo)) + '"' +
+              (undoDisabled ? ' disabled' : '') + '>Undo manual use</button>' +
+          '</div>' +
+          '<div class="offer-more">' +
+            (activity.ignored
+              ? '<button class="action-btn warning" data-toggle-ignore="' + escapeHtml(promoStateKey(promo)) + '" data-ignore="false">Restore offer</button>'
+              : '<button class="action-btn warning" data-toggle-ignore="' + escapeHtml(promoStateKey(promo)) + '" data-ignore="true">Ignore offer</button>') +
+            (state === "used" && promo.receiptState !== "used"
+              ? '<button class="action-btn" data-mark-offer-done="' + escapeHtml(promoStateKey(promo)) + '" data-done="false">Restore uses</button>'
+              : '<button class="action-btn danger" data-mark-offer-done="' + escapeHtml(promoStateKey(promo)) + '" data-done="true">Mark fully used</button>') +
+          '</div>' +
+        '</div>'
+      );
+    }
+
+    function openAccountSheet(accountRef) {
+      const account = accounts.find(item => item.accountRef === accountRef);
+      if (!account) return;
+
+      openSheetType = "account";
+      openAccountRef = accountRef;
+
+      setSheetHeading(accountDisplay(account), "Manage promo uses for this account.");
+      renderAccountSheet();
+      showSheet();
+    }
+
+    function renderAccountSheet() {
+      if (!openAccountRef) return;
+
+      const account = accounts.find(item => item.accountRef === openAccountRef);
+      if (!account) return;
+
+      const accountDone = isAccountDone(manualStore, openAccountRef);
+      const items = allPromosForAccount(openAccountRef)
+        .slice()
+        .sort((a, b) => {
+          const activeA = isPromoActive(a) ? 1 : 0;
+          const activeB = isPromoActive(b) ? 1 : 0;
+          if (activeB !== activeA) return activeB - activeA;
+          return String(b.emailSentAt || "").localeCompare(String(a.emailSentAt || ""));
+        });
+
+      const body =
+        '<div class="sheet-section">' +
+          '<div class="pill-row">' +
+            '<span class="pill ' + (account.canLogin ? 'good' : 'warn') + '">' +
+              (account.canLogin ? 'Can log in' : 'Can’t log in') +
+            '</span>' +
+            (accountDone ? '<span class="pill warn">Account done</span>' : '') +
+          '</div>' +
+          '<div style="margin-top:10px">' +
+            (accountDone
+              ? '<button class="action-btn primary" data-sheet-account-done="false">Restore account</button>'
+              : '<button class="action-btn" data-sheet-account-done="true">Mark account done</button>') +
+          '</div>' +
+        '</div>' +
+        '<div class="sheet-section">' +
+          (items.length
+            ? items.map(offerSheetCard).join("")
+            : '<div class="empty">No offers stored for this account.</div>') +
+        '</div>';
+
+      document.getElementById("sheetBody").innerHTML = body;
+    }
+
+    function renderAdvancedSheet() {
+      const learned = Number(
+        payload?.summary?.feeModel?.averageExtraOrderFees ??
+        payload?.summary?.averageExtraOrderFees ??
+        0
+      );
+
+      setSheetHeading("Advanced split settings", "These settings only affect basket recommendations.");
+
+      document.getElementById("sheetBody").innerHTML =
+        '<div class="sheet-section">' +
+          '<div class="sheet-label">Extra order cost</div>' +
+          '<input id="sheetFeeInput" class="sheet-input" type="number" min="0" step="0.10" value="' +
+            escapeHtml(effectiveFee().toFixed(2)) + '">' +
+          '<div class="sheet-help">Estimated extra delivery, service and small-order fees for each additional split order.' +
+            (learned > 0 ? ' Receipt-derived estimate: ' + escapeHtml(money(learned)) + '.' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="sheet-section">' +
+          '<div class="sheet-label">Split limit</div>' +
+          '<select id="sheetMaxOrders" class="sheet-select">' +
+            [1,2,3,4].map(value =>
+              '<option value="' + value + '"' + (plannerSettings.maxOrders === value ? ' selected' : '') + '>' +
+                value + (value === 1 ? ' order' : ' orders') +
+              '</option>'
+            ).join("") +
+          '</select>' +
+          '<div class="sheet-help">Maximum number of separate Uber Eats orders/accounts the optimiser is allowed to suggest.</div>' +
+        '</div>' +
+        '<div class="sheet-section">' +
+          '<button id="resetPlannerSettings" class="action-btn" style="width:100%">Use receipt-derived defaults</button>' +
+        '</div>';
+    }
+
+    function renderLockedSheet() {
+      const locked = accounts
+        .filter(account => !account.canLogin)
+        .sort((a, b) => String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || "")));
+
+      setSheetHeading("Can’t log in", locked.length + " accounts are excluded from every recommendation.");
+
+      document.getElementById("sheetBody").innerHTML =
+        '<div class="sheet-section"><input id="sheetLockedSearch" class="sheet-input" type="search" placeholder="Search masked email…"></div>' +
+        '<div id="sheetLockedList" class="sheet-section"></div>';
+
+      renderLockedSearch("");
+    }
+
+    function renderLockedSearch(search) {
+      const target = document.getElementById("sheetLockedList");
+      if (!target) return;
+
+      const term = String(search || "").trim().toLowerCase();
+      const list = accounts
+        .filter(account => !account.canLogin)
+        .filter(account => !term || String(account.accountMasked || "").toLowerCase().includes(term));
+
+      target.innerHTML =
+        list.length
+          ? '<div class="sheet-list">' +
+            list.map(account => (
+              '<div class="sheet-row">' +
+                '<div><div class="sheet-row-title">' + escapeHtml(accountDisplay(account)) + '</div>' +
+                '<div class="sheet-row-meta">' + Number(account.activePromoCount || 0) + ' active promos · last seen ' +
+                  escapeHtml(formatDate(account.lastSeenAt) || "unknown") + '</div></div>' +
+                '<span class="pill warn">Can’t log in</span>' +
+              '</div>'
+            )).join("") +
+            '</div>'
           : '<div class="empty">No inaccessible account matches that search.</div>';
     }
 
-    function renderSavings() {
+    function renderSavingsSheet() {
       const summary = payload.summary || {};
       const top = accounts
         .filter(account => Number(account.totalSaved || 0) > 0)
         .slice()
         .sort((a, b) => Number(b.totalSaved || 0) - Number(a.totalSaved || 0))
-        .slice(0, 8);
+        .slice(0, 10);
 
-      document.getElementById("savingsInsights").innerHTML =
-        '<div class="insight-grid">' +
+      setSheetHeading("Savings", "Receipt-based totals from tracked Uber Eats orders.");
+
+      document.getElementById("sheetBody").innerHTML =
+        '<div class="sheet-section"><div class="insight-grid">' +
           '<div class="insight"><div class="insight-label">Total saved</div><div class="insight-value" style="color:var(--green)">' + escapeHtml(money(summary.totalSaved || 0)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Promo discounts</div><div class="insight-value">' + escapeHtml(money(summary.promoSavings || 0)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Uber Cash used</div><div class="insight-value">' + escapeHtml(money(summary.uberCashUsed || 0)) + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Average saved / order</div><div class="insight-value">' + escapeHtml(money(summary.averageSavedPerOrder || 0)) + '</div></div>' +
-        '</div>' +
-        '<div class="section-head"><div><div class="eyebrow">Accounts</div><div class="section-title">Most savings seen</div></div></div>' +
-        (top.length
-          ? top.map(account => (
-              '<div class="simple-row"><div><div class="simple-title">' +
-              escapeHtml(accountDisplay(account)) +
-              '</div><div class="simple-meta">' +
-              Number(account.orderCount || 0) + ' tracked orders</div></div>' +
-              '<div class="simple-value">' + escapeHtml(money(account.totalSaved || 0)) + '</div></div>'
-            )).join("")
-          : '<div class="empty">Receipt savings will appear here after the Mac scans your Uber Receipts mailbox.</div>');
-    }
-
-    function renderHealth() {
-      const summary = payload.summary || {};
-
-      document.getElementById("healthInsights").innerHTML =
-        '<div class="insight-grid">' +
-          '<div class="insight"><div class="insight-label">Known accounts</div><div class="insight-value">' + Number(summary.knownAccounts || accounts.length).toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Can log in</div><div class="insight-value">' + Number(summary.accessibleAccounts || accounts.filter(a => a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Can’t log in</div><div class="insight-value">' + Number(summary.inaccessibleAccounts || accounts.filter(a => !a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Tracked receipts</div><div class="insight-value">' + Number(summary.trackedOrders || 0).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Average / order</div><div class="insight-value">' + escapeHtml(money(summary.averageSavedPerOrder || 0)) + '</div></div>' +
+        '</div></div>' +
+        '<div class="sheet-section">' +
+          '<div class="sheet-label">Strongest accounts historically</div>' +
+          (top.length
+            ? '<div class="sheet-list">' +
+              top.map(account => (
+                '<div class="sheet-row"><div><div class="sheet-row-title">' + escapeHtml(accountDisplay(account)) + '</div>' +
+                '<div class="sheet-row-meta">' + Number(account.orderCount || 0) + ' tracked orders</div></div>' +
+                '<div class="sheet-row-value">' + escapeHtml(money(account.totalSaved || 0)) + '</div></div>'
+              )).join("") +
+              '</div>'
+            : '<div class="empty">Savings insights will build after the Mac scans real receipts.</div>') +
         '</div>';
     }
 
-    function renderHistory() {
-      const rows = history.slice(0, 40);
+    function renderHealthSheet() {
+      const summary = payload.summary || {};
+      const generated = payload.generatedAt ? new Date(payload.generatedAt) : null;
 
-      document.getElementById("historyList").innerHTML =
-        rows.length
-          ? rows.map(row => (
-              '<div class="simple-row">' +
-                '<div>' +
-                  '<div class="simple-title">' + escapeHtml(row.accountMasked || "Account") + '</div>' +
-                  '<div class="simple-meta">' + escapeHtml(row.title || promoLabel(row)) +
-                    (row.expires ? ' · ends ' + escapeHtml(formatDate(row.expires) || row.expires) : '') +
-                  '</div>' +
-                '</div>' +
-                '<span class="badge ' + (row.status === "active" ? 'good' : '') + '">' + escapeHtml(row.status || "seen") + '</span>' +
-              '</div>'
-            )).join("")
-          : '<div class="empty">No public promo history yet.</div>';
+      setSheetHeading("Scan & data", "A quick health check for the tracker.");
+
+      document.getElementById("sheetBody").innerHTML =
+        '<div class="sheet-section"><div class="insight-grid">' +
+          '<div class="insight"><div class="insight-label">Known accounts</div><div class="insight-value">' + Number(summary.knownAccounts || accounts.length).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Usable accounts</div><div class="insight-value">' + Number(summary.accessibleAccounts || accounts.filter(a => a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Can’t log in</div><div class="insight-value">' + Number(summary.inaccessibleAccounts || accounts.filter(a => !a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Tracked receipts</div><div class="insight-value">' + Number(summary.trackedOrders || 0).toLocaleString("en-GB") + '</div></div>' +
+        '</div></div>' +
+        '<div class="sheet-section"><div class="sheet-list">' +
+          '<div class="sheet-row"><div><div class="sheet-row-title">Last public scan</div><div class="sheet-row-meta">Sanitised snapshot generation time</div></div>' +
+          '<div class="sheet-row-value">' +
+            (generated && !Number.isNaN(generated.getTime())
+              ? escapeHtml(generated.toLocaleString("en-GB", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }))
+              : "Demo") +
+          '</div></div>' +
+          '<div class="sheet-row"><div><div class="sheet-row-title">Private data</div><div class="sheet-row-meta">Raw emails, aliases, receipts and promo codes</div></div><div class="sheet-row-value">Mac only</div></div>' +
+        '</div></div>';
     }
 
-    function renderMenuPanel() {
-      document.querySelectorAll(".menu-panel").forEach(panel => {
-        panel.classList.toggle("active", panel.id === "panel-" + menuPanel);
-      });
+    function renderHistorySheet() {
+      setSheetHeading("Promo history", "Recent active, used and expired Uber Eats offers.");
 
-      if (menuPanel === "locked") renderLocked();
-      if (menuPanel === "savings") renderSavings();
-      if (menuPanel === "health") renderHealth();
-      if (menuPanel === "history") renderHistory();
+      const rows = history.slice(0, 60);
+
+      document.getElementById("sheetBody").innerHTML =
+        '<div class="sheet-section">' +
+          (rows.length
+            ? '<div class="sheet-list">' +
+              rows.map(row => (
+                '<div class="sheet-row"><div><div class="sheet-row-title">' + escapeHtml(row.accountMasked || "Account") + '</div>' +
+                '<div class="sheet-row-meta">' + escapeHtml(row.title || promoLabel(row)) +
+                  (row.expires ? ' · ends ' + escapeHtml(formatDate(row.expires) || row.expires) : '') +
+                '</div></div><span class="pill ' + (row.status === "active" ? 'good' : '') + '">' +
+                escapeHtml(row.status || "seen") + '</span></div>'
+              )).join("") +
+              '</div>'
+            : '<div class="empty">No public promo history yet.</div>') +
+        '</div>';
+    }
+
+    function setSheetHeading(title, sub) {
+      document.getElementById("sheetTitle").textContent = title;
+      document.getElementById("sheetSub").textContent = sub || "";
+    }
+
+    function showSheet() {
+      const backdrop = document.getElementById("sheetBackdrop");
+      backdrop.classList.add("open");
+      backdrop.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSheet() {
+      const backdrop = document.getElementById("sheetBackdrop");
+      backdrop.classList.remove("open");
+      backdrop.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      openSheetType = null;
+      openAccountRef = null;
+    }
+
+    function openUtilitySheet(type) {
+      openSheetType = type;
+      openAccountRef = null;
+
+      if (type === "advanced") renderAdvancedSheet();
+      if (type === "locked") renderLockedSheet();
+      if (type === "savings") renderSavingsSheet();
+      if (type === "health") renderHealthSheet();
+      if (type === "history") renderHistorySheet();
+
+      showSheet();
+    }
+
+    function promoByKey(key) {
+      return promos.find(promo => promoStateKey(promo) === key) || null;
+    }
+
+    function refreshAfterStateChange() {
+      saveManualStore();
+      renderAll();
+      if (openSheetType === "account") renderAccountSheet();
     }
 
     function renderAll() {
       renderStatus();
       renderStats();
-      renderPlanner();
-      renderIntentCounts();
-      renderDeals();
+      renderRecommendation();
+      renderQuickCounts();
+      renderHomeAccounts();
       renderAccounts();
       renderUsed();
-      renderMenuPanel();
+      renderMore();
     }
 
     function switchView(view) {
@@ -1712,7 +2506,7 @@
       window.scrollTo({ top: 0, behavior: "instant" });
     }
 
-    function deriveAccountsFromPromos() {
+    function deriveAccounts() {
       const map = new Map();
 
       for (const promo of promos) {
@@ -1732,7 +2526,7 @@
           });
         }
 
-        if (activePromo(promo)) map.get(promo.accountRef).activePromoCount++;
+        if (isPromoActive(promo)) map.get(promo.accountRef).activePromoCount++;
       }
 
       return [...map.values()];
@@ -1753,7 +2547,7 @@
 
         accounts = Array.isArray(payload.accounts)
           ? payload.accounts
-          : deriveAccountsFromPromos();
+          : deriveAccounts();
 
         if (historyResponse.ok) {
           const historyPayload = await historyResponse.json();
@@ -1764,8 +2558,8 @@
       } catch (error) {
         console.error(error);
         document.getElementById("scanLabel").textContent = "ERROR";
-        document.getElementById("scanTime").textContent = "Could not load tracker data";
-        document.getElementById("dealAccounts").innerHTML =
+        document.getElementById("scanTime").textContent = "Could not load tracker";
+        document.getElementById("homeAccounts").innerHTML =
           '<div class="empty">Could not load tracker data.</div>';
       }
     }
@@ -1775,7 +2569,7 @@
       if (button) switchView(button.dataset.view);
     });
 
-    document.getElementById("intentGrid").addEventListener("click", event => {
+    document.getElementById("quickGrid").addEventListener("click", event => {
       const button = event.target.closest("[data-intent]");
       if (!button) return;
 
@@ -1785,80 +2579,188 @@
         item.classList.toggle("active", item === button);
       });
 
-      renderDeals();
+      renderHomeAccounts();
     });
 
     document.querySelectorAll("[data-basket]").forEach(button => {
       button.addEventListener("click", () => {
         document.getElementById("basketInput").value = button.dataset.basket;
-        renderPlanner();
-        renderDeals();
+        renderRecommendation();
+        renderHomeAccounts();
         renderAccounts();
       });
     });
 
     document.getElementById("basketInput").addEventListener("input", () => {
-      renderPlanner();
-      renderDeals();
+      renderRecommendation();
+      renderHomeAccounts();
       renderAccounts();
     });
 
-    document.getElementById("feeInput").addEventListener("input", () => {
-      feeTouched = true;
-      renderPlanner();
-    });
-
-    document.getElementById("maxOrders").addEventListener("change", renderPlanner);
-
     document.getElementById("accountSearch").addEventListener("input", renderAccounts);
-    document.getElementById("lockedSearch").addEventListener("input", renderLocked);
 
-    document.querySelector(".seg-row").addEventListener("click", event => {
+    document.getElementById("accountFilters").addEventListener("click", event => {
       const button = event.target.closest("[data-account-filter]");
       if (!button) return;
 
       accountFilter = button.dataset.accountFilter;
+
       document.querySelectorAll("[data-account-filter]").forEach(item => {
         item.classList.toggle("active", item === button);
       });
+
       renderAccounts();
     });
 
-    document.querySelector(".menu-grid").addEventListener("click", event => {
-      const button = event.target.closest("[data-menu-panel]");
-      if (!button) return;
-
-      menuPanel = menuPanel === button.dataset.menuPanel
-        ? null
-        : button.dataset.menuPanel;
-
-      renderMenuPanel();
-    });
-
     document.getElementById("app").addEventListener("click", event => {
-      const stateButton = event.target.closest("[data-promo-state]");
-
-      if (stateButton) {
-        const id = stateButton.dataset.promoId;
-        const state = stateButton.dataset.promoState;
-
-        if (state === "active") delete localStates[id];
-        else localStates[id] = state;
-
-        saveLocalStates();
-        renderAll();
+      const sheetButton = event.target.closest("[data-open-sheet]");
+      if (sheetButton) {
+        openUtilitySheet(sheetButton.dataset.openSheet);
         return;
       }
 
-      const accountButton = event.target.closest("[data-account-done]");
+      const offersButton = event.target.closest("[data-account-offers]");
+      if (offersButton) {
+        openAccountSheet(offersButton.dataset.accountOffers);
+        return;
+      }
 
-      if (accountButton) {
-        accountPromos(accountButton.dataset.accountDone).forEach(promo => {
-          localStates[promoId(promo)] = "used";
-        });
+      const doneButton = event.target.closest("[data-account-done]");
+      if (doneButton) {
+        manualStore = setAccountDone(manualStore, doneButton.dataset.accountDone, true);
+        refreshAfterStateChange();
+        return;
+      }
 
-        saveLocalStates();
-        renderAll();
+      const restoreAccount = event.target.closest("[data-restore-account]");
+      if (restoreAccount) {
+        manualStore = setAccountDone(manualStore, restoreAccount.dataset.restoreAccount, false);
+        refreshAfterStateChange();
+        return;
+      }
+
+      const restoreOffer = event.target.closest("[data-restore-offer]");
+      if (restoreOffer) {
+        const promo = promoByKey(restoreOffer.dataset.restoreOffer);
+        if (promo) {
+          manualStore = setOfferDone(manualStore, promo, false);
+          refreshAfterStateChange();
+        }
+        return;
+      }
+
+      const unignore = event.target.closest("[data-unignore-offer]");
+      if (unignore) {
+        const promo = promoByKey(unignore.dataset.unignoreOffer);
+        if (promo) {
+          manualStore = setOfferIgnored(manualStore, promo, false);
+          refreshAfterStateChange();
+        }
+      }
+    });
+
+    document.getElementById("sheetClose").addEventListener("click", closeSheet);
+
+    document.getElementById("sheetBackdrop").addEventListener("click", event => {
+      if (event.target.id === "sheetBackdrop") closeSheet();
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeSheet();
+    });
+
+    document.getElementById("sheetBody").addEventListener("click", event => {
+      const useButton = event.target.closest("[data-use-one]");
+      if (useButton) {
+        const promo = promoByKey(useButton.dataset.useOne);
+        if (promo) {
+          manualStore = consumeManualUse(manualStore, promo);
+          refreshAfterStateChange();
+        }
+        return;
+      }
+
+      const undoButton = event.target.closest("[data-undo-use]");
+      if (undoButton) {
+        const promo = promoByKey(undoButton.dataset.undoUse);
+        if (promo) {
+          manualStore = undoManualUse(manualStore, promo);
+          refreshAfterStateChange();
+        }
+        return;
+      }
+
+      const ignoreButton = event.target.closest("[data-toggle-ignore]");
+      if (ignoreButton) {
+        const promo = promoByKey(ignoreButton.dataset.toggleIgnore);
+        if (promo) {
+          manualStore = setOfferIgnored(
+            manualStore,
+            promo,
+            ignoreButton.dataset.ignore === "true"
+          );
+          refreshAfterStateChange();
+        }
+        return;
+      }
+
+      const doneOffer = event.target.closest("[data-mark-offer-done]");
+      if (doneOffer) {
+        const promo = promoByKey(doneOffer.dataset.markOfferDone);
+        if (promo) {
+          manualStore = setOfferDone(
+            manualStore,
+            promo,
+            doneOffer.dataset.done === "true"
+          );
+          refreshAfterStateChange();
+        }
+        return;
+      }
+
+      const sheetAccountDone = event.target.closest("[data-sheet-account-done]");
+      if (sheetAccountDone && openAccountRef) {
+        manualStore = setAccountDone(
+          manualStore,
+          openAccountRef,
+          sheetAccountDone.dataset.sheetAccountDone === "true"
+        );
+        refreshAfterStateChange();
+        return;
+      }
+
+      if (event.target.id === "resetPlannerSettings") {
+        plannerSettings = {
+          maxOrders: 3,
+          extraOrderFee: null,
+          feeTouched: false
+        };
+        savePlannerSettings();
+        renderAdvancedSheet();
+        renderStats();
+        renderRecommendation();
+      }
+    });
+
+    document.getElementById("sheetBody").addEventListener("input", event => {
+      if (event.target.id === "sheetFeeInput") {
+        plannerSettings.extraOrderFee = Math.max(0, Number(event.target.value || 0));
+        plannerSettings.feeTouched = true;
+        savePlannerSettings();
+        renderStats();
+        renderRecommendation();
+      }
+
+      if (event.target.id === "sheetLockedSearch") {
+        renderLockedSearch(event.target.value);
+      }
+    });
+
+    document.getElementById("sheetBody").addEventListener("change", event => {
+      if (event.target.id === "sheetMaxOrders") {
+        plannerSettings.maxOrders = Number(event.target.value || 3);
+        savePlannerSettings();
+        renderRecommendation();
       }
     });
 
