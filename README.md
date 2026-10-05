@@ -140,3 +140,38 @@ For a single transaction it:
 - can filter the recommendation by service and anonymous account
 
 The OLED dashboard is account-first: Best deal, £15 off £15, Uber Cash, and Multiple promos. A basket helper then recommends the best account for a planned order total.
+
+
+## Receipt intelligence and basket splitting
+
+The tracker now treats Uber Eats receipt emails as a separate private evidence source instead of letting receipt text pass through the promo parser.
+
+Private receipt flow:
+
+`Apple Mail → receipt parser → receipts.local.json → account matching → promo-use evidence → sanitised account insights`
+
+`receipts.local.json` is Git-ignored. It retains parsed receipt evidence locally so usage history survives beyond the 45-day Apple Mail lookback.
+
+When a receipt contains a Promotion amount, the tracker compares that amount against eligible promos on the same recipient-email account. It only marks a promo as receipt-confirmed used when the match is sufficiently unique. Ambiguous matches do not consume an offer automatically.
+
+For multi-use offers, confirmed receipts decrement `usesRemaining` rather than deleting the whole promotion after the first use.
+
+The public payload receives only sanitised derived fields such as masked account identity, remaining uses, receipt-confirmed state, aggregate order count, aggregate observed promo savings, and an aggregate fee estimate. Raw receipts, full account aliases, merchant details, individual basket values and actual promo codes remain private.
+
+### Account identity
+
+The recipient email remains the real private account identity. The public dashboard shows a masked form such as `na…07@icloud.com`; the anonymous `A001` reference remains the internal join key.
+
+### Manual Used / Ignore
+
+The dashboard also supports manual `Used`, `Ignore`, `Undo`, and `Mark account done` actions. These choices are stored in browser `localStorage` only and are excluded from recommendations and basket plans on that browser. Receipt-confirmed usage cannot be undone from the public page.
+
+### Basket optimiser
+
+The optimiser can split a planned basket across multiple Uber Eats accounts. It assumes one tracked account promo per order, evaluates minimum spends and caps, and subtracts an estimated incremental fee for each added order.
+
+The fee input is prefilled from the aggregate delivery + service + small-order fees observed in private receipts when enough parsed data exists. It can always be overridden manually.
+
+The optimiser maximises net saving first and prefers fewer orders when the saving is tied. It uses at most one order per account in a plan, which keeps recommendations practical and avoids pretending multiple account promos can be stacked on one checkout.
+
+The plan is advisory: restaurant-specific offers, item eligibility, geographic restrictions and live checkout conditions can still change the final result.
