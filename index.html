@@ -4,199 +4,352 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0a0a0a">
   <title>Uber Promo Tracker</title>
   <style>
     * { box-sizing: border-box; }
-    :root { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    body { margin: 0; background: #0b0b0b; color: #fff; }
-    .shell { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 64px; }
-    header { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 30px; }
-    h1 { font-size: clamp(34px, 7vw, 58px); letter-spacing: -0.045em; margin: 0; }
-    .subtitle { color: #a8a8a8; margin: 8px 0 0; }
-    .privacy { color: #7f7f7f; font-size: 13px; text-align: right; max-width: 300px; }
-    .banner { display: none; padding: 12px 16px; border: 1px solid #3b3b3b; border-radius: 12px; color: #d8d8d8; margin-bottom: 22px; background: #151515; }
-    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
-    .stat, .hero, .card { background: #171717; border: 1px solid #282828; }
-    .stat { border-radius: 16px; padding: 18px; }
-    .stat-label { color: #858585; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
-    .stat-value { font-size: 27px; font-weight: 750; margin-top: 6px; }
-    .hero { border-radius: 22px; padding: 28px; margin-bottom: 30px; background: linear-gradient(135deg, #191919, #111); }
-    .eyebrow { color: #8f8f8f; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; }
-    .hero h2 { margin: 10px 0 8px; font-size: clamp(27px, 5vw, 42px); letter-spacing: -0.03em; }
-    .hero-value { font-size: 18px; color: #d9d9d9; }
-    .meta { color: #9d9d9d; line-height: 1.7; margin-top: 13px; }
-    .section-head { display: flex; justify-content: space-between; align-items: center; margin: 0 0 14px; }
-    .section-head h2 { margin: 0; font-size: 22px; }
-    .refresh { font-size: 13px; color: #777; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
-    .card { border-radius: 18px; padding: 20px; }
-    .badge { display: inline-block; padding: 5px 9px; border-radius: 999px; background: #252525; color: #c9c9c9; font-size: 12px; }
-    .card h3 { margin: 14px 0 8px; font-size: 21px; line-height: 1.25; }
-    .saving { font-size: 24px; font-weight: 750; margin: 10px 0; }
-    .details { color: #a9a9a9; line-height: 1.65; font-size: 14px; }
-    .status { margin-top: 16px; font-size: 12px; color: #d2d2d2; }
-    .empty { padding: 28px; border: 1px dashed #343434; border-radius: 18px; color: #999; }
-    footer { margin-top: 44px; color: #5f5f5f; font-size: 12px; }
-    @media (max-width: 700px) {
-      header { display: block; }
-      .privacy { text-align: left; margin-top: 12px; }
-      .stats { grid-template-columns: 1fr; }
-      .shell { padding-top: 30px; }
+    :root {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --bg: #090909; --panel: #141414; --border: #2b2b2b; --muted: #969696;
+      --good: #72e6a1; --warn: #ffd166; --danger: #ff8d8d;
+    }
+    body { margin: 0; background: var(--bg); color: #fff; }
+    button, select { font: inherit; }
+    .shell { width: min(1160px, calc(100% - 30px)); margin: 0 auto; padding: 38px 0 64px; }
+    .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-bottom: 24px; }
+    h1 { margin: 0; font-size: clamp(35px, 6vw, 58px); letter-spacing: -.05em; line-height: .98; }
+    .subtitle { margin: 10px 0 0; color: #a2a2a2; font-size: 15px; }
+    .system-status { min-width: 240px; text-align: right; }
+    .mode-pill { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 999px; padding: 7px 11px; background: #121212; font-size: 12px; font-weight: 750; letter-spacing: .06em; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #777; }
+    .mode-pill.live .dot { background: var(--good); box-shadow: 0 0 0 4px rgba(114,230,161,.08); }
+    .mode-pill.demo .dot { background: var(--warn); }
+    .scan-time { margin-top: 8px; color: #777; font-size: 12px; }
+    .notice { display: none; margin-bottom: 20px; padding: 12px 15px; border-radius: 13px; border: 1px solid #3a3420; background: #17150d; color: #d9c983; font-size: 13px; }
+    .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+    .stat, .hero, .card { background: var(--panel); border: 1px solid var(--border); }
+    .stat { border-radius: 17px; padding: 17px; min-height: 92px; }
+    .stat-label { color: #7e7e7e; font-size: 11px; text-transform: uppercase; letter-spacing: .09em; }
+    .stat-value { margin-top: 7px; font-size: 27px; font-weight: 800; letter-spacing: -.03em; }
+    .hero { position: relative; overflow: hidden; border-radius: 24px; padding: 28px; margin-bottom: 22px; background: linear-gradient(145deg,#1b1b1b,#111); }
+    .hero h2 { margin: 10px 0 6px; font-size: clamp(27px,5vw,43px); line-height: 1.04; letter-spacing: -.035em; max-width: 830px; }
+    .eyebrow { color: #8b8b8b; font-size: 11px; text-transform: uppercase; letter-spacing: .11em; font-weight: 750; }
+    .hero-value { margin-top: 12px; font-size: 22px; font-weight: 750; }
+    .reason { margin-top: 8px; color: #a5a5a5; font-size: 14px; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 20px; }
+    .meta-chip { border: 1px solid #303030; background: #151515; color: #bababa; padding: 7px 10px; border-radius: 999px; font-size: 12px; }
+    .controls { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 27px 0 15px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter { border: 1px solid var(--border); background: #111; color: #aaa; padding: 8px 12px; border-radius: 999px; cursor: pointer; }
+    .filter.active { background: #f3f3f3; color: #111; border-color: #f3f3f3; }
+    .sort-wrap { display: flex; align-items: center; gap: 8px; color: #777; font-size: 12px; }
+    select { color: #ddd; background: #111; border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
+    .section-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+    .section-head h2 { margin: 0; font-size: 21px; }
+    .result-count { color: #707070; font-size: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(265px,1fr)); gap: 13px; }
+    .card { border-radius: 19px; padding: 19px; min-height: 255px; display: flex; flex-direction: column; }
+    .card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .badge, .urgency { display: inline-flex; width: fit-content; padding: 5px 9px; border-radius: 999px; font-size: 11px; }
+    .badge { background: #242424; color: #cfcfcf; }
+    .urgency { background: #1d1d1d; color: #999; }
+    .urgency.soon { background: #2a2311; color: var(--warn); }
+    .urgency.today { background: #2a1717; color: var(--danger); }
+    .card h3 { margin: 14px 0 7px; font-size: 20px; line-height: 1.25; letter-spacing: -.02em; }
+    .saving { font-size: 25px; font-weight: 800; letter-spacing: -.03em; margin: 7px 0; }
+    .details { color: #9e9e9e; line-height: 1.62; font-size: 13px; }
+    .details strong { color: #d6d6d6; font-weight: 650; }
+    .card-footer { margin-top: auto; padding-top: 17px; display: flex; justify-content: space-between; gap: 8px; color: #6f6f6f; font-size: 11px; }
+    .empty { grid-column: 1/-1; padding: 30px; border: 1px dashed #343434; border-radius: 18px; color: #888; text-align: center; }
+    .privacy-note { margin-top: 28px; padding: 14px 16px; border-radius: 14px; border: 1px solid #202020; background: #0f0f0f; color: #696969; font-size: 12px; line-height: 1.5; }
+    footer { margin-top: 30px; color: #555; font-size: 11px; }
+    @media (max-width: 820px) {
+      .stats { grid-template-columns: repeat(2,1fr); }
+      .topbar { display: block; }
+      .system-status { min-width: 0; text-align: left; margin-top: 18px; }
+      .controls { align-items: flex-start; flex-direction: column; }
+    }
+    @media (max-width: 520px) {
+      .stat-value { font-size: 23px; }
+      .hero { padding: 22px; }
+      .shell { padding-top: 26px; }
     }
   </style>
 </head>
 <body>
   <main class="shell">
-    <header>
+    <div class="topbar">
       <div>
         <h1>Uber Promo Tracker</h1>
-        <p class="subtitle">Automatically ranks the Uber offers worth using.</p>
+        <p class="subtitle">Find the offer that actually saves you the most.</p>
       </div>
-      <div class="privacy">Public dashboard stores promo details only — never raw email content.</div>
-    </header>
+      <div class="system-status">
+        <div id="modePill" class="mode-pill"><span class="dot"></span><span id="modeText">Loading</span></div>
+        <div id="scanTime" class="scan-time">Checking promo data…</div>
+      </div>
+    </div>
 
-    <div id="demoBanner" class="banner">Demo data — waiting for the Mac Mail connection to supply real promos.</div>
+    <div id="demoNotice" class="notice">Demo mode: these are synthetic offers. Real data will replace them when the Mac Mail updater is connected.</div>
 
-    <section class="stats" aria-label="Promo summary">
+    <section class="stats">
       <div class="stat"><div class="stat-label">Active promos</div><div id="activeCount" class="stat-value">—</div></div>
-      <div class="stat"><div class="stat-label">Best potential saving</div><div id="bestSaving" class="stat-value">—</div></div>
-      <div class="stat"><div class="stat-label">Expiring soon</div><div id="expiringCount" class="stat-value">—</div></div>
+      <div class="stat"><div class="stat-label">Best saving</div><div id="bestSaving" class="stat-value">—</div></div>
+      <div class="stat"><div class="stat-label">Expiring ≤ 2 days</div><div id="expiringCount" class="stat-value">—</div></div>
+      <div class="stat"><div class="stat-label">Multi-use deals</div><div id="multiCount" class="stat-value">—</div></div>
     </section>
 
     <section id="bestPromo"></section>
 
-    <div class="section-head">
-      <h2>Active promos</h2>
-      <div id="loadedAt" class="refresh"></div>
+    <div class="controls">
+      <div class="filters" id="filters">
+        <button class="filter active" data-filter="all">All</button>
+        <button class="filter" data-filter="Uber">Rides</button>
+        <button class="filter" data-filter="Uber Eats">Eats</button>
+        <button class="filter" data-filter="Uber One">Uber One</button>
+      </div>
+      <label class="sort-wrap">Sort
+        <select id="sortSelect">
+          <option value="value">Best value</option>
+          <option value="expiry">Expires soon</option>
+          <option value="discount">Biggest discount</option>
+        </select>
+      </label>
     </div>
+
+    <div class="section-head"><h2>Active promos</h2><div id="resultCount" class="result-count"></div></div>
     <section id="promoGrid" class="grid"></section>
 
-    <footer>Uber Promo Tracker · parser + ranking engine ready · Apple Mail connection next</footer>
+    <div class="privacy-note">Privacy: raw emails stay on your Mac. This public GitHub Pages site receives only sanitised promo fields. Promo codes are not published.</div>
+    <footer>Uber Promo Tracker · automated parser + ranking engine</footer>
   </main>
 
   <script>
-    function localDate(dateString, endOfDay = false) {
+    let allActivePromos = [];
+    let currentFilter = "all";
+    let currentSort = "value";
+
+    function escapeHtml(value) {
+      return String(value == null ? "" : value)
+        .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+
+    function localDate(dateString, endOfDay) {
       if (!dateString) return null;
-      const [year, month, day] = dateString.split("-").map(Number);
-      return new Date(year, month - 1, day, endOfDay ? 23 : 12, endOfDay ? 59 : 0, endOfDay ? 59 : 0);
+      const parts = String(dateString).split("-").map(Number);
+      if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+      return new Date(parts[0], parts[1]-1, parts[2], endOfDay ? 23 : 12, endOfDay ? 59 : 0, endOfDay ? 59 : 0);
     }
 
     function formatDate(dateString) {
-      const date = localDate(dateString);
-      return date ? date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "No expiry found";
+      const date = localDate(dateString, false);
+      return date ? date.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : "No expiry found";
+    }
+
+    function formatScanTime(value) {
+      if (!value) return "Waiting for first Mac scan";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "Last scan time unavailable";
+      return "Last scan " + date.toLocaleString("en-GB",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
     }
 
     function daysRemaining(dateString) {
       const expiry = localDate(dateString, true);
-      if (!expiry) return null;
-      return Math.ceil((expiry - new Date()) / 86400000);
+      return expiry ? Math.ceil((expiry-new Date())/86400000) : null;
     }
 
     function potentialSaving(promo) {
-      if (promo.maxTotalSaving != null) return promo.maxTotalSaving;
-      if (promo.maxSaving != null) return promo.maxSaving;
-      if (promo.discountType === "fixed" && promo.discount != null) return promo.discount * (promo.uses || 1);
+      if (promo.maxTotalSaving != null) return Number(promo.maxTotalSaving);
+      if (promo.maxSaving != null) return Number(promo.maxSaving);
+      if (promo.discountType === "fixed" && promo.discount != null) return Number(promo.discount)*(promo.uses || 1);
       return null;
     }
 
     function rankingScore(promo) {
       const value = potentialSaving(promo);
-      let score = value != null ? value * 100 : 0;
-      if (promo.discountType === "percent" && promo.discount != null) score += promo.discount;
-      if (promo.discountType === "fixed" && promo.discount != null) score += promo.discount * 10;
-      if (promo.minimumSpend) score -= promo.minimumSpend;
+      let score = value != null ? value*100 : 0;
+      if (promo.discountType === "percent" && promo.discount != null) score += Number(promo.discount);
+      if (promo.discountType === "fixed" && promo.discount != null) score += Number(promo.discount)*10;
+      if (promo.minimumSpend) score -= Number(promo.minimumSpend);
+      if ((promo.uses || 1)>1) score += Math.min(Number(promo.uses),10);
       return score;
     }
 
     function money(value) {
-      return \`£\${Number(value).toLocaleString("en-GB", { maximumFractionDigits: 2 })}\`;
+      return "£" + Number(value).toLocaleString("en-GB",{maximumFractionDigits:2});
     }
 
-    function promoDetails(promo) {
+    function valueLabel(promo) {
+      const value = potentialSaving(promo);
+      if (value != null) return "Up to " + money(value);
+      if (promo.discountType === "percent" && promo.discount != null) return promo.discount + "% off";
+      if (promo.discountType === "fixed" && promo.discount != null) return money(promo.discount) + " off";
+      return "Offer detected";
+    }
+
+    function whyBest(promo) {
+      const parts = [];
+      if ((promo.uses || 1)>1) parts.push(promo.uses + " uses");
+      if (promo.perUseCap != null) parts.push(money(promo.perUseCap) + " cap each");
+      if (promo.discountType === "percent" && promo.discount != null) parts.push(promo.discount + "% discount");
+      if (promo.minimumSpend) parts.push(money(promo.minimumSpend) + " minimum spend");
+      return parts.length ? parts.join(" · ") : "Highest ranked active offer";
+    }
+
+    function urgency(promo) {
+      const days = daysRemaining(promo.expires);
+      if (days == null) return {label:"Active",className:""};
+      if (days <= 0) return {label:"Ends today",className:"today"};
+      if (days <= 2) return {label:(days === 1 ? "1 day left" : days + " days left"),className:"soon"};
+      return {label:days + " days left",className:""};
+    }
+
+    function detailLines(promo) {
       const lines = [];
-      if (promo.uses > 1) lines.push(\`\${promo.uses} uses\`);
-      if (promo.perUseCap != null) lines.push(\`Cap \${money(promo.perUseCap)} per use\`);
-      else if (promo.maxSaving != null) lines.push(\`Maximum saving \${money(promo.maxSaving)}\`);
-      if (promo.minimumSpend) lines.push(\`Minimum spend \${money(promo.minimumSpend)}\`);
-      if (promo.code) lines.push(\`Code \${promo.code}\`);
-      lines.push(\`Expires \${formatDate(promo.expires)}\`);
+      if ((promo.uses || 1)>1) lines.push("<strong>Uses:</strong> " + escapeHtml(promo.uses));
+      if (promo.perUseCap != null) lines.push("<strong>Per-use cap:</strong> " + money(promo.perUseCap));
+      else if (promo.maxSaving != null) lines.push("<strong>Max saving:</strong> " + money(promo.maxSaving));
+      if (promo.minimumSpend) lines.push("<strong>Minimum spend:</strong> " + money(promo.minimumSpend));
+      if (promo.hasCode) lines.push("<strong>Promo code:</strong> kept private");
+      lines.push("<strong>Expires:</strong> " + escapeHtml(formatDate(promo.expires)));
       return lines.join("<br>");
     }
 
-    async function loadPromos() {
-      const grid = document.getElementById("promoGrid");
-      try {
-        const response = await fetch(\`promos.json?v=\${Date.now()}\`, { cache: "no-store" });
-        if (!response.ok) throw new Error(\`HTTP \${response.status}\`);
-        const allPromos = await response.json();
-        if (!Array.isArray(allPromos)) throw new Error("promos.json must contain an array");
-
-        const now = new Date();
-        const active = allPromos
-          .filter(promo => !promo.expires || localDate(promo.expires, true) >= now)
-          .sort((a, b) => rankingScore(b) - rankingScore(a));
-
-        const demo = active.length > 0 && active.every(promo => promo.demo === true);
-        document.getElementById("demoBanner").style.display = demo ? "block" : "none";
-
-        const bestValue = active.reduce((max, promo) => Math.max(max, potentialSaving(promo) || 0), 0);
-        const expiring = active.filter(promo => {
-          const days = daysRemaining(promo.expires);
-          return days != null && days >= 0 && days <= 2;
-        }).length;
-
-        document.getElementById("activeCount").textContent = active.length;
-        document.getElementById("bestSaving").textContent = bestValue > 0 ? money(bestValue) : "—";
-        document.getElementById("expiringCount").textContent = expiring;
-        document.getElementById("loadedAt").textContent = \`Loaded \${new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}\`;
-
-        renderBest(active[0]);
-        renderGrid(active);
-      } catch (error) {
-        console.error(error);
-        document.getElementById("bestPromo").innerHTML = "";
-        grid.innerHTML = \`<div class="empty">Could not load promo data. Check promos.json and the latest GitHub Pages deployment.</div>\`;
+    function normalisePayload(payload) {
+      if (Array.isArray(payload)) {
+        return {promos:payload,generatedAt:null,demo:payload.length>0 && payload.every(function(item){return item.demo === true;}),source:"legacy"};
       }
+      return {
+        promos:Array.isArray(payload && payload.promos) ? payload.promos : [],
+        generatedAt:payload && payload.generatedAt ? payload.generatedAt : null,
+        demo:Boolean(payload && payload.demo === true),
+        source:payload && payload.source ? payload.source : "unknown"
+      };
+    }
+
+    function renderStatus(meta) {
+      const pill = document.getElementById("modePill");
+      pill.classList.remove("live","demo");
+      if (meta.demo) {
+        pill.classList.add("demo");
+        document.getElementById("modeText").textContent = "DEMO";
+        document.getElementById("demoNotice").style.display = "block";
+      } else {
+        pill.classList.add("live");
+        document.getElementById("modeText").textContent = "LIVE";
+        document.getElementById("demoNotice").style.display = "none";
+      }
+      document.getElementById("scanTime").textContent = formatScanTime(meta.generatedAt);
+    }
+
+    function renderStats(promos) {
+      const best = promos.reduce(function(max,promo){return Math.max(max,potentialSaving(promo)||0);},0);
+      const expiring = promos.filter(function(promo){
+        const days = daysRemaining(promo.expires);
+        return days != null && days >= 0 && days <= 2;
+      }).length;
+      const multi = promos.filter(function(promo){return (promo.uses || 1)>1;}).length;
+      document.getElementById("activeCount").textContent = promos.length;
+      document.getElementById("bestSaving").textContent = best>0 ? money(best) : "—";
+      document.getElementById("expiringCount").textContent = expiring;
+      document.getElementById("multiCount").textContent = multi;
     }
 
     function renderBest(promo) {
       const target = document.getElementById("bestPromo");
       if (!promo) {
-        target.innerHTML = \`<div class="hero"><div class="eyebrow">Best current promo</div><h2>No active promos</h2><div class="hero-value">The next scan will update this automatically.</div></div>\`;
+        target.innerHTML = '<div class="hero"><div class="eyebrow">Best current promo</div><h2>No active promos</h2><div class="reason">The next successful scan will update this automatically.</div></div>';
         return;
       }
-
-      const value = potentialSaving(promo);
-      target.innerHTML = \`
-        <div class="hero">
-          <div class="eyebrow">🔥 Best current promo · \${promo.service}</div>
-          <h2>\${promo.title}</h2>
-          <div class="hero-value">\${value != null ? \`Potential saving up to \${money(value)}\` : "Offer detected"}</div>
-          <div class="meta">\${promoDetails(promo)}</div>
-        </div>\`;
+      const chips = [escapeHtml(promo.service)];
+      if ((promo.uses || 1)>1) chips.push(escapeHtml(promo.uses + " uses"));
+      chips.push(escapeHtml("Expires " + formatDate(promo.expires)));
+      target.innerHTML =
+        '<div class="hero">' +
+          '<div class="eyebrow">🔥 Best current promo</div>' +
+          '<h2>' + escapeHtml(promo.title) + '</h2>' +
+          '<div class="hero-value">' + escapeHtml(valueLabel(promo)) + ' potential value</div>' +
+          '<div class="reason">' + escapeHtml(whyBest(promo)) + '</div>' +
+          '<div class="hero-meta">' + chips.map(function(chip){return '<span class="meta-chip">' + chip + '</span>';}).join("") + '</div>' +
+        '</div>';
     }
 
-    function renderGrid(promos) {
+    function sortedFilteredPromos() {
+      let promos = allActivePromos.filter(function(promo){return currentFilter === "all" || promo.service === currentFilter;});
+      promos = promos.slice();
+      if (currentSort === "expiry") {
+        promos.sort(function(a,b){
+          const ad = localDate(a.expires,true); const bd = localDate(b.expires,true);
+          return (ad ? ad.getTime() : Number.MAX_SAFE_INTEGER) - (bd ? bd.getTime() : Number.MAX_SAFE_INTEGER);
+        });
+      } else if (currentSort === "discount") {
+        promos.sort(function(a,b){return Number(b.discount || 0)-Number(a.discount || 0);});
+      } else {
+        promos.sort(function(a,b){return rankingScore(b)-rankingScore(a);});
+      }
+      return promos;
+    }
+
+    function renderGrid() {
+      const promos = sortedFilteredPromos();
       const grid = document.getElementById("promoGrid");
+      document.getElementById("resultCount").textContent = promos.length + (promos.length === 1 ? " promo" : " promos");
       if (!promos.length) {
-        grid.innerHTML = \`<div class="empty">No active promos found.</div>\`;
+        grid.innerHTML = '<div class="empty">No active promos match this filter.</div>';
         return;
       }
-
-      grid.innerHTML = promos.map(promo => {
-        const value = potentialSaving(promo);
-        const days = daysRemaining(promo.expires);
-        const status = days == null ? "Active" : days <= 2 ? "Expiring soon" : \`\${days} days left\`;
-        return \`
-          <article class="card">
-            <span class="badge">\${promo.service}</span>
-            <h3>\${promo.title}</h3>
-            <div class="saving">\${value != null ? \`Up to \${money(value)}\` : "Offer detected"}</div>
-            <div class="details">\${promoDetails(promo)}</div>
-            <div class="status">\${status}</div>
-          </article>\`;
+      grid.innerHTML = promos.map(function(promo){
+        const urgent = urgency(promo);
+        const right = promo.discountType === "percent" && promo.discount != null
+          ? escapeHtml(promo.discount + "%")
+          : promo.discountType === "fixed" && promo.discount != null ? escapeHtml(money(promo.discount)) : "Offer";
+        return '<article class="card">' +
+          '<div class="card-top"><span class="badge">' + escapeHtml(promo.service) + '</span><span class="urgency ' + urgent.className + '">' + escapeHtml(urgent.label) + '</span></div>' +
+          '<h3>' + escapeHtml(promo.title) + '</h3>' +
+          '<div class="saving">' + escapeHtml(valueLabel(promo)) + '</div>' +
+          '<div class="details">' + detailLines(promo) + '</div>' +
+          '<div class="card-footer"><span>' + ((promo.uses || 1)>1 ? escapeHtml(promo.uses + " uses") : "Single use") + '</span><span>' + right + '</span></div>' +
+        '</article>';
       }).join("");
     }
+
+    async function loadPromos() {
+      const grid = document.getElementById("promoGrid");
+      try {
+        const response = await fetch("promos.json?v=" + Date.now(),{cache:"no-store"});
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        const meta = normalisePayload(await response.json());
+        const now = new Date();
+        allActivePromos = meta.promos.filter(function(promo){
+          if (!promo.expires) return true;
+          const expiry = localDate(promo.expires,true);
+          return expiry && expiry >= now;
+        }).sort(function(a,b){return rankingScore(b)-rankingScore(a);});
+        renderStatus(meta);
+        renderStats(allActivePromos);
+        renderBest(allActivePromos[0]);
+        renderGrid();
+      } catch (error) {
+        console.error(error);
+        document.getElementById("modeText").textContent = "ERROR";
+        document.getElementById("scanTime").textContent = "Could not load promo data";
+        document.getElementById("bestPromo").innerHTML = "";
+        grid.innerHTML = '<div class="empty">Could not load promo data. Check promos.json and the latest GitHub Pages deployment.</div>';
+      }
+    }
+
+    document.getElementById("filters").addEventListener("click",function(event){
+      const button = event.target.closest("[data-filter]");
+      if (!button) return;
+      currentFilter = button.dataset.filter;
+      document.querySelectorAll(".filter").forEach(function(item){item.classList.toggle("active",item === button);});
+      renderGrid();
+    });
+
+    document.getElementById("sortSelect").addEventListener("change",function(event){
+      currentSort = event.target.value;
+      renderGrid();
+    });
 
     loadPromos();
   </script>
