@@ -120,29 +120,40 @@ function dateRange(daysBack, olderThanDays) {
   return { start, end };
 }
 
-function messagesInRange(box, daysBack, olderThanDays) {
-  const range = dateRange(daysBack, olderThanDays);
-  let selector;
-
+function bulkMailboxIndex(box) {
   try {
-    if (range.end) {
-      selector = box.messages.whose({
-        _and: [
-          { dateReceived: { _greaterThanEquals: range.start } },
-          { dateReceived: { _lessThan: range.end } }
-        ]
-      });
-    } else {
-      selector = box.messages.whose({
-        dateReceived: { _greaterThanEquals: range.start }
+    const received = box.messages.dateReceived();
+    const subjects = box.messages.subject();
+    const senders = box.messages.sender();
+    const sent = box.messages.dateSent();
+
+    const n = Math.min(
+      received.length,
+      subjects.length,
+      senders.length,
+      sent.length
+    );
+
+    const rows = [];
+
+    for (let i = 0; i < n; i++) {
+      const receivedAt = new Date(received[i]);
+      const sentAt = new Date(sent[i]);
+
+      rows.push({
+        index: i,
+        subject: String(subjects[i] || ""),
+        sender: String(senders[i] || ""),
+        receivedAt,
+        sentAt: Number.isNaN(sentAt.getTime()) ? receivedAt : sentAt
       });
     }
 
-    return selector();
+    return rows;
   } catch (error) {
     throw new Error(
-      "Mail could not apply the date filter before reading messages. " +
-      "The full mailbox scan was intentionally not attempted. " +
+      "Mail could not read mailbox metadata in bulk. " +
+      "The tracker will not fall back to a slow full-message crawl. " +
       String(error)
     );
   }
@@ -150,25 +161,22 @@ function messagesInRange(box, daysBack, olderThanDays) {
 
 function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox) {
   const range = dateRange(daysBack, olderThanDays);
-  const messages = messagesInRange(box, daysBack, olderThanDays);
+
+  stderr("Reading Mail metadata: " + sourceMailbox + "...");
+  const rows = bulkMailboxIndex(box);
+  stderr("Indexed " + rows.length + " messages in " + sourceMailbox + ".");
+
   const results = [];
 
-  for (let i = 0; i < messages.length; i++) {
-    const message = messages[i];
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
 
-    let subject = "";
-    let sender = "";
-    let receivedAt = null;
-    let sentAt = null;
+    if (Number.isNaN(row.receivedAt.getTime())) continue;
+    if (row.receivedAt < range.start) continue;
+    if (range.end && row.receivedAt >= range.end) continue;
+    if (!looksUber(row.subject, row.sender)) continue;
 
-    try { subject = String(message.subject() || ""); } catch (_) {}
-    try { sender = String(message.sender() || ""); } catch (_) {}
-    try { receivedAt = new Date(message.dateReceived()); } catch (_) { receivedAt = new Date(0); }
-    try { sentAt = new Date(message.dateSent()); } catch (_) { sentAt = receivedAt; }
-
-    if (Number.isNaN(receivedAt.getTime()) || receivedAt < range.start) continue;
-    if (range.end && receivedAt >= range.end) continue;
-    if (!looksUber(subject, sender)) continue;
+    const message = box.messages[row.index];
 
     let rawSource = "";
     let recipient = "";
@@ -181,17 +189,21 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox) {
     const rawMessageId = headerValue(rawSource, "Message-ID");
 
     results.push({
-      subject,
-      sender,
+      subject: row.subject,
+      sender: row.sender,
       recipient,
       body,
-      sentAt: isoDate(sentAt),
-      receivedAt: isoDate(receivedAt),
+      sentAt: isoDate(row.sentAt),
+      receivedAt: isoDate(row.receivedAt),
       messageId: rawMessageId || null,
       mailbox: role,
       sourceMailbox: sourceMailbox || null
     });
   }
+
+  stderr(
+    "Exported " + results.length + " Uber message(s) from " + sourceMailbox + "."
+  );
 
   return results;
 }

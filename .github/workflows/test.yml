@@ -45,6 +45,7 @@ jobs:
       - name: Check shell scripts
         run: |
           bash -n mac/update-promos.sh
+          bash -n mac/preview-sync.sh
           bash -n mac/backfill-receipts.sh
           bash -n mac/install-automation.sh
           bash -n mac/setup-v2.sh

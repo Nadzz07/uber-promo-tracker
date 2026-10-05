@@ -129,33 +129,48 @@ function run(argv) {
     upperBound.setDate(upperBound.getDate() - olderThanDays);
   }
 
-  let messages;
+  let inboxIds;
+  let inboxDates;
+
   try {
-    if (upperBound) {
-      messages = Mail.inbox.messages.whose({
-        _and: [
-          { dateReceived: { _greaterThanEquals: cutoff } },
-          { dateReceived: { _lessThan: upperBound } }
-        ]
-      })();
-    } else {
-      messages = Mail.inbox.messages.whose({
-        dateReceived: { _greaterThanEquals: cutoff }
-      })();
-    }
+    inboxIds = Mail.inbox.messages.messageId();
+    inboxDates = Mail.inbox.messages.dateReceived();
   } catch (error) {
     throw new Error(
-      "Mail could not filter Inbox by date; no messages were moved. " +
+      "Mail could not read Inbox metadata in bulk; no messages were moved. " +
       String(error)
     );
+  }
+
+  const n = Math.min(inboxIds.length, inboxDates.length);
+  const candidates = [];
+
+  for (let i = 0; i < n; i++) {
+    const receivedAt = new Date(inboxDates[i]);
+
+    if (Number.isNaN(receivedAt.getTime()) || receivedAt < cutoff) continue;
+    if (upperBound && receivedAt >= upperBound) continue;
+
+    const messageId = normalizeMessageId(inboxIds[i]);
+    if (!messageId || !wanted.has(messageId)) continue;
+
+    candidates.push({
+      index: i,
+      messageId
+    });
   }
 
   let moved = 0;
   const matched = new Set();
 
-  for (let i = 0; i < messages.length; i++) {
-    const message = messages[i];
-    const messageId = messageIdFor(message);
+  // Move from highest index to lowest. Moving a message mutates the Inbox
+  // collection, so descending order prevents later indices from shifting.
+  candidates.sort((a, b) => b.index - a.index);
+
+  for (let i = 0; i < candidates.length; i++) {
+    const candidate = candidates[i];
+    const message = Mail.inbox.messages[candidate.index];
+    const messageId = messageIdFor(message) || candidate.messageId;
 
     if (!messageId || !wanted.has(messageId)) continue;
 

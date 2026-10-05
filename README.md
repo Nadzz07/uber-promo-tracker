@@ -293,7 +293,7 @@ APPLE_MAIL_PROMO_FOLDERS="INBOX|Uber High Promos|Uber Cash"
 
 Messages found in more than one configured folder are deduplicated before import.
 
-The normal updater deliberately keeps receipt scanning recent. It asks Apple Mail to apply the date filter before message bodies are read, avoiding the old behaviour where a large receipt archive could peg Mail while JavaScript walked the entire mailbox.
+The normal updater deliberately keeps receipt scanning recent. Apple Mail's `whose` queries can time out on large mailboxes, so the exporter bulk-reads lightweight mailbox metadata, filters the requested date window locally, and opens full message content only for matching Uber messages. It never falls back to the old per-message full-mailbox crawl.
 
 Historical receipts are imported separately in bounded chunks and accumulated in the private SQLite database.
 
@@ -311,7 +311,29 @@ osascript -l JavaScript mac/list-mailboxes.js
 
 `tracker.local.env` is private and Git-ignored.
 
+### Private preview sync
+
+Before the first publish, run:
+
+```bash
+bash mac/preview-sync.sh
+```
+
+This is fail-fast: if Mail export fails, no parser/import/move step runs afterward. It updates the private SQLite database, can file confirmed Inbox receipts, and writes public-output previews only to a temporary directory. It does **not** commit or push anything.
+
+### Run a private preview first
+
+Before the first publish, use the fail-fast private preview:
+
+```bash
+bash mac/preview-sync.sh
+```
+
+It exports recent Mail, validates the JSON, runs the full tests, updates only the private SQLite database, and optionally files confirmed Inbox receipts. It does **not** commit or push the public JSON.
+
 ### Run a live scan
+
+After the private preview looks correct:
 
 ```bash
 bash mac/update-promos.sh
@@ -320,7 +342,7 @@ bash mac/update-promos.sh
 The updater:
 
 1. pulls the repo
-2. exports recent Uber messages from the configured Mail folders using Mail-side date filters
+2. exports recent Uber messages from the configured Mail folders using bulk metadata indexing
 3. runs the full tests
 4. updates the private SQLite store
 5. recognises Uber Eats receipts found in `INBOX`
