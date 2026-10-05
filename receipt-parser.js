@@ -26,6 +26,41 @@ function moneyForLabel(text, labels) {
   return { value: null, match: null };
 }
 
+
+function savingsAmount(text) {
+  const match = firstMatch(text, [
+    /\byou\s+saved\s+£\s*(\d+(?:[.,]\d{1,2})?)/i,
+    /\b(?:total|your)\s+savings?\b[^£\d]{0,24}£\s*(\d+(?:[.,]\d{1,2})?)/i
+  ]);
+
+  return {
+    value: match ? number(match[1].replace(",", ".")) : null,
+    match
+  };
+}
+
+function uberOneSavingAmount(text) {
+  const labelled = moneyForLabel(text, [
+    "uber one savings",
+    "uber one saving",
+    "uber one member savings",
+    "uber one member benefit",
+    "uber one benefit"
+  ]);
+
+  if (labelled.value != null) return labelled;
+
+  const match = firstMatch(text, [
+    /\bsaved\s+£\s*(\d+(?:[.,]\d{1,2})?)\s+(?:with|thanks\s+to)\s+uber\s*one\b/i,
+    /\buber\s*one\b.{0,40}\bsaved\s+(?:you\s+)?£\s*(\d+(?:[.,]\d{1,2})?)/i
+  ]);
+
+  return {
+    value: match ? number(match[1].replace(",", ".")) : null,
+    match
+  };
+}
+
 function extractOrderId(text) {
   const match = firstMatch(text, [
     /(?:order\s*(?:number|no\.?|#)|receipt\s*#)\s*[:#-]?\s*([A-Z0-9-]{5,40})/i
@@ -67,6 +102,9 @@ export function parseUberEatsReceipt({
   const smallOrderFee = moneyForLabel(text, ["small order fee"]);
   const tip = moneyForLabel(text, ["tip"]);
   const uberCashUsed = moneyForLabel(text, ["uber cash", "uber credits"]);
+  const reportedSavings = savingsAmount(text);
+  const uberOneSavings = uberOneSavingAmount(text);
+  const uberOneSignal = /\buber\s*one\b/i.test(text);
   const orderId = extractOrderId(text);
 
   const hasReceiptAmounts = subtotal.value != null || total.value != null;
@@ -102,6 +140,9 @@ export function parseUberEatsReceipt({
     smallOrderFee: smallOrderFee.value,
     tip: tip.value,
     uberCashUsed: uberCashUsed.value,
+    reportedSavings: reportedSavings.value,
+    uberOneSavings: uberOneSavings.value,
+    uberOneSignal,
     total: total.value,
     senderVerified: senderAnalysis.trusted,
     senderConfidence: senderAnalysis.confidence,
@@ -112,6 +153,8 @@ export function parseUberEatsReceipt({
       serviceFee: sourceSnippet(text, serviceFee.match),
       smallOrderFee: sourceSnippet(text, smallOrderFee.match),
       uberCash: sourceSnippet(text, uberCashUsed.match),
+      reportedSavings: sourceSnippet(text, reportedSavings.match),
+      uberOneSavings: sourceSnippet(text, uberOneSavings.match),
       total: sourceSnippet(text, total.match),
       orderId: sourceSnippet(text, orderId.match),
       senderBasis: senderAnalysis.basis
