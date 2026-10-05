@@ -117,6 +117,9 @@
         <button class="filter" data-filter="Uber Eats">Eats</button>
         <button class="filter" data-filter="Uber One">Uber One</button>
       </div>
+      <label class="sort-wrap">Account
+        <select id="accountSelect"><option value="all">All accounts</option></select>
+      </label>
       <label class="sort-wrap">Sort
         <select id="sortSelect">
           <option value="value">Best value</option>
@@ -145,6 +148,7 @@
     let allActivePromos = [];
     let allHistoryRecords = [];
     let currentFilter = "all";
+    let currentAccount = "all";
     let currentSort = "value";
 
     function escapeHtml(value) {
@@ -242,6 +246,8 @@
       if ((promo.sameAccountOfferCount || 1) > 1) {
         lines.push("<strong>Same account:</strong> " + escapeHtml(promo.sameAccountOfferCount) + " active offers");
       }
+      if (promo.accountRef) lines.push("<strong>Account:</strong> " + escapeHtml(promo.accountRef));
+      if (promo.hasCompanionOffer) lines.push("<strong>Related offer:</strong> another fixed/Uber Cash offer was found on this account");
       if (promo.hasCode) lines.push("<strong>Promo code:</strong> kept private");
       lines.push("<strong>Expires:</strong> " + escapeHtml(formatDate(promo.expires)));
       return lines.join("<br>");
@@ -312,7 +318,11 @@
     }
 
     function sortedFilteredPromos() {
-      let promos = allActivePromos.filter(function(promo){return currentFilter === "all" || promo.service === currentFilter;});
+      let promos = allActivePromos.filter(function(promo){
+        const serviceMatch = currentFilter === "all" || promo.service === currentFilter;
+        const accountMatch = currentAccount === "all" || promo.accountRef === currentAccount;
+        return serviceMatch && accountMatch;
+      });
       promos = promos.slice();
       if (currentSort === "expiry") {
         promos.sort(function(a,b){
@@ -350,6 +360,19 @@
       }).join("");
     }
 
+
+    function populateAccountFilter(promos) {
+      const select = document.getElementById("accountSelect");
+      const refs = [...new Set(promos.map(function(promo){return promo.accountRef;}).filter(Boolean))].sort();
+
+      select.innerHTML = '<option value="all">All accounts</option>' +
+        refs.map(function(ref){
+          return '<option value="' + escapeHtml(ref) + '">' + escapeHtml(ref) + '</option>';
+        }).join("");
+
+      if (refs.includes(currentAccount)) select.value = currentAccount;
+      else currentAccount = "all";
+    }
 
     function formatSeen(value) {
       if (!value) return "Unknown";
@@ -416,6 +439,7 @@
           return expiry && expiry >= now;
         }).sort(function(a,b){return rankingScore(b)-rankingScore(a);});
         renderStatus(meta);
+        populateAccountFilter(allActivePromos);
         renderStats(allActivePromos);
         renderBest(allActivePromos[0]);
         renderGrid();
@@ -433,6 +457,11 @@
       if (!button) return;
       currentFilter = button.dataset.filter;
       document.querySelectorAll(".filter").forEach(function(item){item.classList.toggle("active",item === button);});
+      renderGrid();
+    });
+
+    document.getElementById("accountSelect").addEventListener("change",function(event){
+      currentAccount = event.target.value;
       renderGrid();
     });
 
