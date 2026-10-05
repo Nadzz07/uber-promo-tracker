@@ -5,7 +5,10 @@ import { toPublicPromo } from "./public-promo.js";
 import { mergeHistory, toPublicHistory } from "./history.js";
 import { assignAccountRefs } from "./account-map.js";
 import { migrateLegacyRows } from "./legacy-migration.js";
-import { savingForSpend, rankPromosForSpend } from "./deal-intelligence.js";
+import { savingForSpend, rankPromosForSpend, planBasketSplit } from "./deal-intelligence.js";
+import { maskAccountAlias } from "./account-map.js";
+import { parseUberEatsReceipt } from "./receipt-parser.js";
+import { applyReceiptEvidence } from "./receipt-intelligence.js";
 
 const parserCases = [
   {
@@ -506,4 +509,127 @@ assert.equal(
 
 console.log("✓ Spend-specific deal intelligence");
 
-console.log("All " + (parserCases.length + 6) + " automated tests passed.");
+assert.equal(
+  maskAccountAlias("nadzz07-private@icloud.com"),
+  "na…te@icloud.com",
+  "public account identity should be recognisable but masked"
+);
+
+console.log("✓ Account email masking");
+
+const parsedReceipt = parseUberEatsReceipt({
+  sender: "Uber Eats <receipts@uber.com>",
+  recipient: "account-a@icloud.com",
+  subject: "Your receipt from Example Kitchen",
+  body: [
+    "Thanks for your order",
+    "Subtotal £25.00",
+    "Promotion -£15.00",
+    "Delivery Fee £1.49",
+    "Service Fee £1.00",
+    "Total £12.49"
+  ].join("\n"),
+  receivedAt: "2026-10-05T18:00:00.000Z"
+});
+
+assert.equal(parsedReceipt.isReceipt, true);
+assert.equal(parsedReceipt.accountAlias, "account-a@icloud.com");
+assert.equal(parsedReceipt.subtotal, 25);
+assert.equal(parsedReceipt.promotionDiscount, 15);
+assert.equal(parsedReceipt.deliveryFee, 1.49);
+assert.equal(parsedReceipt.serviceFee, 1);
+
+const receiptEvidence = applyReceiptEvidence(
+  [{
+    service: "Uber Eats",
+    title: "£15 off",
+    discountType: "fixed",
+    discount: 15,
+    minimumSpend: 15,
+    uses: 1,
+    accountRef: "A001",
+    accountMasked: "ac…-a@icloud.com"
+  }],
+  [{
+    ...parsedReceipt,
+    id: "receipt-test-1",
+    accountRef: "A001",
+    accountMasked: "ac…-a@icloud.com"
+  }]
+);
+
+assert.equal(receiptEvidence.promos[0].receiptState, "used");
+assert.equal(receiptEvidence.promos[0].usesRemaining, 0);
+assert.equal(receiptEvidence.publicInsights.accounts[0].receiptOrderCount, 1);
+assert.equal(receiptEvidence.publicInsights.feeModel.averageExtraOrderFees, 2.49);
+
+console.log("✓ Receipt evidence confirms promo usage and fee model");
+
+const splitPromos = [
+  {
+    id: "split-a",
+    service: "Uber Eats",
+    title: "£15 off £15",
+    discountType: "fixed",
+    discount: 15,
+    minimumSpend: 15,
+    uses: 1,
+    usesRemaining: 1,
+    accountRef: "A001",
+    accountMasked: "a…1@icloud.com"
+  },
+  {
+    id: "split-b",
+    service: "Uber Eats",
+    title: "£10 Uber Cash",
+    discountType: "uberCash",
+    discount: 10,
+    minimumSpend: 0,
+    uses: 1,
+    usesRemaining: 1,
+    accountRef: "A002",
+    accountMasked: "a…2@icloud.com"
+  },
+  {
+    id: "split-c",
+    service: "Uber Eats",
+    title: "40% off up to £12",
+    discountType: "percent",
+    discount: 40,
+    maxSaving: 12,
+    perUseCap: 12,
+    minimumSpend: 20,
+    uses: 1,
+    usesRemaining: 1,
+    accountRef: "A003",
+    accountMasked: "a…3@icloud.com"
+  }
+];
+
+const splitPlan = planBasketSplit(splitPromos, 50, {
+  service: "Uber Eats",
+  maxOrders: 3,
+  extraOrderFee: 2.49
+});
+
+assert.equal(splitPlan.eligible, true);
+assert.equal(splitPlan.orderCount, 3);
+assert.equal(splitPlan.accountCount, 3);
+assert.ok(splitPlan.netSaving > 27);
+assert.ok(splitPlan.benefitVsSingle > 10);
+
+const expensiveSplit = planBasketSplit(splitPromos, 50, {
+  service: "Uber Eats",
+  maxOrders: 3,
+  extraOrderFee: 20
+});
+
+assert.equal(
+  expensiveSplit.orderCount,
+  1,
+  "large extra-order fees should make a single order optimal"
+);
+
+console.log("✓ Fee-aware multi-account basket splitting");
+
+console.log("All " + (parserCases.length + 9) + " automated tests passed.");
