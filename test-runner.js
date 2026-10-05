@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { parseUberPromo } from "./parser.js";
 import { buildPromoList } from "./processor.js";
+import { toPublicPromo } from "./public-promo.js";
 
 const parserCases = [
   {
