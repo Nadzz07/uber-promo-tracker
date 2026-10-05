@@ -1,6 +1,7 @@
 import { savingForSpend } from "./deal-intelligence.js";
 
 function number(value) {
+  if (value == null || value === "") return null;
   const result = Number(value);
   return Number.isFinite(result) ? result : null;
 }
