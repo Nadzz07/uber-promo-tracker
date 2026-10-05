@@ -23,7 +23,16 @@ assert.ok(html.includes('data-view="accounts"'));
 assert.ok(html.includes('data-view="used"'));
 assert.ok(html.includes('data-view="more"'));
 
-assert.ok(html.includes("Advanced split settings"));
+assert.ok(html.includes("Split settings"));
+assert.ok(html.includes("Best move for this basket"));
+assert.ok(html.includes("Tap the amount to edit"));
+assert.ok(html.includes('step="0.01"'));
+assert.ok(html.includes("Extra fee per extra order"));
+assert.ok(html.includes("Maximum split orders"));
+assert.ok(html.includes("data-max-orders"));
+assert.ok(html.includes("[1,2,3,4].map"));
+assert.ok(html.includes("Use this account"));
+assert.ok(html.includes("account-status-badge"));
 assert.ok(html.includes('id="sheetBackdrop"'));
 assert.ok(html.includes("Used 1 order"));
 assert.ok(html.includes("Undo manual use"));
@@ -56,4 +65,16 @@ assert.equal(
   "old inline Used/Ignore card controls should not return"
 );
 
-console.log("✓ Liquid-glass mobile app syntax and layout guard");
+assert.equal(
+  html.includes("data-basket="),
+  false,
+  "preset basket money buttons should stay removed"
+);
+
+assert.equal(
+  html.includes("Find the best move."),
+  false,
+  "generic Find the best move heading should not compete with the product title"
+);
+
+console.log("✓ Round-3 home, split-settings and account-sheet guard");
