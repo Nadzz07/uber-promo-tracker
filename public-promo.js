@@ -1,5 +1,6 @@
-export function toPublicPromo(promo) {
+export function toPublicPromo(promo, { accountId = null } = {}) {
   return {
+    accountId,
     service: promo.service,
     title: promo.title,
     discountType: promo.discountType,
@@ -9,6 +10,7 @@ export function toPublicPromo(promo) {
     uses: promo.uses,
     maxTotalSaving: promo.maxTotalSaving,
     minimumSpend: promo.minimumSpend,
+    sameAccountOfferCount: promo.sameAccountOfferCount || 1,
     hasCode: Boolean(promo.code),
     expires: promo.expires,
     expiryBasis: promo.expiryBasis
