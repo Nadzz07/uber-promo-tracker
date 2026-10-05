@@ -1,30 +1,33 @@
-[
-  {
-    "service": "Uber",
-    "title": "40% off your next 5 Uber trips",
-    "discountType": "percent",
-    "discount": 40,
-    "maxSaving": 10,
-    "perUseCap": 10,
-    "uses": 5,
-    "maxTotalSaving": 50,
-    "minimumSpend": 0,
-    "code": null,
-    "expires": "2026-10-19",
-    "demo": true
-  },
-  {
-    "service": "Uber Eats",
-    "title": "25% off your next order",
-    "discountType": "percent",
-    "discount": 25,
-    "maxSaving": 8,
-    "perUseCap": null,
-    "uses": 1,
-    "maxTotalSaving": 8,
-    "minimumSpend": 15,
-    "code": "EATS25",
-    "expires": "2026-10-09",
-    "demo": true
-  }
-]
+{
+  "generatedAt": null,
+  "source": "demo",
+  "demo": true,
+  "promos": [
+    {
+      "service": "Uber",
+      "title": "40% off your next 5 Uber trips",
+      "discountType": "percent",
+      "discount": 40,
+      "maxSaving": 10,
+      "perUseCap": 10,
+      "uses": 5,
+      "maxTotalSaving": 50,
+      "minimumSpend": 0,
+      "hasCode": false,
+      "expires": "2026-10-19"
+    },
+    {
+      "service": "Uber Eats",
+      "title": "25% off your next order",
+      "discountType": "percent",
+      "discount": 25,
+      "maxSaving": 8,
+      "perUseCap": null,
+      "uses": 1,
+      "maxTotalSaving": 8,
+      "minimumSpend": 15,
+      "hasCode": true,
+      "expires": "2026-10-09"
+    }
+  ]
+}
