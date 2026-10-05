@@ -46,7 +46,8 @@
       "uberOneConfirmedSavings": 31.5,
       "otherConfirmedSavings": 11,
       "estimatedUberOneSavings": 61.2,
-      "estimatedTotalSaved": 371.7
+      "estimatedTotalSaved": 371.7,
+      "confirmedSaved": 310.5
     },
     {
       "accountRef": "A002",
@@ -63,7 +64,8 @@
       "uberOneConfirmedSavings": 17.4,
       "otherConfirmedSavings": 5,
       "estimatedUberOneSavings": 34.8,
-      "estimatedTotalSaved": 194.2
+      "estimatedTotalSaved": 194.2,
+      "confirmedSaved": 159.4
     },
     {
       "accountRef": "A003",
@@ -80,7 +82,8 @@
       "uberOneConfirmedSavings": 21.1,
       "otherConfirmedSavings": 7,
       "estimatedUberOneSavings": 45.3,
-      "estimatedTotalSaved": 239.4
+      "estimatedTotalSaved": 239.4,
+      "confirmedSaved": 194.1
     },
     {
       "accountRef": "A004",
@@ -97,7 +100,8 @@
       "uberOneConfirmedSavings": 0,
       "otherConfirmedSavings": 0,
       "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 0
+      "estimatedTotalSaved": 0,
+      "confirmedSaved": 0
     },
     {
       "accountRef": "A005",
@@ -114,7 +118,8 @@
       "uberOneConfirmedSavings": 0,
       "otherConfirmedSavings": 0,
       "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 0
+      "estimatedTotalSaved": 0,
+      "confirmedSaved": 0
     },
     {
       "accountRef": "A006",
@@ -131,7 +136,8 @@
       "uberOneConfirmedSavings": 0,
       "otherConfirmedSavings": 0,
       "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 0
+      "estimatedTotalSaved": 0,
+      "confirmedSaved": 0
     }
   ],
   "promos": [
