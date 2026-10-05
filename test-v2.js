@@ -353,6 +353,16 @@ const dbPath = path.join(tempDir, "tracker.db");
 const db = openPrivateDb(dbPath);
 
 try {
+  test("private DB has receipt savings evidence columns", () => {
+    const columns = new Set(
+      db.prepare("PRAGMA table_info(receipts)").all().map(row => row.name)
+    );
+
+    assert.ok(columns.has("reported_savings"));
+    assert.ok(columns.has("uber_one_savings"));
+    assert.ok(columns.has("uber_one_signal"));
+  });
+
   test("newly discovered account defaults to can't log in", () => {
     const account = ensureAccount(db, {
       alias: "first@icloud.com",
