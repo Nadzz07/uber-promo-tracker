@@ -1,68 +1,44 @@
-import fs from "fs/promises";
+import fs from "node:fs/promises";
+import { buildPromoList } from "./processor.js";
 
-import {
-    buildPromoList
+const inputPath = process.argv[2] || "./emails.local.json";
+const outputPath = process.argv[3] || "./promos.json";
+
+function publicPromo(promo) {
+  return {
+    service: promo.service,
+    title: promo.title,
+    discountType: promo.discountType,
+    discount: promo.discount,
+    maxSaving: promo.maxSaving,
+    perUseCap: promo.perUseCap,
+    uses: promo.uses,
+    maxTotalSaving: promo.maxTotalSaving,
+    minimumSpend: promo.minimumSpend,
+    code: promo.code,
+    expires: promo.expires
+  };
 }
-from "./processor.js";
-
 
 async function generatePromos() {
+  try {
+    const raw = await fs.readFile(inputPath, "utf8");
+    const emails = JSON.parse(raw);
 
-    try {
-
-        const raw =
-            await fs.readFile(
-                "./emails.json",
-                "utf8"
-            );
-
-
-        const emails =
-            JSON.parse(raw);
-
-
-        const promos =
-            buildPromoList(emails);
-
-
-        await fs.writeFile(
-            "./promos.json",
-            JSON.stringify(
-                promos,
-                null,
-                2
-            )
-        );
-
-
-        console.log(
-            `Generated ${promos.length} promos.`
-        );
-
-
-        if (promos.length > 0) {
-
-            console.log(
-                `Best promo: ${promos[0].title}`
-            );
-
-        }
-
+    if (!Array.isArray(emails)) {
+      throw new Error("Email input must be a JSON array.");
     }
 
-    catch (error) {
+    const promos = buildPromoList(emails).map(publicPromo);
+    await fs.writeFile(outputPath, \`\${JSON.stringify(promos, null, 2)}\n\`);
 
-        console.error(
-            "Could not generate promos:"
-        );
-
-        console.error(error);
-
-        process.exit(1);
-
-    }
-
+    console.log(\`Generated \${promos.length} public promo records.\`);
+    if (promos.length > 0) console.log(\`Best promo: \${promos[0].title}\`);
+  } catch (error) {
+    console.error("Could not generate promos:");
+    console.error(error);
+    process.exit(1);
+  }
 }
-
 
 generatePromos();
