@@ -1,177 +1,371 @@
 # Uber Eats Promo Tracker
 
-An automated, account-aware Uber Eats promo finder designed to answer one question quickly: which account should be used for an order?
+A private, account-aware Uber Eats promotion intelligence system built around one practical question:
 
-## Current architecture
+**Which email/account should I use for this order, and should I split the basket across multiple accounts?**
 
-`Apple Mail on Mac → local email export → parser.js → processor.js → generate-promos.js → promos.json → GitHub Pages`
+The Mac does the private work. GitHub Pages only receives a sanitised snapshot for the phone/desktop dashboard.
 
-The public site reads only `promos.json`. Raw email bodies stay on the Mac in `emails.local.json`, which is ignored by Git.
+## Architecture
 
-## What already works
-
-- Publishes Uber Eats promos only; ride and Uber One offers are excluded from the public tracker.
-- Ignores normal Uber receipts.
-- Extracts percentage or fixed discounts, minimum spend, promo codes and expiry dates.
-- Understands multi-use offers such as “40% off your next 5 trips, up to £10 per trip”.
-- Calculates total potential saving for per-use caps.
-- Removes duplicate and expired promos.
-- Ranks the most valuable promo first.
-- GitHub Pages dashboard loads `promos.json` automatically.
-- GitHub Actions tests the promo engine on every code change.
-- Mac scripts are included to read matching messages from Apple Mail, generate promo data, and publish changes.
-
-## Tests
-
-```bash
-npm test
+```text
+Apple Mail on Mac
+  ├─ promo mailbox / Inbox
+  └─ Uber Receipts mailbox
+          ↓
+Mail exporter
+          ↓
+Parser v2
+  ├─ sender analysis
+  ├─ offer classification
+  ├─ discount/minimum-spend/code extraction
+  ├─ exact / estimated / unknown expiry
+  └─ evidence + confidence
+          ↓
+uber-tracker.local.db          ← PRIVATE, Git-ignored
+  ├─ accounts + can-login state
+  ├─ Mail messages/evidence
+  ├─ durable offers/history
+  ├─ receipts
+  └─ receipt-to-offer matches
+          ↓
+receipt usage + savings intelligence
+          ↓
+sanitiser
+          ↓
+promos.json + history.json     ← PUBLIC safe projection only
+          ↓
+GitHub Pages mobile-first dashboard
 ```
 
-## Generate promos locally
+## Privacy model
 
-The generator defaults to private local input:
+Private on the Mac:
 
-```bash
-npm run generate -- emails.local.json promos.json
+- full Hide My Email / recipient aliases
+- actual promo codes
+- raw Uber message bodies
+- parser evidence snippets
+- receipt merchant/order details
+- account login-access list
+- the private SQLite database
+- legacy database content
+
+Public JSON contains only safe derived information such as:
+
+- masked account email, e.g. `na…07@icloud.com`
+- internal anonymous account ref
+- whether that masked account is usable for recommendations
+- discount/minimum-spend/expiry fields
+- remaining-use state
+- aggregate receipt savings/order counts
+- aggregate fee estimate
+
+Never commit `uber-tracker.local.db`, `emails.local.json`, access lists, legacy DBs, `.env` files or raw Mail exports.
+
+## Account identity and login access
+
+The **recipient email is the Uber Eats account identity**.
+
+Each newly discovered recipient alias is automatically added to the private account registry. There are only two login states:
+
+- **Can log in**
+- **Can't log in**
+
+Newly discovered accounts default to **Can't log in**. This is deliberate: the basket optimiser must never recommend an account that has not been confirmed usable.
+
+The public UI shows the masked email. Internal refs such as `A001` are join keys and are not the normal user-facing identity.
+
+### Import an access list
+
+CSV format:
+
+```csv
+email,can_login
+alias-one@icloud.com,true
+alias-two@icloud.com,false
 ```
 
-`emails.example.json` contains synthetic examples only. Never commit real mailbox exports.
+Then:
+
+```bash
+node mac/import-account-access.js account-access.local.csv --reset
+```
+
+If you only have the list of accounts you **can** log into, create a text file containing one email per line:
+
+```text
+alias-one@icloud.com
+alias-three@icloud.com
+```
+
+Then run:
+
+```bash
+node mac/import-account-access.js accessible-accounts.local.txt --reset
+```
+
+`--reset` first marks every known account inaccessible, then applies the file. Future newly discovered accounts again default to inaccessible until added to your list.
+
+## Parser v2
+
+The parser is split into distinct stages under `parser-v2/` rather than growing one giant regex file:
+
+- `sender.js` — Uber domain, Apple relay shape and display-name fallback
+- `classifier.js` — Uber Eats / ride / Uber One / unwanted-category classification
+- `discount.js` — fixed, percentage, Uber Cash, caps, uses, minimum spend and code
+- `expiry.js` — expiry extraction and evidence
+- `parser.js` — structured result assembly
+- `utils.js` — normalisation/date/evidence utilities
+
+Structured offer types include:
+
+- `uber_cash`
+- `fixed_order_discount`
+- `multi_order_discount`
+- `percentage_discount`
+- `ride_fixed_discount`
+- `ride_percentage_discount`
+- `reminder`
+- `non_promo`
+
+Ride classifications are retained privately for correct parsing, but the public tracker publishes **Uber Eats only**.
+
+### Expiry model
+
+Expiry is intentionally one of:
+
+- **exact** — explicit terms such as “Expires 20 Mar 2026 12:00AM”
+- **estimated** — wording such as “valid for 14 days” where the starting point is reliably the email date
+- **unknown** — no expiry is stated, or wording depends on an unknown account-activation date
+
+For account-activation wording such as “valid for 35 days since it was applied to the account”, the parser deliberately leaves expiry unknown.
+
+The rule is:
+
+> correct + unknown is better than incorrect + precise.
+
+Private evidence stores the source wording that justified extracted fields.
+
+## Deterministic current/history logic
+
+Bulk Mail reprocessing must not make an older email overwrite a newer one.
+
+Every parsed message stores its sent date. Durable offers track `first_sent_at` and `last_sent_at`, and newer source emails update the canonical offer record deterministically.
+
+Repeated reminder emails for the same offer family use a stable offer fingerprint that does **not** change merely because an updated reminder contains a different expiry date.
+
+## Receipts and savings
+
+Receipts are a separate evidence source, not promo emails.
+
+The receipt parser extracts, when present:
+
+- subtotal
+- Promotion discount
+- delivery fee
+- service fee
+- small-order fee
+- tip
+- Uber Cash / credits used
+- final total
+- order ID
+- order date
+- recipient account
+
+Receipt evidence can:
+
+- confirm that an account has been used
+- confirm a specific promo when the amount uniquely matches
+- decrement multi-use offers
+- mark single-use offers used
+- estimate the real extra cost of splitting baskets
+- build lifetime savings/order statistics
+
+Chronology is enforced: a receipt from before a promo email cannot consume that later promo.
+
+Lifetime **Total saved** currently means observed receipt Promotion discounts plus observed Uber Cash/credits used. These are also shown separately in Savings insights.
+
+## Basket optimiser
+
+The dashboard can optimise a planned basket across up to four accounts/orders.
+
+It:
+
+- considers **only accounts marked Can log in**
+- enforces minimum spend
+- applies percentage caps
+- handles fixed discounts and Uber Cash
+- assumes one tracked account promo per order
+- subtracts an estimated extra-order fee
+- maximises net saving
+- prefers fewer orders when net saving ties
+- prefers earlier expiry when two offers save the same amount
+- excludes receipt-confirmed used and manually Used/Ignore offers
+
+The extra-order fee is prefilled from observed receipt delivery/service/small-order fees when available and can be overridden.
+
+## Dashboard
+
+The site is mobile-first because the primary use is while ordering food.
+
+Main navigation:
+
+- **Deals** — basket optimiser, quick categories and best usable accounts
+- **Accounts** — searchable accounts you can actually log into
+- **Used** — receipt-confirmed/manual used and ignored promos
+- **Menu** — inaccessible accounts, savings insights, scan/data health and history
+
+Inaccessible accounts are deliberately hidden from the normal ordering flow.
+
+The UI uses softer charcoal surfaces rather than pure OLED black, equal-size quick tiles, compact phone spacing, and “saving on this basket” instead of “potential value”.
 
 ## Mac setup
 
-Once this repository is cloned on the Mac:
+Requires **Node.js 22 or newer** because the private store uses Node's built-in SQLite API.
 
-1. Open Mail and make sure iCloud Mail is signed in and synced.
-2. Run:
-   ```bash
-   bash mac/update-promos.sh
-   ```
-3. macOS may ask permission for Terminal/osascript to control Mail. Allow it.
-4. Confirm `promos.json` is updated and pushed.
-5. To run the same update automatically every hour:
-   ```bash
-   bash mac/install-automation.sh
-   ```
-
-The exporter looks back 45 days and only reads messages whose sender or subject contains “Uber”. Raw message data remains local; the public repository receives only the parsed promo fields.
-
-## Public site
-
-GitHub Pages serves the dashboard from the `main` branch. While real Mail data is not yet connected, `promos.json` is clearly marked as demo data.
-
-
-## Legacy Mac project review
-
-The earlier Mac project was reviewed and its useful ideas have been folded into this version without publishing its private database or configuration.
-
-Useful behaviours now carried forward include:
-
-- validating a real Uber sender when Mail provides sender data
-- recognising Apple's Uber relay sender shape
-- parsing Uber Cash offers
-- handling “first N orders” multi-use offers
-- handling both “minimum spend £15” and “£15 minimum spend”
-- keeping activation-based expiry wording unknown instead of inventing an expiry date
-
-The older project also contained a SQLite history model and account-alias matching. That idea is now implemented in the new tracker without exposing the actual aliases.
-
-## Anonymous account matching
-
-Apple Mail recipient addresses are used locally to keep offers from different Uber accounts separate. The real aliases stay only in the Git-ignored `accounts.local.json` file. Public promo data uses stable anonymous labels such as `A001`, `A002`, etc.
-
-The tracker treats same-account offers as related context only. It does **not** assume they can be combined or stacked unless the offer terms explicitly say so.
-
-
-## Anonymous multi-account support
-
-The legacy Mac database showed that the tracker needs to treat recipient aliases as separate Uber accounts.
-
-The current version now:
-
-- reads the recipient address locally from Apple Mail when available
-- deduplicates identical promos **within** an account, not across different accounts
-- detects related fixed/Uber Cash offers only on the same account
-- stores the real alias only in `accounts.local.json` on the Mac
-- assigns stable anonymous labels such as `A001`, `A002`, etc.
-- publishes only those anonymous labels to `promos.json` and `history.json`
-- lets the public dashboard filter offers by anonymous account
-
-`accounts.local.json` is ignored by Git and must remain private.
-
-
-## Legacy SQLite migration
-
-The old Python/SQLite tracker can be imported **locally on the Mac** without publishing the old database or its account aliases.
-
-The migration uses a two-tier history model:
-
-- `history.local.json` — full private history used by the tracker; Git-ignored
-- `history.json` — public dashboard projection containing only offers observed by the new live scanner
-
-The temporary SQLite export contains only the legacy account alias, normalised discount/minimum-spend/expiry fields, and a boolean indicating whether a code existed. It does **not** export old senders, message IDs, subjects, or actual promo codes, and it is deleted when the migration finishes.
-
-Run on the Mac:
+From the GitHub repo folder:
 
 ```bash
-bash mac/migrate-legacy-db.sh "/path/to/uber_promo_tracker.db"
+bash mac/setup-v2.sh
 ```
 
-Then scan current Apple Mail and publish current data:
+This:
+
+1. verifies Node 22+
+2. creates/opens `uber-tracker.local.db`
+3. prints the Apple Mail mailbox names visible to scripting
+
+Apple may ask permission for Terminal/osascript to control Mail. Allow it.
+
+### Configure the receipt mailbox
+
+The default assumptions are:
+
+- promo folder: `INBOX`
+- promo lookback: 60 days
+- receipt folder: `Uber Receipts`
+- receipt lookback: 3650 days
+
+If your Mail folder has a different name:
+
+```bash
+cp tracker.example.env tracker.local.env
+```
+
+Edit `tracker.local.env` and set the exact mailbox name shown by:
+
+```bash
+osascript -l JavaScript mac/list-mailboxes.js
+```
+
+`tracker.local.env` is private and Git-ignored.
+
+### Run a live scan
 
 ```bash
 bash mac/update-promos.sh
 ```
 
-Legacy-only records stay private. If the new live scanner later sees the same offer/account again, the public history can show that offer under its anonymous account label while still keeping the real alias private.
+The updater:
 
+1. pulls the repo
+2. exports current Uber messages from the configured Mail folders
+3. runs the full tests
+4. updates the private SQLite store
+5. generates sanitised `promos.json` and `history.json`
+6. commits/pushes only those public files when they changed
 
-## Spend-specific deal intelligence
+It does not mark Mail messages as read.
 
-The dashboard can compare active Uber Eats promos against a planned order amount such as £15, £25 or £40.
+### Hourly automation
 
-For a single transaction it:
+After the manual update succeeds:
 
-- rejects promos whose minimum spend is not met
-- calculates percentage savings from the planned spend
-- applies the per-use or maximum saving cap
-- treats fixed discounts as the saving for that one use
-- treats Uber Cash as nominal cash value up to the transaction amount
-- does **not** multiply a multi-use promo by all future uses when deciding what saves the most right now
-- can filter the recommendation by service and anonymous account
+```bash
+bash mac/install-automation.sh
+```
 
-The OLED dashboard is account-first: Best deal, £15 off £15, Uber Cash, and Multiple promos. A basket helper then recommends the best account for a planned order total.
+This installs an hourly LaunchAgent and preserves a usable Node/Git/Homebrew PATH.
 
+Logs:
 
-## Receipt intelligence and basket splitting
+```text
+~/Library/Logs/UberPromoTracker/output.log
+~/Library/Logs/UberPromoTracker/error.log
+```
 
-The tracker now treats Uber Eats receipt emails as a separate private evidence source instead of letting receipt text pass through the promo parser.
+## Safe legacy Python/SQLite import
 
-Private receipt flow:
+The old Python project remains separate and must not be modified during v2 development.
 
-`Apple Mail → receipt parser → receipts.local.json → account matching → promo-use evidence → sanitised account insights`
+The v2 importer opens a legacy SQLite database **read-only** and copies accepted historical rows into the new private DB.
 
-`receipts.local.json` is Git-ignored. It retains parsed receipt evidence locally so usage history survives beyond the 45-day Apple Mail lookback.
+Use the old **test DB first**, not the old live DB:
 
-When a receipt contains a Promotion amount, the tracker compares that amount against eligible promos on the same recipient-email account. It only marks a promo as receipt-confirmed used when the match is sufficiently unique. Ambiguous matches do not consume an offer automatically.
+```bash
+OLD_PROJECT="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Uber Promo Tracker/uber_promo_tracker"
 
-For multi-use offers, confirmed receipts decrement `usesRemaining` rather than deleting the whole promotion after the first use.
+node mac/import-legacy-db.js \
+  "$OLD_PROJECT/uber_promo_tracker.db.ride-test.db" \
+  uber-tracker.local.db
+```
 
-The public payload receives only sanitised derived fields such as masked account identity, remaining uses, receipt-confirmed state, aggregate order count, aggregate observed promo savings, and an aggregate fee estimate. Raw receipts, full account aliases, merchant details, individual basket values and actual promo codes remain private.
+Legacy-only rows are marked historical and stay private. They do not become current public offers until a live Apple Mail scan observes the corresponding offer/account.
 
-### Account identity
+The old database is never written to.
 
-The recipient email remains the real private account identity. The public dashboard shows a masked form such as `na…07@icloud.com`; the anonymous `A001` reference remains the internal join key.
+## Tests
 
-### Manual Used / Ignore
+Run:
 
-The dashboard also supports manual `Used`, `Ignore`, `Undo`, and `Mark account done` actions. These choices are stored in browser `localStorage` only and are excluded from recommendations and basket plans on that browser. Receipt-confirmed usage cannot be undone from the public page.
+```bash
+npm test
+```
 
-### Basket optimiser
+The suite includes:
 
-The optimiser can split a planned basket across multiple Uber Eats accounts. It assumes one tracked account promo per order, evaluates minimum spends and caps, and subtracts an estimated incremental fee for each added order.
+- original parser/account/history regression tests
+- parser v2 expiry/classification/evidence cases
+- SQLite account/access/history tests
+- receipt parsing and savings tests
+- accessibility-gated basket splitting
+- end-to-end synthetic Mail → SQLite → receipt → public JSON generation
+- public privacy checks
+- mobile dashboard syntax/layout guards
 
-The fee input is prefilled from the aggregate delivery + service + small-order fees observed in private receipts when enough parsed data exists. It can always be overridden manually.
+CI also syntax-checks the generator and Mac Mail exporter.
 
-The optimiser maximises net saving first and prefers fewer orders when the saving is tied. It uses at most one order per account in a plan, which keeps recommendations practical and avoids pretending multiple account promos can be stacked on one checkout.
+## Public site
 
-The plan is advisory: restaurant-specific offers, item eligibility, geographic restrictions and live checkout conditions can still change the final result.
+GitHub Pages:
+
+```text
+https://nadzz07.github.io/uber-promo-tracker/
+```
+
+Until the first live Mac scan after setup, the repository contains clearly marked synthetic demo data.
+
+## Files that must stay private
+
+The repository ignores:
+
+- `uber-tracker.local.db*`
+- `emails.local.json`
+- `account-access.local.csv`
+- `accessible-accounts.local.txt`
+- `tracker.local.env`
+- old `*.db` / `*.db.*` files
+- `.env*`
+- raw `*.eml`
+- Python virtual environments and caches
+
+Do not force-add these files.
+
+## Current limitations
+
+- Real Apple Mail folder naming/JXA behaviour still needs to be validated on the actual Mac.
+- Receipt wording varies; the parser is conservative and ambiguous promo matches do not automatically consume an offer.
+- Restaurant/item/location eligibility cannot be proven from email text alone.
+- Manual Used/Ignore choices are browser-local; receipt-confirmed state is durable in SQLite.
+- The public site is intentionally a sanitised view, not a place to reveal full account aliases or promo codes.
