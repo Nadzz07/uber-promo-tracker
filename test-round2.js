@@ -158,6 +158,14 @@ test("mark account done is separate from offer usage", () => {
   assert.equal(isAccountDone(store, "A001"), false);
 });
 
+test("done account is ineligible in the decision clone", () => {
+  const offer = promo({ canLogin: true });
+  const store = setAccountDone(normaliseManualStore(), "A001", true);
+  const decision = promoForDecision(store, offer);
+
+  assert.equal(decision.canLogin, false);
+});
+
 test("decision clone uses effective remaining count", () => {
   const offer = promo({
     usesRemaining: 4,
