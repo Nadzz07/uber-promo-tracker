@@ -205,7 +205,7 @@ test("multi-order fixed offer is classified structurally", () => {
 
 test("untrusted sender is rejected", () => {
   const promo = parseUberPromo({
-    sender: "Uber <offers@example.com>",
+    sender: "Not Uber <offers@example.com>",
     subject: "£15 off Uber Eats",
     body: "£15 off your next order.",
     sentAt: "2026-10-05T12:00:00Z"
