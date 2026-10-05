@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1">
+
+<title>Uber Promo Processor Test</title>
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: white;
+    max-width: 900px;
+    margin: auto;
+    padding: 40px 20px;
+}
+
+.test {
+    background: #1d1d1d;
+    padding: 20px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+}
+
+pre {
+    background: #080808;
+    padding: 15px;
+    border-radius: 10px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Uber Promo Processor</h1>
+
+<p>
+Testing filtering, duplicate removal
+and promo ranking.
+</p>
+
+<div id="results"></div>
+
+
+<script type="module">
+
+import {
+    buildPromoList
+}
+from "./processor.js";
+
+
+const emails = [
+
+    {
+        subject:
+            "40% off your next Uber trip",
+
+        body:
+            "Save 40% off your next ride, up to £10. Valid until 12 October 2026.",
+
+        receivedAt:
+            "2026-10-05"
+    },
+
+
+    // Duplicate copy of the same promo
+
+    {
+        subject:
+            "40% off your next Uber trip",
+
+        body:
+            "Save 40% off your next ride, up to £10. Valid until 12 October 2026.",
+
+        receivedAt:
+            "2026-10-05"
+    },
+
+
+    {
+        subject:
+            "25% off Uber Eats",
+
+        body:
+            "Get 25% off your next order. Minimum spend £15. Maximum discount £8. Use code EATS25. Expires 9 Oct 2026.",
+
+        receivedAt:
+            "2026-10-05"
+    },
+
+
+    // Normal Uber email - must be ignored
+
+    {
+        subject:
+            "Your Sunday evening trip with Uber",
+
+        body:
+            "Thanks for riding with Uber. Your trip total was £14.62.",
+
+        receivedAt:
+            "2026-10-05"
+    }
+
+];
+
+
+const promos =
+    buildPromoList(emails);
+
+
+const tests = [
+
+    {
+        name:
+            "Duplicate promo removed",
+
+        passed:
+            promos.length === 2
+    },
+
+
+    {
+        name:
+            "Normal Uber receipt removed",
+
+        passed:
+            !promos.some(
+                promo =>
+                    promo.title.includes(
+                        "Sunday evening trip"
+                    )
+            )
+    },
+
+
+    {
+        name:
+            "Best promo ranked first",
+
+        passed:
+            promos[0]?.discount === 40
+    },
+
+
+    {
+        name:
+            "Uber Eats promo preserved",
+
+        passed:
+            promos.some(
+                promo =>
+                    promo.service ===
+                    "Uber Eats"
+            )
+    }
+
+];
+
+
+const results =
+    document.getElementById(
+        "results"
+    );
+
+
+tests.forEach(test => {
+
+    const box =
+        document.createElement(
+            "div"
+        );
+
+
+    box.className =
+        "test";
+
+
+    box.innerHTML = `
+
+        <h2>
+            ${test.passed
+                ? "✅"
+                : "❌"
+            }
+
+            ${test.name}
+        </h2>
+
+        <strong>
+            ${test.passed
+                ? "PASSED"
+                : "FAILED"
+            }
+        </strong>
+
+    `;
+
+
+    results.appendChild(box);
+
+});
+
+
+const output =
+    document.createElement(
+        "div"
+    );
+
+
+output.className =
+    "test";
+
+
+output.innerHTML = `
+
+    <h2>
+        Final promo list
+    </h2>
+
+    <pre>${
+        JSON.stringify(
+            promos,
+            null,
+            2
+        )
+    }</pre>
+
+`;
+
+
+results.appendChild(output);
+
+</script>
+
+</body>
+
+</html>
