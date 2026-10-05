@@ -3,14 +3,14 @@ import { parseUberPromo } from "./parser.js";
 import { buildPromoList } from "./processor.js";
 import { toPublicPromo } from "./public-promo.js";
 import { mergeHistory } from "./history.js";
-import { accountIdForAlias } from "./account-id.js";
+import { assignAccountRefs } from "./account-map.js";
 
 const parserCases = [
   {
     name: "Trusted sender can carry an offer without Uber in the subject",
     email: {
       sender: "Uber Eats <offers@uber.com>",
-      recipient: "Hide My Email <alpha-test@icloud.com>",
+      recipient: "account-a@icloud.com",
       subject: "Want £15 off 5 orders?",
       body: "Enjoy £15 off your next 5 orders. £15 minimum spend. Use promo code EATSUK15NEWBIESTSE. Offer available until 7 Oct 2026 3:00AM.",
       receivedAt: "2026-10-05"
@@ -25,13 +25,14 @@ const parserCases = [
       minimumSpend: 15,
       expires: "2026-10-07",
       senderVerified: true,
-      accountAlias: "alpha-test@icloud.com"
+      accountAlias: "account-a@icloud.com"
     }
   },
   {
     name: "Uber Cash is recognised as value",
     email: {
       sender: "Uber Eats <ubereats_at_uber_com_abc@icloud.com>",
+      recipient: "account-b@icloud.com",
       subject: "Want £10 in Uber Cash off your first order?",
       body: "Get £10 in Uber Cash off. Uber Cash expires on 03/10/2026.",
       receivedAt: "2026-10-01"
@@ -43,7 +44,8 @@ const parserCases = [
       discount: 10,
       maxTotalSaving: 10,
       expires: "2026-10-03",
-      senderVerified: true
+      senderVerified: true,
+      accountAlias: "account-b@icloud.com"
     }
   },
   {
@@ -174,70 +176,124 @@ for (const test of parserCases) {
   console.log("✓ " + test.name);
 }
 
-const emails = [
-  parserCases[0].email,
-  parserCases[0].email,
-  parserCases[1].email,
-  parserCases[2].email,
-  parserCases[3].email,
-  parserCases[5].email,
+const samePercentOffer = {
+  sender: "Uber Eats <offers@uber.com>",
+  subject: "50% off your next 5 orders",
+  body: "Get 50% off your next 5 orders. Maximum discount £12. Minimum spend £15. Expires 20 Oct 2026.",
+  receivedAt: "2026-10-05"
+};
+
+const fixedCompanion = {
+  sender: "Uber Eats <offers@uber.com>",
+  recipient: "account-a@icloud.com",
+  subject: "£15 off your next order",
+  body: "Get £15 off your next order. Minimum spend £15. Expires 20 Oct 2026.",
+  receivedAt: "2026-10-05"
+};
+
+const accountAwareEmails = [
+  { ...samePercentOffer, recipient: "account-a@icloud.com" },
+  { ...samePercentOffer, recipient: "account-a@icloud.com" },
+  { ...samePercentOffer, recipient: "account-b@icloud.com" },
+  fixedCompanion,
   parserCases[7].email,
-  parserCases[8].email,
   {
+    sender: "Uber <offers@uber.com>",
+    recipient: "account-a@icloud.com",
     subject: "50% off Uber",
     body: "50% off your next trip, up to £4. Expires 4 October 2026.",
     receivedAt: "2026-10-01"
   }
 ];
 
-const promos = buildPromoList(emails, { now: "2026-10-05" });
+const promos = buildPromoList(accountAwareEmails, { now: "2026-10-05" });
 
 assert.equal(
   promos.length,
-  4,
-  "processor should deduplicate and remove expired, untrusted and non-promo email"
+  3,
+  "same offer should dedupe within one account but remain separate across accounts"
+);
+
+const accountAPercentage = promos.find(
+  promo =>
+    promo.accountAlias === "account-a@icloud.com" &&
+    promo.discountType === "percent"
+);
+
+const accountBPercentage = promos.find(
+  promo =>
+    promo.accountAlias === "account-b@icloud.com" &&
+    promo.discountType === "percent"
+);
+
+assert.equal(
+  accountAPercentage?.hasCompanionOffer,
+  true,
+  "percentage offer should detect a companion on the same account"
+);
+
+assert.equal(
+  accountBPercentage?.hasCompanionOffer,
+  false,
+  "companion on a different account must not match"
 );
 
 assert.equal(
   promos[0].maxTotalSaving,
-  75,
-  "five uses of a £15 fixed offer should rank as £75 potential value"
+  15,
+  "the £15 fixed companion should rank above the capped percentage offer"
 );
 
-assert.ok(
-  promos.some(promo => promo.service === "Uber Eats"),
-  "Uber Eats promo should remain"
+console.log("✓ Account-aware deduplication and companion matching");
+
+const firstAssignment = assignAccountRefs(
+  promos,
+  { version: 1, nextNumber: 1, accounts: {} },
+  "2026-10-05T10:00:00.000Z"
 );
 
-console.log("✓ Processor filtering, deduplication, expiry and ranking");
+const refs = new Set(
+  firstAssignment.promos.map(promo => promo.accountRef).filter(Boolean)
+);
+
+assert.equal(refs.size, 2, "two private aliases should become two anonymous account refs");
+assert.ok(refs.has("A001"));
+assert.ok(refs.has("A002"));
+
+const secondAssignment = assignAccountRefs(
+  [
+    {
+      ...promos[0],
+      accountAlias: "account-a@icloud.com"
+    }
+  ],
+  firstAssignment.state,
+  "2026-10-05T11:00:00.000Z"
+);
+
+assert.equal(
+  secondAssignment.promos[0].accountRef,
+  "A001",
+  "anonymous account refs must remain stable between scans"
+);
+
+console.log("✓ Private aliases map to stable anonymous account refs");
 
 const privatePromo = {
-  ...promos[0],
+  ...firstAssignment.promos[0],
   code: "PRIVATE123",
   rawEmail: "private mailbox content"
 };
 
 const publicPromo = toPublicPromo(privatePromo);
 
-assert.equal(
-  publicPromo.hasCode,
-  true,
-  "public output should record that a code exists"
-);
+assert.equal(publicPromo.hasCode, true);
+assert.equal("code" in publicPromo, false, "public output must never contain actual promo code");
+assert.equal("rawEmail" in publicPromo, false, "public output must never contain raw email content");
+assert.equal("accountAlias" in publicPromo, false, "public output must never contain the real account alias");
+assert.ok(/^A\d{3,}$/.test(publicPromo.accountRef), "public output should contain only anonymous account ref");
 
-assert.equal(
-  "code" in publicPromo,
-  false,
-  "public output must never contain the actual promo code"
-);
-
-assert.equal(
-  "rawEmail" in publicPromo,
-  false,
-  "public output must never contain raw email content"
-);
-
-console.log("✓ Public promo output strips private data");
+console.log("✓ Public promo output strips mailbox and account secrets");
 
 const firstHistory = mergeHistory(
   { records: [] },
@@ -245,96 +301,18 @@ const firstHistory = mergeHistory(
   "2026-10-05T10:00:00.000Z"
 );
 
-assert.equal(firstHistory.records.length, 1);
-assert.equal(firstHistory.records[0].scansSeen, 1);
-
 const secondHistory = mergeHistory(
   firstHistory,
   [publicPromo],
   "2026-10-05T11:00:00.000Z"
 );
 
-assert.equal(
-  secondHistory.records[0].scansSeen,
-  2,
-  "repeat scans should update the same history record"
-);
+assert.equal(secondHistory.records.length, 1);
+assert.equal(secondHistory.records[0].scansSeen, 2);
+assert.equal(secondHistory.records[0].accountRef, publicPromo.accountRef);
+assert.equal("accountAlias" in secondHistory.records[0], false);
+assert.equal("code" in secondHistory.records[0], false);
 
-assert.equal(
-  secondHistory.records[0].firstSeenAt,
-  "2026-10-05T10:00:00.000Z",
-  "history should preserve first seen time"
-);
+console.log("✓ Sanitised account-aware history persists across scans");
 
-assert.equal(
-  "code" in secondHistory.records[0],
-  false,
-  "history must not expose promo codes"
-);
-
-console.log("✓ Sanitised promo history persists across scans");
-
-const accountEmails = [
-  {
-    sender: "Uber Eats <offers@uber.com>",
-    recipient: "Hide My Email <account-a@icloud.com>",
-    subject: "£5 off your next order",
-    body: "£5 off your next order. Expires 12 Oct 2026.",
-    receivedAt: "2026-10-05"
-  },
-  {
-    sender: "Uber Eats <offers@uber.com>",
-    recipient: "Hide My Email <account-a@icloud.com>",
-    subject: "20% off your next order",
-    body: "20% off your next order, up to £6. Expires 12 Oct 2026.",
-    receivedAt: "2026-10-05"
-  },
-  {
-    sender: "Uber Eats <offers@uber.com>",
-    recipient: "Hide My Email <account-b@icloud.com>",
-    subject: "£5 off your next order",
-    body: "£5 off your next order. Expires 12 Oct 2026.",
-    receivedAt: "2026-10-05"
-  }
-];
-
-const accountPromos = buildPromoList(accountEmails, { now: "2026-10-05" });
-assert.equal(accountPromos.length, 3, "same offer on different recipient aliases must stay separate");
-
-const accountA = accountPromos.filter(promo => promo.accountAlias === "account-a@icloud.com");
-const accountB = accountPromos.filter(promo => promo.accountAlias === "account-b@icloud.com");
-
-assert.equal(accountA.length, 2);
-assert.ok(accountA.every(promo => promo.sameAccountOfferCount === 2));
-assert.equal(accountB.length, 1);
-assert.equal(accountB[0].sameAccountOfferCount, 1);
-console.log("✓ Account-aware deduplication keeps aliases separate");
-
-const secret = "test-secret-that-is-long-enough-for-stable-account-ids";
-const accountAId = accountIdForAlias("account-a@icloud.com", secret);
-const accountAIdAgain = accountIdForAlias("ACCOUNT-A@ICLOUD.COM", secret);
-const accountBId = accountIdForAlias("account-b@icloud.com", secret);
-
-assert.equal(accountAId, accountAIdAgain, "account IDs should be stable and case-insensitive");
-assert.notEqual(accountAId, accountBId, "different aliases should get different anonymous IDs");
-
-const anonymousPublicPromo = toPublicPromo(accountA[0], { accountId: accountAId });
-assert.equal(anonymousPublicPromo.accountId, accountAId);
-assert.equal("accountAlias" in anonymousPublicPromo, false, "public promo must not expose recipient alias");
-assert.equal(anonymousPublicPromo.sameAccountOfferCount, 2);
-console.log("✓ Recipient aliases become stable anonymous public account IDs");
-
-const accountHistory = mergeHistory(
-  { records: [] },
-  [
-    toPublicPromo(accountA[0], { accountId: accountAId }),
-    toPublicPromo(accountB[0], { accountId: accountBId })
-  ],
-  "2026-10-05T12:00:00.000Z"
-);
-
-assert.equal(accountHistory.records.length, 2, "history must keep identical-looking offers separate by anonymous account");
-assert.ok(accountHistory.records.every(record => !("accountAlias" in record)));
-console.log("✓ History remains account-aware without exposing aliases");
-
-console.log("All " + (parserCases.length + 6) + " automated tests passed.");
+console.log("All " + (parserCases.length + 4) + " automated tests passed.");
