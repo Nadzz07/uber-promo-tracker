@@ -67,9 +67,18 @@ function nextWeekday(receivedAt, weekday) {
   return toIsoDate(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
+function senderLooksUber(sender) {
+  const value = String(sender || "").toLowerCase();
+  if (!value) return false;
+
+  if (/@(?:[a-z0-9-]+\.)?uber\.com(?:\b|>)/i.test(value)) return true;
+
+  return /(?:ubereats|uber)_at_uber_com(?:[_-][^@\s>]*)?@icloud\.com/i.test(value);
+}
+
 function extractExpiry(text, receivedAt) {
   const namedDate = firstMatch(text, [
-    /(?:expires?|valid\s+(?:until|through|to)|ends?|use\s+by|redeem\s+by)\s*(?:on\s*)?(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})(?:\s+(\d{4}))?/i,
+    /(?:expires?|valid\s+(?:until|through|to)|available\s+until|offer\s+available\s+until|ends?|use\s+by|redeem\s+by)\s*(?:on\s*)?(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})(?:\s+(\d{4}))?/i,
     /(?:until|before|through)\s+(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})(?:\s+(\d{4}))?/i
   ]);
 
@@ -78,12 +87,12 @@ function extractExpiry(text, receivedAt) {
     const month = MONTHS[namedDate[2].toLowerCase()];
     if (month != null && day >= 1 && day <= 31) {
       const year = namedDate[3] ? number(namedDate[3]) : inferYear(month, day, receivedAt);
-      return toIsoDate(year, month, day);
+      return { expires: toIsoDate(year, month, day), expiryBasis: "explicit" };
     }
   }
 
   const numericDate = firstMatch(text, [
-    /(?:expires?|valid\s+(?:until|through|to)|ends?|use\s+by|redeem\s+by)\s*(?:on\s*)?(\d{1,2})[\/.\-](\d{1,2})(?:[\/.\-](\d{2,4}))?/i
+    /(?:expires?|valid\s+(?:until|through|to)|available\s+until|ends?|use\s+by|redeem\s+by)\s*(?:on\s*)?(\d{1,2})[\/.\-](\d{1,2})(?:[\/.\-](\d{2,4}))?/i
   ]);
 
   if (numericDate) {
@@ -92,7 +101,7 @@ function extractExpiry(text, receivedAt) {
     let year = numericDate[3] ? number(numericDate[3]) : inferYear(month, day, receivedAt);
     if (year < 100) year += 2000;
     if (month >= 0 && month <= 11 && day >= 1 && day <= 31) {
-      return toIsoDate(year, month, day);
+      return { expires: toIsoDate(year, month, day), expiryBasis: "explicit" };
     }
   }
 
@@ -101,24 +110,49 @@ function extractExpiry(text, receivedAt) {
   ]);
 
   if (weekdayMatch) {
-    return nextWeekday(receivedAt, WEEKDAYS[weekdayMatch[1].toLowerCase()]);
+    return {
+      expires: nextWeekday(receivedAt, WEEKDAYS[weekdayMatch[1].toLowerCase()]),
+      expiryBasis: "weekday"
+    };
   }
 
   if (/(?:expires?|valid\s+until|ends?)\s+tomorrow\b/i.test(text)) {
     const date = new Date(receivedAt.getFullYear(), receivedAt.getMonth(), receivedAt.getDate() + 1, 12, 0, 0);
-    return toIsoDate(date.getFullYear(), date.getMonth(), date.getDate());
+    return { expires: toIsoDate(date.getFullYear(), date.getMonth(), date.getDate()), expiryBasis: "relative" };
   }
 
   if (/(?:expires?|valid\s+until|ends?)\s+today\b/i.test(text)) {
-    return toIsoDate(receivedAt.getFullYear(), receivedAt.getMonth(), receivedAt.getDate());
+    return {
+      expires: toIsoDate(receivedAt.getFullYear(), receivedAt.getMonth(), receivedAt.getDate()),
+      expiryBasis: "relative"
+    };
   }
 
-  return null;
+  const durationMatch = firstMatch(text, [
+    /valid\s+for\s+(\d{1,3})\s+days?\b/i,
+    /(?:validity|valid\s+period)\s+(?:of|is)\s+(\d{1,3})\s+days?\b/i,
+    /expires?\s+in\s+(\d{1,3})\s+days?\b/i
+  ]);
+
+  const activationBased = /\b(?:since|from|after)\s+(?:it\s+was\s+)?applied\s+to\s+(?:the\s+)?(?:user.?s\s+)?account\b/i.test(text);
+
+  if (durationMatch && !activationBased) {
+    const days = number(durationMatch[1]);
+    if (days != null && days >= 0 && days <= 365) {
+      const date = new Date(receivedAt.getFullYear(), receivedAt.getMonth(), receivedAt.getDate() + days, 12, 0, 0);
+      return {
+        expires: toIsoDate(date.getFullYear(), date.getMonth(), date.getDate()),
+        expiryBasis: "estimated_from_email_date"
+      };
+    }
+  }
+
+  return { expires: null, expiryBasis: null };
 }
 
 function extractUses(text) {
   const match = firstMatch(text, [
-    /(?:your\s+)?next\s+(\d{1,2})\s+(?:uber\s+)?(?:trips?|rides?|orders?)/i,
+    /(?:your\s+)?(?:next|first)\s+(\d{1,2})\s+(?:uber\s+)?(?:trips?|rides?|orders?)/i,
     /(?:up\s+to|on)\s+(\d{1,2})\s+(?:uber\s+)?(?:trips?|rides?|orders?)/i,
     /(\d{1,2})\s+(?:eligible\s+)?(?:trips?|rides?|orders?)\b/i
   ]);
@@ -138,16 +172,20 @@ function extractPerUseCap(text) {
 export function parseUberPromo({
   subject = "",
   body = "",
+  sender = "",
   receivedAt = new Date()
 } = {}) {
   const received = asDate(receivedAt);
-  const raw = \`\${subject}\n\${body}\`.replace(/\u00a0/g, " ");
+  const raw = (subject + "\n" + body).replace(/\u00a0/g, " ");
   const text = raw.replace(/\s+/g, " ").trim();
+  const trustedSender = senderLooksUber(sender);
+  const senderProvided = String(sender || "").trim().length > 0;
+  const serviceText = text + " " + sender;
 
-  const isUberOne = /\buber\s*one\b/i.test(text);
+  const isUberOne = /\buber\s*one\b/i.test(serviceText);
   const service = isUberOne
     ? "Uber One"
-    : /uber\s*eats|ubereats|\bfood\b|\border\b/i.test(text)
+    : /uber\s*eats|ubereats|\bfood\b|\border\b/i.test(serviceText)
       ? "Uber Eats"
       : "Uber";
 
@@ -161,6 +199,11 @@ export function parseUberPromo({
     /(?:save|get)\s*£\s*(\d+(?:\.\d{1,2})?)/i
   ]);
 
+  const uberCashMatch = firstMatch(text, [
+    /£\s*(\d+(?:\.\d{1,2})?)\s+in\s+uber\s+cash\b/i,
+    /(?:get|receive)\s+£\s*(\d+(?:\.\d{1,2})?)\s+uber\s+cash\b/i
+  ]);
+
   const perUseCap = extractPerUseCap(text);
 
   const maxSavingMatch = firstMatch(text, [
@@ -170,11 +213,12 @@ export function parseUberPromo({
 
   const minimumSpendMatch = firstMatch(text, [
     /(?:minimum|min\.?)(?:\s+(?:spend|order|basket))?\s*£\s*(\d+(?:\.\d{1,2})?)/i,
+    /£\s*(\d+(?:\.\d{1,2})?)\s+(?:minimum|min\.?)\s+(?:spend|order|basket)/i,
     /(?:when\s+you\s+spend|orders?\s+(?:over|of)|spend\s+at\s+least)\s*£\s*(\d+(?:\.\d{1,2})?)/i
   ]);
 
   const codeMatch = firstMatch(text, [
-    /(?:promo\s+code|use\s+code|code)\s*[:\-]?\s*([A-Z0-9][A-Z0-9\-]{3,19})\b/i
+    /(?:promo\s+code(?:\s+below)?|use\s+code|using\s+promo\s+code|code)\s*(?:is|[:\-])?\s*([A-Z0-9][A-Z0-9_-]{3,31})\b/i
   ]);
 
   let discountType = null;
@@ -186,17 +230,29 @@ export function parseUberPromo({
   } else if (fixedMatch) {
     discountType = "fixed";
     discount = number(fixedMatch[1]);
+  } else if (uberCashMatch) {
+    discountType = "uberCash";
+    discount = number(uberCashMatch[1]);
   }
 
   const uses = extractUses(text);
   const genericMaxSaving = maxSavingMatch ? number(maxSavingMatch[1]) : null;
-  const maxSaving = perUseCap ?? genericMaxSaving;
-  const maxTotalSaving = perUseCap != null
-    ? Number((perUseCap * uses).toFixed(2))
-    : genericMaxSaving;
+  const maxSaving = perUseCap != null ? perUseCap : genericMaxSaving;
+
+  let maxTotalSaving = genericMaxSaving;
+
+  if (perUseCap != null) {
+    maxTotalSaving = Number((perUseCap * uses).toFixed(2));
+  } else if (discountType === "fixed" && discount != null && uses > 1) {
+    const genericLooksPerUse = genericMaxSaving == null || genericMaxSaving === discount;
+    if (genericLooksPerUse) maxTotalSaving = Number((discount * uses).toFixed(2));
+  } else if (discountType === "uberCash" && discount != null) {
+    maxTotalSaving = discount;
+  }
+
   const minimumSpend = minimumSpendMatch ? number(minimumSpendMatch[1]) : 0;
   const code = codeMatch ? codeMatch[1].toUpperCase() : null;
-  const expires = extractExpiry(text, received);
+  const expiry = extractExpiry(text, received);
 
   const explicitPromoSignal =
     discount != null ||
@@ -205,12 +261,15 @@ export function parseUberPromo({
     /\b(?:promo(?:tion)?|offer|discount|deal)\b/i.test(text) ||
     (isUberOne && /(?:free|save|£0|trial|months?)/i.test(text));
 
-  const looksLikePromo = /\buber\b/i.test(text) && explicitPromoSignal;
+  const mentionsUber = /\buber\b/i.test(text);
+  const senderAccepted = !senderProvided || trustedSender;
+  const looksLikePromo = senderAccepted && explicitPromoSignal && (trustedSender || mentionsUber);
 
   let title = subject.trim();
   if (!title) {
-    if (discountType === "percent") title = \`\${discount}% off\`;
-    else if (discountType === "fixed") title = \`£\${discount} off\`;
+    if (discountType === "percent") title = discount + "% off";
+    else if (discountType === "fixed") title = "£" + discount + " off";
+    else if (discountType === "uberCash") title = "£" + discount + " Uber Cash";
     else if (isUberOne) title = "Uber One offer";
     else title = service === "Uber Eats" ? "Uber Eats offer" : "Uber offer";
   }
@@ -227,6 +286,9 @@ export function parseUberPromo({
     maxTotalSaving,
     minimumSpend,
     code,
-    expires
+    expires: expiry.expires,
+    expiryBasis: expiry.expiryBasis,
+    senderVerified: senderProvided ? trustedSender : null,
+    rejectionReason: senderProvided && !trustedSender ? "sender_not_uber" : null
   };
 }
