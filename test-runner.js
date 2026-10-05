@@ -123,7 +123,7 @@ const emails = [
 
 const promos = buildPromoList(emails, { now: "2026-10-05" });
 assert.equal(promos.length, 3, "processor should remove duplicate, receipt and expired promo");
-assert.equal(promos[0].maxTotalSaving, 50, "multi-trip £50 potential saving should rank first");
+assert.equal(promos[0].maxTotalSaving, 75, "five uses of a £15 fixed offer should rank as £75 potential value");
 assert.ok(promos.some(promo => promo.service === "Uber Eats"), "Uber Eats promo should remain");
 console.log("✓ Processor filtering, deduplication, expiry and ranking");
 console.log(\`All \${parserCases.length + 1} automated tests passed.\`);
