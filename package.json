@@ -2,8 +2,13 @@
   "name": "uber-promo-tracker",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "test": "node test-runner.js",
-    "generate": "node generate-promos.js"
+    "test": "node test-runner.js && node test-v2.js",
+    "generate": "node generate-promos.js",
+    "db:init": "node mac/init-private-db.js",
+    "access:import": "node mac/import-account-access.js"
   }
 }
