@@ -232,6 +232,7 @@ function run(argv) {
   const receiptDays = Number(argv[2] || 90);
   const receiptMailboxName = String(argv[3] || "Uber Receipts");
   const receiptOlderThanDays = Number(argv[4] || 0);
+  const promoOlderThanDays = Number(argv[5] || 0);
 
   const Mail = Application("Mail");
   Mail.includeStandardAdditions = false;
@@ -253,13 +254,19 @@ function run(argv) {
       foundPromoMailbox = true;
       messages.push.apply(
         messages,
-        scanMailbox(promoMailbox, "promo", promoDays, 0, promoMailboxName)
+        scanMailbox(
+          promoMailbox,
+          "promo",
+          promoDays,
+          promoOlderThanDays,
+          promoMailboxName
+        )
       );
       scannedMailboxes.push({
         role: "promo",
         name: promoMailboxName,
         daysBack: promoDays,
-        olderThanDays: 0
+        olderThanDays: promoOlderThanDays
       });
     }
 
