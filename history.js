@@ -83,6 +83,7 @@ export function toPublicHistory(privatePayload, { maxRecords = 500 } = {}) {
   const records = Array.isArray(privatePayload?.records) ? privatePayload.records : [];
 
   const publicRecords = records
+    .filter(record => record.service === "Uber Eats")
     .filter(record => record.source !== "legacy-db" || record.status === "active")
     .map(record => ({
       id: record.id,
