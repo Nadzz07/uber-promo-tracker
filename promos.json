@@ -14,7 +14,10 @@
       "maxTotalSaving": 50,
       "minimumSpend": 0,
       "hasCode": false,
-      "expires": "2026-10-19"
+      "expires": "2026-10-19",
+      "accountId": "acct_demoa001",
+      "sameAccountOfferCount": 2,
+      "expiryBasis": "explicit"
     },
     {
       "service": "Uber Eats",
@@ -27,7 +30,10 @@
       "maxTotalSaving": 8,
       "minimumSpend": 15,
       "hasCode": true,
-      "expires": "2026-10-09"
+      "expires": "2026-10-09",
+      "accountId": "acct_demoa001",
+      "sameAccountOfferCount": 2,
+      "expiryBasis": "explicit"
     }
   ]
 }
