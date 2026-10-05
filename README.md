@@ -220,7 +220,7 @@ Inaccessible accounts are deliberately hidden from the normal ordering flow.
 
 The UI uses a dark liquid-glass treatment with translucent panels, blur, equal-size quick tiles, compact phone spacing and a floating glass navigation bar. “Potential value” is intentionally not shown. Account cards instead focus on what the account saves on the current basket, remaining uses and expiry.
 
-Advanced basket-splitting controls are hidden behind **Advanced split settings**. The normal Home view only asks for the basket subtotal and shows the recommended order/account split.
+Basket-splitting controls are hidden behind **Split settings**. The normal Home view uses a clearly editable pounds-and-pence subtotal and shows the recommended order/account split. Split settings explain the estimated extra fee per additional order and use large 1–4 order controls rather than exposing technical planner fields on Home.
 
 
 ## Manual multi-use state
