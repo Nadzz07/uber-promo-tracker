@@ -1,51 +1,5 @@
 {
   "schemaVersion": 3,
   "updatedAt": null,
-  "records": [
-    {
-      "id": "demo-history-multi",
-      "service": "Uber Eats",
-      "offerType": "multi_order_discount",
-      "title": "£12 off £15 on your next 5 orders",
-      "discountType": "fixed",
-      "discount": 12,
-      "uses": 5,
-      "usesRemaining": 4,
-      "minimumSpend": 15,
-      "hasCode": true,
-      "expires": "2026-10-18",
-      "expiryStatus": "exact",
-      "accountRef": "A001",
-      "accountMasked": "na…01@icloud.com",
-      "canLogin": true,
-      "receiptState": "partial",
-      "receiptConfirmedUses": 1,
-      "lastUsedAt": "2026-10-04T19:30:00Z",
-      "emailSentAt": "2026-10-05T17:00:00Z",
-      "status": "active"
-    },
-    {
-      "id": "demo-history-used",
-      "service": "Uber Eats",
-      "offerType": "percentage_discount",
-      "title": "50% off up to £10",
-      "discountType": "percent",
-      "discount": 50,
-      "maxSaving": 10,
-      "uses": 1,
-      "usesRemaining": 0,
-      "minimumSpend": 15,
-      "hasCode": true,
-      "expires": "2026-10-17",
-      "expiryStatus": "exact",
-      "accountRef": "A001",
-      "accountMasked": "na…01@icloud.com",
-      "canLogin": true,
-      "receiptState": "used",
-      "receiptConfirmedUses": 1,
-      "lastUsedAt": "2026-10-03T12:00:00Z",
-      "emailSentAt": "2026-10-01T10:00:00Z",
-      "status": "used"
-    }
-  ]
+  "records": []
 }
