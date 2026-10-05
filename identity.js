@@ -31,8 +31,7 @@ export function offerFingerprint(promo = {}) {
     perUseCap: promo.perUseCap ?? null,
     uses: promo.uses ?? 1,
     minimumSpend: promo.minimumSpend ?? 0,
-    code: promo.code || null,
-    expires: promo.expires || null
+    code: promo.code || null
   });
 }
 
