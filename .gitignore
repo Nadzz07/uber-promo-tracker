@@ -1,12 +1,23 @@
-# Raw/private mail data must never be committed.
+# Raw/private mail and receipt data must never be committed.
 emails.local.json
 accounts.local.json
-legacy-promos.local.json
 history.local.json
+receipts.local.json
+legacy-promos.local.json
 .account-salt
 *.eml
 mail-export/
 
-# macOS / editor files
+# Legacy/private project material.
+.env
+.env.*
+*.db
+*.db.*
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+
+# macOS / editor files.
 .DS_Store
 .vscode/
