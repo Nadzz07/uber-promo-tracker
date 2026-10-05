@@ -234,7 +234,8 @@ export function promoForDecision(store, promo) {
   return {
     ...promo,
     usesRemaining: remaining,
-    receiptState: state === "used" ? "used" : promo.receiptState
+    receiptState: state === "used" ? "used" : promo.receiptState,
+    canLogin: Boolean(promo.canLogin) && !isAccountDone(store, promo.accountRef)
   };
 }
 
