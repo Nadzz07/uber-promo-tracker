@@ -68,6 +68,8 @@ try {
 
   const exporterSource = fs.readFileSync("mac/export-uber-mail.js", "utf8");
   const moverSource = fs.readFileSync("mac/move-inbox-receipts.js", "utf8");
+  const commonSource = fs.readFileSync("mac/common.sh", "utf8");
+  const exampleEnv = fs.readFileSync("tracker.example.env", "utf8");
 
   assert.equal(
     exporterSource.includes(".whose("),
@@ -83,6 +85,17 @@ try {
     exporterSource.includes("box.messages.dateReceived()"),
     true,
     "exporter should bulk-fetch date metadata before opening message bodies"
+  );
+
+  assert.equal(
+    commonSource.includes('APPLE_MAIL_MOVE_INBOX_RECEIPTS:-true'),
+    true,
+    "routine sync should safely file processed Inbox receipts by default"
+  );
+  assert.equal(
+    exampleEnv.includes("APPLE_MAIL_MOVE_INBOX_RECEIPTS=true"),
+    true,
+    "example configuration should match the runtime receipt-filing default"
   );
 
   console.log("✓ Inbox receipt routing only selects parsed receipts");
