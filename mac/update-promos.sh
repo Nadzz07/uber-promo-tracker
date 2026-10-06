@@ -1,81 +1,43 @@
 #!/bin/bash
 set -euo pipefail
-
 cd "$(dirname "$0")/.."
+source mac/common.sh
+require_runtime
+load_recent_config
+acquire_sync_lock
 
-if [[ -f tracker.local.env ]]; then
-  # shellcheck disable=SC1091
-  source tracker.local.env
+# Never mix a data sync with someone's code work or unrelated staged files.
+if [[ "$(git branch --show-current)" != main ]]; then
+  echo "Publishing requires the main branch. Use mac/preview-sync.sh on other branches." >&2; exit 1
 fi
-
-PROMO_FOLDERS="${APPLE_MAIL_PROMO_FOLDERS:-${APPLE_MAIL_PROMO_FOLDER:-INBOX}}"
-PROMO_DAYS="${APPLE_MAIL_PROMO_DAYS:-60}"
-RECEIPT_FOLDER="${APPLE_MAIL_RECEIPT_FOLDER:-Uber Receipts}"
-CONFIGURED_RECEIPT_DAYS="${APPLE_MAIL_RECEIPT_DAYS:-90}"
-PRIVATE_DB="${TRACKER_PRIVATE_DB:-uber-tracker.local.db}"
-MOVE_INBOX_RECEIPTS="${APPLE_MAIL_MOVE_INBOX_RECEIPTS:-false}"
-
-RECEIPT_DAYS="$CONFIGURED_RECEIPT_DAYS"
-if (( RECEIPT_DAYS > 365 )); then
-  echo "Routine receipt lookback was set to $RECEIPT_DAYS days."
-  echo "Using 90 days for the normal sync; historical receipts belong in mac/backfill-receipts.sh."
-  RECEIPT_DAYS=90
+if [[ -n "$(git status --porcelain --untracked-files=normal)" ]]; then
+  echo "The checkout has pending changes. Commit or move them before publishing; private preview remains available." >&2; exit 1
 fi
-
-if ! command -v node >/dev/null 2>&1; then
-  echo "Node.js is required. Install Node 22 or newer, then run this again."
-  exit 1
+git pull --ff-only origin main
+# A previous failed push may leave data-only commits. Never push unrelated local code.
+if git log --format= --name-only origin/main..HEAD | sed '/^$/d' | grep -Ev '^(promos|history)\.json$' >/dev/null; then
+  echo "Local commits include code changes. Publish those through a reviewed PR first." >&2; exit 1
 fi
-
-NODE_MAJOR="$(node -p 'Number(process.versions.node.split(".")[0])')"
-if (( NODE_MAJOR < 22 )); then
-  echo "Node.js 22+ is required for the private SQLite store. Current: $(node --version)"
-  exit 1
-fi
-
-echo "Updating Uber Eats Promo Tracker..."
-echo "Promo mailboxes: $PROMO_FOLDERS ($PROMO_DAYS days)"
-echo "Receipt mailbox: $RECEIPT_FOLDER ($RECEIPT_DAYS days)"
-
-if command -v git >/dev/null 2>&1; then
-  git pull --ff-only
-fi
-
-osascript -l JavaScript mac/export-uber-mail.js \
-  "$PROMO_DAYS" "$PROMO_FOLDERS" \
-  "$RECEIPT_DAYS" "$RECEIPT_FOLDER" \
-  > emails.local.json
-
+SYNC_HEAD="$(git rev-parse HEAD)"
 npm test
-node generate-promos.js \
-  emails.local.json \
-  promos.json \
-  history.json \
-  "$PRIVATE_DB"
-
-if [[ "$MOVE_INBOX_RECEIPTS" == "true" ]]; then
-  node mac/find-inbox-receipts.js emails.local.json receipt-moves.local.json
-  MOVE_RESULT="$(
-    osascript -l JavaScript mac/move-inbox-receipts.js \
-      receipt-moves.local.json "$RECEIPT_FOLDER" "$PROMO_DAYS"
-  )"
-  echo "Inbox receipt filing: $MOVE_RESULT"
-  rm -f receipt-moves.local.json
+export_recent_mail
+node generate-promos.js emails.local.json "$TMP_DIR/promos.json" "$TMP_DIR/history.json" "$PRIVATE_DB"
+node validate-public.js "$TMP_DIR/promos.json" "$TMP_DIR/history.json"
+file_imported_receipts
+if [[ "$(git rev-parse HEAD)" != "$SYNC_HEAD" || "$(git branch --show-current)" != main ]]; then
+  echo "The checkout changed during the scan. Private import is safe; rerun publishing from a stable main branch." >&2; exit 1
 fi
-
-if ! command -v git >/dev/null 2>&1; then
-  echo "Git is unavailable. Public JSON was generated locally but not published."
-  exit 0
+cp "$TMP_DIR/promos.json" promos.json.tmp
+cp "$TMP_DIR/history.json" history.json.tmp
+mv promos.json.tmp promos.json
+mv history.json.tmp history.json
+if ! git diff --quiet -- promos.json history.json; then
+  # --only prevents an unrelated file staged during the scan joining this commit.
+  git commit --only -m "Update Uber Eats tracker from Apple Mail" -- promos.json history.json
 fi
-
-git add promos.json history.json
-
-if git diff --cached --quiet; then
-  echo "No public tracker changes to publish."
-  exit 0
+PUBLISH_HEAD="$(git rev-parse HEAD)"
+if git log --format= --name-only "origin/main..$PUBLISH_HEAD" | sed '/^$/d' | grep -Ev '^(promos|history)\.json$' >/dev/null; then
+  echo "Code commits appeared during the scan. Data was retained locally; nothing was pushed." >&2; exit 1
 fi
-
-git commit -m "Update Uber Eats tracker from Apple Mail"
-git push
-
+git push origin "$PUBLISH_HEAD:refs/heads/main"
 echo "Tracker update published."

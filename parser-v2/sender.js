@@ -21,7 +21,9 @@ export function analyseSender(sender) {
     };
   }
 
-  if (/@(?:[a-z0-9-]+\.)?uber\.com(?:\b|>)/i.test(value)) {
+  const address = value.match(/<?([a-z0-9._%+-]+@([a-z0-9.-]+))>?(?:\s*)$/i);
+  const domain = address?.[2]?.toLowerCase();
+  if (domain === "uber.com" || domain?.endsWith(".uber.com")) {
     return {
       provided: true,
       trusted: true,
@@ -30,7 +32,7 @@ export function analyseSender(sender) {
     };
   }
 
-  if (/(?:ubereats|uber)_at_uber_com(?:[_-][^@\s>]*)?@icloud\.com/i.test(value)) {
+  if (domain === "icloud.com" && /^(?:ubereats|uber)_at_uber_com(?:[_-][^@\s>]*)?@icloud\.com$/i.test(address[1])) {
     return {
       provided: true,
       trusted: true,
@@ -39,7 +41,7 @@ export function analyseSender(sender) {
     };
   }
 
-  if (displayNameLooksUber(value)) {
+  if (displayNameLooksUber(value) && !/uber\.com\./i.test(domain || "")) {
     return {
       provided: true,
       trusted: true,

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { parseUberPromo } from "../parser.js";
 import {
@@ -22,11 +23,16 @@ if (!fs.existsSync(legacyPath)) {
   process.exit(1);
 }
 
+if (path.resolve(legacyPath) === path.resolve(privateDbPath) ||
+    (fs.existsSync(privateDbPath) && fs.realpathSync(legacyPath) === fs.realpathSync(privateDbPath))) {
+  throw new Error("Legacy source and private destination must be different files.");
+}
 const legacy = new DatabaseSync(legacyPath, { readOnly: true });
 const target = openPrivateDb(privateDbPath);
 const importedAt = new Date().toISOString();
 
 try {
+  target.exec("BEGIN IMMEDIATE");
   const aliases = new Set();
 
   try {
@@ -40,6 +46,7 @@ try {
   const rows = legacy.prepare(`
     SELECT
       account_alias,
+      platform,
       promo_code,
       discount_value,
       minimum_spend,
@@ -67,7 +74,7 @@ try {
   let imported = 0;
 
   for (const row of rows) {
-    if (!row.account_alias) continue;
+    if (!row.account_alias || (row.platform && row.platform !== "Uber Eats")) continue;
 
     const account = ensureAccount(target, {
       alias: row.account_alias,
@@ -78,6 +85,7 @@ try {
     if (!account) continue;
 
     const text = [
+      row.platform || "",
       row.discount_value || "",
       row.minimum_spend || "",
       row.expiry_timestamp ? "Expires " + row.expiry_timestamp : "",
@@ -91,6 +99,8 @@ try {
       sentAt: row.parsed_at || importedAt,
       receivedAt: row.parsed_at || importedAt
     });
+
+    if (parsed.service === "Uber" || parsed.service === "Uber One") continue;
 
     const promo = {
       ...parsed,
@@ -116,10 +126,14 @@ try {
     imported++;
   }
 
+  target.exec("COMMIT");
   console.log("Imported " + imported + " accepted legacy promo rows privately.");
   console.log("Imported/discovered " + aliases.size + " legacy account aliases.");
   console.log("Legacy database was opened read-only and was not modified.");
   console.log("Legacy-only offers remain historical until a live Mail scan sees them.");
+} catch (error) {
+  target.exec("ROLLBACK");
+  throw error;
 } finally {
   legacy.close();
   target.close();

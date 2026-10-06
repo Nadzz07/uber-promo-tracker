@@ -9,7 +9,10 @@ export function stableHash(value, length = 20) {
 
 export function messageKey(message = {}) {
   if (message.messageId) {
-    return "mid_" + stableHash(String(message.messageId).trim().toLowerCase());
+    return "mid_" + stableHash({
+      messageId: String(message.messageId).trim().replace(/^<|>$/g, "").toLowerCase(),
+      recipient: String(message.recipient || "").trim().toLowerCase()
+    });
   }
 
   return "msg_" + stableHash({
@@ -40,7 +43,7 @@ export function receiptFingerprint(receipt = {}) {
   if (receipt.orderId) {
     return "rcp_" + stableHash({
       accountRef: receipt.accountRef || null,
-      orderId: receipt.orderId
+      orderId: String(receipt.orderId).trim().toUpperCase()
     });
   }
 
@@ -58,7 +61,7 @@ export function transportReceiptFingerprint(receipt = {}) {
   if (receipt.tripId) {
     return "trp_" + stableHash({
       accountRef: receipt.accountRef || null,
-      tripId: receipt.tripId
+      tripId: String(receipt.tripId).trim().toUpperCase()
     });
   }
 

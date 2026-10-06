@@ -3,15 +3,14 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-if [[ -f tracker.local.env ]]; then
-  # shellcheck disable=SC1091
-  source tracker.local.env
-fi
+source mac/common.sh
+require_runtime
+acquire_sync_lock
 
 RECEIPT_FOLDER="${APPLE_MAIL_RECEIPT_FOLDER:-Uber Receipts}"
-RECENT_DAYS="${APPLE_MAIL_RECEIPT_DAYS:-90}"
-HISTORY_DAYS="${APPLE_MAIL_RECEIPT_HISTORY_DAYS:-3650}"
-CHUNK_DAYS="${APPLE_MAIL_RECEIPT_BACKFILL_CHUNK_DAYS:-180}"
+RECENT_DAYS="$(positive_days "${APPLE_MAIL_RECEIPT_DAYS:-90}" APPLE_MAIL_RECEIPT_DAYS)"
+HISTORY_DAYS="$(positive_days "${APPLE_MAIL_RECEIPT_HISTORY_DAYS:-3650}" APPLE_MAIL_RECEIPT_HISTORY_DAYS)"
+CHUNK_DAYS="$(positive_days "${APPLE_MAIL_RECEIPT_BACKFILL_CHUNK_DAYS:-180}" APPLE_MAIL_RECEIPT_BACKFILL_CHUNK_DAYS)"
 PRIVATE_DB="${TRACKER_PRIVATE_DB:-uber-tracker.local.db}"
 MOVE_INBOX_RECEIPTS="${APPLE_MAIL_MOVE_INBOX_RECEIPTS:-false}"
 
@@ -24,8 +23,6 @@ if (( HISTORY_DAYS <= RECENT_DAYS )); then
   exit 0
 fi
 
-TMP_DIR="$(mktemp -d)"
-trap 'rm -rf "$TMP_DIR"' EXIT
 
 echo "Historical receipt backfill"
 echo "Receipt mailbox: $RECEIPT_FOLDER"
@@ -36,6 +33,7 @@ echo
 
 npm test
 
+SCAN_AT="$(node -p 'new Date().toISOString()')"
 START="$RECENT_DAYS"
 CHUNK=0
 
@@ -51,7 +49,7 @@ while (( START < HISTORY_DAYS )); do
   echo "  Reading filed receipts..."
 
   osascript -l JavaScript mac/export-uber-mail.js \
-    0 "" "$END" "$RECEIPT_FOLDER" "$START" \
+    0 "" "$END" "$RECEIPT_FOLDER" "$START" 0 "$SCAN_AT" \
     > "$TMP_DIR/filed-receipts.json"
 
   node generate-promos.js \
@@ -63,7 +61,7 @@ while (( START < HISTORY_DAYS )); do
   echo "  Checking Inbox for receipts in the same date range..."
 
   osascript -l JavaScript mac/export-uber-mail.js \
-    "$END" "INBOX" 0 "$RECEIPT_FOLDER" 0 "$START" \
+    "$END" "INBOX" 0 "$RECEIPT_FOLDER" 0 "$START" "$SCAN_AT" \
     > "$TMP_DIR/inbox-candidates.json"
 
   node mac/find-inbox-receipts.js \
@@ -100,8 +98,7 @@ while (( START < HISTORY_DAYS )); do
   START="$END"
 done
 
-cp "$TMP_DIR/promos.json" promos.json
-cp "$TMP_DIR/history.json" history.json
+node validate-public.js "$TMP_DIR/promos.json" "$TMP_DIR/history.json"
 
 echo
 echo "Historical receipt backfill complete."

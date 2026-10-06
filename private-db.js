@@ -1,4 +1,5 @@
 import { DatabaseSync } from "node:sqlite";
+import fs from "node:fs";
 import { maskAccountAlias } from "./account-map.js";
 import { estimateReceiptSavings } from "./savings-intelligence.js";
 
@@ -23,6 +24,7 @@ function setMeta(db, key, value) {
 function initSchema(db) {
   db.exec(`
     PRAGMA foreign_keys = ON;
+    PRAGMA busy_timeout = 10000;
     PRAGMA journal_mode = WAL;
 
     CREATE TABLE IF NOT EXISTS meta (
@@ -178,8 +180,13 @@ function initSchema(db) {
 }
 
 export function openPrivateDb(path = DEFAULT_PRIVATE_DB) {
+  // Create owner-only before SQLite can create its WAL and shared-memory files.
+  if (path !== ":memory:") {
+    fs.closeSync(fs.openSync(path, "a", 0o600));
+    fs.chmodSync(path, 0o600);
+  }
   const db = new DatabaseSync(path);
-  initSchema(db);
+  try { initSchema(db); } catch (error) { db.close(); throw error; }
   return db;
 }
 
@@ -304,6 +311,29 @@ export function getAccounts(db) {
 }
 
 export function upsertMessage(db, message) {
+  // Upgrade old Message-ID keys in place so parser improvements cannot create a
+  // second receipt for a message already imported with an older parser.
+  if (message.messageId && message.accountRef) {
+    const id = String(message.messageId).trim().replace(/^<|>$/g, "").toLowerCase();
+    const previous = db.prepare("SELECT message_key FROM messages WHERE account_ref = ? AND lower(trim(message_id, '<> ')) = ?")
+      .all(message.accountRef, id);
+    for (const row of previous) {
+      if (row.message_key === message.messageKey) continue;
+      for (const table of ["offers", "receipts", "transport_receipts"]) {
+        db.prepare("UPDATE " + table + " SET message_key = ? WHERE message_key = ?")
+          .run(message.messageKey, row.message_key);
+      }
+      db.prepare("DELETE FROM messages WHERE message_key = ?").run(row.message_key);
+    }
+  }
+  if (message.kind === "transport_receipt") {
+    db.prepare("DELETE FROM receipt_offer_matches WHERE receipt_id IN (SELECT receipt_id FROM receipts WHERE message_key = ?)")
+      .run(message.messageKey);
+    db.prepare("DELETE FROM receipts WHERE message_key = ?").run(message.messageKey);
+  }
+  if (message.kind === "receipt") {
+    db.prepare("DELETE FROM transport_receipts WHERE message_key = ?").run(message.messageKey);
+  }
   db.prepare(`
     INSERT INTO messages(
       message_key, message_id, account_ref, kind, mailbox,
@@ -542,6 +572,9 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
     classificationConfidence: row.classification_confidence,
     evidence: row.evidence_json ? JSON.parse(row.evidence_json) : {},
     emailSentAt: row.last_sent_at,
+    firstEmailSentAt: row.first_sent_at,
+    firstSeenAt: row.first_seen_at,
+    lastSeenAt: row.last_seen_at,
     source: row.source,
     observedLive: Boolean(row.observed_live),
     receiptState: row.receipt_state,
@@ -552,6 +585,11 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
 }
 
 export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
+  const previous = db.prepare(`SELECT receipt_id FROM receipts WHERE account_ref = ? AND
+    ((message_key IS NOT NULL AND message_key = ?) OR
+     (order_id IS NOT NULL AND upper(trim(order_id)) = ?)) LIMIT 1`)
+    .get(receipt.accountRef, receipt.messageKey || null, receipt.orderId ? String(receipt.orderId).trim().toUpperCase() : null);
+  if (previous) receipt = { ...receipt, receiptId: previous.receipt_id };
   db.prepare(`
     INSERT INTO receipts(
       receipt_id, account_ref, message_key, sent_at, received_at,
@@ -563,21 +601,45 @@ export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
     ON CONFLICT(receipt_id) DO UPDATE SET
       account_ref = excluded.account_ref,
       message_key = excluded.message_key,
-      sent_at = excluded.sent_at,
-      received_at = excluded.received_at,
-      order_id = excluded.order_id,
-      merchant = excluded.merchant,
-      subtotal = excluded.subtotal,
-      promotion_discount = excluded.promotion_discount,
-      delivery_fee = excluded.delivery_fee,
-      service_fee = excluded.service_fee,
-      small_order_fee = excluded.small_order_fee,
-      tip = excluded.tip,
-      uber_cash_used = excluded.uber_cash_used,
-      reported_savings = excluded.reported_savings,
-      uber_one_savings = excluded.uber_one_savings,
-      uber_one_signal = excluded.uber_one_signal,
-      total = excluded.total,
+      sent_at = MIN(receipts.sent_at, excluded.sent_at),
+      received_at = MAX(receipts.received_at, excluded.received_at),
+      order_id = CASE WHEN excluded.received_at >= receipts.received_at
+        THEN COALESCE(excluded.order_id, receipts.order_id)
+        ELSE COALESCE(receipts.order_id, excluded.order_id) END,
+      merchant = CASE WHEN excluded.received_at >= receipts.received_at
+        THEN COALESCE(excluded.merchant, receipts.merchant)
+        ELSE COALESCE(receipts.merchant, excluded.merchant) END,
+      subtotal = CASE WHEN excluded.received_at >= receipts.received_at
+        THEN COALESCE(excluded.subtotal, receipts.subtotal)
+        ELSE COALESCE(receipts.subtotal, excluded.subtotal) END,
+      promotion_discount = CASE WHEN excluded.received_at >= receipts.received_at
+        THEN COALESCE(excluded.promotion_discount, receipts.promotion_discount)
+        ELSE COALESCE(receipts.promotion_discount, excluded.promotion_discount) END,
+      delivery_fee = CASE WHEN excluded.received_at >= receipts.received_at
+        THEN COALESCE(excluded.delivery_fee, receipts.delivery_fee)
+        ELSE COALESCE(receipts.delivery_fee, excluded.delivery_fee) END,
+      service_fee = CASE WHEN excluded.received_at >= receipts.received_at
+        THEN COALESCE(excluded.service_fee, receipts.service_fee)
+        ELSE COALESCE(receipts.service_fee, excluded.service_fee) END,
+      small_order_fee = CASE WHEN excluded.received_at >= receipts.received_at
+        THEN COALESCE(excluded.small_order_fee, receipts.small_order_fee)
+        ELSE COALESCE(receipts.small_order_fee, excluded.small_order_fee) END,
+      tip = CASE WHEN excluded.received_at >= receipts.received_at
+        THEN COALESCE(excluded.tip, receipts.tip)
+        ELSE COALESCE(receipts.tip, excluded.tip) END,
+      uber_cash_used = CASE WHEN excluded.received_at >= receipts.received_at
+        THEN COALESCE(excluded.uber_cash_used, receipts.uber_cash_used)
+        ELSE COALESCE(receipts.uber_cash_used, excluded.uber_cash_used) END,
+      reported_savings = CASE WHEN excluded.received_at >= receipts.received_at
+        THEN COALESCE(excluded.reported_savings, receipts.reported_savings)
+        ELSE COALESCE(receipts.reported_savings, excluded.reported_savings) END,
+      uber_one_savings = CASE WHEN excluded.received_at >= receipts.received_at
+        THEN COALESCE(excluded.uber_one_savings, receipts.uber_one_savings)
+        ELSE COALESCE(receipts.uber_one_savings, excluded.uber_one_savings) END,
+      uber_one_signal = MAX(receipts.uber_one_signal, excluded.uber_one_signal),
+      total = CASE WHEN excluded.received_at >= receipts.received_at
+        THEN COALESCE(excluded.total, receipts.total)
+        ELSE COALESCE(receipts.total, excluded.total) END,
       last_seen_at = excluded.last_seen_at
   `).run(
     receipt.receiptId,
@@ -745,6 +807,7 @@ export function getSavingsSummary(db) {
         COALESCE(small_order_fee, 0)
       ), 0) AS average_fees
     FROM receipts
+    WHERE delivery_fee IS NOT NULL OR service_fee IS NOT NULL OR small_order_fee IS NOT NULL
   `).get();
 
   const accountCounts = db.prepare(`

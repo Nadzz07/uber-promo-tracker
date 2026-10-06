@@ -1,3 +1,5 @@
+import { isOfferExpired } from "./offer-time.js";
+
 function number(value) {
   if (value == null || value === "") return null;
   const result = Number(value);
@@ -16,6 +18,9 @@ function remainingUses(promo) {
 
 function isAvailable(promo, excludedIds = new Set()) {
   if (!promo) return false;
+  if (promo.needsReview || promo.trackingState === "needs_checking" ||
+      promo.trackingState === "used" || promo.expiryStatus === "unknown" ||
+      isOfferExpired(promo)) return false;
   if (promo.id && excludedIds.has(promo.id)) return false;
   if (promo.receiptState === "used") return false;
   if (remainingUses(promo) <= 0) return false;
@@ -220,10 +225,10 @@ export function planBasketSplit(
   const orderLimit = Math.max(1, Math.min(4, Math.floor(number(maxOrders) || 3)));
   const excluded = new Set(excludedIds);
 
-  if (total == null || total <= 0) {
+  if (total == null || total <= 0 || total > 1000) {
     return {
       eligible: false,
-      reason: "Enter a basket subtotal above £0.",
+      reason: "Enter a basket subtotal above £0 and up to £1,000.",
       subtotal: total,
       orders: []
     };
@@ -246,7 +251,7 @@ export function planBasketSplit(
     };
   }
 
-  const step = total <= 120 ? 0.5 : 1;
+  const step = total <= 120 ? 0.5 : total <= 300 ? 1 : 5;
   const wholeUnits = Math.floor(total / step);
   const remainder = roundMoney(total - wholeUnits * step);
 
@@ -341,9 +346,20 @@ export function planBasketSplit(
     }
   }
 
-  const plans = [];
+  // Always evaluate the exact penny amount. Grid allocation can miss a minimum
+  // such as £15.25 when the full basket is £15.25.
+  const singleExact = rankPromosForSpend(promos, total, { service, excludedIds, accessibleOnly })[0];
+  const plans = singleExact ? [{
+    eligible: true, subtotal: total, grossSaving: singleExact.calculation.saving,
+    extraFees: 0, netSaving: singleExact.calculation.saving,
+    estimatedPay: singleExact.calculation.pay, orderCount: 1, accountCount: 1,
+    orders: [{ accountRef: singleExact.promo.accountRef,
+      accountMasked: singleExact.promo.accountMasked || null, promo: singleExact.promo,
+      subtotal: total, saving: singleExact.calculation.saving, pay: singleExact.calculation.pay }]
+  }] : [];
 
   for (let count = 1; count <= orderLimit; count++) {
+    if (count === 1 && singleExact) continue;
     const state = dp[count].get(wholeUnits);
     if (!state) continue;
 

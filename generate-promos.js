@@ -1,4 +1,7 @@
 import fs from "node:fs/promises";
+import path from "node:path";
+import { assertPublicSnapshot } from "./public-snapshot.js";
+import { isOfferExpired } from "./offer-time.js";
 import { parseUberPromo } from "./parser.js";
 import { parseUberEatsReceipt } from "./receipt-parser.js";
 import { parseUberTransportReceipt } from "./transport-receipt-parser.js";
@@ -35,27 +38,8 @@ const outputPath = process.argv[3] || "./promos.json";
 const publicHistoryPath = process.argv[4] || "./history.json";
 const privateDbPath = process.argv[5] || DEFAULT_PRIVATE_DB;
 
-function todayIso() {
-  const date = new Date();
-  return [
-    String(date.getFullYear()).padStart(4, "0"),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0")
-  ].join("-");
-}
-
-function isExpired(promo, today = todayIso()) {
-  return Boolean(promo.expires && promo.expires < today);
-}
-
-function isRecentUsed(promo, generatedAt) {
-  if (promo.receiptState !== "used" || !promo.lastUsedAt) return false;
-
-  const used = new Date(promo.lastUsedAt).getTime();
-  const now = new Date(generatedAt).getTime();
-  if (Number.isNaN(used) || Number.isNaN(now)) return false;
-
-  return now - used <= 180 * 24 * 60 * 60 * 1000;
+function isExpired(promo) {
+  return isOfferExpired(promo);
 }
 
 function attachAccountOfferContext(promos) {
@@ -112,15 +96,34 @@ async function loadMessages(path) {
     throw new Error("Mail export must contain a message array.");
   }
 
-  return messages;
+  for (const [index, message] of messages.entries()) {
+    if (!message || typeof message !== "object" || Array.isArray(message) ||
+        ["subject", "body", "sender", "recipient"].some(key =>
+          message[key] != null && typeof message[key] !== "string") ||
+        ![message.sentAt, message.receivedAt].some(value =>
+          value && Number.isFinite(new Date(value).getTime())) ||
+        [message.sentAt, message.receivedAt].some(value =>
+          value != null && !Number.isFinite(new Date(value).getTime()))) {
+      throw new Error("Invalid Mail record at position " + (index + 1) + "; nothing imported.");
+    }
+  }
+  return messages.map(message => ({ ...message,
+    receivedAt: message.receivedAt || message.sentAt,
+    sentAt: message.sentAt || message.receivedAt
+  }));
 }
 
 async function generatePromos() {
   const generatedAt = new Date().toISOString();
+  const paths = [inputPath, outputPath, publicHistoryPath, privateDbPath].map(p => path.resolve(p));
+  if (new Set(paths).size !== paths.length) throw new Error("Input, database and output paths must be distinct.");
+  const messages = await loadMessages(inputPath);
   const db = openPrivateDb(privateDbPath);
-
+  let transaction = false;
+  const temporaryFiles = [];
   try {
-    const messages = await loadMessages(inputPath);
+    db.exec("BEGIN IMMEDIATE");
+    transaction = true;
 
     for (const email of messages) {
       const receipt = parseUberEatsReceipt(email);
@@ -295,11 +298,8 @@ async function generatePromos() {
       )
     );
 
+    // Closed offers remain visible in Used, including expiry without a receipt.
     const publicPromos = refreshedOffers
-      .filter(promo =>
-        promo.trackingState !== "used" ||
-        isRecentUsed(promo, generatedAt)
-      )
       .map(promo => toPublicPromo({
         ...promo,
         id: promo.offerId
@@ -406,8 +406,8 @@ async function generatePromos() {
             id: promo.offerId
           }),
           status: historyStatus(promo),
-          firstSeenAt: promo.emailSentAt || null,
-          lastSeenAt: promo.emailSentAt || null
+          firstSeenAt: promo.firstSeenAt || null,
+          lastSeenAt: promo.lastSeenAt || null
         }))
         .sort((a, b) =>
           String(b.emailSentAt || "").localeCompare(String(a.emailSentAt || ""))
@@ -415,11 +415,20 @@ async function generatePromos() {
         .slice(0, 750)
     };
 
-    await fs.writeFile(outputPath, JSON.stringify(payload, null, 2) + "\n");
-    await fs.writeFile(
-      publicHistoryPath,
-      JSON.stringify(publicHistory, null, 2) + "\n"
-    );
+    assertPublicSnapshot(payload, publicHistory, [
+      ...getAccounts(db).map(account => account.alias),
+      ...allHistoryOffers.map(promo => promo.code)
+    ]);
+    // Prepare both complete files before committing; never truncate a good snapshot.
+    for (const [destination, value] of [[outputPath, payload], [publicHistoryPath, publicHistory]]) {
+      const temporary = destination + ".tmp-" + process.pid;
+      temporaryFiles.push(temporary);
+      await fs.writeFile(temporary, JSON.stringify(value, null, 2) + "\n", { mode: 0o600 });
+    }
+    db.exec("COMMIT");
+    transaction = false;
+    await fs.rename(temporaryFiles[0], outputPath);
+    await fs.rename(temporaryFiles[1], publicHistoryPath);
 
     const access = getAccounts(db);
     const accessible = access.filter(account => account.canLogin).length;
@@ -432,12 +441,14 @@ async function generatePromos() {
     console.log("Lifetime confirmed receipt saving: £" + summary.totalSaved.toFixed(2));
     console.log("Lifetime estimated saving: £" + summary.estimatedTotalSaved.toFixed(2));
   } finally {
+    if (transaction) db.exec("ROLLBACK");
     db.close();
+    await Promise.all(temporaryFiles.map(file => fs.rm(file, { force: true })));
   }
 }
 
 generatePromos().catch(error => {
   console.error("Could not generate tracker data:");
-  console.error(error);
+  console.error(error.message);
   process.exit(1);
 });

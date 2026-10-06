@@ -17,7 +17,7 @@ const parserCases = [
       sender: "Uber Eats <offers@uber.com>",
       recipient: "account-a@icloud.com",
       subject: "Want £15 off 5 orders?",
-      body: "Enjoy £15 off your next 5 orders. £15 minimum spend. Use promo code EATSUK15NEWBIESTSE. Offer available until 7 Oct 2026 3:00AM.",
+      body: "Enjoy £15 off your next 5 orders. £15 minimum spend. Use promo code TESTONLYPROMO47. Offer available until 7 Oct 2026 3:00AM.",
       receivedAt: "2026-10-05"
     },
     expected: {

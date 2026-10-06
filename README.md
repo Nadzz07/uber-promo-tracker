@@ -170,12 +170,12 @@ The receipt parser extracts, when present:
 - Uber Cash / credits used
 - final total
 - order ID
-- order date
+- receipt email sent time (an order-time proxy when no separate order timestamp is available)
 - recipient account
 
 Receipt evidence can:
 
-- confirm that an account has been used
+- confirm an Eats order on an account; one receipt does not by itself make a five-order offer Used
 - confirm a specific promo when the amount uniquely matches
 - decrement multi-use offers
 - mark single-use offers used
@@ -264,11 +264,11 @@ A partially used multi-use offer remains active and eligible for recommendations
 
 **Mark account done** is separate from individual offer usage. It removes that account from active account lists and optimiser recommendations on that browser without deleting its history. The Used screen allows the account to be restored.
 
-Receipt-confirmed state remains the durable private truth in SQLite; browser manual state is an immediate convenience layer that reconciles as receipt evidence catches up.
+Receipt reconciliation is count-based; it cannot prove which unlinked manual tap corresponds to a receipt. Receipt-confirmed state remains the durable private truth in SQLite; browser manual state is an immediate convenience layer that reconciles as receipt evidence catches up.
 
 ## Mac setup
 
-Requires **Node.js 22 or newer** because the private store uses Node's built-in SQLite API.
+Requires **Node.js 22.13 or newer** because the private store uses Node's built-in SQLite API.
 
 From the GitHub repo folder:
 
@@ -278,7 +278,7 @@ bash mac/setup-v2.sh
 
 This:
 
-1. verifies Node 22+
+1. verifies built-in SQLite support (Node 22.13+)
 2. creates/opens `uber-tracker.local.db`
 3. prints the Apple Mail mailbox names visible to scripting
 
@@ -331,16 +331,6 @@ bash mac/preview-sync.sh
 
 This is fail-fast: if Mail export fails, no parser/import/move step runs afterward. It updates the private SQLite database, can file confirmed Inbox receipts, and writes public-output previews only to a temporary directory. It does **not** commit or push anything.
 
-### Run a private preview first
-
-Before the first publish, use the fail-fast private preview:
-
-```bash
-bash mac/preview-sync.sh
-```
-
-It exports recent Mail, validates the JSON, runs the full tests, updates only the private SQLite database, and optionally files confirmed Inbox receipts. It does **not** commit or push the public JSON.
-
 ### Run a live scan
 
 After the private preview looks correct:
@@ -351,14 +341,14 @@ bash mac/update-promos.sh
 
 The updater:
 
-1. pulls the repo
-2. exports recent Uber messages from the configured Mail folders using bulk metadata indexing
-3. runs the full tests
+1. verifies a clean `main` checkout, takes the shared sync lock, and pulls with fast-forward only
+2. runs the regression suite
+3. exports recent Uber messages into a temporary file; a failed export preserves the last good export
 4. updates the private SQLite store
 5. recognises Uber Eats receipts found in `INBOX`
 6. optionally files those already-imported receipts into `Uber Receipts`
 7. generates sanitised `promos.json` and `history.json`
-8. commits/pushes only those public files when they changed
+8. validates privacy and consistency, then commits only those two public files and pushes `main`
 
 Receipt messages found in `INBOX` contribute to account/order/savings statistics in the same run before any optional move happens. The Mail move is only filing; SQLite is the durable tracker state.
 
@@ -370,7 +360,11 @@ APPLE_MAIL_MOVE_INBOX_RECEIPTS=true
 
 in `tracker.local.env`.
 
-The updater does not mark Mail messages as read.
+The updater does not mark Mail messages as read. Missing configured folders, unreadable selected messages, and mailbox changes during indexing fail the scan instead of publishing an incomplete result. Optional filing failures do not discard successfully imported receipts.
+
+All sync entry points use `.tracker-sync.lock`. If a process is interrupted, its exit handler removes the lock. After a hard crash, inspect `.tracker-sync.lock/pid` and verify that process is no longer running before removing that directory. Do not remove a lock held by an active sync.
+
+Publishing stops if the checkout has unrelated pending changes or unpublished code commits. A failed push leaves the data commit locally so it can be retried. Backfill and preview do not modify the checked-in public JSON. Never use `git reset --hard` to recover a sync.
 
 ### Historical receipt backfill
 
@@ -438,7 +432,7 @@ The suite includes:
 - public privacy checks
 - mobile dashboard syntax/layout guards
 
-CI also syntax-checks the generator and Mac Mail exporter.
+CI checks Node 22 and 24 on Linux and macOS, syntax-checks all JavaScript/shell entry points, validates public data, and exercises the mobile dashboard in Chromium.
 
 ## Public site
 
@@ -468,8 +462,32 @@ Do not force-add these files.
 
 ## Current limitations
 
-- Apple Mail date-filter and move behaviour is validated by CI for syntax but still requires live validation on the actual Mac.
+- Apple Mail export/move integration still requires a live test on the actual Mac with its folders and Automation permissions. CI covers shell failure paths and JavaScript syntax, not a real Mail mailbox.
 - Receipt wording varies; the parser is conservative and ambiguous promo matches do not automatically consume an offer.
 - Restaurant/item/location eligibility cannot be proven from email text alone.
 - Manual Used/Ignore choices are browser-local; receipt-confirmed state is durable in SQLite.
 - The public site is intentionally a sanitised view, not a place to reveal full account aliases or promo codes.
+
+## Release and engineering validation
+
+See [AUDIT.md](AUDIT.md) for findings, coverage and remaining limits.
+
+```bash
+npm run validate
+npm ci --ignore-scripts
+npx playwright install chromium
+npm run test:browser
+npm run build
+```
+
+`npm test` needs only Node and Bash; Playwright is a development-only dependency for browser testing. Browser fixtures are intercepted in the test browser and are never written to `promos.json` or `history.json`.
+
+The site build copies exactly the public HTML, two validated JSON snapshots, and their browser modules into `dist/`. Pages uploads only that directory. Its deployment job depends on successful validation, browser tests and the build; it cannot deploy independently of them.
+
+Public offer titles are built from numeric offer facts. Raw subjects, promo codes, account aliases, receipt identifiers and parser evidence remain private. The generator checks the result against the actual private aliases and codes before replacing either snapshot. SQLite imports are transactional, database/export files use owner-only permissions, and corrected receipt parsing reuses existing message/receipt identities.
+
+Expiry wall clocks without an offset mean Europe/London. Exact times are kept through SQLite, public JSON, recommendations and the Used screen. Repeated reminder emails retain the first observed offer date for matching receipts. Expired offers stay visible in Used. Unknown or invalid expiry remains Needs checking.
+
+Access imports accept `email,can_login` CSV, spreadsheet CSV with `Email` and `Login status` headers, or one accessible address per line. Quotes, BOMs and curly apostrophes are handled. Empty files, unknown statuses and conflicting duplicate accounts fail before changing anything, including with `--reset`. Provider labels never decide access.
+
+The planner evaluates one-order savings at the exact penny subtotal. Multi-order splits use a bounded allocation grid (50p up to £120, £1 up to £300, £5 above that) and consider up to 24 accounts; they are estimates, not a guarantee of the global optimum or item-level eligibility. Baskets above £1,000 are rejected to keep the phone responsive.

@@ -1794,13 +1794,91 @@
       .recommendation-save { margin-top: 8px; text-align: left; }
     }
 
+
+    /* Frosted surfaces stay static; motion uses compositor-friendly transforms. */
+    :root { --muted: #bcc8c0; --dim: #97a79e; --line: rgba(222,255,236,.13); }
+    body { background: radial-gradient(ellipse at 8% 0%, rgba(55,119,99,.22), transparent 46%), radial-gradient(ellipse at 100% 35%, rgba(61,83,112,.16), transparent 48%), #0c1311; font-size: 14px; }
+    .app-shell { max-width: 1240px; }
+    .topbar { padding: 12px 0 22px; gap: 18px; }
+    .brand-kicker, .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .12em; }
+    .brand-title { font-weight: 750; letter-spacing: -.045em; }
+    .home-intro-copy, .screen-copy { font-size: 13px; line-height: 1.6; }
+    .glass, .stat-card, .account-card, .quick-card, .more-card {
+      background: linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
+      border: 1px solid rgba(222,255,236,.13);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 12px 36px rgba(0,0,0,.12);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    }
+    .stats-row { max-width: none; gap: 12px; margin-bottom: 24px; }
+    .stat-card { padding: 18px; border-radius: 20px; }
+    .stat-label { font-size: 11px; font-weight: 650; }
+    .stat-value { font-size: clamp(26px, 4vw, 38px); font-weight: 750; letter-spacing: -.05em; }
+    .stat-sub { font-size: 10px; line-height: 1.5; }
+    .hero-card { border-radius: 28px; padding: 22px; background: linear-gradient(150deg, rgba(124,207,157,.12), rgba(255,255,255,.045) 55%, rgba(96,135,163,.06)); }
+    .hero-title { font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -.04em; }
+    .basket-editor { margin-top: 22px; border-radius: 18px; }
+    .basket-editor-copy strong { font-size: 12px; font-weight: 650; }
+    .basket-editor-copy small, .fee-note { font-size: 10px; line-height: 1.5; }
+    .basket-input { font-size: 28px; font-weight: 650; }
+    .recommendation { border-radius: 20px; }
+    .recommendation-title, .account-email { font-size: 14px; font-weight: 650; }
+    .recommendation-copy, .recommendation-line, .account-offer { font-size: 12px; line-height: 1.5; }
+    .section-title { font-size: 20px; font-weight: 700; letter-spacing: -.025em; }
+    .section-meta { font-size: 11px; }
+    .quick-grid { gap: 10px; grid-auto-rows: minmax(124px, auto); }
+    .quick-card { border-radius: 20px; padding: 15px; }
+    .quick-card.active { border-color: rgba(155,234,114,.44); background: linear-gradient(145deg, rgba(155,234,114,.14), rgba(155,234,114,.04)); }
+    .quick-title { font-size: 13px; font-weight: 650; }
+    .quick-sub { font-size: 11px; line-height: 1.4; }
+    .quick-icon { font-size: 18px; font-weight: 650; }
+    .quick-count { font-size: 11px; }
+    .account-card { border-radius: 22px; padding: 18px; }
+    .account-list { gap: 12px; }
+    .account-actions button { min-height: 44px; font-size: 12px; font-weight: 650; }
+    .account-primary, .account-secondary, .action-btn, .advanced-btn { min-height: 44px; font-size: 12px; font-weight: 650; }
+    .account-meta, .account-status, .offer-meta, .offer-copy, .empty { font-size: 12px; line-height: 1.6; }
+    .bottom-nav { background: linear-gradient(135deg, rgba(42,58,51,.88), rgba(21,32,29,.92)); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 12px 40px rgba(0,0,0,.35); }
+    .nav-btn { font-size: 11px; font-weight: 650; border-radius: 16px; }
+    .nav-btn.active { background: rgba(155,234,114,.12); }
+    .search-input, .setting-input { font-size: 16px; min-height: 48px; }
+    .filter-btn { min-height: 40px; font-size: 12px; }
+    .sheet { background: linear-gradient(145deg, #24352d, #121c19); box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 32px 100px rgba(0,0,0,.5); }
+    .sheet-section-title, .offer-actions .action-btn { font-size: 12px; }
+    button { transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease; }
+    button:active { transform: scale(.98); }
+    .view.active { animation: reveal-view 180ms ease-out; }
+    @keyframes reveal-view { from { opacity: .4; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    @media (hover: hover) and (pointer: fine) { .quick-card:hover, .account-card:hover { border-color: rgba(222,255,236,.28); } }
+    @media (min-width: 980px) {
+      .home-workspace { display: grid; grid-template-columns: minmax(360px,.9fr) minmax(0,1.2fr); gap: 28px; align-items: start; }
+      .planner-column { position: sticky; top: 24px; }
+      .discovery-column > .section-head:first-child { margin-top: 0; }
+      .discovery-column .quick-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .discovery-column .account-list { grid-template-columns: 1fr; }
+      .bottom-nav { position: relative; }
+    }
+    @media (max-width: 600px) {
+      .topbar { align-items: flex-start; }
+      .brand-title { font-size: 23px; max-width: 220px; }
+      .scan-wrap { max-width: 105px; }
+      .stat-card { padding: 13px 10px; }
+      .stats-row { gap: 8px; }
+      .hero-card { padding: 18px; }
+      .hero-title { font-size: 22px; }
+      .stat-sub { font-size: 9px; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         scroll-behavior: auto !important;
         animation-duration: .01ms !important;
         animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
       }
     }
+
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 2px solid var(--green); outline-offset: 4px; }
 
     @supports not ((backdrop-filter: blur(4px)) or (-webkit-backdrop-filter: blur(4px))) {
       .glass, .bottom-nav, .account-card, .quick-card, .more-card, .search-input, .sheet {
@@ -1825,13 +1903,14 @@
       </div>
     </header>
 
-    <div id="syncStrip" class="sync-strip">
+    <div id="localNotice" class="sync-strip" role="status" hidden></div>
+    <div id="syncStrip" class="sync-strip" role="status">
       <strong>Ready for your first sync</strong>
       <span>Run the Mac sync once to load your accounts, promos and receipt history.</span>
     </div>
 
     <nav id="mainNav" class="bottom-nav" aria-label="Main navigation">
-      <button class="nav-btn active" data-view="home">
+      <button class="nav-btn active" data-view="home" aria-current="page">
         <svg viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.8l8.5 6.7v9.2a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1Z"/></svg>
         Home
       </button>
@@ -1874,6 +1953,8 @@
           </div>
         </div>
 
+        <div class="home-workspace">
+        <div class="planner-column">
         <section class="hero-card glass">
           <div class="hero-heading">
             <div>
@@ -1890,7 +1971,7 @@
             </span>
             <span class="basket-value-wrap">
               <span class="basket-currency">£</span>
-              <input id="basketInput" class="basket-input" type="number" min="0" step="0.01" value="50.00" inputmode="decimal" aria-label="Basket subtotal">
+              <input id="basketInput" class="basket-input" type="number" max="1000" min="0" step="0.01" value="50.00" inputmode="decimal" aria-label="Basket subtotal">
               <span class="basket-edit-icon" aria-hidden="true">✎</span>
             </span>
           </label>
@@ -1905,6 +1986,8 @@
           </div>
         </section>
 
+        </div>
+        <div class="discovery-column">
         <div class="section-head">
           <div>
             <div class="eyebrow">Quick find</div>
@@ -1945,6 +2028,8 @@
           <summary id="weakSummary">Weaker usable accounts</summary>
           <div id="weakAccounts" class="weak-inner account-list"></div>
         </details>
+        </div>
+        </div>
       </section>
 
       <section id="view-accounts" class="view">
@@ -1955,7 +2040,7 @@
         </div>
 
         <div class="search-wrap">
-          <input id="accountSearch" class="search-input" type="search" placeholder="Search email…" autocomplete="off">
+          <input id="accountSearch" class="search-input" type="search" aria-label="Search accounts" placeholder="Search email…" autocomplete="off">
         </div>
 
         <div id="accountFilters" class="filter-row">
@@ -2068,6 +2153,7 @@
   </div>
 
   <script type="module">
+    import { isOfferExpired, expiryEndTime } from "./offer-time.js";
     import {
       planBasketSplit,
       rankPromosForSpend
@@ -2098,6 +2184,10 @@
     let promos = [];
     let accounts = [];
     let history = [];
+    let historyUnavailable = false;
+    let sheetOpener = null;
+    let loadInProgress = false;
+    let loadError = false;
     let currentView = "home";
     let currentIntent = "best";
     let accountFilter = "all";
@@ -2133,7 +2223,7 @@
     function saveManualStore() {
       try {
         localStorage.setItem(STATE_KEY, JSON.stringify(manualStore));
-      } catch {}
+      } catch { showLocalNotice(); }
     }
 
     function readPlannerSettings() {
@@ -2144,7 +2234,7 @@
             ? Number(stored.maxOrders)
             : 3,
           extraOrderFee:
-            Number.isFinite(Number(stored.extraOrderFee))
+            stored.extraOrderFee != null && stored.extraOrderFee !== "" && Number.isFinite(Number(stored.extraOrderFee))
               ? Math.max(0, Number(stored.extraOrderFee))
               : null,
           feeTouched: Boolean(stored.feeTouched)
@@ -2157,7 +2247,14 @@
     function savePlannerSettings() {
       try {
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(plannerSettings));
-      } catch {}
+      } catch { showLocalNotice(); }
+    }
+
+    function showLocalNotice() {
+      const notice = document.getElementById("localNotice");
+      notice.hidden = false;
+      notice.style.display = "flex";
+      notice.textContent = "This browser could not save your changes. Keep this page open; they may be lost when you close it.";
     }
 
     function escapeHtml(value) {
@@ -2212,13 +2309,12 @@
     }
 
     function isExpired(promo) {
-      const days = daysUntil(promo.expires);
-      return days != null && days < 0;
+      return isOfferExpired(promo);
     }
 
     function isExpiringSoon(promo) {
-      const days = daysUntil(promo.expires);
-      return days != null && days >= 0 && days <= 3;
+      const expiry = expiryEndTime(promo);
+      return expiry != null && expiry > Date.now() && expiry - Date.now() <= 3 * 86400000;
     }
 
     function accountDisplay(value) {
@@ -2240,7 +2336,11 @@
 
       if (promo.expires) {
         const date = formatDate(promo.expires);
-        if (date) bits.push("Ends " + date);
+        if (date) {
+          const instant = expiryEndTime(promo);
+          const clock = instant == null ? "" : new Date(instant).toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" });
+          bits.push("Ends " + date + (clock ? " at " + clock + " UK" : ""));
+        }
       } else {
         bits.push("Expiry unknown");
       }
@@ -2396,9 +2496,16 @@
         (!payload.generatedAt && accounts.length === 0 && promos.length === 0);
 
       pill.classList.remove("live", "setup", "stale");
+      if (loadError) {
+        label.textContent = "OFFLINE";
+        time.textContent = "Unable to refresh data";
+        syncStrip.style.display = "flex";
+        return;
+      }
 
       if (waitingForFirstSync) {
         pill.classList.add("setup");
+        syncStrip.innerHTML = "<strong>Ready for your first sync</strong><span>Run the Mac sync once to load your accounts, promos and receipt history.</span>";
         label.textContent = "READY";
         time.textContent = "Waiting for first sync";
         syncStrip.style.display = "flex";
@@ -3134,7 +3241,7 @@
                 escapeHtml(row.status || "seen") + '</span></div>'
               )).join("") +
               '</div>'
-            : '<div class="empty">No promo history yet.</div>') +
+            : '<div class="empty">' + (historyUnavailable ? 'History is temporarily unavailable. Your current offers are still loaded.' : 'No promo history yet.') + '</div>') +
         '</div>';
     }
 
@@ -3144,10 +3251,13 @@
     }
 
     function showSheet() {
+      if (!document.getElementById("sheetBackdrop").classList.contains("open")) sheetOpener = document.activeElement;
+      document.getElementById("app").inert = true;
       const backdrop = document.getElementById("sheetBackdrop");
       backdrop.classList.add("open");
       backdrop.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
+      document.getElementById("sheetClose").focus();
     }
 
     function closeSheet() {
@@ -3155,6 +3265,9 @@
       backdrop.classList.remove("open");
       backdrop.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
+      document.getElementById("app").inert = false;
+      if (sheetOpener?.isConnected) sheetOpener.focus();
+      sheetOpener = null;
       openSheetType = null;
       openAccountRef = null;
     }
@@ -3202,6 +3315,8 @@
 
       document.querySelectorAll("[data-view]").forEach(button => {
         button.classList.toggle("active", button.dataset.view === view);
+        if (button.dataset.view === view) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
       });
 
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -3235,36 +3350,50 @@
       return [...map.values()];
     }
 
-    async function load() {
+    async function readSnapshot(url) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 15000);
       try {
-        const [promoResponse, historyResponse] = await Promise.all([
-          fetch("promos.json?v=" + Date.now(), { cache: "no-store" }),
-          fetch("history.json?v=" + Date.now(), { cache: "no-store" })
+        const response = await fetch(url + "?v=" + Date.now(), { cache: "no-store", signal: controller.signal });
+        if (!response.ok) throw new Error("Could not load snapshot");
+        return await response.json();
+      } finally { clearTimeout(timer); }
+    }
+
+    async function load() {
+      if (loadInProgress) return;
+      loadInProgress = true;
+      try {
+        const [current, previous] = await Promise.allSettled([
+          readSnapshot("promos.json"), readSnapshot("history.json")
         ]);
-
-        if (!promoResponse.ok) throw new Error("promos.json HTTP " + promoResponse.status);
-
-        payload = await promoResponse.json();
-        promos = (Array.isArray(payload) ? payload : (payload.promos || []))
-          .filter(promo => promo.service === "Uber Eats");
-
-        accounts = Array.isArray(payload.accounts)
-          ? payload.accounts
-          : deriveAccounts();
-
-        if (historyResponse.ok) {
-          const historyPayload = await historyResponse.json();
-          history = Array.isArray(historyPayload.records) ? historyPayload.records : [];
+        if (current.status !== "fulfilled" || !Array.isArray(current.value?.promos) || !Array.isArray(current.value?.accounts)) {
+          throw new Error("Tracker data unavailable");
         }
-
+        loadError = false;
+        payload = current.value;
+        historyUnavailable = previous.status !== "fulfilled" || !Array.isArray(previous.value?.records) ||
+          previous.value.updatedAt !== payload.generatedAt;
+        history = historyUnavailable ? [] : previous.value.records;
+        const combined = new Map();
+        for (const promo of [...history, ...payload.promos]) {
+          if (promo?.service === "Uber Eats" && promo.id) combined.set(promo.id, promo);
+        }
+        promos = [...combined.values()];
+        accounts = payload.accounts;
         renderAll();
       } catch (error) {
-        console.error(error);
+        loadError = true;
         document.getElementById("scanLabel").textContent = "OFFLINE";
-        document.getElementById("scanTime").textContent = "Unable to load data";
-        document.getElementById("homeAccounts").innerHTML =
-          '<div class="empty">The tracker data could not be loaded. Refresh and try again.</div>';
-      }
+        document.getElementById("scanTime").textContent = "Unable to refresh data";
+        document.getElementById("syncStrip").style.display = "flex";
+        document.getElementById("syncStrip").innerHTML =
+          '<span>Data could not be loaded. Check your connection.</span><button class="ghost-btn" data-retry-load="true">Try again</button>';
+        if (!promos.length) {
+          document.getElementById("recommendation").innerHTML = '<div class="empty">Connect to load your offers.</div>';
+          document.getElementById("homeAccounts").innerHTML = '<div class="empty">Your accounts will appear once data loads.</div>';
+        }
+      } finally { loadInProgress = false; }
     }
 
     document.getElementById("mainNav").addEventListener("click", event => {
@@ -3285,10 +3414,12 @@
       renderHomeAccounts();
     });
 
+    let basketTimer;
     document.getElementById("basketInput").addEventListener("input", () => {
-      renderRecommendation();
-      renderHomeAccounts();
-      renderAccounts();
+      clearTimeout(basketTimer);
+      basketTimer = setTimeout(() => {
+        renderRecommendation(); renderHomeAccounts(); renderAccounts();
+      }, 120);
     });
 
     document.getElementById("accountSearch").addEventListener("input", () => {
@@ -3311,6 +3442,7 @@
     });
 
     document.getElementById("app").addEventListener("click", event => {
+      if (event.target.closest("[data-retry-load]")) { load(); return; }
       const showMore = event.target.closest("[data-show-more-accounts]");
       if (showMore) {
         accountDisplayLimit += 48;
@@ -3377,7 +3509,15 @@
     });
 
     document.addEventListener("keydown", event => {
+      if (!openSheetType) return;
       if (event.key === "Escape") closeSheet();
+      if (event.key === "Tab") {
+        const controls = [...document.querySelectorAll('#sheetBackdrop button:not([disabled]), #sheetBackdrop input, #sheetBackdrop [tabindex="0"]')]
+          .filter(element => element.getClientRects().length);
+        const first = controls[0], last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
     });
 
     document.getElementById("sheetBody").addEventListener("click", event => {
@@ -3493,6 +3633,12 @@
       }
     });
 
+    window.addEventListener("storage", event => {
+      if (event.key === STATE_KEY) { manualStore = readManualStore(); renderAll(); if (openSheetType === "account") renderAccountSheet(); }
+      if (event.key === SETTINGS_KEY) { plannerSettings = readPlannerSettings(); renderRecommendation(); }
+    });
+    document.addEventListener("visibilitychange", () => { if (!document.hidden && !loadInProgress) renderAll(); });
+    setInterval(() => { if (!document.hidden && !loadInProgress) renderAll(); }, 60000);
     load();
   </script>
 </body>

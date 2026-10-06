@@ -1,19 +1,9 @@
+import { expiryEndTime } from "./offer-time.js";
+
 function timeOf(value) {
   if (!value) return null;
   const result = new Date(value).getTime();
   return Number.isNaN(result) ? null : result;
-}
-
-function expiryEndTime(promo) {
-  if (promo.expiresAt) {
-    const exact = timeOf(promo.expiresAt);
-    if (exact != null) return exact;
-  }
-
-  if (!promo.expires) return null;
-
-  const endOfDay = timeOf(String(promo.expires) + "T23:59:59.999");
-  return endOfDay;
 }
 
 export function classifyOfferTrackingState(
@@ -49,7 +39,7 @@ export function classifyOfferTrackingState(
   const nowTime = timeOf(now) ?? Date.now();
   const expiryTime = expiryEndTime(promo);
 
-  if (expiryTime != null && nowTime > expiryTime) {
+  if (expiryTime != null && nowTime >= expiryTime) {
     return {
       trackingState: "used",
       needsReview: false,
@@ -58,7 +48,7 @@ export function classifyOfferTrackingState(
     };
   }
 
-  if (!promo.expires || promo.expiryStatus === "unknown") {
+  if (expiryTime == null || promo.expiryStatus === "unknown") {
     reasons.add("unknown_expiry");
   }
 
