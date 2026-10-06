@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { createInterface } from "node:readline";
 import { Readable } from "node:stream";
+import { offerTime } from "./offer-time.js";
 
 const MBOX_SEPARATOR = /^From\s+\S+\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+/;
 const MAX_MIME_DEPTH = 12;
@@ -238,6 +239,37 @@ function looksLikeUberSender(value) {
   return /@(?:[a-z0-9-]+\.)?uber\.com\b/i.test(String(value || "")) ||
     /(?:noreply|ubereats|uber)_at_uber_com/i.test(String(value || "")) ||
     /^\s*["']?uber(?:\s+(?:eats|receipts))?["']?\s*</i.test(String(value || ""));
+}
+
+function parseForwardedDate(value) {
+  const raw = String(value || "").trim();
+  const direct = new Date(raw.replace(/\s+at\s+/i, " "));
+  if (Number.isFinite(direct.getTime()) && /(?:[+-]\d{4}|\b(?:GMT|UTC|BST)\b)/i.test(raw)) {
+    return direct.toISOString();
+  }
+
+  const match = raw.match(
+    /(?:\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*,?\s+)?(\d{1,2})\s+([A-Za-z]{3,9})\s+(20\d{2})\s+(?:at\s+)?(\d{1,2}):(\d{2})(?::(\d{2}))?/i
+  );
+  if (!match) return null;
+
+  const months = {
+    jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06",
+    jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12"
+  };
+  const month = months[match[2].slice(0, 3).toLowerCase()];
+  if (!month) return null;
+
+  const local = [
+    match[3],
+    month,
+    String(match[1]).padStart(2, "0")
+  ].join("-") + "T" +
+    String(match[4]).padStart(2, "0") + ":" +
+    match[5] + ":" + (match[6] || "00");
+
+  const time = offerTime(local);
+  return time == null ? null : new Date(time).toISOString();
 }
 
 function forwardedUberHeaders(body) {
