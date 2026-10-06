@@ -1,9 +1,11 @@
 import fs from "node:fs/promises";
 import { parseUberPromo } from "./parser.js";
 import { parseUberEatsReceipt } from "./receipt-parser.js";
+import { parseUberTransportReceipt } from "./transport-receipt-parser.js";
 import { applyReceiptEvidence } from "./receipt-intelligence.js";
 import { toPublicPromo } from "./public-promo.js";
 import { estimateReceiptSavings } from "./savings-intelligence.js";
+import { applyOfferTrackingStates } from "./offer-state.js";
 import {
   DEFAULT_PRIVATE_DB,
   ensureAccount,
@@ -11,18 +13,21 @@ import {
   getOffers,
   getPublicAccountInsights,
   getReceipts,
+  getTransportReceipts,
   getSavingsSummary,
   openPrivateDb,
   replaceReceiptMatches,
   updateOfferUsage,
   upsertMessage,
   upsertOffer,
-  upsertReceipt
+  upsertReceipt,
+  upsertTransportReceipt
 } from "./private-db.js";
 import {
   messageKey,
   offerFingerprint,
-  receiptFingerprint
+  receiptFingerprint,
+  transportReceiptFingerprint
 } from "./identity.js";
 
 const inputPath = process.argv[2] || "./emails.local.json";
@@ -64,6 +69,7 @@ function attachAccountOfferContext(promos) {
 
   for (const accountPromos of groups.values()) {
     const active = accountPromos.filter(promo =>
+      promo.trackingState === "available" &&
       !isExpired(promo) &&
       promo.receiptState !== "used" &&
       Number(promo.usesRemaining ?? promo.uses ?? 1) > 0
@@ -90,8 +96,10 @@ function receiptStatsByAccount(receipts) {
 }
 
 function historyStatus(promo) {
+  if (promo.trackingState === "used") return "used";
+  if (promo.trackingState === "needs_checking") return "needs_checking";
   if (promo.receiptState === "used") return "used";
-  if (isExpired(promo)) return "expired";
+  if (isExpired(promo)) return "used";
   if (Number(promo.usesRemaining ?? promo.uses ?? 1) <= 0) return "used";
   return "active";
 }
@@ -166,6 +174,58 @@ async function generatePromos() {
         continue;
       }
 
+      const transportReceipt = parseUberTransportReceipt(email);
+
+      if (transportReceipt.isReceipt) {
+        const transportSentAt =
+          transportReceipt.sentAt ||
+          email.sentAt ||
+          email.receivedAt ||
+          generatedAt;
+
+        const account = ensureAccount(db, {
+          alias: transportReceipt.accountAlias,
+          seenAt: transportSentAt,
+          kind: "transport_receipt"
+        });
+
+        if (!account) continue;
+
+        const storedTransportReceipt = {
+          ...transportReceipt,
+          accountRef: account.accountRef,
+          accountMasked: account.masked,
+          canLogin: account.canLogin,
+          messageKey: key
+        };
+
+        storedTransportReceipt.receiptId =
+          transportReceiptFingerprint(storedTransportReceipt);
+
+        upsertMessage(db, {
+          messageKey: key,
+          messageId: email.messageId || transportReceipt.messageId || null,
+          accountRef: account.accountRef,
+          kind: "transport_receipt",
+          mailbox: email.mailbox || transportReceipt.mailbox || null,
+          sender: email.sender || null,
+          subject: email.subject || null,
+          bodyText: email.body || null,
+          sentAt: transportSentAt,
+          receivedAt: transportReceipt.receivedAt,
+          parserVersion: transportReceipt.parserVersion,
+          classification: transportReceipt.transportMode,
+          classificationConfidence: transportReceipt.senderConfidence,
+          accepted: true,
+          rejectionReason: null,
+          evidence: transportReceipt.evidence,
+          parsedAt: generatedAt
+        });
+
+        upsertTransportReceipt(db, storedTransportReceipt, generatedAt);
+        continue;
+      }
+
       const promo = parseUberPromo(email);
       const account = ensureAccount(db, {
         alias: promo.accountAlias,
@@ -215,6 +275,7 @@ async function generatePromos() {
     });
 
     const receipts = getReceipts(db);
+    const transportReceipts = getTransportReceipts(db);
     const evidence = applyReceiptEvidence(durableOffers, receipts);
 
     for (const promo of evidence.promos) {
@@ -224,15 +285,19 @@ async function generatePromos() {
     replaceReceiptMatches(db, evidence.matches, generatedAt);
 
     const refreshedOffers = attachAccountOfferContext(
-      getOffers(db, {
-        service: "Uber Eats",
-        includeHistorical: false
-      })
+      applyOfferTrackingStates(
+        getOffers(db, {
+          service: "Uber Eats",
+          includeHistorical: false
+        }),
+        evidence.matches,
+        { now: generatedAt }
+      )
     );
 
     const publicPromos = refreshedOffers
       .filter(promo =>
-        (!isExpired(promo) && promo.receiptState !== "used") ||
+        promo.trackingState !== "used" ||
         isRecentUsed(promo, generatedAt)
       )
       .map(promo => toPublicPromo({
@@ -241,6 +306,23 @@ async function generatePromos() {
       }));
 
     const receiptStats = receiptStatsByAccount(receipts);
+    const reviewCounts = new Map();
+    const availableCounts = new Map();
+
+    for (const promo of refreshedOffers) {
+      if (promo.trackingState === "available" && promo.accountRef) {
+        availableCounts.set(
+          promo.accountRef,
+          (availableCounts.get(promo.accountRef) || 0) + 1
+        );
+      }
+      if (!promo.needsReview || !promo.accountRef) continue;
+      reviewCounts.set(
+        promo.accountRef,
+        (reviewCounts.get(promo.accountRef) || 0) + 1
+      );
+    }
+
     const accounts = getPublicAccountInsights(db).map(account => {
       const stats = receiptStats.get(account.accountRef) || {
         orderCount: 0,
@@ -254,8 +336,13 @@ async function generatePromos() {
         lastOrderAt: account.lastOrderAt || null
       };
 
+      const reviewOfferCount = reviewCounts.get(account.accountRef) || 0;
+
       return {
         ...account,
+        activePromoCount: availableCounts.get(account.accountRef) || 0,
+        needsReview: reviewOfferCount > 0,
+        reviewOfferCount,
         orderCount: stats.orderCount,
         promoSavings: stats.promoSavings,
         uberCashUsed: stats.uberCashUsed,
@@ -269,6 +356,12 @@ async function generatePromos() {
     });
 
     const summary = getSavingsSummary(db);
+    summary.activePromoAccounts = new Set(
+      refreshedOffers
+        .filter(promo => promo.trackingState === "available")
+        .map(promo => promo.accountRef)
+        .filter(Boolean)
+    ).size;
     const feeSampleSize = receipts.filter(receipt =>
       receipt.deliveryFee != null ||
       receipt.serviceFee != null ||
@@ -292,10 +385,14 @@ async function generatePromos() {
     };
 
     const allHistoryOffers = attachAccountOfferContext(
-      getOffers(db, {
-        service: "Uber Eats",
-        includeHistorical: true
-      })
+      applyOfferTrackingStates(
+        getOffers(db, {
+          service: "Uber Eats",
+          includeHistorical: true
+        }),
+        evidence.matches,
+        { now: generatedAt }
+      )
     );
 
     const publicHistory = {
@@ -329,7 +426,8 @@ async function generatePromos() {
 
     console.log("Private DB: " + privateDbPath);
     console.log("Known accounts: " + access.length + " (" + accessible + " can log in)");
-    console.log("Stored receipts: " + receipts.length);
+    console.log("Stored Uber Eats receipts: " + receipts.length);
+    console.log("Stored ride/bike receipts: " + transportReceipts.length);
     console.log("Public current/recent promos: " + publicPromos.length);
     console.log("Lifetime confirmed receipt saving: £" + summary.totalSaved.toFixed(2));
     console.log("Lifetime estimated saving: £" + summary.estimatedTotalSaved.toFixed(2));

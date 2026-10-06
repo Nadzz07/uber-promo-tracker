@@ -6,7 +6,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "test": "node test-runner.js && node test-v2.js && node test-integration.js && node test-mail-routing.js && node test-round2.js && node validate-dashboard.js && node validate-release.js",
+    "test": "node test-runner.js && node test-v2.js && node test-integration.js && node test-offer-state.js && node test-mail-routing.js && node test-round2.js && node validate-dashboard.js && node validate-release.js",
     "generate": "node generate-promos.js",
     "db:init": "node mac/init-private-db.js",
     "access:import": "node mac/import-account-access.js"

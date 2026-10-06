@@ -52,3 +52,20 @@ export function receiptFingerprint(receipt = {}) {
     total: receipt.total ?? null
   });
 }
+
+
+export function transportReceiptFingerprint(receipt = {}) {
+  if (receipt.tripId) {
+    return "trp_" + stableHash({
+      accountRef: receipt.accountRef || null,
+      tripId: receipt.tripId
+    });
+  }
+
+  return "trp_" + stableHash({
+    accountRef: receipt.accountRef || null,
+    sentAt: receipt.sentAt || receipt.receivedAt || null,
+    transportMode: receipt.transportMode || "ride",
+    total: receipt.total ?? null
+  });
+}

@@ -2,7 +2,7 @@ import { DatabaseSync } from "node:sqlite";
 import { maskAccountAlias } from "./account-map.js";
 import { estimateReceiptSavings } from "./savings-intelligence.js";
 
-export const PRIVATE_DB_SCHEMA_VERSION = 2;
+export const PRIVATE_DB_SCHEMA_VERSION = 3;
 export const DEFAULT_PRIVATE_DB = "./uber-tracker.local.db";
 
 function normaliseAlias(value) {
@@ -122,6 +122,20 @@ function initSchema(db) {
       FOREIGN KEY(account_ref) REFERENCES accounts(account_ref)
     );
 
+    CREATE TABLE IF NOT EXISTS transport_receipts (
+      receipt_id TEXT PRIMARY KEY,
+      account_ref TEXT NOT NULL,
+      message_key TEXT,
+      sent_at TEXT,
+      received_at TEXT,
+      trip_id TEXT,
+      transport_mode TEXT,
+      total REAL,
+      first_seen_at TEXT NOT NULL,
+      last_seen_at TEXT NOT NULL,
+      FOREIGN KEY(account_ref) REFERENCES accounts(account_ref)
+    );
+
     CREATE TABLE IF NOT EXISTS receipt_offer_matches (
       receipt_id TEXT NOT NULL,
       offer_id TEXT,
@@ -137,6 +151,7 @@ function initSchema(db) {
     CREATE INDEX IF NOT EXISTS idx_offers_account ON offers(account_ref);
     CREATE INDEX IF NOT EXISTS idx_offers_status ON offers(status);
     CREATE INDEX IF NOT EXISTS idx_receipts_account ON receipts(account_ref);
+    CREATE INDEX IF NOT EXISTS idx_transport_receipts_account ON transport_receipts(account_ref);
     CREATE INDEX IF NOT EXISTS idx_messages_sent ON messages(sent_at);
   `);
 
@@ -617,6 +632,62 @@ export function getReceipts(db) {
     reportedSavings: row.reported_savings,
     uberOneSavings: row.uber_one_savings,
     uberOneSignal: Boolean(row.uber_one_signal),
+    total: row.total
+  }));
+}
+
+export function upsertTransportReceipt(
+  db,
+  receipt,
+  seenAt = new Date().toISOString()
+) {
+  db.prepare(`
+    INSERT INTO transport_receipts(
+      receipt_id, account_ref, message_key, sent_at, received_at,
+      trip_id, transport_mode, total, first_seen_at, last_seen_at
+    ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(receipt_id) DO UPDATE SET
+      account_ref = excluded.account_ref,
+      message_key = excluded.message_key,
+      sent_at = excluded.sent_at,
+      received_at = excluded.received_at,
+      trip_id = excluded.trip_id,
+      transport_mode = excluded.transport_mode,
+      total = excluded.total,
+      last_seen_at = excluded.last_seen_at
+  `).run(
+    receipt.receiptId,
+    receipt.accountRef,
+    receipt.messageKey || null,
+    receipt.sentAt || receipt.receivedAt || null,
+    receipt.receivedAt || null,
+    receipt.tripId || null,
+    receipt.transportMode || "ride",
+    receipt.total ?? null,
+    seenAt,
+    seenAt
+  );
+}
+
+export function getTransportReceipts(db) {
+  return db.prepare(`
+    SELECT
+      r.*,
+      a.masked AS account_masked,
+      a.can_login AS can_login
+    FROM transport_receipts r
+    JOIN accounts a ON a.account_ref = r.account_ref
+    ORDER BY COALESCE(r.sent_at, r.received_at) ASC, r.receipt_id ASC
+  `).all().map(row => ({
+    id: row.receipt_id,
+    receiptId: row.receipt_id,
+    accountRef: row.account_ref,
+    accountMasked: row.account_masked,
+    canLogin: Boolean(row.can_login),
+    sentAt: row.sent_at,
+    receivedAt: row.received_at,
+    tripId: row.trip_id,
+    transportMode: row.transport_mode,
     total: row.total
   }));
 }

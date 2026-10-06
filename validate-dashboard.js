@@ -47,6 +47,9 @@ assert.ok(html.includes("How the Uber One estimate is calculated"));
 assert.ok(html.includes("savings-hero"));
 assert.ok(html.includes("grid-template-columns: auto minmax(0,1fr) 36px"));
 assert.ok(html.includes("Can’t log in"));
+assert.ok(html.includes("Needs checking"));
+assert.ok(html.includes('id="needsCheckCount"'));
+assert.ok(html.includes('id="needsCheckingList"'));
 
 assert.ok(
   html.includes("backdrop-filter: blur"),

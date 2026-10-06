@@ -1,4 +1,5 @@
 import { savingForSpend } from "./deal-intelligence.js";
+import { applyOfferTrackingStates } from "./offer-state.js";
 
 function number(value) {
   if (value == null || value === "") return null;
@@ -65,14 +66,18 @@ function candidateMatch(promo, receipt, observed, mode) {
 }
 
 function consumeBestMatch({ tracked, receipt, observed, mode, matches, stats }) {
-  if (observed == null || observed <= 0) return;
+  if (observed == null || observed <= 0) {
+    return { consumed: false, ambiguous: false, candidateOfferIds: [] };
+  }
 
   const candidates = tracked
     .map(promo => candidateMatch(promo, receipt, observed, mode))
     .filter(Boolean)
     .sort((a, b) => a.difference - b.difference);
 
-  if (!candidates.length) return;
+  if (!candidates.length) {
+    return { consumed: false, ambiguous: false, candidateOfferIds: [] };
+  }
 
   const best = candidates[0];
   const second = candidates[1];
@@ -84,6 +89,10 @@ function consumeBestMatch({ tracked, receipt, observed, mode, matches, stats }) 
     second.difference - best.difference >= 0.2;
 
   if (best.difference > tolerance || !uniqueEnough) {
+    const candidateOfferIds = candidates
+      .map(candidate => candidate.promo.offerId || candidate.promo.id || null)
+      .filter(Boolean);
+
     matches.push({
       receiptId: receipt.receiptId || receipt.id || null,
       offerId: null,
@@ -91,9 +100,15 @@ function consumeBestMatch({ tracked, receipt, observed, mode, matches, stats }) 
       observedSaving: observed,
       expectedSaving: best.expected,
       mode,
-      status: "ambiguous"
+      status: "ambiguous",
+      candidateOfferIds
     });
-    return;
+
+    return {
+      consumed: false,
+      ambiguous: true,
+      candidateOfferIds
+    };
   }
 
   best.promo.receiptConfirmedUses += 1;
@@ -103,18 +118,137 @@ function consumeBestMatch({ tracked, receipt, observed, mode, matches, stats }) 
 
   if (stats) stats.confirmedPromoUses += 1;
 
+  const offerId = best.promo.offerId || best.promo.id || null;
+
   matches.push({
     receiptId: receipt.receiptId || receipt.id || null,
-    offerId: best.promo.offerId || best.promo.id || null,
+    offerId,
     accountRef: receipt.accountRef,
     observedSaving: observed,
     expectedSaving: best.expected,
     mode,
     status: "confirmed"
   });
+
+  return {
+    consumed: true,
+    ambiguous: false,
+    candidateOfferIds: offerId ? [offerId] : []
+  };
 }
 
-export function applyReceiptEvidence(promos = [], receipts = []) {
+function receiptIdentity(receipt) {
+  if (receipt.orderId) {
+    return [
+      "order",
+      receipt.accountRef || "",
+      String(receipt.orderId).trim().toLowerCase()
+    ].join("|");
+  }
+
+  if (receipt.receiptId || receipt.id) {
+    return "receipt|" + String(receipt.receiptId || receipt.id);
+  }
+
+  return [
+    "fallback",
+    receipt.accountRef || "",
+    receipt.sentAt || receipt.receivedAt || "",
+    receipt.subtotal ?? "",
+    receipt.promotionDiscount ?? "",
+    receipt.total ?? ""
+  ].join("|");
+}
+
+function dedupeReceipts(receipts = []) {
+  const seen = new Set();
+  const result = [];
+
+  for (const receipt of receipts) {
+    const key = receiptIdentity(receipt);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push(receipt);
+  }
+
+  return result;
+}
+
+function orderCountCandidates(tracked, receipt) {
+  return tracked.filter(promo => {
+    if (promo.service !== "Uber Eats") return false;
+    if (Number(promo.uses || 1) <= 1) return false;
+    if (promo.discountType === "uberCash") return false;
+    if (promo.accountRef !== receipt.accountRef) return false;
+    if (promo.usesRemaining <= 0) return false;
+    if (!receiptCanUsePromo(receipt, promo)) return false;
+
+    const subtotal = number(receipt.subtotal);
+    if (subtotal == null || subtotal <= 0) return false;
+
+    const calculation = savingForSpend(promo, subtotal);
+    return Boolean(calculation.eligible);
+  });
+}
+
+function consumeOrderCountUse({ tracked, receipt, matches, stats }) {
+  const candidates = orderCountCandidates(tracked, receipt);
+
+  if (candidates.length === 0) {
+    return { consumed: false, ambiguous: false, candidateOfferIds: [] };
+  }
+
+  if (candidates.length > 1) {
+    const candidateOfferIds = candidates
+      .map(promo => promo.offerId || promo.id || null)
+      .filter(Boolean);
+
+    matches.push({
+      receiptId: receipt.receiptId || receipt.id || null,
+      offerId: null,
+      accountRef: receipt.accountRef,
+      observedSaving: number(receipt.promotionDiscount) || 0,
+      expectedSaving: null,
+      mode: "order_count",
+      status: "ambiguous",
+      candidateOfferIds
+    });
+
+    return {
+      consumed: false,
+      ambiguous: true,
+      candidateOfferIds
+    };
+  }
+
+  const promo = candidates[0];
+  promo.receiptConfirmedUses += 1;
+  promo.usesRemaining = Math.max(0, promo.usesRemaining - 1);
+  promo.receiptState = promo.usesRemaining === 0 ? "used" : "partial";
+  promo.lastUsedAt = receipt.sentAt || receipt.receivedAt || null;
+
+  if (stats) stats.confirmedPromoUses += 1;
+
+  const offerId = promo.offerId || promo.id || null;
+
+  matches.push({
+    receiptId: receipt.receiptId || receipt.id || null,
+    offerId,
+    accountRef: receipt.accountRef,
+    observedSaving: number(receipt.promotionDiscount) || 0,
+    expectedSaving: null,
+    mode: "order_count",
+    status: "confirmed"
+  });
+
+  return {
+    consumed: true,
+    ambiguous: false,
+    candidateOfferIds: offerId ? [offerId] : []
+  };
+}
+
+export function applyReceiptEvidence(promos = [], receipts = [], { now = new Date() } = {}) {
   const tracked = promos.map(promo => ({
     ...promo,
     receiptConfirmedUses: 0,
@@ -147,7 +281,8 @@ export function applyReceiptEvidence(promos = [], receipts = []) {
     return accountStats.get(ref);
   }
 
-  const orderedReceipts = receipts
+  const orderedReceipts = dedupeReceipts(receipts)
+    .filter(receipt => !receipt.service || receipt.service === "Uber Eats")
     .slice()
     .sort((a, b) =>
       String(a.sentAt || a.receivedAt || "")
@@ -172,7 +307,7 @@ export function applyReceiptEvidence(promos = [], receipts = []) {
 
     if (!receipt.accountRef) continue;
 
-    consumeBestMatch({
+    const promotionResult = consumeBestMatch({
       tracked,
       receipt,
       observed: promotion,
@@ -181,7 +316,7 @@ export function applyReceiptEvidence(promos = [], receipts = []) {
       stats
     });
 
-    consumeBestMatch({
+    const cashResult = consumeBestMatch({
       tracked,
       receipt,
       observed: cash,
@@ -189,9 +324,28 @@ export function applyReceiptEvidence(promos = [], receipts = []) {
       matches,
       stats
     });
+
+    const alreadyConsumed =
+      Boolean(promotionResult?.consumed) ||
+      Boolean(cashResult?.consumed);
+
+    const ambiguous =
+      Boolean(promotionResult?.ambiguous) ||
+      Boolean(cashResult?.ambiguous);
+
+    if (!alreadyConsumed && !ambiguous) {
+      consumeOrderCountUse({
+        tracked,
+        receipt,
+        matches,
+        stats
+      });
+    }
   }
 
-  const feeSamples = receipts
+  const uniqueEatsReceipts = orderedReceipts;
+
+  const feeSamples = uniqueEatsReceipts
     .map(receipt => ({
       fee: feeTotal(receipt),
       hasParsedFee:
@@ -207,11 +361,13 @@ export function applyReceiptEvidence(promos = [], receipts = []) {
       )
     : null;
 
+  const trackedWithState = applyOfferTrackingStates(tracked, matches, { now });
+
   return {
-    promos: tracked,
+    promos: trackedWithState,
     matches,
     publicInsights: {
-      receiptCount: receipts.length,
+      receiptCount: uniqueEatsReceipts.length,
       feeModel: {
         sampleSize: feeSamples.length,
         averageExtraOrderFees

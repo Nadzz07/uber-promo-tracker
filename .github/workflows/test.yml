@@ -30,6 +30,8 @@ jobs:
           node --check private-db.js
           node --check receipt-parser.js
           node --check receipt-intelligence.js
+          node --check offer-state.js
+          node --check transport-receipt-parser.js
           for file in parser-v2/*.js; do node --check "$file"; done
 
       - name: Check Mac JavaScript automation syntax
