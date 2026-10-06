@@ -72,19 +72,28 @@ Each newly discovered recipient alias is automatically added to the private acco
 - **Can log in**
 - **Can't log in**
 
-Newly discovered accounts default to **Can't log in**. This is deliberate: the basket optimiser must never recommend an account that has not been confirmed usable.
+Login state is separate from **login method**. Login method is one of:
 
-The public UI shows the masked email. Internal refs such as `A001` are join keys and are not the normal user-facing identity.
+- **iCloud** — sign in through the Apple/iCloud route
+- **Google** — sign in through Google, even when the account email itself is an iCloud address
+- **Both** — either route works
+
+Newly discovered accounts default to **Can't log in** with no login method until the private access list confirms it. This is deliberate: the basket optimiser must never recommend an account that has not been confirmed usable.
+
+The public UI shows the masked email plus the safe login method so the account chooser tells you how to sign in. Internal refs such as `A001` are join keys and are not the normal user-facing identity.
 
 ### Import an access list
 
-CSV format:
+Preferred CSV format:
 
 ```csv
-email,can_login
-alias-one@icloud.com,true
-alias-two@icloud.com,false
+Email,Login method,Login status,Notes
+alias-one@icloud.com,iCloud,Can log in,
+alias-two@icloud.com,Google,Can log in,Google login despite iCloud email
+alias-three@icloud.com,Both,Can log in,
 ```
+
+The legacy `Provider` column is still accepted and is interpreted as the login method for backwards compatibility.
 
 Then:
 
@@ -182,7 +191,7 @@ Receipt evidence can:
 - estimate the real extra cost of splitting baskets
 - build lifetime savings/order statistics
 
-For first/next-N Uber Eats offers, the email-defined order count is the usage limit. A 5-order offer with two unique qualifying Uber Eats orders has 3 uses left. Duplicate receipt copies count once. Uber ride/bike receipts are parsed and stored separately and never decrement an Uber Eats offer.
+For first/next-N Uber Eats offers, the email-defined order count is the usage limit. A 5-order offer with two unique qualifying Uber Eats orders has 3 uses left. Duplicate receipt copies count once. Uber transport receipts are stored separately and never decrement an Uber Eats offer. Lime/e-bike receipts count under the single **Ride** history category; receipt-backed rides are treated as completed history.
 
 Offer state is deliberately explicit:
 
@@ -510,6 +519,6 @@ Public offer titles are built from numeric offer facts. Raw subjects, promo code
 
 Expiry wall clocks without an offset mean Europe/London. Exact times are kept through SQLite, public JSON, recommendations and the Used screen. Repeated reminder emails retain the first observed offer date for matching receipts. Expired offers stay visible in Used. Unknown or invalid expiry remains Needs checking.
 
-Access imports accept `email,can_login` CSV, spreadsheet CSV with `Email` and `Login status` headers, or one accessible address per line. Quotes, BOMs and curly apostrophes are handled. Empty files, unknown statuses and conflicting duplicate accounts fail before changing anything, including with `--reset`. Provider labels never decide access.
+Access imports accept `email,can_login` CSV, spreadsheet CSV with `Email` and `Login status` headers, or one accessible address per line. Quotes, BOMs and curly apostrophes are handled. Empty files, unknown statuses and conflicting duplicate accounts fail before changing anything, including with `--reset`. Login method never decides access; only the explicit Can log in / Can't log in state does.
 
 The planner evaluates one-order savings at the exact penny subtotal. Multi-order splits use a bounded allocation grid (50p up to £120, £1 up to £300, £5 above that) and consider up to 24 accounts; they are estimates, not a guarantee of the global optimum or item-level eligibility. Baskets above £1,000 are rejected to keep the phone responsive.

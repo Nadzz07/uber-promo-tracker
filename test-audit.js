@@ -16,7 +16,7 @@ import { publicOfferTitle, toPublicPromo } from './public-promo.js';
 import { assertPublicSnapshot } from './public-snapshot.js';
 import { planBasketSplit, rankPromosForSpend } from './deal-intelligence.js';
 import { messageKey, receiptFingerprint } from './identity.js';
-import { openPrivateDb, ensureAccount, setAccountAccess, getAccounts, upsertOffer, getOffers, upsertReceipt, getReceipts, getSavingsSummary, upsertMessage } from './private-db.js';
+import { openPrivateDb, ensureAccount, setAccountAccess, getAccounts, getPublicAccountInsights, upsertOffer, getOffers, upsertReceipt, getReceipts, upsertTransportReceipt, getSavingsSummary, upsertMessage } from './private-db.js';
 
 let passed = 0;
 function test(name, fn) { fn(); console.log('✓ ' + name); passed++; }
@@ -28,6 +28,33 @@ try {
     assert.deepEqual(parseAccessList('\uFEFFEmail,Provider,Login status,Notes\r\n"alpha@example.invalid",iCloud,Can log in,"two, notes"\r\nbeta@example.invalid,Google,Can’t log in,\n').map(r => r.canLogin), [true, false]);
     assert.equal(parseAccessList('alpha@example.invalid\nalpha@example.invalid\n').length, 1);
     for (const text of ['email,can_login\n', 'a@example.invalid,maybe', 'a@example.invalid,true\na@example.invalid,false', 'not-an-email,true', '"broken']) assert.throws(() => parseAccessList(text));
+  });
+  test('Login method is explicit and independent of email domain', () => {
+    const rows = parseAccessList(
+      'Email,Provider,Login status,Notes\n' +
+      'apple-route@icloud.com,iCloud,Can log in,\n' +
+      'google-route@icloud.com,Google,Can log in,\n' +
+      'both-route@icloud.com,iCloud + Google,Can log in,\n'
+    );
+    assert.deepEqual(rows.map(row => row.loginMethod), ['iCloud', 'Google', 'Both']);
+
+    const db = openPrivateDb(':memory:');
+    setAccountAccess(db, 'google-route@icloud.com', true, 'Google');
+    const account = getAccounts(db)[0];
+    assert.equal(account.loginMethod, 'Google');
+
+    upsertTransportReceipt(db, {
+      receiptId: 'bike-login-method',
+      accountRef: account.accountRef,
+      sentAt: '2026-10-06T12:00:00Z',
+      receivedAt: '2026-10-06T12:00:01Z',
+      transportMode: 'bike',
+      total: 0
+    });
+    const publicAccount = getPublicAccountInsights(db)[0];
+    assert.equal(publicAccount.loginMethod, 'Google');
+    assert.equal(publicAccount.rideCount, 1, 'bike receipts count under Ride history');
+    db.close();
   });
   test('Invalid --reset access import leaves existing access intact', () => {
     const dbPath = path.join(tmp, 'access.db'); let db = openPrivateDb(dbPath);

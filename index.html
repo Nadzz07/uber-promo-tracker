@@ -583,6 +583,14 @@
       white-space: nowrap;
     }
 
+    .account-login-route {
+      margin-top: 3px;
+      color: var(--green);
+      font-size: 8.5px;
+      font-weight: 850;
+      line-height: 1.35;
+    }
+
     .account-offer {
       margin-top: 3px;
       color: var(--muted);
@@ -2321,6 +2329,28 @@
       return value?.accountMasked || "Account";
     }
 
+    function loginMethodLabel(value) {
+      const method = value?.loginMethod || value?.promo?.loginMethod || null;
+      if (method === "iCloud") return "iCloud";
+      if (method === "Google") return "Google";
+      if (method === "Both") return "iCloud or Google";
+      return "Not set";
+    }
+
+    function loginRouteText(value) {
+      const method = loginMethodLabel(value);
+      return method === "Not set"
+        ? "Login method not set"
+        : "Sign in with " + method;
+    }
+
+    function receiptHistoryText(account) {
+      const eats = Number(account?.orderCount || 0);
+      const rides = Number(account?.rideCount || 0);
+      if (eats === 0 && rides === 0) return "No receipt history";
+      return eats + " Eats · " + rides + " Ride";
+    }
+
     function promoLabel(promo) {
       if (promo.discountType === "uberCash") return money(promo.discount) + " Uber Cash";
       if (promo.discountType === "fixed") return money(promo.discount) + " off";
@@ -2587,7 +2617,8 @@
           '<div class="plan-number">' + (index + 1) + '</div>' +
           '<div>' +
             '<div class="plan-account">' + escapeHtml(accountDisplay(order)) + '</div>' +
-            '<div class="plan-promo">' +
+            '<div class="plan-promo">' + escapeHtml(loginRouteText(order)) + ' · ' +
+
               escapeHtml(order.promo.title || promoLabel(order.promo)) +
               ' · about ' + escapeHtml(money(order.subtotal)) +
             '</div>' +
@@ -2632,6 +2663,10 @@
         pills.push('<span class="pill good">Best now</span>');
       }
 
+      pills.push('<span class="pill">' + escapeHtml("Login: " + loginMethodLabel(account)) + '</span>');
+      const hasHistory = Number(account.orderCount || 0) > 0 || Number(account.rideCount || 0) > 0;
+      pills.push('<span class="pill' + (hasHistory ? '' : ' warn') + '">' + escapeHtml(receiptHistoryText(account)) + '</span>');
+
       if (account.needsReview) pills.push('<span class="pill warn">Needs checking</span>');
       if (current.some(is15off15)) pills.push('<span class="pill">£15 off £15</span>');
       if (current.some(promo => promo.discountType === "uberCash")) pills.push('<span class="pill">Uber Cash</span>');
@@ -2662,6 +2697,7 @@
           '<div class="account-top">' +
             '<div style="min-width:0">' +
               '<div class="account-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
+              '<div class="account-login-route">' + escapeHtml(loginRouteText(account)) + '</div>' +
               '<div class="account-offer">' + escapeHtml(headline) + '</div>' +
             '</div>' +
             save +
@@ -2732,7 +2768,8 @@
 
       if (search) {
         list = list.filter(account =>
-          String(account.accountMasked || "").toLowerCase().includes(search)
+          String(account.accountMasked || "").toLowerCase().includes(search) ||
+          String(account.loginMethod || "").toLowerCase().includes(search)
         );
       }
 
@@ -3010,6 +3047,7 @@
             '<div style="min-width:0">' +
               '<div class="account-sheet-label">Uber Eats account</div>' +
               '<div class="account-sheet-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
+              '<div class="account-login-route">' + escapeHtml(loginRouteText(account)) + '</div>' +
             '</div>' +
             '<div class="account-status-badge ' + (account.canLogin ? 'ok' : 'no') + '">' +
               '<span class="status-dot"></span>' +
@@ -3019,7 +3057,7 @@
           '<div class="account-sheet-summary">' +
             '<div><span>Live offers</span><strong>' + liveItems.length + '</strong></div>' +
             '<div><span>Save now</span><strong>' + (bestSaving > 0 ? escapeHtml(money(bestSaving)) : '—') + '</strong></div>' +
-            '<div><span>Status</span><strong>' + (accountDone ? 'Done' : 'Ready') + '</strong></div>' +
+            '<div><span>History</span><strong>' + escapeHtml(receiptHistoryText(account)) + '</strong></div>' +
           '</div>' +
           '<div class="account-sheet-actions">' +
             (accountDone
@@ -3333,8 +3371,10 @@
             accountRef: promo.accountRef,
             accountMasked: promo.accountMasked || null,
             canLogin: Boolean(promo.canLogin),
+            loginMethod: promo.loginMethod || null,
             activePromoCount: 0,
             orderCount: 0,
+            rideCount: 0,
             totalSaved: 0,
             estimatedTotalSaved: 0,
             estimatedUberOneSavings: 0,
