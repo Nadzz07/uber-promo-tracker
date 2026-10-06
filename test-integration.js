@@ -6,6 +6,7 @@ import path from "node:path";
 
 import {
   getAccounts,
+  getTransportReceipts,
   openPrivateDb,
   setAccountAccess
 } from "./private-db.js";
@@ -43,6 +44,16 @@ const messages = [
     receivedAt: "2026-10-05T18:00:10Z",
     messageId: "<receipt-a@uber.com>",
     mailbox: "receipt"
+  },
+  {
+    sender: "Uber <receipts@uber.com>",
+    recipient: "account-a@icloud.com",
+    subject: "Your Sunday evening trip with Uber",
+    body: "Thanks for riding with Uber. Trip total £14.62.",
+    sentAt: "2026-10-05T19:00:00Z",
+    receivedAt: "2026-10-05T19:00:10Z",
+    messageId: "<ride-a@uber.com>",
+    mailbox: "promo"
   },
   {
     sender: "Uber Eats <offers@uber.com>",
@@ -94,6 +105,7 @@ try {
   try {
     const account = getAccounts(db).find(row => row.alias === "account-a@icloud.com");
     assert.ok(account);
+    assert.equal(getTransportReceipts(db).length, 1, "ride receipt should be stored separately");
     assert.equal(setAccountAccess(db, "account-a@icloud.com", true), true);
   } finally {
     db.close();
