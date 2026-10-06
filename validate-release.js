@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { execFileSync } from "node:child_process";
 
 const html = fs.readFileSync("index.html", "utf8");
 const promos = JSON.parse(fs.readFileSync("promos.json", "utf8"));
@@ -59,3 +60,12 @@ assert.ok(
 );
 
 console.log("✓ Release copy and public seed guard");
+
+const legacyConfig = fs.readFileSync("_config.yml", "utf8");
+const publicFiles = new Set(["index.html", "promos.json", "history.json", "deal-intelligence.js", "manual-state.js", "offer-time.js", "_config.yml"]);
+const trackedRoots = new Set(execFileSync("git", ["ls-files"], { encoding: "utf8" }).trim().split("\n").map(path => path.split("/")[0]));
+for (const name of trackedRoots) {
+  if (name.startsWith(".") || publicFiles.has(name) || ["node_modules", "dist"].includes(name)) continue;
+  assert.ok(legacyConfig.includes("  - " + name + "\n"), "Legacy Pages must exclude " + name);
+}
+console.log("✓ Legacy Pages excludes non-public repository files");
