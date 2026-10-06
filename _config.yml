@@ -15,6 +15,7 @@ exclude:
   - identity.js
   - legacy-migration.js
   - mac
+  - mbox-import.js
   - migrate-legacy-history.js
   - offer-state.js
   - package-lock.json
