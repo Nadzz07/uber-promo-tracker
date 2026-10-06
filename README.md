@@ -72,19 +72,28 @@ Each newly discovered recipient alias is automatically added to the private acco
 - **Can log in**
 - **Can't log in**
 
-Newly discovered accounts default to **Can't log in**. This is deliberate: the basket optimiser must never recommend an account that has not been confirmed usable.
+Login state is separate from **login method**. Login method is one of:
 
-The public UI shows the masked email. Internal refs such as `A001` are join keys and are not the normal user-facing identity.
+- **iCloud** — sign in through the Apple/iCloud route
+- **Google** — sign in through Google, even when the account email itself is an iCloud address
+- **Both** — either route works
+
+Newly discovered accounts default to **Can't log in** with no login method until the private access list confirms it. This is deliberate: the basket optimiser must never recommend an account that has not been confirmed usable.
+
+The public UI shows the masked email plus the safe login method so the account chooser tells you how to sign in. Internal refs such as `A001` are join keys and are not the normal user-facing identity.
 
 ### Import an access list
 
-CSV format:
+Preferred CSV format:
 
 ```csv
-email,can_login
-alias-one@icloud.com,true
-alias-two@icloud.com,false
+Email,Login method,Login status,Notes
+alias-one@icloud.com,iCloud,Can log in,
+alias-two@icloud.com,Google,Can log in,Google login despite iCloud email
+alias-three@icloud.com,Both,Can log in,
 ```
+
+The legacy `Provider` column is still accepted and is interpreted as the login method for backwards compatibility.
 
 Then:
 
@@ -182,7 +191,7 @@ Receipt evidence can:
 - estimate the real extra cost of splitting baskets
 - build lifetime savings/order statistics
 
-For first/next-N Uber Eats offers, the email-defined order count is the usage limit. A 5-order offer with two unique qualifying Uber Eats orders has 3 uses left. Duplicate receipt copies count once. Uber ride/bike receipts are parsed and stored separately and never decrement an Uber Eats offer.
+For first/next-N Uber Eats offers, the email-defined order count is the usage limit. A 5-order offer with two unique qualifying Uber Eats orders has 3 uses left. Duplicate receipt copies count once. Uber transport receipts are stored separately and never decrement an Uber Eats offer. Lime/e-bike receipts count under the single **Ride** history category; receipt-backed rides are treated as completed history.
 
 Offer state is deliberately explicit:
 
