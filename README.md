@@ -126,7 +126,7 @@ npm run accounts:remove-private -- remove-accounts.local.txt --db uber-tracker.l
 
 This transaction removes linked private messages, offers, Uber Eats receipts, Ride/Lime receipts and receipt-to-offer matches, then truncates the SQLite WAL and runs `VACUUM`. The command prints counts only and, with `--erase-list`, deletes the local removal list after a successful cleanup.
 
-This only removes tracker data. If old source messages remain in Apple Mail or another raw export and are imported again later, they can be rediscovered; remove those source messages separately if they should never be re-imported.
+When `account-access.local.csv` is present, normal Mail/MBOX generation treats it as the authoritative account universe and skips messages addressed to accounts outside it before storing anything. That prevents a permanently removed account from being recreated by an old receipt or offer that still exists in Apple Mail or an MBOX export. Set `TRACKER_ALLOW_UNKNOWN_ACCOUNTS=1` only when you intentionally want to discover/import accounts that are not yet in the private access list.
 
 ## Parser v2
 
