@@ -13,7 +13,8 @@
     "build": "node build-site.js",
     "validate": "npm test && node validate-public.js && node validate-syntax.js",
     "test:browser": "node test-browser.js",
-    "mbox:import": "node mac/import-mbox.js"
+    "mbox:import": "node mac/import-mbox.js",
+    "accounts:remove-private": "node mac/remove-private-accounts.js"
   },
   "devDependencies": {
     "playwright": "1.62.1"
