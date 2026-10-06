@@ -116,6 +116,18 @@ node mac/import-account-access.js accessible-accounts.local.txt --reset
 
 `--reset` first marks every known account inaccessible, then applies the file. Future newly discovered accounts again default to inaccessible until added to your list.
 
+### Permanently remove private accounts
+
+To remove accounts from the private SQLite source of truth instead of merely marking them inaccessible, put one email per line in a Git-ignored local file such as `remove-accounts.local.txt` and run:
+
+```bash
+npm run accounts:remove-private -- remove-accounts.local.txt --db uber-tracker.local.db --erase-list
+```
+
+This transaction removes linked private messages, offers, Uber Eats receipts, Ride/Lime receipts and receipt-to-offer matches, then truncates the SQLite WAL and runs `VACUUM`. The command prints counts only and, with `--erase-list`, deletes the local removal list after a successful cleanup.
+
+This only removes tracker data. If old source messages remain in Apple Mail or another raw export and are imported again later, they can be rediscovered; remove those source messages separately if they should never be re-imported.
+
 ## Parser v2
 
 The parser is split into distinct stages under `parser-v2/` rather than growing one giant regex file:
