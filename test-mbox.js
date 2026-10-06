@@ -4,7 +4,9 @@ import {
   normaliseForwardedUberMessage,
   parseMboxText
 } from "./mbox-import.js";
-import { parseUberEatsReceipt } from "./receipt-parser.js";\nimport { parseUberTransportReceipt } from "./transport-receipt-parser.js";\nimport { transportReceiptFingerprint } from "./identity.js";
+import { parseUberEatsReceipt } from "./receipt-parser.js";
+import { parseUberTransportReceipt } from "./transport-receipt-parser.js";
+import { transportReceiptFingerprint } from "./identity.js";
 
 const directMbox = [
   "From sender@example.invalid Tue Oct  6 10:00:00 2026",
