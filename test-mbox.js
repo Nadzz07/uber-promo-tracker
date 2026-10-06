@@ -6,7 +6,7 @@ import {
 } from "./mbox-import.js";
 import { parseUberEatsReceipt } from "./receipt-parser.js";
 import { parseUberTransportReceipt } from "./transport-receipt-parser.js";
-import { transportReceiptFingerprint } from "./identity.js";
+import { receiptFingerprint, transportReceiptFingerprint } from "./identity.js";
 
 const directMbox = [
   "From sender@example.invalid Tue Oct  6 10:00:00 2026",
@@ -76,6 +76,38 @@ const duplicated = dedupeMboxMessages([
   { ...parsed[0] }
 ]);
 assert.equal(duplicated.length, 1);
+
+
+const orderDetails = [
+  "Thanks for your order",
+  "24 Jun 2026 18:30",
+  "Order details",
+  "Uber Delivery",
+  "19:24 - Pick-up",
+  "19:55 - Delivery",
+  "Total £16.23"
+].join("\n");
+const orderOriginal = parseUberEatsReceipt({
+  sender: "Uber Receipts <noreply@uber.com>",
+  recipient: "receipt-account@example.invalid",
+  subject: "Your Wednesday evening order with Uber Eats",
+  body: orderDetails,
+  sentAt: "2026-06-24T19:00:00.000Z"
+});
+const orderRefund = parseUberEatsReceipt({
+  sender: "Uber Receipts <noreply@uber.com>",
+  recipient: "receipt-account@example.invalid",
+  subject: "Your Wednesday evening order with Uber Eats",
+  body: orderDetails.replace("Total £16.23", "Previous total £16.23\nRefund -£4.60\nNew total £11.63"),
+  sentAt: "2026-06-24T20:26:00.000Z"
+});
+assert.ok(orderOriginal.orderKey);
+assert.equal(orderRefund.orderKey, orderOriginal.orderKey);
+assert.equal(
+  receiptFingerprint({ ...orderOriginal, accountRef: "A001" }),
+  receiptFingerprint({ ...orderRefund, accountRef: "A001" }),
+  "updated/refunded Eats receipts for one order must dedupe"
+);
 
 const bikeBody = [
   "Thanks for choosing LIME bike",
