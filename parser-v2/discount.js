@@ -87,7 +87,8 @@ export function extractOfferDetails(text) {
     uses: safeUses,
     maxTotalSaving,
     minimumSpend: minimumSpendMatch ? number(minimumSpendMatch[1]) : 0,
-    code: codeMatch ? codeMatch[1].toUpperCase() : null,
+    code: codeMatch && !/^(?:below|above|here|this|will|must|only|applies|valid|expires|available|when|your|account)$/i.test(codeMatch[1])
+      ? codeMatch[1].toUpperCase() : null,
     evidence: {
       discount: sourceSnippet(text, discountMatch),
       minimumSpend: sourceSnippet(text, minimumSpendMatch),

@@ -1,4 +1,5 @@
 import { analyseSender } from "./parser-v2/sender.js";
+import { receiptText, moneyForLabel, hasTransportSignal } from "./receipt-text.js";
 import {
   asDate,
   extractAccountAlias,
@@ -7,24 +8,6 @@ import {
   PARSER_VERSION,
   sourceSnippet
 } from "./parser-v2/utils.js";
-
-function moneyForLabel(text, labels) {
-  for (const label of labels) {
-    const pattern = new RegExp(
-      "(?:^|\\b)" + label + "\\b[^£\\d-]{0,32}(?:-\\s*)?£\\s*(\\d+(?:[.,]\\d{1,2})?)",
-      "i"
-    );
-    const match = text.match(pattern);
-    if (match) {
-      return {
-        value: number(match[1].replace(",", ".")),
-        match
-      };
-    }
-  }
-
-  return { value: null, match: null };
-}
 
 function extractTripId(text) {
   const match = firstMatch(text, [
@@ -47,9 +30,7 @@ export function parseUberTransportReceipt({
   messageId = null,
   mailbox = null
 } = {}) {
-  const text = (String(subject || "") + "\n" + String(body || ""))
-    .replace(/\u00a0/g, " ")
-    .replace(/[ \t]+/g, " ");
+  const text = receiptText(subject, body);
 
   const senderAnalysis = analyseSender(sender);
 
@@ -74,7 +55,7 @@ export function parseUberTransportReceipt({
 
   const isReceipt =
     Boolean(senderAnalysis.trusted) &&
-    !eatsSignal &&
+    (!eatsSignal || hasTransportSignal(subject, text)) &&
     (rideSignal || bikeSignal) &&
     total.value != null;
 

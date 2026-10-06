@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import { parseUberEatsReceipt } from "../receipt-parser.js";
+import { parseUberTransportReceipt } from "../transport-receipt-parser.js";
 
 const inputPath = process.argv[2] || "emails.local.json";
 const outputPath = process.argv[3] || "receipt-moves.local.json";
@@ -20,7 +21,7 @@ for (const email of messages) {
   if (String(email.sourceMailbox || "").toUpperCase() !== "INBOX") continue;
 
   const receipt = parseUberEatsReceipt(email);
-  if (!receipt.isReceipt) continue;
+  if (!receipt.isReceipt && !parseUberTransportReceipt(email).isReceipt) continue;
 
   receiptMessages.push({
     ...email,

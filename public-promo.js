@@ -1,9 +1,18 @@
+export function publicOfferTitle(promo) {
+  const amount = Number(promo.discount);
+  if (!Number.isFinite(amount) || amount <= 0) return "Uber Eats offer";
+  const value = promo.discountType === "percent" ? amount + "% off"
+    : "£" + amount + (promo.discountType === "uberCash" ? " Uber Cash" : " off");
+  const uses = Number(promo.uses || 1);
+  return value + (uses > 1 ? " on " + uses + " orders" : "");
+}
+
 export function toPublicPromo(promo) {
   return {
     id: promo.id || promo.offerId || null,
     service: promo.service,
     offerType: promo.offerType || null,
-    title: promo.title,
+    title: publicOfferTitle(promo),
     discountType: promo.discountType,
     discount: promo.discount,
     maxSaving: promo.maxSaving,
@@ -18,8 +27,10 @@ export function toPublicPromo(promo) {
     sameAccountOfferCount: promo.sameAccountOfferCount || 1,
     hasCode: Boolean(promo.code || promo.hasCode),
     expires: promo.expires,
+    expiresAt: promo.expiresAt || null,
     expiryStatus: promo.expiryStatus || (promo.expires ? "exact" : "unknown"),
-    expiryBasis: promo.expiryBasis || null,
+    expiryBasis: ["explicit_in_offer_terms", "weekday_from_email_date", "relative_to_email_date", "estimated_from_email_date"].includes(promo.expiryBasis)
+      ? promo.expiryBasis : null,
     classificationConfidence: promo.classificationConfidence || null,
     expiryConfidence: promo.expiryConfidence || null,
     accountRef: promo.accountRef || null,

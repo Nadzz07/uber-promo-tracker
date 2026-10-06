@@ -1,5 +1,6 @@
 import { savingForSpend } from "./deal-intelligence.js";
 import { applyOfferTrackingStates } from "./offer-state.js";
+import { expiryEndTime } from "./offer-time.js";
 
 function number(value) {
   if (value == null || value === "") return null;
@@ -27,19 +28,15 @@ function timeOf(value) {
 
 function receiptCanUsePromo(receipt, promo) {
   const receiptTime = timeOf(receipt.sentAt || receipt.receivedAt);
-  if (receiptTime == null) return true;
+  if (receiptTime == null) return false;
 
-  const promoTime = timeOf(promo.emailSentAt || promo.receivedAt);
-  if (promoTime != null && receiptTime + 60 * 60 * 1000 < promoTime) {
+  const promoTime = timeOf(promo.firstEmailSentAt || promo.emailSentAt || promo.receivedAt);
+  if (promoTime != null && receiptTime < promoTime) {
     return false;
   }
 
-  if (promo.expires) {
-    const expiryTime = new Date(promo.expires + "T23:59:59").getTime();
-    if (!Number.isNaN(expiryTime) && receiptTime > expiryTime) {
-      return false;
-    }
-  }
+  const expiryTime = expiryEndTime(promo);
+  if (expiryTime != null && receiptTime >= expiryTime) return false;
 
   return true;
 }
@@ -326,12 +323,10 @@ export function applyReceiptEvidence(promos = [], receipts = [], { now = new Dat
     });
 
     const alreadyConsumed =
-      Boolean(promotionResult?.consumed) ||
-      Boolean(cashResult?.consumed);
+      Boolean(promotionResult?.consumed);
 
     const ambiguous =
-      Boolean(promotionResult?.ambiguous) ||
-      Boolean(cashResult?.ambiguous);
+      Boolean(promotionResult?.ambiguous);
 
     if (!alreadyConsumed && !ambiguous) {
       consumeOrderCountUse({

@@ -142,7 +142,8 @@ function run(argv) {
     );
   }
 
-  const n = Math.min(inboxIds.length, inboxDates.length);
+  if (inboxIds.length !== inboxDates.length) throw new Error("Inbox changed during indexing; retry filing.");
+  const n = inboxIds.length;
   const candidates = [];
 
   for (let i = 0; i < n; i++) {
@@ -161,6 +162,7 @@ function run(argv) {
   }
 
   let moved = 0;
+  let failed = 0;
   const matched = new Set();
 
   // Move from highest index to lowest. Moving a message mutates the Inbox
@@ -170,23 +172,24 @@ function run(argv) {
   for (let i = 0; i < candidates.length; i++) {
     const candidate = candidates[i];
     const message = Mail.inbox.messages[candidate.index];
-    const messageId = messageIdFor(message) || candidate.messageId;
+    const messageId = messageIdFor(message);
 
-    if (!messageId || !wanted.has(messageId)) continue;
-
-    matched.add(messageId);
+    if (!messageId || messageId !== candidate.messageId || !wanted.has(messageId)) { failed++; continue; }
 
     try {
       Mail.move(message, { to: destination });
       moved += 1;
+      matched.add(messageId);
     } catch (error) {
-      stderr("Warning: could not move receipt " + messageId + ": " + error);
+      failed++;
+      stderr("Warning: a receipt could not be filed; it remains in Inbox.");
     }
   }
 
   return JSON.stringify({
     requested: wanted.size,
     moved,
+    failed,
     unmatched: wanted.size - matched.size
   });
 }

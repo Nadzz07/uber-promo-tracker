@@ -6,16 +6,8 @@ cd "$(dirname "$0")/.."
 echo "Uber Eats Promo Tracker — Mac setup"
 echo
 
-if ! command -v node >/dev/null 2>&1; then
-  echo "Node.js is missing. Install Node 22 or newer before continuing."
-  exit 1
-fi
-
-NODE_MAJOR="$(node -p 'Number(process.versions.node.split(".")[0])')"
-if (( NODE_MAJOR < 22 )); then
-  echo "Node.js 22+ is required. Current: $(node --version)"
-  exit 1
-fi
+source mac/common.sh
+require_runtime
 
 echo "Node: $(node --version)"
 node mac/init-private-db.js "${TRACKER_PRIVATE_DB:-uber-tracker.local.db}"
@@ -32,6 +24,7 @@ echo "Routine receipt scans default to 90 days; older receipts can be backfilled
 echo "Set APPLE_MAIL_MOVE_INBOX_RECEIPTS=true to file confirmed Inbox receipts automatically."
 echo
 echo "Then run:"
+echo "  bash mac/preview-sync.sh"
 echo "  bash mac/update-promos.sh"
 echo
 echo "After the first normal sync succeeds, optional historical backfill:"

@@ -106,8 +106,8 @@ function looksUber(subject, sender) {
   );
 }
 
-function dateRange(daysBack, olderThanDays) {
-  const now = new Date();
+function dateRange(daysBack, olderThanDays, scanAt) {
+  const now = new Date(scanAt);
   const start = new Date(now);
   start.setDate(start.getDate() - Number(daysBack || 0));
 
@@ -122,17 +122,16 @@ function dateRange(daysBack, olderThanDays) {
 
 function bulkMailboxIndex(box) {
   try {
+    const ids = box.messages.id();
     const received = box.messages.dateReceived();
     const subjects = box.messages.subject();
     const senders = box.messages.sender();
     const sent = box.messages.dateSent();
 
-    const n = Math.min(
-      received.length,
-      subjects.length,
-      senders.length,
-      sent.length
-    );
+    const n = ids.length;
+    if ([received, subjects, senders, sent].some(values => values.length !== n)) {
+      throw new Error("Mailbox changed during indexing; retry the scan.");
+    }
 
     const rows = [];
 
@@ -142,6 +141,7 @@ function bulkMailboxIndex(box) {
 
       rows.push({
         index: i,
+        id: ids[i],
         subject: String(subjects[i] || ""),
         sender: String(senders[i] || ""),
         receivedAt,
@@ -159,8 +159,8 @@ function bulkMailboxIndex(box) {
   }
 }
 
-function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox) {
-  const range = dateRange(daysBack, olderThanDays);
+function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt) {
+  const range = dateRange(daysBack, olderThanDays, scanAt);
 
   stderr("Reading Mail metadata: " + sourceMailbox + "...");
   const rows = bulkMailboxIndex(box);
@@ -178,13 +178,19 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox) {
 
     const message = box.messages[row.index];
 
+    if (Number(message.id()) !== Number(row.id)) {
+      throw new Error("Mailbox changed during export; retry the scan.");
+    }
     let rawSource = "";
     let recipient = "";
     let body = "";
 
     try { rawSource = String(message.source() || ""); } catch (_) {}
     try { recipient = firstRecipientAddress(message, rawSource); } catch (_) {}
-    try { body = String(message.content() || ""); } catch (_) {}
+    try { body = String(message.content() || ""); }
+    catch (_) { throw new Error("A selected message body could not be read; retry the scan."); }
+    if (!recipient || !body.trim()) throw new Error("A selected message is incomplete; retry after Mail finishes downloading.");
+    if (Number(message.id()) !== Number(row.id)) throw new Error("Mailbox changed during export; retry the scan.");
 
     const rawMessageId = headerValue(rawSource, "Message-ID");
 
@@ -221,7 +227,7 @@ function dedupeMessages(messages) {
 
   for (const message of messages) {
     const key = message.messageId
-      ? "id:" + String(message.messageId).toLowerCase()
+      ? "id:" + String(message.messageId).trim().toLowerCase() + "|" + String(message.recipient).toLowerCase()
       : [
           message.sender || "",
           message.recipient || "",
@@ -239,6 +245,8 @@ function dedupeMessages(messages) {
 }
 
 function run(argv) {
+  const scanAt = argv[6] || new Date().toISOString();
+  if (!Number.isFinite(new Date(scanAt).getTime())) throw new Error("Invalid scan date.");
   const promoDays = Number(argv[0] || 60);
   const promoMailboxNames = splitMailboxNames(argv[1] || "INBOX");
   const receiptDays = Number(argv[2] || 90);
@@ -246,6 +254,9 @@ function run(argv) {
   const receiptOlderThanDays = Number(argv[4] || 0);
   const promoOlderThanDays = Number(argv[5] || 0);
 
+  if ([promoDays, receiptDays, receiptOlderThanDays, promoOlderThanDays].some(n => !Number.isInteger(n) || n < 0 || n > 36500)) {
+    throw new Error("Scan windows must be nonnegative whole days.");
+  }
   const Mail = Application("Mail");
   Mail.includeStandardAdditions = false;
 
@@ -259,8 +270,7 @@ function run(argv) {
       const promoMailbox = findMailbox(Mail, promoMailboxName);
 
       if (!promoMailbox) {
-        stderr("Warning: promo mailbox '" + promoMailboxName + "' was not found.");
-        continue;
+        throw new Error("Configured promo mailbox was not found: " + promoMailboxName);
       }
 
       foundPromoMailbox = true;
@@ -271,7 +281,8 @@ function run(argv) {
           "promo",
           promoDays,
           promoOlderThanDays,
-          promoMailboxName
+          promoMailboxName,
+          scanAt
         )
       );
       scannedMailboxes.push({
@@ -301,7 +312,8 @@ function run(argv) {
           "receipt",
           receiptDays,
           receiptOlderThanDays,
-          receiptMailboxName
+          receiptMailboxName,
+          scanAt
         )
       );
       scannedMailboxes.push({
@@ -311,11 +323,7 @@ function run(argv) {
         olderThanDays: receiptOlderThanDays
       });
     } else {
-      stderr(
-        "Warning: receipt mailbox '" +
-        receiptMailboxName +
-        "' was not found. Promo scanning will continue."
-      );
+      throw new Error("Configured receipt mailbox was not found: " + receiptMailboxName);
     }
   }
 

@@ -35,8 +35,9 @@ function parseClock(hourText, minuteText, meridiemText) {
   const minute = number(minuteText) || 0;
   const meridiem = String(meridiemText || "").toLowerCase();
 
-  if (hour == null || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
-    return { hour: 23, minute: 59, second: 59, explicit: false };
+  if (hour == null || hour < 0 || hour > 23 || minute < 0 || minute > 59 ||
+      (meridiem && (hour < 1 || hour > 12))) {
+    return null;
   }
 
   if (meridiem === "am" || meridiem === "pm") {
@@ -48,6 +49,7 @@ function parseClock(hourText, minuteText, meridiemText) {
 }
 
 function explicitResult(text, match, year, month, day, clock) {
+  if (!clock) return null;
   const expires = isoDate(year, month, day);
   if (!expires) return null;
 
@@ -87,8 +89,8 @@ export function extractExpiry(text, receivedAtValue) {
   const receivedAt = asDate(receivedAtValue);
 
   const named = firstMatch(text, [
-    /(?:expires?|valid\s+(?:until|through|to)|available\s+until|offer\s+(?:is\s+)?available\s+until|offer\s+valid\s+until|ends?|use\s+by|redeem\s+by)\s*(?:(?:on|at)\s*)?(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})(?:\s+(\d{4}))?(?:\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm))?/i,
-    /(?:until|before|through)\s+(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})(?:\s+(\d{4}))?(?:\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm))?/i
+    /(?:expires?|valid\s+(?:until|through|to)|available\s+until|offer\s+(?:is\s+)?available\s+until|offer\s+valid\s+until|ends?|use\s+by|redeem\s+by)\s*(?:(?:on|at)\s*)?(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})(?:\s+(\d{4}))?(?:\s+(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?)?/i,
+    /(?:until|before|through)\s+(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})(?:\s+(\d{4}))?(?:\s+(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?)?/i
   ]);
 
   if (named) {
@@ -107,7 +109,7 @@ export function extractExpiry(text, receivedAtValue) {
   }
 
   const numeric = firstMatch(text, [
-    /(?:expires?|valid\s+(?:until|through|to)|available\s+until|ends?|use\s+by|redeem\s+by)\s*(?:(?:on|at)\s*)?(\d{1,2})[\/.\-](\d{1,2})(?:[\/.\-](\d{2,4}))?(?:\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm))?/i
+    /(?:expires?|valid\s+(?:until|through|to)|available\s+until|ends?|use\s+by|redeem\s+by)\s*(?:(?:on|at)\s*)?(\d{1,2})[\/.\-](\d{1,2})(?:[\/.\-](\d{2,4}))?(?:\s+(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?)?/i
   ]);
 
   if (numeric) {
@@ -180,7 +182,7 @@ export function extractExpiry(text, receivedAtValue) {
   const activationBased =
     /\b(?:since|from|after)\s+(?:it\s+was\s+)?applied\s+to\s+(?:the\s+)?(?:user.?s\s+)?account\b/i.test(text);
 
-  if (duration && activationBased) {
+  if (duration && (activationBased || /\b(?:activat(?:ion|ed|ing)|redeem(?:ed|ing)|claimed|added to (?:your|the) account)\b/i.test(text))) {
     return {
       expires: null,
       expiresAt: null,

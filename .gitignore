@@ -29,3 +29,13 @@ __pycache__/
 # macOS / editor files.
 .DS_Store
 .vscode/
+
+# Private variants, temporary exports and release build output.
+*.local.*
+*.tmp
+*.tmp-*
+.tracker-sync.lock/
+*.sqlite3
+*.sqlite3-*
+dist/
+node_modules/

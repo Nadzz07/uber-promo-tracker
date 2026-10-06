@@ -11,7 +11,12 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: [22, 24]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -19,35 +24,21 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
+          node-version: ${{ matrix.node }}
+
+      - name: Run regression, integration, privacy and syntax checks
+        run: npm run validate
+      - name: Build allowlisted public site
+        run: npm run build
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
           node-version: 22
-
-      - name: Run regression and integration tests
-        run: npm test
-
-      - name: Check core JavaScript syntax
-        run: |
-          node --check generate-promos.js
-          node --check private-db.js
-          node --check receipt-parser.js
-          node --check receipt-intelligence.js
-          node --check offer-state.js
-          node --check transport-receipt-parser.js
-          for file in parser-v2/*.js; do node --check "$file"; done
-
-      - name: Check Mac JavaScript automation syntax
-        run: |
-          node --check mac/export-uber-mail.js
-          node --check mac/find-inbox-receipts.js
-          node --check mac/move-inbox-receipts.js
-          node --check mac/list-mailboxes.js
-          node --check mac/import-account-access.js
-          node --check mac/import-legacy-db.js
-          node --check mac/init-private-db.js
-
-      - name: Check shell scripts
-        run: |
-          bash -n mac/update-promos.sh
-          bash -n mac/preview-sync.sh
-          bash -n mac/backfill-receipts.sh
-          bash -n mac/install-automation.sh
-          bash -n mac/setup-v2.sh
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
