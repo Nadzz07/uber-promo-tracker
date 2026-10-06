@@ -342,6 +342,18 @@ osascript -l JavaScript mac/list-mailboxes.js
 
 `tracker.local.env` is private and Git-ignored.
 
+### Permanent private account cleanup
+
+Use a local, Git-ignored removal list when an account should be erased from the private tracker rather than merely hidden. Put one full email address per line in `remove-accounts.local.txt`, then run:
+
+```bash
+npm run accounts:remove-private -- remove-accounts.local.txt --db uber-tracker.local.db --erase-list
+```
+
+The cleanup removes matching private messages, offers, Uber Eats receipts, Ride/Lime receipts and receipt-to-offer matches, deletes the account row, truncates the SQLite WAL and vacuums the database. `--erase-list` removes the local removal list after a successful cleanup.
+
+When `account-access.local.csv` exists, normal receipt/promo generation treats that private file as the authoritative account universe and skips Mail addressed to accounts outside it. This prevents a later Apple Mail or MBOX import from silently recreating an account that was removed from the access list. Set `TRACKER_ALLOW_UNKNOWN_ACCOUNTS=1` only when intentionally discovering accounts outside that list.
+
 ### Offline MBOX receipt import
 
 Apple Mail mailbox exports can be ingested without sending raw receipts to GitHub. The importer accepts either the extracted MBOX payload or the Apple Mail ZIP export, decodes MIME content locally, normalises forwarded Uber receipts back to the original Uber sender/recipient when the forwarded headers are present, and writes the same private message shape used by the normal Apple Mail exporter.
