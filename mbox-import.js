@@ -285,12 +285,11 @@ function forwardedUberHeaders(body) {
   const sender = match[1].trim();
   const recipient = firstEmail(match[4]);
   if (!looksLikeUberSender(sender) || !recipient) return null;
-  const forwardedDate = new Date(match[2].trim());
   return {
     sender,
     recipient,
     subject: match[3].trim().replace(/^Fwd:\s*/i, ""),
-    sentAt: Number.isFinite(forwardedDate.getTime()) ? forwardedDate.toISOString() : null
+    sentAt: parseForwardedDate(match[2])
   };
 }
 
