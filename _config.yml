@@ -36,6 +36,7 @@ exclude:
   - test-browser.js
   - test-integration.js
   - test-mail-routing.js
+  - test-mbox.js
   - test-offer-state.js
   - test-round2.js
   - test-runner.js
