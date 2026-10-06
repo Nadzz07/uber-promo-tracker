@@ -182,6 +182,16 @@ Receipt evidence can:
 - estimate the real extra cost of splitting baskets
 - build lifetime savings/order statistics
 
+For first/next-N Uber Eats offers, the email-defined order count is the usage limit. A 5-order offer with two unique qualifying Uber Eats orders has 3 uses left. Duplicate receipt copies count once. Uber ride/bike receipts are parsed and stored separately and never decrement an Uber Eats offer.
+
+Offer state is deliberately explicit:
+
+- **Available** — uses remain and the offer has not expired
+- **Used** — all uses are consumed, or the stated expiry has passed
+- **Needs checking** — uses remain but expiry is unknown, or receipt evidence cannot be matched confidently
+
+Needs-checking offers are kept visible for review but excluded from recommendations until the ambiguity is resolved.
+
 Chronology is enforced: a receipt from before a promo email cannot consume that later promo.
 
 The Home headline is **Estimated saved**. The tracker keeps a separate confirmed receipt total and only adds a conservative missing-Uber-One estimate when there is enough evidence.
