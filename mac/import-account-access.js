@@ -19,7 +19,7 @@ try {
   try {
     db.exec("BEGIN IMMEDIATE");
     if (reset) resetAccountAccess(db);
-    for (const row of records) setAccountAccess(db, row.email, row.canLogin);
+    for (const row of records) setAccountAccess(db, row.email, row.canLogin, row.loginMethod);
     db.exec("COMMIT");
     const accounts = getAccounts(db);
     const usable = accounts.filter(a => a.canLogin).length;
@@ -27,6 +27,15 @@ try {
     console.log("Known accounts: " + accounts.length);
     console.log("Can log in: " + usable);
     console.log("Can't log in: " + (accounts.length - usable));
+    const methods = new Map();
+    for (const account of accounts) {
+      const method = account.loginMethod || "Unknown";
+      methods.set(method, (methods.get(method) || 0) + 1);
+    }
+    console.log(
+      "Login methods: " +
+      [...methods].map(([method, count]) => method + "=" + count).join(", ")
+    );
   } catch (error) {
     db.exec("ROLLBACK"); throw error;
   } finally { db.close(); }
