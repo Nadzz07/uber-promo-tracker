@@ -16,7 +16,7 @@ import { publicOfferTitle, toPublicPromo } from './public-promo.js';
 import { assertPublicSnapshot } from './public-snapshot.js';
 import { planBasketSplit, rankPromosForSpend } from './deal-intelligence.js';
 import { messageKey, receiptFingerprint } from './identity.js';
-import { openPrivateDb, ensureAccount, setAccountAccess, getAccounts, getPublicAccountInsights, upsertOffer, getOffers, upsertReceipt, getReceipts, upsertTransportReceipt, getSavingsSummary, upsertMessage } from './private-db.js';
+import { openPrivateDb, ensureAccount, setAccountAccess, getAccounts, getPublicAccountInsights, deleteAccountsPermanently, upsertOffer, getOffers, upsertReceipt, getReceipts, upsertTransportReceipt, getSavingsSummary, upsertMessage } from './private-db.js';
 
 let passed = 0;
 function test(name, fn) { fn(); console.log('✓ ' + name); passed++; }
@@ -54,6 +54,69 @@ try {
     const publicAccount = getPublicAccountInsights(db)[0];
     assert.equal(publicAccount.loginMethod, 'Google');
     assert.equal(publicAccount.rideCount, 1, 'bike receipts count under Ride history');
+    db.close();
+  });
+  test('Permanent private account deletion removes all linked history only for targets', () => {
+    const db = openPrivateDb(':memory:');
+    const remove = ensureAccount(db, { alias: 'remove@example.invalid' });
+    const keep = ensureAccount(db, { alias: 'keep@example.invalid' });
+
+    upsertMessage(db, {
+      messageKey: 'remove-message',
+      messageId: '<remove-message@example.invalid>',
+      accountRef: remove.accountRef,
+      kind: 'receipt',
+      parsedAt: '2026-10-01T00:00:00Z'
+    });
+    upsertOffer(db, {
+      ...base,
+      offerId: 'remove-offer',
+      accountRef: remove.accountRef,
+      messageKey: 'remove-message'
+    });
+    upsertReceipt(db, {
+      ...receipt,
+      receiptId: 'remove-receipt',
+      orderId: 'REMOVE-1',
+      accountRef: remove.accountRef,
+      messageKey: 'remove-message'
+    });
+    upsertTransportReceipt(db, {
+      receiptId: 'remove-ride',
+      accountRef: remove.accountRef,
+      messageKey: 'remove-message',
+      sentAt: '2026-10-02T19:00:00Z',
+      receivedAt: '2026-10-02T19:00:01Z',
+      transportMode: 'bike',
+      total: 3
+    });
+    db.prepare(`
+      INSERT INTO receipt_offer_matches(
+        receipt_id, offer_id, status, matched_at
+      ) VALUES(?, ?, ?, ?)
+    `).run('remove-receipt', 'remove-offer', 'confirmed', '2026-10-02T20:00:00Z');
+
+    upsertMessage(db, {
+      messageKey: 'keep-message',
+      messageId: '<keep-message@example.invalid>',
+      accountRef: keep.accountRef,
+      kind: 'other',
+      parsedAt: '2026-10-01T00:00:00Z'
+    });
+
+    const result = deleteAccountsPermanently(db, ['remove@example.invalid']);
+    assert.equal(result.accounts, 1);
+    assert.equal(result.messages, 1);
+    assert.equal(result.offers, 1);
+    assert.equal(result.receipts, 1);
+    assert.equal(result.transportReceipts, 1);
+    assert.equal(result.receiptMatches, 1);
+
+    assert.deepEqual(getAccounts(db).map(row => row.alias), ['keep@example.invalid']);
+    for (const table of ['offers', 'receipts', 'transport_receipts', 'receipt_offer_matches']) {
+      assert.equal(db.prepare('SELECT COUNT(*) AS count FROM ' + table).get().count, 0);
+    }
+    assert.equal(db.prepare('SELECT COUNT(*) AS count FROM messages').get().count, 1);
     db.close();
   });
   test('Invalid --reset access import leaves existing access intact', () => {
