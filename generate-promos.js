@@ -4,6 +4,7 @@ import { parseUberEatsReceipt } from "./receipt-parser.js";
 import { applyReceiptEvidence } from "./receipt-intelligence.js";
 import { toPublicPromo } from "./public-promo.js";
 import { estimateReceiptSavings } from "./savings-intelligence.js";
+import { applyOfferTrackingStates } from "./offer-state.js";
 import {
   DEFAULT_PRIVATE_DB,
   ensureAccount,
@@ -90,8 +91,10 @@ function receiptStatsByAccount(receipts) {
 }
 
 function historyStatus(promo) {
+  if (promo.trackingState === "used") return "used";
+  if (promo.trackingState === "needs_checking") return "needs_checking";
   if (promo.receiptState === "used") return "used";
-  if (isExpired(promo)) return "expired";
+  if (isExpired(promo)) return "used";
   if (Number(promo.usesRemaining ?? promo.uses ?? 1) <= 0) return "used";
   return "active";
 }
@@ -224,15 +227,19 @@ async function generatePromos() {
     replaceReceiptMatches(db, evidence.matches, generatedAt);
 
     const refreshedOffers = attachAccountOfferContext(
-      getOffers(db, {
-        service: "Uber Eats",
-        includeHistorical: false
-      })
+      applyOfferTrackingStates(
+        getOffers(db, {
+          service: "Uber Eats",
+          includeHistorical: false
+        }),
+        evidence.matches,
+        { now: generatedAt }
+      )
     );
 
     const publicPromos = refreshedOffers
       .filter(promo =>
-        (!isExpired(promo) && promo.receiptState !== "used") ||
+        promo.trackingState !== "used" ||
         isRecentUsed(promo, generatedAt)
       )
       .map(promo => toPublicPromo({
@@ -241,6 +248,16 @@ async function generatePromos() {
       }));
 
     const receiptStats = receiptStatsByAccount(receipts);
+    const reviewCounts = new Map();
+
+    for (const promo of refreshedOffers) {
+      if (!promo.needsReview || !promo.accountRef) continue;
+      reviewCounts.set(
+        promo.accountRef,
+        (reviewCounts.get(promo.accountRef) || 0) + 1
+      );
+    }
+
     const accounts = getPublicAccountInsights(db).map(account => {
       const stats = receiptStats.get(account.accountRef) || {
         orderCount: 0,
@@ -254,8 +271,12 @@ async function generatePromos() {
         lastOrderAt: account.lastOrderAt || null
       };
 
+      const reviewOfferCount = reviewCounts.get(account.accountRef) || 0;
+
       return {
         ...account,
+        needsReview: reviewOfferCount > 0,
+        reviewOfferCount,
         orderCount: stats.orderCount,
         promoSavings: stats.promoSavings,
         uberCashUsed: stats.uberCashUsed,
@@ -292,10 +313,14 @@ async function generatePromos() {
     };
 
     const allHistoryOffers = attachAccountOfferContext(
-      getOffers(db, {
-        service: "Uber Eats",
-        includeHistorical: true
-      })
+      applyOfferTrackingStates(
+        getOffers(db, {
+          service: "Uber Eats",
+          includeHistorical: true
+        }),
+        evidence.matches,
+        { now: generatedAt }
+      )
     );
 
     const publicHistory = {
