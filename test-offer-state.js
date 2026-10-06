@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 
 import { parseUberPromo } from "./parser.js";
+import { parseUberTransportReceipt } from "./transport-receipt-parser.js";
 import { applyReceiptEvidence } from "./receipt-intelligence.js";
 import { classifyOfferTrackingState } from "./offer-state.js";
 
@@ -181,4 +182,21 @@ const trusted = "Uber Eats <offers@uber.com>";
   console.log("✓ Ambiguous Eats receipt usage is flagged instead of guessed");
 }
 
-console.log("Offer usage-state rules: 5 tests passed.");
+{
+  const ride = parseUberTransportReceipt({
+    sender: "Uber <receipts@uber.com>",
+    recipient: "alpha@icloud.com",
+    subject: "Your Sunday evening trip with Uber",
+    body: "Thanks for riding with Uber. Trip total £14.62.",
+    sentAt: "2026-10-05T20:00:00Z"
+  });
+
+  assert.equal(ride.isReceipt, true);
+  assert.equal(ride.service, "Uber");
+  assert.equal(ride.transportMode, "ride");
+  assert.equal(ride.total, 14.62);
+
+  console.log("✓ Ride receipts are recognised separately from Uber Eats orders");
+}
+
+console.log("Offer usage-state rules: 6 tests passed.");
