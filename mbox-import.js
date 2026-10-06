@@ -282,23 +282,43 @@ function parseForwardedDate(value) {
 }
 
 function forwardedUberHeaders(body) {
-  const text = visibleText(body).replace(/\n/g, " ");
+  const text = visibleText(body);
   const marker = /(?:-{2,}\s*Forwarded message\s*-{2,}|Begin forwarded message:)/i;
   const start = text.search(marker);
   if (start < 0) return null;
-  const window = text.slice(start, start + 6000);
-  const match = window.match(
-    /\bFrom:\s*(.+?)\s+\bDate:\s*(.+?)\s+\bSubject:\s*(.+?)\s+\bTo:\s*(.+?)(?=\s+(?:Total\s*£|\d{1,2}\s+[A-Z][a-z]{2}\s+\d{4}|Thanks\b|$))/i
-  );
-  if (!match) return null;
-  const sender = match[1].trim();
-  const recipient = firstEmail(match[4]);
+
+  const window = text.slice(start, start + 8000);
+  const fields = {};
+
+  for (const line of window.split(/\n+/)) {
+    const match = line.trim().match(/^(From|Date|Subject|To):\s*(.+)$/i);
+    if (!match) continue;
+    const key = match[1].toLowerCase();
+    if (!fields[key]) fields[key] = match[2].trim();
+  }
+
+  if (!fields.from || !fields.to) {
+    const flat = window.replace(/\n/g, " ");
+    const fallback = flat.match(
+      /\bFrom:\s*(.+?)\s+\bDate:\s*(.+?)\s+\bSubject:\s*(.+?)\s+\bTo:\s*(.+?)(?=\s+(?:Thanks\b|Total\s*£|Subtotal\s*£|$))/i
+    );
+    if (fallback) {
+      fields.from ||= fallback[1].trim();
+      fields.date ||= fallback[2].trim();
+      fields.subject ||= fallback[3].trim();
+      fields.to ||= fallback[4].trim();
+    }
+  }
+
+  const sender = String(fields.from || "").trim();
+  const recipient = firstEmail(fields.to);
   if (!looksLikeUberSender(sender) || !recipient) return null;
+
   return {
     sender,
     recipient,
-    subject: match[3].trim().replace(/^Fwd:\s*/i, ""),
-    sentAt: parseForwardedDate(match[2])
+    subject: String(fields.subject || "").trim().replace(/^Fwd:\s*/i, ""),
+    sentAt: parseForwardedDate(fields.date)
   };
 }
 
