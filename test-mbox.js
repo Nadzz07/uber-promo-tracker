@@ -4,8 +4,7 @@ import {
   normaliseForwardedUberMessage,
   parseMboxText
 } from "./mbox-import.js";
-import { parseUberTransportReceipt } from "./transport-receipt-parser.js";
-import { transportReceiptFingerprint } from "./identity.js";
+import { parseUberEatsReceipt } from "./receipt-parser.js";\nimport { parseUberTransportReceipt } from "./transport-receipt-parser.js";\nimport { transportReceiptFingerprint } from "./identity.js";
 
 const directMbox = [
   "From sender@example.invalid Tue Oct  6 10:00:00 2026",
@@ -51,6 +50,24 @@ assert.equal(forwarded.sender, "Uber Receipts <noreply@uber.com>");
 assert.equal(forwarded.recipient, "receipt-account@example.invalid");
 assert.equal(forwarded.subject, "Your order with Example Kitchen");
 assert.equal(forwarded.sentAt, "2026-10-06T09:00:00.000Z");
+
+
+const combinedSaving = parseUberEatsReceipt({
+  sender: "Uber Receipts <noreply@uber.com>",
+  recipient: "receipt-account@example.invalid",
+  subject: "Your order with Example Kitchen",
+  body: [
+    "Thanks for your order",
+    "Subtotal £25.00",
+    "£13.28 Uber One savings and other promotions applied",
+    "Total £11.72"
+  ].join("\n"),
+  sentAt: "2026-10-06T10:20:00.000Z"
+});
+assert.equal(combinedSaving.isReceipt, true);
+assert.equal(combinedSaving.reportedSavings, 13.28);
+assert.equal(combinedSaving.uberOneSavings, null, "combined savings must not be labelled Uber One-only");
+assert.equal(combinedSaving.promotionDiscount, null, "combined savings must not consume a specific promo");
 
 const duplicated = dedupeMboxMessages([
   { ...parsed[0] },
