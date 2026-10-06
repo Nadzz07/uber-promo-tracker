@@ -3,7 +3,7 @@ import fs from "node:fs";
 import { maskAccountAlias } from "./account-map.js";
 import { estimateReceiptSavings } from "./savings-intelligence.js";
 
-export const PRIVATE_DB_SCHEMA_VERSION = 3;
+export const PRIVATE_DB_SCHEMA_VERSION = 4;
 export const DEFAULT_PRIVATE_DB = "./uber-tracker.local.db";
 
 function normaliseAlias(value) {
@@ -37,6 +37,7 @@ function initSchema(db) {
       alias TEXT NOT NULL UNIQUE,
       masked TEXT,
       can_login INTEGER NOT NULL DEFAULT 0 CHECK (can_login IN (0,1)),
+      login_method TEXT CHECK (login_method IN ('iCloud','Google','Both') OR login_method IS NULL),
       first_seen_at TEXT NOT NULL,
       last_seen_at TEXT NOT NULL,
       last_promo_at TEXT,
@@ -158,6 +159,14 @@ function initSchema(db) {
   `);
 
 
+  const accountColumns = new Set(
+    db.prepare("PRAGMA table_info(accounts)").all().map(row => row.name)
+  );
+
+  if (!accountColumns.has("login_method")) {
+    db.exec("ALTER TABLE accounts ADD COLUMN login_method TEXT");
+  }
+
   const receiptColumns = new Set(
     db.prepare("PRAGMA table_info(receipts)").all().map(row => row.name)
   );
@@ -202,7 +211,7 @@ export function ensureAccount(
   if (!normalized) return null;
 
   let row = db.prepare(
-    "SELECT account_ref, alias, masked, can_login, first_seen_at, last_seen_at, " +
+    "SELECT account_ref, alias, masked, can_login, login_method, first_seen_at, last_seen_at, " +
     "last_promo_at, last_receipt_at FROM accounts WHERE alias = ?"
   ).get(normalized);
 
@@ -260,7 +269,7 @@ export function ensureAccount(
   }
 
   row = db.prepare(
-    "SELECT account_ref, alias, masked, can_login, first_seen_at, last_seen_at, " +
+    "SELECT account_ref, alias, masked, can_login, login_method, first_seen_at, last_seen_at, " +
     "last_promo_at, last_receipt_at FROM accounts WHERE alias = ?"
   ).get(normalized);
 
@@ -269,6 +278,7 @@ export function ensureAccount(
     alias: row.alias,
     masked: row.masked,
     canLogin: Boolean(row.can_login),
+    loginMethod: row.login_method || null,
     firstSeenAt: row.first_seen_at,
     lastSeenAt: row.last_seen_at,
     lastPromoAt: row.last_promo_at,
@@ -276,13 +286,18 @@ export function ensureAccount(
   };
 }
 
-export function setAccountAccess(db, alias, canLogin) {
+export function setAccountAccess(db, alias, canLogin, loginMethod = null) {
   const normalized = normaliseAlias(alias);
   const account = ensureAccount(db, { alias: normalized });
   if (!account) return false;
 
-  db.prepare("UPDATE accounts SET can_login = ? WHERE alias = ?")
-    .run(canLogin ? 1 : 0, normalized);
+  if (loginMethod != null && !["iCloud", "Google", "Both"].includes(loginMethod)) {
+    throw new Error("Invalid account login method.");
+  }
+
+  db.prepare(
+    "UPDATE accounts SET can_login = ?, login_method = COALESCE(?, login_method) WHERE alias = ?"
+  ).run(canLogin ? 1 : 0, loginMethod || null, normalized);
 
   return true;
 }
@@ -294,7 +309,7 @@ export function resetAccountAccess(db) {
 export function getAccounts(db) {
   return db.prepare(`
     SELECT
-      account_ref, alias, masked, can_login,
+      account_ref, alias, masked, can_login, login_method,
       first_seen_at, last_seen_at, last_promo_at, last_receipt_at
     FROM accounts
     ORDER BY last_seen_at DESC, account_ref ASC
@@ -303,6 +318,7 @@ export function getAccounts(db) {
     alias: row.alias,
     masked: row.masked,
     canLogin: Boolean(row.can_login),
+    loginMethod: row.login_method || null,
     firstSeenAt: row.first_seen_at,
     lastSeenAt: row.last_seen_at,
     lastPromoAt: row.last_promo_at,
@@ -527,7 +543,8 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
     SELECT
       o.*,
       a.masked AS account_masked,
-      a.can_login AS can_login
+      a.can_login AS can_login,
+      a.login_method AS login_method
     FROM offers o
     JOIN accounts a ON a.account_ref = o.account_ref
     WHERE 1 = 1
@@ -551,6 +568,7 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
     accountRef: row.account_ref,
     accountMasked: row.account_masked,
     canLogin: Boolean(row.can_login),
+    loginMethod: row.login_method || null,
     messageKey: row.message_key,
     service: row.service,
     offerType: row.offer_type,
@@ -844,6 +862,7 @@ export function getPublicAccountInsights(db) {
       a.account_ref,
       a.masked,
       a.can_login,
+      a.login_method,
       a.last_seen_at,
       a.last_promo_at,
       a.last_receipt_at,
@@ -855,20 +874,26 @@ export function getPublicAccountInsights(db) {
         THEN o.offer_id
       END) AS active_promo_count,
       COUNT(DISTINCT r.receipt_id) AS order_count,
+      COUNT(DISTINCT tr.receipt_id) AS ride_count,
+      MAX(COALESCE(tr.sent_at, tr.received_at)) AS last_ride_at,
       COALESCE(SUM(DISTINCT COALESCE(r.promotion_discount, 0)), 0) AS promo_savings_hint
     FROM accounts a
     LEFT JOIN offers o ON o.account_ref = a.account_ref
     LEFT JOIN receipts r ON r.account_ref = a.account_ref
+    LEFT JOIN transport_receipts tr ON tr.account_ref = a.account_ref
     GROUP BY a.account_ref
     ORDER BY a.can_login DESC, active_promo_count DESC, a.last_seen_at DESC
   `).all().map(row => ({
     accountRef: row.account_ref,
     accountMasked: row.masked,
     canLogin: Boolean(row.can_login),
+    loginMethod: row.login_method || null,
     lastSeenAt: row.last_seen_at,
     lastPromoAt: row.last_promo_at,
     lastOrderAt: row.last_receipt_at,
     activePromoCount: Number(row.active_promo_count || 0),
-    orderCount: Number(row.order_count || 0)
+    orderCount: Number(row.order_count || 0),
+    rideCount: Number(row.ride_count || 0),
+    lastRideAt: row.last_ride_at || null
   }));
 }
