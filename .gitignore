@@ -11,6 +11,8 @@ tracker.local.env
 uber-tracker.local.db
 uber-tracker.local.db-*
 *.eml
+*.mbox
+*.mbox.zip
 mail-export/
 .account-salt
 
