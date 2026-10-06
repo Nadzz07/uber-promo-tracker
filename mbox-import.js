@@ -42,8 +42,7 @@ function decodeQuotedPrintableToBuffer(value, { header = false } = {}) {
       bytes.push(parseInt(text.slice(i + 1, i + 3), 16));
       i += 2;
     } else {
-      const chunk = Buffer.from(text[i], "utf8");
-      for (const byte of chunk) bytes.push(byte);
+      for (const byte of Buffer.from(text[i], "utf8")) bytes.push(byte);
     }
   }
   return Buffer.from(bytes);
@@ -84,7 +83,7 @@ function firstHeader(headers, name) {
 }
 
 function firstEmail(value) {
-  const match = String(value || "").match(/([A-Z0-9._%+\-='\`{}~]+@[A-Z0-9.-]+\.[A-Z]{2,})/i);
+  const match = String(value || "").match(/([A-Z0-9._%+\-='\x60{}~]+@[A-Z0-9.-]+\.[A-Z]{2,})/i);
   return match ? match[1].toLowerCase() : "";
 }
 
@@ -188,8 +187,7 @@ function receivedAtFromHeaders(headers) {
 }
 
 function envelopeDate(envelopeLine) {
-  const text = String(envelopeLine || "");
-  const match = text.match(/^From\s+\S+\s+(.+)$/);
+  const match = String(envelopeLine || "").match(/^From\s+\S+\s+(.+)$/);
   if (!match) return null;
   const date = new Date(match[1]);
   return Number.isFinite(date.getTime()) ? date.toISOString() : null;
@@ -222,6 +220,61 @@ function normaliseMessage(raw, envelopeLine, options) {
   };
 }
 
+function visibleText(value) {
+  return String(value || "")
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<(?:br\s*\/?|\/p|\/div|\/tr|\/td)>/gi, "\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&(?:nbsp|#160);|\u00a0/gi, " ")
+    .replace(/&(?:lt|#60);/gi, "<")
+    .replace(/&(?:gt|#62);/gi, ">")
+    .replace(/&amp;/gi, "&")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\s*\n\s*/g, "\n");
+}
+
+function looksLikeUberSender(value) {
+  return /@(?:[a-z0-9-]+\.)?uber\.com\b/i.test(String(value || "")) ||
+    /(?:noreply|ubereats|uber)_at_uber_com/i.test(String(value || "")) ||
+    /^\s*["']?uber(?:\s+(?:eats|receipts))?["']?\s*</i.test(String(value || ""));
+}
+
+function forwardedUberHeaders(body) {
+  const text = visibleText(body).replace(/\n/g, " ");
+  const marker = /(?:-{2,}\s*Forwarded message\s*-{2,}|Begin forwarded message:)/i;
+  const start = text.search(marker);
+  if (start < 0) return null;
+  const window = text.slice(start, start + 6000);
+  const match = window.match(
+    /\bFrom:\s*(.+?)\s+\bDate:\s*(.+?)\s+\bSubject:\s*(.+?)\s+\bTo:\s*(.+?)(?=\s+(?:Total\s*£|\d{1,2}\s+[A-Z][a-z]{2}\s+\d{4}|Thanks\b|$))/i
+  );
+  if (!match) return null;
+  const sender = match[1].trim();
+  const recipient = firstEmail(match[4]);
+  if (!looksLikeUberSender(sender) || !recipient) return null;
+  const forwardedDate = new Date(match[2].trim());
+  return {
+    sender,
+    recipient,
+    subject: match[3].trim().replace(/^Fwd:\s*/i, ""),
+    sentAt: Number.isFinite(forwardedDate.getTime()) ? forwardedDate.toISOString() : null
+  };
+}
+
+export function normaliseForwardedUberMessage(message = {}) {
+  const forwarded = forwardedUberHeaders(message.body);
+  if (!forwarded) return message;
+  return {
+    ...message,
+    sender: forwarded.sender,
+    recipient: forwarded.recipient,
+    subject: forwarded.subject || String(message.subject || "").replace(/^Fwd:\s*/i, ""),
+    sentAt: forwarded.sentAt || message.sentAt,
+    forwardedByUser: true
+  };
+}
+
 function messageIdentity(message) {
   if (message.messageId) {
     return "mid:" + String(message.messageId).trim().replace(/^<|>$/g, "").toLowerCase() +
@@ -239,7 +292,8 @@ function messageIdentity(message) {
 export function dedupeMboxMessages(messages = []) {
   const seen = new Set();
   const result = [];
-  for (const message of messages) {
+  for (const raw of messages) {
+    const message = normaliseForwardedUberMessage(raw);
     const key = messageIdentity(message);
     if (seen.has(key)) continue;
     seen.add(key);
@@ -252,9 +306,7 @@ export function looksLikeUberMail(message = {}) {
   const subject = String(message.subject || "");
   const sender = String(message.sender || "");
   return /\buber\b/i.test(subject) ||
-    /@(?:[a-z0-9-]+\.)?uber\.com\b/i.test(sender) ||
-    /(?:ubereats|uber)_at_uber_com/i.test(sender) ||
-    /^\s*["']?uber(?:\s+eats)?["']?\s*</i.test(sender);
+    looksLikeUberSender(sender);
 }
 
 export async function parseMboxStream(stream, options = {}) {
@@ -266,7 +318,7 @@ export async function parseMboxStream(stream, options = {}) {
   const flush = () => {
     if (!current.length) return;
     const raw = current.join("\n");
-    const message = normaliseMessage(raw, envelopeLine, options);
+    const message = normaliseForwardedUberMessage(normaliseMessage(raw, envelopeLine, options));
     if (message.subject || message.sender || message.body) messages.push(message);
     current = [];
   };
