@@ -249,7 +249,7 @@ function parseForwardedDate(value) {
   }
 
   const match = raw.match(
-    /(?:\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*,?\s+)?(\d{1,2})\s+([A-Za-z]{3,9})\s+(20\d{2})\s+(?:at\s+)?(\d{1,2}):(\d{2})(?::(\d{2}))?/i
+    /(?:\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*,?\s+)?(\d{1,2})\s+([A-Za-z]{3,9})\s+(20\d{2})\s*(?:,|\bat\b)?\s*(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(am|pm)?/i
   );
   if (!match) return null;
 
@@ -260,12 +260,21 @@ function parseForwardedDate(value) {
   const month = months[match[2].slice(0, 3).toLowerCase()];
   if (!month) return null;
 
+  let hour = Number(match[4]);
+  const meridiem = String(match[7] || "").toLowerCase();
+  if (meridiem) {
+    if (hour < 1 || hour > 12) return null;
+    if (meridiem === "am") hour = hour === 12 ? 0 : hour;
+    if (meridiem === "pm") hour = hour === 12 ? 12 : hour + 12;
+  }
+  if (hour > 23) return null;
+
   const local = [
     match[3],
     month,
     String(match[1]).padStart(2, "0")
   ].join("-") + "T" +
-    String(match[4]).padStart(2, "0") + ":" +
+    String(hour).padStart(2, "0") + ":" +
     match[5] + ":" + (match[6] || "00");
 
   const time = offerTime(local);
