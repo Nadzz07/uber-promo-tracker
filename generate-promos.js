@@ -307,8 +307,15 @@ async function generatePromos() {
 
     const receiptStats = receiptStatsByAccount(receipts);
     const reviewCounts = new Map();
+    const availableCounts = new Map();
 
     for (const promo of refreshedOffers) {
+      if (promo.trackingState === "available" && promo.accountRef) {
+        availableCounts.set(
+          promo.accountRef,
+          (availableCounts.get(promo.accountRef) || 0) + 1
+        );
+      }
       if (!promo.needsReview || !promo.accountRef) continue;
       reviewCounts.set(
         promo.accountRef,
@@ -333,6 +340,7 @@ async function generatePromos() {
 
       return {
         ...account,
+        activePromoCount: availableCounts.get(account.accountRef) || 0,
         needsReview: reviewOfferCount > 0,
         reviewOfferCount,
         orderCount: stats.orderCount,
@@ -348,6 +356,12 @@ async function generatePromos() {
     });
 
     const summary = getSavingsSummary(db);
+    summary.activePromoAccounts = new Set(
+      refreshedOffers
+        .filter(promo => promo.trackingState === "available")
+        .map(promo => promo.accountRef)
+        .filter(Boolean)
+    ).size;
     const feeSampleSize = receipts.filter(receipt =>
       receipt.deliveryFee != null ||
       receipt.serviceFee != null ||
