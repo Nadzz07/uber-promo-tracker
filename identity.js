@@ -47,6 +47,13 @@ export function receiptFingerprint(receipt = {}) {
     });
   }
 
+  if (receipt.orderKey) {
+    return "rcp_" + stableHash({
+      accountRef: receipt.accountRef || null,
+      orderKey: String(receipt.orderKey).trim().toLowerCase()
+    });
+  }
+
   return "rcp_" + stableHash({
     accountRef: receipt.accountRef || null,
     sentAt: receipt.sentAt || receipt.receivedAt || null,
