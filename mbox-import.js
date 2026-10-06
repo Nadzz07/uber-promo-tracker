@@ -226,7 +226,7 @@ function visibleText(value) {
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
     .replace(/<(?:br\s*\/?|\/p|\/div|\/tr|\/td)>/gi, "\n")
-    .replace(/<[^>]+>/g, " ")
+    .replace(/<\/?[a-z][a-z0-9]*(?:\s[^>]*)?\s*\/?>/gi, " ")
     .replace(/&(?:nbsp|#160);|\u00a0/gi, " ")
     .replace(/&(?:lt|#60);/gi, "<")
     .replace(/&(?:gt|#62);/gi, ">")
