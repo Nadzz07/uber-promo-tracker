@@ -36,6 +36,9 @@ export function toPublicPromo(promo) {
     accountRef: promo.accountRef || null,
     accountMasked: promo.accountMasked || null,
     canLogin: Boolean(promo.canLogin),
+    loginMethod: ["iCloud", "Google", "Both"].includes(promo.loginMethod)
+      ? promo.loginMethod
+      : null,
     hasCompanionOffer: Boolean(promo.hasCompanionOffer),
     receiptState: promo.receiptState || null,
     trackingState: promo.trackingState || null,
