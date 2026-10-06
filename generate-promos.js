@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import { parseUberPromo } from "./parser.js";
 import { parseUberEatsReceipt } from "./receipt-parser.js";
+import { parseUberTransportReceipt } from "./transport-receipt-parser.js";
 import { applyReceiptEvidence } from "./receipt-intelligence.js";
 import { toPublicPromo } from "./public-promo.js";
 import { estimateReceiptSavings } from "./savings-intelligence.js";
@@ -12,18 +13,21 @@ import {
   getOffers,
   getPublicAccountInsights,
   getReceipts,
+  getTransportReceipts,
   getSavingsSummary,
   openPrivateDb,
   replaceReceiptMatches,
   updateOfferUsage,
   upsertMessage,
   upsertOffer,
-  upsertReceipt
+  upsertReceipt,
+  upsertTransportReceipt
 } from "./private-db.js";
 import {
   messageKey,
   offerFingerprint,
-  receiptFingerprint
+  receiptFingerprint,
+  transportReceiptFingerprint
 } from "./identity.js";
 
 const inputPath = process.argv[2] || "./emails.local.json";
@@ -170,6 +174,58 @@ async function generatePromos() {
         continue;
       }
 
+      const transportReceipt = parseUberTransportReceipt(email);
+
+      if (transportReceipt.isReceipt) {
+        const transportSentAt =
+          transportReceipt.sentAt ||
+          email.sentAt ||
+          email.receivedAt ||
+          generatedAt;
+
+        const account = ensureAccount(db, {
+          alias: transportReceipt.accountAlias,
+          seenAt: transportSentAt,
+          kind: "transport_receipt"
+        });
+
+        if (!account) continue;
+
+        const storedTransportReceipt = {
+          ...transportReceipt,
+          accountRef: account.accountRef,
+          accountMasked: account.masked,
+          canLogin: account.canLogin,
+          messageKey: key
+        };
+
+        storedTransportReceipt.receiptId =
+          transportReceiptFingerprint(storedTransportReceipt);
+
+        upsertMessage(db, {
+          messageKey: key,
+          messageId: email.messageId || transportReceipt.messageId || null,
+          accountRef: account.accountRef,
+          kind: "transport_receipt",
+          mailbox: email.mailbox || transportReceipt.mailbox || null,
+          sender: email.sender || null,
+          subject: email.subject || null,
+          bodyText: email.body || null,
+          sentAt: transportSentAt,
+          receivedAt: transportReceipt.receivedAt,
+          parserVersion: transportReceipt.parserVersion,
+          classification: transportReceipt.transportMode,
+          classificationConfidence: transportReceipt.senderConfidence,
+          accepted: true,
+          rejectionReason: null,
+          evidence: transportReceipt.evidence,
+          parsedAt: generatedAt
+        });
+
+        upsertTransportReceipt(db, storedTransportReceipt, generatedAt);
+        continue;
+      }
+
       const promo = parseUberPromo(email);
       const account = ensureAccount(db, {
         alias: promo.accountAlias,
@@ -219,6 +275,7 @@ async function generatePromos() {
     });
 
     const receipts = getReceipts(db);
+    const transportReceipts = getTransportReceipts(db);
     const evidence = applyReceiptEvidence(durableOffers, receipts);
 
     for (const promo of evidence.promos) {
@@ -355,7 +412,8 @@ async function generatePromos() {
 
     console.log("Private DB: " + privateDbPath);
     console.log("Known accounts: " + access.length + " (" + accessible + " can log in)");
-    console.log("Stored receipts: " + receipts.length);
+    console.log("Stored Uber Eats receipts: " + receipts.length);
+    console.log("Stored ride/bike receipts: " + transportReceipts.length);
     console.log("Public current/recent promos: " + publicPromos.length);
     console.log("Lifetime confirmed receipt saving: £" + summary.totalSaved.toFixed(2));
     console.log("Lifetime estimated saving: £" + summary.estimatedTotalSaved.toFixed(2));
