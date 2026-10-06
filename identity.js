@@ -56,12 +56,19 @@ export function receiptFingerprint(receipt = {}) {
   });
 }
 
-
 export function transportReceiptFingerprint(receipt = {}) {
   if (receipt.tripId) {
     return "trp_" + stableHash({
       accountRef: receipt.accountRef || null,
       tripId: String(receipt.tripId).trim().toUpperCase()
+    });
+  }
+
+  if (receipt.tripKey) {
+    return "trp_" + stableHash({
+      accountRef: receipt.accountRef || null,
+      transportMode: receipt.transportMode || "ride",
+      tripKey: String(receipt.tripKey).trim().toLowerCase()
     });
   }
 
