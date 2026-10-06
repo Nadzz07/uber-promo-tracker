@@ -6,6 +6,7 @@ receipts.local.json
 receipt-moves.local.json
 legacy-promos.local.json
 account-access.local.csv
+remove-accounts.local.txt
 accessible-accounts.local.txt
 tracker.local.env
 uber-tracker.local.db
