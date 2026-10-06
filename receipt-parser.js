@@ -12,8 +12,7 @@ import {
 function savingsAmount(text) {
   const match = firstMatch(text, [
     /\byou\s+saved\s+£\s*(\d+(?:[.,]\d{1,2})?)/i,
-    /\b(?:total|your)\s+savings?\b[^£\d]{0,24}£\s*(\d+(?:[.,]\d{1,2})?)/i
-  ]);
+    /\b(?:total|your)\s+savings?\b[^£\d]{0,24}£\s*(\d+(?:[.,]\d{1,2})?)/i,\n    /£\s*(\d+(?:[.,]\d{1,2})?)\s+uber\s*one\s+savings?\s+and\s+other\s+promotions?\s+applied\b/i\n  ]);
 
   return {
     value: match ? number(match[1].replace(",", ".")) : null,
