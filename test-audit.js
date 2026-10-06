@@ -237,6 +237,56 @@ try {
     assert.equal(fs.readFileSync(path.join(dir, 'emails.local.json'), 'utf8'), 'previous-good-export');
     assert.equal(fs.existsSync(path.join(dir, '.tracker-sync.lock')), false);
   });
+  test('Generator ignores Mail for accounts outside the private access list', () => {
+    const dir = path.join(tmp, 'strict-access');
+    fs.mkdirSync(dir, { recursive: true });
+    const dbPath = path.join(dir, 'tracker.db');
+    const input = path.join(dir, 'mail.json');
+    const output = path.join(dir, 'public.json');
+    const history = path.join(dir, 'history.json');
+    const access = path.join(dir, 'account-access.local.csv');
+
+    fs.writeFileSync(
+      access,
+      'Email,Login method,Login status,Notes\n' +
+      'keep@example.invalid,Google,Can log in,\n'
+    );
+    fs.writeFileSync(input, JSON.stringify({
+      messages: [
+        {
+          sender: 'offers@uber.com',
+          recipient: 'keep@example.invalid',
+          subject: '£10 off your next Uber Eats order',
+          body: 'Get £10 off. Minimum spend £15. Expires 20 Oct 2099.',
+          sentAt: '2026-10-01T12:00:00Z'
+        },
+        {
+          sender: 'offers@uber.com',
+          recipient: 'deleted@example.invalid',
+          subject: '£10 off your next Uber Eats order',
+          body: 'Get £10 off. Minimum spend £15. Expires 20 Oct 2099.',
+          sentAt: '2026-10-01T12:05:00Z'
+        }
+      ]
+    }));
+
+    const run = spawnSync(
+      process.execPath,
+      ['generate-promos.js', input, output, history, dbPath],
+      {
+        encoding: 'utf8',
+        env: { ...process.env, TRACKER_ACCOUNT_ACCESS: access }
+      }
+    );
+    assert.equal(run.status, 0, run.stderr);
+    const db = openPrivateDb(dbPath);
+    assert.deepEqual(getAccounts(db).map(row => row.alias), ['keep@example.invalid']);
+    db.close();
+
+    const published = fs.readFileSync(output, 'utf8').toLowerCase();
+    assert.equal(published.includes('deleted@example.invalid'), false);
+    assert.match(run.stdout, /Skipped messages outside account access list: 1/);
+  });
   test('Generator rejects malformed records without partial DB imports or output loss', () => {
     const dbPath = path.join(tmp, 'rollback.db'), input = path.join(tmp, 'mail.json'), output = path.join(tmp, 'public.json'), history = path.join(tmp, 'history.json');
     let db = openPrivateDb(dbPath); db.close();
