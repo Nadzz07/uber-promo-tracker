@@ -65,6 +65,7 @@ function attachAccountOfferContext(promos) {
 
   for (const accountPromos of groups.values()) {
     const active = accountPromos.filter(promo =>
+      promo.trackingState === "available" &&
       !isExpired(promo) &&
       promo.receiptState !== "used" &&
       Number(promo.usesRemaining ?? promo.uses ?? 1) > 0
