@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { assertPublicSnapshot } from "./public-snapshot.js";
+import { parseAccessList } from "./access-list.js";
 import { isOfferExpired } from "./offer-time.js";
 import { parseUberPromo } from "./parser.js";
 import { parseUberEatsReceipt } from "./receipt-parser.js";
@@ -37,6 +38,10 @@ const inputPath = process.argv[2] || "./emails.local.json";
 const outputPath = process.argv[3] || "./promos.json";
 const publicHistoryPath = process.argv[4] || "./history.json";
 const privateDbPath = process.argv[5] || DEFAULT_PRIVATE_DB;
+const accountAccessPath =
+  process.env.TRACKER_ACCOUNT_ACCESS || "./account-access.local.csv";
+const allowUnknownAccounts =
+  /^(?:1|true|yes)$/i.test(process.env.TRACKER_ALLOW_UNKNOWN_ACCOUNTS || "");
 
 function isExpired(promo) {
   return isOfferExpired(promo);
@@ -113,13 +118,34 @@ async function loadMessages(path) {
   }));
 }
 
+async function loadAccountAllowlist() {
+  if (allowUnknownAccounts) return null;
+
+  try {
+    const text = await fs.readFile(accountAccessPath, "utf8");
+    return new Set(
+      parseAccessList(text).map(record => record.email.trim().toLowerCase())
+    );
+  } catch (error) {
+    if (error?.code === "ENOENT") return null;
+    throw error;
+  }
+}
+
+function accountAllowed(allowlist, alias) {
+  if (!allowlist) return true;
+  return allowlist.has(String(alias || "").trim().toLowerCase());
+}
+
 async function generatePromos() {
   const generatedAt = new Date().toISOString();
   const paths = [inputPath, outputPath, publicHistoryPath, privateDbPath].map(p => path.resolve(p));
   if (new Set(paths).size !== paths.length) throw new Error("Input, database and output paths must be distinct.");
   const messages = await loadMessages(inputPath);
+  const accountAllowlist = await loadAccountAllowlist();
   const db = openPrivateDb(privateDbPath);
   let transaction = false;
+  let skippedOutsideAccessList = 0;
   const temporaryFiles = [];
   try {
     db.exec("BEGIN IMMEDIATE");
@@ -135,6 +161,11 @@ async function generatePromos() {
         generatedAt;
 
       if (receipt.isReceipt) {
+        if (!accountAllowed(accountAllowlist, receipt.accountAlias)) {
+          skippedOutsideAccessList++;
+          continue;
+        }
+
         const account = ensureAccount(db, {
           alias: receipt.accountAlias,
           seenAt: sentAt,
@@ -180,6 +211,11 @@ async function generatePromos() {
       const transportReceipt = parseUberTransportReceipt(email);
 
       if (transportReceipt.isReceipt) {
+        if (!accountAllowed(accountAllowlist, transportReceipt.accountAlias)) {
+          skippedOutsideAccessList++;
+          continue;
+        }
+
         const transportSentAt =
           transportReceipt.sentAt ||
           email.sentAt ||
@@ -230,6 +266,12 @@ async function generatePromos() {
       }
 
       const promo = parseUberPromo(email);
+
+      if (!accountAllowed(accountAllowlist, promo.accountAlias)) {
+        skippedOutsideAccessList++;
+        continue;
+      }
+
       const account = ensureAccount(db, {
         alias: promo.accountAlias,
         seenAt: promo.emailSentAt || promo.receivedAt || sentAt,
@@ -437,6 +479,9 @@ async function generatePromos() {
     console.log("Known accounts: " + access.length + " (" + accessible + " can log in)");
     console.log("Stored Uber Eats receipts: " + receipts.length);
     console.log("Stored ride/bike receipts: " + transportReceipts.length);
+    if (accountAllowlist) {
+      console.log("Skipped messages outside account access list: " + skippedOutsideAccessList);
+    }
     console.log("Public current/recent promos: " + publicPromos.length);
     console.log("Lifetime confirmed receipt saving: £" + summary.totalSaved.toFixed(2));
     console.log("Lifetime estimated saving: £" + summary.estimatedTotalSaved.toFixed(2));
