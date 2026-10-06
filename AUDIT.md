@@ -50,3 +50,5 @@ Manual changes remain local to a browser and reconciliation is count-based. Spli
 ## Visual design validation
 
 The interface uses layered frosted glass, restrained jade highlights, clearer typography and a desktop planner/discovery workspace. Mobile keeps the single-column ordering flow and reachable navigation. Motion uses short opacity/transform transitions and respects reduced-motion preferences. Browser checks cover 320, 390, 768 and 1440 pixel widths, keyboard focus, modal interactions and network recovery. Synthetic browser fixtures are intercepted only during tests and are never published. An existing test-code collision with private historical data was replaced with an explicitly synthetic fixture.
+
+Deployment validation found legacy branch-based Pages still enabled. `_config.yml` excludes all non-public repository files as defense in depth for that path. The validated custom workflow publishes the six-file allowlisted artifact. Repository administrators can select GitHub Actions as the Pages source to remove the parallel legacy build.

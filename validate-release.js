@@ -59,3 +59,11 @@ assert.ok(
 );
 
 console.log("✓ Release copy and public seed guard");
+
+const legacyConfig = fs.readFileSync("_config.yml", "utf8");
+const publicFiles = new Set(["index.html", "promos.json", "history.json", "deal-intelligence.js", "manual-state.js", "offer-time.js", "_config.yml"]);
+for (const name of fs.readdirSync(".")) {
+  if (name.startsWith(".") || publicFiles.has(name) || ["node_modules", "dist"].includes(name)) continue;
+  assert.ok(legacyConfig.includes("  - " + name + "\n"), "Legacy Pages must exclude " + name);
+}
+console.log("✓ Legacy Pages excludes non-public repository files");
