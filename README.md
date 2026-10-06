@@ -519,6 +519,6 @@ Public offer titles are built from numeric offer facts. Raw subjects, promo code
 
 Expiry wall clocks without an offset mean Europe/London. Exact times are kept through SQLite, public JSON, recommendations and the Used screen. Repeated reminder emails retain the first observed offer date for matching receipts. Expired offers stay visible in Used. Unknown or invalid expiry remains Needs checking.
 
-Access imports accept `email,can_login` CSV, spreadsheet CSV with `Email` and `Login status` headers, or one accessible address per line. Quotes, BOMs and curly apostrophes are handled. Empty files, unknown statuses and conflicting duplicate accounts fail before changing anything, including with `--reset`. Provider labels never decide access.
+Access imports accept `email,can_login` CSV, spreadsheet CSV with `Email` and `Login status` headers, or one accessible address per line. Quotes, BOMs and curly apostrophes are handled. Empty files, unknown statuses and conflicting duplicate accounts fail before changing anything, including with `--reset`. Login method never decides access; only the explicit Can log in / Can't log in state does.
 
 The planner evaluates one-order savings at the exact penny subtotal. Multi-order splits use a bounded allocation grid (50p up to £120, £1 up to £300, £5 above that) and consider up to 24 accounts; they are estimates, not a guarantee of the global optimum or item-level eligibility. Baskets above £1,000 are rejected to keep the phone responsive.
