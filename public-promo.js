@@ -27,6 +27,10 @@ export function toPublicPromo(promo) {
     canLogin: Boolean(promo.canLogin),
     hasCompanionOffer: Boolean(promo.hasCompanionOffer),
     receiptState: promo.receiptState || null,
+    trackingState: promo.trackingState || null,
+    needsReview: Boolean(promo.needsReview),
+    reviewReasons: Array.isArray(promo.reviewReasons) ? promo.reviewReasons : [],
+    closedReason: promo.closedReason || null,
     receiptConfirmedUses: Number(promo.receiptConfirmedUses || 0),
     lastUsedAt: promo.lastUsedAt || null,
     emailSentAt: promo.emailSentAt || null
