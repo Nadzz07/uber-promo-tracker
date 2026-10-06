@@ -321,6 +321,28 @@ osascript -l JavaScript mac/list-mailboxes.js
 
 `tracker.local.env` is private and Git-ignored.
 
+### Offline MBOX receipt import
+
+Apple Mail mailbox exports can be ingested without sending raw receipts to GitHub. The importer accepts either the extracted MBOX payload or the Apple Mail ZIP export, decodes MIME content locally, normalises forwarded Uber receipts back to the original Uber sender/recipient when the forwarded headers are present, and writes the same private message shape used by the normal Apple Mail exporter.
+
+```bash
+npm run mbox:import -- "/path/to/Uber Receipts.mbox.zip" emails.local.json
+```
+
+The ZIP/MBOX and generated `emails.local.json` are private and Git-ignored. The command prints counts only; it does not print account aliases or receipt bodies.
+
+To reconcile the imported history against the existing private SQLite state without publishing:
+
+```bash
+node generate-promos.js \
+  emails.local.json \
+  /tmp/uber-promos-preview.json \
+  /tmp/uber-history-preview.json \
+  uber-tracker.local.db
+```
+
+Receipt matching stays conservative. Duplicate Eats copies collapse through receipt identity, ride/Lime-bike updates use stable trip details when Uber does not provide a trip ID, and ambiguous Eats offer matches remain **Needs checking** rather than consuming a promotion by guesswork.
+
 ### Private preview sync
 
 Before the first publish, run:
