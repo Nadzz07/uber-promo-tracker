@@ -326,6 +326,71 @@ export function getAccounts(db) {
   }));
 }
 
+export function deleteAccountsPermanently(db, aliases = []) {
+  const uniqueAliases = [...new Set(
+    aliases.map(normaliseAlias).filter(Boolean)
+  )];
+
+  const totals = {
+    requested: uniqueAliases.length,
+    accounts: 0,
+    messages: 0,
+    offers: 0,
+    receipts: 0,
+    transportReceipts: 0,
+    receiptMatches: 0
+  };
+
+  const find = db.prepare("SELECT account_ref FROM accounts WHERE alias = ?");
+  const count = table => db.prepare(
+    "SELECT COUNT(*) AS count FROM " + table + " WHERE account_ref = ?"
+  );
+  const deleteByAccount = table => db.prepare(
+    "DELETE FROM " + table + " WHERE account_ref = ?"
+  );
+  const deleteMatches = db.prepare(`
+    DELETE FROM receipt_offer_matches
+    WHERE
+      receipt_id IN (SELECT receipt_id FROM receipts WHERE account_ref = ?)
+      OR offer_id IN (SELECT offer_id FROM offers WHERE account_ref = ?)
+  `);
+  const deleteAccount = db.prepare(
+    "DELETE FROM accounts WHERE account_ref = ?"
+  );
+
+  for (const alias of uniqueAliases) {
+    const row = find.get(alias);
+    if (!row) continue;
+
+    const ref = row.account_ref;
+    totals.messages += Number(count("messages").get(ref)?.count || 0);
+    totals.offers += Number(count("offers").get(ref)?.count || 0);
+    totals.receipts += Number(count("receipts").get(ref)?.count || 0);
+    totals.transportReceipts += Number(
+      count("transport_receipts").get(ref)?.count || 0
+    );
+
+    const matchCount = db.prepare(`
+      SELECT COUNT(*) AS count
+      FROM receipt_offer_matches
+      WHERE
+        receipt_id IN (SELECT receipt_id FROM receipts WHERE account_ref = ?)
+        OR offer_id IN (SELECT offer_id FROM offers WHERE account_ref = ?)
+    `).get(ref, ref);
+    totals.receiptMatches += Number(matchCount?.count || 0);
+
+    deleteMatches.run(ref, ref);
+    deleteByAccount("receipts").run(ref);
+    deleteByAccount("transport_receipts").run(ref);
+    deleteByAccount("offers").run(ref);
+    deleteByAccount("messages").run(ref);
+    deleteAccount.run(ref);
+    totals.accounts++;
+  }
+
+  return totals;
+}
+
 export function upsertMessage(db, message) {
   // Upgrade old Message-ID keys in place so parser improvements cannot create a
   // second receipt for a message already imported with an older parser.
