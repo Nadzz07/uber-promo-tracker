@@ -44,6 +44,33 @@ function uberOneSavingAmount(text) {
   };
 }
 
+function extractOrderKey(text) {
+  const source = String(text || "");
+  const dateMatch = source.match(
+    /\b(\d{1,2})\s+(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(20\d{2})\b/i
+  );
+  const detailIndex = source.toLowerCase().indexOf("order details");
+  if (!dateMatch || detailIndex < 0) return null;
+
+  const details = source.slice(detailIndex, detailIndex + 5000);
+  const pickup = details.match(
+    /\b([01]?\d|2[0-3]):([0-5]\d)\s*[-–—]?\s*(?:pick\s*-?\s*up|pickup)\b/i
+  );
+  const delivery = details.match(
+    /\b([01]?\d|2[0-3]):([0-5]\d)\s*[-–—]?\s*delivery\b/i
+  );
+  if (!pickup || !delivery) return null;
+
+  const normaliseTime = match =>
+    String(match[1]).padStart(2, "0") + ":" + match[2];
+
+  return [
+    "date=" + dateMatch[1] + "-" + dateMatch[2].slice(0, 3).toLowerCase() + "-" + dateMatch[3],
+    "pickup=" + normaliseTime(pickup),
+    "delivery=" + normaliseTime(delivery)
+  ].join("|");
+}
+
 function extractOrderId(text) {
   const match = firstMatch(text, [
     /(?:order\s*(?:id|number|no\.?|#)|receipt\s*#)\s*[:#-]?\s*([A-Z0-9-]{5,64})/i
@@ -87,6 +114,7 @@ export function parseUberEatsReceipt({
   const uberOneSavings = uberOneSavingAmount(text);
   const uberOneSignal = /\buber\s*one\b/i.test(text);
   const orderId = extractOrderId(text);
+  const orderKey = extractOrderKey(text);
 
   const hasReceiptAmounts = subtotal.value != null || total.value != null;
   const isReceipt =
@@ -114,6 +142,7 @@ export function parseUberEatsReceipt({
     sentAt: sent.toISOString(),
     receivedAt: received.toISOString(),
     orderId: orderId.value,
+    orderKey,
     merchant: merchantMatch ? merchantMatch[1].trim().slice(0, 120) : null,
     subtotal: subtotal.value,
     promotionDiscount: promotionDiscount.value,
