@@ -2747,15 +2747,22 @@
 
       document.getElementById("fullyUsedList").innerHTML =
         fullyUsed.length
-          ? fullyUsed.map(promo =>
-              activityRow(
+          ? fullyUsed.map(promo => {
+              const expiredUsed =
+                promo.closedReason === "expired" ||
+                isExpired(promo);
+
+              return activityRow(
                 promo,
-                (promo.title || promoLabel(promo)) + " · fully used",
-                promo.receiptState === "used"
-                  ? '<span class="pill good">Receipt confirmed</span>'
-                  : '<button class="restore-btn" data-restore-offer="' + escapeHtml(promoStateKey(promo)) + '">Restore</button>'
-              )
-            ).join("")
+                (promo.title || promoLabel(promo)) +
+                  (expiredUsed ? " · expired · used" : " · fully used"),
+                expiredUsed
+                  ? '<span class="pill warn">Expired</span>'
+                  : promo.receiptState === "used"
+                    ? '<span class="pill good">Receipt confirmed</span>'
+                    : '<button class="restore-btn" data-restore-offer="' + escapeHtml(promoStateKey(promo)) + '">Restore</button>'
+              );
+            }).join("")
           : '<div class="empty">No fully used offers yet.</div>';
 
       document.getElementById("doneAccountsList").innerHTML =
@@ -2770,15 +2777,7 @@
           : '<div class="empty">No accounts marked done.</div>';
 
       document.getElementById("expiredList").innerHTML =
-        expired.length
-          ? expired.map(promo =>
-              activityRow(
-                promo,
-                (promo.title || promoLabel(promo)) + " · expired " +
-                escapeHtml(formatDate(promo.expires) || "")
-              )
-            ).join("")
-          : '<div class="empty">No expired offers in the current snapshot.</div>';
+        '<div class="empty">Expired offers are counted as Used.</div>';
 
       document.getElementById("ignoredList").innerHTML =
         ignored.length
