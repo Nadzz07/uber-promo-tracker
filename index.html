@@ -1980,7 +1980,13 @@
         <div class="activity-summary">
           <div class="activity-card"><span>Recent uses</span><strong id="recentUseCount">0</strong></div>
           <div class="activity-card"><span>Fully used</span><strong id="fullyUsedCount">0</strong></div>
+          <div class="activity-card"><span>Needs check</span><strong id="needsCheckCount">0</strong></div>
           <div class="activity-card"><span>Done accounts</span><strong id="doneAccountCount">0</strong></div>
+        </div>
+
+        <div id="needsCheckingSection" class="activity-section">
+          <div class="activity-title">Needs checking</div>
+          <div id="needsCheckingList" class="activity-list"></div>
         </div>
 
         <div id="recentActivitySection" class="activity-section">
@@ -2249,6 +2255,8 @@
     function isPromoActive(promo) {
       return (
         promo.service === "Uber Eats" &&
+        promo.trackingState !== "needs_checking" &&
+        promo.trackingState !== "used" &&
         !isExpired(promo) &&
         effectivePromoState(manualStore, promo) === "active" &&
         effectiveRemainingUses(manualStore, promo) > 0
@@ -2261,7 +2269,12 @@
 
     function decisionPromos() {
       return promos
-        .filter(promo => promo.service === "Uber Eats" && !isExpired(promo))
+        .filter(promo =>
+          promo.service === "Uber Eats" &&
+          promo.trackingState !== "needs_checking" &&
+          promo.trackingState !== "used" &&
+          !isExpired(promo)
+        )
         .map(promo => {
           const decision = effectivePromo(promo);
           return {
@@ -2512,6 +2525,7 @@
         pills.push('<span class="pill good">Best now</span>');
       }
 
+      if (account.needsReview) pills.push('<span class="pill warn">Needs checking</span>');
       if (current.some(is15off15)) pills.push('<span class="pill">£15 off £15</span>');
       if (current.some(promo => promo.discountType === "uberCash")) pills.push('<span class="pill">Uber Cash</span>');
 
@@ -2652,6 +2666,7 @@
     function renderUsed() {
       const recent = [];
       const fullyUsed = [];
+      const needsChecking = [];
       const expired = [];
       const ignored = [];
 
@@ -2666,13 +2681,17 @@
           continue;
         }
 
-        if (isExpired(promo) && activity.effectiveState !== "used") {
-          expired.push(promo);
+        if (
+          activity.effectiveState === "used" ||
+          promo.trackingState === "used" ||
+          isExpired(promo)
+        ) {
+          fullyUsed.push(promo);
           continue;
         }
 
-        if (activity.effectiveState === "used") {
-          fullyUsed.push(promo);
+        if (promo.trackingState === "needs_checking") {
+          needsChecking.push(promo);
           continue;
         }
 
@@ -2687,7 +2706,26 @@
 
       document.getElementById("recentUseCount").textContent = recent.length;
       document.getElementById("fullyUsedCount").textContent = fullyUsed.length;
+      document.getElementById("needsCheckCount").textContent = needsChecking.length;
       document.getElementById("doneAccountCount").textContent = doneAccounts.length;
+
+      document.getElementById("needsCheckingList").innerHTML =
+        needsChecking.length
+          ? needsChecking.map(promo => {
+              const reasons = Array.isArray(promo.reviewReasons)
+                ? promo.reviewReasons
+                : [];
+              const reasonText = reasons.includes("ambiguous_receipt_match")
+                ? "receipt match is ambiguous"
+                : "expiry is unknown";
+
+              return activityRow(
+                promo,
+                (promo.title || promoLabel(promo)) + " · " + reasonText,
+                '<button class="restore-btn" data-account-offers="' + escapeHtml(promo.accountRef) + '">Open</button>'
+              );
+            }).join("")
+          : '<div class="empty">Nothing needs checking.</div>';
 
       const renderRecent = recent.map(promo => {
         const total = Math.max(1, Number(promo.uses || 1));
@@ -2779,7 +2817,8 @@
 
       let status = "";
       if (activity.ignored) status = '<span class="pill warn">Ignored · uses preserved</span>';
-      else if (isExpired(promo)) status = '<span class="pill warn">Expired</span>';
+      else if (promo.trackingState === "needs_checking") status = '<span class="pill warn">Needs checking</span>';
+      else if (isExpired(promo) || promo.closedReason === "expired") status = '<span class="pill warn">Expired · used</span>';
       else if (promo.receiptState === "used") status = '<span class="pill good">Receipt confirmed</span>';
       else if (state === "used") status = '<span class="pill">Fully used</span>';
       else if (pending > 0) status = '<span class="pill good">' + pending + ' awaiting receipt</span>';
