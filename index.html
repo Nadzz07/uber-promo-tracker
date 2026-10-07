@@ -2231,9 +2231,9 @@
         <section class="home-overview glass">
           <div class="home-intro">
             <div class="home-intro-main">
-              <div class="eyebrow">Command centre</div>
+              <div class="eyebrow">Overview</div>
               <h1 class="home-title">Home</h1>
-              <div class="home-intro-copy">Savings, active accounts, live promos and your next best order move — all in one place.</div>
+              <div class="home-intro-copy">Savings, accounts, available promos and your next best order move — all in one place.</div>
             </div>
             <div id="syncStrip" class="sync-strip home-sync" role="status">
               <strong>Waiting for first update</strong>
@@ -2248,14 +2248,14 @@
               <div class="stat-sub">receipts + Uber One</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Active accounts</div>
+              <div class="stat-label">Total accounts</div>
               <div id="usableStat" class="stat-value">0</div>
-              <div class="stat-sub">ready for promos</div>
+              <div class="stat-sub">tracked in one place</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Live promos</div>
+              <div class="stat-label">Promos available</div>
               <div id="activeStat" class="stat-value">0</div>
-              <div class="stat-sub">available now</div>
+              <div class="stat-sub">ready to use</div>
             </div>
           </div>
         </section>
@@ -2305,7 +2305,7 @@
         <div id="quickGrid" class="quick-grid">
           <button class="quick-card active" data-intent="best">
             <div class="quick-top"><span class="quick-icon">★</span><span id="bestCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">Best deal</div><div class="quick-sub">Strongest usable account right now.</div></div>
+            <div><div class="quick-title">Best deal</div><div class="quick-sub">Strongest available account right now.</div></div>
           </button>
           <button class="quick-card" data-intent="15off15">
             <div class="quick-top"><span class="quick-icon">15</span><span id="fifteenCount" class="quick-count">0</span></div>
@@ -2332,7 +2332,7 @@
         <div id="homeAccounts" class="account-list"></div>
 
         <details id="weakWrap" class="weak-wrap">
-          <summary id="weakSummary">Other active accounts</summary>
+          <summary id="weakSummary">Other available accounts</summary>
           <div id="weakAccounts" class="weak-inner account-list"></div>
         </details>
         </div>
@@ -2342,8 +2342,8 @@
       <section id="view-accounts" class="view">
         <div class="screen-head">
           <div class="eyebrow">Your accounts</div>
-          <h1 class="screen-title">Active accounts.</h1>
-          <div class="screen-copy">Your current accounts and their offers. Archived accounts stay out of recommendations while their receipt and savings history is preserved.</div>
+          <h1 class="screen-title">Available accounts.</h1>
+          <div class="screen-copy">Accounts you can use for recommendations and promos. Archived accounts stay out of recommendations while their receipt and savings history is preserved.</div>
         </div>
 
         <div class="search-wrap">
@@ -2351,7 +2351,7 @@
         </div>
 
         <div id="accountFilters" class="filter-row">
-          <button class="filter-btn active" data-account-filter="all">All active</button>
+          <button class="filter-btn active" data-account-filter="all">All available</button>
           <button class="filter-btn" data-account-filter="offers">Has promos</button>
           <button class="filter-btn" data-account-filter="cash">Uber Cash</button>
           <button class="filter-btn" data-account-filter="multi">Multi-use</button>
@@ -2366,7 +2366,7 @@
         <div class="screen-head">
           <div class="eyebrow">Activity & state</div>
           <h1 class="screen-title">Used, done & expired.</h1>
-          <div class="screen-copy">Using one order from a multi-use promo does not remove it. It stays active until its remaining uses reach zero or it expires.</div>
+          <div class="screen-copy">Using one order from a multi-use promo does not remove it. It stays available until its remaining uses reach zero or it expires.</div>
         </div>
 
         <div class="activity-summary">
@@ -2433,7 +2433,7 @@
           <button class="more-card" data-open-sheet="history">
             <div class="more-icon">↺</div>
             <div class="more-title">History</div>
-            <div class="more-copy">Recent active, used and expired offer history.</div>
+            <div class="more-copy">Recent available, used and expired offer history.</div>
           </button>
         </div>
       </section>
@@ -2850,7 +2850,7 @@
         Date.now() - generated.getTime() > 24 * 60 * 60 * 1000;
 
       pill.classList.add(stale ? "stale" : "live");
-      label.textContent = stale ? "UPDATE" : "LIVE";
+      label.textContent = stale ? "UPDATE" : "SYNCED";
       time.textContent =
         generated && !Number.isNaN(generated.getTime())
           ? generated.toLocaleString("en-GB", {
@@ -2864,11 +2864,11 @@
 
     function renderStats() {
       const summary = payload.summary || {};
-      const usable = accounts.filter(account => account.canLogin).length;
+      const totalAccounts = Number(summary.knownAccounts ?? accounts.length);
       const live = promos.filter(promo => promo.canLogin && isAccountActive(promo.accountRef) && isPromoActive(promo)).length;
 
       document.getElementById("savedStat").textContent = money(summary.estimatedTotalSaved ?? summary.totalSaved ?? 0);
-      document.getElementById("usableStat").textContent = usable.toLocaleString("en-GB");
+      document.getElementById("usableStat").textContent = totalAccounts.toLocaleString("en-GB");
       document.getElementById("activeStat").textContent = live.toLocaleString("en-GB");
 
       const fee = effectiveFee();
@@ -2885,7 +2885,7 @@
         target.innerHTML =
           accounts.length === 0
             ? '<div class="empty">Recommendations will appear after your first successful data sync.</div>'
-            : '<div class="empty">No usable accounts are active right now.</div>';
+            : '<div class="empty">No available accounts right now.</div>';
         return;
       }
 
@@ -2902,7 +2902,7 @@
 
       if (!plan.eligible) {
         target.innerHTML =
-          '<div class="empty">' + escapeHtml(plan.reason || "No usable offer fits this basket.") + '</div>';
+          '<div class="empty">' + escapeHtml(plan.reason || "No promo available fits this basket.") + '</div>';
         return;
       }
 
@@ -2973,7 +2973,7 @@
       const multi = current.find(promo => Number(promo.usesRemaining || 0) > 1);
       if (multi) pills.push(offerUsePill(multi));
 
-      if (current.length > 1) pills.push('<span class="pill">' + current.length + ' live promos</span>');
+      if (current.length > 1) pills.push('<span class="pill">' + current.length + ' promos available</span>');
 
       if (account.lastOrderAt) {
         const date = formatDate(account.lastOrderAt);
@@ -2983,7 +2983,7 @@
       const headline =
         best?.promo?.title ||
         current[0]?.title ||
-        "No active promos";
+        "No promos available";
 
       const save =
         best
@@ -3034,21 +3034,21 @@
 
       document.getElementById("accountsKicker").textContent = names[currentIntent];
       document.getElementById("homeAccountMeta").textContent =
-        all.length + (all.length === 1 ? " usable account" : " usable accounts");
+        all.length + (all.length === 1 ? " available account" : " available accounts");
 
       document.getElementById("homeAccounts").innerHTML =
         strong.length
           ? strong.slice(0, 8).map((account, index) => accountCard(account, index)).join("")
-          : '<div class="empty">No usable account matches this category right now.</div>';
+          : '<div class="empty">No available account matches this category right now.</div>';
 
       const wrap = document.getElementById("weakWrap");
       wrap.style.display = weak.length ? "block" : "none";
       document.getElementById("weakSummary").textContent =
-        "Weaker usable accounts · " + weak.length;
+        "Other available accounts · " + weak.length;
       document.getElementById("weakAccounts").innerHTML =
         weak.slice(0, 16).map(account => accountCard(account)).join("") +
         (weak.length > 16
-          ? '<button class="ghost-btn" style="width:100%;margin-top:8px;text-align:center" data-jump-accounts="true">View all usable accounts</button>'
+          ? '<button class="ghost-btn" style="width:100%;margin-top:8px;text-align:center" data-jump-accounts="true">View all available accounts</button>'
           : "");
     }
 
@@ -3091,7 +3091,7 @@
               ? '<button class="ghost-btn" style="width:100%;min-height:44px;text-align:center" data-show-more-accounts="true">Show ' +
                 Math.min(48, list.length - shown.length) + ' more</button>'
               : "")
-          : '<div class="empty">No usable account matches this filter.</div>';
+          : '<div class="empty">No available account matches this filter.</div>';
     }
 
     function activityRow(promo, meta, actionHtml = "") {
@@ -3350,11 +3350,11 @@
             '</div>' +
             '<div class="account-status-badge ' + (account.canLogin ? 'ok' : 'no') + '">' +
               '<span class="status-dot"></span>' +
-              (account.canLogin ? 'Active' : 'Archived') +
+              (account.canLogin ? 'Available' : 'Archived') +
             '</div>' +
           '</div>' +
           '<div class="account-sheet-summary">' +
-            '<div><span>Live offers</span><strong>' + liveItems.length + '</strong></div>' +
+            '<div><span>Promos available</span><strong>' + liveItems.length + '</strong></div>' +
             '<div><span>Save now</span><strong>' + (bestSaving > 0 ? escapeHtml(money(bestSaving)) : '—') + '</strong></div>' +
             '<div><span>History</span><strong>' + escapeHtml(receiptHistoryText(account)) + '</strong></div>' +
           '</div>' +
@@ -3456,7 +3456,7 @@
             shown.map(account => (
               '<div class="sheet-row">' +
                 '<div><div class="sheet-row-title">' + escapeHtml(accountDisplay(account)) + '</div>' +
-                '<div class="sheet-row-meta">' + Number(account.activePromoCount || 0) + ' active promos · last seen ' +
+                '<div class="sheet-row-meta">' + Number(account.activePromoCount || 0) + ' promos available · last seen ' +
                   escapeHtml(formatDate(account.lastSeenAt) || "unknown") + '</div></div>' +
                 '<span class="pill warn">Can’t log in</span>' +
               '</div>'
@@ -3537,8 +3537,8 @@
 
       document.getElementById("sheetBody").innerHTML =
         '<div class="sheet-section"><div class="insight-grid">' +
-          '<div class="insight"><div class="insight-label">Known accounts</div><div class="insight-value">' + Number(summary.knownAccounts || accounts.length).toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Active accounts</div><div class="insight-value">' + Number(summary.accessibleAccounts || accounts.filter(a => a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Total accounts</div><div class="insight-value">' + Number(summary.knownAccounts || accounts.length).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Available accounts</div><div class="insight-value">' + Number(summary.accessibleAccounts || accounts.filter(a => a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
           '<div class="insight"><div class="insight-label">Archived</div><div class="insight-value">' + Number(summary.inaccessibleAccounts || accounts.filter(a => !a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
           '<div class="insight"><div class="insight-label">Tracked receipts</div><div class="insight-value">' + Number(summary.trackedOrders || 0).toLocaleString("en-GB") + '</div></div>' +
         '</div></div>' +
@@ -3562,7 +3562,7 @@
     }
 
     function renderHistorySheet() {
-      setSheetHeading("Promo history", "Recent active, used and expired Uber Eats offers.");
+      setSheetHeading("Promo history", "Recent available, used and expired Uber Eats offers.");
 
       const rows = history.slice(0, 60);
 
