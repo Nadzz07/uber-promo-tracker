@@ -40,7 +40,7 @@ assert.ok(html.includes("Mark fully used"));
 assert.ok(html.includes("Mark account done"));
 assert.ok(html.includes("Multi-use"));
 assert.ok(html.includes("Other active accounts"));
-assert.ok(html.includes("Estimated saved"));
+assert.ok(html.includes("Lifetime savings"));
 assert.ok(html.includes("Confirmed receipts"));
 assert.ok(html.includes("Estimated missing Uber One"));
 assert.ok(html.includes("How the Uber One estimate is calculated"));
