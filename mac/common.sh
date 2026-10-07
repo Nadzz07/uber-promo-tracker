@@ -42,8 +42,12 @@ load_recent_config() {
   if (( RECEIPT_DAYS > 365 )); then RECEIPT_DAYS=90; fi
   PRIVATE_DB="${TRACKER_PRIVATE_DB:-uber-tracker.local.db}"
   MOVE_INBOX_RECEIPTS="${APPLE_MAIL_MOVE_INBOX_RECEIPTS:-true}"
+  TRASH_ARCHIVED_MAIL="${APPLE_MAIL_TRASH_ARCHIVED:-true}"
   if [[ "$MOVE_INBOX_RECEIPTS" != true && "$MOVE_INBOX_RECEIPTS" != false ]]; then
     echo "APPLE_MAIL_MOVE_INBOX_RECEIPTS must be true or false." >&2; exit 1
+  fi
+  if [[ "$TRASH_ARCHIVED_MAIL" != true && "$TRASH_ARCHIVED_MAIL" != false ]]; then
+    echo "APPLE_MAIL_TRASH_ARCHIVED must be true or false." >&2; exit 1
   fi
 }
 
@@ -58,10 +62,26 @@ export_recent_mail() {
 }
 
 file_imported_receipts() {
+  if [[ "$MOVE_INBOX_RECEIPTS" != true && "$TRASH_ARCHIVED_MAIL" != true ]]; then
+    return
+  fi
+
+  # Routing is planned only after generate-promos has committed the private
+  # receipt/account evidence. Mail movement can therefore fail without losing
+  # receipt history or savings.
+  node mac/plan-inbox-routing.js \
+    emails.local.json "$PRIVATE_DB" \
+    "$TMP_DIR/receipt-moves.json" "$TMP_DIR/archived-trash.json"
+
   if [[ "$MOVE_INBOX_RECEIPTS" == true ]]; then
-    node mac/find-inbox-receipts.js emails.local.json "$TMP_DIR/receipt-moves.json"
     if ! osascript -l JavaScript mac/move-inbox-receipts.js "$TMP_DIR/receipt-moves.json" "$RECEIPT_FOLDER" "$PROMO_DAYS"; then
       echo "Receipt filing failed; imported data is safe. Filing can be retried on the next sync." >&2
+    fi
+  fi
+
+  if [[ "$TRASH_ARCHIVED_MAIL" == true ]]; then
+    if ! osascript -l JavaScript mac/trash-archived-inbox.js "$TMP_DIR/archived-trash.json" "$PROMO_DAYS"; then
+      echo "Archived-account Bin routing failed; imported data is safe and affected messages remain in Inbox." >&2
     fi
   fi
 }
