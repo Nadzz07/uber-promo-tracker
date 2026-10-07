@@ -88,7 +88,7 @@ try {
   );
 
   assert.equal(
-    commonSource.includes('APPLE_MAIL_MOVE_INBOX_RECEIPTS:-true'),
+    commonSource.includes('MOVE_INBOX_RECEIPTS="${APPLE_MAIL_MOVE_INBOX_RECEIPTS:-true}"'),
     true,
     "routine sync should safely file processed Inbox receipts by default"
   );
