@@ -2132,8 +2132,8 @@
         <div class="more-grid">
           <button class="more-card" data-open-sheet="locked">
             <div class="more-icon">×</div>
-            <div class="more-title">Can’t log in</div>
-            <div id="lockedCardCopy" class="more-copy">0 accounts hidden from recommendations.</div>
+            <div class="more-title">Archived</div>
+            <div id="lockedCardCopy" class="more-copy">0 archived accounts kept for receipt and savings history.</div>
           </button>
           <button class="more-card" data-open-sheet="savings">
             <div class="more-icon">£</div>
@@ -2953,7 +2953,7 @@
       const locked = accounts.filter(account => !account.canLogin).length;
       document.getElementById("lockedCardCopy").textContent =
         locked.toLocaleString("en-GB") +
-        (locked === 1 ? " account hidden from recommendations." : " accounts hidden from recommendations.");
+        (locked === 1 ? " archived account kept for history." : " archived accounts kept for history.");
     }
 
     function offerSheetCard(promo) {
@@ -3065,7 +3065,7 @@
             '</div>' +
             '<div class="account-status-badge ' + (account.canLogin ? 'ok' : 'no') + '">' +
               '<span class="status-dot"></span>' +
-              (account.canLogin ? 'Can log in' : 'Can’t log in') +
+              (account.canLogin ? 'Active' : 'Archived') +
             '</div>' +
           '</div>' +
           '<div class="account-sheet-summary">' +
@@ -3145,7 +3145,7 @@
         .filter(account => !account.canLogin)
         .sort((a, b) => String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || "")));
 
-      setSheetHeading("Can’t log in", locked.length + " accounts are hidden from recommendations.");
+      setSheetHeading("Archived accounts", locked.length + " accounts are excluded from recommendations but kept for receipt and savings history.");
 
       document.getElementById("sheetBody").innerHTML =
         '<div class="sheet-section"><input id="sheetLockedSearch" class="sheet-input" type="search" placeholder="Search masked email…"></div>' +
@@ -3253,8 +3253,8 @@
       document.getElementById("sheetBody").innerHTML =
         '<div class="sheet-section"><div class="insight-grid">' +
           '<div class="insight"><div class="insight-label">Known accounts</div><div class="insight-value">' + Number(summary.knownAccounts || accounts.length).toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Usable accounts</div><div class="insight-value">' + Number(summary.accessibleAccounts || accounts.filter(a => a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Can’t log in</div><div class="insight-value">' + Number(summary.inaccessibleAccounts || accounts.filter(a => !a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Active accounts</div><div class="insight-value">' + Number(summary.accessibleAccounts || accounts.filter(a => a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Archived</div><div class="insight-value">' + Number(summary.inaccessibleAccounts || accounts.filter(a => !a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
           '<div class="insight"><div class="insight-label">Tracked receipts</div><div class="insight-value">' + Number(summary.trackedOrders || 0).toLocaleString("en-GB") + '</div></div>' +
         '</div></div>' +
         '<div class="sheet-section"><div class="sheet-list">' +
