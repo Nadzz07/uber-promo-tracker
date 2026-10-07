@@ -38,14 +38,10 @@ export function serverRemainingUses(promo) {
 
 export function normaliseManualStore(payload = {}) {
   return {
-    version: 2,
+    version: 3,
     offers:
       payload && typeof payload.offers === "object" && payload.offers
         ? { ...payload.offers }
-        : {},
-    accounts:
-      payload && typeof payload.accounts === "object" && payload.accounts
-        ? { ...payload.accounts }
         : {}
   };
 }
@@ -205,28 +201,6 @@ export function setOfferDone(
   return safe;
 }
 
-export function isAccountDone(store, accountRef) {
-  const safe = normaliseManualStore(store);
-  return Boolean(safe.accounts?.[accountRef]?.done);
-}
-
-export function setAccountDone(
-  store,
-  accountRef,
-  done,
-  updatedAt = new Date().toISOString()
-) {
-  const safe = normaliseManualStore(store);
-
-  safe.accounts[accountRef] = {
-    ...(safe.accounts[accountRef] || {}),
-    done: Boolean(done),
-    updatedAt
-  };
-
-  return safe;
-}
-
 export function promoForDecision(store, promo) {
   const remaining = effectiveRemainingUses(store, promo);
   const state = effectivePromoState(store, promo);
@@ -235,7 +209,7 @@ export function promoForDecision(store, promo) {
     ...promo,
     usesRemaining: remaining,
     receiptState: state === "used" ? "used" : promo.receiptState,
-    canLogin: Boolean(promo.canLogin) && !isAccountDone(store, promo.accountRef)
+    canLogin: Boolean(promo.canLogin)
   };
 }
 
