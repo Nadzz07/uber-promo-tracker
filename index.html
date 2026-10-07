@@ -236,8 +236,6 @@
 
     .home-overview .stat-label.accounts-available-label {
       white-space: nowrap;
-      font-size: clamp(6.5px, 2vw, 11px);
-      letter-spacing: -.02em;
     }
 
     .stat-value {
@@ -1970,10 +1968,17 @@
       .home-intro-copy { max-width: none; margin-top: 8px; text-align: left; font-size: 12px; }
       .home-sync { margin-top: 14px; max-width: none; }
       .home-overview { padding-left: 16px; padding-right: 16px; }
-      .home-overview .stat-card { padding-left: 8px; padding-right: 8px; }
-      .home-overview .stat-label.accounts-available-label {
-        font-size: clamp(7px, 1.9vw, 8px);
-        letter-spacing: -.03em;
+      .home-overview .stats-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .home-overview .stat-card {
+        min-height: 72px;
+        padding: 12px 14px;
+      }
+      .home-overview .stat-label {
+        font-size: 11px;
+        letter-spacing: 0;
       }
     }
 
@@ -2184,12 +2189,8 @@
 
     @media (max-width: 370px) {
       .home-overview { padding: 10px; }
-      .home-overview .stats-row { gap: 4px; }
-      .home-overview .stat-card { padding: 12px 4px; }
-      .home-overview .stat-label.accounts-available-label {
-        font-size: 6.5px;
-        letter-spacing: -.04em;
-      }
+      .home-overview .stats-row { gap: 6px; }
+      .home-overview .stat-card { padding: 11px 12px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
