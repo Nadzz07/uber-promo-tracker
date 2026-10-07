@@ -81,6 +81,14 @@ try {
     assert.equal(brand.text, 'Promo Tracker', `Header should use the compact product title at ${width}px`);
     assert.equal(brand.whiteSpace, 'nowrap', `Product title should stay on one line at ${width}px`);
     assert.ok(brand.scrollWidth <= brand.clientWidth + 1, `Product title should fit without clipping at ${width}px`);
+    const glider = await page.locator('.nav-glider').evaluate(el => ({
+      width: el.getBoundingClientRect().width,
+      height: el.getBoundingClientRect().height,
+      transform: getComputedStyle(el).transform
+    }));
+    assert.ok(glider.width > 0 && glider.height > 0, `Liquid nav glider should be sized at ${width}px`);
+    assert.notEqual(glider.transform, 'none', `Liquid nav glider should be positioned at ${width}px`);
+
     const availableLabelFits = await page.locator('.accounts-available-label').evaluate(el => ({
       nowrap: getComputedStyle(el).whiteSpace === 'nowrap',
       scrollWidth: el.scrollWidth,
