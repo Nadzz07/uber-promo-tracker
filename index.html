@@ -234,6 +234,12 @@
       font-weight: 850;
     }
 
+    .home-overview .stat-label.accounts-available-label {
+      white-space: nowrap;
+      font-size: clamp(6.5px, 2vw, 11px);
+      letter-spacing: -.02em;
+    }
+
     .stat-value {
       margin-top: 9px;
       overflow: hidden;
@@ -1963,6 +1969,12 @@
       .home-title { font-size: 36px; }
       .home-intro-copy { max-width: none; margin-top: 8px; text-align: left; font-size: 12px; }
       .home-sync { margin-top: 14px; max-width: none; }
+      .home-overview { padding-left: 16px; padding-right: 16px; }
+      .home-overview .stat-card { padding-left: 8px; padding-right: 8px; }
+      .home-overview .stat-label.accounts-available-label {
+        font-size: clamp(7px, 1.9vw, 8px);
+        letter-spacing: -.03em;
+      }
     }
 
 
@@ -2170,6 +2182,16 @@
       .planner-column { position: static; }
     }
 
+    @media (max-width: 370px) {
+      .home-overview { padding: 10px; }
+      .home-overview .stats-row { gap: 4px; }
+      .home-overview .stat-card { padding: 12px 4px; }
+      .home-overview .stat-label.accounts-available-label {
+        font-size: 6.5px;
+        letter-spacing: -.04em;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         scroll-behavior: auto !important;
@@ -2253,7 +2275,7 @@
               <div class="stat-sub">tracked in one place</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Accounts available</div>
+              <div class="stat-label accounts-available-label">Accounts available</div>
               <div id="activeStat" class="stat-value">0</div>
               <div class="stat-sub">ready to use</div>
             </div>

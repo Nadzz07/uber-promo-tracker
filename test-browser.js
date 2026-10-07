@@ -69,9 +69,21 @@ try {
   failPromos = false;
   await page.locator('[data-retry-load]').click();
   await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
-  for (const width of [320, 390, 768, 1440]) {
+  for (const width of [320, 360, 375, 390, 414, 430, 600, 768, 980, 1120, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Overflow at ${width}px`);
+    const availableLabelFits = await page.locator('.accounts-available-label').evaluate(el => ({
+      nowrap: getComputedStyle(el).whiteSpace === 'nowrap',
+      scrollWidth: el.scrollWidth,
+      clientWidth: el.clientWidth,
+      fits: el.scrollWidth <= el.clientWidth
+    }));
+    assert.equal(availableLabelFits.nowrap, true, `Accounts available should stay on one line at ${width}px`);
+    assert.equal(availableLabelFits.fits, true, `Accounts available should fit its card at ${width}px (scroll ${availableLabelFits.scrollWidth}px / client ${availableLabelFits.clientWidth}px)`);
+    if (width <= 600) {
+      const cardWidths = await page.locator('.home-overview .stat-card').evaluateAll(cards => cards.map(card => card.getBoundingClientRect().width));
+      assert.ok(Math.max(...cardWidths) - Math.min(...cardWidths) < 1, `Home stat cards should remain equal width at ${width}px`);
+    }
     if (process.env.TRACKER_SCREENSHOT_DIR && [390, 1440].includes(width)) await page.screenshot({ path: `${process.env.TRACKER_SCREENSHOT_DIR}/tracker-${width}.png`, fullPage: true });
   }
   await page.setViewportSize({ width: 1440, height: 900 });
