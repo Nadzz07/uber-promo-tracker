@@ -72,6 +72,12 @@ try {
   for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Overflow at ${width}px`);
+    const availableLabelFits = await page.locator('.accounts-available-label').evaluate(el => ({
+      nowrap: getComputedStyle(el).whiteSpace === 'nowrap',
+      fits: el.scrollWidth <= el.clientWidth
+    }));
+    assert.equal(availableLabelFits.nowrap, true, `Accounts available should stay on one line at ${width}px`);
+    assert.equal(availableLabelFits.fits, true, `Accounts available should fit its card at ${width}px`);
     if (process.env.TRACKER_SCREENSHOT_DIR && [390, 1440].includes(width)) await page.screenshot({ path: `${process.env.TRACKER_SCREENSHOT_DIR}/tracker-${width}.png`, fullPage: true });
   }
   await page.setViewportSize({ width: 1440, height: 900 });
