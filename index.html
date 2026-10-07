@@ -1352,6 +1352,15 @@
       font-variant-numeric: tabular-nums;
     }
 
+    .basket-input:focus,
+    .basket-input:focus-visible {
+      outline: none !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     .basket-value-wrap .basket-input::-webkit-inner-spin-button,
     .basket-value-wrap .basket-input::-webkit-outer-spin-button {
       margin: 0;
@@ -1858,6 +1867,11 @@
     @keyframes reveal-view { from { opacity: .4; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     @media (hover: hover) and (pointer: fine) { .quick-card:hover, .account-card:hover { border-color: rgba(222,255,236,.28); } }
     @media (min-width: 980px) {
+      .topbar { align-items: center; padding-bottom: 12px; }
+      .scan-wrap { min-width: 180px; }
+      .home-intro { display: block; margin: 18px 2px 16px; }
+      .home-intro-copy { max-width: 680px; margin-top: 7px; text-align: left; }
+      .sync-strip { max-width: 760px; }
       .home-workspace { display: grid; grid-template-columns: minmax(360px,.9fr) minmax(0,1.2fr); gap: 28px; align-items: start; }
       .planner-column { position: sticky; top: 24px; }
       .discovery-column > .section-head:first-child { margin-top: 0; }
@@ -1950,7 +1964,7 @@
             <div class="stat-sub">receipts + Uber One estimate</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Can log in</div>
+            <div class="stat-label">Active accounts</div>
             <div id="usableStat" class="stat-value">0</div>
             <div class="stat-sub">accounts</div>
           </div>
@@ -2033,7 +2047,7 @@
         <div id="homeAccounts" class="account-list"></div>
 
         <details id="weakWrap" class="weak-wrap">
-          <summary id="weakSummary">Weaker usable accounts</summary>
+          <summary id="weakSummary">Other active accounts</summary>
           <div id="weakAccounts" class="weak-inner account-list"></div>
         </details>
         </div>
@@ -2042,9 +2056,9 @@
 
       <section id="view-accounts" class="view">
         <div class="screen-head">
-          <div class="eyebrow">Your logins</div>
-          <h1 class="screen-title">Usable accounts.</h1>
-          <div class="screen-copy">Search by the masked email you recognise. Accounts marked done stay out of this active list.</div>
+          <div class="eyebrow">Your accounts</div>
+          <h1 class="screen-title">Active accounts.</h1>
+          <div class="screen-copy">Your current accounts and their offers. Archived accounts stay out of recommendations while their receipt and savings history is preserved.</div>
         </div>
 
         <div class="search-wrap">
@@ -2052,7 +2066,7 @@
         </div>
 
         <div id="accountFilters" class="filter-row">
-          <button class="filter-btn active" data-account-filter="all">All usable</button>
+          <button class="filter-btn active" data-account-filter="all">All active</button>
           <button class="filter-btn" data-account-filter="offers">Has promos</button>
           <button class="filter-btn" data-account-filter="cash">Uber Cash</button>
           <button class="filter-btn" data-account-filter="multi">Multi-use</button>
