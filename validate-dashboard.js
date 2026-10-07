@@ -44,6 +44,7 @@ assert.ok(html.includes("Lifetime savings"));
 assert.ok(html.includes("Overview"));
 assert.ok(html.includes("Total accounts"));
 assert.ok(html.includes("Promos available"));
+assert.ok(html.includes("Accounts available"));
 assert.ok(html.includes("Confirmed receipts"));
 assert.ok(html.includes("Estimated missing Uber One"));
 assert.ok(html.includes("How the Uber One estimate is calculated"));
