@@ -85,7 +85,9 @@ try {
       assert.ok(Math.max(...cardWidths) - Math.min(...cardWidths) < 1, `Home stat cards should remain equal width at ${width}px`);
       const labelSizes = await page.locator('.home-overview .stat-label').evaluateAll(labels => labels.map(label => parseFloat(getComputedStyle(label).fontSize)));
       assert.ok(Math.max(...labelSizes) - Math.min(...labelSizes) < 0.1, `Home stat labels should use the same font size at ${width}px`);
-      assert.ok(Math.min(...labelSizes) >= 9, `Home stat labels should remain readable at ${width}px`);
+      assert.ok(Math.min(...labelSizes) >= 11, `Home stat labels should remain readable at ${width}px`);
+      const mobileColumns = await page.locator('.home-overview .stats-row').evaluate(row => getComputedStyle(row).gridTemplateColumns.split(' ').length);
+      assert.equal(mobileColumns, 1, `Phone Home stats should stack instead of shrinking labels at ${width}px`);
     }
     if (process.env.TRACKER_SCREENSHOT_DIR && [390, 1440].includes(width)) await page.screenshot({ path: `${process.env.TRACKER_SCREENSHOT_DIR}/tracker-${width}.png`, fullPage: true });
   }
