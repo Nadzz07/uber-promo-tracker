@@ -141,7 +141,7 @@ for (const sheetType of ["advanced", "locked", "savings", "health", "history"]) 
 }
 
 assert.ok(
-  html.includes("Your Mac reads Apple Mail privately and publishes only masked account and savings data to this app."),
+  html.includes("Receipt processing keeps full account and Mail data private, updates savings and usage history, and publishes only the masked data this app needs."),
   "sync-and-data sheet must explain the private-to-app data path"
 );
 
