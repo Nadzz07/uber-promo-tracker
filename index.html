@@ -2850,7 +2850,7 @@
         Date.now() - generated.getTime() > 24 * 60 * 60 * 1000;
 
       pill.classList.add(stale ? "stale" : "live");
-      label.textContent = stale ? "UPDATE" : "SYNCED";
+      label.textContent = stale ? "UPDATE" : "LIVE";
       time.textContent =
         generated && !Number.isNaN(generated.getTime())
           ? generated.toLocaleString("en-GB", {
