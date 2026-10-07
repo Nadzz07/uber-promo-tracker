@@ -39,14 +39,14 @@ assert.ok(html.includes("Undo manual use"));
 assert.ok(html.includes("Mark fully used"));
 assert.ok(html.includes("Mark account done"));
 assert.ok(html.includes("Multi-use"));
-assert.ok(html.includes("Weaker usable accounts"));
+assert.ok(html.includes("Other active accounts"));
 assert.ok(html.includes("Estimated saved"));
 assert.ok(html.includes("Confirmed receipts"));
 assert.ok(html.includes("Estimated missing Uber One"));
 assert.ok(html.includes("How the Uber One estimate is calculated"));
 assert.ok(html.includes("savings-hero"));
 assert.ok(html.includes("grid-template-columns: auto minmax(0,1fr) 36px"));
-assert.ok(html.includes("Can’t log in"));
+assert.ok(html.includes("Archived accounts"));
 assert.ok(html.includes("Needs checking"));
 assert.ok(html.includes('id="needsCheckCount"'));
 assert.ok(html.includes('id="needsCheckingList"'));
@@ -145,7 +145,7 @@ assert.ok(
   "sync-and-data sheet must explain the private-to-app data path"
 );
 
-assert.ok(html.includes("Ready for your first sync"));
+assert.ok(html.includes("Waiting for first update"));
 assert.ok(html.includes("Sync & data"));
 
 assert.ok(
