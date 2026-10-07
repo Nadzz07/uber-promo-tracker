@@ -1890,6 +1890,81 @@
       .stat-sub { font-size: 9px; }
     }
 
+    /* Premium dashboard hierarchy: compact status, stronger home title, calm basket editing. */
+    .home-title {
+      margin: 4px 0 0;
+      font-size: clamp(34px, 4vw, 52px);
+      line-height: .96;
+      font-weight: 760;
+      letter-spacing: -.055em;
+    }
+    .home-intro-main { min-width: 0; }
+    .home-sync {
+      flex: 0 1 430px;
+      margin: 0;
+      padding: 10px 13px;
+      border-color: rgba(241,198,109,.14);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(83,67,32,.14), rgba(255,255,255,.025));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.045);
+      font-size: 10px;
+    }
+    .home-sync strong { white-space: nowrap; }
+    .local-notice { margin: 8px 0 14px; }
+    .basket-editor:focus-within {
+      border-color: rgba(255,255,255,.22);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 16px 44px rgba(0,0,0,.2);
+    }
+    .basket-input:focus,
+    .basket-input:focus-visible {
+      outline: none !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      background: transparent !important;
+    }
+    @media (min-width: 980px) {
+      .topbar {
+        min-height: 92px;
+        padding: 18px 4px 16px;
+        border-bottom: 1px solid rgba(222,255,236,.07);
+      }
+      .brand-title {
+        font-size: clamp(30px, 3vw, 40px);
+        line-height: 1;
+        max-width: none;
+      }
+      .scan-wrap { min-width: 220px; }
+      .home-intro {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 36px;
+        margin: 30px 4px 24px;
+      }
+      .home-intro-copy {
+        max-width: 660px;
+        margin-top: 11px;
+        text-align: left;
+        font-size: 14px;
+        color: #c8d3cc;
+      }
+      .stats-row { margin-top: 0; }
+      .stat-card { min-height: 132px; padding: 20px 22px; }
+      .stat-label { font-size: 12px; }
+      .stat-value { margin-top: 10px; font-size: clamp(36px, 4vw, 48px); }
+      .stat-sub { margin-top: 7px; font-size: 11px; }
+    }
+    @media (max-width: 979px) {
+      .home-intro { align-items: flex-start; }
+      .home-sync { max-width: 360px; }
+    }
+    @media (max-width: 600px) {
+      .home-intro { display: block; margin-top: 18px; }
+      .home-title { font-size: 36px; }
+      .home-intro-copy { max-width: none; margin-top: 8px; text-align: left; font-size: 12px; }
+      .home-sync { margin-top: 14px; max-width: none; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         scroll-behavior: auto !important;
@@ -1925,11 +2000,7 @@
       </div>
     </header>
 
-    <div id="localNotice" class="sync-strip" role="status" hidden></div>
-    <div id="syncStrip" class="sync-strip" role="status">
-      <strong>Waiting for first update</strong>
-      <span>Your private tracker will populate automatically after its first successful sync.</span>
-    </div>
+    <div id="localNotice" class="sync-strip local-notice" role="status" hidden></div>
 
     <nav id="mainNav" class="bottom-nav" aria-label="Main navigation">
       <button class="nav-btn active" data-view="home" aria-current="page">
@@ -1953,25 +2024,32 @@
     <main>
       <section id="view-home" class="view active">
         <div class="home-intro">
-          <div class="eyebrow">Home</div>
-          <div class="home-intro-copy">Your live promos, usable accounts and receipt history are ready when you are.</div>
+          <div class="home-intro-main">
+            <div class="eyebrow">Overview</div>
+            <h1 class="home-title">Home</h1>
+            <div class="home-intro-copy">One view for your savings, active accounts, live promos and the best move for your next order.</div>
+          </div>
+          <div id="syncStrip" class="sync-strip home-sync" role="status">
+            <strong>Waiting for first update</strong>
+            <span>Your private tracker will populate automatically after its first successful sync.</span>
+          </div>
         </div>
 
         <div class="stats-row">
           <div class="stat-card">
-            <div class="stat-label">Estimated saved</div>
+            <div class="stat-label">Lifetime savings</div>
             <div id="savedStat" class="stat-value green">£0</div>
-            <div class="stat-sub">receipts + Uber One estimate</div>
+            <div class="stat-sub">from receipts + Uber One</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Active accounts</div>
             <div id="usableStat" class="stat-value">0</div>
-            <div class="stat-sub">accounts</div>
+            <div class="stat-sub">ready for promos</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Live promos</div>
             <div id="activeStat" class="stat-value">0</div>
-            <div class="stat-sub">ready to use</div>
+            <div class="stat-sub">available right now</div>
           </div>
         </div>
 
