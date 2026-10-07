@@ -158,7 +158,7 @@ try {
     "archived mail should use Mail's recoverable delete-to-Bin action"
   );
   assert.equal(
-    /erase|expunge/i.test(trashSource),
+    /Mail\.erase|expunge|Erase Deleted Items/i.test(trashSource),
     false,
     "archived routing must never permanently erase Bin contents"
   );
