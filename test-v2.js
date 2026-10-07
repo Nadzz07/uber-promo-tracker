@@ -363,14 +363,14 @@ try {
     assert.ok(columns.has("uber_one_signal"));
   });
 
-  test("newly discovered account defaults to can't log in", () => {
+  test("newly discovered account defaults to active", () => {
     const account = ensureAccount(db, {
       alias: "first@icloud.com",
       seenAt: "2026-10-01T10:00:00Z",
       kind: "promo"
     });
 
-    assert.equal(account.canLogin, false);
+    assert.equal(account.canLogin, true);
     assert.equal(getAccounts(db).length, 1);
   });
 
