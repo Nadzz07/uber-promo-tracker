@@ -153,6 +153,11 @@ try {
     "example configuration should match the runtime receipt-filing default"
   );
   assert.equal(
+    exampleEnv.includes("APPLE_MAIL_TRASH_ARCHIVED=true"),
+    true,
+    "example configuration should expose Archived-account Bin routing"
+  );
+  assert.equal(
     trashSource.includes("Mail.delete(message)"),
     true,
     "archived mail should use Mail's recoverable delete-to-Bin action"
