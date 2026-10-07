@@ -2015,6 +2015,34 @@
     .home-overview .stat-card:first-child {
       background: linear-gradient(145deg, rgba(155,234,114,.10), rgba(8,15,12,.25));
     }
+    .home-overview .available-stat-card {
+      border-color: rgba(155,234,114,.22);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(155,234,114,.12), transparent 70%),
+        linear-gradient(145deg, rgba(155,234,114,.075), rgba(8,15,12,.25));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 12px 34px rgba(67,126,82,.08);
+    }
+    .home-overview .available-stat-card .stat-value {
+      color: var(--green-strong);
+      text-shadow: 0 0 24px rgba(155,234,114,.12);
+    }
+    .home-overview .available-stat-card.watch {
+      border-color: rgba(241,198,109,.28);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(241,198,109,.12), transparent 70%),
+        linear-gradient(145deg, rgba(241,198,109,.07), rgba(8,15,12,.25));
+    }
+    .home-overview .available-stat-card.watch .stat-value { color: #f1c66d; }
+    .home-overview .available-stat-card.empty-state {
+      border-color: rgba(255,126,126,.32);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(255,126,126,.13), transparent 70%),
+        linear-gradient(145deg, rgba(255,126,126,.07), rgba(8,15,12,.25));
+    }
+    .home-overview .available-stat-card.empty-state .stat-value { color: #ff9b9b; }
+    .insight-value.estimated-value {
+      color: var(--muted);
+    }
     .basket-editor {
       border-color: rgba(255,255,255,.13) !important;
       background:
@@ -2447,10 +2475,10 @@
               <div id="usableStat" class="stat-value">0</div>
               <div class="stat-sub">tracked in one place</div>
             </div>
-            <div class="stat-card">
+            <div id="availableStatCard" class="stat-card available-stat-card">
               <div class="stat-label accounts-available-label">Accounts available</div>
-              <div id="activeStat" class="stat-value">0</div>
-              <div class="stat-sub">ready to use</div>
+              <div id="activeStat" class="stat-value available">0</div>
+              <div id="availableStatSub" class="stat-sub">ready to use</div>
             </div>
           </div>
         </section>
@@ -2568,7 +2596,6 @@
           <div class="activity-card"><span>Recent uses</span><strong id="recentUseCount">0</strong></div>
           <div class="activity-card"><span>Fully used</span><strong id="fullyUsedCount">0</strong></div>
           <div class="activity-card"><span>Needs check</span><strong id="needsCheckCount">0</strong></div>
-          <div class="activity-card"><span>Done accounts</span><strong id="doneAccountCount">0</strong></div>
         </div>
 
         <div id="needsCheckingSection" class="activity-section">
@@ -2584,11 +2611,6 @@
         <div id="fullyUsedSection" class="activity-section">
           <div class="activity-title">Fully used</div>
           <div id="fullyUsedList" class="activity-list"></div>
-        </div>
-
-        <div id="doneAccountsSection" class="activity-section">
-          <div class="activity-title">Accounts marked done</div>
-          <div id="doneAccountsList" class="activity-list"></div>
         </div>
 
         <div id="expiredSection" class="activity-section">
@@ -2666,14 +2688,12 @@
       consumeManualUse,
       effectivePromoState,
       effectiveRemainingUses,
-      isAccountDone,
-      manualActivity,
+       manualActivity,
       normaliseManualStore,
       pendingManualUses,
       promoForDecision,
       promoStateKey,
-      setAccountDone,
-      setOfferDone,
+       setOfferDone,
       setOfferIgnored,
       undoManualUse
     } from "./manual-state.js";
@@ -2887,8 +2907,10 @@
       );
     }
 
-    function isAccountActive(accountRef) {
-      return !isAccountDone(manualStore, accountRef);
+    function isAccountActive() {
+      // Account-level "done" was retired. Availability now follows access state;
+      // promo completion is tracked at the offer/receipt level.
+      return true;
     }
 
     function decisionPromos() {
@@ -3091,6 +3113,20 @@
       setAnimatedText("usableStat", totalAccounts.toLocaleString("en-GB"));
       setAnimatedText("activeStat", availableAccounts.toLocaleString("en-GB"));
 
+      const availableCard = document.getElementById("availableStatCard");
+      const availableSub = document.getElementById("availableStatSub");
+      const lowAvailability = totalAccounts > 0 && availableAccounts > 0 && (availableAccounts / totalAccounts) <= 0.1;
+      availableCard?.classList.toggle("watch", lowAvailability);
+      availableCard?.classList.toggle("empty-state", availableAccounts === 0);
+      if (availableSub) {
+        availableSub.textContent =
+          availableAccounts === 0
+            ? "none available"
+            : lowAvailability
+              ? "running low"
+              : "ready to use";
+      }
+
       const fee = effectiveFee();
       document.getElementById("feeNote").textContent =
         fee > 0
@@ -3224,7 +3260,6 @@
           '<div class="pill-row">' + pills.join("") + '</div>' +
           '<div class="account-actions">' +
             '<button class="ghost-btn" data-account-offers="' + escapeHtml(account.accountRef) + '">View offers</button>' +
-            '<button class="ghost-btn done-btn" data-account-done="' + escapeHtml(account.accountRef) + '">Done</button>' +
           '</div>' +
         '</article>'
       );
@@ -3363,14 +3398,9 @@
         }
       }
 
-      const doneAccounts = accounts.filter(account =>
-        isAccountDone(manualStore, account.accountRef)
-      );
-
       document.getElementById("recentUseCount").textContent = recent.length;
       document.getElementById("fullyUsedCount").textContent = fullyUsed.length;
       document.getElementById("needsCheckCount").textContent = needsChecking.length;
-      document.getElementById("doneAccountCount").textContent = doneAccounts.length;
 
       document.getElementById("needsCheckingList").innerHTML =
         needsChecking.length
@@ -3427,17 +3457,6 @@
               );
             }).join("")
           : '<div class="empty">No fully used offers yet.</div>';
-
-      document.getElementById("doneAccountsList").innerHTML =
-        doneAccounts.length
-          ? doneAccounts.map(account => (
-              '<div class="activity-row">' +
-                '<div><div class="activity-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
-                '<div class="activity-meta">Account manually marked done</div></div>' +
-                '<button class="restore-btn" data-restore-account="' + escapeHtml(account.accountRef) + '">Restore</button>' +
-              '</div>'
-            )).join("")
-          : '<div class="empty">No accounts marked done.</div>';
 
       document.getElementById("expiredList").innerHTML =
         '<div class="empty">Expired offers are counted as Used.</div>';
@@ -3535,7 +3554,7 @@
       openSheetType = "account";
       openAccountRef = accountRef;
 
-      setSheetHeading("Account", "Choose an offer, log a use or mark this account done.");
+      setSheetHeading("Account", "Choose an offer or log a use.");
       renderAccountSheet();
       showSheet();
     }
@@ -3546,7 +3565,6 @@
       const account = accounts.find(item => item.accountRef === openAccountRef);
       if (!account) return;
 
-      const accountDone = isAccountDone(manualStore, openAccountRef);
       const items = allPromosForAccount(openAccountRef)
         .slice()
         .sort((a, b) => {
@@ -3579,12 +3597,7 @@
             '<div><span>History</span><strong>' + escapeHtml(receiptHistoryText(account)) + '</strong></div>' +
           '</div>' +
           '<div class="account-sheet-actions">' +
-            (accountDone
-              ? '<button class="account-primary" data-sheet-account-done="false">Restore account</button>'
-              : '<button class="account-primary" data-use-this-account="' + escapeHtml(account.accountRef) + '">Use this account</button>') +
-            (accountDone
-              ? ''
-              : '<button class="account-secondary" data-sheet-account-done="true">Mark account done</button>') +
+            '<button class="account-primary" data-use-this-account="' + escapeHtml(account.accountRef) + '">Use this account</button>' +
           '</div>' +
         '</div>' +
         '<div class="sheet-section offers-section">' +
@@ -3722,7 +3735,7 @@
         '</div>' +
         '<div class="sheet-section"><div class="insight-grid">' +
           '<div class="insight"><div class="insight-label">Confirmed receipts</div><div class="insight-value">' + escapeHtml(money(confirmedTotal)) + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Estimated missing Uber One</div><div class="insight-value" style="color:var(--green)">' + escapeHtml(money(estimatedUberOne)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Estimated missing Uber One</div><div class="insight-value estimated-value">' + escapeHtml(money(estimatedUberOne)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Promo discounts</div><div class="insight-value">' + escapeHtml(money(summary.promoSavings || 0)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Uber Cash used</div><div class="insight-value">' + escapeHtml(money(summary.uberCashUsed || 0)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Explicit Uber One</div><div class="insight-value">' + escapeHtml(money(confirmedUberOne)) + '</div></div>' +
@@ -4058,20 +4071,6 @@
         return;
       }
 
-      const doneButton = event.target.closest("[data-account-done]");
-      if (doneButton) {
-        manualStore = setAccountDone(manualStore, doneButton.dataset.accountDone, true);
-        refreshAfterStateChange();
-        return;
-      }
-
-      const restoreAccount = event.target.closest("[data-restore-account]");
-      if (restoreAccount) {
-        manualStore = setAccountDone(manualStore, restoreAccount.dataset.restoreAccount, false);
-        refreshAfterStateChange();
-        return;
-      }
-
       const restoreOffer = event.target.closest("[data-restore-offer]");
       if (restoreOffer) {
         const promo = promoByKey(restoreOffer.dataset.restoreOffer);
@@ -4182,17 +4181,6 @@
           );
           refreshAfterStateChange();
         }
-        return;
-      }
-
-      const sheetAccountDone = event.target.closest("[data-sheet-account-done]");
-      if (sheetAccountDone && openAccountRef) {
-        manualStore = setAccountDone(
-          manualStore,
-          openAccountRef,
-          sheetAccountDone.dataset.sheetAccountDone === "true"
-        );
-        refreshAfterStateChange();
         return;
       }
 
