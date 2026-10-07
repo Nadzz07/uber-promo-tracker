@@ -2219,6 +2219,76 @@
       }
     }
 
+    /* Liquid-glass motion layer */
+    .bottom-nav { isolation: isolate; overflow: hidden; }
+    .nav-glider {
+      position: absolute;
+      z-index: -1;
+      border-radius: 16px;
+      background:
+        radial-gradient(circle at 28% 12%, rgba(255,255,255,.24), transparent 38%),
+        linear-gradient(135deg, rgba(155,234,114,.18), rgba(255,255,255,.07));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 8px 24px rgba(0,0,0,.18);
+      backdrop-filter: blur(22px) saturate(165%);
+      -webkit-backdrop-filter: blur(22px) saturate(165%);
+      transition: transform 520ms cubic-bezier(.22,1,.36,1), width 520ms cubic-bezier(.22,1,.36,1), height 520ms cubic-bezier(.22,1,.36,1), opacity 180ms ease;
+      pointer-events: none;
+    }
+    .nav-btn {
+      position: relative;
+      z-index: 1;
+      transition: color 260ms ease, transform 420ms cubic-bezier(.22,1,.36,1);
+    }
+    .nav-btn.active { background: transparent; box-shadow: none; }
+    .nav-btn.active svg { transform: translateY(-1px) scale(1.08); }
+    .nav-btn svg { transition: transform 420ms cubic-bezier(.22,1,.36,1); }
+    .nav-btn:active { transform: scale(.94); }
+
+    .view.motion-enter > * {
+      animation: liquidViewIn 520ms cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes liquidViewIn {
+      from { opacity: 0; transform: translateY(14px) scale(.992); filter: blur(7px); }
+      to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+
+    .sheet-backdrop {
+      display: flex;
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 300ms ease, visibility 0s linear 360ms;
+    }
+    .sheet-backdrop.open {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+      transition-delay: 0s;
+    }
+    .sheet {
+      animation: none;
+      opacity: 0;
+      transform: translateY(34px) scale(.965);
+      filter: blur(5px);
+      transition: transform 520ms cubic-bezier(.22,1,.36,1), opacity 300ms ease, filter 360ms ease;
+      will-change: transform, opacity;
+    }
+    .sheet-backdrop.open .sheet {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+    .glass, .quick-card, .account-card, .more-card {
+      transition: transform 420ms cubic-bezier(.22,1,.36,1), border-color 240ms ease, box-shadow 420ms ease;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .quick-card:hover, .account-card:hover, .more-card:hover {
+        transform: translateY(-3px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 18px 44px rgba(0,0,0,.2);
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         scroll-behavior: auto !important;
@@ -2226,6 +2296,8 @@
         animation-iteration-count: 1 !important;
         transition-duration: .01ms !important;
       }
+      .view.motion-enter > * { animation: none !important; }
+      .sheet { filter: none !important; }
     }
 
     [hidden] { display: none !important; }
@@ -2257,6 +2329,7 @@
     <div id="localNotice" class="sync-strip local-notice" role="status" hidden></div>
 
     <nav id="mainNav" class="bottom-nav" aria-label="Main navigation">
+      <span class="nav-glider" aria-hidden="true"></span>
       <button class="nav-btn active" data-view="home" aria-current="page">
         <svg viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.8l8.5 6.7v9.2a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1Z"/></svg>
         Home
@@ -3692,11 +3765,26 @@
       renderMore();
     }
 
+    function updateNavGlider() {
+      const nav = document.getElementById("mainNav");
+      const glider = nav?.querySelector(".nav-glider");
+      const active = nav?.querySelector(".nav-btn.active");
+      if (!nav || !glider || !active) return;
+      const navRect = nav.getBoundingClientRect();
+      const activeRect = active.getBoundingClientRect();
+      glider.style.width = activeRect.width + "px";
+      glider.style.height = activeRect.height + "px";
+      glider.style.transform = "translate3d(" + (activeRect.left - navRect.left) + "px," + (activeRect.top - navRect.top) + "px,0)";
+    }
+
     function switchView(view) {
       currentView = view;
+      let activeSection = null;
 
       document.querySelectorAll(".view").forEach(section => {
-        section.classList.toggle("active", section.id === "view-" + view);
+        const isActive = section.id === "view-" + view;
+        section.classList.toggle("active", isActive);
+        if (isActive) activeSection = section;
       });
 
       document.querySelectorAll("[data-view]").forEach(button => {
@@ -3705,8 +3793,18 @@
         else button.removeAttribute("aria-current");
       });
 
+      updateNavGlider();
+      if (activeSection && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        activeSection.classList.remove("motion-enter");
+        void activeSection.offsetWidth;
+        activeSection.classList.add("motion-enter");
+        window.setTimeout(() => activeSection.classList.remove("motion-enter"), 560);
+      }
       window.scrollTo({ top: 0, behavior: "instant" });
     }
+
+    window.addEventListener("resize", updateNavGlider);
+    requestAnimationFrame(updateNavGlider);
 
     function deriveAccounts() {
       const map = new Map();
