@@ -72,6 +72,15 @@ try {
   for (const width of [320, 360, 375, 390, 414, 430, 600, 768, 980, 1120, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Overflow at ${width}px`);
+    const brand = await page.locator('.brand-title').evaluate(el => ({
+      text: el.textContent.trim(),
+      whiteSpace: getComputedStyle(el).whiteSpace,
+      scrollWidth: el.scrollWidth,
+      clientWidth: el.clientWidth
+    }));
+    assert.equal(brand.text, 'Promo Tracker', `Header should use the compact product title at ${width}px`);
+    assert.equal(brand.whiteSpace, 'nowrap', `Product title should stay on one line at ${width}px`);
+    assert.ok(brand.scrollWidth <= brand.clientWidth + 1, `Product title should fit without clipping at ${width}px`);
     const availableLabelFits = await page.locator('.accounts-available-label').evaluate(el => ({
       nowrap: getComputedStyle(el).whiteSpace === 'nowrap',
       scrollWidth: el.scrollWidth,

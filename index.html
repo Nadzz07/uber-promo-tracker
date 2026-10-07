@@ -2193,6 +2193,32 @@
       .home-overview .stat-card { padding: 11px 12px; }
     }
 
+    /* Product lockup: compact brand hierarchy without competing with the page title. */
+    .brand-title {
+      max-width: none;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 600px) {
+      .topbar {
+        min-height: 74px;
+        align-items: flex-start;
+        padding-top: 8px;
+      }
+      .brand-kicker {
+        font-size: 9px;
+        letter-spacing: .15em;
+      }
+      .brand-title {
+        margin-top: 5px;
+        max-width: none;
+        font-size: clamp(24px, 7.2vw, 30px);
+        line-height: .96;
+        letter-spacing: -.045em;
+        white-space: nowrap;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         scroll-behavior: auto !important;
@@ -2216,8 +2242,8 @@
   <div id="app" class="app-shell">
     <header class="topbar">
       <div>
-        <div class="brand-kicker">Promo tracker</div>
-        <div class="brand-title">Uber Eats Promo Tracker</div>
+        <div class="brand-kicker">Uber Eats</div>
+        <div class="brand-title">Promo Tracker</div>
       </div>
       <div class="scan-wrap">
         <div id="scanPill" class="scan-pill">
