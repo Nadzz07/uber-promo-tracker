@@ -44,6 +44,8 @@ try {
   for (const hidden of ['lo…ed', 're…ew', 'ex…ed']) assert.equal(recommendation.includes(hidden), false);
   await page.locator('[data-account-offers="A001"]').first().click();
   assert.equal(await page.evaluate(() => document.activeElement.id), 'sheetClose');
+  assert.equal(await page.locator('.sheet').evaluate(el => getComputedStyle(el).animationName), 'liquidSheetOpen');
+  assert.ok((await page.locator('.sheet').evaluate(el => parseFloat(getComputedStyle(el).animationDuration))) >= 0.6);
   assert.equal(await page.locator('#app').evaluate(e => e.inert), true);
   await page.keyboard.press('Shift+Tab');
   assert.equal(await page.evaluate(() => document.getElementById('sheetBackdrop').contains(document.activeElement)), true);
@@ -88,6 +90,8 @@ try {
     }));
     assert.ok(glider.width > 0 && glider.height > 0, `Liquid nav glider should be sized at ${width}px`);
     assert.notEqual(glider.transform, 'none', `Liquid nav glider should be positioned at ${width}px`);
+    const springTiming = await page.locator('.nav-glider').evaluate(el => getComputedStyle(el).transitionTimingFunction);
+    assert.match(springTiming, /cubic-bezier/, `Liquid nav glider should use spring timing at ${width}px`);
 
     const availableLabelFits = await page.locator('.accounts-available-label').evaluate(el => ({
       nowrap: getComputedStyle(el).whiteSpace === 'nowrap',
