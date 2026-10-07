@@ -310,7 +310,7 @@ Apple may ask permission for Terminal/osascript to control Mail. Allow it.
 The default assumptions are:
 
 - promo folders: `INBOX`
-- promo lookback: 60 days
+- promo lookback: 35 days
 - receipt folder: `Uber Receipts`
 - normal receipt lookback: 90 days
 - historical receipt depth: 3650 days

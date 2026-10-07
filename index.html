@@ -1352,6 +1352,15 @@
       font-variant-numeric: tabular-nums;
     }
 
+    .basket-input:focus,
+    .basket-input:focus-visible {
+      outline: none !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     .basket-value-wrap .basket-input::-webkit-inner-spin-button,
     .basket-value-wrap .basket-input::-webkit-outer-spin-button {
       margin: 0;
@@ -1858,6 +1867,11 @@
     @keyframes reveal-view { from { opacity: .4; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     @media (hover: hover) and (pointer: fine) { .quick-card:hover, .account-card:hover { border-color: rgba(222,255,236,.28); } }
     @media (min-width: 980px) {
+      .topbar { align-items: center; padding-bottom: 12px; }
+      .scan-wrap { min-width: 180px; }
+      .home-intro { display: block; margin: 18px 2px 16px; }
+      .home-intro-copy { max-width: 680px; margin-top: 7px; text-align: left; }
+      .sync-strip { max-width: 760px; }
       .home-workspace { display: grid; grid-template-columns: minmax(360px,.9fr) minmax(0,1.2fr); gap: 28px; align-items: start; }
       .planner-column { position: sticky; top: 24px; }
       .discovery-column > .section-head:first-child { margin-top: 0; }
@@ -1874,6 +1888,81 @@
       .hero-card { padding: 18px; }
       .hero-title { font-size: 22px; }
       .stat-sub { font-size: 9px; }
+    }
+
+    /* Premium dashboard hierarchy: compact status, stronger home title, calm basket editing. */
+    .home-title {
+      margin: 4px 0 0;
+      font-size: clamp(34px, 4vw, 52px);
+      line-height: .96;
+      font-weight: 760;
+      letter-spacing: -.055em;
+    }
+    .home-intro-main { min-width: 0; }
+    .home-sync {
+      flex: 0 1 430px;
+      margin: 0;
+      padding: 10px 13px;
+      border-color: rgba(241,198,109,.14);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(83,67,32,.14), rgba(255,255,255,.025));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.045);
+      font-size: 10px;
+    }
+    .home-sync strong { white-space: nowrap; }
+    .local-notice { margin: 8px 0 14px; }
+    .basket-editor:focus-within {
+      border-color: rgba(255,255,255,.22);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 16px 44px rgba(0,0,0,.2);
+    }
+    .basket-input:focus,
+    .basket-input:focus-visible {
+      outline: none !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      background: transparent !important;
+    }
+    @media (min-width: 980px) {
+      .topbar {
+        min-height: 92px;
+        padding: 18px 4px 16px;
+        border-bottom: 1px solid rgba(222,255,236,.07);
+      }
+      .brand-title {
+        font-size: clamp(30px, 3vw, 40px);
+        line-height: 1;
+        max-width: none;
+      }
+      .scan-wrap { min-width: 220px; }
+      .home-intro {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 36px;
+        margin: 30px 4px 24px;
+      }
+      .home-intro-copy {
+        max-width: 660px;
+        margin-top: 11px;
+        text-align: left;
+        font-size: 14px;
+        color: #c8d3cc;
+      }
+      .stats-row { margin-top: 0; }
+      .stat-card { min-height: 132px; padding: 20px 22px; }
+      .stat-label { font-size: 12px; }
+      .stat-value { margin-top: 10px; font-size: clamp(36px, 4vw, 48px); }
+      .stat-sub { margin-top: 7px; font-size: 11px; }
+    }
+    @media (max-width: 979px) {
+      .home-intro { align-items: flex-start; }
+      .home-sync { max-width: 360px; }
+    }
+    @media (max-width: 600px) {
+      .home-intro { display: block; margin-top: 18px; }
+      .home-title { font-size: 36px; }
+      .home-intro-copy { max-width: none; margin-top: 8px; text-align: left; font-size: 12px; }
+      .home-sync { margin-top: 14px; max-width: none; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1911,11 +2000,7 @@
       </div>
     </header>
 
-    <div id="localNotice" class="sync-strip" role="status" hidden></div>
-    <div id="syncStrip" class="sync-strip" role="status">
-      <strong>Ready for your first sync</strong>
-      <span>Run the Mac sync once to load your accounts, promos and receipt history.</span>
-    </div>
+    <div id="localNotice" class="sync-strip local-notice" role="status" hidden></div>
 
     <nav id="mainNav" class="bottom-nav" aria-label="Main navigation">
       <button class="nav-btn active" data-view="home" aria-current="page">
@@ -1939,25 +2024,32 @@
     <main>
       <section id="view-home" class="view active">
         <div class="home-intro">
-          <div class="eyebrow">Home</div>
-          <div class="home-intro-copy">Your live promos, usable accounts and receipt history are ready when you are.</div>
+          <div class="home-intro-main">
+            <div class="eyebrow">Overview</div>
+            <h1 class="home-title">Home</h1>
+            <div class="home-intro-copy">One view for your savings, active accounts, live promos and the best move for your next order.</div>
+          </div>
+          <div id="syncStrip" class="sync-strip home-sync" role="status">
+            <strong>Waiting for first update</strong>
+            <span>Your private tracker will populate automatically after its first successful sync.</span>
+          </div>
         </div>
 
         <div class="stats-row">
           <div class="stat-card">
-            <div class="stat-label">Estimated saved</div>
+            <div class="stat-label">Lifetime savings</div>
             <div id="savedStat" class="stat-value green">£0</div>
-            <div class="stat-sub">receipts + Uber One estimate</div>
+            <div class="stat-sub">from receipts + Uber One</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Can log in</div>
+            <div class="stat-label">Active accounts</div>
             <div id="usableStat" class="stat-value">0</div>
-            <div class="stat-sub">accounts</div>
+            <div class="stat-sub">ready for promos</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Live promos</div>
             <div id="activeStat" class="stat-value">0</div>
-            <div class="stat-sub">ready to use</div>
+            <div class="stat-sub">available right now</div>
           </div>
         </div>
 
@@ -2033,7 +2125,7 @@
         <div id="homeAccounts" class="account-list"></div>
 
         <details id="weakWrap" class="weak-wrap">
-          <summary id="weakSummary">Weaker usable accounts</summary>
+          <summary id="weakSummary">Other active accounts</summary>
           <div id="weakAccounts" class="weak-inner account-list"></div>
         </details>
         </div>
@@ -2042,9 +2134,9 @@
 
       <section id="view-accounts" class="view">
         <div class="screen-head">
-          <div class="eyebrow">Your logins</div>
-          <h1 class="screen-title">Usable accounts.</h1>
-          <div class="screen-copy">Search by the masked email you recognise. Accounts marked done stay out of this active list.</div>
+          <div class="eyebrow">Your accounts</div>
+          <h1 class="screen-title">Active accounts.</h1>
+          <div class="screen-copy">Your current accounts and their offers. Archived accounts stay out of recommendations while their receipt and savings history is preserved.</div>
         </div>
 
         <div class="search-wrap">
@@ -2052,7 +2144,7 @@
         </div>
 
         <div id="accountFilters" class="filter-row">
-          <button class="filter-btn active" data-account-filter="all">All usable</button>
+          <button class="filter-btn active" data-account-filter="all">All active</button>
           <button class="filter-btn" data-account-filter="offers">Has promos</button>
           <button class="filter-btn" data-account-filter="cash">Uber Cash</button>
           <button class="filter-btn" data-account-filter="multi">Multi-use</button>
@@ -2118,8 +2210,8 @@
         <div class="more-grid">
           <button class="more-card" data-open-sheet="locked">
             <div class="more-icon">×</div>
-            <div class="more-title">Can’t log in</div>
-            <div id="lockedCardCopy" class="more-copy">0 accounts hidden from recommendations.</div>
+            <div class="more-title">Archived</div>
+            <div id="lockedCardCopy" class="more-copy">0 archived accounts kept for receipt and savings history.</div>
           </button>
           <button class="more-card" data-open-sheet="savings">
             <div class="more-icon">£</div>
@@ -2141,7 +2233,7 @@
     </main>
 
     <div class="privacy">
-      Full emails, raw Mail content, receipt details and promo codes stay private on your Mac.
+      Full emails, raw Mail content, receipt details and promo codes remain private and never appear in the public tracker.
       The website receives masked account identities and safe derived totals only.
     </div>
   </div>
@@ -2535,9 +2627,9 @@
 
       if (waitingForFirstSync) {
         pill.classList.add("setup");
-        syncStrip.innerHTML = "<strong>Ready for your first sync</strong><span>Run the Mac sync once to load your accounts, promos and receipt history.</span>";
+        syncStrip.innerHTML = "<strong>Waiting for first update</strong><span>Your private tracker will populate automatically after its first successful sync.</span>";
         label.textContent = "READY";
-        time.textContent = "Waiting for first sync";
+        time.textContent = "Waiting for first update";
         syncStrip.style.display = "flex";
         return;
       }
@@ -2585,7 +2677,7 @@
       if (!accounts.some(account => account.canLogin && isAccountActive(account.accountRef))) {
         target.innerHTML =
           accounts.length === 0
-            ? '<div class="empty">Your account data hasn’t synced yet. Run the Mac sync to start recommendations.</div>'
+            ? '<div class="empty">Recommendations will appear after your first successful data sync.</div>'
             : '<div class="empty">No usable accounts are active right now.</div>';
         return;
       }
@@ -2939,7 +3031,7 @@
       const locked = accounts.filter(account => !account.canLogin).length;
       document.getElementById("lockedCardCopy").textContent =
         locked.toLocaleString("en-GB") +
-        (locked === 1 ? " account hidden from recommendations." : " accounts hidden from recommendations.");
+        (locked === 1 ? " archived account kept for history." : " archived accounts kept for history.");
     }
 
     function offerSheetCard(promo) {
@@ -3051,7 +3143,7 @@
             '</div>' +
             '<div class="account-status-badge ' + (account.canLogin ? 'ok' : 'no') + '">' +
               '<span class="status-dot"></span>' +
-              (account.canLogin ? 'Can log in' : 'Can’t log in') +
+              (account.canLogin ? 'Active' : 'Archived') +
             '</div>' +
           '</div>' +
           '<div class="account-sheet-summary">' +
@@ -3131,7 +3223,7 @@
         .filter(account => !account.canLogin)
         .sort((a, b) => String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || "")));
 
-      setSheetHeading("Can’t log in", locked.length + " accounts are hidden from recommendations.");
+      setSheetHeading("Archived accounts", locked.length + " accounts are excluded from recommendations but kept for receipt and savings history.");
 
       document.getElementById("sheetBody").innerHTML =
         '<div class="sheet-section"><input id="sheetLockedSearch" class="sheet-input" type="search" placeholder="Search masked email…"></div>' +
@@ -3226,7 +3318,7 @@
                 '<div class="sheet-row-value">~' + escapeHtml(money(account.estimatedTotalSaved ?? account.totalSaved ?? 0)) + '</div></div>'
               )).join("") +
               '</div>'
-            : '<div class="empty">Your savings history will appear after receipts sync.</div>') +
+            : '<div class="empty">Savings will appear as receipt history is processed.</div>') +
         '</div>';
     }
 
@@ -3239,25 +3331,25 @@
       document.getElementById("sheetBody").innerHTML =
         '<div class="sheet-section"><div class="insight-grid">' +
           '<div class="insight"><div class="insight-label">Known accounts</div><div class="insight-value">' + Number(summary.knownAccounts || accounts.length).toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Usable accounts</div><div class="insight-value">' + Number(summary.accessibleAccounts || accounts.filter(a => a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Can’t log in</div><div class="insight-value">' + Number(summary.inaccessibleAccounts || accounts.filter(a => !a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Active accounts</div><div class="insight-value">' + Number(summary.accessibleAccounts || accounts.filter(a => a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Archived</div><div class="insight-value">' + Number(summary.inaccessibleAccounts || accounts.filter(a => !a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
           '<div class="insight"><div class="insight-label">Tracked receipts</div><div class="insight-value">' + Number(summary.trackedOrders || 0).toLocaleString("en-GB") + '</div></div>' +
         '</div></div>' +
         '<div class="sheet-section"><div class="sheet-list">' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Last sync</div><div class="sheet-row-meta">Last safe update published from your Mac</div></div>' +
+          '<div class="sheet-row"><div><div class="sheet-row-title">Last sync</div><div class="sheet-row-meta">Last successful private-data update</div></div>' +
           '<div class="sheet-row-value">' +
             (generated && !Number.isNaN(generated.getTime())
               ? escapeHtml(generated.toLocaleString("en-GB", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }))
               : "Not synced yet") +
           '</div></div>' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Private source</div><div class="sheet-row-meta">Full accounts, receipts, Mail evidence and durable usage</div></div><div class="sheet-row-value">On your Mac</div></div>' +
+          '<div class="sheet-row"><div><div class="sheet-row-title">Private source</div><div class="sheet-row-meta">Full accounts, receipts, Mail evidence and usage history</div></div><div class="sheet-row-value">Private</div></div>' +
           '<div class="sheet-row"><div><div class="sheet-row-title">Phone & web data</div><div class="sheet-row-meta">Masked accounts, promo details and savings totals</div></div><div class="sheet-row-value">Safe sync</div></div>' +
           '<div class="sheet-row"><div><div class="sheet-row-title">Changes on this device</div><div class="sheet-row-meta">Used, ignore, done and split settings update immediately</div></div><div class="sheet-row-value">Saved locally</div></div>' +
         '</div></div>' +
         '<div class="sheet-section">' +
           '<div class="settings-explainer">' +
             '<strong>How syncing works</strong>' +
-            '<span>Your Mac reads Apple Mail privately and publishes only masked account and savings data to this app. Receipt syncs confirm durable promo usage, while changes you make here stay on this device until receipt evidence catches up.</span>' +
+            '<span>Receipt processing keeps full account and Mail data private, updates savings and usage history, and publishes only the masked data this app needs. New receipt evidence automatically keeps account status and offer usage up to date.</span>' +
           '</div>' +
         '</div>';
     }
@@ -3430,7 +3522,7 @@
         document.getElementById("syncStrip").innerHTML =
           '<span>Data could not be loaded. Check your connection.</span><button class="ghost-btn" data-retry-load="true">Try again</button>';
         if (!promos.length) {
-          document.getElementById("recommendation").innerHTML = '<div class="empty">Connect to load your offers.</div>';
+          document.getElementById("recommendation").innerHTML = '<div class="empty">Offers will appear after the next successful data sync.</div>';
           document.getElementById("homeAccounts").innerHTML = '<div class="empty">Your accounts will appear once data loads.</div>';
         }
       } finally { loadInProgress = false; }

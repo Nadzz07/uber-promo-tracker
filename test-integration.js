@@ -85,6 +85,7 @@ function generate() {
 }
 
 try {
+  let accountARef = null;
   let publicPayload = generate();
 
   assert.equal(publicPayload.schemaVersion, 3);
@@ -93,7 +94,7 @@ try {
   assert.equal(publicPayload.summary.totalSaved, 15);
   assert.equal(publicPayload.summary.estimatedTotalSaved, 15);
   assert.equal(publicPayload.accounts.length, 2);
-  assert.equal(publicPayload.accounts.every(account => account.canLogin === false), true);
+  assert.equal(publicPayload.accounts.every(account => account.canLogin === true), true);
 
   const serialized = JSON.stringify(publicPayload);
   assert.equal(serialized.includes("account-a@icloud.com"), false);
@@ -105,6 +106,7 @@ try {
   try {
     const account = getAccounts(db).find(row => row.alias === "account-a@icloud.com");
     assert.ok(account);
+    accountARef = account.accountRef;
     assert.equal(getTransportReceipts(db).length, 1, "ride receipt should be stored separately");
     assert.equal(setAccountAccess(db, "account-a@icloud.com", true), true);
   } finally {
@@ -113,8 +115,9 @@ try {
 
   publicPayload = generate();
 
-  const accountA = publicPayload.accounts.find(account => account.canLogin === true);
-  assert.ok(accountA, "access import state should survive subsequent Mail scans");
+  const accountA = publicPayload.accounts.find(account => account.accountRef === accountARef);
+  assert.ok(accountA, "account A should survive subsequent Mail scans");
+  assert.equal(accountA.canLogin, true, "access import state should survive subsequent Mail scans");
 
   const usedPromo = publicPayload.promos.find(promo =>
     promo.accountRef === accountA.accountRef &&
