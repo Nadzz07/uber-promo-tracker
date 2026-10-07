@@ -59,6 +59,23 @@ assert.ok(
   "release page should include mobile web-app metadata"
 );
 
+const readme = fs.readFileSync("README.md", "utf8");
+for (const retired of ["Mark account done", "Accounts marked done", "Done accounts"]) {
+  assert.equal(readme.includes(retired), false, "release docs must not restore retired account-done language: " + retired);
+}
+assert.ok(
+  readme.includes("Archived / Can't log in") && readme.includes("Bin/Trash"),
+  "release docs should describe recoverable Archived-account Mail routing"
+);
+assert.ok(
+  fs.readFileSync("mac/common.sh", "utf8").includes("plan-inbox-routing.js"),
+  "release sync should plan Mail routing after private import"
+);
+assert.ok(
+  fs.readFileSync("mac/trash-archived-inbox.js", "utf8").includes("Mail.delete(message)"),
+  "release sync should route Archived-account Mail to Bin without an erase command"
+);
+
 console.log("✓ Release copy and public seed guard");
 
 const legacyConfig = fs.readFileSync("_config.yml", "utf8");

@@ -1,4 +1,4 @@
-# Engineering audit — 6 October 2026
+# Engineering audit — 7 October 2026
 
 The existing Home / Accounts / Used / More interface, private Mac SQLite source of truth, sanitised GitHub Pages snapshot and access-gated ordering flow are retained. This release does not seed accounts, receipts, savings or offers in public data.
 
@@ -24,6 +24,9 @@ The existing Home / Accounts / Used / More interface, private Mac SQLite source 
 | UI | History fetch failure blocked the dashboard; learned fees became zero after reload; dialog focus escaped | Independent fetch handling, retry action, preserve automatic fee setting, keyboard focus containment and restoration |
 | Planner | An allocation grid could miss an otherwise eligible single order with a penny minimum | Always evaluate the exact single-order basket; bound very large workloads |
 | Release | Pages uploaded the entire checkout and ran independently of tests | Allowlisted site artifact and deployment dependent on tests, privacy checks and build |
+| Account lifecycle | Retired manual account-done state still existed beneath the UI | Remove account-done browser state entirely; Available/Archived now follows private access state only |
+| Mail lifecycle | Processed receipts were filed, but Archived-account Uber mail could remain in Inbox | Plan routing after private import: Available receipts → Uber Receipts; Archived Uber mail → recoverable Bin/Trash; never empty Bin |
+| Release docs | README still described old Done-account and Estimated-saved behavior | Align documentation and release guards with Lifetime savings, Accounts available, Archived and Fully used semantics |
 
 ## Validation
 
@@ -40,7 +43,7 @@ A live Apple Mail scan and LaunchAgent run must still be checked on the user's M
 
 Receipt email time is an order-time proxy. No order ID means deduplication relies on the available timestamp and amounts. Sender/display-name classification is a parsing hint, not an authentication check. Ambiguous matches and unknown expiry stay out of recommendations.
 
-Manual changes remain local to a browser and reconciliation is count-based. Splits use a bounded allocation grid and candidate set; restaurant, item and location restrictions still need checking when ordering. See README for those bounds and for recovery steps.
+Manual **offer** changes remain local to a browser and reconciliation is count-based. Manual whole-account Done state has been retired; account availability comes from the private access list. Splits use a bounded allocation grid and candidate set; restaurant, item and location restrictions still need checking when ordering. See README for those bounds and for recovery steps.
 
 ## Platform references
 

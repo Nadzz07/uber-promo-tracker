@@ -2907,12 +2907,6 @@
       );
     }
 
-    function isAccountActive() {
-      // Account-level "done" was retired. Availability now follows access state;
-      // promo completion is tracked at the offer/receipt level.
-      return true;
-    }
-
     function decisionPromos() {
       return promos
         .filter(promo =>
@@ -2925,13 +2919,12 @@
           const decision = effectivePromo(promo);
           return {
             ...decision,
-            canLogin: Boolean(promo.canLogin) && isAccountActive(promo.accountRef)
+            canLogin: Boolean(promo.canLogin)
           };
         });
     }
 
     function activePromosForAccount(accountRef) {
-      if (!isAccountActive(accountRef)) return [];
       return promos
         .filter(promo => promo.accountRef === accountRef)
         .filter(isPromoActive)
@@ -2964,10 +2957,9 @@
       );
     }
 
-    function enrichedUsableAccounts({ includeDone = false } = {}) {
+    function enrichedAvailableAccounts() {
       return accounts
         .filter(account => account.canLogin === true)
-        .filter(account => includeDone || isAccountActive(account.accountRef))
         .map(account => {
           const current = activePromosForAccount(account.accountRef);
           return {
@@ -2983,7 +2975,7 @@
     }
 
     function homeAccountsByIntent() {
-      let list = enrichedUsableAccounts().filter(account => account.promoCount > 0);
+      let list = enrichedAvailableAccounts().filter(account => account.promoCount > 0);
 
       if (currentIntent === "15off15") {
         list = list.filter(account => account.has15off15);
@@ -3107,7 +3099,7 @@
     function renderStats() {
       const summary = payload.summary || {};
       const totalAccounts = Number(summary.knownAccounts ?? accounts.length);
-      const availableAccounts = Number(summary.accessibleAccounts ?? accounts.filter(account => account.canLogin && isAccountActive(account.accountRef)).length);
+      const availableAccounts = Number(summary.accessibleAccounts ?? accounts.filter(account => account.canLogin).length);
 
       setAnimatedText("savedStat", money(summary.estimatedTotalSaved ?? summary.totalSaved ?? 0));
       setAnimatedText("usableStat", totalAccounts.toLocaleString("en-GB"));
@@ -3137,7 +3129,7 @@
     function renderRecommendation() {
       const target = document.getElementById("recommendation");
 
-      if (!accounts.some(account => account.canLogin && isAccountActive(account.accountRef))) {
+      if (!accounts.some(account => account.canLogin)) {
         target.innerHTML =
           accounts.length === 0
             ? '<div class="empty">Recommendations will appear after your first successful data sync.</div>'
@@ -3266,7 +3258,7 @@
     }
 
     function renderQuickCounts() {
-      const list = enrichedUsableAccounts().filter(account => account.promoCount > 0);
+      const list = enrichedAvailableAccounts().filter(account => account.promoCount > 0);
 
       setAnimatedText("bestCount", list.length);
       setAnimatedText("fifteenCount", list.filter(account => account.has15off15).length);
@@ -3309,7 +3301,7 @@
 
     function renderAccounts() {
       const search = String(document.getElementById("accountSearch").value || "").trim().toLowerCase();
-      let list = enrichedUsableAccounts();
+      let list = enrichedAvailableAccounts();
 
       if (accountFilter === "offers") list = list.filter(account => account.promoCount > 0);
       if (accountFilter === "cash") list = list.filter(account => account.hasCash);

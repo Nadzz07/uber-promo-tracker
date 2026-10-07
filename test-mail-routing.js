@@ -3,10 +3,13 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { openPrivateDb, setAccountAccess } from "./private-db.js";
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "uber-mail-routing-"));
 const input = path.join(dir, "emails.json");
 const output = path.join(dir, "moves.json");
+const trashOutput = path.join(dir, "trash.json");
+const dbPath = path.join(dir, "routing.db");
 
 const messages = [
   {
@@ -38,6 +41,28 @@ const messages = [
   },
   {
     sender: "Uber Eats <receipts@uber.com>",
+    recipient: "account-c@icloud.com",
+    subject: "Your receipt from Archived Kitchen",
+    body: "Subtotal £20.00\nPromotion -£5.00\nTotal £15.00",
+    sentAt: "2026-10-05T16:00:00Z",
+    receivedAt: "2026-10-05T16:00:10Z",
+    messageId: "<archived-receipt@uber.com>",
+    mailbox: "promo",
+    sourceMailbox: "INBOX"
+  },
+  {
+    sender: "Uber Eats <offers@uber.com>",
+    recipient: "account-c@icloud.com",
+    subject: "£10 off your next order",
+    body: "Get £10 off your next order. Minimum spend £15.",
+    sentAt: "2026-10-05T15:00:00Z",
+    receivedAt: "2026-10-05T15:00:10Z",
+    messageId: "<archived-promo@uber.com>",
+    mailbox: "promo",
+    sourceMailbox: "INBOX"
+  },
+  {
+    sender: "Uber Eats <receipts@uber.com>",
     recipient: "account-b@icloud.com",
     subject: "Your receipt from Another Kitchen",
     body: "Subtotal £20.00\nTotal £20.00",
@@ -51,6 +76,14 @@ const messages = [
 
 fs.writeFileSync(input, JSON.stringify({ messages }, null, 2));
 
+const db = openPrivateDb(dbPath);
+try {
+  setAccountAccess(db, "account-a@icloud.com", true, "iCloud");
+  setAccountAccess(db, "account-c@icloud.com", false, "iCloud");
+} finally {
+  db.close();
+}
+
 try {
   execFileSync(process.execPath, [
     "mac/find-inbox-receipts.js",
@@ -63,11 +96,28 @@ try {
 
   const result = JSON.parse(fs.readFileSync(output, "utf8"));
 
-  assert.equal(result.count, 1);
-  assert.deepEqual(result.messageIds, ["<receipt-inbox@uber.com>"]);
+  assert.equal(result.count, 2);
+  assert.deepEqual(result.messageIds, ["<receipt-inbox@uber.com>", "<archived-receipt@uber.com>"]);
+
+  execFileSync(process.execPath, [
+    "mac/plan-inbox-routing.js",
+    input,
+    dbPath,
+    output,
+    trashOutput
+  ], {
+    cwd: process.cwd(),
+    stdio: "pipe"
+  });
+
+  const routedReceipts = JSON.parse(fs.readFileSync(output, "utf8"));
+  const routedTrash = JSON.parse(fs.readFileSync(trashOutput, "utf8"));
+  assert.deepEqual(routedReceipts.messageIds, ["<receipt-inbox@uber.com>"]);
+  assert.deepEqual(routedTrash.messageIds, ["<archived-receipt@uber.com>", "<archived-promo@uber.com>"]);
 
   const exporterSource = fs.readFileSync("mac/export-uber-mail.js", "utf8");
   const moverSource = fs.readFileSync("mac/move-inbox-receipts.js", "utf8");
+  const trashSource = fs.readFileSync("mac/trash-archived-inbox.js", "utf8");
   const commonSource = fs.readFileSync("mac/common.sh", "utf8");
   const exampleEnv = fs.readFileSync("tracker.example.env", "utf8");
 
@@ -93,13 +143,34 @@ try {
     "routine sync should safely file processed Inbox receipts by default"
   );
   assert.equal(
+    commonSource.includes('TRASH_ARCHIVED_MAIL="${APPLE_MAIL_TRASH_ARCHIVED:-true}"'),
+    true,
+    "routine sync should route archived-account Uber mail to Bin by default"
+  );
+  assert.equal(
     exampleEnv.includes("APPLE_MAIL_MOVE_INBOX_RECEIPTS=true"),
     true,
     "example configuration should match the runtime receipt-filing default"
   );
+  assert.equal(
+    exampleEnv.includes("APPLE_MAIL_TRASH_ARCHIVED=true"),
+    true,
+    "example configuration should expose Archived-account Bin routing"
+  );
+  assert.equal(
+    trashSource.includes("Mail.delete(message)"),
+    true,
+    "archived mail should use Mail's recoverable delete-to-Bin action"
+  );
+  assert.equal(
+    /Mail\.erase|expunge|Erase Deleted Items/i.test(trashSource),
+    false,
+    "archived routing must never permanently erase Bin contents"
+  );
 
-  console.log("✓ Inbox receipt routing only selects parsed receipts");
-  console.log("✓ Mail exporter and receipt mover avoid timeout-prone whose queries");
+  console.log("✓ Inbox routing separates available receipts from archived-account mail");
+  console.log("✓ Archived-account receipts are planned for Bin only after private import");
+  console.log("✓ Mail exporter and routing avoid timeout-prone whose queries");
 } finally {
   fs.rmSync(dir, { recursive: true, force: true });
 }

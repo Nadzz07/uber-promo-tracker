@@ -78,7 +78,7 @@ Login state is separate from **login method**. Login method is one of:
 - **Google** — sign in through Google, even when the account email itself is an iCloud address
 - **Both** — either route works
 
-Newly discovered accounts default to **Can't log in** with no login method until the private access list confirms it. This is deliberate: the basket optimiser must never recommend an account that has not been confirmed usable.
+Accounts discovered intentionally by the private tracker default to **Can log in** unless they are explicitly marked Archived/Can't log in. In normal production use, `account-access.local.csv` is the authoritative account universe: accounts outside it are skipped, and the imported access state decides whether each known account is available or Archived.
 
 The public UI shows the masked email plus the safe login method so the account chooser tells you how to sign in. Internal refs such as `A001` are join keys and are not the normal user-facing identity.
 
@@ -215,7 +215,7 @@ Needs-checking offers are kept visible for review but excluded from recommendati
 
 Chronology is enforced: a receipt from before a promo email cannot consume that later promo.
 
-The Home headline is **Estimated saved**. The tracker keeps a separate confirmed receipt total and only adds a conservative missing-Uber-One estimate when there is enough evidence.
+The Home headline is **Lifetime savings**. Confirmed receipt savings remain the durable base; a conservative missing-Uber-One estimate is kept visibly separate so estimated money is never styled as confirmed savings.
 
 Confirmed receipt saving uses the larger of (a) explicit saving components such as Promotion, Uber Cash and an explicit Uber One saving, or (b) Uber's own “You saved £X”/total-savings line. This prevents double-counting when the receipt prints both a total and its components.
 
@@ -250,8 +250,8 @@ Main navigation:
 
 - **Home** — basket optimiser, quick categories and best usable accounts
 - **Accounts** — searchable accounts you can actually log into
-- **Used** — partial usage, fully used offers, done accounts, expired offers and ignored offers
-- **More** — inaccessible accounts, savings insights, scan/data health and history
+- **Used** — needs-checking matches, partial usage, fully used offers, expired offers and ignored offers
+- **More** — Archived accounts, savings insights, scan/data health and history
 
 Inaccessible accounts are deliberately hidden from the normal ordering flow.
 
@@ -283,7 +283,7 @@ Offer controls live inside the account's **View offers** bottom sheet rather tha
 
 A partially used multi-use offer remains active and eligible for recommendations until its effective remaining uses reach zero or the offer expires.
 
-**Mark account done** is separate from individual offer usage. It removes that account from active account lists and optimiser recommendations on that browser without deleting its history. The Used screen allows the account to be restored.
+Account availability is not a manual "done" state. **Available** versus **Archived** comes from the private access list, while **Fully used** applies to individual promotions. This avoids a second overlapping account-completion concept.
 
 Receipt reconciliation is count-based; it cannot prove which unlinked manual tap corresponds to a receipt. Receipt-confirmed state remains the durable private truth in SQLite; browser manual state is an immediate convenience layer that reconciles as receipt evidence catches up.
 
@@ -327,6 +327,18 @@ Messages found in more than one configured folder are deduplicated before import
 The normal updater deliberately keeps receipt scanning recent. Apple Mail's `whose` queries can time out on large mailboxes, so the exporter bulk-reads lightweight mailbox metadata, filters the requested date window locally, and opens full message content only for matching Uber messages. It never falls back to the old per-message full-mailbox crawl.
 
 Historical receipts are imported separately in bounded chunks and accumulated in the private SQLite database.
+
+### Inbox filing and Archived accounts
+
+Routine sync routing happens **after** the private import and public-snapshot validation. This ordering protects receipt history and savings even if Apple Mail filing fails.
+
+- receipts for **Available** accounts move from Inbox to `Uber Receipts`
+- Uber mail for **Archived / Can't log in** accounts moves from Inbox to the account's configured Bin/Trash
+- Archived receipts are imported first, so their historical orders and savings remain in the tracker
+- the tracker never empties Bin/Trash and never performs a targeted permanent erase
+- messages without a stable Message-ID, or messages that fail Mail automation, are left in Inbox for a safe retry
+
+Before enabling Archived-account Bin routing, confirm Mail > Settings > Accounts > Mailbox Behaviours has a Bin/Trash mailbox configured for each relevant mail account. Apple Mail controls how long deleted messages remain recoverable.
 
 If your Mail folder has a different name:
 

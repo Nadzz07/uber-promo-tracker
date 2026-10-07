@@ -5,12 +5,10 @@ import {
   effectivePromoState,
   effectiveRemainingUses,
   getOfferManualState,
-  isAccountDone,
   manualActivity,
   normaliseManualStore,
   pendingManualUses,
   promoForDecision,
-  setAccountDone,
   setOfferDone,
   setOfferIgnored,
   undoManualUse
@@ -148,22 +146,18 @@ test("mark fully used can be restored", () => {
   assert.equal(effectiveRemainingUses(store, offer), 5);
 });
 
-test("mark account done is separate from offer usage", () => {
-  let store = setAccountDone(normaliseManualStore(), "A001", true);
-
-  assert.equal(isAccountDone(store, "A001"), true);
-  assert.equal(getOfferManualState(store, promo()).forceDone, false);
-
-  store = setAccountDone(store, "A001", false);
-  assert.equal(isAccountDone(store, "A001"), false);
-});
-
-test("done account is ineligible in the decision clone", () => {
+test("legacy account-done flags are ignored after retirement", () => {
   const offer = promo({ canLogin: true });
-  const store = setAccountDone(normaliseManualStore(), "A001", true);
+  const store = normaliseManualStore({
+    version: 2,
+    accounts: { A001: { done: true } },
+    offers: {}
+  });
   const decision = promoForDecision(store, offer);
 
-  assert.equal(decision.canLogin, false);
+  assert.equal(store.version, 3);
+  assert.equal("accounts" in store, false);
+  assert.equal(decision.canLogin, true);
 });
 
 test("decision clone uses effective remaining count", () => {
