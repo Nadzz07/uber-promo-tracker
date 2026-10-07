@@ -39,8 +39,9 @@ try {
   await page.route('**/history.json?*', route => failHistory ? route.abort() : route.fulfill({ json: { updatedAt: time, records: [] } }));
   await page.evaluate(() => localStorage.setItem('uber-eats-promo-tracker:planner-settings:v1', JSON.stringify({ maxOrders: 3, extraOrderFee: null, feeTouched: false })));
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  assert.equal(await page.locator('#basketInput').inputValue(), '15.00', 'Default basket subtotal should be £15');
   const recommendation = await page.locator('#recommendation').innerText();
-  assert.match(recommendation, /Save £17/); // Two valid £10 offers minus £3 learned extra fee.
+  assert.match(recommendation, /Save £10/); // At £15, one £10-off offer is the optimal single-order result.
   for (const hidden of ['lo…ed', 're…ew', 'ex…ed']) assert.equal(recommendation.includes(hidden), false);
   await page.locator('[data-account-offers="A001"]').first().click();
   assert.equal(await page.evaluate(() => document.activeElement.id), 'sheetClose');
@@ -64,7 +65,7 @@ try {
   assert.match(await page.locator('#needsCheckingList').innerText(), /re…ew/);
   failHistory = true;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
-  assert.match(await page.locator('#recommendation').innerText(), /Save £17/);
+  assert.match(await page.locator('#recommendation').innerText(), /Save £10/);
   failPromos = true;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'OFFLINE');
   assert.equal(await page.locator('[data-retry-load]').isVisible(), true);
