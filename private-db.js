@@ -36,7 +36,7 @@ function initSchema(db) {
       account_ref TEXT PRIMARY KEY,
       alias TEXT NOT NULL UNIQUE,
       masked TEXT,
-      can_login INTEGER NOT NULL DEFAULT 0 CHECK (can_login IN (0,1)),
+      can_login INTEGER NOT NULL DEFAULT 1 CHECK (can_login IN (0,1)),
       login_method TEXT CHECK (login_method IN ('iCloud','Google','Both') OR login_method IS NULL),
       first_seen_at TEXT NOT NULL,
       last_seen_at TEXT NOT NULL,
@@ -224,7 +224,7 @@ export function ensureAccount(
       INSERT INTO accounts(
         account_ref, alias, masked, can_login,
         first_seen_at, last_seen_at, last_promo_at, last_receipt_at
-      ) VALUES(?, ?, ?, 0, ?, ?, ?, ?)
+      ) VALUES(?, ?, ?, 1, ?, ?, ?, ?)
     `).run(
       ref,
       normalized,
