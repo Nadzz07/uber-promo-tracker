@@ -2015,6 +2015,34 @@
     .home-overview .stat-card:first-child {
       background: linear-gradient(145deg, rgba(155,234,114,.10), rgba(8,15,12,.25));
     }
+    .home-overview .available-stat-card {
+      border-color: rgba(155,234,114,.22);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(155,234,114,.12), transparent 70%),
+        linear-gradient(145deg, rgba(155,234,114,.075), rgba(8,15,12,.25));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 12px 34px rgba(67,126,82,.08);
+    }
+    .home-overview .available-stat-card .stat-value {
+      color: var(--green-strong);
+      text-shadow: 0 0 24px rgba(155,234,114,.12);
+    }
+    .home-overview .available-stat-card.watch {
+      border-color: rgba(241,198,109,.28);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(241,198,109,.12), transparent 70%),
+        linear-gradient(145deg, rgba(241,198,109,.07), rgba(8,15,12,.25));
+    }
+    .home-overview .available-stat-card.watch .stat-value { color: #f1c66d; }
+    .home-overview .available-stat-card.empty-state {
+      border-color: rgba(255,126,126,.32);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(255,126,126,.13), transparent 70%),
+        linear-gradient(145deg, rgba(255,126,126,.07), rgba(8,15,12,.25));
+    }
+    .home-overview .available-stat-card.empty-state .stat-value { color: #ff9b9b; }
+    .insight-value.estimated-value {
+      color: var(--muted);
+    }
     .basket-editor {
       border-color: rgba(255,255,255,.13) !important;
       background:
@@ -2447,10 +2475,10 @@
               <div id="usableStat" class="stat-value">0</div>
               <div class="stat-sub">tracked in one place</div>
             </div>
-            <div class="stat-card">
+            <div id="availableStatCard" class="stat-card available-stat-card">
               <div class="stat-label accounts-available-label">Accounts available</div>
-              <div id="activeStat" class="stat-value">0</div>
-              <div class="stat-sub">ready to use</div>
+              <div id="activeStat" class="stat-value available">0</div>
+              <div id="availableStatSub" class="stat-sub">ready to use</div>
             </div>
           </div>
         </section>
@@ -3085,6 +3113,20 @@
       setAnimatedText("usableStat", totalAccounts.toLocaleString("en-GB"));
       setAnimatedText("activeStat", availableAccounts.toLocaleString("en-GB"));
 
+      const availableCard = document.getElementById("availableStatCard");
+      const availableSub = document.getElementById("availableStatSub");
+      const lowAvailability = totalAccounts > 0 && availableAccounts > 0 && (availableAccounts / totalAccounts) <= 0.1;
+      availableCard?.classList.toggle("watch", lowAvailability);
+      availableCard?.classList.toggle("empty-state", availableAccounts === 0);
+      if (availableSub) {
+        availableSub.textContent =
+          availableAccounts === 0
+            ? "none available"
+            : lowAvailability
+              ? "running low"
+              : "ready to use";
+      }
+
       const fee = effectiveFee();
       document.getElementById("feeNote").textContent =
         fee > 0
@@ -3693,7 +3735,7 @@
         '</div>' +
         '<div class="sheet-section"><div class="insight-grid">' +
           '<div class="insight"><div class="insight-label">Confirmed receipts</div><div class="insight-value">' + escapeHtml(money(confirmedTotal)) + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Estimated missing Uber One</div><div class="insight-value" style="color:var(--green)">' + escapeHtml(money(estimatedUberOne)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Estimated missing Uber One</div><div class="insight-value estimated-value">' + escapeHtml(money(estimatedUberOne)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Promo discounts</div><div class="insight-value">' + escapeHtml(money(summary.promoSavings || 0)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Uber Cash used</div><div class="insight-value">' + escapeHtml(money(summary.uberCashUsed || 0)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Explicit Uber One</div><div class="insight-value">' + escapeHtml(money(confirmedUberOne)) + '</div></div>' +
