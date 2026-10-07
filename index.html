@@ -2568,7 +2568,6 @@
           <div class="activity-card"><span>Recent uses</span><strong id="recentUseCount">0</strong></div>
           <div class="activity-card"><span>Fully used</span><strong id="fullyUsedCount">0</strong></div>
           <div class="activity-card"><span>Needs check</span><strong id="needsCheckCount">0</strong></div>
-          <div class="activity-card"><span>Done accounts</span><strong id="doneAccountCount">0</strong></div>
         </div>
 
         <div id="needsCheckingSection" class="activity-section">
@@ -2584,11 +2583,6 @@
         <div id="fullyUsedSection" class="activity-section">
           <div class="activity-title">Fully used</div>
           <div id="fullyUsedList" class="activity-list"></div>
-        </div>
-
-        <div id="doneAccountsSection" class="activity-section">
-          <div class="activity-title">Accounts marked done</div>
-          <div id="doneAccountsList" class="activity-list"></div>
         </div>
 
         <div id="expiredSection" class="activity-section">
@@ -2666,14 +2660,12 @@
       consumeManualUse,
       effectivePromoState,
       effectiveRemainingUses,
-      isAccountDone,
-      manualActivity,
+       manualActivity,
       normaliseManualStore,
       pendingManualUses,
       promoForDecision,
       promoStateKey,
-      setAccountDone,
-      setOfferDone,
+       setOfferDone,
       setOfferIgnored,
       undoManualUse
     } from "./manual-state.js";
@@ -2887,8 +2879,10 @@
       );
     }
 
-    function isAccountActive(accountRef) {
-      return !isAccountDone(manualStore, accountRef);
+    function isAccountActive() {
+      // Account-level "done" was retired. Availability now follows access state;
+      // promo completion is tracked at the offer/receipt level.
+      return true;
     }
 
     function decisionPromos() {
@@ -3224,7 +3218,6 @@
           '<div class="pill-row">' + pills.join("") + '</div>' +
           '<div class="account-actions">' +
             '<button class="ghost-btn" data-account-offers="' + escapeHtml(account.accountRef) + '">View offers</button>' +
-            '<button class="ghost-btn done-btn" data-account-done="' + escapeHtml(account.accountRef) + '">Done</button>' +
           '</div>' +
         '</article>'
       );
@@ -3363,14 +3356,9 @@
         }
       }
 
-      const doneAccounts = accounts.filter(account =>
-        isAccountDone(manualStore, account.accountRef)
-      );
-
       document.getElementById("recentUseCount").textContent = recent.length;
       document.getElementById("fullyUsedCount").textContent = fullyUsed.length;
       document.getElementById("needsCheckCount").textContent = needsChecking.length;
-      document.getElementById("doneAccountCount").textContent = doneAccounts.length;
 
       document.getElementById("needsCheckingList").innerHTML =
         needsChecking.length
@@ -3427,17 +3415,6 @@
               );
             }).join("")
           : '<div class="empty">No fully used offers yet.</div>';
-
-      document.getElementById("doneAccountsList").innerHTML =
-        doneAccounts.length
-          ? doneAccounts.map(account => (
-              '<div class="activity-row">' +
-                '<div><div class="activity-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
-                '<div class="activity-meta">Account manually marked done</div></div>' +
-                '<button class="restore-btn" data-restore-account="' + escapeHtml(account.accountRef) + '">Restore</button>' +
-              '</div>'
-            )).join("")
-          : '<div class="empty">No accounts marked done.</div>';
 
       document.getElementById("expiredList").innerHTML =
         '<div class="empty">Expired offers are counted as Used.</div>';
@@ -3535,7 +3512,7 @@
       openSheetType = "account";
       openAccountRef = accountRef;
 
-      setSheetHeading("Account", "Choose an offer, log a use or mark this account done.");
+      setSheetHeading("Account", "Choose an offer or log a use.");
       renderAccountSheet();
       showSheet();
     }
@@ -3546,7 +3523,6 @@
       const account = accounts.find(item => item.accountRef === openAccountRef);
       if (!account) return;
 
-      const accountDone = isAccountDone(manualStore, openAccountRef);
       const items = allPromosForAccount(openAccountRef)
         .slice()
         .sort((a, b) => {
@@ -3579,12 +3555,7 @@
             '<div><span>History</span><strong>' + escapeHtml(receiptHistoryText(account)) + '</strong></div>' +
           '</div>' +
           '<div class="account-sheet-actions">' +
-            (accountDone
-              ? '<button class="account-primary" data-sheet-account-done="false">Restore account</button>'
-              : '<button class="account-primary" data-use-this-account="' + escapeHtml(account.accountRef) + '">Use this account</button>') +
-            (accountDone
-              ? ''
-              : '<button class="account-secondary" data-sheet-account-done="true">Mark account done</button>') +
+            '<button class="account-primary" data-use-this-account="' + escapeHtml(account.accountRef) + '">Use this account</button>' +
           '</div>' +
         '</div>' +
         '<div class="sheet-section offers-section">' +
@@ -4058,20 +4029,6 @@
         return;
       }
 
-      const doneButton = event.target.closest("[data-account-done]");
-      if (doneButton) {
-        manualStore = setAccountDone(manualStore, doneButton.dataset.accountDone, true);
-        refreshAfterStateChange();
-        return;
-      }
-
-      const restoreAccount = event.target.closest("[data-restore-account]");
-      if (restoreAccount) {
-        manualStore = setAccountDone(manualStore, restoreAccount.dataset.restoreAccount, false);
-        refreshAfterStateChange();
-        return;
-      }
-
       const restoreOffer = event.target.closest("[data-restore-offer]");
       if (restoreOffer) {
         const promo = promoByKey(restoreOffer.dataset.restoreOffer);
@@ -4182,17 +4139,6 @@
           );
           refreshAfterStateChange();
         }
-        return;
-      }
-
-      const sheetAccountDone = event.target.closest("[data-sheet-account-done]");
-      if (sheetAccountDone && openAccountRef) {
-        manualStore = setAccountDone(
-          manualStore,
-          openAccountRef,
-          sheetAccountDone.dataset.sheetAccountDone === "true"
-        );
-        refreshAfterStateChange();
         return;
       }
 
