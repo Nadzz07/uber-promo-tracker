@@ -2289,6 +2289,79 @@
       }
     }
 
+    /* Complete motion system: spring continuity for every meaningful interaction. */
+    :root {
+      --spring: cubic-bezier(.34, 1.56, .64, 1);
+      --smooth-spring: cubic-bezier(.22, 1, .36, 1);
+    }
+    .nav-glider {
+      transition-timing-function: var(--spring), var(--spring), var(--spring), ease;
+      transition-duration: 560ms, 560ms, 560ms, 180ms;
+    }
+    button, .quick-card, .account-card, .more-card, .filter-btn, .action-btn, .sheet-close {
+      -webkit-tap-highlight-color: transparent;
+      transform-origin: center;
+    }
+    button:active:not(:disabled),
+    .quick-card:active,
+    .account-card:active,
+    .more-card:active {
+      transform: scale(.955);
+      transition-duration: 90ms;
+    }
+    .quick-card.active, .filter-btn.active {
+      animation: liquidSelect 440ms var(--spring);
+    }
+    @keyframes liquidSelect {
+      0% { transform: scale(.96); }
+      62% { transform: scale(1.025); }
+      100% { transform: scale(1); }
+    }
+    .motion-refresh {
+      animation: liquidRefresh 460ms var(--smooth-spring) both;
+    }
+    @keyframes liquidRefresh {
+      from { opacity: .25; transform: translateY(9px) scale(.992); filter: blur(5px); }
+      to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+    .motion-value {
+      animation: valueSpring 480ms var(--spring);
+    }
+    @keyframes valueSpring {
+      0% { opacity: .45; transform: translateY(5px) scale(.94); }
+      65% { opacity: 1; transform: translateY(-1px) scale(1.055); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .scan-pill.live, .scan-pill.setup, .scan-pill.stale {
+      animation: statusArrive 520ms var(--spring);
+    }
+    @keyframes statusArrive {
+      0% { opacity: .45; transform: scale(.92); }
+      70% { opacity: 1; transform: scale(1.035); }
+      100% { transform: scale(1); }
+    }
+    .sheet-backdrop { transition: opacity 320ms ease, visibility 0s linear 560ms; }
+    .sheet-backdrop.open { transition-delay: 0s; }
+    .sheet-backdrop.open .sheet {
+      animation: liquidSheetOpen 620ms var(--smooth-spring) both;
+    }
+    @keyframes liquidSheetOpen {
+      0% { opacity: 0; transform: translateY(42px) scale(.955); filter: blur(7px); }
+      68% { opacity: 1; transform: translateY(-5px) scale(1.008); filter: blur(0); }
+      84% { transform: translateY(2px) scale(.998); }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+    .sheet-close {
+      transition: transform 420ms var(--spring), background-color 220ms ease, border-color 220ms ease;
+    }
+    .sheet-close:hover { transform: rotate(8deg) scale(1.04); }
+    .filter-row, .quick-grid, .account-list, .recommendation, .activity-list, .more-grid {
+      transform: translateZ(0);
+    }
+    .empty, .local-notice, .sync-strip {
+      transition: opacity 300ms ease, transform 420ms var(--smooth-spring);
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         scroll-behavior: auto !important;
@@ -2937,6 +3010,31 @@
       return Math.max(0, Number(plannerSettings.extraOrderFee || 0));
     }
 
+    function motionReduced() {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+
+    function replayMotion(element, className) {
+      if (!element || motionReduced()) return;
+      element.classList.remove(className);
+      void element.offsetWidth;
+      element.classList.add(className);
+      window.setTimeout(() => element.classList.remove(className), 700);
+    }
+
+    function animateRegion(id) {
+      replayMotion(document.getElementById(id), "motion-refresh");
+    }
+
+    function setAnimatedText(id, value) {
+      const element = document.getElementById(id);
+      if (!element) return;
+      const next = String(value);
+      const changed = element.textContent !== next;
+      element.textContent = next;
+      if (changed) replayMotion(element, "motion-value");
+    }
+
     function renderStatus() {
       const pill = document.getElementById("scanPill");
       const label = document.getElementById("scanLabel");
@@ -2989,9 +3087,9 @@
       const totalAccounts = Number(summary.knownAccounts ?? accounts.length);
       const availableAccounts = Number(summary.accessibleAccounts ?? accounts.filter(account => account.canLogin && isAccountActive(account.accountRef)).length);
 
-      document.getElementById("savedStat").textContent = money(summary.estimatedTotalSaved ?? summary.totalSaved ?? 0);
-      document.getElementById("usableStat").textContent = totalAccounts.toLocaleString("en-GB");
-      document.getElementById("activeStat").textContent = availableAccounts.toLocaleString("en-GB");
+      setAnimatedText("savedStat", money(summary.estimatedTotalSaved ?? summary.totalSaved ?? 0));
+      setAnimatedText("usableStat", totalAccounts.toLocaleString("en-GB"));
+      setAnimatedText("activeStat", availableAccounts.toLocaleString("en-GB"));
 
       const fee = effectiveFee();
       document.getElementById("feeNote").textContent =
@@ -3135,10 +3233,10 @@
     function renderQuickCounts() {
       const list = enrichedUsableAccounts().filter(account => account.promoCount > 0);
 
-      document.getElementById("bestCount").textContent = list.length;
-      document.getElementById("fifteenCount").textContent = list.filter(account => account.has15off15).length;
-      document.getElementById("cashCount").textContent = list.filter(account => account.hasCash).length;
-      document.getElementById("multiCount").textContent = list.filter(account => account.hasMultiUse).length;
+      setAnimatedText("bestCount", list.length);
+      setAnimatedText("fifteenCount", list.filter(account => account.has15off15).length);
+      setAnimatedText("cashCount", list.filter(account => account.hasCash).length);
+      setAnimatedText("multiCount", list.filter(account => account.hasMultiUse).length);
     }
 
     function renderHomeAccounts() {
@@ -3898,6 +3996,8 @@
       });
 
       renderHomeAccounts();
+      animateRegion("homeAccounts");
+      animateRegion("weakAccounts");
     });
 
     let basketTimer;
@@ -3905,6 +4005,9 @@
       clearTimeout(basketTimer);
       basketTimer = setTimeout(() => {
         renderRecommendation(); renderHomeAccounts(); renderAccounts();
+        animateRegion("recommendation");
+        animateRegion("homeAccounts");
+        animateRegion("accountsList");
       }, 120);
     });
 
@@ -3925,6 +4028,7 @@
       });
 
       renderAccounts();
+      animateRegion("accountsList");
     });
 
     document.getElementById("app").addEventListener("click", event => {
