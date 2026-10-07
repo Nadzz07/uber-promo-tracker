@@ -77,7 +77,7 @@ try {
       fits: el.scrollWidth <= el.clientWidth
     }));
     assert.equal(availableLabelFits.nowrap, true, `Accounts available should stay on one line at ${width}px`);
-    assert.equal(availableLabelFits.fits, true, `Accounts available should fit its card at ${width}px`);
+    assert.equal(availableLabelFits.fits, true, `Accounts available should fit its card at ${width}px (scroll ${availableLabelFits.scrollWidth}px / client ${availableLabelFits.clientWidth}px)`);
     if (process.env.TRACKER_SCREENSHOT_DIR && [390, 1440].includes(width)) await page.screenshot({ path: `${process.env.TRACKER_SCREENSHOT_DIR}/tracker-${width}.png`, fullPage: true });
   }
   await page.setViewportSize({ width: 1440, height: 900 });
