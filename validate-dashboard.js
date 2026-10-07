@@ -37,7 +37,9 @@ assert.ok(html.includes('id="sheetBackdrop"'));
 assert.ok(html.includes("Used 1 order"));
 assert.ok(html.includes("Undo manual use"));
 assert.ok(html.includes("Mark fully used"));
-assert.ok(html.includes("Mark account done"));
+assert.equal(html.includes("Mark account done"), false, "manual account-done control should stay retired");
+assert.equal(html.includes("Accounts marked done"), false, "Used view should not duplicate promo completion with account-done status");
+assert.equal(html.includes("Done accounts"), false, "Used summary should focus on promo activity");
 assert.ok(html.includes("Multi-use"));
 assert.ok(html.includes("Other available accounts"));
 assert.ok(html.includes("Lifetime savings"));
@@ -96,8 +98,6 @@ const actionWiring = [
   ['data-account-filter=', 'closest("[data-account-filter]")'],
   ['data-open-sheet=', 'closest("[data-open-sheet]")'],
   ['data-account-offers=', 'closest("[data-account-offers]")'],
-  ['data-account-done=', 'closest("[data-account-done]")'],
-  ['data-restore-account=', 'closest("[data-restore-account]")'],
   ['data-restore-offer=', 'closest("[data-restore-offer]")'],
   ['data-unignore-offer=', 'closest("[data-unignore-offer]")'],
   ['data-use-this-account=', 'closest("[data-use-this-account]")'],
@@ -106,7 +106,6 @@ const actionWiring = [
   ['data-undo-use=', 'closest("[data-undo-use]")'],
   ['data-toggle-ignore=', 'closest("[data-toggle-ignore]")'],
   ['data-mark-offer-done=', 'closest("[data-mark-offer-done]")'],
-  ['data-sheet-account-done=', 'closest("[data-sheet-account-done]")'],
   ['data-show-more-accounts=', 'closest("[data-show-more-accounts]")'],
   ['data-jump-accounts=', 'closest("[data-jump-accounts]")']
 ];
