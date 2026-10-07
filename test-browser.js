@@ -74,6 +74,28 @@ try {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Overflow at ${width}px`);
     if (process.env.TRACKER_SCREENSHOT_DIR && [390, 1440].includes(width)) await page.screenshot({ path: `${process.env.TRACKER_SCREENSHOT_DIR}/tracker-${width}.png`, fullPage: true });
   }
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.locator('[data-view="home"]').click();
+  const desktopLayout = await page.evaluate(() => {
+    const nav = document.getElementById('mainNav').getBoundingClientRect();
+    const main = document.querySelector('main').getBoundingClientRect();
+    const overview = document.querySelector('.home-overview').getBoundingClientRect();
+    const navStyle = getComputedStyle(document.getElementById('mainNav'));
+    return { navRight: nav.right, mainLeft: main.left, overviewWidth: overview.width, navDirection: navStyle.flexDirection };
+  });
+  assert.equal(desktopLayout.navDirection, 'column', 'Desktop navigation must be a vertical sidebar');
+  assert.ok(desktopLayout.navRight < desktopLayout.mainLeft, 'Desktop navigation must sit left of the main dashboard');
+  assert.ok(desktopLayout.overviewWidth > 700, 'Home command-centre panel must span the desktop content area');
+
+  await page.locator('#basketInput').focus();
+  const basketFocus = await page.evaluate(() => {
+    const editor = document.querySelector('.basket-editor');
+    const input = document.getElementById('basketInput');
+    return { borderColor: getComputedStyle(editor).borderColor, outline: getComputedStyle(input).outlineStyle };
+  });
+  assert.equal(basketFocus.outline, 'none', 'Basket input must not draw a rectangular focus outline');
+  assert.ok(!basketFocus.borderColor.includes('184, 255, 143'), 'Basket focus border must stay neutral instead of bright green');
+
   await page.locator('#basketInput').fill('1000000');
   await page.waitForFunction(() => document.getElementById('recommendation').textContent.includes('£1,000'));
   await page.setViewportSize({ width: 1280, height: 900 });
