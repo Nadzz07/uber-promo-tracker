@@ -93,7 +93,7 @@ try {
   assert.equal(publicPayload.summary.totalSaved, 15);
   assert.equal(publicPayload.summary.estimatedTotalSaved, 15);
   assert.equal(publicPayload.accounts.length, 2);
-  assert.equal(publicPayload.accounts.every(account => account.canLogin === false), true);
+  assert.equal(publicPayload.accounts.every(account => account.canLogin === true), true);
 
   const serialized = JSON.stringify(publicPayload);
   assert.equal(serialized.includes("account-a@icloud.com"), false);
