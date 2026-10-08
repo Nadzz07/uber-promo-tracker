@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "updatedAt": "2026-10-08T10:20:21.275Z",
+  "updatedAt": "2026-10-08T10:43:55.733Z",
   "records": [
     {
       "id": "off_5444862ada79e9a93476",
@@ -390,7 +390,7 @@
       "emailSentAt": "2026-10-07T12:08:43.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_9f0ac76bc145a16be92c",
@@ -1248,7 +1248,7 @@
       "emailSentAt": "2026-10-07T09:20:11.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_675414c59910a2148c08",
@@ -1404,7 +1404,7 @@
       "emailSentAt": "2026-10-07T09:19:20.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_14970f657c1547f18478",
@@ -1443,7 +1443,7 @@
       "emailSentAt": "2026-10-07T09:19:19.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_48f113e75fef0f4b2860",
@@ -1482,7 +1482,7 @@
       "emailSentAt": "2026-10-07T09:18:55.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_56812382e10ac26f1340",
@@ -1521,7 +1521,7 @@
       "emailSentAt": "2026-10-07T09:18:55.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_8b654270db6d89d00ac6",
@@ -1755,7 +1755,7 @@
       "emailSentAt": "2026-10-07T09:17:18.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_34a7ca7e789f6afff235",
@@ -1833,7 +1833,7 @@
       "emailSentAt": "2026-10-07T09:17:06.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_d08d1bd3bf0db6d0388f",
@@ -1950,7 +1950,7 @@
       "emailSentAt": "2026-10-07T09:16:24.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_8769bd1476e34d09fb2f",
@@ -2184,7 +2184,7 @@
       "emailSentAt": "2026-10-07T09:15:07.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_334acb356edaddd8e178",
@@ -2262,7 +2262,7 @@
       "emailSentAt": "2026-10-07T09:14:57.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_59ad203190553ac6b6ce",
@@ -2379,7 +2379,7 @@
       "emailSentAt": "2026-10-07T09:14:31.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_da83589debcf50039618",
@@ -2418,7 +2418,7 @@
       "emailSentAt": "2026-10-07T09:14:25.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_7be7c8be965b64cbac9e",
@@ -2730,7 +2730,7 @@
       "emailSentAt": "2026-10-07T09:12:47.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_4f1f28a8940b7643c484",
@@ -2964,7 +2964,7 @@
       "emailSentAt": "2026-10-07T09:12:14.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_7cb31153866394245c0b",
@@ -3081,7 +3081,7 @@
       "emailSentAt": "2026-10-07T09:11:42.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_2fe10d2b61f68a52a403",
@@ -3159,7 +3159,7 @@
       "emailSentAt": "2026-10-07T09:11:29.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_656e18afc646735302bf",
@@ -3627,7 +3627,7 @@
       "emailSentAt": "2026-10-07T09:08:37.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_7f5380940fca7938e943",
@@ -3705,7 +3705,7 @@
       "emailSentAt": "2026-10-07T09:08:35.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_8680d20ec2129216b008",
@@ -3900,7 +3900,7 @@
       "emailSentAt": "2026-10-07T09:07:17.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_86ff20cbd1460b48fa49",
@@ -4017,7 +4017,7 @@
       "emailSentAt": "2026-10-07T09:06:46.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_e1a4324f97c98d8ab3c1",
@@ -4134,7 +4134,7 @@
       "emailSentAt": "2026-10-07T09:06:07.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_83c5895259a77bec58a8",
@@ -4329,7 +4329,7 @@
       "emailSentAt": "2026-10-07T09:05:05.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_8677680e9d37c728fe68",
@@ -4797,7 +4797,7 @@
       "emailSentAt": "2026-10-06T17:30:10.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_9caabebc784fe119f509",
@@ -4875,7 +4875,7 @@
       "emailSentAt": "2026-10-06T16:50:15.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_bdcf97127de1a331f817",
@@ -4953,7 +4953,7 @@
       "emailSentAt": "2026-10-06T15:25:10.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_41270eb3da766775a2db",
@@ -4992,7 +4992,7 @@
       "emailSentAt": "2026-10-06T14:52:32.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_411a6b0c1d095201b15d",
@@ -5694,7 +5694,7 @@
       "emailSentAt": "2026-10-05T07:09:27.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_66d55e49a3859ccf72f2",
@@ -5889,7 +5889,7 @@
       "emailSentAt": "2026-10-05T06:54:42.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_a398789bdfc9c0379f72",
@@ -6240,7 +6240,7 @@
       "emailSentAt": "2026-10-03T20:13:11.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_4871ee2e58bcd02b58a4",
@@ -6318,7 +6318,7 @@
       "emailSentAt": "2026-10-03T14:15:26.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_529fe14d1424dda9cdd1",
@@ -6591,7 +6591,7 @@
       "emailSentAt": "2026-10-03T09:16:03.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_3e0c5d8165636f849b64",
@@ -6903,7 +6903,7 @@
       "emailSentAt": "2026-10-03T09:02:16.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_5ecb55fd550fde2e1d46",
@@ -7176,7 +7176,7 @@
       "emailSentAt": "2026-10-03T08:36:26.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_8a5ce402c34fd01de4df",
@@ -7450,6 +7450,45 @@
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
       "lastSeenAt": "2026-10-08T10:15:59.292Z"
+    },
+    {
+      "id": "off_b990a3dec303a373ae7a",
+      "service": "Uber Eats",
+      "offerType": "multi_order_discount",
+      "title": "£15 off on 26 orders",
+      "discountType": "fixed",
+      "discount": 15,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 26,
+      "usesRemaining": 26,
+      "maxTotalSaving": 390,
+      "minimumSpend": 0,
+      "sameAccountOfferCount": 3,
+      "hasCode": true,
+      "expires": "2026-10-04",
+      "expiresAt": "2026-10-04T23:59:59",
+      "expiryStatus": "exact",
+      "expiryBasis": "explicit_in_offer_terms",
+      "classificationConfidence": "high",
+      "expiryConfidence": "high",
+      "accountRef": "A183",
+      "accountMasked": "pr…6b@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "expired",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": "expired",
+      "receiptConfirmedUses": 0,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-10-02T06:31:28.000Z",
+      "emailSentAt": "2026-10-02T06:31:28.000Z",
+      "status": "expired",
+      "firstSeenAt": "2026-10-08T10:28:19.965Z",
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_00ffd0e9c288223db06d",
@@ -7800,7 +7839,7 @@
       "emailSentAt": "2026-10-01T17:05:47.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_a57444715975900fb408",
@@ -7839,7 +7878,7 @@
       "emailSentAt": "2026-10-01T16:55:47.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_f23dc4bec5efd58aee7d",
@@ -7995,7 +8034,7 @@
       "emailSentAt": "2026-10-01T16:20:44.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_7f443c2b52d9d2549691",
@@ -8112,7 +8151,7 @@
       "emailSentAt": "2026-10-01T16:20:05.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_991e3570364416a2552f",
@@ -8385,7 +8424,7 @@
       "emailSentAt": "2026-10-01T16:18:07.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_bda758c07e71f9c492f9",
@@ -8580,7 +8619,7 @@
       "emailSentAt": "2026-10-01T16:17:02.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_e75156ce9c9deda76a33",
@@ -8853,7 +8892,7 @@
       "emailSentAt": "2026-10-01T16:15:16.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_bd5d84e3f7d61202a80d",
@@ -8970,7 +9009,7 @@
       "emailSentAt": "2026-10-01T16:14:23.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_06f4f26a5f81219392e2",
@@ -9165,7 +9204,7 @@
       "emailSentAt": "2026-10-01T16:13:29.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_f34ebd27d2a0e71ed627",
@@ -9477,7 +9516,7 @@
       "emailSentAt": "2026-10-01T16:09:52.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_1f8e759ded7152cba695",
@@ -9945,7 +9984,7 @@
       "emailSentAt": "2026-10-01T16:00:55.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_e114d4a8033f480d0d49",
@@ -9984,7 +10023,7 @@
       "emailSentAt": "2026-10-01T15:59:27.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_88b2f1eac58f675aaad5",
@@ -10335,7 +10374,7 @@
       "emailSentAt": "2026-10-01T15:47:33.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_3ffd97e1a37abe5b2193",
@@ -11232,7 +11271,7 @@
       "emailSentAt": "2026-10-01T15:15:15.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_5bba317393eb621e99c6",
@@ -11310,7 +11349,7 @@
       "emailSentAt": "2026-10-01T15:09:05.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_ff5a03289a998758aa0b",
@@ -11349,7 +11388,7 @@
       "emailSentAt": "2026-10-01T15:07:23.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_cce1abcf39d0d2e4cb50",
@@ -11427,7 +11466,7 @@
       "emailSentAt": "2026-10-01T15:03:07.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_dfeb1fac87b82b89f18a",
@@ -11466,7 +11505,7 @@
       "emailSentAt": "2026-10-01T11:54:58.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_6111ac77730b13b38f5d",
@@ -12402,7 +12441,7 @@
       "emailSentAt": "2026-09-29T13:10:59.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_1364a1c2ae982236a5c7",
@@ -12558,7 +12597,7 @@
       "emailSentAt": "2026-09-28T07:09:36.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_dfb64986379cf61704b1",
@@ -13806,7 +13845,7 @@
       "emailSentAt": "2026-09-26T09:44:07.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_163a51a6d6106d4cfd6e",
@@ -13962,7 +14001,7 @@
       "emailSentAt": "2026-09-26T09:35:11.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_ee1ed9c5e20e9b0b5b43",
@@ -14547,7 +14586,7 @@
       "emailSentAt": "2026-09-26T09:21:59.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_db3a8b391db5649831aa",
@@ -14625,7 +14664,7 @@
       "emailSentAt": "2026-09-26T09:21:47.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_1e604e812afaab5ab029",
@@ -15288,7 +15327,7 @@
       "emailSentAt": "2026-09-26T09:08:33.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_62bdb4ba2143236aeda4",
@@ -15951,7 +15990,7 @@
       "emailSentAt": "2026-09-26T09:01:03.000Z",
       "status": "active",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_f3a1ee9e8ed74e69508d",
@@ -16926,7 +16965,7 @@
       "emailSentAt": "2026-09-23T14:50:43.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_c05ef8efe3b35ac0b71d",
@@ -18018,7 +18057,7 @@
       "emailSentAt": "2026-09-23T14:04:55.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_d99a4b64be9a925e6533",
@@ -18135,7 +18174,7 @@
       "emailSentAt": "2026-09-23T14:03:08.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_05896aade1816462e1e5",
@@ -19422,7 +19461,7 @@
       "emailSentAt": "2026-09-22T14:48:38.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_7d903fbe33eb55e2134d",
@@ -19656,7 +19695,7 @@
       "emailSentAt": "2026-09-22T13:53:27.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_37e462e2a07958492d6e",
@@ -20085,7 +20124,7 @@
       "emailSentAt": "2026-09-19T19:22:46.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_7a78bb7c95fc58817a16",
@@ -20982,7 +21021,7 @@
       "emailSentAt": "2026-09-15T14:13:31.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_9aa0a870303eb748c698",
@@ -21099,7 +21138,7 @@
       "emailSentAt": "2026-09-15T14:03:09.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_c92a59f8187493666bef",
@@ -21880,6 +21919,45 @@
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
       "lastSeenAt": "2026-10-08T10:15:59.292Z"
+    },
+    {
+      "id": "off_7748c4cbe3c367505c51",
+      "service": "Uber Eats",
+      "offerType": "multi_order_discount",
+      "title": "£15 off on 26 orders",
+      "discountType": "fixed",
+      "discount": 15,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 26,
+      "usesRemaining": 26,
+      "maxTotalSaving": 390,
+      "minimumSpend": 0,
+      "sameAccountOfferCount": 2,
+      "hasCode": true,
+      "expires": "2026-09-13",
+      "expiresAt": "2026-09-13T23:59:59",
+      "expiryStatus": "exact",
+      "expiryBasis": "explicit_in_offer_terms",
+      "classificationConfidence": "high",
+      "expiryConfidence": "high",
+      "accountRef": "A066",
+      "accountMasked": "da…9o@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "expired",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": "expired",
+      "receiptConfirmedUses": 0,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-09-11T06:18:01.000Z",
+      "emailSentAt": "2026-09-11T06:18:01.000Z",
+      "status": "expired",
+      "firstSeenAt": "2026-10-08T10:28:19.965Z",
+      "lastSeenAt": "2026-10-08T10:28:19.965Z"
     },
     {
       "id": "off_3111843a4630723a1a65",
@@ -29170,84 +29248,6 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-27T06:29:10.000Z",
       "emailSentAt": "2026-08-27T06:29:10.000Z",
-      "status": "expired",
-      "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
-    },
-    {
-      "id": "off_995d3689cc02dea359a1",
-      "service": "Uber Eats",
-      "offerType": "fixed_order_discount",
-      "title": "£10 off",
-      "discountType": "fixed",
-      "discount": 10,
-      "maxSaving": null,
-      "perUseCap": null,
-      "uses": 1,
-      "usesRemaining": 1,
-      "maxTotalSaving": null,
-      "minimumSpend": 35,
-      "sameAccountOfferCount": 1,
-      "hasCode": false,
-      "expires": "2026-10-01",
-      "expiresAt": "2026-10-01T06:28:28.000Z",
-      "expiryStatus": "estimated",
-      "expiryBasis": "tracker_35_day_rule",
-      "classificationConfidence": "high",
-      "expiryConfidence": "policy",
-      "accountRef": "A185",
-      "accountMasked": "pu…9e@icloud.com",
-      "canLogin": false,
-      "loginMethod": "Both",
-      "hasCompanionOffer": false,
-      "receiptState": null,
-      "trackingState": "expired",
-      "needsReview": false,
-      "reviewReasons": [],
-      "closedReason": "expired",
-      "receiptConfirmedUses": 0,
-      "lastUsedAt": null,
-      "firstEmailSentAt": "2026-08-27T06:28:28.000Z",
-      "emailSentAt": "2026-08-27T06:28:28.000Z",
-      "status": "expired",
-      "firstSeenAt": "2026-10-08T09:55:59.626Z",
-      "lastSeenAt": "2026-10-08T10:15:59.292Z"
-    },
-    {
-      "id": "off_3d689e42160df9c9e4a0",
-      "service": "Uber Eats",
-      "offerType": "fixed_order_discount",
-      "title": "£10 off",
-      "discountType": "fixed",
-      "discount": 10,
-      "maxSaving": null,
-      "perUseCap": null,
-      "uses": 1,
-      "usesRemaining": 1,
-      "maxTotalSaving": null,
-      "minimumSpend": 35,
-      "sameAccountOfferCount": 2,
-      "hasCode": false,
-      "expires": "2026-10-01",
-      "expiresAt": "2026-10-01T06:28:06.000Z",
-      "expiryStatus": "estimated",
-      "expiryBasis": "tracker_35_day_rule",
-      "classificationConfidence": "high",
-      "expiryConfidence": "policy",
-      "accountRef": "A198",
-      "accountMasked": "sa…ft@icloud.com",
-      "canLogin": true,
-      "loginMethod": "iCloud",
-      "hasCompanionOffer": false,
-      "receiptState": null,
-      "trackingState": "expired",
-      "needsReview": false,
-      "reviewReasons": [],
-      "closedReason": "expired",
-      "receiptConfirmedUses": 0,
-      "lastUsedAt": null,
-      "firstEmailSentAt": "2026-08-27T06:28:06.000Z",
-      "emailSentAt": "2026-08-27T06:28:06.000Z",
       "status": "expired",
       "firstSeenAt": "2026-10-08T09:55:59.626Z",
       "lastSeenAt": "2026-10-08T10:15:59.292Z"
