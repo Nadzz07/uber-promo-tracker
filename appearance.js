@@ -1,5 +1,15 @@
 export const THEME_KEY = 'uber-eats-promo-tracker:theme:v1';
 export const DEFAULT_COLOUR = '#9bea72';
+export const LAYOUT_KEY = 'uber-eats-promo-tracker:layout:v1';
+
+export function normaliseLayout(value) {
+  return ['mobile', 'desktop'].includes(value) ? value : 'auto';
+}
+
+export function resolveLayout(value, viewportWidth) {
+  const preference = normaliseLayout(value);
+  return preference === 'auto' ? (Number(viewportWidth) >= 980 ? 'desktop' : 'mobile') : preference;
+}
 
 export function normaliseColour(value) {
   return /^#[0-9a-f]{6}$/i.test(String(value || '')) ? value.toLowerCase() : DEFAULT_COLOUR;

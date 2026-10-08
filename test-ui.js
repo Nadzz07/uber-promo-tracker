@@ -8,7 +8,7 @@ import { extractOfferDetails } from './parser-v2/discount.js';
 import { offerTitle, useCountNeedsReview } from './offer-details.js';
 import { classifyOfferTrackingState } from './offer-state.js';
 import { toPublicPromo } from './public-promo.js';
-import { normaliseColour, themeTokens, colourHsl, hslColour, DEFAULT_COLOUR } from './appearance.js';
+import { normaliseColour, themeTokens, colourHsl, hslColour, DEFAULT_COLOUR, normaliseLayout, resolveLayout } from './appearance.js';
 import { parseDeviceAccounts, deviceEmail, DEVICE_ACCOUNTS_KIND } from './device-accounts.js';
 import { openPrivateDb, ensureAccount, upsertOffer, getOffers } from './private-db.js';
 import { offerFingerprint } from './identity.js';
@@ -16,6 +16,13 @@ import { offerFingerprint } from './identity.js';
 const time = '2026-10-08T12:00:00Z';
 let passed = 0;
 function test(name, fn) { fn(); passed++; console.log('✓ ' + name); }
+
+test('Layout selection overrides screen size while Auto follows the responsive boundary', () => {
+  for (const value of [null, undefined, '', 'other', 'AUTO', '<script>']) assert.equal(normaliseLayout(value), 'auto');
+  assert.equal(normaliseLayout('mobile'), 'mobile'); assert.equal(normaliseLayout('desktop'), 'desktop');
+  assert.equal(resolveLayout('auto', 979), 'mobile'); assert.equal(resolveLayout('auto', 980), 'desktop');
+  assert.equal(resolveLayout('mobile', 1920), 'mobile'); assert.equal(resolveLayout('desktop', 320), 'desktop');
+});
 
 test('Order counts require explicit offer wording and cannot come from a year, ID or footer', () => {
   for (const text of ['£15 off. © 1996 orders fulfilled.', '£15 off. © 2026 orders fulfilled.', '£15 off. Reference 12345696 orders.', '£15 off. Members completed 96 orders.']) {

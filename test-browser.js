@@ -10,7 +10,7 @@ const allowed = new Set(fs.readdirSync('dist'));
 const server = http.createServer((request, response) => {
   const file = new URL(request.url, 'http://localhost').pathname.slice(1) || 'index.html';
   if (!allowed.has(file)) { response.writeHead(404); response.end(); return; }
-  response.setHeader('Content-Type', file.endsWith('.js') ? 'text/javascript' : file.endsWith('.json') ? 'application/json' : 'text/html');
+  response.setHeader('Content-Type', file.endsWith('.js') ? 'text/javascript' : file.endsWith('.json') ? 'application/json' : file.endsWith('.css') ? 'text/css' : 'text/html');
   response.end(fs.readFileSync('dist/' + file));
 });
 server.listen(0, '127.0.0.1'); await once(server, 'listening');
@@ -99,6 +99,7 @@ try {
   await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
   for (const width of [320, 360, 375, 390, 414, 430, 600, 768, 980, 1120, 1440]) {
     await page.setViewportSize({ width, height: 900 });
+    await page.waitForFunction(expected => document.documentElement.dataset.layout === expected, width < 980 ? 'mobile' : 'desktop');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Overflow at ${width}px`);
     const brand = await page.locator('.brand-title').evaluate(el => ({
       text: el.textContent.trim(),
@@ -159,14 +160,21 @@ try {
     const main = document.querySelector('main').getBoundingClientRect();
     const overview = document.querySelector('.home-overview').getBoundingClientRect();
     const navStyle = getComputedStyle(document.getElementById('mainNav'));
+    const widths = [...document.querySelectorAll('.home-overview .stat-card')].map(el => el.getBoundingClientRect().width);
     const privacy = document.querySelector('.privacy').getBoundingClientRect();
-    return { navRight: nav.right, mainLeft: main.left, overviewWidth: overview.width, overviewTop: overview.top, privacyTop: privacy.top, mainBottom: main.bottom, navDirection: navStyle.flexDirection };
+    return { navBottom: nav.bottom, mainTop: main.top, overviewWidth: overview.width, overviewTop: overview.top, privacyTop: privacy.top, mainBottom: main.bottom, navColumns: navStyle.gridTemplateColumns.split(' ').length, widths };
   });
-  assert.equal(desktopLayout.navDirection, 'column', 'Desktop navigation must be a vertical sidebar');
-  assert.ok(desktopLayout.navRight < desktopLayout.mainLeft, 'Desktop navigation must sit left of the main dashboard');
-  assert.ok(desktopLayout.overviewWidth > 700, 'Home command-centre panel must span the desktop content area');
+  assert.equal(desktopLayout.navColumns, 4, 'Desktop navigation should use four horizontal tabs');
+  assert.ok(desktopLayout.navBottom <= desktopLayout.mainTop, 'Desktop navigation belongs in the header above the dashboard');
+  assert.ok(Math.max(...desktopLayout.widths)-Math.min(...desktopLayout.widths) < 1, 'Desktop summary cards should be equal width');
+  assert.ok(desktopLayout.overviewWidth > 1000, 'Desktop should use the full workspace width');
   assert.ok(desktopLayout.overviewTop < 220, 'Privacy footer must not create a blank row above the desktop dashboard');
   assert.ok(desktopLayout.privacyTop >= desktopLayout.mainBottom, 'Privacy copy belongs below the dashboard');
+  const desktopHome = await page.locator('[data-view="home"]').boundingBox(), desktopAccounts = await page.locator('[data-view="accounts"]').boundingBox();
+  await page.mouse.move(desktopHome.x+desktopHome.width/2, desktopHome.y+desktopHome.height/2); await page.mouse.down();
+  await page.mouse.move(desktopAccounts.x+desktopAccounts.width/2, desktopAccounts.y+desktopAccounts.height/2, { steps: 6 });
+  await page.mouse.up(); assert.equal(await page.locator('#view-accounts').isVisible(), true, 'Desktop header tabs must slide horizontally');
+  await page.keyboard.press('Home'); assert.equal(await page.locator('#view-home').isVisible(), true);
 
   // A real-sized savings total must fit its desktop card, not hide behind ellipsis.
   payload.summary.totalSaved = 3382.60;
@@ -209,9 +217,48 @@ try {
   await page.keyboard.press('End'); assert.equal(await page.locator('#view-more').isVisible(), true);
 
   await page.locator('[data-open-sheet="appearance"]').click();
+  const manualBeforeLayout = await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:manual-state:v3'));
+  // Mobile on a wide display stays the phone composition, including its fixed dock.
+  await page.locator('[name="layoutPreference"][value="mobile"]').check();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  assert.equal(await page.locator('html').getAttribute('data-layout'), 'mobile');
+  assert.ok((await page.locator('#app').boundingBox()).width <= 480);
+  const phoneDock = await page.locator('#mainNav').evaluate(el => ({ width: el.offsetWidth, position: getComputedStyle(el).position }));
+  assert.equal(phoneDock.position, 'fixed'); assert.ok(phoneDock.width <= 452);
+  await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  assert.equal(await page.locator('html').getAttribute('data-layout'), 'mobile', 'Layout override must survive reload');
+  await page.locator('[data-view="more"]').click();
+  assert.equal(await page.locator('#view-more .screen-title').innerText(), 'Settings & tools');
+  assert.equal(await page.locator('#view-more .eyebrow').count(), 0, 'Settings must not repeat More as kicker and heading');
+  await page.locator('[data-open-sheet="appearance"]').click();
+  await page.locator('[name="layoutPreference"][value="desktop"]').check();
+  assert.equal(await page.locator('html').getAttribute('data-layout'), 'desktop');
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert.equal(await page.locator('html').getAttribute('data-layout'), 'desktop', 'Desktop override must survive resize');
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'Explicit Desktop must remain usable at phone width');
+  for (const width of [320,600,768,980,1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    assert.equal(await page.locator('html').getAttribute('data-layout'), 'desktop');
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Explicit Desktop must fit ${width}px`);
+    const navFits = await page.locator('.nav-btn').evaluateAll(buttons => buttons.every(button => button.scrollWidth <= button.clientWidth+1));
+    assert.equal(navFits, true, `Desktop navigation labels must fit at ${width}px`);
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  // The radio group works with keyboard selection and Auto can be restored.
+  await page.locator('[name="layoutPreference"][value="desktop"]').focus();
+  await page.keyboard.press('ArrowLeft');
+  await page.waitForFunction(() => document.documentElement.dataset.layoutPreference === 'mobile');
+  await page.locator('[name="layoutPreference"][value="auto"]').check();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.waitForFunction(() => document.documentElement.dataset.layout === 'desktop');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForFunction(() => document.documentElement.dataset.layout === 'mobile');
+  assert.equal(await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:manual-state:v3')), manualBeforeLayout, 'Layout choices must preserve manual usage');
+  assert.equal(await page.locator('#savedStat').innerText(), '£3,382.60', 'Layout choices must preserve financial totals');
   await page.locator('[data-theme-colour="#c5a0ff"]').click();
   const chosen = await page.evaluate(() => ({ stored: localStorage.getItem('uber-eats-promo-tracker:theme:v1'), colour: getComputedStyle(document.documentElement).getPropertyValue('--green') }));
   assert.equal(chosen.stored, '#c5a0ff'); assert.notEqual(chosen.colour.trim(), '#9bea72');
+  await page.locator('#colourWheel').scrollIntoViewIfNeeded();
   const wheel = await page.locator('#colourWheel').boundingBox();
   await page.mouse.click(wheel.x+wheel.width*.8, wheel.y+wheel.height*.5);
   assert.notEqual(await page.locator('#themeColour').inputValue(), '#c5a0ff');
@@ -254,5 +301,5 @@ try {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   assert.deepEqual(errors, []);
   await context.close();
-  console.log('✓ Browser: mobile/desktop layout, header clarity, capsule drag/keyboard navigation, private email import/copy/forget, colour wheel persistence, uncertain counts/fees, reduced motion, usage, focus and network retry');
+  console.log('✓ Browser: saved/automatic layouts across screen sizes, deduplicated settings headings, state preservation, header clarity, capsule drag/keyboard navigation, private email import/copy/forget, colour wheel persistence, uncertain counts/fees, reduced motion, focus and network retry');
 } finally { await browser?.close(); server.close(); }

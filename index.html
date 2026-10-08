@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-layout="mobile" data-layout-preference="auto">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -10,6 +10,15 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Promo Tracker">
   <title>Uber Eats Promo Tracker</title>
+  <script>
+    // Apply the saved layout before the first paint; the module owns later changes.
+    (() => {
+      let preference = 'auto';
+      try { const saved = localStorage.getItem('uber-eats-promo-tracker:layout:v1'); if (saved === 'mobile' || saved === 'desktop') preference = saved; } catch {}
+      document.documentElement.dataset.layoutPreference = preference;
+      document.documentElement.dataset.layout = preference === 'auto' ? (innerWidth >= 980 ? 'desktop' : 'mobile') : preference;
+    })();
+  </script>
   <style>
     * { box-sizing: border-box; }
 
@@ -1777,34 +1786,7 @@
       font-size: 9px;
     }
 
-    @media (min-width: 760px) {
-      body { padding-bottom: 44px; }
-      .app-shell { padding: 22px 24px 54px; }
-      .topbar { min-height: 72px; }
-      .brand-title { max-width: none; font-size: 29px; }
-      .bottom-nav {
-        position: sticky;
-        left: auto;
-        bottom: auto;
-        transform: none;
-        width: min(520px, 100%);
-        margin: 7px 0 24px;
-      }
-      .nav-btn { min-height: 48px; }
-      .nav-btn svg { display: inline-block; vertical-align: -4px; margin: 0 5px 0 0; }
-      .stats-row { max-width: 700px; }
-      .hero-card { padding: 20px; }
-      .quick-grid { grid-template-columns: repeat(4, minmax(0,1fr)); grid-auto-rows: 118px; }
-      .account-list { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .account-card { height: 100%; }
-      .more-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
-      .activity-list { max-width: 760px; }
-      .sheet-backdrop { align-items: center; padding: 24px; }
-      .sheet {
-        border-bottom: 1px solid rgba(255,255,255,.13);
-        border-radius: 28px;
-      }
-    }
+
 
     @media (max-width: 370px) {
       .app-shell { padding-left: 10px; padding-right: 10px; }
@@ -1871,29 +1853,25 @@
     .view.active { animation: reveal-view 180ms ease-out; }
     @keyframes reveal-view { from { opacity: .4; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     @media (hover: hover) and (pointer: fine) { .quick-card:hover, .account-card:hover { border-color: rgba(222,255,236,.28); } }
-    @media (min-width: 980px) {
-      .topbar { align-items: center; padding-bottom: 12px; }
-      .scan-wrap { min-width: 180px; }
-      .home-intro { display: block; margin: 18px 2px 16px; }
-      .home-intro-copy { max-width: 680px; margin-top: 7px; text-align: left; }
-      .sync-strip { max-width: 760px; }
-      .home-workspace { display: grid; grid-template-columns: minmax(360px,.9fr) minmax(0,1.2fr); gap: 28px; align-items: start; }
-      .planner-column { position: sticky; top: 24px; }
-      .discovery-column > .section-head:first-child { margin-top: 0; }
-      .discovery-column .quick-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-      .discovery-column .account-list { grid-template-columns: 1fr; }
-      .bottom-nav { position: relative; }
-    }
-    @media (max-width: 600px) {
-      .topbar { align-items: flex-start; }
-      .brand-title { font-size: 23px; max-width: 220px; }
-      .scan-wrap { max-width: 105px; }
-      .stat-card { padding: 13px 10px; }
-      .stats-row { gap: 8px; }
-      .hero-card { padding: 18px; }
-      .hero-title { font-size: 22px; }
-      .stat-sub { font-size: 9px; }
-    }
+
+
+    :where(html[data-layout="mobile"]) .topbar { align-items: flex-start; }
+
+    :where(html[data-layout="mobile"]) .brand-title { font-size: 23px; max-width: 220px; }
+
+    :where(html[data-layout="mobile"]) .scan-wrap { max-width: 105px; }
+
+    :where(html[data-layout="mobile"]) .stat-card { padding: 13px 10px; }
+
+    :where(html[data-layout="mobile"]) .stats-row { gap: 8px; }
+
+    :where(html[data-layout="mobile"]) .hero-card { padding: 18px; }
+
+    :where(html[data-layout="mobile"]) .hero-title { font-size: 22px; }
+
+    :where(html[data-layout="mobile"]) .stat-sub { font-size: 9px; }
+
+
 
     /* Premium dashboard hierarchy: compact status, stronger home title, calm basket editing. */
     .home-title {
@@ -1927,64 +1905,43 @@
       box-shadow: none !important;
       background: transparent !important;
     }
-    @media (min-width: 980px) {
-      .topbar {
-        min-height: 92px;
-        padding: 18px 4px 16px;
-        border-bottom: 1px solid rgba(222,255,236,.07);
-      }
-      .brand-title {
-        font-size: clamp(30px, 3vw, 40px);
-        line-height: 1;
-        max-width: none;
-      }
-      .scan-wrap { min-width: 220px; }
-      .home-intro {
-        display: flex;
-        align-items: end;
-        justify-content: space-between;
-        gap: 36px;
-        margin: 30px 4px 24px;
-      }
-      .home-intro-copy {
-        max-width: 660px;
-        margin-top: 11px;
-        text-align: left;
-        font-size: 14px;
-        color: #c8d3cc;
-      }
-      .stats-row { margin-top: 0; }
-      .stat-card { min-height: 132px; padding: 20px 22px; }
-      .stat-label { font-size: 12px; }
-      .stat-value { margin-top: 10px; font-size: clamp(36px, 4vw, 48px); }
-      .stat-sub { margin-top: 7px; font-size: 11px; }
-    }
-    @media (max-width: 979px) {
-      .home-intro { align-items: flex-start; }
-      .home-sync { max-width: 360px; }
-    }
-    @media (max-width: 600px) {
-      .home-intro { display: block; margin-top: 18px; }
-      .home-title { font-size: 36px; }
-      .home-intro-copy { max-width: none; margin-top: 8px; text-align: left; font-size: 12px; }
-      .home-sync { margin-top: 14px; max-width: none; }
-      .home-overview { padding-left: 16px; padding-right: 16px; }
-      .home-overview .stats-row {
+
+
+    :where(html[data-layout="mobile"]) .home-intro { align-items: flex-start; }
+
+    :where(html[data-layout="mobile"]) .home-sync { max-width: 360px; }
+
+
+
+    :where(html[data-layout="mobile"]) .home-intro { display: block; margin-top: 18px; }
+
+    :where(html[data-layout="mobile"]) .home-title { font-size: 36px; }
+
+    :where(html[data-layout="mobile"]) .home-intro-copy { max-width: none; margin-top: 8px; text-align: left; font-size: 12px; }
+
+    :where(html[data-layout="mobile"]) .home-sync { margin-top: 14px; max-width: none; }
+
+    :where(html[data-layout="mobile"]) .home-overview { padding-left: 16px; padding-right: 16px; }
+
+    :where(html[data-layout="mobile"]) .home-overview .stats-row {
         grid-template-columns: 1fr;
         gap: 8px;
       }
-      .home-overview .stat-card {
+
+    :where(html[data-layout="mobile"]) .home-overview .stat-card {
         min-height: 72px;
         padding: 12px 14px;
       }
-      .home-overview .stat-label {
+
+    :where(html[data-layout="mobile"]) .home-overview .stat-label {
         font-size: 11px;
         letter-spacing: 0;
       }
-    }
 
 
-    /* Round 4: structural desktop redesign — sidebar navigation + command-centre overview. */
+
+
+    /* Phone overview; the independent desktop layout lives in desktop-layout.css. */
     .home-overview {
       position: relative;
       overflow: hidden;
@@ -2054,168 +2011,8 @@
       border-color: rgba(255,255,255,.26) !important;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 18px 48px rgba(0,0,0,.22) !important;
     }
-    @media (min-width: 980px) {
-      .app-shell {
-        max-width: 1440px;
-        display: grid;
-        grid-template-columns: 190px minmax(0, 1fr);
-        grid-template-rows: auto auto 1fr;
-        column-gap: 30px;
-        padding-left: 28px;
-        padding-right: 28px;
-      }
-      .topbar {
-        grid-column: 1 / -1;
-        grid-row: 1;
-        min-height: 84px;
-        padding: 18px 4px 17px;
-        border-bottom: 1px solid rgba(222,255,236,.08);
-      }
-      .brand-kicker { font-size: 9px; }
-      .brand-title {
-        font-size: clamp(26px, 2.5vw, 36px);
-        line-height: 1;
-        white-space: nowrap;
-      }
-      .scan-wrap { min-width: 210px; }
-      .local-notice {
-        grid-column: 1 / -1;
-        grid-row: 2;
-      }
-      .bottom-nav {
-        grid-column: 1;
-        grid-row: 3;
-        position: sticky;
-        top: 24px;
-        left: auto;
-        bottom: auto;
-        transform: none;
-        width: 100%;
-        height: fit-content;
-        margin: 26px 0 0;
-        padding: 8px;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        border-radius: 24px;
-        background: linear-gradient(160deg, rgba(37,50,42,.74), rgba(22,31,26,.62));
-      }
-      .nav-btn {
-        min-height: 52px;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 12px;
-        padding: 0 14px;
-        border-radius: 16px;
-        font-size: 11px;
-        letter-spacing: .01em;
-        text-align: left;
-      }
-      .nav-btn svg {
-        width: 19px;
-        height: 19px;
-        margin: 0;
-        flex: 0 0 auto;
-      }
-      .nav-btn.active {
-        background: linear-gradient(135deg, rgba(var(--accent-rgb), .14), rgba(255,255,255,.045));
-        box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 8px 24px rgba(0,0,0,.12);
-      }
-      main {
-        grid-column: 2;
-        grid-row: 3;
-        min-width: 0;
-      }
-      .home-overview {
-        display: grid;
-        grid-template-columns: minmax(310px,.82fr) minmax(0,1.18fr);
-        align-items: stretch;
-        gap: 30px;
-        margin: 26px 0 30px;
-        padding: 30px;
-        border-radius: 32px;
-        min-height: 250px;
-      }
-      .home-overview .home-intro {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 24px;
-        margin: 0;
-        padding: 4px 0;
-      }
-      .home-title {
-        margin-top: 9px;
-        font-size: clamp(52px, 5.2vw, 76px);
-        line-height: .88;
-        letter-spacing: -.065em;
-      }
-      .home-intro-copy {
-        max-width: 460px;
-        margin-top: 18px;
-        font-size: 14px;
-        line-height: 1.55;
-        text-align: left;
-      }
-      .home-sync {
-        flex: none;
-        width: auto;
-        max-width: 340px;
-        margin: 0;
-        padding: 8px 11px;
-        border-radius: 999px;
-        font-size: 9px;
-        background: rgba(83,67,32,.12);
-      }
-      .home-sync span { display: none; }
-      .home-overview .stats-row {
-        align-self: stretch;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0,1fr));
-        grid-template-rows: repeat(2, minmax(0,1fr));
-        gap: 12px;
-        margin: 0;
-      }
-      .home-overview .stat-card {
-        min-height: 0;
-        padding: 19px 20px;
-        border-radius: 22px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-      }
-      .home-overview .stat-card:first-child {
-        grid-row: 1;
-        grid-column: 1 / -1;
-        min-height: 130px;
-      }
-      .home-overview .stat-card:first-child .stat-value {
-        font-size: clamp(28px, 3.3vw, 44px);
-      }
-      .home-overview .stat-label { font-size: 11px; }
-      .home-overview .stat-value { margin-top: auto; font-size: clamp(30px, 3vw, 42px); }
-      .home-overview .stat-sub { margin-top: 7px; font-size: 10px; }
-      .home-workspace {
-        grid-template-columns: minmax(390px,.95fr) minmax(0,1.05fr);
-        gap: 24px;
-      }
-      .planner-column { top: 24px; }
-      .hero-card { padding: 26px; border-radius: 30px; }
-      .basket-editor { min-height: 116px; padding: 17px 18px 15px; border-radius: 22px; }
-      .basket-value-wrap .basket-input { font-size: 42px; }
-    }
-    @media (min-width: 980px) and (max-width: 1120px) {
-      .app-shell { grid-template-columns: 150px minmax(0,1fr); column-gap: 20px; }
-      .home-overview { grid-template-columns: 1fr; }
-      .home-overview .home-intro { min-height: 180px; }
-      .home-overview .stats-row { grid-template-columns: repeat(3,minmax(0,1fr)); grid-template-rows: 1fr; }
-      .home-overview .stat-card:first-child { grid-row: auto; min-height: 130px; }
-      .home-workspace { grid-template-columns: 1fr; }
-      .planner-column { position: static; }
-    }
+
+
 
     @media (max-width: 370px) {
       .home-overview { padding: 10px; }
@@ -2229,17 +2026,19 @@
       white-space: nowrap;
     }
 
-    @media (max-width: 600px) {
-      .topbar {
+
+    :where(html[data-layout="mobile"]) .topbar {
         min-height: 74px;
         align-items: flex-start;
         padding-top: 8px;
       }
-      .brand-kicker {
+
+    :where(html[data-layout="mobile"]) .brand-kicker {
         font-size: 9px;
         letter-spacing: .15em;
       }
-      .brand-title {
+
+    :where(html[data-layout="mobile"]) .brand-title {
         margin-top: 5px;
         max-width: none;
         font-size: clamp(24px, 7.2vw, 30px);
@@ -2247,7 +2046,8 @@
         letter-spacing: -.045em;
         white-space: nowrap;
       }
-    }
+
+
 
     /* Liquid-glass motion layer */
     .bottom-nav { isolation: isolate; overflow: hidden; }
@@ -2473,33 +2273,52 @@
     .device-import { display: block; cursor: pointer; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--glass-soft); margin: 18px 0; }
     .device-import input { display: block; max-width: 100%; margin-top: 12px; font-size: 12px; }
     #deviceImportStatus { color: var(--muted); font-size: 12px; line-height: 1.6; }
-    @media (max-width: 979px) {
-      body { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
-      .app-shell { padding-top: calc(env(safe-area-inset-top, 0px) + 18px); }
-      .topbar { min-height: 78px; gap: 10px; align-items: flex-start; padding: 0 0 16px; }
-      .brand-kicker { font-size: 10px; }
-      .brand-title { font-size: clamp(22px, 6.5vw, 30px); line-height: 1.15; margin-top: 5px; }
-      .scan-time { max-width: 105px; }
-      .bottom-nav {
+    .layout-settings { margin: 0 0 20px; padding: 18px; border: 1px solid var(--line); border-radius: 20px; background: var(--glass-soft); }
+    .layout-settings legend { padding: 0 6px; font-size: 14px; font-weight: 650; }
+    .layout-control { display: flex; gap: 4px; padding: 4px; margin: 10px 0 12px; border-radius: 16px; background: rgba(0,0,0,.18); }
+    .layout-option { position: relative; flex: 1; min-width: 0; padding: 13px 8px; border-radius: 12px; text-align: center; font-size: 12px; font-weight: 650; cursor: pointer; color: var(--muted); }
+    .layout-option input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0; cursor: pointer; }
+    .layout-option:has(input:checked) { background: var(--green-soft); color: var(--green-strong); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
+    .layout-option:has(input:focus-visible) { outline: 2px solid var(--green); outline-offset: 2px; }
+    #layoutStatus { margin: 0; font-size: 12px; line-height: 1.6; color: var(--muted); }
+    :where(html[data-layout="mobile"]) { --mobile-max-width: 760px; }
+    html[data-layout="mobile"][data-layout-preference="mobile"] { --mobile-max-width: 480px; }
+    :where(html[data-layout="mobile"]) .app-shell { max-width: var(--mobile-max-width); display: block; }
+    :where(html[data-layout="mobile"]) .sheet { width: min(100%, var(--mobile-max-width), 620px); }
+
+    :where(html[data-layout="mobile"]) body { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+
+    :where(html[data-layout="mobile"]) .app-shell { padding-top: calc(env(safe-area-inset-top, 0px) + 18px); }
+
+    :where(html[data-layout="mobile"]) .topbar { min-height: 78px; gap: 10px; align-items: flex-start; padding: 0 0 16px; }
+
+    :where(html[data-layout="mobile"]) .brand-kicker { font-size: 10px; }
+
+    :where(html[data-layout="mobile"]) .brand-title { font-size: clamp(22px, 6.5vw, 30px); line-height: 1.15; margin-top: 5px; }
+
+    :where(html[data-layout="mobile"]) .scan-time { max-width: 105px; }
+
+    :where(html[data-layout="mobile"]) .bottom-nav {
         position: fixed; top: auto; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); left: 50%;
-        width: min(calc(100% - 28px), 500px); transform: translateX(-50%); margin: 0; padding: 4px;
+        width: min(calc(100% - 28px), calc(var(--mobile-max-width) - 28px), 500px); transform: translateX(-50%); margin: 0; padding: 4px;
         display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 0; border-radius: 999px;
       }
-      .nav-btn { min-height: 58px; border-radius: 999px; font-size: 11px; }
-      .nav-btn svg { display: block; width: 23px; height: 23px; margin: 0 auto 4px; }
-      .nav-glider { border-radius: 999px; }
-    }
-    @media (min-width: 980px) {
-      .bottom-nav { background: linear-gradient(160deg, rgba(225,242,232,.09), rgba(140,156,150,.06)); }
-      .nav-glider { border-radius: 18px; }
-      .privacy { grid-column: 2; grid-row: 4; max-width: 680px; margin: 24px 0 0; text-align: left; }
-    }
+
+    :where(html[data-layout="mobile"]) .nav-btn { min-height: 58px; border-radius: 999px; font-size: 11px; }
+
+    :where(html[data-layout="mobile"]) .nav-btn svg { display: block; width: 23px; height: 23px; margin: 0 auto 4px; }
+
+    :where(html[data-layout="mobile"]) .nav-glider { border-radius: 999px; }
+
+
+
     @supports not ((backdrop-filter: blur(4px)) or (-webkit-backdrop-filter: blur(4px))) {
       .glass, .bottom-nav, .account-card, .quick-card, .more-card, .search-input, .sheet {
         background: #1d2921;
       }
     }
   </style>
+  <link rel="stylesheet" href="./desktop-layout.css">
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -2720,16 +2539,15 @@
 
       <section id="view-more" class="view">
         <div class="screen-head">
-          <div class="eyebrow">More</div>
-          <h1 class="screen-title">More.</h1>
-          <div class="screen-copy">Savings, account access, history and sync status.</div>
+          <h1 class="screen-title">Settings &amp; tools</h1>
+          <div class="screen-copy">Your layout, colours, login emails and tracker tools.</div>
         </div>
 
         <div class="more-grid">
           <button class="more-card" data-open-sheet="appearance">
             <div class="more-icon">◉</div>
             <div class="more-title">Appearance</div>
-            <div class="more-copy">Choose your own accent with the colour wheel.</div>
+            <div class="more-copy">Choose Mobile or Desktop and your own theme colour.</div>
           </button>
           <button class="more-card" data-open-sheet="device">
             <div class="more-icon">@</div>
@@ -2782,7 +2600,7 @@
 
   <script type="module">
     import { offerTitle, useCountNeedsReview } from "./offer-details.js";
-    import { THEME_KEY, DEFAULT_COLOUR, normaliseColour, themeTokens, colourHsl, hslColour } from "./appearance.js";
+    import { THEME_KEY, DEFAULT_COLOUR, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
     import { DEVICE_ACCOUNTS_KEY, parseDeviceAccounts, deviceEmail } from "./device-accounts.js";
     import { classifyAccount, accountStatusLabel, accountUsageDescription } from "./account-state.js";
     import { classifyOfferTrackingState } from "./offer-state.js";
@@ -2830,7 +2648,37 @@
     let openAccountRef = null;
     let deviceAccounts = readDeviceAccounts();
     let themeColour = readThemeColour();
+    let layoutPreference = readLayoutPreference();
+    applyLayoutPreference();
     applyTheme(themeColour);
+
+    function readLayoutPreference() {
+      try { return normaliseLayout(localStorage.getItem(LAYOUT_KEY)); }
+      catch { return 'auto'; }
+    }
+
+    function applyLayoutPreference() {
+      const root = document.documentElement;
+      root.dataset.layoutPreference = layoutPreference;
+      root.dataset.layout = resolveLayout(layoutPreference, window.innerWidth);
+      requestAnimationFrame(updateNavGlider);
+    }
+
+    function chooseLayout(value) {
+      layoutPreference = normaliseLayout(value);
+      applyLayoutPreference();
+      let saved = true;
+      try { localStorage.setItem(LAYOUT_KEY, layoutPreference); } catch { saved = false; }
+      document.querySelectorAll('[name="layoutPreference"]').forEach(input => { input.checked = input.value === layoutPreference; });
+      const status = document.getElementById('layoutStatus');
+      if (status) status.textContent = saved ? layoutDescription() : 'Applied for this visit. Browser storage is unavailable.';
+    }
+
+    function layoutDescription() {
+      return layoutPreference === 'auto' ? 'Auto follows your screen size. Your choice is saved on this device.'
+        : layoutPreference === 'mobile' ? 'Mobile keeps the phone design, even on a larger screen. Saved on this device.'
+        : 'Desktop uses the wider dashboard and adapts to smaller windows. Saved on this device.';
+    }
 
     function readDeviceAccounts() {
       try { return JSON.parse(localStorage.getItem(DEVICE_ACCOUNTS_KEY) || '{}') || {}; }
@@ -3653,8 +3501,13 @@
     }
 
     function renderAppearanceSheet() {
-      setSheetHeading('Appearance', 'Make the glass yours.');
+      setSheetHeading('Appearance', 'Your layout and colour.');
       document.getElementById('sheetBody').innerHTML =
+        '<fieldset class="layout-settings"><legend>Layout</legend><div class="layout-control">' +
+          [['auto','Auto'],['mobile','Mobile'],['desktop','Desktop']].map(([value,label]) =>
+            '<label class="layout-option"><input type="radio" name="layoutPreference" value="' + value + '"' + (layoutPreference === value ? ' checked' : '') + '><span>' + label + '</span></label>'
+          ).join('') +
+        '</div><p id="layoutStatus" role="status">' + layoutDescription() + '</p></fieldset>' +
         '<div class="setting-card"><div class="setting-title">Theme colour</div>' +
         '<div class="setting-copy">Drag around the wheel, or choose an exact colour.</div>' +
         '<div class="colour-controls" style="margin-top:22px">' +
@@ -4157,7 +4010,7 @@
       window.scrollTo({ top: 0, behavior: "instant" });
     }
 
-    window.addEventListener("resize", updateNavGlider);
+    window.addEventListener("resize", applyLayoutPreference);
     requestAnimationFrame(updateNavGlider);
 
     function deriveAccounts() {
@@ -4247,7 +4100,7 @@
     });
     mainNav.addEventListener('pointermove', event => {
       if (!navDrag || event.pointerId !== navDrag.pointerId) return;
-      const vertical = matchMedia('(min-width: 980px)').matches;
+      const vertical = getComputedStyle(mainNav).flexDirection === 'column';
       const delta = vertical ? event.clientY - navDrag.y : event.clientX - navDrag.x;
       if (!navDrag.moved && Math.abs(delta) < 6) return;
       navDrag.moved = true;
@@ -4267,7 +4120,7 @@
       if (moved) {
         suppressNavClick = true; setTimeout(() => { suppressNavClick = false; }, 0);
         if (!cancelled) {
-          const vertical = matchMedia('(min-width: 980px)').matches;
+          const vertical = getComputedStyle(mainNav).flexDirection === 'column';
           const buttons = [...mainNav.querySelectorAll('[data-view]')];
           const distance = button => { const r = button.getBoundingClientRect(); return Math.abs(vertical ? event.clientY - (r.top+r.bottom)/2 : event.clientX - (r.left+r.right)/2); };
           buttons.sort((a,b) => distance(a)-distance(b));
@@ -4528,9 +4381,11 @@
 
     document.getElementById('sheetBody').addEventListener('change', event => {
       if (event.target.id === 'deviceAccountsFile') importDeviceAccounts(event.target.files[0]);
+      if (event.target.name === 'layoutPreference') chooseLayout(event.target.value);
     });
 
     window.addEventListener("storage", event => {
+      if (event.key === LAYOUT_KEY || event.key === null) { layoutPreference = readLayoutPreference(); applyLayoutPreference(); if (openSheetType === 'appearance') renderAppearanceSheet(); }
       if (event.key === STATE_KEY) { manualStore = readManualStore(); renderAll(); if (openSheetType === "account") renderAccountSheet(); }
       if (event.key === SETTINGS_KEY) { plannerSettings = readPlannerSettings(); renderRecommendation(); }
       if (event.key === THEME_KEY) { applyTheme(readThemeColour()); if (openSheetType === 'appearance') renderAppearanceSheet(); }

@@ -7,12 +7,26 @@ changed by this branch. This cloud is Linux with no Mac database or Apple Mail.
 
 ## Changes to pick up
 
+- Follow-up layout redesign: More → Appearance → Layout now offers Auto, Mobile
+  and Desktop, saved per browser. Auto changes at 980px; forced Mobile stays a
+  centred phone layout (up to 480px) even on a computer. Forced Desktop adapts
+  down to phone widths without horizontal scrolling. Switching preserves current
+  view, manual usage, filters, account mappings, theme and financial data.
+- Desktop now has its own `desktop-layout.css`: compact header with horizontal
+  glass navigation, three equal summary cards, a two-column planner/discovery
+  workspace, account grids and a six-card settings grid. The old sidebar and
+  oversized Home panel are removed. Keep this stylesheet separate from phone
+  styling; the public allowlist includes it.
+- The repeated More kicker/title are replaced by one “Settings & tools” heading;
+  More appears once in navigation. Phone Home geometry was compared to the previous
+  branch version and remained identical.
+
 - Clear header: explicit stacking, safe-area spacing, no text glow/blur, and an
   11px high-contrast update timestamp. Title/timestamp geometry is tested.
 - Phone navigation: a compact glass capsule, 14px side margins, 8px above the
   bottom safe area. Neutral dark active lens, specular borders, spectral rim
   while dragging, spring settling, click/drag and keyboard navigation. Desktop
-  retains its sidebar. Reduced motion and opaque fallback work. This is web CSS
+  uses a horizontal header capsule. Reduced motion and opaque fallback work. This is web CSS
   glass; iPhone Safari still needs an on-device check.
 - More → Appearance: draggable colour wheel, keyboard controls, exact colour
   picker, brightness, presets/reset. Accent text, highlights and ambient light
@@ -116,12 +130,15 @@ make checks pass.
 ## Cloud verification and limits
 
 Full automated suite, privacy/consistency, syntax, build and expanded Chromium
-flows pass. Six new regression groups cover count extraction, legacy uncertainty,
+flows pass. Seven new regression groups cover layout selection, count extraction, legacy uncertainty,
 non-destructive fingerprint correction, colour contrast, identity validation and
 read-only export permissions/source preservation. Browser coverage includes
 320–1440px layouts, header geometry, nav drag/keyboard, private import/search/
 copy/reload/forget with no upload, colour wheel/persistence, unknown fees, review
-counts, focus, reduced motion and network failures. Screens were visually checked
+counts, focus, reduced motion and network failures. Layout tests also cover saved
+overrides, Auto/resize, keyboard radio selection, forced Desktop at 320–1440px,
+forced Mobile on a wide display, menu heading duplication and unchanged manual
+usage/savings. Screens were visually checked
 against the unchanged public snapshot. CI adds WebKit browser coverage and keeps
 macOS/Linux Node 22/24 coverage.
 
