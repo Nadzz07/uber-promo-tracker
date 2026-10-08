@@ -38,6 +38,13 @@ try {
     assert.equal(accountUsage({ orderCount: 0, rideCount: 0 }).partialUsage, false);
     assert.equal(accountUsage({ orderCount: 1, rideCount: 1 }).partialUsage, false);
   });
+  test('Transport totals prefer the final discounted charge over the pre-discount fare', () => {
+    const ride = { ...email, subject: 'Your trip with Uber', body: 'Thanks for riding with Uber\nFare £11.91\nPromotion -£10.00\nTotal £1.91' };
+    assert.equal(parseUberTransportReceipt(ride).total, 1.91);
+    assert.equal(parseUberTransportReceipt({ ...ride, body: 'Thanks for riding with Uber\nFare £7.95\nPromotion -£7.95\nTotal £0.00' }).total, 0);
+    assert.equal(parseUberTransportReceipt({ ...ride, body: ride.body + '\nNew total £1.50' }).total, 1.50);
+    assert.equal(parseUberTransportReceipt({ ...ride, body: 'Thanks for riding with Uber\nFare £4.00' }).total, 4);
+  });
   test('Large Mail formatting gaps cannot stall monetary parsing or invent a discount', () => {
     const program = String.raw`import { moneyForLabel } from './receipt-text.js';
       const gap = ' \n'.repeat(4000);
@@ -113,6 +120,22 @@ try {
     deleteAccountsPermanently(db, [email.recipient]);
     assert.equal(ensureAccount(db, { alias: email.recipient, kind: 'receipt' }), null);
     assert.equal(ensureAccount(db, { alias: email.recipient, kind: 'promo' }), null);
+    db.close();
+  });
+  test('Older duplicate receipts cannot replace newer charges, discounts or source evidence', () => {
+    const db = openPrivateDb(':memory:'); const a = ensureAccount(db, { alias: email.recipient });
+    const latest = { accountRef: a.accountRef, messageKey: 'new-source', sentAt: '2026-10-02T12:00:00Z', receivedAt: '2026-10-02T12:00:00Z', total: 0, promotionDiscount: 0, uberCashUsed: 0, uberCashSavings: 0, reportedSavings: 0, uberOneSavings: 0 };
+    const older = { ...latest, messageKey: 'older-source', sentAt: '2026-10-01T12:00:00Z', receivedAt: '2026-10-01T12:00:00Z', total: 5, promotionDiscount: 5, uberCashUsed: 5, uberCashSavings: 5, reportedSavings: 5, uberOneSavings: 5 };
+    upsertReceipt(db, { ...latest, receiptId: 'eats-new', orderId: 'ORDER-1' });
+    upsertReceipt(db, { ...older, receiptId: 'eats-old', orderId: 'ORDER-1' });
+    upsertTransportReceipt(db, { ...latest, receiptId: 'ride-new', tripId: 'TRIP-1', transportMode: 'bike' });
+    upsertTransportReceipt(db, { ...older, receiptId: 'ride-old', tripId: 'TRIP-1', transportMode: 'ride' });
+    for (const table of ['receipts', 'transport_receipts']) {
+      const rows = db.prepare('SELECT * FROM ' + table).all(); assert.equal(rows.length, 1);
+      assert.equal(rows[0].message_key, 'new-source');
+      for (const field of ['total', 'promotion_discount', 'uber_cash_used', 'uber_cash_savings', 'reported_savings', 'uber_one_savings']) assert.equal(rows[0][field], 0, table + ' ' + field);
+    }
+    assert.equal(db.prepare('SELECT transport_mode FROM transport_receipts').get().transport_mode, 'bike');
     db.close();
   });
   test('Transport parser upgrades and sparse copies reuse durable identities and preserve amounts', () => {

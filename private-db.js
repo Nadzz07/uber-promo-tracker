@@ -706,7 +706,8 @@ export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
     ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(receipt_id) DO UPDATE SET
       account_ref = excluded.account_ref,
-      message_key = excluded.message_key,
+      message_key = CASE WHEN excluded.received_at >= receipts.received_at
+        THEN COALESCE(excluded.message_key, receipts.message_key) ELSE receipts.message_key END,
       sent_at = MIN(receipts.sent_at, excluded.sent_at),
       received_at = MAX(receipts.received_at, excluded.received_at),
       order_id = CASE WHEN excluded.received_at >= receipts.received_at
@@ -736,7 +737,9 @@ export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
       uber_cash_used = CASE WHEN excluded.received_at >= receipts.received_at
         THEN COALESCE(excluded.uber_cash_used, receipts.uber_cash_used)
         ELSE COALESCE(receipts.uber_cash_used, excluded.uber_cash_used) END,
-      uber_cash_savings = COALESCE(excluded.uber_cash_savings, receipts.uber_cash_savings),
+      uber_cash_savings = CASE WHEN excluded.received_at >= receipts.received_at
+        THEN COALESCE(excluded.uber_cash_savings, receipts.uber_cash_savings)
+        ELSE COALESCE(receipts.uber_cash_savings, excluded.uber_cash_savings) END,
       reported_savings = CASE WHEN excluded.received_at >= receipts.received_at
         THEN COALESCE(excluded.reported_savings, receipts.reported_savings)
         ELSE COALESCE(receipts.reported_savings, excluded.reported_savings) END,
@@ -834,16 +837,28 @@ export function upsertTransportReceipt(
     ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(receipt_id) DO UPDATE SET
       account_ref = excluded.account_ref,
-      message_key = excluded.message_key,
+      message_key = CASE WHEN excluded.received_at >= transport_receipts.received_at
+        THEN COALESCE(excluded.message_key, transport_receipts.message_key) ELSE transport_receipts.message_key END,
       sent_at = MIN(transport_receipts.sent_at, excluded.sent_at),
       received_at = MAX(transport_receipts.received_at, excluded.received_at),
-      promotion_discount = COALESCE(excluded.promotion_discount, transport_receipts.promotion_discount),
-      uber_cash_used = COALESCE(excluded.uber_cash_used, transport_receipts.uber_cash_used),
-      uber_cash_savings = COALESCE(excluded.uber_cash_savings, transport_receipts.uber_cash_savings),
-      reported_savings = COALESCE(excluded.reported_savings, transport_receipts.reported_savings),
-      uber_one_savings = COALESCE(excluded.uber_one_savings, transport_receipts.uber_one_savings),
+      promotion_discount = CASE WHEN excluded.received_at >= transport_receipts.received_at
+        THEN COALESCE(excluded.promotion_discount, transport_receipts.promotion_discount)
+        ELSE COALESCE(transport_receipts.promotion_discount, excluded.promotion_discount) END,
+      uber_cash_used = CASE WHEN excluded.received_at >= transport_receipts.received_at
+        THEN COALESCE(excluded.uber_cash_used, transport_receipts.uber_cash_used)
+        ELSE COALESCE(transport_receipts.uber_cash_used, excluded.uber_cash_used) END,
+      uber_cash_savings = CASE WHEN excluded.received_at >= transport_receipts.received_at
+        THEN COALESCE(excluded.uber_cash_savings, transport_receipts.uber_cash_savings)
+        ELSE COALESCE(transport_receipts.uber_cash_savings, excluded.uber_cash_savings) END,
+      reported_savings = CASE WHEN excluded.received_at >= transport_receipts.received_at
+        THEN COALESCE(excluded.reported_savings, transport_receipts.reported_savings)
+        ELSE COALESCE(transport_receipts.reported_savings, excluded.reported_savings) END,
+      uber_one_savings = CASE WHEN excluded.received_at >= transport_receipts.received_at
+        THEN COALESCE(excluded.uber_one_savings, transport_receipts.uber_one_savings)
+        ELSE COALESCE(transport_receipts.uber_one_savings, excluded.uber_one_savings) END,
       trip_id = COALESCE(excluded.trip_id, transport_receipts.trip_id),
-      transport_mode = excluded.transport_mode,
+      transport_mode = CASE WHEN excluded.received_at >= transport_receipts.received_at
+        THEN excluded.transport_mode ELSE transport_receipts.transport_mode END,
       total = CASE WHEN excluded.received_at >= transport_receipts.received_at
         THEN COALESCE(excluded.total, transport_receipts.total)
         ELSE COALESCE(transport_receipts.total, excluded.total) END,
