@@ -33,6 +33,19 @@ try {
     assert.equal(classifyAccount({ canLogin: true }, []).accountState, 'no_offers');
     assert.equal(classifyAccount({ canLogin: true }, [...active, { trackingState: 'needs_checking' }]).needsReview, false, 'A reviewable offer cannot make a usable account Needs checking');
     assert.equal(classifyAccount({ canLogin: true }, [{ trackingState: 'expired', closedReason: 'expired' }]).accountState, 'expired');
+    assert.equal(classifyAccount({ canLogin: true }, [{ trackingState: 'expired', closedReason: 'expired' }, { trackingState: 'used', closedReason: 'uses_finished' }]).accountState, 'no_offers', 'Mixed expired and consumed offers are not all consumed');
+    assert.equal(accountUsage({ orderCount: 1, rideCount: 0 }).partialUsage, true);
+    assert.equal(accountUsage({ orderCount: 0, rideCount: 0 }).partialUsage, false);
+    assert.equal(accountUsage({ orderCount: 1, rideCount: 1 }).partialUsage, false);
+  });
+  test('Large Mail formatting gaps cannot stall monetary parsing or invent a discount', () => {
+    const program = String.raw`import { moneyForLabel } from './receipt-text.js';
+      const gap = ' \n'.repeat(4000);
+      const result = moneyForLabel('Promotion' + gap + 'No discount applied\nTotal £4', ['promotion']);
+      if (result.value !== null) throw new Error('Invented promotion');
+      if (moneyForLabel('Promotion: \n - \n £10', ['promotion']).value !== 10) throw new Error('Lost multiline amount');`;
+    const result = spawnSync(process.execPath, ['--input-type=module', '-e', program], { encoding: 'utf8', timeout: 2000 });
+    assert.equal(result.status, 0, result.stderr || result.error?.message);
   });
   test('35-day policy uses the earliest offer, preserves earlier explicit terms, and never invents usage', () => {
     const capped = applyOfferExpiryPolicy({ ...offer, firstEmailSentAt: '2026-09-01T12:00:00Z', emailSentAt: '2026-10-01T12:00:00Z' });

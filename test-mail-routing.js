@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
+import vm from "node:vm";
 import path from "node:path";
 import { openPrivateDb, setAccountAccess } from "./private-db.js";
 
@@ -123,6 +124,34 @@ try {
   const exporterSource = fs.readFileSync("mac/export-uber-mail.js", "utf8");
   const moverSource = fs.readFileSync("mac/move-inbox-receipts.js", "utf8");
   const trashSource = fs.readFileSync("mac/trash-archived-inbox.js", "utf8");
+  // Exercise the optional router without touching Mail: missing or ambiguous
+  // recovery folders must leave the original message untouched.
+  for (const destinationCount of [0, 1, 2]) {
+    const destinations = Array.from({ length: destinationCount }, () => ({
+      name: () => "Bin", mailboxes: () => []
+    }));
+    const account = { mailboxes: () => destinations };
+    const message = { messageId: () => "<routing-test>", mailbox: () => ({ account: () => account }) };
+    const collection = [message];
+    collection.messageId = () => ["<routing-test>"];
+    collection.dateReceived = () => [new Date()];
+    const moves = [];
+    const context = vm.createContext({
+      ObjC: { import() {} }, $: {},
+      Application: () => ({ inbox: { messages: collection },
+        move: (msg, options) => moves.push({ msg, options }),
+        delete: () => { throw new Error("Permanent deletion is forbidden"); }
+      })
+    });
+    vm.runInContext(trashSource.replace(/^#!.*\n/, ""), context);
+    context.readUtf8 = () => JSON.stringify({ messageIds: ["<routing-test>"] });
+    context.stderr = () => {};
+    const result = JSON.parse(context.run(["fixture", "60"]));
+    assert.equal(result.trashed, destinationCount === 1 ? 1 : 0);
+    assert.equal(result.failed, destinationCount === 1 ? 0 : 1);
+    assert.equal(moves.length, destinationCount === 1 ? 1 : 0);
+    if (moves.length) assert.equal(moves[0].options.to, destinations[0]);
+  }
   const commonSource = fs.readFileSync("mac/common.sh", "utf8");
   const exampleEnv = fs.readFileSync("tracker.example.env", "utf8");
 
@@ -163,9 +192,9 @@ try {
     "example configuration should expose Archived-account Bin routing"
   );
   assert.equal(
-    trashSource.includes("Mail.delete(message)"),
+    trashSource.includes("Mail.move(message, { to: destination })"),
     true,
-    "archived mail should use Mail's recoverable delete-to-Bin action"
+    "archived mail should move to an explicit recoverable Bin mailbox"
   );
   assert.equal(
     /Mail\.erase|expunge|Erase Deleted Items/i.test(trashSource),

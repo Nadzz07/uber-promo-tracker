@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import { backupPrivateDb } from "./private-backup.js";
 import path from "node:path";
+import { parserFingerprint } from "./parser-fingerprint.js";
 import { assertPublicSnapshot } from "./public-snapshot.js";
 import { parseAccessList } from "./access-list.js";
 import { classifyAccount } from "./account-state.js";
@@ -38,6 +39,7 @@ import {
   transportReceiptFingerprint
 } from "./identity.js";
 
+const parsingFingerprint = parserFingerprint();
 const inputPath = process.argv[2] || "./emails.local.json";
 const outputPath = process.argv[3] || "./promos.json";
 const publicHistoryPath = process.argv[4] || "./history.json";
@@ -130,7 +132,7 @@ async function loadAccountAllowlist() {
     const text = await fs.readFile(accountAccessPath, "utf8");
     return new Map(parseAccessList(text).map(record => [record.email.trim().toLowerCase(), record]));
   } catch (error) {
-    if (error?.code === "ENOENT") return null;
+    if (error?.code === "ENOENT" && !process.env.TRACKER_ACCOUNT_ACCESS) return null;
     throw error;
   }
 }
@@ -415,7 +417,11 @@ async function generatePromos() {
     const summary = getSavingsSummary(db);
     summary.accountStatusVersion = 1;
     summary.availableAccounts = accounts.filter(a => a.accountState === "available").length;
-    summary.usedAccounts = accounts.filter(a => a.accountUsed).length;
+    summary.usedAccounts = accounts.filter(a => a.accountState === "used").length;
+    summary.completedUsageAccounts = accounts.filter(a => a.accountUsed).length;
+    summary.partialUsageAccounts = accounts.filter(a => a.canLogin && a.partialUsage).length;
+    summary.expiredAccounts = accounts.filter(a => a.accountState === "expired").length;
+    summary.fullyUsedAccounts = accounts.filter(a => a.accountState === "fully_used").length;
     summary.archivedAccounts = accounts.filter(a => a.accountState === "archived").length;
     summary.needsCheckingAccounts = accounts.filter(a => a.accountState === "needs_checking").length;
     const eligibleRefs = new Set(accounts.filter(a => a.recommendationEligible).map(a => a.accountRef));
@@ -489,6 +495,8 @@ async function generatePromos() {
       temporaryFiles.push(temporary);
       await fs.writeFile(temporary, JSON.stringify(value, null, 2) + "\n", { mode: 0o600 });
     }
+    db.prepare("INSERT INTO meta(key, value) VALUES(?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
+      .run("mail_parser_fingerprint", parsingFingerprint);
     db.exec("COMMIT");
     transaction = false;
     await fs.rename(temporaryFiles[0], outputPath);

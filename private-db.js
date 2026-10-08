@@ -161,6 +161,8 @@ function initSchema(db) {
     CREATE INDEX IF NOT EXISTS idx_receipts_account ON receipts(account_ref);
     CREATE INDEX IF NOT EXISTS idx_transport_receipts_account ON transport_receipts(account_ref);
     CREATE INDEX IF NOT EXISTS idx_messages_sent ON messages(sent_at);
+    CREATE INDEX IF NOT EXISTS idx_messages_account_mid
+      ON messages(account_ref, lower(trim(message_id, '<> ')));
   `);
 
 

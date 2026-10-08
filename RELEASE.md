@@ -155,3 +155,26 @@ completeness, real monetary totals, remote CI, PR review/merge and live deployme
 need their own evidence. No real-data or deployment claim follows from local
 synthetic tests. The manual deployment confirmation is an operator assertion,
 not a cryptographic attestation that Mail was complete.
+
+## Incremental sync and large private archives
+
+Normal scans skip a message body only when its Message-ID, original account,
+received date and committed parser-code fingerprint match the private database.
+Changed messages, new messages and parser-code changes are reprocessed. Set
+`TRACKER_FULL_RESCAN=true` for an intentional complete reparse. The account CSV
+from `tracker.local.env` is exported to the importer; a missing configured CSV
+blocks sync rather than allowing excluded accounts to return. Synthetic tests
+run without the owner's private configuration in their environment.
+
+For large historical mailboxes, Mail's **Export Mailbox** action can create a
+read-only local MBOX copy without changing messages. Keep that export private.
+`parseMboxStream` supports an awaited `onMessage` callback for bounded-memory
+consumers. The full original export remains evidence even when a verification
+copy stores the decoded visible message text. Never treat a partial export as a
+complete mailbox. Match exported Message-IDs to live metadata before release.
+
+Optional receipt filing and Archived-account Bin routing require their separate
+explicit opt-ins and `TRACKER_READ_ONLY_MAIL=false`. Their plans and results are
+retained in owner-only `mail-routing.local.*` directories. Bin routing uses an
+explicit, unique recoverable mailbox and fails closed when unavailable; it never
+uses Mail's delete command or empties Bin.

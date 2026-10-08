@@ -12,6 +12,17 @@ function isoDate(value) {
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
+function readKnownMessages(file) {
+  if (!file) return {};
+  const value = $.NSString.stringWithContentsOfFileEncodingError($(String(file)), $.NSUTF8StringEncoding, null);
+  if (!value) throw new Error("Could not read committed Mail evidence cache.");
+  return JSON.parse(ObjC.unwrap(value));
+}
+
+function mailEvidenceKey(messageId, alias) {
+  return JSON.stringify([String(messageId || '').trim().replace(/^<|>$/g, '').toLowerCase(), String(alias || '').trim().toLowerCase()]);
+}
+
 function headerValue(rawSource, headerName) {
   const headerBlock = String(rawSource || "")
     .split(/\r?\n\r?\n/, 1)[0]
@@ -128,9 +139,12 @@ function bulkMailboxIndex(box) {
     const subjects = box.messages.subject();
     const senders = box.messages.sender();
     const sent = box.messages.dateSent();
+    const messageIds = box.messages.messageId();
+    const recipients = box.messages.toRecipients.address();
+    const finalIds = box.messages.id();
 
     const n = ids.length;
-    if ([received, subjects, senders, sent].some(values => values.length !== n)) {
+    if ([received, subjects, senders, sent, messageIds, recipients].some(values => values.length !== n) || JSON.stringify(ids) !== JSON.stringify(finalIds)) {
       throw new Error("Mailbox changed during indexing; retry the scan.");
     }
 
@@ -143,6 +157,8 @@ function bulkMailboxIndex(box) {
       rows.push({
         index: i,
         id: ids[i],
+        messageId: String(messageIds[i] || ""),
+        recipients: recipients[i],
         subject: String(subjects[i] || ""),
         sender: String(senders[i] || ""),
         receivedAt,
@@ -160,7 +176,7 @@ function bulkMailboxIndex(box) {
   }
 }
 
-function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt) {
+function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, knownMessages = {}) {
   const range = dateRange(daysBack, olderThanDays, scanAt);
 
   stderr("Reading Mail metadata: " + sourceMailbox + "...");
@@ -168,6 +184,7 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt) 
   stderr("Indexed " + rows.length + " messages in " + sourceMailbox + ".");
 
   const results = [];
+  let skipped = 0;
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
@@ -177,7 +194,15 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt) 
     if (range.end && row.receivedAt >= range.end) continue;
     if (!looksUber(row.subject, row.sender)) continue;
 
-    const message = box.messages[row.index];
+    const addresses = (row.recipients || []).map(address => String(address).trim().toLowerCase()).filter(Boolean);
+    const unique = addresses.filter((address, index) => addresses.indexOf(address) === index);
+    const cachedAlias = unique.length === 1 ? unique[0] : '';
+    if (cachedAlias && row.messageId && knownMessages[mailEvidenceKey(row.messageId, cachedAlias)] === isoDate(row.receivedAt)) {
+      skipped++;
+      continue;
+    }
+    // Resolve by stable ID: new Inbox messages must not shift an indexed row.
+    const message = box.messages.byId(row.id);
 
     if (Number(message.id()) !== Number(row.id)) {
       throw new Error("Mailbox changed during export; retry the scan.");
@@ -186,15 +211,20 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt) 
     let recipient = "";
     let body = "";
 
-    try { rawSource = String(message.source() || ""); } catch (_) {}
-    try { recipient = firstRecipientAddress(message, rawSource); } catch (_) {}
+    if (unique.length > 1) throw new Error('Multiple recipient accounts; cannot assign message safely.');
+    recipient = cachedAlias;
+    if (!recipient || !row.messageId) {
+      try { rawSource = String(message.source() || ""); } catch (_) {}
+      if (!recipient) try { recipient = firstRecipientAddress(message, rawSource); } catch (_) {}
+    }
     try { body = String(message.content() || ""); }
     catch (_) { throw new Error("A selected message body could not be read; retry the scan."); }
     if (!recipient || !body.trim()) throw new Error("A selected message is incomplete; retry after Mail finishes downloading.");
     if (Number(message.id()) !== Number(row.id)) throw new Error("Mailbox changed during export; retry the scan.");
 
-    const rawMessageId = headerValue(rawSource, "Message-ID");
+    const rawMessageId = row.messageId || headerValue(rawSource, "Message-ID");
 
+    if (results.length && results.length % 100 === 0) stderr("Read " + results.length + " new/changed messages from " + sourceMailbox + ".");
     results.push({
       subject: row.subject,
       sender: row.sender,
@@ -209,7 +239,7 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt) 
   }
 
   stderr(
-    "Exported " + results.length + " Uber message(s) from " + sourceMailbox + "."
+    "Exported " + results.length + " Uber message(s) from " + sourceMailbox + "; skipped " + skipped + " unchanged committed messages."
   );
 
   return results;
@@ -258,6 +288,7 @@ function run(argv) {
   if ([promoDays, receiptDays, receiptOlderThanDays, promoOlderThanDays].some(n => !Number.isInteger(n) || n < 0 || n > 36500)) {
     throw new Error("Scan windows must be nonnegative whole days.");
   }
+  const knownMessages = readKnownMessages(argv[7]);
   const Mail = Application("Mail");
   Mail.includeStandardAdditions = false;
 
@@ -283,7 +314,8 @@ function run(argv) {
           promoDays,
           promoOlderThanDays,
           promoMailboxName,
-          scanAt
+          scanAt,
+          knownMessages
         )
       );
       scannedMailboxes.push({
@@ -314,7 +346,8 @@ function run(argv) {
           receiptDays,
           receiptOlderThanDays,
           receiptMailboxName,
-          scanAt
+          scanAt,
+          knownMessages
         )
       );
       scannedMailboxes.push({

@@ -32,7 +32,7 @@ echo "Range: $RECENT_DAYS to $HISTORY_DAYS days ago"
 echo "Chunk size: $CHUNK_DAYS days"
 echo
 
-npm test
+run_tracker_tests
 
 SCAN_AT="$(node -p 'new Date().toISOString()')"
 START="$RECENT_DAYS"

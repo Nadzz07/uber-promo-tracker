@@ -17,7 +17,7 @@ export function moneyForLabel(text, labels) {
     // A label may be on the previous line. Never skip arbitrary words, which
     // confused "Total savings" with "Total" and crossed into unrelated rows.
     const match = text.match(new RegExp("(?:^|\\b)" + label +
-      "\\b\\s*[:：]?\\s*[−–-]?\\s*£\\s*(\\d{1,3}(?:,\\d{3})+(?:\\.\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?)\\b", "i"));
+      "\\b\\s*(?:[:：]\\s*)?(?:[−–-]\\s*)?£\\s*(\\d{1,3}(?:,\\d{3})+(?:\\.\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?)\\b", "i"));
     if (match) {
       const amount = match[1];
       return { value: number(/,\d{3}(?:[,.]|$)/.test(amount) ? amount : amount.replace(",", ".")), match };

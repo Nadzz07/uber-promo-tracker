@@ -72,7 +72,7 @@ assert.ok(
   "release sync should plan Mail routing after private import"
 );
 assert.ok(
-  fs.readFileSync("mac/trash-archived-inbox.js", "utf8").includes("Mail.delete(message)"),
+  fs.readFileSync("mac/trash-archived-inbox.js", "utf8").includes("Mail.move(message, { to: destination })"),
   "release sync should route Archived-account Mail to Bin without an erase command"
 );
 

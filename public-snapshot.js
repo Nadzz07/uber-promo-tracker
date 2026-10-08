@@ -46,7 +46,7 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     for (const [field, count] of [
       ['knownAccounts', payload.accounts.length], ['accessibleAccounts', payload.accounts.filter(a => a.canLogin).length],
       ['inaccessibleAccounts', payload.accounts.filter(a => !a.canLogin).length], ['availableAccounts', payload.accounts.filter(a => a.accountState === 'available').length],
-      ['usedAccounts', payload.accounts.filter(a => a.accountUsed).length], ['archivedAccounts', payload.accounts.filter(a => a.accountState === 'archived').length],
+      ['usedAccounts', payload.accounts.filter(a => a.accountState === 'used').length], ['archivedAccounts', payload.accounts.filter(a => a.accountState === 'archived').length],
       ['needsCheckingAccounts', payload.accounts.filter(a => a.accountState === 'needs_checking').length],
       ['trackedOrders', payload.accounts.reduce((n, a) => n + a.orderCount, 0)]
     ]) if (summary[field] !== count) throw new Error('Summary counter disagrees with accounts: ' + field);

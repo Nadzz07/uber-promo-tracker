@@ -2,6 +2,11 @@
 # Shared runtime, configuration and exclusive lock for every Mail sync entry point.
 umask 077
 if [[ -f tracker.local.env ]]; then source tracker.local.env; fi
+export TRACKER_ACCOUNT_ACCESS TRACKER_PRIVATE_DB TRACKER_FULL_RESCAN
+
+run_tracker_tests() {
+  env -u TRACKER_ACCOUNT_ACCESS -u TRACKER_ALLOW_UNKNOWN_ACCOUNTS -u TRACKER_PRIVATE_DB -u TRACKER_FULL_RESCAN npm test
+}
 
 require_runtime() {
   if ! command -v node >/dev/null 2>&1 || ! node --input-type=module -e 'import { DatabaseSync } from "node:sqlite"; const db = new DatabaseSync(":memory:"); db.close();' >/dev/null 2>&1; then
@@ -41,6 +46,13 @@ load_recent_config() {
   RECEIPT_DAYS="$(positive_days "${APPLE_MAIL_RECEIPT_DAYS:-90}" APPLE_MAIL_RECEIPT_DAYS)"
   if (( RECEIPT_DAYS > 365 )); then RECEIPT_DAYS=90; fi
   PRIVATE_DB="${TRACKER_PRIVATE_DB:-uber-tracker.local.db}"
+  TRACKER_ACCOUNT_ACCESS="${TRACKER_ACCOUNT_ACCESS:-account-access.local.csv}"
+  export TRACKER_ACCOUNT_ACCESS
+  export TRACKER_ALLOW_UNKNOWN_ACCOUNTS=0
+  if [[ ! -f "$TRACKER_ACCOUNT_ACCESS" ]]; then
+    echo "An existing authoritative account access CSV is required before Mail sync." >&2; exit 1
+  fi
+  node --input-type=module -e 'import fs from "node:fs"; import { parseAccessList } from "./access-list.js"; parseAccessList(fs.readFileSync(process.argv[1], "utf8"));' "$TRACKER_ACCOUNT_ACCESS"
   MOVE_INBOX_RECEIPTS="${APPLE_MAIL_MOVE_INBOX_RECEIPTS:-false}"
   TRASH_ARCHIVED_MAIL="${APPLE_MAIL_TRASH_ARCHIVED:-false}"
   if [[ "$MOVE_INBOX_RECEIPTS" != true && "$MOVE_INBOX_RECEIPTS" != false ]]; then
@@ -53,13 +65,14 @@ load_recent_config() {
 
 export_recent_mail() {
   echo "Exporting recent Mail..."
+  node mac/export-known-messages.js "${PRIVATE_DB:-uber-tracker.local.db}" > "$TMP_DIR/known-messages.json"
   osascript -l JavaScript mac/export-uber-mail.js \
-    "$PROMO_DAYS" "$PROMO_FOLDERS" "$RECEIPT_DAYS" "$RECEIPT_FOLDER" \
+    "$PROMO_DAYS" "$PROMO_FOLDERS" "$RECEIPT_DAYS" "$RECEIPT_FOLDER" 0 0 "" "$TMP_DIR/known-messages.json" \
     > "$TMP_DIR/emails.json"
   node --input-type=module -e 'import fs from "node:fs"; const p=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(!Array.isArray(p.messages)) throw new Error("Invalid Mail export"); console.log("Exported messages: " + p.messages.length);' "$TMP_DIR/emails.json"
   # Receipt discovery needs the full receipt window in Inbox too. Previously
   # Inbox ages 35–90 days fell between the promo scan and historical backfill.
-  osascript -l JavaScript mac/export-uber-mail.js "$RECEIPT_DAYS" "INBOX" 0 "$RECEIPT_FOLDER" > "$TMP_DIR/inbox-candidates.json"
+  osascript -l JavaScript mac/export-uber-mail.js "$RECEIPT_DAYS" "INBOX" 0 "$RECEIPT_FOLDER" 0 0 "" "$TMP_DIR/known-messages.json" > "$TMP_DIR/inbox-candidates.json"
   node mac/find-inbox-receipts.js "$TMP_DIR/inbox-candidates.json" "$TMP_DIR/inbox-receipt-ids.json" "$TMP_DIR/inbox-receipts.json"
   node --input-type=module - "$TMP_DIR/emails.json" "$TMP_DIR/inbox-receipts.json" <<'JS'
 import fs from 'node:fs';
@@ -90,15 +103,19 @@ file_imported_receipts() {
   node mac/plan-inbox-routing.js \
     emails.local.json "$PRIVATE_DB" \
     "$TMP_DIR/receipt-moves.json" "$TMP_DIR/archived-trash.json"
+  local audit_dir="mail-routing.local.$(date -u +%Y%m%dT%H%M%SZ)-$$"
+  mkdir "$audit_dir"
+  cp "$TMP_DIR/receipt-moves.json" "$audit_dir/receipt-moves.local.json"
+  cp "$TMP_DIR/archived-trash.json" "$audit_dir/archived-bin.local.json"
 
   if [[ "$MOVE_INBOX_RECEIPTS" == true ]]; then
-    if ! osascript -l JavaScript mac/move-inbox-receipts.js "$TMP_DIR/receipt-moves.json" "$RECEIPT_FOLDER" "$PROMO_DAYS"; then
+    if ! osascript -l JavaScript mac/move-inbox-receipts.js "$TMP_DIR/receipt-moves.json" "$RECEIPT_FOLDER" "$PROMO_DAYS" > "$audit_dir/receipt-result.local.json"; then
       echo "Receipt filing failed; imported data is safe. Filing can be retried on the next sync." >&2
     fi
   fi
 
   if [[ "$TRASH_ARCHIVED_MAIL" == true ]]; then
-    if ! osascript -l JavaScript mac/trash-archived-inbox.js "$TMP_DIR/archived-trash.json" "$PROMO_DAYS"; then
+    if ! osascript -l JavaScript mac/trash-archived-inbox.js "$TMP_DIR/archived-trash.json" "$PROMO_DAYS" > "$audit_dir/bin-result.local.json"; then
       echo "Archived-account Bin routing failed; imported data is safe and affected messages remain in Inbox." >&2
     fi
   fi

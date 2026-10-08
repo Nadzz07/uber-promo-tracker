@@ -2681,7 +2681,7 @@
   </div>
 
   <script type="module">
-    import { classifyAccount, accountStatusLabel } from "./account-state.js";
+    import { classifyAccount, accountStatusLabel, accountUsageDescription } from "./account-state.js";
     import { classifyOfferTrackingState } from "./offer-state.js";
     import { isOfferExpired, expiryEndTime, applyOfferExpiryPolicy } from "./offer-time.js";
     import {
@@ -3236,6 +3236,7 @@
       pills.push('<span class="pill' + (hasHistory ? '' : ' warn') + '">' + escapeHtml(receiptHistoryText(account)) + '</span>');
 
       pills.push('<span class="pill">' + escapeHtml(accountStatusLabel(currentAccountState(account))) + '</span>');
+      if (currentAccountState(account).partialUsage) pills.push('<span class="pill">Partial account usage</span>');
       if (current.some(is15off15)) pills.push('<span class="pill">£15 off £15</span>');
       if (current.some(promo => promo.discountType === "uberCash")) pills.push('<span class="pill">Uber Cash</span>');
 
@@ -3324,7 +3325,7 @@
       const search = String(document.getElementById("accountSearch").value || "").trim().toLowerCase();
       let list = enrichedLoginAccounts();
 
-      if (accountFilter === "used") list = list.filter(account => account.accountUsed);
+      if (accountFilter === "used") list = list.filter(account => account.accountState === "used");
       if (accountFilter === "review") list = list.filter(account => account.accountState === "needs_checking");
       if (accountFilter === "expired") list = list.filter(account => account.accountState === "expired");
       if (accountFilter === "offers") list = list.filter(account => account.recommendationEligible && account.promoCount > 0);
@@ -3615,6 +3616,7 @@
             '<div><span>Save now</span><strong>' + (bestSaving > 0 ? escapeHtml(money(bestSaving)) : '—') + '</strong></div>' +
             '<div><span>History</span><strong>' + escapeHtml(receiptHistoryText(account)) + '</strong></div>' +
           '</div>' +
+          '<div class="account-login-route">' + escapeHtml(accountUsageDescription(account)) + '</div>' +
           '<div class="account-sheet-actions">' +
             '<button class="account-primary" data-use-this-account="' + escapeHtml(account.accountRef) + '"' + (currentAccountState(account).recommendationEligible ? '' : ' disabled') + '>Use this account</button>' +
           '</div>' +
