@@ -477,6 +477,14 @@ export function upsertMessage(db, message) {
 
 export function upsertOffer(db, promo, seenAt = new Date().toISOString()) {
   const sourceSentAt = promo.emailSentAt || promo.receivedAt || seenAt;
+  const previousFirst = promo.messageKey ? db.prepare(`SELECT MIN(first_sent_at) AS first_sent_at
+    FROM offers WHERE message_key = ? AND account_ref = ?`).get(promo.messageKey, promo.accountRef)?.first_sent_at : null;
+  const firstSentAt = previousFirst && previousFirst < sourceSentAt ? previousFirst : sourceSentAt;
+  // Correcting parsed terms changes the fingerprint. Retain superseded rows as
+  // private evidence, but do not publish two offers for the same source message.
+  if (promo.messageKey) db.prepare(`UPDATE offers SET status = 'parser_superseded'
+    WHERE message_key = ? AND account_ref = ? AND offer_id != ?`)
+    .run(promo.messageKey, promo.accountRef, promo.offerId);
   const existing = db.prepare(
     "SELECT last_sent_at FROM offers WHERE offer_id = ?"
   ).get(promo.offerId);
@@ -523,7 +531,7 @@ export function upsertOffer(db, promo, seenAt = new Date().toISOString()) {
       promo.expiryConfidence || null,
       promo.classificationConfidence || null,
       JSON.stringify(promo.evidence || {}),
-      sourceSentAt,
+      firstSentAt,
       sourceSentAt,
       seenAt,
       seenAt,
@@ -583,8 +591,8 @@ export function upsertOffer(db, promo, seenAt = new Date().toISOString()) {
     seenAt,
     promo.observedLive === false ? 0 : 1,
     promo.observedLive === false ? 0 : 1,
-    sourceSentAt,
-    sourceSentAt,
+    firstSentAt,
+    firstSentAt,
     sourceSentAt,
     sourceSentAt,
     incomingIsNewer ? 1 : 0,
@@ -628,7 +636,8 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
     FROM offers o
     JOIN accounts a ON a.account_ref = o.account_ref
     LEFT JOIN messages m ON m.message_key = o.message_key
-    WHERE (m.message_key IS NULL OR (m.accepted = 1 AND m.kind = 'promo'))
+    WHERE o.status != 'parser_superseded'
+      AND (m.message_key IS NULL OR (m.accepted = 1 AND m.kind = 'promo'))
   `;
 
   const args = [];

@@ -26,6 +26,8 @@ exclude:
   - private-backup.js
   - receipt-identity.js
   - RELEASE.md
+  - UI_HANDOFF.md
+  - test-ui.js
   - test-finalisation.js
   - private-db.js
   - processor-test.html

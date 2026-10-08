@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
-import { chromium } from 'playwright';
+import { chromium, webkit } from 'playwright';
 import { once } from 'node:events';
 import { execFileSync } from 'node:child_process';
 execFileSync(process.execPath, ['build-site.js']);
@@ -17,7 +17,8 @@ server.listen(0, '127.0.0.1'); await once(server, 'listening');
 const url = 'http://127.0.0.1:' + server.address().port;
 let browser;
 try {
-  browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined, args: ['--no-sandbox', '--disable-dev-shm-usage'] });
+  const engine = process.env.TRACKER_BROWSER_ENGINE === 'webkit' ? webkit : chromium;
+  browser = await engine.launch(engine === chromium ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined, args: ['--no-sandbox', '--disable-dev-shm-usage'] } : {});
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, timezoneId: 'America/Los_Angeles' });
   const page = await context.newPage(); const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -35,7 +36,8 @@ try {
     { ...offer, id: 'test-locked', accountRef: 'A003', accountMasked: 'lo…ed@example.invalid', canLogin: false, discount: 40 },
     { ...offer, id: 'test-expired', accountRef: 'A004', accountMasked: 'ex…ed@example.invalid', discount: 30, expiresAt: new Date(Date.now() - 1000).toISOString() },
     { ...offer, id: 'test-offer-5', accountRef: 'A005', accountMasked: 'be…ta@example.invalid' },
-    { ...offer, id: 'test-used-account', accountRef: 'A006', accountMasked: 'us…ed@example.invalid', discount: 100 }
+    { ...offer, id: 'test-used-account', accountRef: 'A006', accountMasked: 'us…ed@example.invalid', discount: 100 },
+    { ...offer, id: 'test-bad-count', accountRef: 'A007', accountMasked: 'ba…nt@example.invalid', discount: 15, uses: 96, usesRemaining: 96, receiptConfirmedUses: 0, receiptState: null, title: '£15 off on 96 orders' }
   ];
   const payload = { schemaVersion: 3, generatedAt: time, summary: { totalSaved: 10, estimatedTotalSaved: 15, estimatedUberOneSavings: 5, knownAccounts: 999, accessibleAccounts: 999, feeModel: { sampleSize: 1, averageExtraOrderFees: 3 } }, accounts: offers.map(p => ({ accountRef: p.accountRef, accountMasked: p.accountMasked, canLogin: p.canLogin, orderCount: p.accountRef === 'A006' ? 5 : 0, rideCount: 0 })), promos: offers };
   let failPromos = false, failHistory = false;
@@ -46,7 +48,7 @@ try {
   assert.equal(await page.locator('#basketInput').inputValue(), '15.00', 'Default basket subtotal should be £15');
   const recommendation = await page.locator('#recommendation').innerText();
   assert.match(recommendation, /Save £10/); // At £15, one £10-off offer is the optimal single-order result.
-  assert.equal(await page.locator('#usableStat').innerText(), '6');
+  assert.equal(await page.locator('#usableStat').innerText(), '7');
   assert.equal(await page.locator('#activeStat').innerText(), '2');
   assert.equal(await page.locator('#savedStat').innerText(), '£10');
   assert.match(await page.locator('#savedStatSub').innerText(), /£5 estimated/);
@@ -59,7 +61,7 @@ try {
   await page.locator('#accountSearch').fill('');
   await page.locator('[data-account-filter="all"]').click();
   await page.locator('[data-view="home"]').click();
-  for (const hidden of ['lo…ed', 're…ew', 'ex…ed', 'us…ed']) assert.equal(recommendation.includes(hidden), false);
+  for (const hidden of ['lo…ed', 're…ew', 'ex…ed', 'us…ed', 'ba…nt']) assert.equal(recommendation.includes(hidden), false);
   await page.locator('[data-account-offers="A001"]').first().click();
   assert.equal(await page.evaluate(() => document.activeElement.id), 'sheetClose');
   assert.equal(await page.locator('.sheet').evaluate(el => getComputedStyle(el).animationName), 'liquidSheetOpen');
@@ -80,6 +82,12 @@ try {
   await page.locator('[data-view="used"]').click();
   assert.match(await page.locator('#expiredList').innerText(), /ex…ed/);
   assert.match(await page.locator('#needsCheckingList').innerText(), /re…ew/);
+  assert.match(await page.locator('#needsCheckingList').innerText(), /order count needs verification/);
+  assert.doesNotMatch(await page.locator('#needsCheckingList').innerText(), /96 orders/);
+  await page.locator('#needsCheckingList [data-account-offers="A007"]').click();
+  assert.equal(await page.locator('[data-use-one="test-bad-count"]').isDisabled(), true);
+  assert.doesNotMatch(await page.locator('#sheetBody').innerText(), /96 left|of 96/);
+  await page.keyboard.press('Escape');
   failHistory = true;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
   assert.match(await page.locator('#recommendation').innerText(), /Save £10/);
@@ -101,6 +109,13 @@ try {
     assert.equal(brand.text, 'Promo Tracker', `Header should use the compact product title at ${width}px`);
     assert.equal(brand.whiteSpace, 'nowrap', `Product title should stay on one line at ${width}px`);
     assert.ok(brand.scrollWidth <= brand.clientWidth + 1, `Product title should fit without clipping at ${width}px`);
+    const header = await page.evaluate(() => {
+      const title = document.querySelector('.brand-title'), stamp = document.getElementById('scanTime');
+      const a = title.getBoundingClientRect(), b = stamp.getBoundingClientRect();
+      return { overlap: a.right > b.left && a.bottom > b.top && a.top < b.bottom, filter: getComputedStyle(title).filter, stampSize: parseFloat(getComputedStyle(stamp).fontSize) };
+    });
+    assert.equal(header.overlap, false, `Title and last sync timestamp must not overlap at ${width}px`);
+    assert.equal(header.filter, 'none'); assert.ok(header.stampSize >= 11);
     const glider = await page.locator('.nav-glider').evaluate(el => ({
       width: el.getBoundingClientRect().width,
       height: el.getBoundingClientRect().height,
@@ -110,6 +125,13 @@ try {
     assert.notEqual(glider.transform, 'none', `Liquid nav glider should be positioned at ${width}px`);
     const springTiming = await page.locator('.nav-glider').evaluate(el => getComputedStyle(el).transitionTimingFunction);
     assert.match(springTiming, /cubic-bezier/, `Liquid nav glider should use spring timing at ${width}px`);
+    // Resize transitions settle before checking exact geometry below.
+    if (width < 980) {
+      const nav = await page.locator('#mainNav').evaluate(el => ({ bottom: innerHeight-el.getBoundingClientRect().bottom, radius: getComputedStyle(el).borderRadius, position: getComputedStyle(el).position, height: el.offsetHeight }));
+      assert.equal(nav.position, 'fixed'); assert.equal(nav.radius, '999px');
+      assert.ok(nav.bottom >= 7 && nav.bottom <= 9, 'Floating nav must sit 8px above the browser safe area');
+      assert.ok(nav.height < 75, 'Floating nav must stay a compact capsule');
+    }
 
     const availableLabelFits = await page.locator('.accounts-available-label').evaluate(el => ({
       nowrap: getComputedStyle(el).whiteSpace === 'nowrap',
@@ -137,11 +159,14 @@ try {
     const main = document.querySelector('main').getBoundingClientRect();
     const overview = document.querySelector('.home-overview').getBoundingClientRect();
     const navStyle = getComputedStyle(document.getElementById('mainNav'));
-    return { navRight: nav.right, mainLeft: main.left, overviewWidth: overview.width, navDirection: navStyle.flexDirection };
+    const privacy = document.querySelector('.privacy').getBoundingClientRect();
+    return { navRight: nav.right, mainLeft: main.left, overviewWidth: overview.width, overviewTop: overview.top, privacyTop: privacy.top, mainBottom: main.bottom, navDirection: navStyle.flexDirection };
   });
   assert.equal(desktopLayout.navDirection, 'column', 'Desktop navigation must be a vertical sidebar');
   assert.ok(desktopLayout.navRight < desktopLayout.mainLeft, 'Desktop navigation must sit left of the main dashboard');
   assert.ok(desktopLayout.overviewWidth > 700, 'Home command-centre panel must span the desktop content area');
+  assert.ok(desktopLayout.overviewTop < 220, 'Privacy footer must not create a blank row above the desktop dashboard');
+  assert.ok(desktopLayout.privacyTop >= desktopLayout.mainBottom, 'Privacy copy belongs below the dashboard');
 
   // A real-sized savings total must fit its desktop card, not hide behind ellipsis.
   payload.summary.totalSaved = 3382.60;
@@ -165,9 +190,69 @@ try {
 
   await page.locator('#basketInput').fill('1000000');
   await page.waitForFunction(() => document.getElementById('recommendation').textContent.includes('£1,000'));
+  // Without observed or explicitly chosen fees, avoid optimistic multi-order savings.
+  payload.summary.feeModel = { sampleSize: 0, averageExtraOrderFees: 0 };
+  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await page.locator('#basketInput').fill('30');
+  await page.waitForFunction(() => document.getElementById('recommendation').textContent.includes('before delivery'));
+  assert.match(await page.locator('#recommendation').innerText(), /Best move · 1 order/);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('[data-view="home"]').click();
+  const homeTab = await page.locator('[data-view="home"]').boundingBox(), moreTab = await page.locator('[data-view="more"]').boundingBox();
+  await page.mouse.move(homeTab.x+homeTab.width/2, homeTab.y+homeTab.height/2); await page.mouse.down();
+  await page.mouse.move(moreTab.x+moreTab.width/2, moreTab.y+moreTab.height/2, { steps: 8 });
+  assert.equal(await page.locator('#mainNav').evaluate(el => el.classList.contains('dragging')), true);
+  await page.mouse.up(); assert.equal(await page.locator('#view-more').isVisible(), true);
+  await page.waitForFunction(() => { const nav = document.getElementById('mainNav'), a = nav.querySelector('.active').getBoundingClientRect(), g = nav.querySelector('.nav-glider').getBoundingClientRect(); return Math.abs(a.left-g.left) < 1 && Math.abs(a.top-g.top) < 1; });
+  await page.keyboard.press('ArrowLeft'); assert.equal(await page.locator('#view-used').isVisible(), true);
+  await page.keyboard.press('End'); assert.equal(await page.locator('#view-more').isVisible(), true);
+
+  await page.locator('[data-open-sheet="appearance"]').click();
+  await page.locator('[data-theme-colour="#c5a0ff"]').click();
+  const chosen = await page.evaluate(() => ({ stored: localStorage.getItem('uber-eats-promo-tracker:theme:v1'), colour: getComputedStyle(document.documentElement).getPropertyValue('--green') }));
+  assert.equal(chosen.stored, '#c5a0ff'); assert.notEqual(chosen.colour.trim(), '#9bea72');
+  const wheel = await page.locator('#colourWheel').boundingBox();
+  await page.mouse.click(wheel.x+wheel.width*.8, wheel.y+wheel.height*.5);
+  assert.notEqual(await page.locator('#themeColour').inputValue(), '#c5a0ff');
+  await page.locator('#colourWheel').focus(); await page.keyboard.press('ArrowRight');
+  const wheelColour = await page.locator('#themeColour').inputValue();
+  await page.keyboard.press('Escape');
+  offers.find(p => p.accountRef === 'A005').discount = 9; // Make the imported account the clear best recommendation.
+  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  assert.equal(await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:theme:v1')), wheelColour);
+
+  await page.locator('[data-view="more"]').click(); await page.locator('[data-open-sheet="device"]').click();
+  const privateEmail = 'alot.extralong+login.alpha@example.invalid';
+  const requests = []; page.on('request', request => requests.push({ url: request.url(), method: request.method() }));
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
+  await page.evaluate(() => { Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => { window.testCopiedEmail = text; } } }); });
+  await page.locator('#deviceAccountsFile').setInputFiles({ name: 'device-accounts.local.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ schemaVersion: 1, kind: 'uber-tracker-device-accounts', accounts: [{ accountRef: 'A001', accountMasked: offer.accountMasked, email: privateEmail }] })) });
+  await page.waitForFunction(() => document.getElementById('deviceImportStatus').textContent.includes('1 emails imported'));
+  assert.deepEqual(requests, [], 'Importing private emails must not make any network request');
+  await page.keyboard.press('Escape'); await page.locator('[data-view="accounts"]').click();
+  await page.locator('#accountSearch').fill(privateEmail);
+  assert.equal(await page.locator('#accountsList .account-card').count(), 1);
+  assert.equal(await page.locator('#accountsList .account-email').innerText(), privateEmail);
+  const fullEmail = await page.locator('#accountsList .account-email').evaluate(el => ({ overflow: el.scrollWidth > el.clientWidth+1, whiteSpace: getComputedStyle(el).whiteSpace }));
+  assert.equal(fullEmail.overflow, false); assert.equal(fullEmail.whiteSpace, 'normal');
+  await page.locator('#accountsList [data-account-offers="A001"]').click();
+  await page.locator('[data-copy-email="A001"]').click();
+  assert.equal(await page.evaluate(() => window.testCopiedEmail), privateEmail);
+  await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  assert.match(await page.locator('#recommendation').innerText(), /alot\.extralong\+login\.alpha/);
+  assert.equal(requests.some(r => r.url.includes(privateEmail) || r.method !== 'GET'), false);
+  await page.locator('[data-view="more"]').click(); await page.locator('[data-open-sheet="device"]').click();
+  await page.locator('#forgetDeviceAccounts').click();
+  assert.equal(await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:device-accounts:v1')), null);
+  await page.keyboard.press('Escape'); await page.locator('[data-view="home"]').click();
+  assert.equal((await page.locator('#recommendation').innerText()).includes(privateEmail), false);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.locator('[data-view="more"]').click();
+  assert.ok(parseFloat(await page.locator('.nav-glider').evaluate(el => getComputedStyle(el).transitionDuration)) < .01);
   await page.setViewportSize({ width: 1280, height: 900 });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   assert.deepEqual(errors, []);
   await context.close();
-  console.log('✓ Browser: mobile/desktop layout, eligibility, learned fees, usage reconciliation, modal keyboard focus, partial network failure and retry');
+  console.log('✓ Browser: mobile/desktop layout, header clarity, capsule drag/keyboard navigation, private email import/copy/forget, colour wheel persistence, uncertain counts/fees, reduced motion, usage, focus and network retry');
 } finally { await browser?.close(); server.close(); }
