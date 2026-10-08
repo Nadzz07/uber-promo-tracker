@@ -8,7 +8,7 @@ export function useCountNeedsReview(promo = {}) {
 
 export function offerTitle(promo = {}) {
   const amount = Number(promo.discount);
-  if (!Number.isFinite(amount) || amount <= 0) return 'Uber Eats offer';
+  if (!Number.isFinite(amount) || amount <= 0) return 'Promo terms need checking';
   const value = promo.discountType === 'percent' ? amount + '% off'
     : '£' + amount + (promo.discountType === 'uberCash' ? ' Uber Cash' : ' off');
   if (useCountNeedsReview(promo)) return value + ' · order count needs checking';

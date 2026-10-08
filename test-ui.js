@@ -12,6 +12,7 @@ import { normaliseColour, themeTokens, colourHsl, hslColour, DEFAULT_COLOUR, nor
 import { parseDeviceAccounts, deviceEmail, DEVICE_ACCOUNTS_KIND } from './device-accounts.js';
 import { openPrivateDb, ensureAccount, upsertOffer, getOffers } from './private-db.js';
 import { offerFingerprint } from './identity.js';
+import { parseUberPromo } from './parser.js';
 
 const time = '2026-10-08T12:00:00Z';
 let passed = 0;
@@ -89,6 +90,20 @@ test('Colour selections preserve valid colours, round trip HSL and keep all acce
 
 const account = { accountRef: 'A001', accountMasked: 'a…a@example.invalid' };
 const file = { schemaVersion: 1, kind: DEVICE_ACCOUNTS_KIND, accounts: [{ ...account, email: 'alpha@example.invalid' }] };
+test('Marketing without usable promo terms stays private and unpriced reminders cannot become available deals', () => {
+  const source = { subject: 'Discover restaurants with Uber Eats', body: 'Order dinner today. Browse the latest offer in the app.', sender: 'Uber <noreply@uber.com>', recipient: 'alpha@example.invalid', sentAt: time };
+  const marketing = parseUberPromo(source);
+  assert.equal(marketing.isPromo, false);
+  assert.equal(marketing.rejectionReason, 'no_usable_promo_terms');
+  const actual = parseUberPromo({ ...source, body: 'Get £12 off on 5 orders over £15.' });
+  assert.equal(actual.isPromo, true); assert.equal(actual.discount, 12); assert.equal(actual.uses, 5);
+  const reminder = parseUberPromo({ ...source, body: 'Reminder: you still have a promo waiting in your account.' });
+  assert.equal(reminder.isPromo, true);
+  const state = classifyOfferTrackingState({ ...reminder, emailSentAt: time }, { now: time });
+  assert.equal(state.trackingState, 'needs_checking');
+  assert.ok(state.reviewReasons.includes('missing_discount_terms'));
+  assert.equal(offerTitle(reminder), 'Promo terms need checking');
+});
 test('Device emails match stable references and masks; stale, duplicate and invalid exports cannot invent identities', () => {
   const mapping = parseDeviceAccounts(file, [account]);
   assert.equal(deviceEmail(mapping, account), 'alpha@example.invalid');

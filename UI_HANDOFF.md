@@ -155,3 +155,34 @@ Real-source reparse, private phone import and iPhone Safari checks need the loca
 session. This document and the PR communicate the changes to local Codex; cloud
 cannot send instructions directly into a separate VS Code chat. No merge or
 deployment follows from synthetic tests alone.
+
+## Mac source verification — 8 October 2026
+
+The local review reparsed 25,045 stored messages twice on a new backed-up copy.
+All 147 Eats and 232 ride/bike receipt records, their final charges and evidence
+pointers remain identical; confirmed savings remain £3,382.60. No original
+database or Mail message was deleted.
+
+All 57 legacy public counts above ten were checked against their original
+messages: 18 quantified offers now conservatively have one use because no
+explicit repeat count was found; 39 were marketing without usable offer terms.
+Together with other unquantified marketing, these no longer appear as generic
+“Offer” deals. The refreshed snapshot has 2,007 Eats offer records including
+closed history, no 96/26-use entries and no unpriced generic offers. First-offer
+dates and the 35-day expiry cap were preserved. Rejected source messages and
+superseded offer rows remain private evidence. Unpriced reminders require review.
+
+The full original receipt ZIP has 567 physical messages. Mail displays 532;
+35 duplicate Uber message copies plus one other message account for the
+531-record filtered Uber export. The full ZIP includes 427 receipt copies for
+listed accounts, resolving to the existing 379 unique receipts, and 105 GBP
+receipt copies for unlisted accounts. One additional EUR receipt cannot be
+converted to GBP by assumption. The 106 review messages were backed up privately
+for the owner's separately authorized move into “Tracker receipt review.”
+Unlisted accounts are not automatically restored to the authoritative list.
+
+Private device export is owner-only and excluded from Git/Pages. Full addresses
+require an import on each device/browser; there is no public identity sync.
+Chromium and WebKit tests pass. An actual iPhone Safari/installed-app check still
+requires the owner's device; desktop WebKit does not establish notch or PWA
+behaviour on a physical iPhone.

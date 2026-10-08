@@ -2877,7 +2877,7 @@
       if (promo.discountType === "uberCash") return money(promo.discount) + " Uber Cash";
       if (promo.discountType === "fixed") return money(promo.discount) + " off";
       if (promo.discountType === "percent") return Number(promo.discount || 0) + "% off";
-      return "Offer";
+      return "Value unconfirmed";
     }
 
     function serverPromoMeta(promo) {
@@ -3444,7 +3444,8 @@
                 : [];
               const reasonText = reasons.includes("ambiguous_receipt_match")
                 ? "receipt match is ambiguous"
-                : reasons.includes('unverified_use_count') ? 'order count needs verification from the original offer' : "expiry is unknown";
+                : reasons.includes('unverified_use_count') ? 'order count needs verification from the original offer'
+                : reasons.includes('missing_discount_terms') ? 'discount terms need verification from the original message' : "expiry is unknown";
 
               return activityRow(
                 promo,

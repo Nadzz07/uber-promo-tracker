@@ -2,6 +2,7 @@ import { offerTitle } from './offer-details.js';
 export function publicOfferTitle(promo) {
   // Validate previously verified snapshots without rewriting historical data.
   if (!Object.hasOwn(promo, 'usesVerified') && !promo.evidence?.usesBasis) {
+    if (!(Number(promo.discount) > 0)) return 'Uber Eats offer';
     return offerTitle({ ...promo, usesVerified: true });
   }
   return offerTitle(promo);
