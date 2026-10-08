@@ -40,7 +40,7 @@ assert.ok(html.includes("Mark fully used"));
 assert.equal(html.includes("Mark account done"), false, "manual account-done control should stay retired");
 assert.equal(html.includes("Accounts marked done"), false, "Used view should not duplicate promo completion with account-done status");
 assert.equal(html.includes("Done accounts"), false, "Used summary should focus on promo activity");
-assert.ok(html.includes("Multi-use"));
+assert.ok(html.includes("2+ orders left"));
 assert.ok(html.includes("Other available accounts"));
 assert.ok(html.includes("Lifetime savings"));
 assert.ok(html.includes("Overview"));

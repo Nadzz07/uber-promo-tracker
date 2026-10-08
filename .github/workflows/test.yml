@@ -31,6 +31,9 @@ jobs:
       - name: Build allowlisted public site
         run: npm run build
   browser:
+    strategy:
+      matrix:
+        browser: [chromium, webkit]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -40,5 +43,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --ignore-scripts
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
       - run: npm run test:browser
+        env:
+          TRACKER_BROWSER_ENGINE: ${{ matrix.browser }}

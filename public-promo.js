@@ -1,10 +1,11 @@
+import { offerTitle } from './offer-details.js';
 export function publicOfferTitle(promo) {
-  const amount = Number(promo.discount);
-  if (!Number.isFinite(amount) || amount <= 0) return "Uber Eats offer";
-  const value = promo.discountType === "percent" ? amount + "% off"
-    : "£" + amount + (promo.discountType === "uberCash" ? " Uber Cash" : " off");
-  const uses = Number(promo.uses || 1);
-  return value + (uses > 1 ? " on " + uses + " orders" : "");
+  // Validate previously verified snapshots without rewriting historical data.
+  if (!Object.hasOwn(promo, 'usesVerified') && !promo.evidence?.usesBasis) {
+    if (!(Number(promo.discount) > 0)) return 'Uber Eats offer';
+    return offerTitle({ ...promo, usesVerified: true });
+  }
+  return offerTitle(promo);
 }
 
 export function toPublicPromo(promo) {
@@ -12,12 +13,13 @@ export function toPublicPromo(promo) {
     id: promo.id || promo.offerId || null,
     service: promo.service,
     offerType: promo.offerType || null,
-    title: publicOfferTitle(promo),
+    title: offerTitle(promo),
     discountType: promo.discountType,
     discount: promo.discount,
     maxSaving: promo.maxSaving,
     perUseCap: promo.perUseCap,
     uses: promo.uses,
+    usesVerified: promo.evidence?.usesBasis === 'explicit_offer_terms',
     usesRemaining:
       promo.usesRemaining == null
         ? promo.uses

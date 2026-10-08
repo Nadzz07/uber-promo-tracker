@@ -1,4 +1,5 @@
 import { expiryEndTime, applyOfferExpiryPolicy } from "./offer-time.js";
+import { useCountNeedsReview } from './offer-details.js';
 
 function timeOf(value) {
   if (!value) return null;
@@ -27,6 +28,11 @@ export function classifyOfferTrackingState(
   const reasons = new Set(
     Array.isArray(reviewReasons) ? reviewReasons.filter(reason => reason && reason !== "unknown_expiry") : []
   );
+  if (useCountNeedsReview(promo)) reasons.add('unverified_use_count');
+  if (!['fixed', 'percent', 'uberCash'].includes(promo.discountType) ||
+      !Number.isFinite(Number(promo.discount)) || Number(promo.discount) <= 0) {
+    reasons.add('missing_discount_terms');
+  }
 
   if (promo.receiptState === "used" || remaining <= 0) {
     return {

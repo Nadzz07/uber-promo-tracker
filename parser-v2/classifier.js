@@ -92,6 +92,19 @@ export function classifyMessage({ subject, text, senderAnalysis, offer }) {
     };
   }
 
+  // Marketing copy and footer references to "offers" do not establish an
+  // actual discount. Keep the original message privately without publishing a
+  // generic, unusable deal. Uber One trials remain a separate service.
+  if (offerType === "non_promo" && !isUberOne) {
+    return {
+      accepted: false,
+      offerType,
+      service,
+      confidence: "medium",
+      rejectionReason: "no_usable_promo_terms"
+    };
+  }
+
   return {
     accepted: true,
     offerType,

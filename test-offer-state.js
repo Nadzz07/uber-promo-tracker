@@ -113,6 +113,8 @@ const trusted = "Uber Eats <offers@uber.com>";
 {
   const unknown = classifyOfferTrackingState({
     service: "Uber Eats",
+    discountType: "fixed",
+    discount: 10,
     uses: 5,
     usesRemaining: 3,
     expires: null,

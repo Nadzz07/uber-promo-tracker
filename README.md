@@ -6,6 +6,15 @@ A private, account-aware Uber Eats promotion intelligence system built around on
 
 The Mac does the private work. GitHub Pages only receives a sanitised snapshot for the phone/desktop dashboard.
 
+Appearance and private login-email settings are under **More**. For the current
+UI changes, safe private reprocessing and local VS Code handoff, read
+[UI_HANDOFF.md](UI_HANDOFF.md). Full emails are imported on your own device and
+never added to the published snapshot.
+
+In **More → Appearance → Layout**, choose **Auto**, **Mobile** or **Desktop**.
+Auto follows the screen size; Mobile keeps the phone layout on a large screen;
+Desktop uses a separate dashboard design. This preference is saved on each device.
+
 ## Architecture
 
 ```text
