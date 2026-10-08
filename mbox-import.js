@@ -377,23 +377,26 @@ export async function parseMboxStream(stream, options = {}) {
   let current = [];
   let envelopeLine = null;
 
-  const flush = () => {
+  const flush = async () => {
     if (!current.length) return;
     const raw = current.join("\n");
     const message = normaliseForwardedUberMessage(normaliseMessage(raw, envelopeLine, options));
-    if (message.subject || message.sender || message.body) messages.push(message);
+    if (message.subject || message.sender || message.body) {
+      if (options.onMessage) await options.onMessage(message);
+      else messages.push(message);
+    }
     current = [];
   };
 
   for await (const line of rl) {
     if (MBOX_SEPARATOR.test(line)) {
-      flush();
+      await flush();
       envelopeLine = line;
       continue;
     }
     current.push(line);
   }
-  flush();
+  await flush();
   return messages;
 }
 

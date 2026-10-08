@@ -31,6 +31,17 @@ assert.equal(parsed[0].recipient, "receipt-account@example.invalid");
 assert.equal(parsed[0].subject, "Your order with Example Kitchen");
 assert.match(parsed[0].body, /Subtotal £25\.00/);
 
+// Large mailbox consumers can process evidence without retaining the mailbox in RAM.
+const streamed = [];
+const collected = await parseMboxText(directMbox + directMbox, {
+  onMessage: async message => { await Promise.resolve(); streamed.push(message); }
+});
+assert.deepEqual(collected, []);
+assert.deepEqual(streamed, [parsed[0], parsed[0]]);
+await assert.rejects(parseMboxText(directMbox, {
+  onMessage: async () => { throw new Error("Evidence sink failed"); }
+}), /Evidence sink failed/);
+
 const forwarded = normaliseForwardedUberMessage({
   sender: "Owner <owner@gmail.com>",
   recipient: "archive@gmail.com",
