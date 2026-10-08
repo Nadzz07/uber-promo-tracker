@@ -17,7 +17,7 @@ export function moneyForLabel(text, labels) {
     // A label may be on the previous line. Never skip arbitrary words, which
     // confused "Total savings" with "Total" and crossed into unrelated rows.
     const match = text.match(new RegExp("(?:^|\\b)" + label +
-      "\\b\\s*[:：]?\\s*[−–-]?\\s*£\\s*(\\d{1,3}(?:,\\d{3})+(?:\\.\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?)\\b", "i"));
+      "\\b\\s*(?:[:：]\\s*)?(?:[−–-]\\s*)?£\\s*(\\d{1,3}(?:,\\d{3})+(?:\\.\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?)\\b", "i"));
     if (match) {
       const amount = match[1];
       return { value: number(/,\d{3}(?:[,.]|$)/.test(amount) ? amount : amount.replace(",", ".")), match };
@@ -27,6 +27,6 @@ export function moneyForLabel(text, labels) {
 }
 
 export function hasTransportSignal(subject, text) {
-  const pattern = /\btrip\s+with\s+uber\b|\byour\s+(?:uber\s+)?trip\b|\bthanks\s+for\s+riding\b|\btrip\s+fare\b|\bride\s+with\s+uber\b|\bbike\s+(?:trip|ride)\b|\bcycle\s+(?:trip|ride)\b/;
+  const pattern = /\btrip\s+with\s+uber\b|\byour\s+(?:uber\s+)?trip\b|\bthanks\s+for\s+riding\b|\btrip\s+fare\b|\bride\s+with\s+uber\b|\bbike\s+(?:trip|ride)\b|\bcycle\s+(?:trip|ride)\b|\blime\s+(?:e-?bike|bike|ride|receipt)\b|\bthanks\s+for\s+(?:riding\s+with|choosing)\s+lime\b/;
   return pattern.test(String(subject).toLowerCase()) || pattern.test(String(text).slice(0, 600).toLowerCase());
 }

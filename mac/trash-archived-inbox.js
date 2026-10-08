@@ -35,6 +35,21 @@ function messageIdFor(message) {
   } catch (_) { return ""; }
 }
 
+function findRecoverableBin(account) {
+  const candidates = [];
+  function visit(container) {
+    const boxes = container.mailboxes();
+    for (let i = 0; i < boxes.length; i++) {
+      const box = boxes[i];
+      if (/^(bin|trash|deleted messages|deleted items)$/i.test(String(box.name()).trim())) candidates.push(box);
+      visit(box);
+    }
+  }
+  visit(account);
+  if (candidates.length !== 1) throw new Error('A unique recoverable Bin mailbox is required.');
+  return candidates[0];
+}
+
 function run(argv) {
   const listPath = String(argv[0] || "archived-trash.local.json");
   const daysBack = Number(argv[1] || 60);
@@ -76,9 +91,10 @@ function run(argv) {
     if (!messageId || messageId !== candidate.messageId || !wanted.has(messageId)) { failed++; continue; }
 
     try {
-      // In Mail, deleting a message from an ordinary mailbox moves it to that
-      // account's configured Bin/Trash. This script never erases deleted items.
-      Mail.delete(message);
+      // Move to an explicit mailbox, independent of account deletion settings.
+      // Missing/ambiguous destinations fail closed; there is no delete fallback.
+      const destination = findRecoverableBin(message.mailbox().account());
+      Mail.move(message, { to: destination });
       trashed++;
       matched.add(messageId);
     } catch (_) {

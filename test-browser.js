@@ -21,6 +21,9 @@ try {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, timezoneId: 'America/Los_Angeles' });
   const page = await context.newPage(); const errors = [];
   page.on('pageerror', error => errors.push(error.message));
+  // First-sync behaviour must not depend on the user's checked-in live data.
+  await page.route('**/promos.json?*', route => route.fulfill({ json: { schemaVersion: 3, configured: false, generatedAt: null, accounts: [], promos: [], summary: {} } }));
+  await page.route('**/history.json?*', route => route.fulfill({ json: { updatedAt: null, records: [] } }));
   await page.goto(url); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'READY');
   assert.equal(await page.locator('#usableStat').innerText(), '0');
   assert.equal(await page.locator('.account-card').count(), 0);
@@ -28,12 +31,13 @@ try {
   const time = new Date().toISOString();
   const offer = { id: 'test-offer-1', accountRef: 'A001', accountMasked: 'al…ha@example.invalid', canLogin: true, service: 'Uber Eats', title: '£10 off on 5 orders', discountType: 'fixed', discount: 10, minimumSpend: 15, uses: 5, usesRemaining: 4, receiptConfirmedUses: 1, expires: '2099-12-31', expiresAt: '2099-12-31T23:59:59', expiryStatus: 'exact', trackingState: 'available', receiptState: 'partial', emailSentAt: time };
   const offers = [offer,
-    { ...offer, id: 'test-review', accountRef: 'A002', accountMasked: 're…ew@example.invalid', discount: 50, trackingState: 'needs_checking', expires: null, expiresAt: null, expiryStatus: 'unknown' },
+    { ...offer, id: 'test-review', accountRef: 'A002', accountMasked: 're…ew@example.invalid', discount: 50, trackingState: 'needs_checking', expires: null, expiresAt: null, expiryStatus: 'unknown', emailSentAt: null, firstEmailSentAt: null },
     { ...offer, id: 'test-locked', accountRef: 'A003', accountMasked: 'lo…ed@example.invalid', canLogin: false, discount: 40 },
     { ...offer, id: 'test-expired', accountRef: 'A004', accountMasked: 'ex…ed@example.invalid', discount: 30, expiresAt: new Date(Date.now() - 1000).toISOString() },
-    { ...offer, id: 'test-offer-5', accountRef: 'A005', accountMasked: 'be…ta@example.invalid' }
+    { ...offer, id: 'test-offer-5', accountRef: 'A005', accountMasked: 'be…ta@example.invalid' },
+    { ...offer, id: 'test-used-account', accountRef: 'A006', accountMasked: 'us…ed@example.invalid', discount: 100 }
   ];
-  const payload = { schemaVersion: 3, generatedAt: time, summary: { totalSaved: 10, estimatedTotalSaved: 10, feeModel: { sampleSize: 1, averageExtraOrderFees: 3 } }, accounts: offers.map(p => ({ accountRef: p.accountRef, accountMasked: p.accountMasked, canLogin: p.canLogin })), promos: offers };
+  const payload = { schemaVersion: 3, generatedAt: time, summary: { totalSaved: 10, estimatedTotalSaved: 15, estimatedUberOneSavings: 5, knownAccounts: 999, accessibleAccounts: 999, feeModel: { sampleSize: 1, averageExtraOrderFees: 3 } }, accounts: offers.map(p => ({ accountRef: p.accountRef, accountMasked: p.accountMasked, canLogin: p.canLogin, orderCount: p.accountRef === 'A006' ? 5 : 0, rideCount: 0 })), promos: offers };
   let failPromos = false, failHistory = false;
   await page.route('**/promos.json?*', route => failPromos ? route.abort() : route.fulfill({ json: payload }));
   await page.route('**/history.json?*', route => failHistory ? route.abort() : route.fulfill({ json: { updatedAt: time, records: [] } }));
@@ -42,7 +46,20 @@ try {
   assert.equal(await page.locator('#basketInput').inputValue(), '15.00', 'Default basket subtotal should be £15');
   const recommendation = await page.locator('#recommendation').innerText();
   assert.match(recommendation, /Save £10/); // At £15, one £10-off offer is the optimal single-order result.
-  for (const hidden of ['lo…ed', 're…ew', 'ex…ed']) assert.equal(recommendation.includes(hidden), false);
+  assert.equal(await page.locator('#usableStat').innerText(), '6');
+  assert.equal(await page.locator('#activeStat').innerText(), '2');
+  assert.equal(await page.locator('#savedStat').innerText(), '£10');
+  assert.match(await page.locator('#savedStatSub').innerText(), /£5 estimated/);
+  await page.locator('[data-view="accounts"]').click();
+  await page.locator('[data-account-filter="used"]').click();
+  assert.equal(await page.locator('#accountsList .account-card').count(), 1);
+  assert.match(await page.locator('#accountsList').innerText(), /us…ed/);
+  await page.locator('#accountSearch').fill('missing');
+  assert.equal(await page.locator('#accountsList .account-card').count(), 0);
+  await page.locator('#accountSearch').fill('');
+  await page.locator('[data-account-filter="all"]').click();
+  await page.locator('[data-view="home"]').click();
+  for (const hidden of ['lo…ed', 're…ew', 'ex…ed', 'us…ed']) assert.equal(recommendation.includes(hidden), false);
   await page.locator('[data-account-offers="A001"]').first().click();
   assert.equal(await page.evaluate(() => document.activeElement.id), 'sheetClose');
   assert.equal(await page.locator('.sheet').evaluate(el => getComputedStyle(el).animationName), 'liquidSheetOpen');
@@ -61,7 +78,7 @@ try {
   assert.match(await page.locator('#sheetBody').innerText(), /3 left/);
   await page.keyboard.press('Escape');
   await page.locator('[data-view="used"]').click();
-  assert.match(await page.locator('#fullyUsedList').innerText(), /ex…ed/);
+  assert.match(await page.locator('#expiredList').innerText(), /ex…ed/);
   assert.match(await page.locator('#needsCheckingList').innerText(), /re…ew/);
   failHistory = true;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');

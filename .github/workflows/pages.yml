@@ -3,6 +3,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      private_data_verified:
+        description: "Real Mac receipt validation passed for this main snapshot (see RELEASE.md)"
+        required: true
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -22,11 +28,17 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
       - run: npm run build
+      - name: Require regenerated account policy before deployment
+        if: github.event_name == 'workflow_dispatch' && inputs.private_data_verified
+        run: node --input-type=module -e "import fs from 'node:fs'; if(JSON.parse(fs.readFileSync('promos.json')).summary?.accountStatusVersion !== 1) throw new Error('Regenerate and validate public data on the Mac before deploying');"
       - uses: actions/configure-pages@v5
+        if: github.event_name == 'workflow_dispatch' && inputs.private_data_verified
       - uses: actions/upload-pages-artifact@v4
+        if: github.event_name == 'workflow_dispatch' && inputs.private_data_verified
         with:
           path: dist
   deploy:
+    if: github.event_name == 'workflow_dispatch' && inputs.private_data_verified && github.ref == 'refs/heads/main'
     needs: validate-and-build
     permissions:
       pages: write

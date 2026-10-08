@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
+import vm from "node:vm";
 import path from "node:path";
 import { openPrivateDb, setAccountAccess } from "./private-db.js";
 
@@ -99,6 +100,11 @@ try {
   assert.equal(result.count, 2);
   assert.deepEqual(result.messageIds, ["<receipt-inbox@uber.com>", "<archived-receipt@uber.com>"]);
 
+  // Parse-only results must never authorize filing before a successful import.
+  execFileSync(process.execPath, ['mac/plan-inbox-routing.js', input, dbPath, output, trashOutput], { stdio: 'pipe' });
+  assert.equal(JSON.parse(fs.readFileSync(output)).count, 0);
+  assert.equal(JSON.parse(fs.readFileSync(trashOutput)).count, 0);
+  execFileSync(process.execPath, ['generate-promos.js', input, path.join(dir, 'promos.json'), path.join(dir, 'history.json'), dbPath], { stdio: 'pipe' });
   execFileSync(process.execPath, [
     "mac/plan-inbox-routing.js",
     input,
@@ -118,6 +124,34 @@ try {
   const exporterSource = fs.readFileSync("mac/export-uber-mail.js", "utf8");
   const moverSource = fs.readFileSync("mac/move-inbox-receipts.js", "utf8");
   const trashSource = fs.readFileSync("mac/trash-archived-inbox.js", "utf8");
+  // Exercise the optional router without touching Mail: missing or ambiguous
+  // recovery folders must leave the original message untouched.
+  for (const destinationCount of [0, 1, 2]) {
+    const destinations = Array.from({ length: destinationCount }, () => ({
+      name: () => "Bin", mailboxes: () => []
+    }));
+    const account = { mailboxes: () => destinations };
+    const message = { messageId: () => "<routing-test>", mailbox: () => ({ account: () => account }) };
+    const collection = [message];
+    collection.messageId = () => ["<routing-test>"];
+    collection.dateReceived = () => [new Date()];
+    const moves = [];
+    const context = vm.createContext({
+      ObjC: { import() {} }, $: {},
+      Application: () => ({ inbox: { messages: collection },
+        move: (msg, options) => moves.push({ msg, options }),
+        delete: () => { throw new Error("Permanent deletion is forbidden"); }
+      })
+    });
+    vm.runInContext(trashSource.replace(/^#!.*\n/, ""), context);
+    context.readUtf8 = () => JSON.stringify({ messageIds: ["<routing-test>"] });
+    context.stderr = () => {};
+    const result = JSON.parse(context.run(["fixture", "60"]));
+    assert.equal(result.trashed, destinationCount === 1 ? 1 : 0);
+    assert.equal(result.failed, destinationCount === 1 ? 0 : 1);
+    assert.equal(moves.length, destinationCount === 1 ? 1 : 0);
+    if (moves.length) assert.equal(moves[0].options.to, destinations[0]);
+  }
   const commonSource = fs.readFileSync("mac/common.sh", "utf8");
   const exampleEnv = fs.readFileSync("tracker.example.env", "utf8");
 
@@ -138,29 +172,29 @@ try {
   );
 
   assert.equal(
-    commonSource.includes('MOVE_INBOX_RECEIPTS="${APPLE_MAIL_MOVE_INBOX_RECEIPTS:-true}"'),
+    commonSource.includes('MOVE_INBOX_RECEIPTS="${APPLE_MAIL_MOVE_INBOX_RECEIPTS:-false}"'),
     true,
-    "routine sync should safely file processed Inbox receipts by default"
+    "routine sync must leave Inbox receipts in place by default"
   );
   assert.equal(
-    commonSource.includes('TRASH_ARCHIVED_MAIL="${APPLE_MAIL_TRASH_ARCHIVED:-true}"'),
+    commonSource.includes('TRASH_ARCHIVED_MAIL="${APPLE_MAIL_TRASH_ARCHIVED:-false}"'),
     true,
-    "routine sync should route archived-account Uber mail to Bin by default"
+    "routine sync must leave archived mail in place by default"
   );
   assert.equal(
-    exampleEnv.includes("APPLE_MAIL_MOVE_INBOX_RECEIPTS=true"),
+    exampleEnv.includes("APPLE_MAIL_MOVE_INBOX_RECEIPTS=false"),
     true,
     "example configuration should match the runtime receipt-filing default"
   );
   assert.equal(
-    exampleEnv.includes("APPLE_MAIL_TRASH_ARCHIVED=true"),
+    exampleEnv.includes("APPLE_MAIL_TRASH_ARCHIVED=false"),
     true,
     "example configuration should expose Archived-account Bin routing"
   );
   assert.equal(
-    trashSource.includes("Mail.delete(message)"),
+    trashSource.includes("Mail.move(message, { to: destination })"),
     true,
-    "archived mail should use Mail's recoverable delete-to-Bin action"
+    "archived mail should move to an explicit recoverable Bin mailbox"
   );
   assert.equal(
     /Mail\.erase|expunge|Erase Deleted Items/i.test(trashSource),

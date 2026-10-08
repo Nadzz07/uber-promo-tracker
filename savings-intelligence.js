@@ -1,7 +1,8 @@
+import { dedupeReceipts } from "./receipt-identity.js";
 function number(value) {
   if (value == null || value === "") return 0;
   const result = Number(value);
-  return Number.isFinite(result) ? result : 0;
+  return Number.isFinite(result) ? Math.max(0, result) : 0;
 }
 
 function roundMoney(value) {
@@ -24,7 +25,7 @@ function median(values) {
 function observedComponents(receipt) {
   return roundMoney(
     number(receipt.promotionDiscount) +
-    number(receipt.uberCashUsed) +
+    number(receipt.uberCashSavings) +
     number(receipt.uberOneSavings)
   );
 }
@@ -73,7 +74,7 @@ function missingUberOneEstimate(receipt, model) {
 
   const promoAndCash = roundMoney(
     number(receipt.promotionDiscount) +
-    number(receipt.uberCashUsed)
+    number(receipt.uberCashSavings)
   );
 
   // If Uber already reports extra savings beyond promo/cash, count that as
@@ -96,6 +97,7 @@ function emptyStats() {
     orderCount: 0,
     promoSavings: 0,
     uberCashUsed: 0,
+    uberCashConfirmedSavings: 0,
     uberOneConfirmedSavings: 0,
     otherConfirmedSavings: 0,
     confirmedSaved: 0,
@@ -105,16 +107,20 @@ function emptyStats() {
   };
 }
 
-export function estimateReceiptSavings(receipts = []) {
-  const model = uberOneEstimateModel(receipts);
+export function estimateReceiptSavings(receipts = [], { now = new Date(), service = "Uber Eats", estimateUberOne = true } = {}) {
+  receipts = dedupeReceipts(receipts).filter(r => !r.service || r.service === service);
+  const model = uberOneEstimateModel(estimateUberOne ? receipts : []);
   const byAccount = new Map();
   const summary = emptyStats();
+  const recent = emptyStats();
+  const nowTime = new Date(now).getTime();
 
   for (const receipt of receipts) {
     const promo = number(receipt.promotionDiscount);
     const cash = number(receipt.uberCashUsed);
     const uberOne = number(receipt.uberOneSavings);
-    const components = roundMoney(promo + cash + uberOne);
+    const cashSavings = number(receipt.uberCashSavings);
+    const components = roundMoney(promo + cashSavings + uberOne);
     const confirmed = confirmedReceiptSaving(receipt);
     const otherConfirmed = roundMoney(Math.max(0, confirmed - components));
     const estimatedUberOne = missingUberOneEstimate(receipt, model);
@@ -125,10 +131,13 @@ export function estimateReceiptSavings(receipts = []) {
       ? (byAccount.get(receipt.accountRef) || emptyStats())
       : null;
 
-    for (const target of [summary, stats].filter(Boolean)) {
+    const time = new Date(when).getTime();
+    const inRecent = Number.isFinite(time) && time <= nowTime && time >= nowTime - 30 * 86400000;
+    for (const target of [summary, stats, inRecent ? recent : null].filter(Boolean)) {
       target.orderCount += 1;
       target.promoSavings += promo;
       target.uberCashUsed += cash;
+      target.uberCashConfirmedSavings += cashSavings;
       target.uberOneConfirmedSavings += uberOne;
       target.otherConfirmedSavings += otherConfirmed;
       target.confirmedSaved += confirmed;
@@ -143,10 +152,11 @@ export function estimateReceiptSavings(receipts = []) {
     if (stats) byAccount.set(receipt.accountRef, stats);
   }
 
-  for (const target of [summary, ...byAccount.values()]) {
+  for (const target of [summary, recent, ...byAccount.values()]) {
     for (const key of [
       "promoSavings",
       "uberCashUsed",
+      "uberCashConfirmedSavings",
       "uberOneConfirmedSavings",
       "otherConfirmedSavings",
       "confirmedSaved",
@@ -161,6 +171,11 @@ export function estimateReceiptSavings(receipts = []) {
     model,
     summary: {
       ...summary,
+      recentDays: 30,
+      recentOrders: recent.orderCount,
+      recentConfirmedSaved: recent.confirmedSaved,
+      recentEstimatedUberOneSavings: recent.estimatedUberOneSavings,
+      recentEstimatedTotalSaved: recent.estimatedTotalSaved,
       trackedOrders: summary.orderCount,
       totalSaved: summary.confirmedSaved,
       averageSavedPerOrder: summary.orderCount
@@ -177,4 +192,27 @@ export function estimateReceiptSavings(receipts = []) {
     },
     byAccount
   };
+}
+
+// Transport receipt savings are confirmed only; the Eats Uber One model is not
+// transferable to rides. Usage counters remain separate for the account rule.
+export function combinedReceiptSavings(eats = [], rides = [], options = {}) {
+  const food = estimateReceiptSavings(eats, options);
+  const transport = estimateReceiptSavings(rides, { ...options, service: 'Uber', estimateUberOne: false });
+  const fields = ['promoSavings', 'uberCashUsed', 'uberCashConfirmedSavings', 'uberOneConfirmedSavings', 'otherConfirmedSavings', 'confirmedSaved', 'estimatedTotalSaved'];
+  const summary = { ...food.summary, eatsConfirmedSaved: food.summary.confirmedSaved, rideConfirmedSaved: transport.summary.confirmedSaved, trackedRides: transport.summary.orderCount };
+  for (const field of fields) summary[field] = roundMoney(food.summary[field] + transport.summary[field]);
+  summary.totalSaved = summary.confirmedSaved;
+  summary.recentConfirmedSaved = roundMoney(food.summary.recentConfirmedSaved + transport.summary.recentConfirmedSaved);
+  summary.recentEstimatedTotalSaved = roundMoney(food.summary.recentEstimatedTotalSaved + transport.summary.recentEstimatedTotalSaved);
+  summary.recentRides = transport.summary.recentOrders;
+  // Existing per-order average refers specifically to Eats orders.
+  const byAccount = new Map([...food.byAccount].map(([ref, stats]) => [ref, { ...stats }]));
+  for (const [ref, stats] of transport.byAccount) {
+    const target = byAccount.get(ref) || emptyStats();
+    target.rideConfirmedSaved = stats.confirmedSaved;
+    for (const field of fields) target[field] = roundMoney(target[field] + stats[field]);
+    byAccount.set(ref, target);
+  }
+  return { summary, byAccount };
 }

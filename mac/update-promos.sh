@@ -19,7 +19,7 @@ if git log --format= --name-only origin/main..HEAD | sed '/^$/d' | grep -Ev '^(p
   echo "Local commits include code changes. Publish those through a reviewed PR first." >&2; exit 1
 fi
 SYNC_HEAD="$(git rev-parse HEAD)"
-npm test
+run_tracker_tests
 export_recent_mail
 node generate-promos.js emails.local.json "$TMP_DIR/promos.json" "$TMP_DIR/history.json" "$PRIVATE_DB"
 node validate-public.js "$TMP_DIR/promos.json" "$TMP_DIR/history.json"

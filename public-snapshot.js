@@ -1,3 +1,4 @@
+import { classifyAccount } from "./account-state.js";
 import { publicOfferTitle } from "./public-promo.js";
 
 const forbidden = /^(?:alias|email|accountAlias|code|promo_code|promoCode|recipient|sender|subject|body|bodyText|body_text|evidence|evidence_json|merchant|orderId|tripId|messageId|messageKey|mailbox|sourceMailbox)$/i;
@@ -22,6 +23,37 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     throw new Error("Invalid public snapshot structure.");
   }
   visit(payload); visit(history);
+  if (payload.summary?.accountStatusVersion === 1) {
+    const accounts = new Map();
+    for (const account of payload.accounts) {
+      if (!account.accountRef || accounts.has(account.accountRef)) throw new Error('Duplicate or missing account reference.');
+      accounts.set(account.accountRef, account);
+      for (const field of ['orderCount', 'rideCount']) if (!Number.isInteger(account[field]) || account[field] < 0) throw new Error('Invalid receipt counter.');
+      const expected = classifyAccount(account, payload.promos.filter(p => p.accountRef === account.accountRef));
+      for (const field of ['accountUsed', 'accountUsedReason', 'accountState', 'activePromoCount', 'reviewOfferCount', 'needsReview', 'recommendationEligible']) {
+        if (expected[field] !== account[field]) throw new Error('Account status disagrees with offer/receipt evidence: ' + field);
+      }
+    }
+    const ids = new Set();
+    for (const promo of payload.promos) {
+      if (!promo.id || ids.has(promo.id) || !accounts.has(promo.accountRef)) throw new Error('Duplicate offer or missing account.');
+      ids.add(promo.id);
+      if (promo.recommendationEligible !== accounts.get(promo.accountRef).recommendationEligible) throw new Error('Offer recommendation eligibility disagrees with account.');
+      if (promo.usesRemaining < 0 || promo.usesRemaining > promo.uses || promo.receiptConfirmedUses < 0 || promo.receiptConfirmedUses > promo.uses) throw new Error('Invalid offer usage counter.');
+      if (promo.trackingState === 'expired' && promo.closedReason !== 'expired') throw new Error('Expired offer cannot be described as receipt used.');
+    }
+    const summary = payload.summary;
+    for (const [field, count] of [
+      ['knownAccounts', payload.accounts.length], ['accessibleAccounts', payload.accounts.filter(a => a.canLogin).length],
+      ['inaccessibleAccounts', payload.accounts.filter(a => !a.canLogin).length], ['availableAccounts', payload.accounts.filter(a => a.accountState === 'available').length],
+      ['usedAccounts', payload.accounts.filter(a => a.accountState === 'used').length], ['archivedAccounts', payload.accounts.filter(a => a.accountState === 'archived').length],
+      ['needsCheckingAccounts', payload.accounts.filter(a => a.accountState === 'needs_checking').length],
+      ['trackedOrders', payload.accounts.reduce((n, a) => n + a.orderCount, 0)]
+    ]) if (summary[field] !== count) throw new Error('Summary counter disagrees with accounts: ' + field);
+    for (const [summaryField, accountField] of [['totalSaved', 'totalSaved'], ['estimatedUberOneSavings', 'estimatedUberOneSavings'], ['estimatedTotalSaved', 'estimatedTotalSaved']]) {
+      if (Math.abs(Number(summary[summaryField]) - payload.accounts.reduce((sum, a) => sum + Number(a[accountField] || 0), 0)) > 0.011) throw new Error('Savings summary disagrees with accounts.');
+    }
+  }
   for (const promo of [...payload.promos, ...history.records]) {
     if (promo.title !== publicOfferTitle(promo)) throw new Error("Public title must be built from offer fields.");
     if (promo.service !== "Uber Eats") throw new Error("Only Eats offers may be published.");

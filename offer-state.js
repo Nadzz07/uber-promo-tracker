@@ -1,4 +1,4 @@
-import { expiryEndTime } from "./offer-time.js";
+import { expiryEndTime, applyOfferExpiryPolicy } from "./offer-time.js";
 
 function timeOf(value) {
   if (!value) return null;
@@ -13,6 +13,7 @@ export function classifyOfferTrackingState(
     reviewReasons = []
   } = {}
 ) {
+  promo = applyOfferExpiryPolicy(promo);
   const total = Math.max(1, Number(promo.uses || 1));
   const remaining = Math.max(
     0,
@@ -24,7 +25,7 @@ export function classifyOfferTrackingState(
   );
 
   const reasons = new Set(
-    Array.isArray(reviewReasons) ? reviewReasons.filter(Boolean) : []
+    Array.isArray(reviewReasons) ? reviewReasons.filter(reason => reason && reason !== "unknown_expiry") : []
   );
 
   if (promo.receiptState === "used" || remaining <= 0) {
@@ -41,7 +42,7 @@ export function classifyOfferTrackingState(
 
   if (expiryTime != null && nowTime >= expiryTime) {
     return {
-      trackingState: "used",
+      trackingState: "expired",
       needsReview: false,
       reviewReasons: [],
       closedReason: "expired"
@@ -90,7 +91,8 @@ export function applyOfferTrackingStates(
     }
   }
 
-  return promos.map(promo => {
+  return promos.map(source => {
+    const promo = applyOfferExpiryPolicy(source);
     const offerId = promo.offerId || promo.id || null;
     const state = classifyOfferTrackingState(promo, {
       now,

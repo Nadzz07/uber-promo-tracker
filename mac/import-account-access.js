@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import { backupPrivateDb } from "../private-backup.js";
 import { parseAccessList } from "../access-list.js";
 import { getAccounts, openPrivateDb, resetAccountAccess, setAccountAccess } from "../private-db.js";
 
@@ -15,6 +16,7 @@ try {
     else filePath = args[i];
   }
   const records = parseAccessList(fs.readFileSync(filePath || "account-access.local.csv", "utf8"));
+  backupPrivateDb(dbPath);
   const db = openPrivateDb(dbPath);
   try {
     db.exec("BEGIN IMMEDIATE");

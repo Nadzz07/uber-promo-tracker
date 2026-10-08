@@ -1,4 +1,4 @@
-export const PARSER_VERSION = 2;
+export const PARSER_VERSION = 3;
 
 export function number(value) {
   if (value == null || value === "") return null;
@@ -15,24 +15,12 @@ export function firstMatch(text, patterns) {
 }
 
 export function asDate(value) {
-  if (value instanceof Date) return new Date(value.getTime());
-
-  if (typeof value === "string") {
-    const simple = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (simple) {
-      return new Date(
-        Number(simple[1]),
-        Number(simple[2]) - 1,
-        Number(simple[3]),
-        12,
-        0,
-        0
-      );
-    }
-  }
-
+  if (value == null || value === '') throw new Error('Missing message date');
   const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+  if (!Number.isFinite(parsed.getTime())) throw new Error('Invalid message date');
+  const dateOnly = typeof value === 'string' && value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (dateOnly && parsed.toISOString().slice(0, 10) !== value) throw new Error('Invalid calendar date');
+  return parsed;
 }
 
 export function normaliseText(value) {
@@ -48,10 +36,8 @@ export function singleLine(value) {
 }
 
 export function extractAccountAlias(recipient) {
-  const match = String(recipient || "")
-    .match(/([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/i);
-
-  return match ? match[1].toLowerCase() : null;
+  const addresses = [...new Set((String(recipient || "").match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi) || []).map(a => a.toLowerCase()))];
+  return addresses.length === 1 ? addresses[0] : null;
 }
 
 export function sourceSnippet(text, match, radius = 70) {

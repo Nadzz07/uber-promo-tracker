@@ -5,6 +5,7 @@ cd "$(dirname "$0")/.."
 
 source mac/common.sh
 require_runtime
+load_recent_config
 acquire_sync_lock
 
 RECEIPT_FOLDER="${APPLE_MAIL_RECEIPT_FOLDER:-Uber Receipts}"
@@ -12,7 +13,7 @@ RECENT_DAYS="$(positive_days "${APPLE_MAIL_RECEIPT_DAYS:-90}" APPLE_MAIL_RECEIPT
 HISTORY_DAYS="$(positive_days "${APPLE_MAIL_RECEIPT_HISTORY_DAYS:-3650}" APPLE_MAIL_RECEIPT_HISTORY_DAYS)"
 CHUNK_DAYS="$(positive_days "${APPLE_MAIL_RECEIPT_BACKFILL_CHUNK_DAYS:-180}" APPLE_MAIL_RECEIPT_BACKFILL_CHUNK_DAYS)"
 PRIVATE_DB="${TRACKER_PRIVATE_DB:-uber-tracker.local.db}"
-MOVE_INBOX_RECEIPTS="${APPLE_MAIL_MOVE_INBOX_RECEIPTS:-true}"
+MOVE_INBOX_RECEIPTS="${APPLE_MAIL_MOVE_INBOX_RECEIPTS:-false}"
 
 if (( RECENT_DAYS > 365 )); then
   RECENT_DAYS=90
@@ -31,7 +32,7 @@ echo "Range: $RECENT_DAYS to $HISTORY_DAYS days ago"
 echo "Chunk size: $CHUNK_DAYS days"
 echo
 
-npm test
+run_tracker_tests
 
 SCAN_AT="$(node -p 'new Date().toISOString()')"
 START="$RECENT_DAYS"
@@ -86,7 +87,9 @@ while (( START < HISTORY_DAYS )); do
       "$TMP_DIR/history.json" \
       "$PRIVATE_DB"
 
-    if [[ "$MOVE_INBOX_RECEIPTS" == "true" ]]; then
+    # Use only IDs whose evidence was committed to SQLite, not the parse-only list.
+    node mac/plan-inbox-routing.js "$TMP_DIR/inbox-receipts.json" "$PRIVATE_DB" "$TMP_DIR/receipt-moves.json" "$TMP_DIR/archived-trash.json"
+    if [[ "$MOVE_INBOX_RECEIPTS" == "true" && "${TRACKER_READ_ONLY_MAIL:-true}" == false ]]; then
       MOVE_RESULT="$(
         osascript -l JavaScript mac/move-inbox-receipts.js \
           "$TMP_DIR/receipt-moves.json" "$RECEIPT_FOLDER" "$END" "$START"

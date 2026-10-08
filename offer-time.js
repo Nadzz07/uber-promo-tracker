@@ -47,3 +47,17 @@ export function isOfferExpired(promo, now = Date.now()) {
   const expiry = expiryEndTime(promo);
   return expiry != null && new Date(now).getTime() >= expiry;
 }
+
+// User policy: at most 35 elapsed days from the first observed offer email.
+// An earlier explicit deadline still wins; receipt usage never starts this clock.
+export function applyOfferExpiryPolicy(promo = {}) {
+  const anchor = offerTime(promo.firstEmailSentAt || promo.emailSentAt);
+  if (anchor == null) return promo;
+  const deadline = anchor + 35 * 86400000;
+  const explicit = expiryEndTime(promo);
+  if ((promo.expiresAt || promo.expires) && explicit == null) return promo;
+  if (explicit != null && explicit <= deadline) return promo;
+  const expiresAt = new Date(deadline).toISOString();
+  return { ...promo, expiresAt, expires: new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).format(deadline),
+    expiryStatus: 'estimated', expiryBasis: 'tracker_35_day_rule', expiryConfidence: 'policy' };
+}

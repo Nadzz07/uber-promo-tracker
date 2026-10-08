@@ -11,8 +11,15 @@ const messages = Array.isArray(raw) ? raw : raw.messages;
 if (!Array.isArray(messages)) throw new Error("Mail export must contain a message array.");
 
 const db = openPrivateDb(dbPath);
-let accounts;
-try { accounts = getAccounts(db); } finally { db.close(); }
+let accounts, imported;
+try {
+  accounts = getAccounts(db);
+  imported = db.prepare(`SELECT m.message_id, m.account_ref, m.kind FROM messages m WHERE m.accepted = 1 AND
+    (m.kind = 'promo' OR (m.kind = 'receipt' AND EXISTS(SELECT 1 FROM receipts r WHERE r.message_key = m.message_key)) OR
+    (m.kind = 'transport_receipt' AND EXISTS(SELECT 1 FROM transport_receipts r WHERE r.message_key = m.message_key)))`).all();
+} finally { db.close(); }
+const normalizedId = id => String(id || '').trim().replace(/^<|>$/g, '').toLowerCase();
+const committed = new Set(imported.filter(m => m.message_id).map(m => [m.account_ref, m.kind, normalizedId(m.message_id)].join('|')));
 const access = new Map(accounts.map(account => [String(account.alias).trim().toLowerCase(), account]));
 
 const receiptIds = [];
@@ -42,7 +49,10 @@ for (const email of messages) {
   ).trim().toLowerCase();
 
   const account = access.get(alias);
-  if (account && !account.canLogin) {
+  // Unknown, skipped, untrusted, or incompletely imported messages stay in Inbox.
+  const kind = eats.isReceipt ? 'receipt' : transport?.isReceipt ? 'transport_receipt' : promo?.isPromo ? 'promo' : null;
+  if (!account || !kind || !committed.has([account.accountRef, kind, normalizedId(email.messageId)].join('|'))) continue;
+  if (!account.canLogin) {
     if (email.messageId) pushUnique(trashIds, seenTrash, email.messageId);
     else archivedWithoutMessageId++;
     continue;

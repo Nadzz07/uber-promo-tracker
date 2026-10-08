@@ -2468,7 +2468,7 @@
             <div class="stat-card">
               <div class="stat-label">Lifetime savings</div>
               <div id="savedStat" class="stat-value green">£0</div>
-              <div class="stat-sub">receipts + Uber One</div>
+              <div id="savedStatSub" class="stat-sub">confirmed receipts</div>
             </div>
             <div class="stat-card">
               <div class="stat-label">Total accounts</div>
@@ -2565,8 +2565,8 @@
       <section id="view-accounts" class="view">
         <div class="screen-head">
           <div class="eyebrow">Your accounts</div>
-          <h1 class="screen-title">Available accounts.</h1>
-          <div class="screen-copy">Accounts you can use for recommendations and promos. Archived accounts stay out of recommendations while their receipt and savings history is preserved.</div>
+          <h1 class="screen-title">Your accounts.</h1>
+          <div class="screen-copy">Accounts you can log into, with usage and offer status shown separately. Used means five Eats receipts, or at least one Eats and one ride/bike receipt. Archived accounts retain their history.</div>
         </div>
 
         <div class="search-wrap">
@@ -2574,7 +2574,10 @@
         </div>
 
         <div id="accountFilters" class="filter-row">
-          <button class="filter-btn active" data-account-filter="all">All available</button>
+          <button class="filter-btn active" data-account-filter="all">All login accounts</button>
+          <button class="filter-btn" data-account-filter="used">Used accounts</button>
+          <button class="filter-btn" data-account-filter="review">Offers need checking</button>
+          <button class="filter-btn" data-account-filter="expired">Expired offers</button>
           <button class="filter-btn" data-account-filter="offers">Has promos</button>
           <button class="filter-btn" data-account-filter="cash">Uber Cash</button>
           <button class="filter-btn" data-account-filter="multi">Multi-use</button>
@@ -2589,12 +2592,13 @@
         <div class="screen-head">
           <div class="eyebrow">Activity & state</div>
           <h1 class="screen-title">Used, done & expired.</h1>
-          <div class="screen-copy">Using one order from a multi-use promo does not remove it. It stays available until its remaining uses reach zero or it expires.</div>
+          <div class="screen-copy">Using one order from a multi-use promo does not remove it. Offer usage, expiry and account usage are separate. An expired offer is never receipt-confirmed as used.</div>
         </div>
 
         <div class="activity-summary">
           <div class="activity-card"><span>Recent uses</span><strong id="recentUseCount">0</strong></div>
           <div class="activity-card"><span>Fully used</span><strong id="fullyUsedCount">0</strong></div>
+          <div class="activity-card"><span>Expired</span><strong id="expiredCount">0</strong></div>
           <div class="activity-card"><span>Needs check</span><strong id="needsCheckCount">0</strong></div>
         </div>
 
@@ -2677,7 +2681,9 @@
   </div>
 
   <script type="module">
-    import { isOfferExpired, expiryEndTime } from "./offer-time.js";
+    import { classifyAccount, accountStatusLabel, accountUsageDescription } from "./account-state.js";
+    import { classifyOfferTrackingState } from "./offer-state.js";
+    import { isOfferExpired, expiryEndTime, applyOfferExpiryPolicy } from "./offer-time.js";
     import {
       planBasketSplit,
       rankPromosForSpend
@@ -2901,16 +2907,26 @@
         promo.service === "Uber Eats" &&
         promo.trackingState !== "needs_checking" &&
         promo.trackingState !== "used" &&
+        promo.trackingState !== "expired" &&
         !isExpired(promo) &&
         effectivePromoState(manualStore, promo) === "active" &&
         effectiveRemainingUses(manualStore, promo) > 0
       );
     }
 
+    function currentAccountState(account) {
+      const items = allPromosForAccount(account.accountRef).map(promo => ({ ...promo,
+        trackingState: effectivePromoState(manualStore, promo) === 'ignored' ? 'ignored' : effectivePromoState(manualStore, promo) === 'used' ? 'used' : isExpired(promo) ? 'expired' : promo.trackingState,
+        closedReason: effectivePromoState(manualStore, promo) === 'used' ? 'uses_finished' : isExpired(promo) ? 'expired' : promo.closedReason
+      }));
+      return { ...account, ...classifyAccount(account, items) };
+    }
+
     function decisionPromos() {
+      const eligible = new Set(accounts.map(currentAccountState).filter(a => a.recommendationEligible).map(a => a.accountRef));
       return promos
         .filter(promo =>
-          promo.service === "Uber Eats" &&
+          eligible.has(promo.accountRef) && promo.service === "Uber Eats" &&
           promo.trackingState !== "needs_checking" &&
           promo.trackingState !== "used" &&
           !isExpired(promo)
@@ -2957,13 +2973,13 @@
       );
     }
 
-    function enrichedAvailableAccounts() {
+    function enrichedLoginAccounts() {
       return accounts
         .filter(account => account.canLogin === true)
         .map(account => {
           const current = activePromosForAccount(account.accountRef);
           return {
-            ...account,
+            ...currentAccountState(account),
             promos: current,
             promoCount: current.length,
             hasCash: current.some(promo => promo.discountType === "uberCash"),
@@ -2972,6 +2988,10 @@
             bestNow: bestForAccount(account)
           };
         });
+    }
+
+    function enrichedAvailableAccounts() {
+      return enrichedLoginAccounts().filter(account => account.recommendationEligible);
     }
 
     function homeAccountsByIntent() {
@@ -3098,10 +3118,11 @@
 
     function renderStats() {
       const summary = payload.summary || {};
-      const totalAccounts = Number(summary.knownAccounts ?? accounts.length);
-      const availableAccounts = Number(summary.accessibleAccounts ?? accounts.filter(account => account.canLogin).length);
+      const totalAccounts = accounts.length;
+      const availableAccounts = enrichedAvailableAccounts().length;
 
-      setAnimatedText("savedStat", money(summary.estimatedTotalSaved ?? summary.totalSaved ?? 0));
+      setAnimatedText("savedStat", money(summary.totalSaved ?? 0));
+      document.getElementById("savedStatSub").textContent = "confirmed receipts" + (Number(summary.estimatedUberOneSavings || 0) > 0 ? " · +" + money(summary.estimatedUberOneSavings) + " estimated" : "");
       setAnimatedText("usableStat", totalAccounts.toLocaleString("en-GB"));
       setAnimatedText("activeStat", availableAccounts.toLocaleString("en-GB"));
 
@@ -3206,7 +3227,7 @@
 
       if (account.accountRef === selectedAccountRef) {
         pills.push('<span class="pill good">Chosen account</span>');
-      } else if (index === 0 && currentIntent === "best") {
+      } else if (index === 0 && currentIntent === "best" && best && currentAccountState(account).recommendationEligible) {
         pills.push('<span class="pill good">Best now</span>');
       }
 
@@ -3214,7 +3235,8 @@
       const hasHistory = Number(account.orderCount || 0) > 0 || Number(account.rideCount || 0) > 0;
       pills.push('<span class="pill' + (hasHistory ? '' : ' warn') + '">' + escapeHtml(receiptHistoryText(account)) + '</span>');
 
-      if (account.needsReview) pills.push('<span class="pill warn">Needs checking</span>');
+      pills.push('<span class="pill">' + escapeHtml(accountStatusLabel(currentAccountState(account))) + '</span>');
+      if (currentAccountState(account).partialUsage) pills.push('<span class="pill">Partial account usage</span>');
       if (current.some(is15off15)) pills.push('<span class="pill">£15 off £15</span>');
       if (current.some(promo => promo.discountType === "uberCash")) pills.push('<span class="pill">Uber Cash</span>');
 
@@ -3301,9 +3323,12 @@
 
     function renderAccounts() {
       const search = String(document.getElementById("accountSearch").value || "").trim().toLowerCase();
-      let list = enrichedAvailableAccounts();
+      let list = enrichedLoginAccounts();
 
-      if (accountFilter === "offers") list = list.filter(account => account.promoCount > 0);
+      if (accountFilter === "used") list = list.filter(account => account.accountState === "used");
+      if (accountFilter === "review") list = list.filter(account => account.accountState === "needs_checking");
+      if (accountFilter === "expired") list = list.filter(account => account.accountState === "expired");
+      if (accountFilter === "offers") list = list.filter(account => account.recommendationEligible && account.promoCount > 0);
       if (accountFilter === "cash") list = list.filter(account => account.hasCash);
       if (accountFilter === "multi") list = list.filter(account => account.hasMultiUse);
       if (accountFilter === "expiring") {
@@ -3338,7 +3363,7 @@
               ? '<button class="ghost-btn" style="width:100%;min-height:44px;text-align:center" data-show-more-accounts="true">Show ' +
                 Math.min(48, list.length - shown.length) + ' more</button>'
               : "")
-          : '<div class="empty">No available account matches this filter.</div>';
+          : '<div class="empty">No account matches this filter.</div>';
     }
 
     function activityRow(promo, meta, actionHtml = "") {
@@ -3373,12 +3398,13 @@
 
         if (
           activity.effectiveState === "used" ||
-          promo.trackingState === "used" ||
-          isExpired(promo)
+          promo.trackingState === "used"
         ) {
           fullyUsed.push(promo);
           continue;
         }
+
+        if (promo.closedReason === 'expired' || isExpired(promo)) { expired.push(promo); continue; }
 
         if (promo.trackingState === "needs_checking") {
           needsChecking.push(promo);
@@ -3392,6 +3418,7 @@
 
       document.getElementById("recentUseCount").textContent = recent.length;
       document.getElementById("fullyUsedCount").textContent = fullyUsed.length;
+      document.getElementById("expiredCount").textContent = expired.length;
       document.getElementById("needsCheckCount").textContent = needsChecking.length;
 
       document.getElementById("needsCheckingList").innerHTML =
@@ -3440,7 +3467,7 @@
               return activityRow(
                 promo,
                 (promo.title || promoLabel(promo)) +
-                  (expiredUsed ? " · expired · used" : " · fully used"),
+                  (expiredUsed ? " · fully used · now expired" : " · fully used"),
                 expiredUsed
                   ? '<span class="pill warn">Expired</span>'
                   : promo.receiptState === "used"
@@ -3450,8 +3477,9 @@
             }).join("")
           : '<div class="empty">No fully used offers yet.</div>';
 
-      document.getElementById("expiredList").innerHTML =
-        '<div class="empty">Expired offers are counted as Used.</div>';
+      document.getElementById("expiredList").innerHTML = expired.length
+        ? expired.map(promo => activityRow(promo, (promo.title || promoLabel(promo)) + ' · expired · ' + effectiveRemainingUses(manualStore, promo) + ' unused', '<span class="pill warn">Expired</span>')).join('')
+        : '<div class="empty">No expired offers.</div>';
 
       document.getElementById("ignoredList").innerHTML =
         ignored.length
@@ -3491,7 +3519,7 @@
       let status = "";
       if (activity.ignored) status = '<span class="pill warn">Ignored · uses preserved</span>';
       else if (promo.trackingState === "needs_checking") status = '<span class="pill warn">Needs checking</span>';
-      else if (isExpired(promo) || promo.closedReason === "expired") status = '<span class="pill warn">Expired · used</span>';
+      else if (isExpired(promo) || promo.closedReason === "expired") status = '<span class="pill warn">Expired · unused uses preserved</span>';
       else if (promo.receiptState === "used") status = '<span class="pill good">Receipt confirmed</span>';
       else if (state === "used") status = '<span class="pill">Fully used</span>';
       else if (pending > 0) status = '<span class="pill good">' + pending + ' awaiting receipt</span>';
@@ -3580,7 +3608,7 @@
             '</div>' +
             '<div class="account-status-badge ' + (account.canLogin ? 'ok' : 'no') + '">' +
               '<span class="status-dot"></span>' +
-              (account.canLogin ? 'Available' : 'Archived') +
+              escapeHtml(accountStatusLabel(currentAccountState(account))) +
             '</div>' +
           '</div>' +
           '<div class="account-sheet-summary">' +
@@ -3588,8 +3616,9 @@
             '<div><span>Save now</span><strong>' + (bestSaving > 0 ? escapeHtml(money(bestSaving)) : '—') + '</strong></div>' +
             '<div><span>History</span><strong>' + escapeHtml(receiptHistoryText(account)) + '</strong></div>' +
           '</div>' +
+          '<div class="account-login-route">' + escapeHtml(accountUsageDescription(account)) + '</div>' +
           '<div class="account-sheet-actions">' +
-            '<button class="account-primary" data-use-this-account="' + escapeHtml(account.accountRef) + '">Use this account</button>' +
+            '<button class="account-primary" data-use-this-account="' + escapeHtml(account.accountRef) + '"' + (currentAccountState(account).recommendationEligible ? '' : ' disabled') + '>Use this account</button>' +
           '</div>' +
         '</div>' +
         '<div class="sheet-section offers-section">' +
@@ -3723,15 +3752,17 @@
           '<div class="savings-hero-label">Estimated saved</div>' +
           '<div class="savings-hero-value">' + escapeHtml(money(estimatedTotal)) + '</div>' +
           '<div class="savings-confidence"><span class="status-dot"></span>' + escapeHtml(confidence) + '</div>' +
-          '<div class="savings-hero-copy">Confirmed receipt totals are never double-counted. Missing Uber One savings are estimated only from your own receipt history.</div>' +
+          '<div class="savings-hero-copy">Confirmed receipt totals are never double-counted. Uber Cash balance payments are shown separately and count as saving only with explicit promotional evidence. Missing Uber One savings use your own receipt history.</div>' +
         '</div>' +
         '<div class="sheet-section"><div class="insight-grid">' +
           '<div class="insight"><div class="insight-label">Confirmed receipts</div><div class="insight-value">' + escapeHtml(money(confirmedTotal)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Estimated missing Uber One</div><div class="insight-value estimated-value">' + escapeHtml(money(estimatedUberOne)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Last 30 days · confirmed</div><div class="insight-value">' + escapeHtml(money(summary.recentConfirmedSaved || 0)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Ride/bike confirmed savings</div><div class="insight-value">' + escapeHtml(money(summary.rideConfirmedSaved || 0)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Promo discounts</div><div class="insight-value">' + escapeHtml(money(summary.promoSavings || 0)) + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Uber Cash used</div><div class="insight-value">' + escapeHtml(money(summary.uberCashUsed || 0)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Uber Cash paid · not assumed saving</div><div class="insight-value">' + escapeHtml(money(summary.uberCashUsed || 0)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Explicit Uber One</div><div class="insight-value">' + escapeHtml(money(confirmedUberOne)) + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Estimated average / order</div><div class="insight-value">' + escapeHtml(money(summary.estimatedAverageSavedPerOrder ?? summary.averageSavedPerOrder ?? 0)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Estimated Eats average / order</div><div class="insight-value">' + escapeHtml(money(summary.estimatedAverageSavedPerOrder ?? summary.averageSavedPerOrder ?? 0)) + '</div></div>' +
         '</div></div>' +
         '<div class="sheet-section">' +
           '<div class="sheet-label">How the Uber One estimate is calculated</div>' +
@@ -3762,9 +3793,9 @@
 
       document.getElementById("sheetBody").innerHTML =
         '<div class="sheet-section"><div class="insight-grid">' +
-          '<div class="insight"><div class="insight-label">Total accounts</div><div class="insight-value">' + Number(summary.knownAccounts || accounts.length).toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Available accounts</div><div class="insight-value">' + Number(summary.accessibleAccounts || accounts.filter(a => a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Archived</div><div class="insight-value">' + Number(summary.inaccessibleAccounts || accounts.filter(a => !a.canLogin).length).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Total accounts</div><div class="insight-value">' + accounts.length.toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Available accounts</div><div class="insight-value">' + enrichedAvailableAccounts().length.toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Archived</div><div class="insight-value">' + accounts.filter(a => !a.canLogin).length.toLocaleString("en-GB") + '</div></div>' +
           '<div class="insight"><div class="insight-label">Tracked receipts</div><div class="insight-value">' + Number(summary.trackedOrders || 0).toLocaleString("en-GB") + '</div></div>' +
         '</div></div>' +
         '<div class="sheet-section"><div class="sheet-list">' +
@@ -3968,7 +3999,10 @@
         for (const promo of [...history, ...payload.promos]) {
           if (promo?.service === "Uber Eats" && promo.id) combined.set(promo.id, promo);
         }
-        promos = [...combined.values()];
+        promos = [...combined.values()].map(source => {
+          const promo = applyOfferExpiryPolicy(source);
+          return { ...promo, ...classifyOfferTrackingState(promo, { reviewReasons: promo.reviewReasons || [] }) };
+        });
         accounts = payload.accounts;
         renderAll();
       } catch (error) {
@@ -4104,6 +4138,8 @@
     document.getElementById("sheetBody").addEventListener("click", event => {
       const useThisAccount = event.target.closest("[data-use-this-account]");
       if (useThisAccount) {
+        const account = accounts.find(a => a.accountRef === useThisAccount.dataset.useThisAccount);
+        if (!account || !currentAccountState(account).recommendationEligible) return;
         selectedAccountRef = useThisAccount.dataset.useThisAccount;
         currentIntent = "best";
         document.querySelectorAll("[data-intent]").forEach(item => {

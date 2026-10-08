@@ -23,7 +23,7 @@ export function analyseSender(sender) {
 
   const address = value.match(/<?([a-z0-9._%+-]+@([a-z0-9.-]+))>?(?:\s*)$/i);
   const domain = address?.[2]?.toLowerCase();
-  if (domain === "uber.com" || domain?.endsWith(".uber.com")) {
+  if (domain === "uber.com" || domain?.endsWith(".uber.com") || domain === "uber-eats.com") {
     return {
       provided: true,
       trusted: true,
@@ -32,7 +32,7 @@ export function analyseSender(sender) {
     };
   }
 
-  if (domain === "icloud.com" && /^(?:ubereats|uber)_at_uber_com(?:[_-][^@\s>]*)?@icloud\.com$/i.test(address[1])) {
+  if (domain === "icloud.com" && /^(?:ubereats|uber|noreply|no_reply|receipts)_at_(?:[a-z0-9_]+_)?uber_com(?:[_-][^@\s>]*)?@icloud\.com$/i.test(address[1])) {
     return {
       provided: true,
       trusted: true,
@@ -41,7 +41,8 @@ export function analyseSender(sender) {
     };
   }
 
-  if (displayNameLooksUber(value) && !/uber\.com\./i.test(domain || "")) {
+  // Display names alone are not evidence when an unrelated address is present.
+  if (!address && displayNameLooksUber(value)) {
     return {
       provided: true,
       trusted: true,

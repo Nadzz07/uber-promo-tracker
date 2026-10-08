@@ -9,7 +9,7 @@ import {
   sourceSnippet
 } from "./parser-v2/utils.js";
 
-function savingsAmount(text) {
+export function savingsAmount(text) {
   const match = firstMatch(text, [
     /\byou\s+saved\s+£\s*(\d+(?:[.,]\d{1,2})?)/i,
     /\b(?:total|your)\s+savings?\b[^£\d]{0,24}£\s*(\d+(?:[.,]\d{1,2})?)/i,
@@ -22,7 +22,7 @@ function savingsAmount(text) {
   };
 }
 
-function uberOneSavingAmount(text) {
+export function uberOneSavingAmount(text) {
   const labelled = moneyForLabel(text, [
     "uber one savings",
     "uber one saving",
@@ -103,22 +103,24 @@ export function parseUberEatsReceipt({
     /\buber\s*eats\b|\border\b|\brestaurant\b|\bdelivery\b|\bsubtotal\b/i.test(text);
 
   const subtotal = moneyForLabel(text, ["subtotal", "items subtotal", "estimated subtotal"]);
-  const total = moneyForLabel(text, ["final total", "amount charged", "total"]);
+  const total = moneyForLabel(text, ["new total", "updated total", "final total", "amount charged", "total"]);
   const promotionDiscount = moneyForLabel(text, ["promotion", "promotions", "promo", "discount"]);
   const deliveryFee = moneyForLabel(text, ["delivery fee", "delivery"]);
   const serviceFee = moneyForLabel(text, ["service fee"]);
   const smallOrderFee = moneyForLabel(text, ["small order fee"]);
   const tip = moneyForLabel(text, ["tip"]);
   const uberCashUsed = moneyForLabel(text, ["uber cash", "uber credits"]);
+  // A balance payment is not proof that the credit was earned as a promotion.
+  const uberCashSavings = moneyForLabel(text, ["uber cash discount", "uber cash promotion", "promotional uber cash"]);
   const reportedSavings = savingsAmount(text);
   const uberOneSavings = uberOneSavingAmount(text);
-  const uberOneSignal = /\buber\s*one\b/i.test(text);
+  const uberOneSignal = uberOneSavings.value != null || /\b(?:your\s+uber\s*one|uber\s*one\s+(?:member\s+)?(?:savings?|benefits?)|as\s+an?\s+uber\s*one\s+member)\b/i.test(text);
   const orderId = extractOrderId(text);
   const orderKey = extractOrderKey(text);
 
   const hasReceiptAmounts = subtotal.value != null || total.value != null;
   const isReceipt =
-    Boolean(senderAnalysis.trusted) &&
+    Boolean(senderAnalysis.trusted) && senderAnalysis.confidence === "high" &&
     !hasTransportSignal(subject, text) &&
     receiptSignal &&
     foodSignal &&
@@ -151,6 +153,7 @@ export function parseUberEatsReceipt({
     smallOrderFee: smallOrderFee.value,
     tip: tip.value,
     uberCashUsed: uberCashUsed.value,
+    uberCashSavings: uberCashSavings.value,
     reportedSavings: reportedSavings.value,
     uberOneSavings: uberOneSavings.value,
     uberOneSignal,

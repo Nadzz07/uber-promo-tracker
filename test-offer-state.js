@@ -104,10 +104,10 @@ const trusted = "Uber Eats <offers@uber.com>";
     now: "2026-10-05T12:00:00Z"
   });
 
-  assert.equal(expired.trackingState, "used");
+  assert.equal(expired.trackingState, "expired");
   assert.equal(expired.closedReason, "expired");
 
-  console.log("✓ Passed expiry closes an offer as Used even with uses remaining");
+  console.log("✓ Passed expiry is separate from confirmed use");
 }
 
 {
