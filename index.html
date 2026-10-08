@@ -526,6 +526,8 @@
       background: linear-gradient(145deg, rgba(var(--accent-rgb), .15), rgba(37,49,41,.55));
     }
 
+    .quick-card[data-intent="cash-promo"] { grid-column: 1 / -1; }
+
     .quick-top {
       display: flex;
       align-items: center;
@@ -2448,8 +2450,12 @@
             <div><div class="quick-title">Uber Cash</div><div class="quick-sub">Accounts with cash value ready.</div></div>
           </button>
           <button class="quick-card" data-intent="multi">
-            <div class="quick-top"><span class="quick-icon">×</span><span id="multiCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">Multi-use</div><div class="quick-sub">Promos with more than one order left.</div></div>
+            <div class="quick-top"><span class="quick-icon" aria-hidden="true">↻</span><span id="multiCount" class="quick-count">0 accounts</span></div>
+            <div><div class="quick-title">2+ orders left</div><div class="quick-sub">The same promo can be used on 2+ more orders.</div></div>
+          </button>
+          <button class="quick-card" data-intent="cash-promo">
+            <div class="quick-top"><span class="quick-icon" aria-hidden="true">£+</span><span id="cashPromoCount" class="quick-count">0 accounts</span></div>
+            <div><div class="quick-title">Uber Cash + promo</div><div class="quick-sub">Both offer types recorded on the same account. Combining them depends on Uber.</div></div>
           </button>
         </div>
 
@@ -2489,7 +2495,8 @@
           <button class="filter-btn" data-account-filter="expired">Expired offers</button>
           <button class="filter-btn" data-account-filter="offers">Has promos</button>
           <button class="filter-btn" data-account-filter="cash">Uber Cash</button>
-          <button class="filter-btn" data-account-filter="multi">Multi-use</button>
+          <button class="filter-btn" data-account-filter="multi">2+ orders left</button>
+          <button class="filter-btn" data-account-filter="cash-promo">Uber Cash + promo</button>
           <button class="filter-btn" data-account-filter="expiring">Expiring soon</button>
         </div>
 
@@ -2501,7 +2508,7 @@
         <div class="screen-head">
           <div class="eyebrow">Activity & state</div>
           <h1 class="screen-title">Used, done & expired.</h1>
-          <div class="screen-copy">Using one order from a multi-use promo does not remove it. Offer usage, expiry and account usage are separate. An expired offer is never receipt-confirmed as used.</div>
+          <div class="screen-copy">A promo with orders remaining stays available after you use one order. Offer usage, expiry and account usage are separate. An expired offer is never receipt-confirmed as used.</div>
         </div>
 
         <div class="activity-summary">
@@ -2978,6 +2985,7 @@
             promos: current,
             promoCount: current.length,
             hasCash: current.some(promo => promo.discountType === "uberCash"),
+            hasCashAndPromo: current.some(promo => promo.discountType === "uberCash") && current.some(promo => promo.discountType === "fixed" || promo.discountType === "percent"),
             has15off15: current.some(is15off15),
             hasMultiUse: current.some(promo => Number(promo.usesRemaining || 0) > 1),
             bestNow: bestForAccount(account)
@@ -2998,6 +3006,8 @@
         list = list.filter(account => account.hasCash);
       } else if (currentIntent === "multi") {
         list = list.filter(account => account.hasMultiUse);
+      } else if (currentIntent === "cash-promo") {
+        list = list.filter(account => account.hasCashAndPromo);
       }
 
       return list.sort((a, b) => {
@@ -3284,7 +3294,10 @@
       setAnimatedText("bestCount", list.length);
       setAnimatedText("fifteenCount", list.filter(account => account.has15off15).length);
       setAnimatedText("cashCount", list.filter(account => account.hasCash).length);
-      setAnimatedText("multiCount", list.filter(account => account.hasMultiUse).length);
+      const repeated = list.filter(account => account.hasMultiUse).length;
+      const cashAndPromo = list.filter(account => account.hasCashAndPromo).length;
+      setAnimatedText("multiCount", repeated + (repeated === 1 ? " account" : " accounts"));
+      setAnimatedText("cashPromoCount", cashAndPromo + (cashAndPromo === 1 ? " account" : " accounts"));
     }
 
     function renderHomeAccounts() {
@@ -3297,7 +3310,8 @@
         best: "Best deal",
         "15off15": "£15 off £15",
         cash: "Uber Cash",
-        multi: "Multi-use"
+        multi: "2+ orders left",
+        "cash-promo": "Uber Cash + promo"
       };
 
       document.getElementById("accountsKicker").textContent = names[currentIntent];
@@ -3330,6 +3344,7 @@
       if (accountFilter === "offers") list = list.filter(account => account.recommendationEligible && account.promoCount > 0);
       if (accountFilter === "cash") list = list.filter(account => account.hasCash);
       if (accountFilter === "multi") list = list.filter(account => account.hasMultiUse);
+      if (accountFilter === "cash-promo") list = list.filter(account => account.hasCashAndPromo);
       if (accountFilter === "expiring") {
         list = list.filter(account =>
           account.promos.some(promo => isExpiringSoon(promo))

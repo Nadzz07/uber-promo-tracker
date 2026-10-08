@@ -301,5 +301,67 @@ try {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   assert.deepEqual(errors, []);
   await context.close();
-  console.log('✓ Browser: saved/automatic layouts across screen sizes, deduplicated settings headings, state preservation, header clarity, capsule drag/keyboard navigation, private email import/copy/forget, colour wheel persistence, uncertain counts/fees, reduced motion, focus and network retry');
+
+  // Repeat uses of one discount and separate cash/discount offers are different filters.
+  const filterContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const filterPage = await filterContext.newPage();
+  filterPage.on('pageerror', error => errors.push(error.message));
+  const repeatOffer = { ...offer, id: 'repeat-101', accountRef: 'A101', accountMasked: 're…at@example.invalid', discount: 12, minimumSpend: 15, uses: 5, usesRemaining: 4, receiptConfirmedUses: 1 };
+  const cashOffer = { ...repeatOffer, id: 'cash-101', discountType: 'uberCash', discount: 7, minimumSpend: 0, uses: 1, usesRemaining: 1, receiptConfirmedUses: 0, receiptState: null };
+  const filterOffers = [repeatOffer, cashOffer, { ...cashOffer, id: 'another-cash-101' },
+    { ...repeatOffer, id: 'single-102', accountRef: 'A102', accountMasked: 'si…le@example.invalid', discountType: 'percent', discount: 20, usesRemaining: 1, receiptConfirmedUses: 4 },
+    { ...repeatOffer, id: 'another-single-102', accountRef: 'A102', accountMasked: 'si…le@example.invalid', uses: 1, usesRemaining: 1, receiptConfirmedUses: 0 },
+    { ...cashOffer, id: 'cash-only-103', accountRef: 'A103', accountMasked: 'ca…ly@example.invalid' },
+    { ...repeatOffer, id: 'repeat-104', accountRef: 'A104', accountMasked: 'ex…sh@example.invalid' },
+    { ...cashOffer, id: 'expired-cash-104', accountRef: 'A104', accountMasked: 'ex…sh@example.invalid', expiresAt: new Date(Date.now()-1000).toISOString() },
+    { ...repeatOffer, id: 'repeat-105', accountRef: 'A105', accountMasked: 'us…sh@example.invalid' },
+    { ...cashOffer, id: 'used-cash-105', accountRef: 'A105', accountMasked: 'us…sh@example.invalid', usesRemaining: 0, receiptConfirmedUses: 1, receiptState: 'used' },
+    { ...cashOffer, id: 'review-cash-105', accountRef: 'A105', accountMasked: 'us…sh@example.invalid', emailSentAt: null, expires: null, expiresAt: null, expiryStatus: 'unknown' },
+    { ...repeatOffer, id: 'repeat-106', accountRef: 'A106', accountMasked: 'ar…ed@example.invalid', canLogin: false },
+    { ...cashOffer, id: 'cash-106', accountRef: 'A106', accountMasked: 'ar…ed@example.invalid', canLogin: false },
+    { ...repeatOffer, id: 'repeat-107', accountRef: 'A107', accountMasked: 'us…ed@example.invalid' },
+    { ...cashOffer, id: 'cash-107', accountRef: 'A107', accountMasked: 'us…ed@example.invalid' }
+  ];
+  const filterAccounts = [...new Map(filterOffers.map(p => [p.accountRef, { accountRef: p.accountRef, accountMasked: p.accountMasked, canLogin: p.canLogin, orderCount: p.accountRef === 'A107' ? 5 : p.accountRef === 'A101' ? 1 : 0, rideCount: 0 }])).values()];
+  const filterPayload = { schemaVersion: 3, generatedAt: time, accounts: filterAccounts, promos: filterOffers, summary: { totalSaved: 40 } };
+  await filterPage.route('**/promos.json?*', route => route.fulfill({ json: filterPayload }));
+  await filterPage.route('**/history.json?*', route => route.fulfill({ json: { updatedAt: time, records: [] } }));
+  await filterPage.goto(url); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  assert.equal(await filterPage.locator('#multiCount').innerText(), '3 accounts');
+  await filterPage.locator('[data-intent="multi"]').click();
+  assert.match(await filterPage.locator('#homeAccounts [data-card-account="A101"]').innerText(), /4 of 5 uses left/);
+  assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A102"]').count(), 0, 'Two different one-use promos do not make repeat orders available');
+  assert.equal(await filterPage.locator('#cashPromoCount').innerText(), '1 account', 'Multiple cash offers count one matching account');
+  await filterPage.locator('[data-intent="cash-promo"]').click();
+  assert.equal(await filterPage.locator('#homeAccounts .account-card').count(), 1);
+  assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A101"]').count(), 1, 'Same-account cash and discount are required; expired, used, review, archived and receipt-used cases must not qualify');
+  assert.match(await filterPage.locator('[data-intent="cash-promo"]').innerText(), /Combining them depends on Uber/);
+  assert.equal(await filterPage.locator('#savedStat').innerText(), '£40');
+  assert.match(await filterPage.locator('#recommendation').innerText(), /Save £12/, 'Finding both offers must not add £7 cash to £12 discount');
+  await filterPage.locator('[data-view="accounts"]').click();
+  await filterPage.locator('[data-account-filter="cash-promo"]').click();
+  assert.equal(await filterPage.locator('#accountsList [data-card-account="A101"]').count(), 1);
+  for (const accountRef of ['A102', 'A103', 'A104', 'A105']) assert.equal(await filterPage.locator(`#accountsList [data-card-account="${accountRef}"]`).count(), 0);
+  // A single remaining order is still available, but is no longer a repeat-order option.
+  repeatOffer.usesRemaining = 1; repeatOffer.receiptConfirmedUses = 4;
+  for (const promo of filterOffers.filter(p => p.accountRef === 'A101' && p.discountType === 'uberCash')) promo.usesRemaining = 0;
+  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  assert.equal(await filterPage.locator('#multiCount').innerText(), '2 accounts');
+  assert.equal(await filterPage.locator('#cashPromoCount').innerText(), '0 accounts');
+  assert.equal(await filterPage.locator('#activeStat').innerText(), '5', 'One use left must preserve account availability');
+  filterOffers.splice(filterOffers.findIndex(p => p.id === 'another-single-102'), 1);
+  filterOffers.push({ ...cashOffer, id: 'cash-102', accountRef: 'A102', accountMasked: 'si…le@example.invalid', usesRemaining: 1 });
+  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  assert.equal(await filterPage.locator('#cashPromoCount').innerText(), '1 account', 'Percentage discounts also match with active cash');
+  await filterPage.locator('[data-intent="cash-promo"]').click();
+  assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A102"]').count(), 1);
+  for (const width of [320, 390, 1440]) {
+    await filterPage.setViewportSize({ width, height: 900 });
+    await filterPage.waitForFunction(layout => document.documentElement.dataset.layout === layout, width < 980 ? 'mobile' : 'desktop');
+    assert.equal(await filterPage.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Quick filters fit ${width}px`);
+    assert.equal(await filterPage.locator('.quick-card').evaluateAll(cards => cards.every(card => card.scrollWidth <= card.clientWidth+1 && card.scrollHeight <= card.clientHeight+1)), true, `Quick filter labels fit their cards at ${width}px`);
+  }
+  assert.deepEqual(errors, []);
+  await filterContext.close();
+  console.log('✓ Browser: repeat-order and cash-plus-promo filtering/counts without combined savings, saved/automatic layouts across screen sizes, deduplicated settings headings, state preservation, header clarity, capsule drag/keyboard navigation, private email import/copy/forget, colour wheel persistence, uncertain counts/fees, reduced motion, focus and network retry');
 } finally { await browser?.close(); server.close(); }

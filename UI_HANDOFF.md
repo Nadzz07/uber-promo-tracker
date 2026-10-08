@@ -7,6 +7,15 @@ changed by this branch. This cloud is Linux with no Mac database or Apple Mail.
 
 ## Changes to pick up
 
+- Quick find now calls repeat uses of one offer “2+ orders left,” with the
+  explanation “The same promo can be used on 2+ more orders.” Its counter counts
+  accounts explicitly: “1 account,” not one remaining order. For example, one use
+  of a five-order £12-off promo leaves four orders and stays in this category.
+- New “Uber Cash + promo” filters on Home and Accounts require an active Uber Cash
+  offer and a separate active fixed/percentage discount on the same account.
+  The Home count uses the same available-account rules as other quick filters.
+  This does not verify a wallet balance or that Uber permits stacking. It does
+  not add together offer values or change the planner's savings calculation.
 - Follow-up layout redesign: More → Appearance → Layout now offers Auto, Mobile
   and Desktop, saved per browser. Auto changes at 980px; forced Mobile stays a
   centred phone layout (up to 480px) even on a computer. Forced Desktop adapts
