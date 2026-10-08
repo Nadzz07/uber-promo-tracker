@@ -143,6 +143,17 @@ try {
   assert.ok(desktopLayout.navRight < desktopLayout.mainLeft, 'Desktop navigation must sit left of the main dashboard');
   assert.ok(desktopLayout.overviewWidth > 700, 'Home command-centre panel must span the desktop content area');
 
+  // A real-sized savings total must fit its desktop card, not hide behind ellipsis.
+  payload.summary.totalSaved = 3382.60;
+  await page.reload();
+  await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  assert.equal(await page.locator('#savedStat').innerText(), '£3,382.60');
+  for (const width of [390, 980, 1280, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const fits = await page.locator('#savedStat').evaluate(el => el.scrollWidth <= el.clientWidth + 1);
+    assert.equal(fits, true, `Full savings amount must remain visible at ${width}px`);
+  }
+
   await page.locator('#basketInput').focus();
   const basketFocus = await page.evaluate(() => {
     const editor = document.querySelector('.basket-editor');
