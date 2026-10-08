@@ -11,6 +11,8 @@ const input = path.join(dir, "emails.json");
 const output = path.join(dir, "moves.json");
 const trashOutput = path.join(dir, "trash.json");
 const dbPath = path.join(dir, "routing.db");
+const accessPath = path.join(dir, "access.csv");
+fs.writeFileSync(accessPath, "email,can_login,login_method\naccount-a@icloud.com,true,iCloud\naccount-b@icloud.com,true,iCloud\naccount-c@icloud.com,false,iCloud\n");
 
 const messages = [
   {
@@ -101,10 +103,10 @@ try {
   assert.deepEqual(result.messageIds, ["<receipt-inbox@uber.com>", "<archived-receipt@uber.com>"]);
 
   // Parse-only results must never authorize filing before a successful import.
-  execFileSync(process.execPath, ['mac/plan-inbox-routing.js', input, dbPath, output, trashOutput], { stdio: 'pipe' });
+  execFileSync(process.execPath, ['mac/plan-inbox-routing.js', input, dbPath, output, trashOutput], { stdio: 'pipe', env: { ...process.env, TRACKER_ACCOUNT_ACCESS: accessPath, TRACKER_ALLOW_UNKNOWN_ACCOUNTS: '0' } });
   assert.equal(JSON.parse(fs.readFileSync(output)).count, 0);
   assert.equal(JSON.parse(fs.readFileSync(trashOutput)).count, 0);
-  execFileSync(process.execPath, ['generate-promos.js', input, path.join(dir, 'promos.json'), path.join(dir, 'history.json'), dbPath], { stdio: 'pipe' });
+  execFileSync(process.execPath, ['generate-promos.js', input, path.join(dir, 'promos.json'), path.join(dir, 'history.json'), dbPath], { stdio: 'pipe', env: { ...process.env, TRACKER_ACCOUNT_ACCESS: accessPath, TRACKER_ALLOW_UNKNOWN_ACCOUNTS: '0' } });
   execFileSync(process.execPath, [
     "mac/plan-inbox-routing.js",
     input,
