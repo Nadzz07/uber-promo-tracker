@@ -115,8 +115,8 @@ export function parseUberTransportReceipt({
     "trip total",
     "ride total",
     "amount charged",
-    "fare",
-    "total"
+    "total",
+    "fare"
   ]);
 
   const tripId = extractTripId(text);
