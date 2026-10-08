@@ -1,3 +1,4 @@
+import { analyseSender } from "./parser-v2/sender.js";
 import { createHash } from "node:crypto";
 import { createInterface } from "node:readline";
 import { Readable } from "node:stream";
@@ -89,13 +90,15 @@ function firstEmail(value) {
 }
 
 function recipientFromHeaders(headers) {
-  for (const name of ["x-original-to", "x-envelope-to", "envelope-to", "delivered-to", "to", "cc"]) {
-    for (const value of headers.get(name) || []) {
-      const email = firstEmail(value);
-      if (email) return email;
-    }
+  // Original To is the account identity; Delivered-To may be a forwarding inbox.
+  const original = (headers.get('to') || []).join(',');
+  const aliases = [...new Set((original.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi) || []).map(a => a.toLowerCase()))];
+  if (aliases.length > 1) return '';
+  if (aliases.length === 1) return aliases[0];
+  for (const name of ['x-original-to', 'x-envelope-to', 'envelope-to', 'delivered-to']) {
+    for (const value of headers.get(name) || []) { const email = firstEmail(value); if (email) return email; }
   }
-  return "";
+  return '';
 }
 
 function parseContentType(value) {
@@ -236,9 +239,7 @@ function visibleText(value) {
 }
 
 function looksLikeUberSender(value) {
-  return /@(?:[a-z0-9-]+\.)?uber\.com\b/i.test(String(value || "")) ||
-    /(?:noreply|ubereats|uber)_at_uber_com/i.test(String(value || "")) ||
-    /^\s*["']?uber(?:\s+(?:eats|receipts))?["']?\s*</i.test(String(value || ""));
+  return analyseSender(value).trusted === true || /<?[a-z0-9._%+-]+@(?:[a-z0-9-]+\.)*(?:li\.me|lime\.bike)>?\s*$/i.test(String(value || ''));
 }
 
 function parseForwardedDate(value) {
@@ -325,12 +326,13 @@ function forwardedUberHeaders(body) {
 export function normaliseForwardedUberMessage(message = {}) {
   const forwarded = forwardedUberHeaders(message.body);
   if (!forwarded) return message;
+  if (!forwarded.sentAt) throw new Error("Forwarded Uber/Lime message lacks a valid original date; supply the original export.");
   return {
     ...message,
     sender: forwarded.sender,
     recipient: forwarded.recipient,
     subject: forwarded.subject || String(message.subject || "").replace(/^Fwd:\s*/i, ""),
-    sentAt: forwarded.sentAt || message.sentAt,
+    sentAt: forwarded.sentAt,
     forwardedByUser: true
   };
 }

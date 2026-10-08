@@ -29,20 +29,20 @@ function emailFromHeader(value) {
 }
 
 function firstRecipientAddress(message, rawSource) {
+  const addresses = [];
   try {
     const recipients = message.toRecipients();
-
-    if (recipients && recipients.length) {
-      for (let i = 0; i < recipients.length; i++) {
-        try {
-          const address = String(recipients[i].address() || "");
-          if (address) return address.toLowerCase();
-        } catch (_) {}
-      }
+    for (let i = 0; i < recipients.length; i++) {
+      const address = String(recipients[i].address() || '').trim().toLowerCase();
+      if (address && addresses.indexOf(address) < 0) addresses.push(address);
     }
   } catch (_) {}
-
-  return emailFromHeader(headerValue(rawSource, "To"));
+  if (addresses.length === 1) return addresses[0];
+  if (addresses.length > 1) throw new Error('Multiple recipient accounts; cannot assign receipt safely.');
+  const header = String(headerValue(rawSource, 'To') || '');
+  const matches = header.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi) || [];
+  const unique = matches.filter((v, i) => matches.map(a => a.toLowerCase()).indexOf(v.toLowerCase()) === i);
+  return unique.length === 1 ? unique[0].toLowerCase() : '';
 }
 
 function childMailboxes(container) {
@@ -99,9 +99,10 @@ function findMailbox(Mail, name) {
 
 function looksUber(subject, sender) {
   return (
-    /\buber\b/i.test(subject) ||
+    /\b(?:uber|lime)\b/i.test(subject) ||
+    /@(?:[a-z0-9-]+\.)?(?:li\.me|lime\.bike)(?:>|$)/i.test(sender) ||
     /@(?:[a-z0-9-]+\.)?uber\.com/i.test(sender) ||
-    /(?:ubereats|uber)_at_uber_com/i.test(sender) ||
+    /(?:ubereats|uber|noreply|no_reply|receipts)_at_(?:[a-z0-9_]+_)?uber_com/i.test(sender) ||
     /^\s*["']?uber(?:\s+eats)?["']?\s*</i.test(sender)
   );
 }

@@ -184,7 +184,7 @@ try {
   test('Uber Cash payment does not hide a first-N Eats order', () => {
     const cash = { ...base, id: 'cash', offerId: 'cash', discountType: 'uberCash', uses: 1 };
     const result = applyReceiptEvidence([base, cash], [{ ...receipt, promotionDiscount: 0, uberCashUsed: 10 }]);
-    assert.equal(result.promos[0].usesRemaining, 4); assert.equal(result.promos[1].usesRemaining, 0);
+    assert.equal(result.promos[0].usesRemaining, 4); assert.equal(result.promos[1].usesRemaining, 1, "A balance payment alone cannot prove use of a tracked cash promotion");
   });
   test('Receipt identity normalises order IDs and scopes shared Message-ID to recipient', () => {
     assert.equal(receiptFingerprint(receipt), receiptFingerprint({ ...receipt, orderId: ' audit-001 ' }));
@@ -201,7 +201,7 @@ try {
   });
   test('Parser upgrades reuse old receipt rows and remove corrected transport misclassification', () => {
     const db = openPrivateDb(':memory:'); ensureAccount(db, { alias: 'alpha@example.invalid' });
-    const message = { messageKey: 'legacy-key', messageId: '<upgrade@example.invalid>', accountRef: 'A001', kind: 'receipt', parsedAt: '2026-10-01T00:00:00Z' };
+    const message = { messageKey: 'legacy-key', messageId: '<upgrade@example.invalid>', accountRef: 'A001', kind: 'receipt', accepted: true, parsedAt: '2026-10-01T00:00:00Z' };
     upsertMessage(db, message);
     upsertReceipt(db, { ...receipt, receiptId: 'old-receipt', orderId: null, messageKey: 'legacy-key' });
     upsertMessage(db, { ...message, messageKey: 'new-key' });

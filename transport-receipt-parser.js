@@ -1,3 +1,4 @@
+import { savingsAmount, uberOneSavingAmount } from "./receipt-parser.js";
 import { analyseSender } from "./parser-v2/sender.js";
 import { receiptText, moneyForLabel, hasTransportSignal } from "./receipt-text.js";
 import {
@@ -94,6 +95,10 @@ export function parseUberTransportReceipt({
   const text = receiptText(subject, body);
 
   const senderAnalysis = analyseSender(sender);
+  const limeAddress = String(sender).match(/<?([a-z0-9._%+-]+@([a-z0-9.-]+))>?(?:\s*)$/i);
+  if (["li.me", "lime.bike"].some(domain => limeAddress?.[2]?.toLowerCase() === domain || limeAddress?.[2]?.toLowerCase().endsWith("." + domain))) {
+    senderAnalysis.trusted = true; senderAnalysis.confidence = "high"; senderAnalysis.basis = "lime_domain";
+  }
 
   const eatsSignal =
     /\buber\s*eats\b|\brestaurant\b|\bdelivery\s+fee\b|\bitems\s+subtotal\b/i.test(text);
@@ -102,9 +107,11 @@ export function parseUberTransportReceipt({
     /\btrip\s+with\s+uber\b|\byour\s+(?:uber\s+)?trip\b|\bthanks\s+for\s+riding\b|\btrip\s+fare\b|\bride\s+with\s+uber\b/i.test(text);
 
   const bikeSignal =
-    /\buber\s*(?:bike|bikes)\b|\blime\s+(?:e-?bike|bike)\b|\bbike\s+(?:trip|ride|number)\b|\bcycle\s+(?:trip|ride)\b|\bthanks\s+for\s+choosing\s+lime\s+bike\b/i.test(text);
+    /\buber\s*(?:bike|bikes)\b|\blime\s+(?:e-?bike|bike)\b|\bbike\s+(?:trip|ride|number)\b|\bcycle\s+(?:trip|ride)\b|\bthanks\s+for\s+(?:choosing|riding\s+with)\s+lime\b|\byour\s+lime\s+(?:ride|receipt)\b/i.test(text);
 
   const total = moneyForLabel(text, [
+    "new total",
+    "updated total",
     "trip total",
     "ride total",
     "amount charged",
@@ -116,7 +123,7 @@ export function parseUberTransportReceipt({
   const tripKey = extractTripKey(text, { bikeSignal });
 
   const isReceipt =
-    Boolean(senderAnalysis.trusted) &&
+    Boolean(senderAnalysis.trusted) && senderAnalysis.confidence === "high" &&
     (!eatsSignal || hasTransportSignal(subject, text) || bikeSignal) &&
     (rideSignal || bikeSignal) &&
     total.value != null;
@@ -139,6 +146,11 @@ export function parseUberTransportReceipt({
     tripId: tripId.value,
     tripKey,
     total: total.value,
+    promotionDiscount: moneyForLabel(text, ["promotion", "promotions", "discount"]).value,
+    uberCashUsed: moneyForLabel(text, ["uber cash", "uber credits"]).value,
+    uberCashSavings: moneyForLabel(text, ["uber cash discount", "uber cash promotion", "promotional uber cash"]).value,
+    reportedSavings: savingsAmount(text).value,
+    uberOneSavings: uberOneSavingAmount(text).value,
     senderVerified: senderAnalysis.trusted,
     senderConfidence: senderAnalysis.confidence,
     evidence: {

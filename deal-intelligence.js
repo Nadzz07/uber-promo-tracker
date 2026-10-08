@@ -22,7 +22,7 @@ function isAvailable(promo, excludedIds = new Set()) {
       promo.trackingState === "used" || promo.expiryStatus === "unknown" ||
       isOfferExpired(promo)) return false;
   if (promo.id && excludedIds.has(promo.id)) return false;
-  if (promo.receiptState === "used") return false;
+  if (promo.receiptState === "used" || promo.recommendationEligible === false || promo.trackingState === "expired") return false;
   if (remainingUses(promo) <= 0) return false;
   return true;
 }

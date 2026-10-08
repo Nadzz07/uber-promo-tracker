@@ -27,6 +27,6 @@ export function moneyForLabel(text, labels) {
 }
 
 export function hasTransportSignal(subject, text) {
-  const pattern = /\btrip\s+with\s+uber\b|\byour\s+(?:uber\s+)?trip\b|\bthanks\s+for\s+riding\b|\btrip\s+fare\b|\bride\s+with\s+uber\b|\bbike\s+(?:trip|ride)\b|\bcycle\s+(?:trip|ride)\b/;
+  const pattern = /\btrip\s+with\s+uber\b|\byour\s+(?:uber\s+)?trip\b|\bthanks\s+for\s+riding\b|\btrip\s+fare\b|\bride\s+with\s+uber\b|\bbike\s+(?:trip|ride)\b|\bcycle\s+(?:trip|ride)\b|\blime\s+(?:e-?bike|bike|ride|receipt)\b|\bthanks\s+for\s+(?:riding\s+with|choosing)\s+lime\b/;
   return pattern.test(String(subject).toLowerCase()) || pattern.test(String(text).slice(0, 600).toLowerCase());
 }

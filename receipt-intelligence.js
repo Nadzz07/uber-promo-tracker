@@ -1,6 +1,8 @@
+import { dedupeReceipts } from "./receipt-identity.js";
 import { savingForSpend } from "./deal-intelligence.js";
 import { applyOfferTrackingStates } from "./offer-state.js";
-import { expiryEndTime } from "./offer-time.js";
+import { confirmedReceiptSaving } from "./savings-intelligence.js";
+import { expiryEndTime, applyOfferExpiryPolicy } from "./offer-time.js";
 
 function number(value) {
   if (value == null || value === "") return null;
@@ -85,8 +87,13 @@ function consumeBestMatch({ tracked, receipt, observed, mode, matches, stats }) 
     second.difference > tolerance ||
     second.difference - best.difference >= 0.2;
 
-  if (best.difference > tolerance || !uniqueEnough) {
+  if (best.difference > tolerance) {
+    return { consumed: false, ambiguous: false, candidateOfferIds: [] };
+  }
+
+  if (!uniqueEnough) {
     const candidateOfferIds = candidates
+      .filter(candidate => candidate.difference <= tolerance)
       .map(candidate => candidate.promo.offerId || candidate.promo.id || null)
       .filter(Boolean);
 
@@ -132,43 +139,6 @@ function consumeBestMatch({ tracked, receipt, observed, mode, matches, stats }) 
     ambiguous: false,
     candidateOfferIds: offerId ? [offerId] : []
   };
-}
-
-function receiptIdentity(receipt) {
-  if (receipt.orderId) {
-    return [
-      "order",
-      receipt.accountRef || "",
-      String(receipt.orderId).trim().toLowerCase()
-    ].join("|");
-  }
-
-  if (receipt.receiptId || receipt.id) {
-    return "receipt|" + String(receipt.receiptId || receipt.id);
-  }
-
-  return [
-    "fallback",
-    receipt.accountRef || "",
-    receipt.sentAt || receipt.receivedAt || "",
-    receipt.subtotal ?? "",
-    receipt.promotionDiscount ?? "",
-    receipt.total ?? ""
-  ].join("|");
-}
-
-function dedupeReceipts(receipts = []) {
-  const seen = new Set();
-  const result = [];
-
-  for (const receipt of receipts) {
-    const key = receiptIdentity(receipt);
-    if (seen.has(key)) continue;
-    seen.add(key);
-    result.push(receipt);
-  }
-
-  return result;
 }
 
 function orderCountCandidates(tracked, receipt) {
@@ -247,7 +217,7 @@ function consumeOrderCountUse({ tracked, receipt, matches, stats }) {
 
 export function applyReceiptEvidence(promos = [], receipts = [], { now = new Date() } = {}) {
   const tracked = promos.map(promo => ({
-    ...promo,
+    ...applyOfferExpiryPolicy(promo),
     receiptConfirmedUses: 0,
     usesRemaining: Math.max(0, Number(promo.uses || 1)),
     receiptState: null,
@@ -299,7 +269,7 @@ export function applyReceiptEvidence(promos = [], receipts = [], { now = new Dat
       }
       stats.observedPromoSavings = roundMoney(stats.observedPromoSavings + promotion);
       stats.uberCashUsed = roundMoney(stats.uberCashUsed + cash);
-      stats.totalSaved = roundMoney(stats.totalSaved + promotion + cash);
+      stats.totalSaved = roundMoney(stats.totalSaved + confirmedReceiptSaving(receipt));
     }
 
     if (!receipt.accountRef) continue;
@@ -316,7 +286,7 @@ export function applyReceiptEvidence(promos = [], receipts = [], { now = new Dat
     const cashResult = consumeBestMatch({
       tracked,
       receipt,
-      observed: cash,
+      observed: number(receipt.uberCashSavings) || 0,
       mode: "uberCash",
       matches,
       stats

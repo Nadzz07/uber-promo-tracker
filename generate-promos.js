@@ -1,14 +1,16 @@
 import fs from "node:fs/promises";
+import { backupPrivateDb } from "./private-backup.js";
 import path from "node:path";
 import { assertPublicSnapshot } from "./public-snapshot.js";
 import { parseAccessList } from "./access-list.js";
+import { classifyAccount } from "./account-state.js";
 import { isOfferExpired } from "./offer-time.js";
 import { parseUberPromo } from "./parser.js";
 import { parseUberEatsReceipt } from "./receipt-parser.js";
 import { parseUberTransportReceipt } from "./transport-receipt-parser.js";
 import { applyReceiptEvidence } from "./receipt-intelligence.js";
 import { toPublicPromo } from "./public-promo.js";
-import { estimateReceiptSavings } from "./savings-intelligence.js";
+import { combinedReceiptSavings } from "./savings-intelligence.js";
 import { applyOfferTrackingStates } from "./offer-state.js";
 import {
   DEFAULT_PRIVATE_DB,
@@ -21,6 +23,8 @@ import {
   getSavingsSummary,
   openPrivateDb,
   replaceReceiptMatches,
+  resetAccountAccess,
+  setAccountAccess,
   updateOfferUsage,
   upsertMessage,
   upsertOffer,
@@ -80,11 +84,12 @@ function attachAccountOfferContext(promos) {
   return promos;
 }
 
-function receiptStatsByAccount(receipts) {
-  return estimateReceiptSavings(receipts).byAccount;
+function receiptStatsByAccount(receipts, rides) {
+  return combinedReceiptSavings(receipts, rides).byAccount;
 }
 
 function historyStatus(promo) {
+  if (promo.trackingState === "expired" || isExpired(promo)) return "expired";
   if (promo.trackingState === "used") return "used";
   if (promo.trackingState === "needs_checking") return "needs_checking";
   if (promo.receiptState === "used") return "used";
@@ -123,9 +128,7 @@ async function loadAccountAllowlist() {
 
   try {
     const text = await fs.readFile(accountAccessPath, "utf8");
-    return new Set(
-      parseAccessList(text).map(record => record.email.trim().toLowerCase())
-    );
+    return new Map(parseAccessList(text).map(record => [record.email.trim().toLowerCase(), record]));
   } catch (error) {
     if (error?.code === "ENOENT") return null;
     throw error;
@@ -143,6 +146,8 @@ async function generatePromos() {
   if (new Set(paths).size !== paths.length) throw new Error("Input, database and output paths must be distinct.");
   const messages = await loadMessages(inputPath);
   const accountAllowlist = await loadAccountAllowlist();
+  const backup = backupPrivateDb(privateDbPath);
+  if (backup) console.log("Consistent private database backup created before import.");
   const db = openPrivateDb(privateDbPath);
   let transaction = false;
   let skippedOutsideAccessList = 0;
@@ -150,6 +155,10 @@ async function generatePromos() {
   try {
     db.exec("BEGIN IMMEDIATE");
     transaction = true;
+    if (accountAllowlist) {
+      resetAccountAccess(db);
+      for (const record of accountAllowlist.values()) setAccountAccess(db, record.email, record.canLogin, record.loginMethod);
+    }
 
     for (const email of messages) {
       const receipt = parseUberEatsReceipt(email);
@@ -176,6 +185,7 @@ async function generatePromos() {
 
         const storedReceipt = {
           ...receipt,
+          reparsedSource: true,
           accountRef: account.accountRef,
           accountMasked: account.masked,
           canLogin: account.canLogin,
@@ -232,6 +242,7 @@ async function generatePromos() {
 
         const storedTransportReceipt = {
           ...transportReceipt,
+          reparsedSource: true,
           accountRef: account.accountRef,
           accountMasked: account.masked,
           canLogin: account.canLogin,
@@ -272,11 +283,12 @@ async function generatePromos() {
         continue;
       }
 
-      const account = ensureAccount(db, {
+      const account = promo.isPromo ? ensureAccount(db, {
         alias: promo.accountAlias,
         seenAt: promo.emailSentAt || promo.receivedAt || sentAt,
         kind: "promo"
-      });
+      }) : getAccounts(db).find(a => a.alias === promo.accountAlias);
+      if (!account) continue;
 
       upsertMessage(db, {
         messageKey: key,
@@ -321,7 +333,7 @@ async function generatePromos() {
 
     const receipts = getReceipts(db);
     const transportReceipts = getTransportReceipts(db);
-    const evidence = applyReceiptEvidence(durableOffers, receipts);
+    const evidence = applyReceiptEvidence(durableOffers, receipts, { now: generatedAt });
 
     for (const promo of evidence.promos) {
       updateOfferUsage(db, promo);
@@ -347,7 +359,7 @@ async function generatePromos() {
         id: promo.offerId
       }));
 
-    const receiptStats = receiptStatsByAccount(receipts);
+    const receiptStats = receiptStatsByAccount(receipts, transportReceipts);
     const reviewCounts = new Map();
     const availableCounts = new Map();
 
@@ -388,19 +400,29 @@ async function generatePromos() {
         orderCount: stats.orderCount,
         promoSavings: stats.promoSavings,
         uberCashUsed: stats.uberCashUsed,
+        uberCashConfirmedSavings: stats.uberCashConfirmedSavings || 0,
         uberOneConfirmedSavings: stats.uberOneConfirmedSavings,
         otherConfirmedSavings: stats.otherConfirmedSavings,
         totalSaved: stats.confirmedSaved,
+        rideConfirmedSaved: stats.rideConfirmedSaved || 0,
         estimatedUberOneSavings: stats.estimatedUberOneSavings,
         estimatedTotalSaved: stats.estimatedTotalSaved,
-        lastOrderAt: stats.lastOrderAt || account.lastOrderAt || null
+        lastOrderAt: stats.lastOrderAt || account.lastOrderAt || null,
+        ...classifyAccount({ ...account, orderCount: stats.orderCount }, refreshedOffers.filter(p => p.accountRef === account.accountRef))
       };
     });
 
     const summary = getSavingsSummary(db);
+    summary.accountStatusVersion = 1;
+    summary.availableAccounts = accounts.filter(a => a.accountState === "available").length;
+    summary.usedAccounts = accounts.filter(a => a.accountUsed).length;
+    summary.archivedAccounts = accounts.filter(a => a.accountState === "archived").length;
+    summary.needsCheckingAccounts = accounts.filter(a => a.accountState === "needs_checking").length;
+    const eligibleRefs = new Set(accounts.filter(a => a.recommendationEligible).map(a => a.accountRef));
+    for (const promo of publicPromos) promo.recommendationEligible = eligibleRefs.has(promo.accountRef);
     summary.activePromoAccounts = new Set(
       refreshedOffers
-        .filter(promo => promo.trackingState === "available")
+        .filter(promo => promo.trackingState === "available" && eligibleRefs.has(promo.accountRef))
         .map(promo => promo.accountRef)
         .filter(Boolean)
     ).size;

@@ -99,6 +99,11 @@ try {
   assert.equal(result.count, 2);
   assert.deepEqual(result.messageIds, ["<receipt-inbox@uber.com>", "<archived-receipt@uber.com>"]);
 
+  // Parse-only results must never authorize filing before a successful import.
+  execFileSync(process.execPath, ['mac/plan-inbox-routing.js', input, dbPath, output, trashOutput], { stdio: 'pipe' });
+  assert.equal(JSON.parse(fs.readFileSync(output)).count, 0);
+  assert.equal(JSON.parse(fs.readFileSync(trashOutput)).count, 0);
+  execFileSync(process.execPath, ['generate-promos.js', input, path.join(dir, 'promos.json'), path.join(dir, 'history.json'), dbPath], { stdio: 'pipe' });
   execFileSync(process.execPath, [
     "mac/plan-inbox-routing.js",
     input,
@@ -138,22 +143,22 @@ try {
   );
 
   assert.equal(
-    commonSource.includes('MOVE_INBOX_RECEIPTS="${APPLE_MAIL_MOVE_INBOX_RECEIPTS:-true}"'),
+    commonSource.includes('MOVE_INBOX_RECEIPTS="${APPLE_MAIL_MOVE_INBOX_RECEIPTS:-false}"'),
     true,
-    "routine sync should safely file processed Inbox receipts by default"
+    "routine sync must leave Inbox receipts in place by default"
   );
   assert.equal(
-    commonSource.includes('TRASH_ARCHIVED_MAIL="${APPLE_MAIL_TRASH_ARCHIVED:-true}"'),
+    commonSource.includes('TRASH_ARCHIVED_MAIL="${APPLE_MAIL_TRASH_ARCHIVED:-false}"'),
     true,
-    "routine sync should route archived-account Uber mail to Bin by default"
+    "routine sync must leave archived mail in place by default"
   );
   assert.equal(
-    exampleEnv.includes("APPLE_MAIL_MOVE_INBOX_RECEIPTS=true"),
+    exampleEnv.includes("APPLE_MAIL_MOVE_INBOX_RECEIPTS=false"),
     true,
     "example configuration should match the runtime receipt-filing default"
   );
   assert.equal(
-    exampleEnv.includes("APPLE_MAIL_TRASH_ARCHIVED=true"),
+    exampleEnv.includes("APPLE_MAIL_TRASH_ARCHIVED=false"),
     true,
     "example configuration should expose Archived-account Bin routing"
   );

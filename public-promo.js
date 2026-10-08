@@ -29,7 +29,7 @@ export function toPublicPromo(promo) {
     expires: promo.expires,
     expiresAt: promo.expiresAt || null,
     expiryStatus: promo.expiryStatus || (promo.expires ? "exact" : "unknown"),
-    expiryBasis: ["explicit_in_offer_terms", "weekday_from_email_date", "relative_to_email_date", "estimated_from_email_date"].includes(promo.expiryBasis)
+    expiryBasis: ["explicit_in_offer_terms", "weekday_from_email_date", "relative_to_email_date", "estimated_from_email_date", "tracker_35_day_rule"].includes(promo.expiryBasis)
       ? promo.expiryBasis : null,
     classificationConfidence: promo.classificationConfidence || null,
     expiryConfidence: promo.expiryConfidence || null,
@@ -47,6 +47,7 @@ export function toPublicPromo(promo) {
     closedReason: promo.closedReason || null,
     receiptConfirmedUses: Number(promo.receiptConfirmedUses || 0),
     lastUsedAt: promo.lastUsedAt || null,
+    firstEmailSentAt: promo.firstEmailSentAt || promo.emailSentAt || null,
     emailSentAt: promo.emailSentAt || null
   };
 }

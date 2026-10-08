@@ -1,9 +1,11 @@
+import { dedupeReceipts } from "./receipt-identity.js";
+import { createHash } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import { maskAccountAlias } from "./account-map.js";
-import { estimateReceiptSavings } from "./savings-intelligence.js";
+import { estimateReceiptSavings, combinedReceiptSavings } from "./savings-intelligence.js";
 
-export const PRIVATE_DB_SCHEMA_VERSION = 4;
+export const PRIVATE_DB_SCHEMA_VERSION = 7;
 export const DEFAULT_PRIVATE_DB = "./uber-tracker.local.db";
 
 function normaliseAlias(value) {
@@ -31,6 +33,8 @@ function initSchema(db) {
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS deleted_accounts (alias_hash TEXT PRIMARY KEY);
 
     CREATE TABLE IF NOT EXISTS accounts (
       account_ref TEXT PRIMARY KEY,
@@ -116,6 +120,7 @@ function initSchema(db) {
       small_order_fee REAL,
       tip REAL,
       uber_cash_used REAL,
+      uber_cash_savings REAL,
       reported_savings REAL,
       uber_one_savings REAL,
       uber_one_signal INTEGER NOT NULL DEFAULT 0,
@@ -159,6 +164,10 @@ function initSchema(db) {
   `);
 
 
+  const transportColumns = new Set(db.prepare('PRAGMA table_info(transport_receipts)').all().map(r => r.name));
+  for (const name of ['promotion_discount', 'uber_cash_used', 'uber_cash_savings', 'reported_savings', 'uber_one_savings']) {
+    if (!transportColumns.has(name)) db.exec('ALTER TABLE transport_receipts ADD COLUMN ' + name + ' REAL');
+  }
   const accountColumns = new Set(
     db.prepare("PRAGMA table_info(accounts)").all().map(row => row.name)
   );
@@ -171,6 +180,7 @@ function initSchema(db) {
     db.prepare("PRAGMA table_info(receipts)").all().map(row => row.name)
   );
 
+  if (!receiptColumns.has("uber_cash_savings")) db.exec("ALTER TABLE receipts ADD COLUMN uber_cash_savings REAL");
   if (!receiptColumns.has("reported_savings")) {
     db.exec("ALTER TABLE receipts ADD COLUMN reported_savings REAL");
   }
@@ -209,6 +219,7 @@ export function ensureAccount(
 ) {
   const normalized = normaliseAlias(alias);
   if (!normalized) return null;
+  if (db.prepare("SELECT 1 FROM deleted_accounts WHERE alias_hash = ?").get(createHash("sha256").update(normalized).digest("hex"))) return null;
 
   let row = db.prepare(
     "SELECT account_ref, alias, masked, can_login, login_method, first_seen_at, last_seen_at, " +
@@ -288,7 +299,8 @@ export function ensureAccount(
 
 export function setAccountAccess(db, alias, canLogin, loginMethod = null) {
   const normalized = normaliseAlias(alias);
-  const account = ensureAccount(db, { alias: normalized });
+  // Access edits must not look like a new Mail observation or restart offer age.
+  const account = getAccounts(db).find(a => a.alias === normalized) || ensureAccount(db, { alias: normalized });
   if (!account) return false;
 
   if (loginMethod != null && !["iCloud", "Google", "Both"].includes(loginMethod)) {
@@ -359,6 +371,7 @@ export function deleteAccountsPermanently(db, aliases = []) {
   );
 
   for (const alias of uniqueAliases) {
+    db.prepare("INSERT OR IGNORE INTO deleted_accounts(alias_hash) VALUES(?)").run(createHash("sha256").update(alias).digest("hex"));
     const row = find.get(alias);
     if (!row) continue;
 
@@ -612,7 +625,8 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
       a.login_method AS login_method
     FROM offers o
     JOIN accounts a ON a.account_ref = o.account_ref
-    WHERE 1 = 1
+    LEFT JOIN messages m ON m.message_key = o.message_key
+    WHERE (m.message_key IS NULL OR (m.accepted = 1 AND m.kind = 'promo'))
   `;
 
   const args = [];
@@ -668,6 +682,13 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
 }
 
 export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
+  // A complete reparse of the SAME source may correct a former false extraction.
+  // Sparse duplicates from different messages continue to preserve known facts.
+  if (receipt.reparsedSource && receipt.messageKey) db.prepare(`UPDATE receipts SET
+    subtotal = NULL, promotion_discount = NULL, delivery_fee = NULL, service_fee = NULL,
+    small_order_fee = NULL, tip = NULL, uber_cash_used = NULL, uber_cash_savings = NULL,
+    reported_savings = NULL, uber_one_savings = NULL, uber_one_signal = 0, total = NULL
+    WHERE message_key = ? AND account_ref = ?`).run(receipt.messageKey, receipt.accountRef);
   const previous = db.prepare(`SELECT receipt_id FROM receipts WHERE account_ref = ? AND
     ((message_key IS NOT NULL AND message_key = ?) OR
      (order_id IS NOT NULL AND upper(trim(order_id)) = ?)) LIMIT 1`)
@@ -678,9 +699,9 @@ export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
       receipt_id, account_ref, message_key, sent_at, received_at,
       order_id, merchant, subtotal, promotion_discount,
       delivery_fee, service_fee, small_order_fee, tip,
-      uber_cash_used, reported_savings, uber_one_savings, uber_one_signal,
+      uber_cash_used, uber_cash_savings, reported_savings, uber_one_savings, uber_one_signal,
       total, first_seen_at, last_seen_at
-    ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(receipt_id) DO UPDATE SET
       account_ref = excluded.account_ref,
       message_key = excluded.message_key,
@@ -713,6 +734,7 @@ export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
       uber_cash_used = CASE WHEN excluded.received_at >= receipts.received_at
         THEN COALESCE(excluded.uber_cash_used, receipts.uber_cash_used)
         ELSE COALESCE(receipts.uber_cash_used, excluded.uber_cash_used) END,
+      uber_cash_savings = COALESCE(excluded.uber_cash_savings, receipts.uber_cash_savings),
       reported_savings = CASE WHEN excluded.received_at >= receipts.received_at
         THEN COALESCE(excluded.reported_savings, receipts.reported_savings)
         ELSE COALESCE(receipts.reported_savings, excluded.reported_savings) END,
@@ -739,6 +761,7 @@ export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
     receipt.smallOrderFee ?? null,
     receipt.tip ?? null,
     receipt.uberCashUsed ?? null,
+    receipt.uberCashSavings ?? null,
     receipt.reportedSavings ?? null,
     receipt.uberOneSavings ?? null,
     receipt.uberOneSignal ? 1 : 0,
@@ -749,15 +772,19 @@ export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
 }
 
 export function getReceipts(db) {
-  return db.prepare(`
+  return dedupeReceipts(db.prepare(`
     SELECT
       r.*,
       a.masked AS account_masked,
       a.can_login AS can_login
     FROM receipts r
     JOIN accounts a ON a.account_ref = r.account_ref
+    LEFT JOIN messages m ON m.message_key = r.message_key
+    WHERE m.message_key IS NULL OR (m.accepted = 1 AND m.kind = 'receipt')
     ORDER BY COALESCE(r.sent_at, r.received_at) ASC, r.receipt_id ASC
   `).all().map(row => ({
+    messageKey: row.message_key,
+    service: "Uber Eats",
     id: row.receipt_id,
     receiptId: row.receipt_id,
     accountRef: row.account_ref,
@@ -774,11 +801,12 @@ export function getReceipts(db) {
     smallOrderFee: row.small_order_fee,
     tip: row.tip,
     uberCashUsed: row.uber_cash_used,
+    uberCashSavings: row.uber_cash_savings,
     reportedSavings: row.reported_savings,
     uberOneSavings: row.uber_one_savings,
     uberOneSignal: Boolean(row.uber_one_signal),
     total: row.total
-  }));
+  })));
 }
 
 export function upsertTransportReceipt(
@@ -786,19 +814,37 @@ export function upsertTransportReceipt(
   receipt,
   seenAt = new Date().toISOString()
 ) {
+  if (receipt.reparsedSource && receipt.messageKey) db.prepare(`UPDATE transport_receipts SET
+    promotion_discount = NULL, uber_cash_used = NULL, uber_cash_savings = NULL,
+    reported_savings = NULL, uber_one_savings = NULL, total = NULL
+    WHERE message_key = ? AND account_ref = ?`).run(receipt.messageKey, receipt.accountRef);
+  const previous = db.prepare(`SELECT receipt_id FROM transport_receipts WHERE account_ref = ? AND
+    ((? IS NOT NULL AND message_key = ?) OR (? IS NOT NULL AND upper(trim(trip_id)) = ?)) ORDER BY first_seen_at LIMIT 1`)
+    .get(receipt.accountRef, receipt.messageKey || null, receipt.messageKey || null,
+      receipt.tripId ? String(receipt.tripId).trim().toUpperCase() : null,
+      receipt.tripId ? String(receipt.tripId).trim().toUpperCase() : null);
+  if (previous) receipt = { ...receipt, receiptId: previous.receipt_id };
   db.prepare(`
     INSERT INTO transport_receipts(
       receipt_id, account_ref, message_key, sent_at, received_at,
-      trip_id, transport_mode, total, first_seen_at, last_seen_at
-    ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      trip_id, transport_mode, total, first_seen_at, last_seen_at,
+      promotion_discount, uber_cash_used, uber_cash_savings, reported_savings, uber_one_savings
+    ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(receipt_id) DO UPDATE SET
       account_ref = excluded.account_ref,
       message_key = excluded.message_key,
-      sent_at = excluded.sent_at,
-      received_at = excluded.received_at,
-      trip_id = excluded.trip_id,
+      sent_at = MIN(transport_receipts.sent_at, excluded.sent_at),
+      received_at = MAX(transport_receipts.received_at, excluded.received_at),
+      promotion_discount = COALESCE(excluded.promotion_discount, transport_receipts.promotion_discount),
+      uber_cash_used = COALESCE(excluded.uber_cash_used, transport_receipts.uber_cash_used),
+      uber_cash_savings = COALESCE(excluded.uber_cash_savings, transport_receipts.uber_cash_savings),
+      reported_savings = COALESCE(excluded.reported_savings, transport_receipts.reported_savings),
+      uber_one_savings = COALESCE(excluded.uber_one_savings, transport_receipts.uber_one_savings),
+      trip_id = COALESCE(excluded.trip_id, transport_receipts.trip_id),
       transport_mode = excluded.transport_mode,
-      total = excluded.total,
+      total = CASE WHEN excluded.received_at >= transport_receipts.received_at
+        THEN COALESCE(excluded.total, transport_receipts.total)
+        ELSE COALESCE(transport_receipts.total, excluded.total) END,
       last_seen_at = excluded.last_seen_at
   `).run(
     receipt.receiptId,
@@ -810,20 +856,26 @@ export function upsertTransportReceipt(
     receipt.transportMode || "ride",
     receipt.total ?? null,
     seenAt,
-    seenAt
+    seenAt,
+    receipt.promotionDiscount ?? null, receipt.uberCashUsed ?? null, receipt.uberCashSavings ?? null,
+    receipt.reportedSavings ?? null, receipt.uberOneSavings ?? null
   );
 }
 
 export function getTransportReceipts(db) {
-  return db.prepare(`
+  return dedupeReceipts(db.prepare(`
     SELECT
       r.*,
       a.masked AS account_masked,
       a.can_login AS can_login
     FROM transport_receipts r
     JOIN accounts a ON a.account_ref = r.account_ref
+    LEFT JOIN messages m ON m.message_key = r.message_key
+    WHERE m.message_key IS NULL OR (m.accepted = 1 AND m.kind = 'transport_receipt')
     ORDER BY COALESCE(r.sent_at, r.received_at) ASC, r.receipt_id ASC
   `).all().map(row => ({
+    messageKey: row.message_key,
+    service: "Uber",
     id: row.receipt_id,
     receiptId: row.receipt_id,
     accountRef: row.account_ref,
@@ -833,8 +885,10 @@ export function getTransportReceipts(db) {
     receivedAt: row.received_at,
     tripId: row.trip_id,
     transportMode: row.transport_mode,
+    promotionDiscount: row.promotion_discount, uberCashUsed: row.uber_cash_used, uberCashSavings: row.uber_cash_savings,
+    reportedSavings: row.reported_savings, uberOneSavings: row.uber_one_savings,
     total: row.total
-  }));
+  })));
 }
 
 export function updateOfferUsage(db, promo) {
@@ -880,18 +934,10 @@ export function replaceReceiptMatches(db, matches = [], matchedAt = new Date().t
 
 export function getSavingsSummary(db) {
   const receipts = getReceipts(db);
-  const savings = estimateReceiptSavings(receipts);
+  const savings = combinedReceiptSavings(receipts, getTransportReceipts(db));
 
-  const feeRow = db.prepare(`
-    SELECT
-      COALESCE(AVG(
-        COALESCE(delivery_fee, 0) +
-        COALESCE(service_fee, 0) +
-        COALESCE(small_order_fee, 0)
-      ), 0) AS average_fees
-    FROM receipts
-    WHERE delivery_fee IS NOT NULL OR service_fee IS NOT NULL OR small_order_fee IS NOT NULL
-  `).get();
+  const feeSamples = receipts.filter(r => r.deliveryFee != null || r.serviceFee != null || r.smallOrderFee != null);
+  const averageFees = feeSamples.length ? feeSamples.reduce((sum, r) => sum + Number(r.deliveryFee || 0) + Number(r.serviceFee || 0) + Number(r.smallOrderFee || 0), 0) / feeSamples.length : 0;
 
   const accountCounts = db.prepare(`
     SELECT
@@ -913,7 +959,7 @@ export function getSavingsSummary(db) {
 
   return {
     ...savings.summary,
-    averageExtraOrderFees: Number(Number(feeRow.average_fees || 0).toFixed(2)),
+    averageExtraOrderFees: Number(averageFees.toFixed(2)),
     knownAccounts: Number(accountCounts.known_accounts || 0),
     accessibleAccounts: Number(accountCounts.accessible_accounts || 0),
     inaccessibleAccounts: Number(accountCounts.inaccessible_accounts || 0),
@@ -922,43 +968,18 @@ export function getSavingsSummary(db) {
 }
 
 export function getPublicAccountInsights(db) {
-  return db.prepare(`
-    SELECT
-      a.account_ref,
-      a.masked,
-      a.can_login,
-      a.login_method,
-      a.last_seen_at,
-      a.last_promo_at,
-      a.last_receipt_at,
-      COUNT(DISTINCT CASE
-        WHEN o.service = 'Uber Eats'
-          AND o.observed_live = 1
-          AND o.status = 'active'
-          AND (o.expires IS NULL OR o.expires >= date('now'))
-        THEN o.offer_id
-      END) AS active_promo_count,
-      COUNT(DISTINCT r.receipt_id) AS order_count,
-      COUNT(DISTINCT tr.receipt_id) AS ride_count,
-      MAX(COALESCE(tr.sent_at, tr.received_at)) AS last_ride_at,
-      COALESCE(SUM(DISTINCT COALESCE(r.promotion_discount, 0)), 0) AS promo_savings_hint
-    FROM accounts a
-    LEFT JOIN offers o ON o.account_ref = a.account_ref
-    LEFT JOIN receipts r ON r.account_ref = a.account_ref
-    LEFT JOIN transport_receipts tr ON tr.account_ref = a.account_ref
-    GROUP BY a.account_ref
-    ORDER BY a.can_login DESC, active_promo_count DESC, a.last_seen_at DESC
-  `).all().map(row => ({
-    accountRef: row.account_ref,
-    accountMasked: row.masked,
-    canLogin: Boolean(row.can_login),
-    loginMethod: row.login_method || null,
-    lastSeenAt: row.last_seen_at,
-    lastPromoAt: row.last_promo_at,
-    lastOrderAt: row.last_receipt_at,
-    activePromoCount: Number(row.active_promo_count || 0),
-    orderCount: Number(row.order_count || 0),
-    rideCount: Number(row.ride_count || 0),
-    lastRideAt: row.last_ride_at || null
-  }));
+  const receipts = getReceipts(db);
+  const rides = getTransportReceipts(db);
+  const offers = getOffers(db, { service: "Uber Eats" });
+  const savings = estimateReceiptSavings(receipts).byAccount;
+  return getAccounts(db).map(account => {
+    const orders = receipts.filter(r => r.accountRef === account.accountRef);
+    const transport = rides.filter(r => r.accountRef === account.accountRef);
+    const last = rows => rows.map(r => r.sentAt || r.receivedAt).filter(Boolean).sort().at(-1) || null;
+    return { accountRef: account.accountRef, accountMasked: account.masked, canLogin: account.canLogin,
+      loginMethod: account.loginMethod, lastSeenAt: account.lastSeenAt, lastPromoAt: account.lastPromoAt,
+      lastOrderAt: last(orders), lastRideAt: last(transport), orderCount: orders.length, rideCount: transport.length,
+      totalSaved: savings.get(account.accountRef)?.confirmedSaved || 0,
+      activePromoCount: offers.filter(p => p.accountRef === account.accountRef && p.status === "active").length };
+  });
 }

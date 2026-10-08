@@ -41,8 +41,8 @@ load_recent_config() {
   RECEIPT_DAYS="$(positive_days "${APPLE_MAIL_RECEIPT_DAYS:-90}" APPLE_MAIL_RECEIPT_DAYS)"
   if (( RECEIPT_DAYS > 365 )); then RECEIPT_DAYS=90; fi
   PRIVATE_DB="${TRACKER_PRIVATE_DB:-uber-tracker.local.db}"
-  MOVE_INBOX_RECEIPTS="${APPLE_MAIL_MOVE_INBOX_RECEIPTS:-true}"
-  TRASH_ARCHIVED_MAIL="${APPLE_MAIL_TRASH_ARCHIVED:-true}"
+  MOVE_INBOX_RECEIPTS="${APPLE_MAIL_MOVE_INBOX_RECEIPTS:-false}"
+  TRASH_ARCHIVED_MAIL="${APPLE_MAIL_TRASH_ARCHIVED:-false}"
   if [[ "$MOVE_INBOX_RECEIPTS" != true && "$MOVE_INBOX_RECEIPTS" != false ]]; then
     echo "APPLE_MAIL_MOVE_INBOX_RECEIPTS must be true or false." >&2; exit 1
   fi
@@ -57,11 +57,29 @@ export_recent_mail() {
     "$PROMO_DAYS" "$PROMO_FOLDERS" "$RECEIPT_DAYS" "$RECEIPT_FOLDER" \
     > "$TMP_DIR/emails.json"
   node --input-type=module -e 'import fs from "node:fs"; const p=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(!Array.isArray(p.messages)) throw new Error("Invalid Mail export"); console.log("Exported messages: " + p.messages.length);' "$TMP_DIR/emails.json"
+  # Receipt discovery needs the full receipt window in Inbox too. Previously
+  # Inbox ages 35–90 days fell between the promo scan and historical backfill.
+  osascript -l JavaScript mac/export-uber-mail.js "$RECEIPT_DAYS" "INBOX" 0 "$RECEIPT_FOLDER" > "$TMP_DIR/inbox-candidates.json"
+  node mac/find-inbox-receipts.js "$TMP_DIR/inbox-candidates.json" "$TMP_DIR/inbox-receipt-ids.json" "$TMP_DIR/inbox-receipts.json"
+  node --input-type=module - "$TMP_DIR/emails.json" "$TMP_DIR/inbox-receipts.json" <<'JS'
+import fs from 'node:fs';
+import { messageKey } from './identity.js';
+const [mainPath, inboxPath] = process.argv.slice(2);
+const main = JSON.parse(fs.readFileSync(mainPath));
+const inbox = JSON.parse(fs.readFileSync(inboxPath));
+const unique = new Map();
+for (const message of [...main.messages, ...inbox.messages]) unique.set(messageKey(message), message);
+main.messages = [...unique.values()];
+fs.writeFileSync(mainPath + '.tmp', JSON.stringify(main));
+fs.renameSync(mainPath + '.tmp', mainPath);
+JS
   cp "$TMP_DIR/emails.json" emails.local.json.tmp
   mv emails.local.json.tmp emails.local.json
 }
 
 file_imported_receipts() {
+  # An explicit second opt-in protects existing local configs that enabled routing.
+  if [[ "${TRACKER_READ_ONLY_MAIL:-true}" != false ]]; then return; fi
   if [[ "$MOVE_INBOX_RECEIPTS" != true && "$TRASH_ARCHIVED_MAIL" != true ]]; then
     return
   fi

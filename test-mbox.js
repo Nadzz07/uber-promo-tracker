@@ -102,6 +102,7 @@ const orderRefund = parseUberEatsReceipt({
   sentAt: "2026-06-24T20:26:00.000Z"
 });
 assert.ok(orderOriginal.orderKey);
+assert.equal(orderRefund.total, 11.63, "Updated receipt must use the new total, not Previous total");
 assert.equal(orderRefund.orderKey, orderOriginal.orderKey);
 assert.equal(
   receiptFingerprint({ ...orderOriginal, accountRef: "A001" }),

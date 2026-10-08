@@ -17,12 +17,15 @@ exclude:
   - mac
   - mbox-import.js
   - migrate-legacy-history.js
-  - offer-state.js
   - package-lock.json
   - package.json
   - parser-test.html
   - parser-v2
   - parser.js
+  - private-backup.js
+  - receipt-identity.js
+  - RELEASE.md
+  - test-finalisation.js
   - private-db.js
   - processor-test.html
   - processor.js

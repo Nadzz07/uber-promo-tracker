@@ -3,7 +3,7 @@ import { assertPublicSnapshot } from "./public-snapshot.js";
 const payload = JSON.parse(fs.readFileSync("promos.json", "utf8"));
 const history = JSON.parse(fs.readFileSync("history.json", "utf8"));
 assertPublicSnapshot(payload, history);
-const files = ["index.html", "promos.json", "history.json", "deal-intelligence.js", "manual-state.js", "offer-time.js"];
+const files = ["index.html", "promos.json", "history.json", "deal-intelligence.js", "manual-state.js", "offer-time.js", "offer-state.js", "account-state.js"];
 fs.rmSync("dist", { recursive: true, force: true });
 fs.mkdirSync("dist");
 for (const file of files) fs.copyFileSync(file, "dist/" + file);

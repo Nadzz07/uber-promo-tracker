@@ -216,7 +216,7 @@ test("untrusted sender is rejected", () => {
   assert.equal(promo.rejectionReason, "sender_not_uber");
 });
 
-test("Uber display-name fallback is accepted with medium sender confidence", () => {
+test("Uber display name with an unrelated address is rejected", () => {
   const promo = parseUberPromo({
     sender: "Uber Eats <relay@example.invalid>",
     subject: "£15 off your order",
@@ -224,8 +224,8 @@ test("Uber display-name fallback is accepted with medium sender confidence", () 
     sentAt: "2026-10-05T12:00:00Z"
   });
 
-  assert.equal(promo.isPromo, true);
-  assert.equal(promo.senderConfidence, "medium");
+  assert.equal(promo.isPromo, false);
+  assert.equal(promo.senderConfidence, "low");
 });
 
 test("receipt parser extracts reported and Uber One savings without losing fees", () => {
@@ -469,11 +469,11 @@ try {
     assert.equal(summary.trackedOrders, 1);
     assert.equal(summary.promoSavings, 15);
     assert.equal(summary.uberCashUsed, 5);
-    assert.equal(summary.totalSaved, 20);
-    assert.equal(summary.estimatedTotalSaved, 20);
+    assert.equal(summary.totalSaved, 15, "Cash balance payment is not confirmed promotional saving");
+    assert.equal(summary.estimatedTotalSaved, 15);
     assert.equal(summary.estimatedUberOneSavings, 0);
-    assert.equal(summary.averageSavedPerOrder, 20);
-    assert.equal(summary.estimatedAverageSavedPerOrder, 20);
+    assert.equal(summary.averageSavedPerOrder, 15);
+    assert.equal(summary.estimatedAverageSavedPerOrder, 15);
   });
 
   test("basket splitter excludes inaccessible accounts by default", () => {
