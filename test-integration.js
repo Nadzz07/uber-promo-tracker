@@ -16,6 +16,8 @@ const input = path.join(dir, "emails.json");
 const output = path.join(dir, "promos.json");
 const history = path.join(dir, "history.json");
 const dbPath = path.join(dir, "tracker.db");
+const accessPath = path.join(dir, "access.csv");
+fs.writeFileSync(accessPath, "email,can_login,login_method\naccount-a@icloud.com,true,iCloud\naccount-b@icloud.com,true,iCloud\n");
 
 const messages = [
   {
@@ -78,7 +80,8 @@ function generate() {
     dbPath
   ], {
     cwd: process.cwd(),
-    stdio: "pipe"
+    stdio: "pipe",
+    env: { ...process.env, TRACKER_ACCOUNT_ACCESS: accessPath, TRACKER_ALLOW_UNKNOWN_ACCOUNTS: "0" }
   });
 
   return JSON.parse(fs.readFileSync(output, "utf8"));
