@@ -2,7 +2,6 @@
 // This command reads the real source, backs it up, and reparses only a COPY.
 import fs from 'node:fs';
 import path from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { execFileSync } from 'node:child_process';
 import { backupPrivateDb } from '../private-backup.js';
 import { openPrivateDb, getReceipts, getTransportReceipts, getAccounts } from '../private-db.js';
@@ -23,7 +22,11 @@ if (!fs.existsSync(access)) throw new Error('An authoritative private account ac
 source = path.resolve(source); output = path.resolve(output); access = path.resolve(access);
 if (fs.existsSync(output)) throw new Error('Output directory already exists; choose a new path to preserve prior verification.');
 fs.mkdirSync(output, { recursive: true, mode: 0o700 });
-const sourceDb = new DatabaseSync(source, { readOnly: true });
+const backup = backupPrivateDb(source);
+const copy = path.join(output, 'verification.local.db');
+fs.copyFileSync(backup, copy); fs.chmodSync(copy, 0o600);
+// Older Mac databases predate transport receipts. Upgrade only the copy.
+const sourceDb = openPrivateDb(copy);
 let messages, before, missingEvidence;
 try {
   if (sourceDb.prepare('PRAGMA integrity_check').get().integrity_check !== 'ok') throw new Error('Source database integrity check failed; no import performed.');
@@ -37,9 +40,6 @@ try {
   ) r LEFT JOIN messages m ON m.message_key = r.message_key
   WHERE m.message_key IS NULL OR m.body_text IS NULL OR m.sender IS NULL`).get().n;
 } finally { sourceDb.close(); }
-const backup = backupPrivateDb(source);
-const copy = path.join(output, 'verification.local.db');
-fs.copyFileSync(backup, copy); fs.chmodSync(copy, 0o600);
 const exported = path.join(output, 'emails.local.json');
 fs.writeFileSync(exported, JSON.stringify({ messages }), { mode: 0o600 });
 const promosPath = path.join(output, 'promos.json'), historyPath = path.join(output, 'history.json');

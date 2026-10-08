@@ -142,6 +142,10 @@ try {
     fs.writeFileSync(input, JSON.stringify({ messages: [{ ...email, sentAt: date, receivedAt: date }] }));
     fs.writeFileSync(access, 'Email,Login status\nalpha@example.invalid,Can log in\n');
     execFileSync(process.execPath, ['generate-promos.js', input, path.join(tmp, 'pub.json'), path.join(tmp, 'hist.json'), file], { stdio: 'pipe', env: { ...process.env, TRACKER_ACCOUNT_ACCESS: access } });
+    // Reproduce a pre-transport Mac schema, including an older account column.
+    const legacy = new DatabaseSync(file);
+    legacy.exec('DROP TABLE transport_receipts; ALTER TABLE accounts DROP COLUMN login_method; PRAGMA wal_checkpoint(TRUNCATE)');
+    legacy.close();
     const before = fs.readFileSync(file);
     const output = path.join(tmp, 'verified');
     execFileSync(process.execPath, ['mac/validate-private-data.js', '--db', file, '--access', access, '--output-dir', output], { stdio: 'pipe' });
