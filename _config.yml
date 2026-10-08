@@ -22,6 +22,7 @@ exclude:
   - parser-test.html
   - parser-v2
   - parser.js
+  - parser-fingerprint.js
   - private-backup.js
   - receipt-identity.js
   - RELEASE.md
@@ -40,6 +41,7 @@ exclude:
   - test-browser.js
   - test-integration.js
   - test-mail-routing.js
+  - test-mail-export.js
   - test-mbox.js
   - test-offer-state.js
   - test-round2.js
@@ -55,5 +57,6 @@ exclude:
   - node_modules
   - dist
   - "*.local.*"
+  - "*.local"
   - "*.db*"
   - "*.sqlite*"
