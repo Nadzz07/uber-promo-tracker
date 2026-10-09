@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import { maskAccountAlias } from "./account-map.js";
+import { offerFingerprint } from "./identity.js";
 import { estimateReceiptSavings, combinedReceiptSavings } from "./savings-intelligence.js";
 
 export const PRIVATE_DB_SCHEMA_VERSION = 7;
@@ -477,8 +478,13 @@ export function upsertMessage(db, message) {
 
 export function upsertOffer(db, promo, seenAt = new Date().toISOString()) {
   const sourceSentAt = promo.emailSentAt || promo.receivedAt || seenAt;
+  // Keep clocks for reminders and count repairs of the same service/discount.
+  // A primary coupon corrected from an unrelated footer value has its own
+  // source history; borrowing the footer family's clock falsely expires it.
   const previousFirst = promo.messageKey ? db.prepare(`SELECT MIN(first_sent_at) AS first_sent_at
-    FROM offers WHERE message_key = ? AND account_ref = ?`).get(promo.messageKey, promo.accountRef)?.first_sent_at : null;
+    FROM offers WHERE message_key = ? AND account_ref = ?
+      AND status != 'parser_superseded' AND service IS ?
+      AND discount_type IS ? AND discount IS ?`).get(promo.messageKey, promo.accountRef, promo.service || null, promo.discountType || null, promo.discount ?? null)?.first_sent_at : null;
   const firstSentAt = previousFirst && previousFirst < sourceSentAt ? previousFirst : sourceSentAt;
   // Correcting parsed terms changes the fingerprint. Retain superseded rows as
   // private evidence, but do not publish two offers for the same source message.
@@ -624,6 +630,82 @@ export function upsertOffer(db, promo, seenAt = new Date().toISOString()) {
     promo.observedLive === false ? 0 : 1,
     promo.offerId
   );
+}
+
+// Only the explicit complete-source reparse calls this. Incremental imports
+// keep durable reminder clocks; they cannot prove that an earlier source was a
+// false parser extraction. Retain prior derived clocks privately for review.
+export function reconcileOfferSources(db, { processedMessageKeys, families }) {
+  const sources = db.prepare('SELECT message_key, account_ref, sender, body_text FROM messages').all();
+  if (!(processedMessageKeys instanceof Set) || !(families instanceof Map) ||
+      sources.some(m => !processedMessageKeys.has(m.message_key) ||
+        !m.account_ref || !m.sender || m.body_text == null)) {
+    throw new Error('Offer reconstruction requires complete stored message source coverage; no partial import may rebuild clocks.');
+  }
+  const plans = [];
+  for (const [offerId, family] of families) {
+    const promo = family.latest;
+    // A same-family reminder may omit terms without withdrawing a previously
+    // explicit deadline. Only accepted matching sources may supply that term.
+    const expirySource = promo?.expires || promo?.expiresAt ? promo : family.latestExpiry;
+    const lastSentAt = promo?.emailSentAt || promo?.receivedAt;
+    const source = promo?.messageKey ? db.prepare('SELECT account_ref, accepted, kind FROM messages WHERE message_key = ?').get(promo.messageKey) : null;
+    if (!source || !source.accepted || source.kind !== 'promo' ||
+        source.account_ref !== promo.accountRef || promo.offerId !== offerId || offerFingerprint(promo) !== offerId ||
+        !Number.isFinite(Date.parse(family.firstSentAt)) ||
+        !Number.isFinite(Date.parse(lastSentAt)) ||
+        Date.parse(family.firstSentAt) > Date.parse(lastSentAt)) {
+      throw new Error('Offer reconstruction has an invalid accepted source family.');
+    }
+    if (expirySource) {
+      const expiryMessage = db.prepare('SELECT account_ref, accepted, kind FROM messages WHERE message_key = ?').get(expirySource.messageKey);
+      if (!expiryMessage?.accepted || expiryMessage.kind !== 'promo' ||
+          expiryMessage.account_ref !== promo.accountRef || offerFingerprint(expirySource) !== offerId ||
+          !processedMessageKeys.has(expirySource.messageKey)) {
+        throw new Error('Offer reconstruction has an invalid accepted expiry source.');
+      }
+    }
+    const previous = db.prepare('SELECT first_sent_at, last_sent_at, message_key FROM offers WHERE offer_id = ?').get(offerId);
+    if (!previous) throw new Error('Offer reconstruction cannot invent a missing offer.');
+    plans.push({ offerId, family, promo, expirySource, lastSentAt, previous });
+  }
+  db.exec(`CREATE TABLE IF NOT EXISTS offer_source_repairs (
+    repair_id INTEGER PRIMARY KEY,
+    offer_id TEXT NOT NULL,
+    previous_first_sent_at TEXT, canonical_first_sent_at TEXT NOT NULL,
+    previous_last_sent_at TEXT, canonical_last_sent_at TEXT NOT NULL,
+    previous_message_key TEXT, canonical_message_key TEXT NOT NULL,
+    repaired_at TEXT NOT NULL
+  )`);
+  const record = db.prepare(`INSERT INTO offer_source_repairs (
+    offer_id, previous_first_sent_at, canonical_first_sent_at,
+    previous_last_sent_at, canonical_last_sent_at,
+    previous_message_key, canonical_message_key, repaired_at
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`);
+  const update = db.prepare(`UPDATE offers SET
+    first_sent_at = ?, last_sent_at = ?, message_key = ?, title = ?,
+    promo_code = ?, expires = ?, expires_at = ?, expiry_status = ?,
+    expiry_basis = ?, expiry_confidence = ?, classification_confidence = ?,
+    evidence_json = ?, status = CASE WHEN observed_live = 1 THEN 'active' ELSE 'historical' END
+    WHERE offer_id = ?`);
+  let repairedClocks = 0;
+  for (const { offerId, family, promo, expirySource, lastSentAt, previous } of plans) {
+    if (previous.first_sent_at !== family.firstSentAt ||
+        previous.last_sent_at !== lastSentAt || previous.message_key !== promo.messageKey) {
+      record.run(offerId, previous.first_sent_at, family.firstSentAt,
+        previous.last_sent_at, lastSentAt, previous.message_key, promo.messageKey,
+        new Date().toISOString());
+      repairedClocks++;
+    }
+    update.run(family.firstSentAt, lastSentAt, promo.messageKey, promo.title || null,
+      promo.code || null, expirySource?.expires || null, expirySource?.expiresAt || null,
+      expirySource?.expiryStatus || 'unknown', expirySource?.expiryBasis || null,
+      expirySource?.expiryConfidence || null, promo.classificationConfidence || null,
+      JSON.stringify({ ...promo.evidence,
+        ...(expirySource && expirySource !== promo ? { expiry: expirySource.evidence?.expiry, expirySourceMessageKey: expirySource.messageKey } : {})
+      }), offerId);
+  }
+  return { coveredMessages: sources.length, sourceFamilies: families.size, repairedClocks };
 }
 
 export function getOffers(db, { service = null, includeHistorical = false } = {}) {

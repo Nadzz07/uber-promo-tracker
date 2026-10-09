@@ -24,7 +24,7 @@ assert.ok(html.includes('data-view="used"'));
 assert.ok(html.includes('data-view="more"'));
 
 assert.ok(html.includes("Split settings"));
-assert.ok(html.includes("Best move for this basket"));
+assert.ok(html.includes("Plan your order"));
 assert.ok(html.includes("Tap the amount to edit"));
 assert.ok(html.includes('step="0.01"'));
 assert.ok(html.includes("Extra fee per extra order"));
@@ -40,7 +40,7 @@ assert.ok(html.includes("Mark fully used"));
 assert.equal(html.includes("Mark account done"), false, "manual account-done control should stay retired");
 assert.equal(html.includes("Accounts marked done"), false, "Used view should not duplicate promo completion with account-done status");
 assert.equal(html.includes("Done accounts"), false, "Used summary should focus on promo activity");
-assert.ok(html.includes("2+ orders left"));
+assert.ok(html.includes("Not finished"));
 assert.ok(html.includes("Other available accounts"));
 assert.ok(html.includes("Lifetime savings"));
 assert.ok(html.includes("Overview"));
@@ -99,7 +99,7 @@ assert.equal(
 
 
 const actionWiring = [
-  ['data-view=', 'closest("[data-view]")'],
+  ['data-view=', 'setupDraggableNavigation'],
   ['data-intent=', 'closest("[data-intent]")'],
   ['data-account-filter=', 'closest("[data-account-filter]")'],
   ['data-open-sheet=', 'closest("[data-open-sheet]")'],
@@ -122,7 +122,7 @@ for (const [controlMarker, handlerMarker] of actionWiring) {
     `expected UI control marker ${controlMarker}`
   );
   assert.ok(
-    html.includes(handlerMarker),
+    (html + fs.readFileSync('nav-gestures.js', 'utf8')).includes(handlerMarker),
     `expected event wiring for ${controlMarker}`
   );
 }

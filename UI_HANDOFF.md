@@ -1,118 +1,91 @@
-# Liquid glass UI and offer-count repair — local Codex handoff
+# Phone UI and source validation handoff
 
-Branch: `fix/liquid-glass-ui`. Based on `4d5d1fc` (the Mac session's fully
-reconciled receipt-charge snapshot), preserving the transport-charge and desktop
-savings fixes already merged in PRs #33 and #34. Neither public JSON file is
-changed by this branch. This cloud is Linux with no Mac database or Apple Mail.
+Branch: `fix/unfinished-cash-phone-ui`, based on release `6e677ba`.
+Work uses a separate Mac clone. Original checkouts, private databases, access
+lists, raw messages and prior validation copies remain preserved.
 
-## Changes to pick up
+## Account and Cash views
 
-- Quick find now calls repeat uses of one offer “2+ orders left,” with the
-  explanation “The same promo can be used on 2+ more orders.” Its counter counts
-  accounts explicitly: “1 account,” not one remaining order. For example, one use
-  of a five-order £12-off promo leaves four orders and stays in this category.
-- New “Uber Cash + promo” filters on Home and Accounts require an active Uber Cash
-  offer and a separate active fixed/percentage discount on the same account.
-  The Home count uses the same available-account rules as other quick filters.
-  This does not verify a wallet balance or that Uber permits stacking. It does
-  not add together offer values or change the planner's savings calculation.
-- Follow-up layout redesign: More → Appearance → Layout now offers Auto, Mobile
-  and Desktop, saved per browser. Auto changes at 980px; forced Mobile stays a
-  centred phone layout (up to 480px) even on a computer. Forced Desktop adapts
-  down to phone widths without horizontal scrolling. Switching preserves current
-  view, manual usage, filters, account mappings, theme and financial data.
-- Desktop now has its own `desktop-layout.css`: compact header with horizontal
-  glass navigation, three equal summary cards, a two-column planner/discovery
-  workspace, account grids and a six-card settings grid. The old sidebar and
-  oversized Home panel are removed. Keep this stylesheet separate from phone
-  styling; the public allowlist includes it.
-- The repeated More kicker/title are replaced by one “Settings & tools” heading;
-  More appears once in navigation. Phone Home geometry was compared to the previous
-  branch version and remained identical.
+- **Not finished** replaces “2+ orders left.” Accessible accounts stay visible
+  while receipt progress is incomplete or a live offer remains. Four of five
+  promo uses consumed leaves one use here. Unused accounts and expired offers
+  on incomplete accounts remain visible. Receipt-complete accounts leave only
+  when they have no usable offer left.
+- Receipt completion still means five unique Eats receipts, or at least one
+  Eats plus one ride/bike receipt. Offer consumption is separate. Cards/details
+  explain progress and remaining offers. Home previews eight accounts and links
+  to the full matching list.
+- **Uber Cash** shows current recorded offers and Cash history, including
+  receipt-complete accounts. An email amount is an offer value, not proof of
+  today's wallet balance. Expired/history entries have explicit status.
+- Cash + promo requires separate current offers on one accessible account. It
+  does not promise stacking or add email values to confirmed receipt savings.
+  Planner recommendations retain the existing Used/Archived eligibility rule.
+- Policy deadlines say **Estimated end** and explain the 35-day tracking rule.
+  Explicit earlier deadlines remain authoritative.
 
-- Clear header: explicit stacking, safe-area spacing, no text glow/blur, and an
-  11px high-contrast update timestamp. Title/timestamp geometry is tested.
-- Phone navigation: a compact glass capsule, 14px side margins, 8px above the
-  bottom safe area. Neutral dark active lens, specular borders, spectral rim
-  while dragging, spring settling, click/drag and keyboard navigation. Desktop
-  uses a horizontal header capsule. Reduced motion and opaque fallback work. This is web CSS
-  glass; iPhone Safari still needs an on-device check.
-- More → Appearance: draggable colour wheel, keyboard controls, exact colour
-  picker, brightness, presets/reset. Accent text, highlights and ambient light
-  follow the selected colour. Saved per browser, brightened for readability when
-  needed. Warning colours keep their status meaning.
-- More → Login emails: full private aliases imported by account reference,
-  displayed without ellipses in lists/planner/details, searchable and copyable
-  in details. References, masks and addresses are checked. No network upload;
-  browser local storage only. Forget removes the saved copy. Public JSON stays
-  masked. The read-only Mac exporter creates an owner-only ignored file.
-- Removed the thin recommendation border. Desktop privacy copy now sits below
-  the dashboard, avoiding a blank grid row above it.
-- Without receipt fee samples or a manual estimate, the planner stays at one
-  order and says savings are before delivery/service fees. Unknown costs no
-  longer imply known zero-cost extra orders.
+## Phone layout and appearance
 
-## Why “96 orders” needs a local reparse
+The compact **Plan your order** card has an editable basket subtotal, clear
+one-account result, wrapped full login email and separate offer/subtotal lines.
+Savings are before delivery/service fees. Without receipt fee samples or a
+manual fee estimate, unknown extra-order fees do not justify a split.
 
-The current snapshot has 55 offers with 96 uses and two with 26. The old regex
-could match the last two digits of an unrelated number before “orders,” including
-1996/2026, without requiring offer wording. The fix reads the entire count and
-requires explicit next/first/on/off/valid-for wording. It never blindly replaces
-96 with five; genuine explicit larger counts remain supported.
+`ui-refinements.css` loads after desktop styles. Neutral dark surfaces and the
+selected accent replace fixed green ambient tints on the background, cards,
+navigation, sheets and progress. Warning colours retain their status meaning.
+Appearance/layout preferences remain browser-local.
 
-Legacy counts above ten lack an explicit-count marker and stay out of
-recommendations until original messages are reparsed. Their titles explain the
-uncertainty, and manual “Used 1 order” is disabled while their count needs review.
-Normal five-use offers continue working. New public projections carry only the
-boolean `usesVerified`; original terms and snippets remain private.
+`nav-gestures.js` supports tapping or holding the bottom capsule, sliding a
+finger across its tabs and releasing to select. It handles cancellation,
+pointer capture and Safari compatibility clicks. Mouse/keyboard control,
+reduced motion and desktop navigation remain supported.
 
-Corrected terms change the offer fingerprint. The importer retains the old row
-as `parser_superseded` private evidence and publishes its corrected replacement.
-It preserves the earlier first-offer date for the 35-day rule. It deletes no
-accounts, receipts or Mail messages. Code changes invalidate the incremental
-scan cache. Manual uses against an old erroneous ID stay in browser storage but
-are not silently transferred to another offer; review affected pending uses.
+Full addresses require **More → Login emails → Import private login emails** on
+each device/browser. References and masks are checked; addresses wrap without
+ellipses and remain searchable/copyable. Import, persistence and forgetting stay
+local. No private mapping is uploaded. Updated sites preserve saved mappings,
+preferences and manual marks for unchanged offer IDs. Marks against superseded
+IDs remain stored but do not transfer to corrected offers; review affected
+pending uses. CSS/JS assets and nested imports share a code digest to avoid
+incompatible cached modules.
 
-## Minimal safe Mac completion
+## Original-source corrections
 
-Local Codex: inspect Git status, private paths and existing local fixes first.
-Integrate without resetting/replacing the working checkout. If dirty, review this
-branch in a separate clone outside it:
+Membership footers previously changed a primary food/ride coupon's service or
+percentage value. Parsing now follows primary context and quantified terms.
+Genuine membership trials remain separate. Unpriced marketing, unverified
+membership eligibility, purchased/earned balances and future referral rewards
+do not invent ready discounts.
+
+Corrected fingerprints retain superseded rows privately. Incremental imports
+preserve valid reminder clocks and cannot borrow from superseded or
+different-service siblings. Complete-source reconstruction runs only after
+every stored message is covered. It derives earliest dates/latest accepted
+metadata from matching current fingerprints. Partial or missing-source imports
+fail before reconstruction; the import transaction rolls back. A private
+repair journal retains prior derived dates/pointers. Receipts, usage and
+historical rows remain preserved.
+
+The earlier UI release corrected 57 invalid large-count entries. Its 2,007
+record snapshot is historical. Current public offers contain no unverified
+96/26-use count or unpriced generic “Offer” title.
+
+## Safe Mac verification and publication
+
+Inspect existing checkouts and preserve local fixes first. Follow
+[RELEASE.md](RELEASE.md), using a new clone and a backed-up private copy:
 
 ```bash
-git clone --branch fix/liquid-glass-ui --single-branch https://github.com/Nadzz07/uber-promo-tracker.git uber-tracker-ui-review
-cd uber-tracker-ui-review
+git clone --branch fix/unfinished-cash-phone-ui https://github.com/Nadzz07/uber-promo-tracker.git uber-tracker-followup-review
+cd uber-tracker-followup-review
 npm ci --ignore-scripts
+node mac/validate-private-data.js --db "/absolute/path/to/verified-private.db" --access "/absolute/path/to/account-access.local.csv" --output-dir tracker-validation.local.new
 ```
 
-Use the authoritative existing access CSV and reconciled DB. Reparse a backed-up
-COPY into a NEW directory (this leaves the source DB unchanged):
-
-```bash
-node mac/validate-private-data.js --db "/absolute/path/to/verified-private.db" --access "/absolute/path/to/account-access.local.csv" --output-dir tracker-validation.local.ui
-```
-
-Inspect the report and representative original offers: actual use counts,
-earliest offer dates, no lost receipts, repeatability and receipt-backed savings.
-Investigate any changed amounts against receipts. The cloud cannot establish
-whether those 55 counts came from year text; raw messages must establish the
-real counts. Missing evidence requires read-only export per RELEASE.md. No Mail
-moving/trashing/deleting is authorised. Publish only when discrepancies are
-resolved and private-source verification passes.
-
-Export full aliases from the validated copy, without modifying it:
-
-```bash
-node mac/export-device-accounts.js --db tracker-validation.local.ui/verification.local.db --output device-accounts.local.json
-```
-
-It refuses to overwrite exports. Transfer this private file to your own phone,
-for example via AirDrop. Choose More → Login emails → Import private login emails.
-Details then has Copy login email. Import on each device/browser where needed;
-there is no cross-device identity sync. Keep the file off Git and Pages.
-
-After verification, copy ONLY the generated `promos.json` and `history.json` into
-the clean release checkout, then:
+Review complete-source coverage, original receipt evidence, family dates,
+statuses and masked totals. Any unexplained discrepancy blocks publication.
+Copy only validated `promos.json` and `history.json` to the release branch:
 
 ```bash
 npm run validate
@@ -122,67 +95,31 @@ TRACKER_BROWSER_ENGINE=webkit npm run test:browser
 npm run build
 ```
 
-Review/commit the masked refresh and merge after all code/data checks pass. If the
-PR has merged meanwhile, regenerate on latest clean main instead of restoring an
-old snapshot. Publish with the guarded workflow described in RELEASE.md:
+Check the actual built snapshot in both engines at phone/desktop widths, with
+private identity import tested locally without upload. Merge only after real
+source validation and all CI pass. Pages deployment remains a guarded manual
+workflow on clean main. Verify deployed bytes and live interactions.
 
-```bash
-gh workflow run pages.yml --ref main -f private_data_verified=true
-```
+## Evidence and remaining checks
 
-Check the Pages run and live site. In iPhone Safari and installed web app mode,
-check notch clearance, timestamp contrast, capsule bottom position while
-scrolling, dragging between tabs, long full emails/copy, colour changes/reload,
-sheet scrolling and focus. Never restore an old DB or overwrite local fixes to
-make checks pass.
+The preserved 25,045 messages are reparsed on copied databases. All 147 Eats and
+232 ride/bike receipts reconcile with original evidence. Confirmed savings
+remain £3,382.60; Cash email values do not increase that total.
 
-## Cloud verification and limits
+The date audit traced 154 inherited clocks, including 23 public Eats clocks, to
+rejected/different-family donors. All 308 donor/corrected-first sources matched
+original raw messages. Reconstruction corrects those clocks, keeps true earlier
+reminders, and recovers 70 expired private membership families hidden by stale
+source pointers.
 
-Full automated suite, privacy/consistency, syntax, build and expanded Chromium
-flows pass. Seven new regression groups cover layout selection, count extraction, legacy uncertainty,
-non-destructive fingerprint correction, colour contrast, identity validation and
-read-only export permissions/source preservation. Browser coverage includes
-320–1440px layouts, header geometry, nav drag/keyboard, private import/search/
-copy/reload/forget with no upload, colour wheel/persistence, unknown fees, review
-counts, focus, reduced motion and network failures. Layout tests also cover saved
-overrides, Auto/resize, keyboard radio selection, forced Desktop at 320–1440px,
-forced Mobile on a wide display, menu heading duplication and unchanged manual
-usage/savings. Screens were visually checked
-against the unchanged public snapshot. CI adds WebKit browser coverage and keeps
-macOS/Linux Node 22/24 coverage.
+The receipt ZIP has 567 physical messages. Mail displays 532; duplicate copies
+explain why message counts exceed 379 unique receipts. The 106 review messages
+remain backed up privately for separately authorized mailbox filing. This
+follow-up does not move or delete Mail.
 
-Real-source reparse, private phone import and iPhone Safari checks need the local
-session. This document and the PR communicate the changes to local Codex; cloud
-cannot send instructions directly into a separate VS Code chat. No merge or
-deployment follows from synthetic tests alone.
-
-## Mac source verification — 8 October 2026
-
-The local review reparsed 25,045 stored messages twice on a new backed-up copy.
-All 147 Eats and 232 ride/bike receipt records, their final charges and evidence
-pointers remain identical; confirmed savings remain £3,382.60. No original
-database or Mail message was deleted.
-
-All 57 legacy public counts above ten were checked against their original
-messages: 18 quantified offers now conservatively have one use because no
-explicit repeat count was found; 39 were marketing without usable offer terms.
-Together with other unquantified marketing, these no longer appear as generic
-“Offer” deals. The refreshed snapshot has 2,007 Eats offer records including
-closed history, no 96/26-use entries and no unpriced generic offers. First-offer
-dates and the 35-day expiry cap were preserved. Rejected source messages and
-superseded offer rows remain private evidence. Unpriced reminders require review.
-
-The full original receipt ZIP has 567 physical messages. Mail displays 532;
-35 duplicate Uber message copies plus one other message account for the
-531-record filtered Uber export. The full ZIP includes 427 receipt copies for
-listed accounts, resolving to the existing 379 unique receipts, and 105 GBP
-receipt copies for unlisted accounts. One additional EUR receipt cannot be
-converted to GBP by assumption. The 106 review messages were backed up privately
-for the owner's separately authorized move into “Tracker receipt review.”
-Unlisted accounts are not automatically restored to the authoritative list.
-
-Private device export is owner-only and excluded from Git/Pages. Full addresses
-require an import on each device/browser; there is no public identity sync.
-Chromium and WebKit tests pass. An actual iPhone Safari/installed-app check still
-requires the owner's device; desktop WebKit does not establish notch or PWA
-behaviour on a physical iPhone.
+Browser checks cover held drags, native taps, Safari compatibility clicks,
+theme persistence, layouts, identity privacy and account/Cash filtering.
+Desktop WebKit cannot establish physical iPhone notch/installed-app behavior.
+Fresh arrivals since the preserved scan and hourly automation still require
+macOS Mail access and a successful read-only preview. Keep routing off; never
+overwrite the original database or reset Git history to make checks pass.

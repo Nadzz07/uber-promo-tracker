@@ -2236,6 +2236,7 @@
       -webkit-backdrop-filter: blur(20px) saturate(165%);
       touch-action: none;
       user-select: none;
+      -webkit-user-select: none;
     }
     .nav-btn, .nav-btn.active { color: #f4f8f5; }
     .nav-btn { font-weight: 600; }
@@ -2321,6 +2322,7 @@
     }
   </style>
   <link rel="stylesheet" href="./desktop-layout.css">
+  <link rel="stylesheet" href="./ui-refinements.css">
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -2400,7 +2402,7 @@
           <div class="hero-heading">
             <div>
               <div class="eyebrow">Order planner</div>
-              <h1 class="hero-title">Best move for this basket</h1>
+              <h1 class="hero-title">Plan your order</h1>
             </div>
             <span class="hero-spark">✦</span>
           </div>
@@ -2447,11 +2449,11 @@
           </button>
           <button class="quick-card" data-intent="cash">
             <div class="quick-top"><span class="quick-icon">£</span><span id="cashCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">Uber Cash</div><div class="quick-sub">Accounts with cash value ready.</div></div>
+            <div><div class="quick-title">Uber Cash</div><div class="quick-sub">Current offers and history. Check your wallet in Uber.</div></div>
           </button>
-          <button class="quick-card" data-intent="multi">
-            <div class="quick-top"><span class="quick-icon" aria-hidden="true">↻</span><span id="multiCount" class="quick-count">0 accounts</span></div>
-            <div><div class="quick-title">2+ orders left</div><div class="quick-sub">The same promo can be used on 2+ more orders.</div></div>
+          <button class="quick-card" data-intent="unfinished">
+            <div class="quick-top"><span class="quick-icon" aria-hidden="true">↻</span><span id="unfinishedCount" class="quick-count">0 accounts</span></div>
+            <div><div class="quick-title">Not finished</div><div class="quick-sub">Unused or partly used accounts, including any offers left to use.</div></div>
           </button>
           <button class="quick-card" data-intent="cash-promo">
             <div class="quick-top"><span class="quick-icon" aria-hidden="true">£+</span><span id="cashPromoCount" class="quick-count">0 accounts</span></div>
@@ -2462,7 +2464,7 @@
         <div class="section-head">
           <div>
             <div id="accountsKicker" class="eyebrow">Best deal</div>
-            <div class="section-title">Best accounts now</div>
+            <div id="homeAccountsTitle" class="section-title">Best accounts now</div>
           </div>
           <div id="homeAccountMeta" class="section-meta"></div>
         </div>
@@ -2495,7 +2497,7 @@
           <button class="filter-btn" data-account-filter="expired">Expired offers</button>
           <button class="filter-btn" data-account-filter="offers">Has promos</button>
           <button class="filter-btn" data-account-filter="cash">Uber Cash</button>
-          <button class="filter-btn" data-account-filter="multi">2+ orders left</button>
+          <button class="filter-btn" data-account-filter="unfinished">Not finished</button>
           <button class="filter-btn" data-account-filter="cash-promo">Uber Cash + promo</button>
           <button class="filter-btn" data-account-filter="expiring">Expiring soon</button>
         </div>
@@ -2608,8 +2610,9 @@
   <script type="module">
     import { offerTitle, useCountNeedsReview } from "./offer-details.js";
     import { THEME_KEY, DEFAULT_COLOUR, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
+    import { setupDraggableNavigation } from "./nav-gestures.js";
     import { DEVICE_ACCOUNTS_KEY, parseDeviceAccounts, deviceEmail } from "./device-accounts.js";
-    import { classifyAccount, accountStatusLabel, accountUsageDescription } from "./account-state.js";
+    import { classifyAccount, accountStatusLabel, accountUsageDescription, accountUnfinished, accountProgressDescription } from "./account-state.js";
     import { classifyOfferTrackingState } from "./offer-state.js";
     import { isOfferExpired, expiryEndTime, applyOfferExpiryPolicy } from "./offer-time.js";
     import {
@@ -2891,7 +2894,8 @@
         if (date) {
           const instant = expiryEndTime(promo);
           const clock = instant == null ? "" : new Date(instant).toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" });
-          bits.push("Ends " + date + (clock ? " at " + clock + " UK" : ""));
+          bits.push((promo.expiryStatus === "estimated" ? "Estimated end " : "Ends ") + date + (clock ? " at " + clock + " UK" : ""));
+          if (promo.expiryBasis === "tracker_35_day_rule") bits.push("35-day tracking limit from the first offer email; confirm activation and expiry in Uber");
         }
       } else {
         bits.push("Expiry unknown");
@@ -2985,6 +2989,7 @@
             promos: current,
             promoCount: current.length,
             hasCash: current.some(promo => promo.discountType === "uberCash"),
+            cashHistory: allPromosForAccount(account.accountRef).filter(promo => promo.discountType === "uberCash").sort((a,b) => String(b.emailSentAt || "").localeCompare(String(a.emailSentAt || ""))),
             hasCashAndPromo: current.some(promo => promo.discountType === "uberCash") && current.some(promo => promo.discountType === "fixed" || promo.discountType === "percent"),
             has15off15: current.some(is15off15),
             hasMultiUse: current.some(promo => Number(promo.usesRemaining || 0) > 1),
@@ -2998,19 +3003,28 @@
     }
 
     function homeAccountsByIntent() {
-      let list = enrichedAvailableAccounts().filter(account => account.promoCount > 0);
+      let list = currentIntent === "unfinished"
+        ? enrichedLoginAccounts().filter(accountUnfinished)
+        : ["cash", "cash-promo"].includes(currentIntent)
+          ? enrichedLoginAccounts().filter(account => account.promoCount > 0)
+          : enrichedAvailableAccounts().filter(account => account.promoCount > 0);
+
+      if (currentIntent === "cash") {
+        list = enrichedLoginAccounts().filter(account => account.cashHistory.length > 0);
+      }
 
       if (currentIntent === "15off15") {
         list = list.filter(account => account.has15off15);
       } else if (currentIntent === "cash") {
-        list = list.filter(account => account.hasCash);
-      } else if (currentIntent === "multi") {
-        list = list.filter(account => account.hasMultiUse);
+        list = list.filter(account => account.cashHistory.length > 0);
+      } else if (currentIntent === "unfinished") {
+        list = list.filter(accountUnfinished);
       } else if (currentIntent === "cash-promo") {
         list = list.filter(account => account.hasCashAndPromo);
       }
 
       return list.sort((a, b) => {
+        if (currentIntent === "cash" && a.hasCash !== b.hasCash) return Number(b.hasCash) - Number(a.hasCash);
         if (a.accountRef === selectedAccountRef && b.accountRef !== selectedAccountRef) return -1;
         if (b.accountRef === selectedAccountRef && a.accountRef !== selectedAccountRef) return 1;
 
@@ -3187,18 +3201,16 @@
       const comparison =
         plan.benefitVsSingle > .009
           ? money(plan.benefitVsSingle) + " better than one order"
-          : "Best result without unnecessary extra orders";
+          : "One order keeps delivery fees down";
 
       const rows = plan.orders.map((order, index) => (
         '<div class="plan-row">' +
           '<div class="plan-number">' + (index + 1) + '</div>' +
-          '<div>' +
+          '<div class="plan-body">' +
             '<button class="plan-account" data-account-offers="' + escapeHtml(order.accountRef) + '">' + escapeHtml(accountDisplay(order)) + '</button>' +
-            '<div class="plan-promo">' + escapeHtml(loginRouteText(order)) + ' · ' +
-
-              escapeHtml(offerTitle(order.promo)) +
-              ' · about ' + escapeHtml(money(order.subtotal)) +
-            '</div>' +
+            '<div class="plan-login">' + escapeHtml(loginRouteText(order)) + '</div>' +
+            '<div class="plan-promo">' + escapeHtml(offerTitle(order.promo)) + '</div>' +
+            '<div class="plan-subtotal">Order subtotal ' + escapeHtml(money(order.subtotal)) + '</div>' +
           '</div>' +
           '<div class="plan-saving">-' + escapeHtml(money(order.saving)) + '</div>' +
         '</div>'
@@ -3207,8 +3219,8 @@
       target.innerHTML =
         '<div class="recommendation-top">' +
           '<div>' +
-            '<div class="recommendation-title">Best move · ' + plan.orderCount +
-              (plan.orderCount === 1 ? ' order' : ' orders') + '</div>' +
+            '<div class="recommendation-title">Use ' + plan.orderCount +
+              (plan.orderCount === 1 ? ' account' : ' accounts') + '</div>' +
             '<div class="recommendation-copy">' + escapeHtml(comparison) + '</div>' +
           '</div>' +
           '<div class="recommendation-save">Save ' + escapeHtml(money(plan.netSaving)) +
@@ -3229,10 +3241,12 @@
       return "";
     }
 
-    function accountCard(account, index = 0) {
+    function accountCard(account, index = 0, context = "accounts") {
       const best = account.bestNow || bestForAccount(account);
       const current = account.promos || activePromosForAccount(account.accountRef);
+      const cashOffer = context === "cash" ? current.find(promo => promo.discountType === "uberCash") || account.cashHistory?.[0] : best?.promo?.discountType === "uberCash" ? best.promo : null;
       const pills = [];
+      if (cashOffer) pills.push('<span class="pill ' + (isPromoActive(cashOffer) ? 'good' : 'warn') + '">' + (isPromoActive(cashOffer) ? 'Current Cash offer · confirm in Uber' : cashOffer.trackingState === 'needs_checking' ? 'Cash terms need checking' : isExpired(cashOffer) ? 'Past Cash offer · expired' : 'Past Cash offer · used or ignored') + '</span>');
 
       if (account.accountRef === selectedAccountRef) {
         pills.push('<span class="pill good">Chosen account</span>');
@@ -3247,7 +3261,7 @@
       pills.push('<span class="pill">' + escapeHtml(accountStatusLabel(currentAccountState(account))) + '</span>');
       if (currentAccountState(account).partialUsage) pills.push('<span class="pill">Partial account usage</span>');
       if (current.some(is15off15)) pills.push('<span class="pill">£15 off £15</span>');
-      if (current.some(promo => promo.discountType === "uberCash")) pills.push('<span class="pill">Uber Cash</span>');
+      if (current.some(promo => promo.discountType === "uberCash")) pills.push('<span class="pill">Cash offer · wallet unverified</span>');
 
       const multi = current.find(promo => Number(promo.usesRemaining || 0) > 1);
       if (multi) pills.push(offerUsePill(multi));
@@ -3260,12 +3274,15 @@
       }
 
       const headline =
+        cashOffer?.title ||
         best?.promo?.title ||
         current[0]?.title ||
         "No promos available";
 
       const save =
-        best
+        cashOffer
+          ? '<div class="save-now">' + escapeHtml(money(cashOffer.discount)) + '<small>offer value</small></div>'
+          : best
           ? '<div class="save-now">-' + escapeHtml(money(best.calculation.saving)) +
               '<small>on ' + escapeHtml(money(currentBasket())) + '</small></div>'
           : '<div class="save-now" style="color:var(--muted)">—<small>no eligible saving</small></div>';
@@ -3281,6 +3298,7 @@
             save +
           '</div>' +
           '<div class="pill-row">' + pills.join("") + '</div>' +
+          '<div class="account-progress-note">' + escapeHtml(accountProgressDescription(currentAccountState(account))) + '</div>' +
           '<div class="account-actions">' +
             '<button class="ghost-btn" data-account-offers="' + escapeHtml(account.accountRef) + '">View offers</button>' +
           '</div>' +
@@ -3293,10 +3311,10 @@
 
       setAnimatedText("bestCount", list.length);
       setAnimatedText("fifteenCount", list.filter(account => account.has15off15).length);
-      setAnimatedText("cashCount", list.filter(account => account.hasCash).length);
-      const repeated = list.filter(account => account.hasMultiUse).length;
-      const cashAndPromo = list.filter(account => account.hasCashAndPromo).length;
-      setAnimatedText("multiCount", repeated + (repeated === 1 ? " account" : " accounts"));
+      setAnimatedText("cashCount", enrichedLoginAccounts().filter(account => account.hasCash).length + " current");
+      const unfinished = enrichedLoginAccounts().filter(accountUnfinished).length;
+      const cashAndPromo = enrichedLoginAccounts().filter(account => account.hasCashAndPromo).length;
+      setAnimatedText("unfinishedCount", unfinished + (unfinished === 1 ? " account" : " accounts"));
       setAnimatedText("cashPromoCount", cashAndPromo + (cashAndPromo === 1 ? " account" : " accounts"));
     }
 
@@ -3310,18 +3328,20 @@
         best: "Best deal",
         "15off15": "£15 off £15",
         cash: "Uber Cash",
-        multi: "2+ orders left",
+        unfinished: "Not finished",
         "cash-promo": "Uber Cash + promo"
       };
 
       document.getElementById("accountsKicker").textContent = names[currentIntent];
       document.getElementById("homeAccountMeta").textContent =
-        all.length + (all.length === 1 ? " available account" : " available accounts");
+        all.length + (currentIntent === "unfinished" ? (all.length === 1 ? " unfinished account" : " unfinished accounts") : ["cash", "cash-promo"].includes(currentIntent) ? (all.length === 1 ? " account with offers" : " accounts with offers") : (all.length === 1 ? " available account" : " available accounts"));
+      document.getElementById("homeAccountsTitle").textContent = currentIntent === "unfinished" ? "Accounts not finished" : currentIntent === "cash" ? "Cash offers & history" : currentIntent === "cash-promo" ? "Cash & discount offers" : "Best accounts now";
 
       document.getElementById("homeAccounts").innerHTML =
         strong.length
-          ? strong.slice(0, 8).map((account, index) => accountCard(account, index)).join("")
-          : '<div class="empty">No available account matches this category right now.</div>';
+          ? strong.slice(0, 8).map((account, index) => accountCard(account, index, currentIntent)).join("") +
+            (strong.length > 8 ? '<button class="ghost-btn" data-jump-accounts="true" data-target-filter="' + (currentIntent === "unfinished" ? 'unfinished' : ["cash", "cash-promo"].includes(currentIntent) ? currentIntent : 'offers') + '">View all ' + strong.length + ' accounts</button>' : '')
+          : '<div class="empty">No account matches this category right now.</div>';
 
       const wrap = document.getElementById("weakWrap");
       wrap.style.display = weak.length ? "block" : "none";
@@ -3342,8 +3362,8 @@
       if (accountFilter === "review") list = list.filter(account => account.accountState === "needs_checking");
       if (accountFilter === "expired") list = list.filter(account => account.accountState === "expired");
       if (accountFilter === "offers") list = list.filter(account => account.recommendationEligible && account.promoCount > 0);
-      if (accountFilter === "cash") list = list.filter(account => account.hasCash);
-      if (accountFilter === "multi") list = list.filter(account => account.hasMultiUse);
+      if (accountFilter === "cash") list = list.filter(account => account.cashHistory.length > 0);
+      if (accountFilter === "unfinished") list = list.filter(accountUnfinished);
       if (accountFilter === "cash-promo") list = list.filter(account => account.hasCashAndPromo);
       if (accountFilter === "expiring") {
         list = list.filter(account =>
@@ -3373,7 +3393,7 @@
 
       document.getElementById("accountsList").innerHTML =
         shown.length
-          ? shown.map(account => accountCard(account)).join("") +
+          ? shown.map(account => accountCard(account, 0, accountFilter)).join("") +
             (list.length > shown.length
               ? '<button class="ghost-btn" style="width:100%;min-height:44px;text-align:center" data-show-more-accounts="true">Show ' +
                 Math.min(48, list.length - shown.length) + ' more</button>'
@@ -3639,6 +3659,7 @@
             '<button class="action-btn" data-undo-use="' + escapeHtml(promoStateKey(promo)) + '"' +
               (undoDisabled ? ' disabled' : '') + '>Undo manual use</button>' +
           '</div>' +
+          (promo.discountType === 'uberCash' ? '<div class="setting-note">This email records a Cash offer, not your current wallet balance. Check its activation and balance in Uber. Receipt savings remain separate.</div>' : '') +
           '<div class="offer-more">' +
             (activity.ignored
               ? '<button class="action-btn warning" data-toggle-ignore="' + escapeHtml(promoStateKey(promo)) + '" data-ignore="false">Restore offer</button>'
@@ -3702,7 +3723,7 @@
             '<div><span>Save now</span><strong>' + (bestSaving > 0 ? escapeHtml(money(bestSaving)) : '—') + '</strong></div>' +
             '<div><span>History</span><strong>' + escapeHtml(receiptHistoryText(account)) + '</strong></div>' +
           '</div>' +
-          '<div class="account-login-route">' + escapeHtml(accountUsageDescription(account)) + '</div>' +
+          '<div class="account-login-route">' + escapeHtml(accountProgressDescription(currentAccountState(account))) + '</div>' +
           '<div class="account-sheet-actions">' +
             (deviceEmail(deviceAccounts, account)
               ? '<button class="account-secondary" data-copy-email="' + escapeHtml(account.accountRef) + '">Copy login email</button>'
@@ -4108,58 +4129,8 @@
       } finally { loadInProgress = false; }
     }
 
-    let navDrag = null, suppressNavClick = false;
     const mainNav = document.getElementById('mainNav');
-    mainNav.addEventListener('pointerdown', event => {
-      if (event.button !== 0 || !event.target.closest('[data-view]')) return;
-      navDrag = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
-    });
-    mainNav.addEventListener('pointermove', event => {
-      if (!navDrag || event.pointerId !== navDrag.pointerId) return;
-      const vertical = getComputedStyle(mainNav).flexDirection === 'column';
-      const delta = vertical ? event.clientY - navDrag.y : event.clientX - navDrag.x;
-      if (!navDrag.moved && Math.abs(delta) < 6) return;
-      navDrag.moved = true;
-      mainNav.setPointerCapture(event.pointerId); mainNav.classList.add('dragging');
-      const active = mainNav.querySelector('.nav-btn.active'), glider = mainNav.querySelector('.nav-glider');
-      const origin = mainNav.getBoundingClientRect(), position = vertical ? event.clientY - origin.top - mainNav.clientTop : event.clientX - origin.left - mainNav.clientLeft;
-      const size = vertical ? active.offsetHeight : active.offsetWidth;
-      const limit = (vertical ? mainNav.clientHeight : mainNav.clientWidth) - size - 4;
-      const along = Math.max(4, Math.min(limit, position - size / 2));
-      glider.style.transform = 'translate3d(' + (vertical ? active.offsetLeft : along) + 'px,' + (vertical ? along : active.offsetTop) + 'px,0)';
-    });
-    function finishNavDrag(event, cancelled = false) {
-      if (!navDrag || event.pointerId !== navDrag.pointerId) return;
-      const moved = navDrag.moved; navDrag = null;
-      mainNav.classList.remove('dragging');
-      if (mainNav.hasPointerCapture(event.pointerId)) mainNav.releasePointerCapture(event.pointerId);
-      if (moved) {
-        suppressNavClick = true; setTimeout(() => { suppressNavClick = false; }, 0);
-        if (!cancelled) {
-          const vertical = getComputedStyle(mainNav).flexDirection === 'column';
-          const buttons = [...mainNav.querySelectorAll('[data-view]')];
-          const distance = button => { const r = button.getBoundingClientRect(); return Math.abs(vertical ? event.clientY - (r.top+r.bottom)/2 : event.clientX - (r.left+r.right)/2); };
-          buttons.sort((a,b) => distance(a)-distance(b));
-          switchView(buttons[0].dataset.view); buttons[0].focus({ preventScroll: true });
-        } else updateNavGlider();
-      }
-    }
-    mainNav.addEventListener('pointerup', event => finishNavDrag(event));
-    mainNav.addEventListener('pointercancel', event => finishNavDrag(event, true));
-    mainNav.addEventListener('lostpointercapture', event => finishNavDrag(event, true));
-    mainNav.addEventListener('keydown', event => {
-      if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(event.key)) return;
-      const buttons = [...mainNav.querySelectorAll('[data-view]')], index = buttons.indexOf(document.activeElement);
-      if (index < 0) return;
-      event.preventDefault();
-      const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length-1 : (index + (['ArrowRight','ArrowDown'].includes(event.key) ? 1 : -1) + buttons.length) % buttons.length;
-      switchView(buttons[next].dataset.view); buttons[next].focus({ preventScroll: true });
-    });
-    document.getElementById("mainNav").addEventListener("click", event => {
-      if (suppressNavClick) return;
-      const button = event.target.closest("[data-view]");
-      if (button) switchView(button.dataset.view);
-    });
+    setupDraggableNavigation({ nav: mainNav, onSelect: switchView, onRestore: updateNavGlider });
 
     document.getElementById("quickGrid").addEventListener("click", event => {
       const button = event.target.closest("[data-intent]");
@@ -4218,6 +4189,10 @@
 
       const jumpAccounts = event.target.closest("[data-jump-accounts]");
       if (jumpAccounts) {
+        accountFilter = jumpAccounts.dataset.targetFilter || 'offers';
+        accountDisplayLimit = 48;
+        document.querySelectorAll('[data-account-filter]').forEach(button => button.classList.toggle('active', button.dataset.accountFilter === accountFilter));
+        renderAccounts();
         switchView("accounts");
         return;
       }

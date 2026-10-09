@@ -23,6 +23,7 @@ import {
   getTransportReceipts,
   getSavingsSummary,
   openPrivateDb,
+  reconcileOfferSources,
   replaceReceiptMatches,
   resetAccountAccess,
   setAccountAccess,
@@ -48,6 +49,8 @@ const accountAccessPath =
   process.env.TRACKER_ACCOUNT_ACCESS || "./account-access.local.csv";
 const allowUnknownAccounts =
   /^(?:1|true|yes)$/i.test(process.env.TRACKER_ALLOW_UNKNOWN_ACCOUNTS || "");
+const rebuildOfferSources =
+  /^(?:1|true|yes)$/i.test(process.env.TRACKER_REBUILD_OFFER_SOURCES || "");
 
 function isExpired(promo) {
   return isOfferExpired(promo);
@@ -154,6 +157,8 @@ async function generatePromos() {
   let transaction = false;
   let skippedOutsideAccessList = 0;
   const temporaryFiles = [];
+  const processedMessageKeys = new Set();
+  const sourceFamilies = new Map();
   try {
     db.exec("BEGIN IMMEDIATE");
     transaction = true;
@@ -217,6 +222,7 @@ async function generatePromos() {
         });
 
         upsertReceipt(db, storedReceipt, generatedAt);
+        processedMessageKeys.add(key);
         continue;
       }
 
@@ -275,6 +281,7 @@ async function generatePromos() {
         });
 
         upsertTransportReceipt(db, storedTransportReceipt, generatedAt);
+        processedMessageKeys.add(key);
         continue;
       }
 
@@ -311,6 +318,7 @@ async function generatePromos() {
         evidence: promo.evidence,
         parsedAt: generatedAt
       });
+      processedMessageKeys.add(key);
 
       if (!promo.isPromo || !account) continue;
 
@@ -326,6 +334,23 @@ async function generatePromos() {
 
       storedPromo.offerId = offerFingerprint(storedPromo);
       upsertOffer(db, storedPromo, generatedAt);
+      if (rebuildOfferSources) {
+        const sourceSentAt = storedPromo.emailSentAt || storedPromo.receivedAt;
+        const family = sourceFamilies.get(storedPromo.offerId);
+        if (!family) sourceFamilies.set(storedPromo.offerId, { firstSentAt: sourceSentAt, latest: storedPromo,
+          latestExpiry: storedPromo.expires || storedPromo.expiresAt ? storedPromo : null });
+        else {
+          if (Date.parse(sourceSentAt) < Date.parse(family.firstSentAt)) family.firstSentAt = sourceSentAt;
+          if (Date.parse(sourceSentAt) >= Date.parse(family.latest.emailSentAt || family.latest.receivedAt)) family.latest = storedPromo;
+          if ((storedPromo.expires || storedPromo.expiresAt) &&
+              (!family.latestExpiry || Date.parse(sourceSentAt) >= Date.parse(family.latestExpiry.emailSentAt || family.latestExpiry.receivedAt))) family.latestExpiry = storedPromo;
+        }
+      }
+    }
+
+    if (rebuildOfferSources) {
+      const rebuilt = reconcileOfferSources(db, { processedMessageKeys, families: sourceFamilies });
+      console.log('Complete stored-source offer reconstruction: ' + JSON.stringify(rebuilt));
     }
 
     const durableOffers = getOffers(db, {

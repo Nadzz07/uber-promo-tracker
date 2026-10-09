@@ -265,7 +265,7 @@ Main navigation:
 
 Inaccessible accounts are deliberately hidden from the normal ordering flow.
 
-The UI uses a dark liquid-glass treatment with translucent panels, blur, equal-size quick tiles, compact phone spacing and a floating glass navigation bar. “Potential value” is intentionally not shown. Account cards instead focus on what the account saves on the current basket, remaining uses and expiry.
+The UI uses a dark liquid-glass treatment with translucent panels, blur, equal-size quick tiles, compact phone spacing and a floating glass navigation bar. “Potential value” is intentionally not shown. Account cards show current-basket discounts, receipt progress, remaining uses and expiry. **Not finished** includes every accessible account with incomplete receipt usage or a live offer left to use. One remaining use stays visible even after the account meets the receipt rule; expired offers on incomplete accounts remain clearly labelled. **Uber Cash** shows current recorded offers and history, including receipt-complete accounts; it does not claim the current wallet balance. Tracker-policy expiry dates are labelled **Estimated end**. The chosen accent tints panels and navigation, and the bottom capsule supports held-finger sliding.
 
 Basket-splitting controls are hidden behind **Split settings**. The normal Home view uses a clearly editable pounds-and-pence subtotal and shows the recommended order/account split. Split settings explain the estimated extra fee per additional order and use large 1–4 order controls rather than exposing technical planner fields on Home.
 
@@ -542,8 +542,9 @@ See [AUDIT.md](AUDIT.md) for findings, coverage and remaining limits.
 ```bash
 npm run validate
 npm ci --ignore-scripts
-npx playwright install chromium
+npx playwright install chromium webkit
 npm run test:browser
+TRACKER_BROWSER_ENGINE=webkit npm run test:browser
 npm run build
 ```
 
@@ -561,4 +562,4 @@ The planner evaluates one-order savings at the exact penny subtotal. Multi-order
 
 ## Private database verification
 
-`node mac/validate-private-data.js --db /path/to/uber-tracker.local.db --access /path/to/account-access.local.csv` creates a consistent backup and reparses stored source messages twice against a copy. It reports receipt counts, account states and savings, checks repeatability and public consistency, and leaves the original unchanged. Missing source evidence blocks release. Validation output includes private files and must stay local. See [RELEASE.md](RELEASE.md) for the Mac release sequence.
+`node mac/validate-private-data.js --db /path/to/uber-tracker.local.db --access /path/to/account-access.local.csv` creates a consistent backup and reparses stored source messages twice against a copy. It reconstructs offer dates and latest accepted pointers from matching source families only after proving complete stored-message coverage. It reports receipt counts, account states and savings, checks repeatability of accounts, offers and history, and leaves the original unchanged. Prior derived dates are retained in a private repair journal. Normal partial imports preserve reminder clocks and do not perform this reconstruction. Missing source evidence blocks release. Validation output includes private files and must stay local. See [RELEASE.md](RELEASE.md) for the Mac release sequence.

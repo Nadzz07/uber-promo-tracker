@@ -30,6 +30,7 @@ export function parseUberPromoV2({
   const classification = classifyMessage({
     subject,
     text: compactText + " " + sender,
+    contentText: compactText,
     senderAnalysis,
     offer
   });
