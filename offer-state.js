@@ -7,6 +7,38 @@ function timeOf(value) {
   return Number.isNaN(result) ? null : result;
 }
 
+// Finished describes closure, never a claim that unused orders were redeemed.
+export function offerFinishedReason(promo, now = new Date()) {
+  const completion = classifyOfferCompletion(promo, now);
+  return completion.consumed ? 'Fully consumed' : completion.finishedExpired || completion.expiredUnused ? 'Expired' : null;
+}
+
+export function offerClosureLabel(promo, now = new Date()) {
+  const completion = classifyOfferCompletion(promo, now);
+  if (completion.fullyUsed || completion.expiredUnused) return completion.displayStatus;
+  const state = classifyOfferTrackingState(promo, { now, reviewReasons: promo.reviewReasons || [] });
+  if (state.trackingState === 'used') return 'Finished · Usage needs checking';
+  return null;
+}
+
+export function classifyOfferCompletion(promo = {}, now = new Date()) {
+  const normalized = applyOfferExpiryPolicy(promo);
+  const total = Math.max(1, Number(normalized.uses) || 1);
+  const confirmed = Math.max(0, Number(normalized.receiptConfirmedUses) || 0);
+  const end = expiryEndTime(normalized), nowTime = timeOf(now) ?? Date.now();
+  const consumed = !useCountNeedsReview(normalized) && confirmed >= total;
+  const expired = end != null && nowTime >= end;
+  const finishedExpired = expired && confirmed > 0 && !consumed;
+  const fullyUsed = consumed || finishedExpired;
+  const state = classifyOfferTrackingState(normalized, { now, reviewReasons: normalized.reviewReasons || [] });
+  return { fullyUsed, consumed, finishedExpired, expiredUnused: expired && confirmed === 0,
+    partiallyUsed: !expired && !consumed && confirmed > 0 && state.trackingState === 'available',
+    confirmedUses: confirmed, totalUses: total,
+    displayStatus: consumed ? 'Finished · Fully consumed' : finishedExpired ? 'Finished · Expired'
+      : expired ? 'Expired · Unused' : state.trackingState === 'needs_checking' ? 'Needs checking'
+      : confirmed > 0 ? 'Partially used' : 'Available' };
+}
+
 export function classifyOfferTrackingState(
   promo = {},
   {

@@ -10,10 +10,11 @@ ellipsis and are never uploaded.
 
 ## Dashboard and account rules
 
-- **Total accounts:** every account, including archived and deactivated history.
-- **Can log in:** accounts marked accessible in the authoritative private list.
-- **Archived:** inaccessible accounts, including explicit Deactivated accounts.
-- **Accounts available:** accessible accounts with current opportunities eligible
+- **Total Accounts:** every account, including archived and deactivated history.
+- **Accessible:** accounts marked accessible in the authoritative private list.
+- **Archived:** accounts outside active rotation, including Deactivated accounts.
+  Archive status is independent of login access and receipt usage.
+- **Available Offers:** the number of accessible, unarchived accounts with current opportunities eligible
   under the account-used rule.
 - **Used:** five unique Eats receipts, or at least one Eats plus one Ride receipt.
   Lime journeys are included in Rides. Used and Archived accounts are excluded
@@ -23,8 +24,12 @@ ellipsis and are never uploaded.
   and expired offers do not enter this section. Lifetime receipt completion
   remains separate from individual offer progress.
 
-Available, Expired, Fully used, Needs checking, manually done and ignored offers
-remain distinct. Manual offer changes are browser-local. Duplicate receipt
+Fully used includes **Finished · Expired** (at least one receipt-confirmed use
+before expiry) and **Finished · Fully consumed** (every use receipt-confirmed).
+**Expired · Unused** has no confirmed use and never counts as Fully used.
+Partially used offers remain valid with confirmed usage and uses left. Actual
+order counts are preserved; expiry never changes 1/5 into 5/5. Account Used
+remains independent. Needs checking, manually done and ignored offers stay distinct. Manual offer changes are browser-local. Duplicate receipt
 copies count once; newer charges and sparse copies retain supported facts.
 
 Offers end at the earlier explicit deadline or 35 elapsed days from the first
@@ -43,7 +48,13 @@ Home shows a compact account overview, confirmed Total saved, best accounts and
 an order planner. Secondary savings, history, receipts and import information
 are under More. Desktop uses responsive grids; mobile previews a shorter account
 list with access to all results. **More → Appearance** controls colour and layout.
-The mobile navigation supports tapping and held-finger sliding. Reduced motion,
+The mobile navigation supports tapping and held-finger sliding with physical
+damped springs, subtle flex, edge reflections and two shadow depths. Chromium
+uses a live SVG backdrop-refraction filter. Safari uses accessible glass because
+WebKit does not render SVG backdrop displacement. Foreground contrast is bounded
+against even unknown bright pixels. Haptic ticks are attempted at maximum flex
+only where the Vibration API exists; iOS Safari cannot provide them. No screen
+capture or private DOM copying is involved. Reduced motion,
 keyboard access, dialog focus and local preferences are supported.
 
 The website shows an imported snapshot. **Up to date** means a successful Mail
@@ -110,7 +121,7 @@ npm run build
 ```
 
 CI checks Node 22/24 on Linux/macOS and Chromium/WebKit. The build publishes only
-15 allowlisted application files; tests, documentation and private files are
+17 allowlisted application files; tests, documentation and private files are
 excluded. Keep regression tests so later updates cannot silently change receipts,
 savings, privacy or controls.
 

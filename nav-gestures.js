@@ -1,5 +1,5 @@
 // Pointer navigation is separate from account data and works with mouse, pen and touch.
-export function setupDraggableNavigation({ nav, onSelect, onRestore = () => {}, threshold = 6 }) {
+export function setupDraggableNavigation({ nav, onSelect, onRestore = () => {}, onGliderMove = null, threshold = 6 }) {
   if (!nav?.ownerDocument || typeof onSelect !== 'function') {
     throw new TypeError('Navigation element and selection callback are required');
   }
@@ -80,6 +80,7 @@ export function setupDraggableNavigation({ nav, onSelect, onRestore = () => {}, 
     const start = Math.min(...items.map(button => vertical ? button.offsetTop : button.offsetLeft));
     const end = Math.max(...items.map(button => vertical ? button.offsetTop + button.offsetHeight : button.offsetLeft + button.offsetWidth)) - size;
     const along = Math.max(start, Math.min(end, position - grabOffset));
+    if (onGliderMove) { onGliderMove({x:vertical ? active.offsetLeft : along,y:vertical ? along : active.offsetTop,width:active.offsetWidth,height:active.offsetHeight}); return; }
     glider.style.width = active.offsetWidth + 'px';
     glider.style.height = active.offsetHeight + 'px';
     glider.style.transform = 'translate3d(' + (vertical ? active.offsetLeft : along) + 'px,' + (vertical ? along : active.offsetTop) + 'px,0)';

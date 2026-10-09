@@ -258,8 +258,8 @@ html[data-layout="desktop"] .bottom-nav {
 .home-title, html[data-layout="desktop"] .home-title { margin: 0; font-size: 24px; }
 .home-overview .stats-row, html[data-layout="mobile"] .home-overview .stats-row, html[data-layout="desktop"] .home-overview .stats-row { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 16px 0 0; }
 .home-overview .stat-card, html[data-layout="mobile"] .home-overview .stat-card, html[data-layout="desktop"] .home-overview .stat-card { grid-column: auto; grid-row: auto; display: flex; flex-direction: column; align-items: flex-start; min-height: 93px; padding: 14px; border-radius: 17px; background: var(--surface-gradient); border: 1px solid var(--line-soft); box-shadow: none; }
-.home-overview .stat-card:nth-child(2) { order: 3; }
-.home-overview .stat-card:nth-child(3) { order: 2; }
+.home-overview .stat-card:nth-child(2) { order: 2; }
+.home-overview .stat-card:nth-child(3) { order: 3; }
 .home-overview .stat-card:nth-child(4) { order: 4; }
 .home-overview .stat-label, html[data-layout="desktop"] .home-overview .stat-label { font-size: 11px; line-height: 1.4; color: var(--muted); letter-spacing: 0; }
 .home-overview .stat-value, html[data-layout="desktop"] .home-overview .stat-value { margin-top: 7px; font-size: 26px; line-height: 1.1; color: var(--text); }
@@ -418,4 +418,40 @@ html[data-layout="desktop"] .bottom-nav {
 @media (prefers-reduced-motion: reduce) {
  .scan-pill .scan-dot { animation: none !important; }
  .insights-disclosure > summary::before { transition: none; }
+}
+
+/* Shared panel framing gives planner, discovery and receipt insights one hierarchy. */
+.discovery-column, html[data-layout="desktop"] .discovery-column {
+  padding:20px; border:1px solid var(--line);border-radius:24px;
+  background:var(--surface-gradient);box-shadow:var(--inner);
+}
+.discovery-column > .section-head, html[data-layout="desktop"] .discovery-column > .section-head {
+  margin:0 0 18px;align-items:center;
+}
+.discovery-column .section-title { margin:6px 0 0;font-size:23px;line-height:1.2;letter-spacing:-.035em; }
+.discovery-column .eyebrow { font-size:9px;letter-spacing:.12em; }
+.discovery-column .quick-card { background:rgba(0,0,0,.10);box-shadow:none; }
+.discovery-column .quick-card.active { background:rgba(var(--accent-rgb),.085);border-color:rgba(var(--accent-rgb),.3); }
+.best-section > .section-head, html[data-layout="desktop"] .best-section > .section-head {
+  padding:16px 18px; border:1px solid var(--line-soft);border-radius:18px;background:rgba(255,255,255,.025);gap:10px 20px;
+}
+.insights-disclosure > summary { padding:16px 18px;border:1px solid var(--line-soft);border-radius:18px;background:rgba(255,255,255,.025); }
+.insights-disclosure[open] > summary { margin-bottom:16px; }
+.account-scope-label { display:block;margin:14px 2px 7px;font-size:11px;color:var(--muted); }
+.account-scope { width:100%;max-width:360px;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--text);font:inherit;font-size:14px; }
+.account-scope:focus-visible { outline:2px solid var(--green);outline-offset:3px; }
+#accountFilters { margin-top:12px; }
+.account-cash-note { margin-top:10px;font-size:11px;color:var(--muted);line-height:1.5; }
+.account-progress-note:empty { display:none; }
+.used-accounts-panel { padding:20px;border:1px solid var(--line);border-radius:20px; }
+.activity-explanation { color:var(--muted);font-size:12px;line-height:1.6;margin:0 0 16px; }
+.used-accounts-panel .advanced-btn { margin-top:16px; }
+@media (min-width:980px) {
+  html[data-layout="desktop"] .discovery-column { padding:24px; }
+  html[data-layout="desktop"] .discovery-column .section-title { font-size:25px; }
+}
+@media (max-width:370px) {
+  .discovery-column, html[data-layout="desktop"] .discovery-column { padding:16px; }
+  .discovery-column .section-title { font-size:21px; }
+  .best-section > .section-head { padding:14px; }
 }

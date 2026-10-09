@@ -1,3 +1,4 @@
+import { classifyOfferCompletion } from "./offer-state.js";
 import { classifyAccount } from "./account-state.js";
 import { publicOfferTitle } from "./public-promo.js";
 
@@ -23,15 +24,17 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     throw new Error("Invalid public snapshot structure.");
   }
   visit(payload); visit(history);
-  if (payload.summary?.accountStatusVersion === 1) {
+  if ([1, 2].includes(payload.summary?.accountStatusVersion)) {
+    const independent = payload.summary.accountStatusVersion === 2;
     const accounts = new Map();
     for (const account of payload.accounts) {
       if (!account.accountRef || accounts.has(account.accountRef)) throw new Error('Duplicate or missing account reference.');
       accounts.set(account.accountRef, account);
       if (account.deactivated && account.canLogin) throw new Error('Deactivated accounts cannot be available for login.');
+      if (independent && !['active', 'archived', 'deactivated'].includes(account.accountStatus)) throw new Error('Explicit account rotation status is required.');
       for (const field of ['orderCount', 'rideCount']) if (!Number.isInteger(account[field]) || account[field] < 0) throw new Error('Invalid receipt counter.');
-      const expected = classifyAccount(account, payload.promos.filter(p => p.accountRef === account.accountRef));
-      for (const field of ['accountUsed', 'accountUsedReason', 'accountState', 'activePromoCount', 'reviewOfferCount', 'needsReview', 'recommendationEligible']) {
+      const expected = classifyAccount(account, payload.promos.filter(p => p.accountRef === account.accountRef), payload.generatedAt);
+      for (const field of [...(independent ? ['archived', 'accountStatus', 'fullyUsedOfferCount', 'expiredUnusedOfferCount'] : []), 'accountUsed', 'accountUsedReason', 'accountState', 'activePromoCount', 'reviewOfferCount', 'needsReview', 'recommendationEligible']) {
         if (expected[field] !== account[field]) throw new Error('Account status disagrees with offer/receipt evidence: ' + field);
       }
     }
@@ -47,10 +50,15 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     for (const [field, count] of [
       ['knownAccounts', payload.accounts.length], ['accessibleAccounts', payload.accounts.filter(a => a.canLogin).length],
       ['inaccessibleAccounts', payload.accounts.filter(a => !a.canLogin).length], ['availableAccounts', payload.accounts.filter(a => a.accountState === 'available').length],
-      ['usedAccounts', payload.accounts.filter(a => a.accountState === 'used').length], ['archivedAccounts', payload.accounts.filter(a => a.accountState === 'archived').length],
+      ['usedAccounts', payload.accounts.filter(a => independent ? a.accountUsed : a.accountState === 'used').length], ['archivedAccounts', payload.accounts.filter(a => independent ? a.archived : a.accountState === 'archived').length],
       ['needsCheckingAccounts', payload.accounts.filter(a => a.accountState === 'needs_checking').length],
       ['trackedOrders', payload.accounts.reduce((n, a) => n + a.orderCount, 0)]
     ]) if (summary[field] !== count) throw new Error('Summary counter disagrees with accounts: ' + field);
+    if (independent) {
+      const completions = payload.promos.map(p => classifyOfferCompletion(p, payload.generatedAt));
+      for (const [field, predicate] of [['fullyUsedOffers','fullyUsed'],['finishedExpiredOffers','finishedExpired'],['fullyConsumedOffers','consumed'],['expiredUnusedOffers','expiredUnused'],['partiallyUsedOffers','partiallyUsed']]) if (summary[field] !== completions.filter(c => c[predicate]).length) throw new Error('Finished offer counter disagrees with confirmed usage: ' + field);
+    }
+    if (independent && summary.usedAccessibleAccounts !== payload.accounts.filter(a => a.accountUsed && a.canLogin).length) throw new Error('Used accessible counter disagrees with accounts.');
     for (const [summaryField, accountField] of [['totalSaved', 'totalSaved'], ['estimatedUberOneSavings', 'estimatedUberOneSavings'], ['estimatedTotalSaved', 'estimatedTotalSaved']]) {
       if (Math.abs(Number(summary[summaryField]) - payload.accounts.reduce((sum, a) => sum + Number(a[accountField] || 0), 0)) > 0.011) throw new Error('Savings summary disagrees with accounts.');
     }

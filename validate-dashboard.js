@@ -36,7 +36,7 @@ assert.ok(html.includes("account-status-badge"));
 assert.ok(html.includes('id="sheetBackdrop"'));
 assert.ok(html.includes("Used 1 order"));
 assert.ok(html.includes("Undo manual use"));
-assert.ok(html.includes("Mark fully used"));
+assert.ok(html.includes("Mark finished manually"));
 assert.equal(html.includes("Mark account done"), false, "manual account-done control should stay retired");
 assert.equal(html.includes("Accounts marked done"), false, "Used view should not duplicate promo completion with account-done status");
 assert.equal(html.includes("Done accounts"), false, "Used summary should focus on promo activity");
@@ -49,8 +49,8 @@ assert.ok(html.includes("Total accounts"));
 assert.ok(html.includes("Promos available"));
 assert.ok(html.includes("Accounts available"));
 assert.ok(html.includes('id="availableStatCard"'), "Accounts available should be a dedicated visual KPI");
-assert.ok(html.includes('"with usable offers now"'), "Accounts available should explain that it counts usable offers");
-assert.ok(html.includes('"no usable offers now"'), "Accounts available should clearly warn at zero");
+assert.ok(html.includes("Accounts with an eligible offer now."), "Available Offers explains account eligibility");
+assert.ok(html.includes("Ready to use now."));
 assert.ok(html.includes('availableAccounts / totalAccounts) <= 0.1'), "Low-account warning should be proportional to the tracked account pool");
 assert.ok(html.includes('class="insight-value estimated-value"'), "Estimated Uber One should use neutral estimate styling");
 assert.equal(html.includes('Estimated missing Uber One</div><div class="insight-value" style="color:var(--green)"'), false, "Estimated savings must not use confirmed green styling");
@@ -105,7 +105,6 @@ const actionWiring = [
   ['data-account-filter=', 'closest("[data-account-filter]")'],
   ['data-open-sheet=', 'closest("[data-open-sheet]")'],
   ['data-account-offers=', 'closest("[data-account-offers]")'],
-  ['data-restore-offer=', 'closest("[data-restore-offer]")'],
   ['data-unignore-offer=', 'closest("[data-unignore-offer]")'],
   ['data-use-this-account=', 'closest("[data-use-this-account]")'],
   ['data-max-orders=', 'closest("[data-max-orders]")'],

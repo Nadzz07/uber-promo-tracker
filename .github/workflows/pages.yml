@@ -30,7 +30,7 @@ jobs:
       - run: npm run build
       - name: Require regenerated account policy before deployment
         if: github.event_name == 'workflow_dispatch' && inputs.private_data_verified
-        run: node --input-type=module -e "import fs from 'node:fs'; if(JSON.parse(fs.readFileSync('promos.json')).summary?.accountStatusVersion !== 1) throw new Error('Regenerate and validate public data on the Mac before deploying');"
+        run: node --input-type=module -e "import fs from 'node:fs'; if(JSON.parse(fs.readFileSync('promos.json')).summary?.accountStatusVersion !== 2) throw new Error('Regenerate and validate public data on the Mac before deploying');"
       - uses: actions/configure-pages@v5
         if: github.event_name == 'workflow_dispatch' && inputs.private_data_verified
       - uses: actions/upload-pages-artifact@v4

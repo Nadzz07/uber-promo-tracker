@@ -53,7 +53,7 @@ try {
   assert.equal(await page.locator('#savedStat').innerText(), '£10');
   assert.match(await page.locator('#savedStatSub').innerText(), /£5 estimated/);
   await page.locator('[data-view="accounts"]').click();
-  await page.locator('[data-account-filter="used"]').click();
+  await page.locator('#accountScope').selectOption('used');
   assert.equal(await page.locator('#accountsList .account-card').count(), 1);
   assert.match(await page.locator('#accountsList').innerText(), /us…ed/);
   await page.locator('#accountSearch').fill('missing');
@@ -128,8 +128,8 @@ try {
     }));
     assert.ok(glider.width > 0 && glider.height > 0, `Liquid nav glider should be sized at ${width}px`);
     assert.notEqual(glider.transform, 'none', `Liquid nav glider should be positioned at ${width}px`);
-    const springTiming = await page.locator('.nav-glider').evaluate(el => getComputedStyle(el).transitionTimingFunction);
-    assert.match(springTiming, /cubic-bezier/, `Liquid nav glider should use spring timing at ${width}px`);
+    assert.equal(await page.locator('.nav-glider').evaluate(el => getComputedStyle(el).transitionDuration), '0s', 'Physical springs own the glider; CSS timing must not override them');
+    assert.equal(await page.locator('#mainNav').getAttribute('data-material'), engine === chromium ? 'refractive' : 'accessible-glass');
     // Resize transitions settle before checking exact geometry below.
     if (width < 980) {
       const nav = await page.locator('#mainNav').evaluate(el => ({ bottom: innerHeight-el.getBoundingClientRect().bottom, radius: getComputedStyle(el).borderRadius, position: getComputedStyle(el).position, height: el.offsetHeight }));
@@ -344,7 +344,7 @@ try {
   await filterPage.locator('[data-jump-accounts][data-target-filter="unfinished"]').click();
   assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts');
   for (const ref of ['A102','A104','A109','A107','A110']) assert.equal(await filterPage.locator('#accountsList [data-card-account="'+ref+'"]').count(), 1, 'The full list retains unused, expired and one-left accounts');
-  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4 of 5 Eats.*1 more Eats receipt/);
+  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /1 of 5 uses left/);
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A108"]').count(),0,'Untouched accounts do not count as started promos');
   await filterPage.locator('[data-view="home"]').click();
   await filterPage.locator('[data-intent="cash"]').click();
