@@ -4,6 +4,7 @@ exclude:
   - .github
   - .gitignore
   - README.md
+  - account-discovery.js
   - access-list.js
   - account-id.js
   - account-map.js
@@ -30,7 +31,9 @@ exclude:
   - test-service.js
   - test-source-clocks.js
   - test-dashboard-data.js
+  - test-account-discovery.js
   - test-account-management.js
+  - test-discovery-browser.js
   - test-completion-browser.js
   - test-liquid-glass.js
   - test-nav-gestures.js
@@ -48,6 +51,7 @@ exclude:
   - test-audit.js
   - test-browser.js
   - test-integration.js
+  - test-verified-filing.js
   - test-mail-routing.js
   - test-mail-export.js
   - test-mbox.js

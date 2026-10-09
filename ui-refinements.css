@@ -455,3 +455,111 @@ html[data-layout="desktop"] .bottom-nav {
   .discovery-column .section-title { font-size:21px; }
   .best-section > .section-head { padding:14px; }
 }
+
+/* One offer browser connects selection, result context, cards and list navigation. */
+.offer-browser .section-head { display:flex; }
+.offer-browser .quick-grid { gap:8px; }
+.offer-browser .quick-card { min-height:74px; padding:12px; border-radius:14px; }
+.offer-browser .quick-card .quick-sub { display:none; }
+.offer-browser .quick-top { margin-bottom:7px; }
+.offer-browser .quick-card.active { background:rgba(var(--accent-rgb),.13); border-color:rgba(var(--accent-rgb),.5); box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.08); }
+.offer-browser .best-section { margin-top:20px; padding-top:20px; border-top:1px solid var(--line); }
+.offer-browser .best-section > .section-head, html[data-layout="desktop"] .offer-browser .best-section > .section-head { padding:0; margin:0 0 8px; border:0; border-radius:0; background:none; align-items:baseline; }
+.offer-browser #accountsKicker { display:none; }
+.offer-browser #homeAccountsTitle { margin:0; font-size:19px; line-height:1.3; }
+.offer-browser .section-meta { font-size:11px; }
+.results-tools { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px 14px; margin-bottom:16px; }
+.results-tools p { flex:1 1 240px; margin:0; font-size:11px; line-height:1.55; color:var(--muted); }
+.text-btn { background:none; border:0; padding:8px 0; min-height:36px; color:var(--green); font:inherit; font-size:11px; cursor:pointer; }
+.text-btn[hidden] { display:none; }
+.text-btn:hover { text-decoration:underline; text-underline-offset:3px; }
+.results-footer { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; }
+.results-footer:not(:empty) { margin-top:16px; padding-top:14px; border-top:1px solid var(--line-soft); }
+.results-footer > span { font-size:11px; color:var(--muted); }
+.results-footer .advanced-btn { min-height:42px; border-radius:12px; padding:10px 14px; }
+.best-section { scroll-margin-bottom:calc(112px + env(safe-area-inset-bottom,0px)); scroll-margin-top:18px; }
+.offer-browser .account-card { padding:15px; border-radius:16px; background:rgba(255,255,255,.025); box-shadow:none; }
+.offer-browser .account-email { font-size:13px; }
+.offer-browser .account-offer { font-size:12px; }
+.offer-browser .save-now { font-size:23px; }
+.offer-browser .account-actions { margin-top:12px; padding-top:12px; }
+.offer-browser .account-actions .ghost-btn { min-height:42px; padding:10px 12px; border-radius:11px; }
+.offer-browser .account-login-route, .offer-browser .pill { font-size:10px; }
+.offer-browser .pill { padding:6px 9px; }
+.offer-browser .pill-row { gap:6px; margin-top:12px; }
+/* Shared native disclosures retain focus, keyboard behaviour and screen-reader state. */
+.disclosure-card, .activity-history.disclosure-card, .used-accounts-panel.disclosure-card { padding:0; border:1px solid var(--line); border-radius:20px; background:var(--surface-gradient); overflow:hidden; }
+.disclosure-card > summary, .insights-disclosure > summary, .activity-history.disclosure-card > summary { display:flex; align-items:center; gap:12px; min-height:66px; padding:16px 20px; margin:0; border:0; border-radius:0; background:none; color:var(--text); list-style:none; cursor:pointer; font-size:13px; }
+.disclosure-card > summary::-webkit-details-marker { display:none; }
+.disclosure-card > summary::before { content:'›'; flex:0 0 9px; font-size:21px; line-height:1; color:var(--muted); transform:rotate(0deg); transition:transform .18s ease; }
+.disclosure-card[open] > summary::before { transform:rotate(90deg); }
+.disclosure-card > summary > span:first-of-type { flex:1; min-width:0; }
+.disclosure-card summary strong { font-weight:650; }
+.disclosure-card summary small { display:block; margin-top:4px; font-size:11px; font-weight:400; line-height:1.45; color:var(--muted); }
+.disclosure-card > summary:hover { background:rgba(255,255,255,.025); }
+.disclosure-count { color:var(--muted); font-size:11px; font-weight:500; text-align:right; }
+.disclosure-body { padding:0 20px 20px; }
+.disclosure-card[open] > summary { margin-bottom:0; }
+.disclosure-card[open] > .disclosure-body { animation:disclosure-enter .18s ease-out; }
+.disclosure-body .activity-explanation { margin:0 0 14px; }
+.disclosure-body .empty { padding:14px; border-radius:12px; background:rgba(255,255,255,.025); }
+.disclosure-body.insights-panels { padding-top:4px; }
+.insights-panels .analytics-panel { background:rgba(255,255,255,.025); border:1px solid var(--line-soft); border-radius:15px; box-shadow:none; }
+@keyframes disclosure-enter { from { opacity:.65; transform:translateY(-3px); } to { opacity:1; transform:none; } }
+@media (min-width:980px) {
+ html[data-layout="desktop"] .home-workspace { grid-template-columns:minmax(0,.85fr) minmax(0,1.45fr); align-items:start; }
+ html[data-layout="desktop"] .offer-browser { padding:22px; }
+ html[data-layout="desktop"] .offer-browser .quick-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+ html[data-layout="desktop"] .offer-browser .quick-card:last-child { grid-column:span 2; }
+ html[data-layout="desktop"] .offer-browser .quick-title { font-size:12px; }
+ html[data-layout="desktop"] .offer-browser #homeAccounts { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+ html[data-layout="desktop"] .offer-browser #homeAccounts[data-count="1"] { grid-template-columns:1fr; }
+ html[data-layout="desktop"] .offer-browser #homeAccounts[data-count="1"] .account-card { display:block; }
+ html[data-layout="desktop"] .hero-heading { gap:12px; }
+ html[data-layout="desktop"] .hero-title { font-size:23px; }
+ html[data-layout="desktop"] .recommendation-top { flex-wrap:wrap; gap:16px; }
+ html[data-layout="desktop"] .recommendation-save { text-align:left; }
+ html[data-layout="desktop"] .basket-editor { flex-wrap:wrap; gap:12px; min-height:100px; }
+ html[data-layout="desktop"] .hero-footer { flex-wrap:wrap; gap:12px; }
+ html[data-layout="desktop"] .fee-note { text-align:left; }
+}
+@media (max-width:979px) {
+ .home-workspace { display:flex; flex-direction:column; gap:16px; margin-top:18px; }
+ .offer-browser { order:1; padding:17px; }
+ .planner-column { order:2; margin-top:0; }
+ .offer-browser > .section-head { display:flex; margin-bottom:14px; }
+ .offer-browser .section-title { font-size:21px; }
+ .offer-browser .quick-card { min-height:74px; }
+ .offer-browser .best-section { margin-top:16px; padding-top:16px; }
+ .offer-browser .best-section > .section-head { flex-wrap:wrap; gap:5px; }
+ .offer-browser #homeAccountsTitle { font-size:18px; }
+ .offer-browser #homeAccounts { gap:10px; }
+ .disclosure-card > summary, .insights-disclosure > summary, .activity-history.disclosure-card > summary { min-height:66px; padding:15px 16px; }
+ .disclosure-body { padding:0 16px 16px; }
+ .disclosure-count { max-width:110px; line-height:1.4; }
+ html[data-layout="mobile"] body { padding-bottom:calc(120px + env(safe-area-inset-bottom,0px)); }
+ html { scroll-padding-bottom:calc(120px + env(safe-area-inset-bottom,0px)); }
+ .account-card, .advanced-btn, .ghost-btn { scroll-margin-bottom:calc(120px + env(safe-area-inset-bottom,0px)); }
+}
+@media (prefers-reduced-motion:reduce) { .disclosure-card > summary::before { transition:none; } .disclosure-card[open] > .disclosure-body { animation:none; } }
+.offer-browser .quick-card[data-intent="cash-promo"], .offer-browser .quick-card:last-child, html[data-layout="desktop"] .offer-browser .quick-card:last-child { grid-column:auto; }
+html[data-layout="desktop"] .offer-browser .quick-card .quick-sub { display:none; }
+@media (min-width:1280px) {
+ html[data-layout="desktop"] .offer-browser #homeAccounts { grid-template-columns:repeat(3,minmax(0,1fr)); }
+ html[data-layout="desktop"] .offer-browser #homeAccounts[data-count="1"] { grid-template-columns:1fr; }
+ html[data-layout="desktop"] .offer-browser #homeAccounts[data-count="2"] { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ html[data-layout="desktop"] .offer-browser .save-now { font-size:21px; }
+}
+@media (max-width:979px) {
+ #view-home.active > .home-workspace { order:2; }
+ #view-home.active > .home-analytics { order:3; }
+}
+/* Account offer history uses the same disclosure affordance in the detail sheet. */
+.offer-history > summary, .past-offer > summary, .weak-wrap > summary { display:flex; align-items:center; gap:10px; list-style:none; }
+.offer-history > summary::-webkit-details-marker, .past-offer > summary::-webkit-details-marker, .weak-wrap > summary::-webkit-details-marker { display:none; }
+.offer-history > summary::before, .past-offer > summary::before, .weak-wrap > summary::before { content:'›'; flex:0 0 9px; font-size:21px; line-height:1; color:var(--muted); transform:rotate(0deg); transition:transform .18s ease; }
+.offer-history[open] > summary::before, .past-offer[open] > summary::before, .weak-wrap[open] > summary::before { transform:rotate(90deg); }
+.past-offer > summary > span:first-of-type { flex:1; min-width:0; }
+.offer-history > summary { min-height:50px; }
+.past-offer > summary { min-height:56px; }
+@media (prefers-reduced-motion:reduce) { .offer-history > summary::before, .past-offer > summary::before, .weak-wrap > summary::before { transition:none; } }

@@ -65,7 +65,15 @@ for(const [eats,rides,used] of [[0,4,false],[1,1,true],[4,0,false],[5,0,true]])a
 const db=openPrivateDb(':memory:');try{
  setAccountAccess(db,'archived@example.invalid',true,'Google','archived');
  setAccountAccess(db,'inaccessible@example.invalid',false,'iCloud','active');
+ setAccountAccess(db,'pending@example.invalid',null,null,'active');
  const accounts=getPublicAccountInsights(db);
+ const pending=accounts.find(a=>a.canLogin===null);
+ assert.equal(pending.accessStatus,'pending');
+ assert.equal(classifyAccount(pending,[active]).recommendationEligible,false);
+ assert.equal(classifyAccount(pending,[active]).accountState,'pending_access');
+ assert.equal(accountArchived(pending),false);
+ assert.equal(matchesAccountFilter(pending,'pending'),true);
+ assert.equal(matchesAccountFilter(pending,'locked'),false);
  assert.equal(accounts.find(a=>a.loginMethod==='Google').accountStatus,'archived');
  assert.equal(accounts.find(a=>a.loginMethod==='iCloud').accountStatus,'active');
  assert.equal(accounts.find(a=>a.loginMethod==='Google').canLogin,true);

@@ -6,7 +6,7 @@ import { maskAccountAlias } from "./account-map.js";
 import { offerFingerprint } from "./identity.js";
 import { estimateReceiptSavings, combinedReceiptSavings } from "./savings-intelligence.js";
 
-export const PRIVATE_DB_SCHEMA_VERSION = 9;
+export const PRIVATE_DB_SCHEMA_VERSION = 10;
 export const DEFAULT_PRIVATE_DB = "./uber-tracker.local.db";
 
 function normaliseAlias(value) {
@@ -179,6 +179,10 @@ function initSchema(db) {
   if (!accountColumns.has("login_method")) {
     db.exec("ALTER TABLE accounts ADD COLUMN login_method TEXT");
   }
+  if (!accountColumns.has('login_access')) {
+    db.exec("ALTER TABLE accounts ADD COLUMN login_access TEXT CHECK (login_access IN ('accessible','inaccessible','pending') OR login_access IS NULL)");
+    db.exec("UPDATE accounts SET login_access = CASE WHEN can_login = 1 THEN 'accessible' ELSE 'inaccessible' END");
+  }
   if (!accountColumns.has('account_status')) db.exec('ALTER TABLE accounts ADD COLUMN account_status TEXT');
 
   const receiptColumns = new Set(
@@ -227,7 +231,7 @@ export function ensureAccount(
   if (db.prepare("SELECT 1 FROM deleted_accounts WHERE alias_hash = ?").get(createHash("sha256").update(normalized).digest("hex"))) return null;
 
   let row = db.prepare(
-    "SELECT account_ref, alias, masked, can_login, login_method, first_seen_at, last_seen_at, " +
+    "SELECT account_ref, alias, masked, can_login, login_access, login_method, first_seen_at, last_seen_at, " +
     "last_promo_at, last_receipt_at FROM accounts WHERE alias = ?"
   ).get(normalized);
 
@@ -285,7 +289,7 @@ export function ensureAccount(
   }
 
   row = db.prepare(
-    "SELECT account_ref, alias, masked, can_login, login_method, first_seen_at, last_seen_at, " +
+    "SELECT account_ref, alias, masked, can_login, login_access, login_method, first_seen_at, last_seen_at, " +
     "last_promo_at, last_receipt_at FROM accounts WHERE alias = ?"
   ).get(normalized);
 
@@ -293,7 +297,8 @@ export function ensureAccount(
     accountRef: row.account_ref,
     alias: row.alias,
     masked: row.masked,
-    canLogin: Boolean(row.can_login),
+    canLogin: row.login_access === "pending" ? null : Boolean(row.can_login),
+    ...(row.login_access ? { accessStatus: row.login_access === "pending" ? "pending" : row.can_login ? "accessible" : "inaccessible" } : {}),
     loginMethod: row.login_method || null,
     firstSeenAt: row.first_seen_at,
     lastSeenAt: row.last_seen_at,
@@ -307,6 +312,7 @@ export function setAccountAccess(db, alias, canLogin, loginMethod = null, accoun
   // Access edits must not look like a new Mail observation or restart offer age.
   const account = getAccounts(db).find(a => a.alias === normalized) || ensureAccount(db, { alias: normalized });
   if (!account) return false;
+  if (![true,false,null].includes(canLogin)) throw new Error("Invalid login access state.");
   if (accountStatus && !['active', 'archived', 'deactivated'].includes(accountStatus)) throw new Error('Invalid account status.');
   if (canLogin && (accountStatus || account.accountStatus) === 'deactivated') throw new Error('Deactivated accounts cannot be marked Can log in.');
 
@@ -315,20 +321,20 @@ export function setAccountAccess(db, alias, canLogin, loginMethod = null, accoun
   }
 
   db.prepare(
-    "UPDATE accounts SET can_login = ?, login_method = COALESCE(?, login_method), account_status = COALESCE(?, account_status) WHERE alias = ?"
-  ).run(canLogin ? 1 : 0, loginMethod || null, accountStatus || null, normalized);
+    "UPDATE accounts SET can_login = ?, login_access = ?, login_method = COALESCE(?, login_method), account_status = COALESCE(?, account_status) WHERE alias = ?"
+  ).run(canLogin === true ? 1 : 0, canLogin === null ? "pending" : canLogin ? "accessible" : "inaccessible", loginMethod || null, accountStatus || null, normalized);
 
   return true;
 }
 
 export function resetAccountAccess(db) {
-  db.exec("UPDATE accounts SET can_login = 0");
+  db.exec("UPDATE accounts SET can_login = 0, login_access = 'inaccessible'");
 }
 
 export function getAccounts(db) {
   return db.prepare(`
     SELECT
-      account_ref, alias, masked, can_login, login_method, account_status,
+      account_ref, alias, masked, can_login, login_access, login_method, account_status,
       first_seen_at, last_seen_at, last_promo_at, last_receipt_at
     FROM accounts
     ORDER BY last_seen_at DESC, account_ref ASC
@@ -336,7 +342,8 @@ export function getAccounts(db) {
     accountRef: row.account_ref,
     alias: row.alias,
     masked: row.masked,
-    canLogin: Boolean(row.can_login),
+    canLogin: row.login_access === "pending" ? null : Boolean(row.can_login),
+    ...(row.login_access ? { accessStatus: row.login_access === "pending" ? "pending" : row.can_login ? "accessible" : "inaccessible" } : {}),
     loginMethod: row.login_method || null,
     accountStatus: row.account_status || null,
     deactivated: row.account_status === 'deactivated',
@@ -745,7 +752,8 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
     offerId: row.offer_id,
     accountRef: row.account_ref,
     accountMasked: row.account_masked,
-    canLogin: Boolean(row.can_login),
+    canLogin: row.login_access === "pending" ? null : Boolean(row.can_login),
+    ...(row.login_access ? { accessStatus: row.login_access === "pending" ? "pending" : row.can_login ? "accessible" : "inaccessible" } : {}),
     loginMethod: row.login_method || null,
     messageKey: row.message_key,
     service: row.service,
@@ -891,7 +899,8 @@ export function getReceipts(db) {
     receiptId: row.receipt_id,
     accountRef: row.account_ref,
     accountMasked: row.account_masked,
-    canLogin: Boolean(row.can_login),
+    canLogin: row.login_access === "pending" ? null : Boolean(row.can_login),
+    ...(row.login_access ? { accessStatus: row.login_access === "pending" ? "pending" : row.can_login ? "accessible" : "inaccessible" } : {}),
     sentAt: row.sent_at,
     receivedAt: row.received_at,
     orderId: row.order_id,
@@ -1043,7 +1052,8 @@ export function getTransportReceipts(db) {
     receiptId: row.receipt_id,
     accountRef: row.account_ref,
     accountMasked: row.account_masked,
-    canLogin: Boolean(row.can_login),
+    canLogin: row.login_access === "pending" ? null : Boolean(row.can_login),
+    ...(row.login_access ? { accessStatus: row.login_access === "pending" ? "pending" : row.can_login ? "accessible" : "inaccessible" } : {}),
     sentAt: row.sent_at,
     receivedAt: row.received_at,
     tripId: row.trip_id,
@@ -1107,7 +1117,8 @@ export function getSavingsSummary(db) {
     SELECT
       COUNT(*) AS known_accounts,
       SUM(CASE WHEN can_login = 1 THEN 1 ELSE 0 END) AS accessible_accounts,
-      SUM(CASE WHEN can_login = 0 THEN 1 ELSE 0 END) AS inaccessible_accounts
+      SUM(CASE WHEN can_login = 0 AND COALESCE(login_access,'inaccessible') != 'pending' THEN 1 ELSE 0 END) AS inaccessible_accounts,
+      SUM(CASE WHEN login_access = 'pending' THEN 1 ELSE 0 END) AS pending_accounts
     FROM accounts
   `).get();
 
@@ -1127,6 +1138,7 @@ export function getSavingsSummary(db) {
     knownAccounts: Number(accountCounts.known_accounts || 0),
     accessibleAccounts: Number(accountCounts.accessible_accounts || 0),
     inaccessibleAccounts: Number(accountCounts.inaccessible_accounts || 0),
+    pendingAccessAccounts: Number(accountCounts.pending_accounts || 0),
     activePromoAccounts: Number(activePromoAccounts || 0)
   };
 }
@@ -1141,7 +1153,7 @@ export function getPublicAccountInsights(db) {
     const transport = rides.filter(r => r.accountRef === account.accountRef);
     const last = rows => rows.map(r => r.sentAt || r.receivedAt).filter(Boolean).sort().at(-1) || null;
     return { accountRef: account.accountRef, accountMasked: account.masked, canLogin: account.canLogin,
-      loginMethod: account.loginMethod, accountStatus: account.accountStatus || (account.canLogin ? 'active' : 'archived'), deactivated: account.deactivated === true, lastSeenAt: account.lastSeenAt, lastPromoAt: account.lastPromoAt,
+      accessStatus: account.accessStatus || (account.canLogin ? "accessible" : "inaccessible"), loginMethod: account.loginMethod, accountStatus: account.accountStatus || (account.canLogin ? 'active' : 'archived'), deactivated: account.deactivated === true, lastSeenAt: account.lastSeenAt, lastPromoAt: account.lastPromoAt,
       lastOrderAt: last(orders), lastRideAt: last(transport), orderCount: orders.length, rideCount: transport.length,
       totalSaved: savings.get(account.accountRef)?.confirmedSaved || 0,
       activePromoCount: offers.filter(p => p.accountRef === account.accountRef && p.status === "active").length };

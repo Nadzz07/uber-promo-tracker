@@ -29,8 +29,20 @@ assert.equal(scan({ [key]: '2026-10-06T10:00:00Z' }).length, 1, 'A changed deliv
 collection.toRecipients.address = () => [['alpha@example.invalid', 'beta@example.invalid']];
 assert.throws(() => scan({}), /Multiple recipient/);
 collection.toRecipients.address = () => [['alpha@example.invalid']];
-let idsCalls = 0; collection.id = () => ++idsCalls === 1 ? [44] : [55];
+let idsCalls = 0; collection.id = () => ++idsCalls % 2 === 1 ? [44] : [55];
 assert.throws(() => scan({}), /changed during indexing/);
+assert.equal(idsCalls,6,"Bounded retry fails closed after three inconsistent snapshots");
+idsCalls=0; collection.id=()=>++idsCalls===2 ? [55] : [44];
+assert.equal(scan({}).length,1,"A transient mutation recovers with a fresh aligned bulk snapshot");
+collection.id=()=>[44];
+const range=ctx.dateRange(0,0,date,"2026-10-08T23:00:00Z","2026-10-09T23:00:00Z");
+assert.equal(range.end-range.start,24*60*60*1000);
+assert.throws(()=>ctx.dateRange(0,0,date,"invalid","2026-10-09T23:00:00Z"),/boundaries/);
+let predicate; collection.whose=q=>{predicate=q;return collection;};
+const audit=[];
+assert.equal(ctx.scanMailbox(box,"receipt",1,0,"INBOX",date,{},range,audit).length,0,"Earlier dates are never exported by calendar-day sync");
+assert.equal(predicate,undefined,"Calendar export keeps bounded bulk metadata reads, never a slow whose crawl");
+assert.equal(audit[0].scanned,0);
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'tracker-mail-cache-'));
 try {

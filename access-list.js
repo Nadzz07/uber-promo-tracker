@@ -75,6 +75,7 @@ export function parseAccessList(text) {
         .replace(/[’‘]/g, "'");
       if (/^(true|1|yes|y|can\s*log\s*in|usable)$/.test(state)) canLogin = true;
       else if (/^(false|0|no|n|can't\s*log\s*in|cannot\s*log\s*in|unusable)$/.test(state)) canLogin = false;
+      else if (/^(pending|pending verification|unverified|unknown)$/.test(state)) canLogin = null;
       else throw new Error("Unknown login status on data row " + (index + 1) + ".");
     }
 

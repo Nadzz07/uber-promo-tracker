@@ -30,6 +30,8 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     for (const account of payload.accounts) {
       if (!account.accountRef || accounts.has(account.accountRef)) throw new Error('Duplicate or missing account reference.');
       accounts.set(account.accountRef, account);
+      if (account.accessStatus && !['accessible','inaccessible','pending'].includes(account.accessStatus)) throw new Error('Invalid login access state.');
+      if (account.accessStatus && account.canLogin !== ({accessible:true,inaccessible:false,pending:null})[account.accessStatus]) throw new Error('Login access disagrees with verification state.');
       if (account.deactivated && account.canLogin) throw new Error('Deactivated accounts cannot be available for login.');
       if (independent && !['active', 'archived', 'deactivated'].includes(account.accountStatus)) throw new Error('Explicit account rotation status is required.');
       for (const field of ['orderCount', 'rideCount']) if (!Number.isInteger(account[field]) || account[field] < 0) throw new Error('Invalid receipt counter.');
@@ -49,11 +51,12 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     const summary = payload.summary;
     for (const [field, count] of [
       ['knownAccounts', payload.accounts.length], ['accessibleAccounts', payload.accounts.filter(a => a.canLogin).length],
-      ['inaccessibleAccounts', payload.accounts.filter(a => !a.canLogin).length], ['availableAccounts', payload.accounts.filter(a => a.accountState === 'available').length],
+      ['inaccessibleAccounts', payload.accounts.filter(a => a.canLogin === false).length], ['availableAccounts', payload.accounts.filter(a => a.accountState === 'available').length],
       ['usedAccounts', payload.accounts.filter(a => independent ? a.accountUsed : a.accountState === 'used').length], ['archivedAccounts', payload.accounts.filter(a => independent ? a.archived : a.accountState === 'archived').length],
       ['needsCheckingAccounts', payload.accounts.filter(a => a.accountState === 'needs_checking').length],
       ['trackedOrders', payload.accounts.reduce((n, a) => n + a.orderCount, 0)]
     ]) if (summary[field] !== count) throw new Error('Summary counter disagrees with accounts: ' + field);
+    if (summary.pendingAccessAccounts != null && summary.pendingAccessAccounts !== payload.accounts.filter(a => a.canLogin == null).length) throw new Error("Pending access counter disagrees with accounts.");
     if (independent) {
       const completions = payload.promos.map(p => classifyOfferCompletion(p, payload.generatedAt));
       for (const [field, predicate] of [['fullyUsedOffers','fullyUsed'],['finishedExpiredOffers','finishedExpired'],['fullyConsumedOffers','consumed'],['expiredUnusedOffers','expiredUnused'],['partiallyUsedOffers','partiallyUsed']]) if (summary[field] !== completions.filter(c => c[predicate]).length) throw new Error('Finished offer counter disagrees with confirmed usage: ' + field);

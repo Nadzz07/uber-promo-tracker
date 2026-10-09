@@ -118,7 +118,12 @@ function looksUber(subject, sender) {
   );
 }
 
-function dateRange(daysBack, olderThanDays, scanAt) {
+function dateRange(daysBack, olderThanDays, scanAt, explicitStart, explicitEnd) {
+  if (explicitStart || explicitEnd) {
+    const start = new Date(explicitStart), end = new Date(explicitEnd);
+    if (!explicitStart || !explicitEnd || !Number.isFinite(+start) || !Number.isFinite(+end) || end <= start) throw new Error("Both valid calendar range boundaries are required.");
+    return { start, end };
+  }
   const now = new Date(scanAt);
   const start = new Date(now);
   start.setDate(start.getDate() - Number(daysBack || 0));
@@ -132,16 +137,18 @@ function dateRange(daysBack, olderThanDays, scanAt) {
   return { start, end };
 }
 
-function bulkMailboxIndex(box) {
+function bulkMailboxIndex(box, range = null) {
+  const collection = box.messages;
+  for (let attempt = 0; attempt < 3; attempt++) {
   try {
-    const ids = box.messages.id();
-    const received = box.messages.dateReceived();
-    const subjects = box.messages.subject();
-    const senders = box.messages.sender();
-    const sent = box.messages.dateSent();
-    const messageIds = box.messages.messageId();
-    const recipients = box.messages.toRecipients.address();
-    const finalIds = box.messages.id();
+    const ids = collection.id();
+    const received = collection.dateReceived();
+    const subjects = collection.subject();
+    const senders = collection.sender();
+    const sent = range ? ids.map(() => null) : collection.dateSent();
+    const messageIds = range ? ids.map(() => null) : collection.messageId();
+    const recipients = range ? ids.map(() => []) : collection.toRecipients.address();
+    const finalIds = collection.id();
 
     const n = ids.length;
     if ([received, subjects, senders, sent, messageIds, recipients].some(values => values.length !== n) || JSON.stringify(ids) !== JSON.stringify(finalIds)) {
@@ -168,23 +175,26 @@ function bulkMailboxIndex(box) {
 
     return rows;
   } catch (error) {
+    if (attempt < 2 && /changed during indexing/.test(String(error))) { stderr("Mail changed during indexing; retrying the bulk snapshot."); continue; }
     throw new Error(
       "Mail could not read mailbox metadata in bulk. " +
       "The tracker will not fall back to a slow full-message crawl. " +
       String(error)
     );
   }
+  }
 }
 
-function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, knownMessages = {}) {
-  const range = dateRange(daysBack, olderThanDays, scanAt);
+function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, knownMessages = {}, calendarRange = null, audit = null) {
+  const range = calendarRange || dateRange(daysBack, olderThanDays, scanAt);
 
   stderr("Reading Mail metadata: " + sourceMailbox + "...");
-  const rows = bulkMailboxIndex(box);
+  const rows = bulkMailboxIndex(box, calendarRange);
   stderr("Indexed " + rows.length + " messages in " + sourceMailbox + ".");
 
   const results = [];
   let skipped = 0;
+  let dated = 0, qualifying = 0;
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
@@ -192,8 +202,19 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, 
     if (Number.isNaN(row.receivedAt.getTime())) continue;
     if (row.receivedAt < range.start) continue;
     if (range.end && row.receivedAt >= range.end) continue;
+    dated++;
     if (!looksUber(row.subject, row.sender)) continue;
+    qualifying++;
 
+    // A calendar-day scan reads detailed metadata only for today’s shortlisted Uber messages.
+    if (calendarRange) {
+      const selected = box.messages.byId(row.id);
+      if (Number(selected.id()) !== Number(row.id)) throw new Error("Mailbox changed during export; retry the scan.");
+      row.messageId = String(selected.messageId() || "");
+      row.recipients = selected.toRecipients.address();
+      const sent = new Date(selected.dateSent());
+      row.sentAt = Number.isFinite(+sent) ? sent : row.receivedAt;
+    }
     const addresses = (row.recipients || []).map(address => String(address).trim().toLowerCase()).filter(Boolean);
     const unique = addresses.filter((address, index) => addresses.indexOf(address) === index);
     const cachedAlias = unique.length === 1 ? unique[0] : '';
@@ -222,6 +243,9 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, 
     if (!recipient || !body.trim()) throw new Error("A selected message is incomplete; retry after Mail finishes downloading.");
     if (Number(message.id()) !== Number(row.id)) throw new Error("Mailbox changed during export; retry the scan.");
 
+    if (calendarRange && /receipt|thanks for (?:your )?order|your.*trip/i.test(row.subject)) {
+      try { rawSource = String(message.source() || ""); } catch (_) { throw new Error("Original receipt headers unavailable; retry after download."); }
+    }
     const rawMessageId = row.messageId || headerValue(rawSource, "Message-ID");
 
     if (results.length && results.length % 100 === 0) stderr("Read " + results.length + " new/changed messages from " + sourceMailbox + ".");
@@ -234,7 +258,8 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, 
       receivedAt: isoDate(row.receivedAt),
       messageId: rawMessageId || null,
       mailbox: role,
-      sourceMailbox: sourceMailbox || null
+      sourceMailbox: sourceMailbox || null,
+      ...(calendarRange ? { mailNativeId:row.id, originalHeaders:rawSource ? rawSource.split(/\r?\n\r?\n/,1)[0] : null, originalSource:rawSource || null } : {})
     });
   }
 
@@ -242,6 +267,7 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, 
     "Exported " + results.length + " Uber message(s) from " + sourceMailbox + "; skipped " + skipped + " unchanged committed messages."
   );
 
+  if (audit) audit.push({name:sourceMailbox, scanned:dated, uberCandidates:qualifying, cached:skipped, exported:results.length, untouched:dated-results.length});
   return results;
 }
 
@@ -289,6 +315,8 @@ function run(argv) {
     throw new Error("Scan windows must be nonnegative whole days.");
   }
   const knownMessages = readKnownMessages(argv[7]);
+  const calendarRange = argv[8] || argv[9] ? dateRange(0,0,scanAt,argv[8],argv[9]) : null;
+  const scanAudit = [];
   const Mail = Application("Mail");
   Mail.includeStandardAdditions = false;
 
@@ -315,7 +343,7 @@ function run(argv) {
           promoOlderThanDays,
           promoMailboxName,
           scanAt,
-          knownMessages
+          knownMessages, calendarRange, scanAudit
         )
       );
       scannedMailboxes.push({
@@ -347,7 +375,7 @@ function run(argv) {
           receiptOlderThanDays,
           receiptMailboxName,
           scanAt,
-          knownMessages
+          knownMessages, calendarRange, scanAudit
         )
       );
       scannedMailboxes.push({
@@ -364,6 +392,8 @@ function run(argv) {
   return JSON.stringify({
     exportedAt: new Date().toISOString(),
     mailboxes: scannedMailboxes,
+    scanAudit,
+    ...(calendarRange ? {calendarRange:{start:calendarRange.start.toISOString(),end:calendarRange.end.toISOString()}} : {}),
     messages: dedupeMessages(messages)
   }, null, 2);
 }
