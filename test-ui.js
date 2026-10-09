@@ -13,6 +13,7 @@ import { parseDeviceAccounts, deviceEmail, DEVICE_ACCOUNTS_KIND } from './device
 import { openPrivateDb, ensureAccount, upsertOffer, getOffers } from './private-db.js';
 import { offerFingerprint } from './identity.js';
 import { parseUberPromo } from './parser.js';
+import { accountUnfinished, accountProgressDescription } from './account-state.js';
 
 const time = '2026-10-08T12:00:00Z';
 let passed = 0;
@@ -23,6 +24,25 @@ test('Layout selection overrides screen size while Auto follows the responsive b
   assert.equal(normaliseLayout('mobile'), 'mobile'); assert.equal(normaliseLayout('desktop'), 'desktop');
   assert.equal(resolveLayout('auto', 979), 'mobile'); assert.equal(resolveLayout('auto', 980), 'desktop');
   assert.equal(resolveLayout('mobile', 1920), 'mobile'); assert.equal(resolveLayout('desktop', 320), 'desktop');
+});
+
+test('Unfinished follows account receipt completion, including one use left, no offers and expired offers', () => {
+  for (const account of [
+    { canLogin: true, orderCount: 0, rideCount: 0 },
+    { canLogin: true, orderCount: 4, rideCount: 0, usesRemaining: 1 },
+    { canLogin: true, orderCount: 0, rideCount: 1, accountState: 'expired' },
+    { canLogin: true, orderCount: 2, rideCount: 0, accountState: 'fully_used' },
+    { canLogin: true, orderCount: 4, rideCount: 1, activePromoCount: 1, usesRemaining: 1 },
+    { canLogin: true, orderCount: 5, rideCount: 0, activePromoCount: 1 }
+  ]) assert.equal(accountUnfinished(account), true);
+  for (const account of [
+    { canLogin: false, orderCount: 0, rideCount: 0 },
+    { canLogin: true, orderCount: 5, rideCount: 0 },
+    { canLogin: true, orderCount: 1, rideCount: 1 }
+  ]) assert.equal(accountUnfinished(account), false);
+  assert.match(accountProgressDescription({orderCount:4,rideCount:0}), /4 of 5 Eats.*1 more Eats receipt/);
+  assert.match(accountProgressDescription({orderCount:0,rideCount:1}), /One Eats receipt/);
+  assert.match(accountProgressDescription({orderCount:4,rideCount:1,activePromoCount:1}), /Usage complete.*1 offer is still available/);
 });
 
 test('Order counts require explicit offer wording and cannot come from a year, ID or footer', () => {
@@ -75,6 +95,25 @@ test('Reparsing changed terms supersedes the old fingerprint without deleting hi
     other.offerId = offerFingerprint(other); upsertOffer(db, other, time);
     assert.equal(getOffers(db).length, 2, 'An unrelated source must remain a separate offer');
   } finally { db.close(); }
+});
+
+test('A corrected primary discount cannot inherit an unrelated footer family clock', () => {
+  const db = openPrivateDb(':memory:');
+  try {
+    const a = ensureAccount(db, {alias:'alpha@example.invalid',seenAt:time,kind:'promo'});
+    const old = {accountRef:a.accountRef,messageKey:'msg-primary',service:'Uber One',discountType:'percent',discount:3,uses:1,emailSentAt:'2026-10-04T12:00:00Z',observedLive:true};
+    old.offerId=offerFingerprint(old);upsertOffer(db,old,time);
+    db.prepare('UPDATE offers SET first_sent_at = ? WHERE offer_id = ?').run('2026-04-05T12:00:00Z',old.offerId);
+    const primary={...old,service:'Uber Eats',discountType:'fixed',discount:5};
+    primary.offerId=offerFingerprint(primary);upsertOffer(db,primary,time);
+    assert.equal(db.prepare('SELECT first_sent_at FROM offers WHERE offer_id = ?').get(primary.offerId).first_sent_at,'2026-10-04T12:00:00Z');
+    const earlier={...primary,messageKey:'msg-first-primary',emailSentAt:'2026-10-01T12:00:00Z'};
+    upsertOffer(db,earlier,time);upsertOffer(db,{...primary,emailSentAt:'2026-10-06T12:00:00Z'},time);
+    assert.equal(db.prepare('SELECT first_sent_at FROM offers WHERE offer_id = ?').get(primary.offerId).first_sent_at,'2026-10-01T12:00:00Z');
+    assert.equal(db.prepare('SELECT status FROM offers WHERE offer_id = ?').get(old.offerId).status,'parser_superseded');
+    const changedValue={...primary,discount:12};changedValue.offerId=offerFingerprint(changedValue);upsertOffer(db,changedValue,time);
+    assert.equal(db.prepare('SELECT first_sent_at FROM offers WHERE offer_id = ?').get(changedValue.offerId).first_sent_at,'2026-10-04T12:00:00Z');
+  } finally {db.close();}
 });
 
 test('Colour selections preserve valid colours, round trip HSL and keep all accents readable on dark glass', () => {

@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { backupPrivateDb } from "./private-backup.js";
+import { backupPrivateDb, compressPrivateBackup } from "./private-backup.js";
 import path from "node:path";
 import { parserFingerprint } from "./parser-fingerprint.js";
 import { assertPublicSnapshot } from "./public-snapshot.js";
@@ -11,7 +11,8 @@ import { parseUberEatsReceipt } from "./receipt-parser.js";
 import { parseUberTransportReceipt } from "./transport-receipt-parser.js";
 import { applyReceiptEvidence } from "./receipt-intelligence.js";
 import { toPublicPromo } from "./public-promo.js";
-import { combinedReceiptSavings } from "./savings-intelligence.js";
+import { combinedReceiptSavings, confirmedReceiptSaving } from "./savings-intelligence.js";
+import { receiptActivity } from "./dashboard-data.js";
 import { applyOfferTrackingStates } from "./offer-state.js";
 import {
   DEFAULT_PRIVATE_DB,
@@ -23,6 +24,8 @@ import {
   getTransportReceipts,
   getSavingsSummary,
   openPrivateDb,
+  reconcileOfferSources,
+  reconcileTransportReceiptIdentities,
   replaceReceiptMatches,
   resetAccountAccess,
   setAccountAccess,
@@ -48,6 +51,9 @@ const accountAccessPath =
   process.env.TRACKER_ACCOUNT_ACCESS || "./account-access.local.csv";
 const allowUnknownAccounts =
   /^(?:1|true|yes)$/i.test(process.env.TRACKER_ALLOW_UNKNOWN_ACCOUNTS || "");
+const rebuildOfferSources =
+  /^(?:1|true|yes)$/i.test(process.env.TRACKER_REBUILD_OFFER_SOURCES || "");
+let successfulMailScanAt = null;
 
 function isExpired(promo) {
   return isOfferExpired(promo);
@@ -103,6 +109,11 @@ function historyStatus(promo) {
 async function loadMessages(path) {
   const raw = JSON.parse(await fs.readFile(path, "utf8"));
   const messages = Array.isArray(raw) ? raw : raw.messages;
+  if (!Array.isArray(raw) && Array.isArray(raw.mailboxes) && raw.mailboxes.some(m=>m.role==='promo') && raw.mailboxes.some(m=>m.role==='receipt')) {
+    const at = Date.parse(raw.exportedAt);
+    if (!Number.isFinite(at) || at > Date.now() + 5 * 60000) throw new Error('Invalid completed Mail scan time.');
+    successfulMailScanAt = new Date(at).toISOString();
+  }
 
   if (!Array.isArray(messages)) {
     throw new Error("Mail export must contain a message array.");
@@ -154,12 +165,15 @@ async function generatePromos() {
   let transaction = false;
   let skippedOutsideAccessList = 0;
   const temporaryFiles = [];
+  const processedMessageKeys = new Set();
+  const sourceFamilies = new Map();
+  const transportSources = [];
   try {
     db.exec("BEGIN IMMEDIATE");
     transaction = true;
     if (accountAllowlist) {
       resetAccountAccess(db);
-      for (const record of accountAllowlist.values()) setAccountAccess(db, record.email, record.canLogin, record.loginMethod);
+      for (const record of accountAllowlist.values()) setAccountAccess(db, record.email, record.canLogin, record.loginMethod, record.accountStatus);
     }
 
     for (const email of messages) {
@@ -217,6 +231,7 @@ async function generatePromos() {
         });
 
         upsertReceipt(db, storedReceipt, generatedAt);
+        processedMessageKeys.add(key);
         continue;
       }
 
@@ -275,6 +290,8 @@ async function generatePromos() {
         });
 
         upsertTransportReceipt(db, storedTransportReceipt, generatedAt);
+        transportSources.push(storedTransportReceipt);
+        processedMessageKeys.add(key);
         continue;
       }
 
@@ -311,6 +328,7 @@ async function generatePromos() {
         evidence: promo.evidence,
         parsedAt: generatedAt
       });
+      processedMessageKeys.add(key);
 
       if (!promo.isPromo || !account) continue;
 
@@ -326,6 +344,24 @@ async function generatePromos() {
 
       storedPromo.offerId = offerFingerprint(storedPromo);
       upsertOffer(db, storedPromo, generatedAt);
+      if (rebuildOfferSources) {
+        const sourceSentAt = storedPromo.emailSentAt || storedPromo.receivedAt;
+        const family = sourceFamilies.get(storedPromo.offerId);
+        if (!family) sourceFamilies.set(storedPromo.offerId, { firstSentAt: sourceSentAt, latest: storedPromo,
+          latestExpiry: storedPromo.expires || storedPromo.expiresAt ? storedPromo : null });
+        else {
+          if (Date.parse(sourceSentAt) < Date.parse(family.firstSentAt)) family.firstSentAt = sourceSentAt;
+          if (Date.parse(sourceSentAt) >= Date.parse(family.latest.emailSentAt || family.latest.receivedAt)) family.latest = storedPromo;
+          if ((storedPromo.expires || storedPromo.expiresAt) &&
+              (!family.latestExpiry || Date.parse(sourceSentAt) >= Date.parse(family.latestExpiry.emailSentAt || family.latestExpiry.receivedAt))) family.latestExpiry = storedPromo;
+        }
+      }
+    }
+
+    if (rebuildOfferSources) {
+      const rebuilt = reconcileOfferSources(db, { processedMessageKeys, families: sourceFamilies });
+      console.log('Complete stored-source offer reconstruction: ' + JSON.stringify(rebuilt));
+      console.log('Complete receipt identity reconstruction: ' + JSON.stringify(reconcileTransportReceiptIdentities(db,processedMessageKeys,transportSources)));
     }
 
     const durableOffers = getOffers(db, {
@@ -423,7 +459,12 @@ async function generatePromos() {
     summary.expiredAccounts = accounts.filter(a => a.accountState === "expired").length;
     summary.fullyUsedAccounts = accounts.filter(a => a.accountState === "fully_used").length;
     summary.archivedAccounts = accounts.filter(a => a.accountState === "archived").length;
+    summary.deactivatedAccounts = accounts.filter(a => a.deactivated).length;
+    summary.archivedConfirmedSaved = Math.round(accounts.filter(a => !a.canLogin).reduce((n,a)=>n+Number(a.totalSaved||0),0)*100)/100;
+    summary.deactivatedConfirmedSaved = Math.round(accounts.filter(a => a.deactivated).reduce((n,a)=>n+Number(a.totalSaved||0),0)*100)/100;
     summary.needsCheckingAccounts = accounts.filter(a => a.accountState === "needs_checking").length;
+    if (successfulMailScanAt) db.prepare("INSERT INTO meta(key,value) VALUES('last_successful_mail_scan_at',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value WHERE excluded.value > meta.value").run(successfulMailScanAt);
+    const lastSuccessfulMailScanAt = db.prepare("SELECT value FROM meta WHERE key='last_successful_mail_scan_at'").get()?.value || null;
     const eligibleRefs = new Set(accounts.filter(a => a.recommendationEligible).map(a => a.accountRef));
     for (const promo of publicPromos) promo.recommendationEligible = eligibleRefs.has(promo.accountRef);
     summary.activePromoAccounts = new Set(
@@ -443,6 +484,8 @@ async function generatePromos() {
       generatedAt,
       source: "apple-mail-sqlite",
       demo: false,
+      sync: { state: 'snapshot', lastSuccessfulMailScanAt },
+      receiptActivity: receiptActivity(receipts, transportReceipts, confirmedReceiptSaving),
       summary: {
         ...summary,
         feeModel: {
@@ -519,6 +562,10 @@ async function generatePromos() {
     if (transaction) db.exec("ROLLBACK");
     db.close();
     await Promise.all(temporaryFiles.map(file => fs.rm(file, { force: true })));
+    if (backup && process.env.TRACKER_COMPRESS_BACKUPS === 'true') {
+      await compressPrivateBackup(backup);
+      console.log('Import backup retained as a verified lossless owner-only gzip file.');
+    }
   }
 }
 

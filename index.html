@@ -2236,6 +2236,7 @@
       -webkit-backdrop-filter: blur(20px) saturate(165%);
       touch-action: none;
       user-select: none;
+      -webkit-user-select: none;
     }
     .nav-btn, .nav-btn.active { color: #f4f8f5; }
     .nav-btn { font-weight: 600; }
@@ -2321,6 +2322,7 @@
     }
   </style>
   <link rel="stylesheet" href="./desktop-layout.css">
+  <link rel="stylesheet" href="./ui-refinements.css">
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -2366,8 +2368,8 @@
           <div class="home-intro">
             <div class="home-intro-main">
               <div class="eyebrow">Overview</div>
-              <h1 class="home-title">Home</h1>
-              <div class="home-intro-copy">Savings, accounts, available promos and your next best order move — all in one place.</div>
+              <h1 class="home-title">Overview</h1>
+              <div class="home-intro-copy">Your accounts and confirmed savings.</div>
             </div>
             <div id="syncStrip" class="sync-strip home-sync" role="status">
               <strong>Waiting for first update</strong>
@@ -2376,11 +2378,6 @@
           </div>
 
           <div class="stats-row">
-            <div class="stat-card">
-              <div class="stat-label">Lifetime savings</div>
-              <div id="savedStat" class="stat-value green">£0</div>
-              <div id="savedStatSub" class="stat-sub">confirmed receipts</div>
-            </div>
             <div class="stat-card">
               <div class="stat-label">Total accounts</div>
               <div id="usableStat" class="stat-value">0</div>
@@ -2391,7 +2388,21 @@
               <div id="activeStat" class="stat-value available">0</div>
               <div id="availableStatSub" class="stat-sub">ready to use</div>
             </div>
+            <div class="stat-card">
+              <div class="stat-label">Can log in</div>
+              <div id="loginStat" class="stat-value">0</div>
+              <div class="stat-sub">accounts you can access</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Archived</div>
+              <div id="archivedStat" class="stat-value">0</div>
+              <div class="stat-sub">can’t log in</div>
+            </div>
           </div>
+          <button class="total-saved-card" data-open-sheet="savings">
+            <span><span class="stat-label">Total saved</span><strong id="savedStat">£0</strong><span id="savedStatSub" class="stat-sub">confirmed receipts</span></span>
+            <span class="saved-support"><span id="homeReceiptCount">0 receipts</span><span id="homeUberOne">Uber One estimate unavailable</span><span class="saved-link">View savings ›</span></span>
+          </button>
         </section>
 
         <div class="home-workspace">
@@ -2400,7 +2411,7 @@
           <div class="hero-heading">
             <div>
               <div class="eyebrow">Order planner</div>
-              <h1 class="hero-title">Best move for this basket</h1>
+              <h1 class="hero-title">Plan your order</h1>
             </div>
             <span class="hero-spark">✦</span>
           </div>
@@ -2447,11 +2458,11 @@
           </button>
           <button class="quick-card" data-intent="cash">
             <div class="quick-top"><span class="quick-icon">£</span><span id="cashCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">Uber Cash</div><div class="quick-sub">Accounts with cash value ready.</div></div>
+            <div><div class="quick-title">Uber Cash</div><div class="quick-sub">Current offers and history. Check your wallet in Uber.</div></div>
           </button>
-          <button class="quick-card" data-intent="multi">
-            <div class="quick-top"><span class="quick-icon" aria-hidden="true">↻</span><span id="multiCount" class="quick-count">0 accounts</span></div>
-            <div><div class="quick-title">2+ orders left</div><div class="quick-sub">The same promo can be used on 2+ more orders.</div></div>
+          <button class="quick-card" data-intent="unfinished">
+            <div class="quick-top"><span class="quick-icon" aria-hidden="true">↻</span><span id="unfinishedCount" class="quick-count">0 accounts</span></div>
+            <div><div class="quick-title">Not finished</div><div class="quick-sub">Unused or partly used accounts, including any offers left to use.</div></div>
           </button>
           <button class="quick-card" data-intent="cash-promo">
             <div class="quick-top"><span class="quick-icon" aria-hidden="true">£+</span><span id="cashPromoCount" class="quick-count">0 accounts</span></div>
@@ -2459,10 +2470,13 @@
           </button>
         </div>
 
+        </div>
+        </div>
+        <section class="best-section">
         <div class="section-head">
           <div>
             <div id="accountsKicker" class="eyebrow">Best deal</div>
-            <div class="section-title">Best accounts now</div>
+            <div id="homeAccountsTitle" class="section-title">Best accounts now</div>
           </div>
           <div id="homeAccountMeta" class="section-meta"></div>
         </div>
@@ -2473,15 +2487,15 @@
           <summary id="weakSummary">Other available accounts</summary>
           <div id="weakAccounts" class="weak-inner account-list"></div>
         </details>
-        </div>
-        </div>
+        </section>
+        <section id="homeAnalytics" class="home-analytics" aria-label="Receipt activity and savings"></section>
       </section>
 
       <section id="view-accounts" class="view">
         <div class="screen-head">
           <div class="eyebrow">Your accounts</div>
           <h1 class="screen-title">Your accounts.</h1>
-          <div class="screen-copy">Accounts you can log into, with usage and offer status shown separately. Used means five Eats receipts, or at least one Eats and one ride/bike receipt. Archived accounts retain their history.</div>
+          <div class="screen-copy">Accounts you can log into, with usage and offer status shown separately. Used means five Eats receipts, or at least one Eats and one Ride receipt. Archived accounts retain their history.</div>
         </div>
 
         <div class="search-wrap">
@@ -2495,7 +2509,7 @@
           <button class="filter-btn" data-account-filter="expired">Expired offers</button>
           <button class="filter-btn" data-account-filter="offers">Has promos</button>
           <button class="filter-btn" data-account-filter="cash">Uber Cash</button>
-          <button class="filter-btn" data-account-filter="multi">2+ orders left</button>
+          <button class="filter-btn" data-account-filter="unfinished">Not finished</button>
           <button class="filter-btn" data-account-filter="cash-promo">Uber Cash + promo</button>
           <button class="filter-btn" data-account-filter="expiring">Expiring soon</button>
         </div>
@@ -2581,6 +2595,11 @@
             <div class="more-title">History</div>
             <div class="more-copy">Recent available, used and expired offer history.</div>
           </button>
+          <button class="more-card" data-open-sheet="receipts">
+            <div class="more-icon">≡</div>
+            <div class="more-title">Receipts</div>
+            <div class="more-copy">Eats and Rides activity, with confirmed savings.</div>
+          </button>
         </div>
       </section>
     </main>
@@ -2608,8 +2627,10 @@
   <script type="module">
     import { offerTitle, useCountNeedsReview } from "./offer-details.js";
     import { THEME_KEY, DEFAULT_COLOUR, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
+    import { setupDraggableNavigation } from "./nav-gestures.js";
     import { DEVICE_ACCOUNTS_KEY, parseDeviceAccounts, deviceEmail } from "./device-accounts.js";
-    import { classifyAccount, accountStatusLabel, accountUsageDescription } from "./account-state.js";
+    import { classifyAccount, accountStatusLabel, accountUsageDescription, accountUnfinished, accountProgressDescription } from "./account-state.js";
+    import { syncState } from "./dashboard-data.js";
     import { classifyOfferTrackingState } from "./offer-state.js";
     import { isOfferExpired, expiryEndTime, applyOfferExpiryPolicy } from "./offer-time.js";
     import {
@@ -2648,6 +2669,7 @@
     let currentIntent = "best";
     let accountFilter = "all";
     let accountDisplayLimit = 48;
+    let archivedDisplayLimit = 80;
     let selectedAccountRef = null;
     let manualStore = readManualStore();
     let plannerSettings = readPlannerSettings();
@@ -2666,9 +2688,16 @@
 
     function applyLayoutPreference() {
       const root = document.documentElement;
+      const previous = root.dataset.layout;
       root.dataset.layoutPreference = layoutPreference;
       root.dataset.layout = resolveLayout(layoutPreference, window.innerWidth);
       requestAnimationFrame(updateNavGlider);
+      if (previous !== root.dataset.layout) requestAnimationFrame(() => {
+        document.querySelectorAll('#homeAnalytics details').forEach(panel => {
+          panel.open = root.dataset.layout === 'desktop';
+        });
+        if (accounts.length) renderHomeAccounts();
+      });
     }
 
     function chooseLayout(value) {
@@ -2870,7 +2899,7 @@
       const eats = Number(account?.orderCount || 0);
       const rides = Number(account?.rideCount || 0);
       if (eats === 0 && rides === 0) return "No receipt history";
-      return eats + " Eats · " + rides + " Ride";
+      return eats + " Eats · " + rides + (rides===1 ? " Ride" : " Rides");
     }
 
     function promoLabel(promo) {
@@ -2891,7 +2920,8 @@
         if (date) {
           const instant = expiryEndTime(promo);
           const clock = instant == null ? "" : new Date(instant).toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" });
-          bits.push("Ends " + date + (clock ? " at " + clock + " UK" : ""));
+          bits.push((promo.expiryStatus === "estimated" ? "Estimated end " : "Ends ") + date + (clock ? " at " + clock + " UK" : ""));
+          if (promo.expiryBasis === "tracker_35_day_rule") bits.push("35-day tracking limit from the first offer email; confirm activation and expiry in Uber");
         }
       } else {
         bits.push("Expiry unknown");
@@ -2985,6 +3015,7 @@
             promos: current,
             promoCount: current.length,
             hasCash: current.some(promo => promo.discountType === "uberCash"),
+            cashHistory: allPromosForAccount(account.accountRef).filter(promo => promo.discountType === "uberCash").sort((a,b) => String(b.emailSentAt || "").localeCompare(String(a.emailSentAt || ""))),
             hasCashAndPromo: current.some(promo => promo.discountType === "uberCash") && current.some(promo => promo.discountType === "fixed" || promo.discountType === "percent"),
             has15off15: current.some(is15off15),
             hasMultiUse: current.some(promo => Number(promo.usesRemaining || 0) > 1),
@@ -2998,19 +3029,28 @@
     }
 
     function homeAccountsByIntent() {
-      let list = enrichedAvailableAccounts().filter(account => account.promoCount > 0);
+      let list = currentIntent === "unfinished"
+        ? enrichedLoginAccounts().filter(accountUnfinished)
+        : ["cash", "cash-promo"].includes(currentIntent)
+          ? enrichedLoginAccounts().filter(account => account.promoCount > 0)
+          : enrichedAvailableAccounts().filter(account => account.promoCount > 0);
+
+      if (currentIntent === "cash") {
+        list = enrichedLoginAccounts().filter(account => account.cashHistory.length > 0);
+      }
 
       if (currentIntent === "15off15") {
         list = list.filter(account => account.has15off15);
       } else if (currentIntent === "cash") {
-        list = list.filter(account => account.hasCash);
-      } else if (currentIntent === "multi") {
-        list = list.filter(account => account.hasMultiUse);
+        list = list.filter(account => account.cashHistory.length > 0);
+      } else if (currentIntent === "unfinished") {
+        list = list.filter(accountUnfinished);
       } else if (currentIntent === "cash-promo") {
         list = list.filter(account => account.hasCashAndPromo);
       }
 
       return list.sort((a, b) => {
+        if (currentIntent === "cash" && a.hasCash !== b.hasCash) return Number(b.hasCash) - Number(a.hasCash);
         if (a.accountRef === selectedAccountRef && b.accountRef !== selectedAccountRef) return -1;
         if (b.accountRef === selectedAccountRef && a.accountRef !== selectedAccountRef) return 1;
 
@@ -3087,10 +3127,12 @@
         payload.configured === false ||
         (!payload.generatedAt && accounts.length === 0 && promos.length === 0);
 
-      pill.classList.remove("live", "setup", "stale");
+      pill.classList.remove("live", "setup", "stale", "syncing");
       if (loadError) {
-        label.textContent = "OFFLINE";
+        label.textContent = "Attention";
+        pill.classList.add('stale');
         time.textContent = "Unable to refresh data";
+        syncStrip.innerHTML = '<strong>Update unavailable</strong><span>Try refreshing. The last loaded snapshot stays on this device.</span>';
         syncStrip.style.display = "flex";
         return;
       }
@@ -3106,14 +3148,11 @@
 
       syncStrip.style.display = "none";
 
-      const generated = payload.generatedAt ? new Date(payload.generatedAt) : null;
-      const stale =
-        !generated ||
-        Number.isNaN(generated.getTime()) ||
-        Date.now() - generated.getTime() > 24 * 60 * 60 * 1000;
-
-      pill.classList.add(stale ? "stale" : "live");
-      label.textContent = stale ? "UPDATE" : "LIVE";
+      const state = syncState(payload.sync);
+      const generated = new Date(payload.sync?.lastSuccessfulMailScanAt || payload.generatedAt || '');
+      pill.classList.add(state.className);
+      label.textContent = state.label;
+      pill.title = 'Imported snapshot. Last successful Mail scan shown below; this website is not a continuous live feed.';
       time.textContent =
         generated && !Number.isNaN(generated.getTime())
           ? generated.toLocaleString("en-GB", {
@@ -3134,6 +3173,11 @@
       document.getElementById("savedStatSub").textContent = "confirmed receipts" + (Number(summary.estimatedUberOneSavings || 0) > 0 ? " · +" + money(summary.estimatedUberOneSavings) + " estimated" : "");
       setAnimatedText("usableStat", totalAccounts.toLocaleString("en-GB"));
       setAnimatedText("activeStat", availableAccounts.toLocaleString("en-GB"));
+      setAnimatedText('loginStat', accounts.filter(a=>a.canLogin).length.toLocaleString('en-GB'));
+      setAnimatedText('archivedStat', accounts.filter(a=>!a.canLogin).length.toLocaleString('en-GB'));
+      document.getElementById('homeReceiptCount').textContent = Number(Number(summary.trackedOrders||0)+Number(summary.trackedRides||0)).toLocaleString('en-GB') + ' receipts';
+      document.getElementById('homeUberOne').textContent = Number(summary.estimatedUberOneSavings||0)>0 ? '+ ' + money(summary.estimatedUberOneSavings) + ' estimated Uber One' : Number(summary.uberOneConfirmedSavings||0)>0 ? money(summary.uberOneConfirmedSavings) + ' explicit Uber One' : 'Uber One estimate unavailable';
+      renderHomeAnalytics();
 
       const availableCard = document.getElementById("availableStatCard");
       const availableSub = document.getElementById("availableStatSub");
@@ -3187,18 +3231,16 @@
       const comparison =
         plan.benefitVsSingle > .009
           ? money(plan.benefitVsSingle) + " better than one order"
-          : "Best result without unnecessary extra orders";
+          : "One order keeps delivery fees down";
 
       const rows = plan.orders.map((order, index) => (
         '<div class="plan-row">' +
           '<div class="plan-number">' + (index + 1) + '</div>' +
-          '<div>' +
+          '<div class="plan-body">' +
             '<button class="plan-account" data-account-offers="' + escapeHtml(order.accountRef) + '">' + escapeHtml(accountDisplay(order)) + '</button>' +
-            '<div class="plan-promo">' + escapeHtml(loginRouteText(order)) + ' · ' +
-
-              escapeHtml(offerTitle(order.promo)) +
-              ' · about ' + escapeHtml(money(order.subtotal)) +
-            '</div>' +
+            '<div class="plan-login">' + escapeHtml(loginRouteText(order)) + '</div>' +
+            '<div class="plan-promo">' + escapeHtml(offerTitle(order.promo)) + '</div>' +
+            '<div class="plan-subtotal">Order subtotal ' + escapeHtml(money(order.subtotal)) + '</div>' +
           '</div>' +
           '<div class="plan-saving">-' + escapeHtml(money(order.saving)) + '</div>' +
         '</div>'
@@ -3207,8 +3249,8 @@
       target.innerHTML =
         '<div class="recommendation-top">' +
           '<div>' +
-            '<div class="recommendation-title">Best move · ' + plan.orderCount +
-              (plan.orderCount === 1 ? ' order' : ' orders') + '</div>' +
+            '<div class="recommendation-title">Use ' + plan.orderCount +
+              (plan.orderCount === 1 ? ' account' : ' accounts') + '</div>' +
             '<div class="recommendation-copy">' + escapeHtml(comparison) + '</div>' +
           '</div>' +
           '<div class="recommendation-save">Save ' + escapeHtml(money(plan.netSaving)) +
@@ -3229,10 +3271,12 @@
       return "";
     }
 
-    function accountCard(account, index = 0) {
+    function accountCard(account, index = 0, context = "accounts") {
       const best = account.bestNow || bestForAccount(account);
       const current = account.promos || activePromosForAccount(account.accountRef);
+      const cashOffer = context === "cash" ? current.find(promo => promo.discountType === "uberCash") || account.cashHistory?.[0] : best?.promo?.discountType === "uberCash" ? best.promo : null;
       const pills = [];
+      if (cashOffer) pills.push('<span class="pill ' + (isPromoActive(cashOffer) ? 'good' : 'warn') + '">' + (isPromoActive(cashOffer) ? 'Current Cash offer · confirm in Uber' : cashOffer.trackingState === 'needs_checking' ? 'Cash terms need checking' : isExpired(cashOffer) ? 'Past Cash offer · expired' : 'Past Cash offer · used or ignored') + '</span>');
 
       if (account.accountRef === selectedAccountRef) {
         pills.push('<span class="pill good">Chosen account</span>');
@@ -3247,9 +3291,9 @@
       pills.push('<span class="pill">' + escapeHtml(accountStatusLabel(currentAccountState(account))) + '</span>');
       if (currentAccountState(account).partialUsage) pills.push('<span class="pill">Partial account usage</span>');
       if (current.some(is15off15)) pills.push('<span class="pill">£15 off £15</span>');
-      if (current.some(promo => promo.discountType === "uberCash")) pills.push('<span class="pill">Uber Cash</span>');
+      if (current.some(promo => promo.discountType === "uberCash")) pills.push('<span class="pill">Cash offer · wallet unverified</span>');
 
-      const multi = current.find(promo => Number(promo.usesRemaining || 0) > 1);
+      const multi = current.find(promo => Number(promo.uses || 1) > 1);
       if (multi) pills.push(offerUsePill(multi));
 
       if (current.length > 1) pills.push('<span class="pill">' + current.length + ' promos available</span>');
@@ -3260,12 +3304,15 @@
       }
 
       const headline =
+        cashOffer?.title ||
         best?.promo?.title ||
         current[0]?.title ||
         "No promos available";
 
       const save =
-        best
+        cashOffer
+          ? '<div class="save-now">' + escapeHtml(money(cashOffer.discount)) + '<small>offer value</small></div>'
+          : best
           ? '<div class="save-now">-' + escapeHtml(money(best.calculation.saving)) +
               '<small>on ' + escapeHtml(money(currentBasket())) + '</small></div>'
           : '<div class="save-now" style="color:var(--muted)">—<small>no eligible saving</small></div>';
@@ -3281,6 +3328,7 @@
             save +
           '</div>' +
           '<div class="pill-row">' + pills.join("") + '</div>' +
+          '<div class="account-progress-note">' + escapeHtml(accountProgressDescription(currentAccountState(account))) + '</div>' +
           '<div class="account-actions">' +
             '<button class="ghost-btn" data-account-offers="' + escapeHtml(account.accountRef) + '">View offers</button>' +
           '</div>' +
@@ -3293,14 +3341,15 @@
 
       setAnimatedText("bestCount", list.length);
       setAnimatedText("fifteenCount", list.filter(account => account.has15off15).length);
-      setAnimatedText("cashCount", list.filter(account => account.hasCash).length);
-      const repeated = list.filter(account => account.hasMultiUse).length;
-      const cashAndPromo = list.filter(account => account.hasCashAndPromo).length;
-      setAnimatedText("multiCount", repeated + (repeated === 1 ? " account" : " accounts"));
+      setAnimatedText("cashCount", enrichedLoginAccounts().filter(account => account.hasCash).length + " current");
+      const unfinished = enrichedLoginAccounts().filter(accountUnfinished).length;
+      const cashAndPromo = enrichedLoginAccounts().filter(account => account.hasCashAndPromo).length;
+      setAnimatedText("unfinishedCount", unfinished + (unfinished === 1 ? " account" : " accounts"));
       setAnimatedText("cashPromoCount", cashAndPromo + (cashAndPromo === 1 ? " account" : " accounts"));
     }
 
     function renderHomeAccounts() {
+      const previewLimit = document.documentElement.dataset.layout === 'mobile' ? 3 : 8;
       const all = homeAccountsByIntent();
       const strongest = all[0] || null;
       const weak = all.filter(account => weakAccount(account, strongest));
@@ -3310,18 +3359,20 @@
         best: "Best deal",
         "15off15": "£15 off £15",
         cash: "Uber Cash",
-        multi: "2+ orders left",
+        unfinished: "Not finished",
         "cash-promo": "Uber Cash + promo"
       };
 
       document.getElementById("accountsKicker").textContent = names[currentIntent];
       document.getElementById("homeAccountMeta").textContent =
-        all.length + (all.length === 1 ? " available account" : " available accounts");
+        all.length + (currentIntent === "unfinished" ? (all.length === 1 ? " unfinished account" : " unfinished accounts") : ["cash", "cash-promo"].includes(currentIntent) ? (all.length === 1 ? " account with offers" : " accounts with offers") : (all.length === 1 ? " available account" : " available accounts"));
+      document.getElementById("homeAccountsTitle").textContent = currentIntent === "unfinished" ? "Accounts not finished" : currentIntent === "cash" ? "Cash offers & history" : currentIntent === "cash-promo" ? "Cash & discount offers" : "Best accounts now";
 
       document.getElementById("homeAccounts").innerHTML =
         strong.length
-          ? strong.slice(0, 8).map((account, index) => accountCard(account, index)).join("")
-          : '<div class="empty">No available account matches this category right now.</div>';
+          ? strong.slice(0, previewLimit).map((account, index) => accountCard(account, index, currentIntent)).join("") +
+            (strong.length > previewLimit ? '<button class="ghost-btn" data-jump-accounts="true" data-target-filter="' + (currentIntent === "unfinished" ? 'unfinished' : ["cash", "cash-promo"].includes(currentIntent) ? currentIntent : 'offers') + '">View all ' + strong.length + ' accounts</button>' : '')
+          : '<div class="empty">No account matches this category right now.</div>';
 
       const wrap = document.getElementById("weakWrap");
       wrap.style.display = weak.length ? "block" : "none";
@@ -3342,8 +3393,8 @@
       if (accountFilter === "review") list = list.filter(account => account.accountState === "needs_checking");
       if (accountFilter === "expired") list = list.filter(account => account.accountState === "expired");
       if (accountFilter === "offers") list = list.filter(account => account.recommendationEligible && account.promoCount > 0);
-      if (accountFilter === "cash") list = list.filter(account => account.hasCash);
-      if (accountFilter === "multi") list = list.filter(account => account.hasMultiUse);
+      if (accountFilter === "cash") list = list.filter(account => account.cashHistory.length > 0);
+      if (accountFilter === "unfinished") list = list.filter(accountUnfinished);
       if (accountFilter === "cash-promo") list = list.filter(account => account.hasCashAndPromo);
       if (accountFilter === "expiring") {
         list = list.filter(account =>
@@ -3373,7 +3424,7 @@
 
       document.getElementById("accountsList").innerHTML =
         shown.length
-          ? shown.map(account => accountCard(account)).join("") +
+          ? shown.map(account => accountCard(account, 0, accountFilter)).join("") +
             (list.length > shown.length
               ? '<button class="ghost-btn" style="width:100%;min-height:44px;text-align:center" data-show-more-accounts="true">Show ' +
                 Math.min(48, list.length - shown.length) + ' more</button>'
@@ -3609,6 +3660,7 @@
       else if (pending > 0) status = '<span class="pill good">' + pending + ' awaiting receipt</span>';
 
       const useButtonDisabled =
+        promo.canLogin === false ||
         remaining <= 0 ||
         promo.trackingState === 'needs_checking' ||
         useCountNeedsReview(promo) ||
@@ -3639,6 +3691,7 @@
             '<button class="action-btn" data-undo-use="' + escapeHtml(promoStateKey(promo)) + '"' +
               (undoDisabled ? ' disabled' : '') + '>Undo manual use</button>' +
           '</div>' +
+          (promo.discountType === 'uberCash' ? '<div class="setting-note">This email records a Cash offer, not your current wallet balance. Check its activation and balance in Uber. Receipt savings remain separate.</div>' : '') +
           '<div class="offer-more">' +
             (activity.ignored
               ? '<button class="action-btn warning" data-toggle-ignore="' + escapeHtml(promoStateKey(promo)) + '" data-ignore="false">Restore offer</button>'
@@ -3660,7 +3713,7 @@
       openSheetType = "account";
       openAccountRef = accountRef;
 
-      setSheetHeading("Account", "Choose an offer or log a use.");
+      setSheetHeading("Account", account.canLogin ? "Choose an offer or log a use." : "Receipt and savings history for an unavailable account.");
       renderAccountSheet();
       showSheet();
     }
@@ -3698,11 +3751,11 @@
             '</div>' +
           '</div>' +
           '<div class="account-sheet-summary">' +
-            '<div><span>Promos available</span><strong>' + liveItems.length + '</strong></div>' +
-            '<div><span>Save now</span><strong>' + (bestSaving > 0 ? escapeHtml(money(bestSaving)) : '—') + '</strong></div>' +
+            '<div><span>' + (account.canLogin ? 'Promos available' : 'Historical savings') + '</span><strong>' + (account.canLogin ? liveItems.length : escapeHtml(money(account.totalSaved||0))) + '</strong></div>' +
+            '<div><span>Save now</span><strong>' + (account.canLogin && bestSaving > 0 ? escapeHtml(money(bestSaving)) : '—') + '</strong></div>' +
             '<div><span>History</span><strong>' + escapeHtml(receiptHistoryText(account)) + '</strong></div>' +
           '</div>' +
-          '<div class="account-login-route">' + escapeHtml(accountUsageDescription(account)) + '</div>' +
+          '<div class="account-login-route">' + escapeHtml(accountProgressDescription(currentAccountState(account))) + '</div>' +
           '<div class="account-sheet-actions">' +
             (deviceEmail(deviceAccounts, account)
               ? '<button class="account-secondary" data-copy-email="' + escapeHtml(account.accountRef) + '">Copy login email</button>'
@@ -3711,7 +3764,7 @@
           '</div>' +
         '</div>' +
         '<div class="sheet-section offers-section">' +
-          '<div class="sheet-section-title">Offers on this account</div>' +
+          '<div class="sheet-section-title">' + (account.canLogin ? 'Offers on this account' : 'Offer history · account unavailable') + '</div>' +
           (items.length
             ? items.map(offerSheetCard).join("")
             : '<div class="empty">No offers stored for this account.</div>') +
@@ -3776,7 +3829,7 @@
       setSheetHeading("Archived accounts", locked.length + " accounts are excluded from recommendations but kept for receipt and savings history.");
 
       document.getElementById("sheetBody").innerHTML =
-        '<div class="sheet-section"><input id="sheetLockedSearch" class="sheet-input" type="search" placeholder="Search email…"></div>' +
+        '<div class="sheet-section"><input id="sheetLockedSearch" class="sheet-input" type="search" aria-label="Search archived accounts" placeholder="Search email…"></div>' +
         '<div id="sheetLockedList" class="sheet-section"></div>';
 
       renderLockedSearch("");
@@ -3791,22 +3844,21 @@
         .filter(account => !account.canLogin)
         .filter(account => !term || String(accountDisplay(account)).toLowerCase().includes(term));
 
-      const shown = term ? list.slice(0, 120) : list.slice(0, 80);
+      const shown = list.slice(0,archivedDisplayLimit);
 
       target.innerHTML =
         shown.length
           ? '<div class="sheet-list">' +
             shown.map(account => (
-              '<div class="sheet-row">' +
+              '<button class="sheet-row archived-row" data-account-offers="' + escapeHtml(account.accountRef) + '">' +
                 '<div><div class="sheet-row-title">' + escapeHtml(accountDisplay(account)) + '</div>' +
-                '<div class="sheet-row-meta">' + Number(account.activePromoCount || 0) + ' promos available · last seen ' +
-                  escapeHtml(formatDate(account.lastSeenAt) || "unknown") + '</div></div>' +
-                '<span class="pill warn">Can’t log in</span>' +
-              '</div>'
+                '<div class="sheet-row-meta">' + escapeHtml(receiptHistoryText(account)) + ' · ' + escapeHtml(money(account.totalSaved||0)) + ' saved historically</div></div>' +
+                '<span class="pill warn">' + (account.deactivated ? 'Deactivated' : 'Can’t log in') + '</span>' +
+              '</button>'
             )).join("") +
             '</div>' +
             (list.length > shown.length
-              ? '<div class="sheet-help" style="margin-top:8px">Showing ' + shown.length + ' of ' + list.length + '. Search an email to narrow it down.</div>'
+              ? '<button class="advanced-btn" data-show-more-archived="true">Show more archived accounts (' + shown.length + ' of ' + list.length + ')</button>'
               : "")
           : '<div class="empty">No account matches that search.</div>';
     }
@@ -3838,26 +3890,29 @@
 
       document.getElementById("sheetBody").innerHTML =
         '<div class="savings-hero">' +
-          '<div class="savings-hero-label">Estimated saved</div>' +
-          '<div class="savings-hero-value">' + escapeHtml(money(estimatedTotal)) + '</div>' +
+          '<div class="savings-hero-label">Total saved · confirmed</div>' +
+          '<div class="savings-hero-value">' + escapeHtml(money(confirmedTotal)) + '</div>' +
           '<div class="savings-confidence"><span class="status-dot"></span>' + escapeHtml(confidence) + '</div>' +
           '<div class="savings-hero-copy">Confirmed receipt totals are never double-counted. Uber Cash balance payments are shown separately and count as saving only with explicit promotional evidence. Missing Uber One savings use your own receipt history.</div>' +
         '</div>' +
         '<div class="sheet-section"><div class="insight-grid">' +
           '<div class="insight"><div class="insight-label">Confirmed receipts</div><div class="insight-value">' + escapeHtml(money(confirmedTotal)) + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Estimated missing Uber One</div><div class="insight-value estimated-value">' + escapeHtml(money(estimatedUberOne)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Estimated missing Uber One</div><div class="insight-value estimated-value">' + escapeHtml(model.sampleSize ? money(estimatedUberOne) : 'Unavailable') + '</div></div>' +
           '<div class="insight"><div class="insight-label">Last 30 days · confirmed</div><div class="insight-value">' + escapeHtml(money(summary.recentConfirmedSaved || 0)) + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Ride/bike confirmed savings</div><div class="insight-value">' + escapeHtml(money(summary.rideConfirmedSaved || 0)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Ride confirmed savings</div><div class="insight-value">' + escapeHtml(money(summary.rideConfirmedSaved || 0)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Promo discounts</div><div class="insight-value">' + escapeHtml(money(summary.promoSavings || 0)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Uber Cash paid · not assumed saving</div><div class="insight-value">' + escapeHtml(money(summary.uberCashUsed || 0)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Explicit Uber One</div><div class="insight-value">' + escapeHtml(money(confirmedUberOne)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Archived accounts · historical savings</div><div class="insight-value">' + escapeHtml(money(summary.archivedConfirmedSaved || 0)) + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Deactivated accounts · included in history</div><div class="insight-value">' + escapeHtml(money(summary.deactivatedConfirmedSaved || 0)) + '</div></div>' +
           '<div class="insight"><div class="insight-label">Estimated Eats average / order</div><div class="insight-value">' + escapeHtml(money(summary.estimatedAverageSavedPerOrder ?? summary.averageSavedPerOrder ?? 0)) + '</div></div>' +
         '</div></div>' +
         '<div class="sheet-section">' +
           '<div class="sheet-label">How the Uber One estimate is calculated</div>' +
+          '<p class="sheet-help">' + escapeHtml(model.explanation || 'An estimate requires explicit Uber One receipt amounts. A £0 delivery fee alone does not reveal the original fee or prove a saving.') + '</p>' +
           '<div class="sheet-list">' +
             '<div class="sheet-row"><div><div class="sheet-row-title">Receipts with Uber One saving shown</div><div class="sheet-row-meta">Used to learn a conservative personal estimate</div></div><div class="sheet-row-value">' + Number(model.sampleSize || 0) + '</div></div>' +
-            '<div class="sheet-row"><div><div class="sheet-row-title">Estimate used when the amount is missing</div><div class="sheet-row-meta">Only used when the receipt mentions Uber One without showing the saving</div></div><div class="sheet-row-value">' + escapeHtml(money(model.baselinePerEligibleOrder || 0)) + '</div></div>' +
+            '<div class="sheet-row"><div><div class="sheet-row-title">Estimate used when the amount is missing</div><div class="sheet-row-meta">Only used when the receipt mentions Uber One without showing the saving</div></div><div class="sheet-row-value">' + escapeHtml(model.sampleSize ? money(model.baselinePerEligibleOrder || 0) : 'Unavailable') + '</div></div>' +
           '</div>' +
         '</div>' +
         '<div class="sheet-section">' +
@@ -3874,6 +3929,30 @@
         '</div>';
     }
 
+    function receiptActivityRows(limit = 20) {
+      const rows = payload.receiptActivity?.days || [];
+      return rows.length ? '<div class="sheet-list">' + rows.slice(0,limit).map(row=>
+        '<div class="sheet-row"><div><div class="sheet-row-title">' + escapeHtml(formatDate(row.period) || row.period) + '</div><div class="sheet-row-meta">' + Number(row.eats) + ' Eats · ' + Number(row.rides) + (Number(row.rides)===1 ? ' Ride' : ' Rides') + '</div></div><div class="sheet-row-value">' + escapeHtml(money(row.saved)) + '</div></div>'
+      ).join('') + '</div>' : '<div class="empty">Receipt activity will appear after a verified import.</div>';
+    }
+
+    function renderHomeAnalytics() {
+      const target = document.getElementById('homeAnalytics');
+      const months = (payload.receiptActivity?.months || []).slice(-6);
+      const maximum = Math.max(1,...months.map(r=>Number(r.saved)));
+      const chart = months.length ? '<div class="savings-bars" role="img" aria-label="Confirmed savings by month">' + months.map(row=>
+        '<div class="savings-bar-column"><span class="savings-bar-value">' + escapeHtml(money(row.saved)) + '</span><div class="savings-bar-track"><span style="height:' + Math.max(2,Number(row.saved)/maximum*100) + '%"></span></div><span>' + escapeHtml(new Date(row.period+'-01T12:00:00Z').toLocaleString('en-GB',{month:'short',year:'2-digit'})) + '</span></div>'
+      ).join('') + '</div>' : '<div class="empty">No verified receipt savings yet.</div>';
+      target.innerHTML = '<details class="analytics-panel glass"><summary>Confirmed savings by month</summary>' + chart + '<p class="sheet-help">Last six months with receipts. All accounts, including archived history.</p></details><details class="analytics-panel glass"><summary>Recent receipt activity</summary>' + receiptActivityRows(5) + '<button class="advanced-btn" data-open-sheet="receipts">View receipt activity ›</button></details>';
+      if (document.documentElement.dataset.layout==='desktop') target.querySelectorAll('details').forEach(d=>d.open=true);
+    }
+
+    function renderReceiptsSheet() {
+      const summary=payload.summary || {};
+      setSheetHeading('Receipts', 'Deduplicated receipt activity. Full original receipts remain private on your Mac.');
+      document.getElementById('sheetBody').innerHTML = '<div class="sheet-section"><div class="insight-grid"><div class="insight"><div class="insight-label">Eats receipts</div><div class="insight-value">' + Number(summary.trackedOrders||0) + '</div></div><div class="insight"><div class="insight-label">Ride receipts</div><div class="insight-value">' + Number(summary.trackedRides||0) + '</div></div></div></div><div class="sheet-section">' + receiptActivityRows(90) + '</div>';
+    }
+
     function renderHealthSheet() {
       const summary = payload.summary || {};
       const generated = payload.generatedAt ? new Date(payload.generatedAt) : null;
@@ -3883,12 +3962,14 @@
       document.getElementById("sheetBody").innerHTML =
         '<div class="sheet-section"><div class="insight-grid">' +
           '<div class="insight"><div class="insight-label">Total accounts</div><div class="insight-value">' + accounts.length.toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Available accounts</div><div class="insight-value">' + enrichedAvailableAccounts().length.toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Can log in</div><div class="insight-value">' + accounts.filter(a=>a.canLogin).length.toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Accounts available</div><div class="insight-value">' + enrichedAvailableAccounts().length.toLocaleString("en-GB") + '</div></div>' +
           '<div class="insight"><div class="insight-label">Archived</div><div class="insight-value">' + accounts.filter(a => !a.canLogin).length.toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Tracked receipts</div><div class="insight-value">' + Number(summary.trackedOrders || 0).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Tracked receipts</div><div class="insight-value">' + Number(Number(summary.trackedOrders||0)+Number(summary.trackedRides||0)).toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Deactivated · part of Archived</div><div class="insight-value">' + Number(summary.deactivatedAccounts||0) + '</div></div>' +
         '</div></div>' +
         '<div class="sheet-section"><div class="sheet-list">' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Last sync</div><div class="sheet-row-meta">Last successful private-data update</div></div>' +
+          '<div class="sheet-row"><div><div class="sheet-row-title">Snapshot prepared</div><div class="sheet-row-meta">Receipt processing time. Last Mail scan appears in the header.</div></div>' +
           '<div class="sheet-row-value">' +
             (generated && !Number.isNaN(generated.getTime())
               ? escapeHtml(generated.toLocaleString("en-GB", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }))
@@ -3901,7 +3982,8 @@
         '<div class="sheet-section">' +
           '<div class="settings-explainer">' +
             '<strong>How syncing works</strong>' +
-            '<span>Receipt processing keeps full account and Mail data private, updates savings and usage history, and publishes only the masked data this app needs. New receipt evidence automatically keeps account status and offer usage up to date.</span>' +
+            '<span>The website shows an imported snapshot. Up to date means a successful Mail scan within two hours. Stale means the scan is older. Snapshot means its scan time is unknown. Syncing appears only for a reported scan in progress.</span>' +
+            '<span>Total accounts includes every account. Can log in includes all accessible accounts. Archived includes accounts you cannot access. Accounts available requires login access and a current opportunity eligible under your account-used rule.</span>' +
           '</div>' +
         '</div>';
     }
@@ -3962,6 +4044,7 @@
       if (type === "locked") renderLockedSheet();
       if (type === "savings") renderSavingsSheet();
       if (type === "health") renderHealthSheet();
+      if (type === "receipts") renderReceiptsSheet();
       if (type === "history") renderHistorySheet();
       if (type === "appearance") renderAppearanceSheet();
       if (type === "device") renderDeviceSheet();
@@ -4096,7 +4179,7 @@
         renderAll();
       } catch (error) {
         loadError = true;
-        document.getElementById("scanLabel").textContent = "OFFLINE";
+        document.getElementById("scanLabel").textContent = "Attention";
         document.getElementById("scanTime").textContent = "Unable to refresh data";
         document.getElementById("syncStrip").style.display = "flex";
         document.getElementById("syncStrip").innerHTML =
@@ -4108,58 +4191,8 @@
       } finally { loadInProgress = false; }
     }
 
-    let navDrag = null, suppressNavClick = false;
     const mainNav = document.getElementById('mainNav');
-    mainNav.addEventListener('pointerdown', event => {
-      if (event.button !== 0 || !event.target.closest('[data-view]')) return;
-      navDrag = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
-    });
-    mainNav.addEventListener('pointermove', event => {
-      if (!navDrag || event.pointerId !== navDrag.pointerId) return;
-      const vertical = getComputedStyle(mainNav).flexDirection === 'column';
-      const delta = vertical ? event.clientY - navDrag.y : event.clientX - navDrag.x;
-      if (!navDrag.moved && Math.abs(delta) < 6) return;
-      navDrag.moved = true;
-      mainNav.setPointerCapture(event.pointerId); mainNav.classList.add('dragging');
-      const active = mainNav.querySelector('.nav-btn.active'), glider = mainNav.querySelector('.nav-glider');
-      const origin = mainNav.getBoundingClientRect(), position = vertical ? event.clientY - origin.top - mainNav.clientTop : event.clientX - origin.left - mainNav.clientLeft;
-      const size = vertical ? active.offsetHeight : active.offsetWidth;
-      const limit = (vertical ? mainNav.clientHeight : mainNav.clientWidth) - size - 4;
-      const along = Math.max(4, Math.min(limit, position - size / 2));
-      glider.style.transform = 'translate3d(' + (vertical ? active.offsetLeft : along) + 'px,' + (vertical ? along : active.offsetTop) + 'px,0)';
-    });
-    function finishNavDrag(event, cancelled = false) {
-      if (!navDrag || event.pointerId !== navDrag.pointerId) return;
-      const moved = navDrag.moved; navDrag = null;
-      mainNav.classList.remove('dragging');
-      if (mainNav.hasPointerCapture(event.pointerId)) mainNav.releasePointerCapture(event.pointerId);
-      if (moved) {
-        suppressNavClick = true; setTimeout(() => { suppressNavClick = false; }, 0);
-        if (!cancelled) {
-          const vertical = getComputedStyle(mainNav).flexDirection === 'column';
-          const buttons = [...mainNav.querySelectorAll('[data-view]')];
-          const distance = button => { const r = button.getBoundingClientRect(); return Math.abs(vertical ? event.clientY - (r.top+r.bottom)/2 : event.clientX - (r.left+r.right)/2); };
-          buttons.sort((a,b) => distance(a)-distance(b));
-          switchView(buttons[0].dataset.view); buttons[0].focus({ preventScroll: true });
-        } else updateNavGlider();
-      }
-    }
-    mainNav.addEventListener('pointerup', event => finishNavDrag(event));
-    mainNav.addEventListener('pointercancel', event => finishNavDrag(event, true));
-    mainNav.addEventListener('lostpointercapture', event => finishNavDrag(event, true));
-    mainNav.addEventListener('keydown', event => {
-      if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(event.key)) return;
-      const buttons = [...mainNav.querySelectorAll('[data-view]')], index = buttons.indexOf(document.activeElement);
-      if (index < 0) return;
-      event.preventDefault();
-      const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length-1 : (index + (['ArrowRight','ArrowDown'].includes(event.key) ? 1 : -1) + buttons.length) % buttons.length;
-      switchView(buttons[next].dataset.view); buttons[next].focus({ preventScroll: true });
-    });
-    document.getElementById("mainNav").addEventListener("click", event => {
-      if (suppressNavClick) return;
-      const button = event.target.closest("[data-view]");
-      if (button) switchView(button.dataset.view);
-    });
+    setupDraggableNavigation({ nav: mainNav, onSelect: switchView, onRestore: updateNavGlider });
 
     document.getElementById("quickGrid").addEventListener("click", event => {
       const button = event.target.closest("[data-intent]");
@@ -4218,6 +4251,10 @@
 
       const jumpAccounts = event.target.closest("[data-jump-accounts]");
       if (jumpAccounts) {
+        accountFilter = jumpAccounts.dataset.targetFilter || 'offers';
+        accountDisplayLimit = 48;
+        document.querySelectorAll('[data-account-filter]').forEach(button => button.classList.toggle('active', button.dataset.accountFilter === accountFilter));
+        renderAccounts();
         switchView("accounts");
         return;
       }
@@ -4273,6 +4310,13 @@
     });
 
     document.getElementById("sheetBody").addEventListener("click", event => {
+      if (event.target.closest('[data-show-more-archived]')) {
+        archivedDisplayLimit += 80;
+        renderLockedSearch(document.getElementById('sheetLockedSearch')?.value || '');
+        return;
+      }
+      const archivedAccount = event.target.closest('[data-account-offers]');
+      if (archivedAccount) { openAccountSheet(archivedAccount.dataset.accountOffers); return; }
       const sheetButton = event.target.closest('[data-open-sheet]');
       if (sheetButton) { openUtilitySheet(sheetButton.dataset.openSheet); return; }
       const colourButton = event.target.closest('[data-theme-colour]');

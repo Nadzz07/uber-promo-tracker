@@ -28,6 +28,7 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     for (const account of payload.accounts) {
       if (!account.accountRef || accounts.has(account.accountRef)) throw new Error('Duplicate or missing account reference.');
       accounts.set(account.accountRef, account);
+      if (account.deactivated && account.canLogin) throw new Error('Deactivated accounts cannot be available for login.');
       for (const field of ['orderCount', 'rideCount']) if (!Number.isInteger(account[field]) || account[field] < 0) throw new Error('Invalid receipt counter.');
       const expected = classifyAccount(account, payload.promos.filter(p => p.accountRef === account.accountRef));
       for (const field of ['accountUsed', 'accountUsedReason', 'accountState', 'activePromoCount', 'reviewOfferCount', 'needsReview', 'recommendationEligible']) {
@@ -52,6 +53,11 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     ]) if (summary[field] !== count) throw new Error('Summary counter disagrees with accounts: ' + field);
     for (const [summaryField, accountField] of [['totalSaved', 'totalSaved'], ['estimatedUberOneSavings', 'estimatedUberOneSavings'], ['estimatedTotalSaved', 'estimatedTotalSaved']]) {
       if (Math.abs(Number(summary[summaryField]) - payload.accounts.reduce((sum, a) => sum + Number(a[accountField] || 0), 0)) > 0.011) throw new Error('Savings summary disagrees with accounts.');
+    }
+  }
+  if (payload.receiptActivity) {
+    for (const rows of [payload.receiptActivity.days, payload.receiptActivity.months]) {
+      if (!Array.isArray(rows) || rows.reduce((n,r)=>n+r.eats,0)!==payload.summary.trackedOrders || rows.reduce((n,r)=>n+r.rides,0)!==payload.summary.trackedRides || Math.abs(rows.reduce((n,r)=>n+r.saved,0)-payload.summary.totalSaved)>0.011) throw new Error('Receipt activity disagrees with verified receipt totals.');
     }
   }
   for (const promo of [...payload.promos, ...history.records]) {

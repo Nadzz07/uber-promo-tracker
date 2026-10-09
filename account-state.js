@@ -18,13 +18,29 @@ export function classifyAccount(account = {}, offers = []) {
 }
 
 export function accountStatusLabel(account) {
+  if (account.deactivated) return 'Deactivated · can’t log in';
   return { archived: 'Archived', used: 'Used · receipt confirmed', available: 'Available', needs_checking: 'Offers need checking', expired: 'Offers expired', fully_used: 'Offers fully used', no_offers: 'No current offers' }[account.accountState] || 'No current offers';
 }
 
 export function accountUsageDescription(account = {}) {
   const usage = accountUsage(account);
   if (usage.accountUsedReason === 'five_eats_receipts') return 'Usage complete: five Eats receipts confirmed.';
-  if (usage.accountUsed) return 'Usage complete: Eats and ride/bike receipts confirmed.';
-  if (usage.partialUsage) return 'Partial usage: complete at five Eats receipts, or Eats plus a ride/bike receipt.';
+  if (usage.accountUsed) return 'Usage complete: Eats and Ride receipts confirmed.';
+  if (usage.partialUsage) return 'Partial usage: complete at five Eats receipts, or Eats plus a Ride receipt.';
   return 'No receipt usage recorded. Offer expiry is separate from account usage.';
+}
+
+// Receipt completion and remaining offers are separate reasons to keep an account visible.
+export function accountUnfinished(account = {}) {
+  return account.canLogin === true && (!accountUsage(account).accountUsed || Number(account.activePromoCount || 0) > 0);
+}
+
+export function accountProgressDescription(account = {}) {
+  const eats = Math.max(0, Number(account.orderCount) || 0);
+  const rides = Math.max(0, Number(account.rideCount) || 0);
+  if (account.canLogin === false) return 'Historical usage: ' + eats + ' Eats, ' + rides + (rides === 1 ? ' Ride.' : ' Rides.') + ' This account cannot be used because you can’t log in.';
+  if (accountUsage(account).accountUsed) return accountUsageDescription(account) + (Number(account.activePromoCount || 0) > 0 ? ' ' + account.activePromoCount + (Number(account.activePromoCount) === 1 ? ' offer is still available.' : ' offers are still available.') : '');
+  if (rides > 0) return 'Not finished · ' + eats + ' Eats, ' + rides + (rides===1 ? ' Ride.' : ' Rides.') + ' One Eats receipt will complete this account.';
+  if (eats > 0) return 'Not finished · ' + eats + ' of 5 Eats. Needs a Ride or ' + (5 - eats) + ' more Eats ' + (5 - eats === 1 ? 'receipt.' : 'receipts.');
+  return 'Not started · needs five Eats, or one Eats plus one Ride.';
 }

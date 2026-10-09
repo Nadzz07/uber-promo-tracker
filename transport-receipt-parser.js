@@ -36,9 +36,10 @@ function extractTripKey(text, { bikeSignal = false } = {}) {
     /\b(\d{1,2})\s+([a-z]{3,9})\s+(20\d{2})\b/i
   );
 
-  const times = [...source.matchAll(/\b([01]?\d|2[0-3]):([0-5]\d)\b/g)]
-    .slice(0, 2)
-    .map(match => String(match[1]).padStart(2, "0") + ":" + match[2]);
+  // Responsive HTML may repeat the pickup time before the drop-off time.
+  // The same journey must retain the identity of its plain Mail rendering.
+  const times = [...new Set([...source.matchAll(/\b([01]?\d|2[0-3]):([0-5]\d)\b/g)]
+    .map(match => String(match[1]).padStart(2, "0") + ":" + match[2]))].slice(0, 2);
 
   const distanceMatch = source.match(
     /\b(\d+(?:[.,]\d+)?)\s*(miles?|mi|km|kilomet(?:er|re)s?)\b/i
@@ -53,8 +54,10 @@ function extractTripKey(text, { bikeSignal = false } = {}) {
     /\b(UberX|UberXL|Comfort|Green|Exec|Taxi|Black|LIME\s+bike|Lime\s+e-?bike)\b/i
   );
 
+  const monthNames=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  const month=dateMatch?monthNames.indexOf(dateMatch[2].slice(0,3).toLowerCase()):-1;
   const facts = {
-    date: dateMatch ? normaliseToken(dateMatch[0]) : null,
+    date: dateMatch && month>=0 ? dateMatch[3]+'-'+String(month+1).padStart(2,'0')+'-'+String(dateMatch[1]).padStart(2,'0') : null,
     startTime: times[0] || null,
     endTime: times[1] || null,
     distance: distanceMatch
@@ -67,15 +70,16 @@ function extractTripKey(text, { bikeSignal = false } = {}) {
       : (bikeSignal ? "bike" : null)
   };
 
-  const strongFacts = [
-    facts.date,
-    facts.startTime && facts.endTime ? facts.startTime + "-" + facts.endTime : null,
-    facts.bikeNumber,
-    facts.distance && facts.duration ? facts.distance + "/" + facts.duration : null
-  ].filter(Boolean);
-
-  return strongFacts.length >= 2
-    ? Object.entries(facts)
+  // Weekday spelling and optional product/distance text are presentation details.
+  // Use the dated pickup/drop-off pair when present; otherwise require a start
+  // time plus specific cycle or distance/duration evidence rather than guessing.
+  const identityFacts=facts.date&&facts.startTime&&facts.endTime
+    ? {date:facts.date,startTime:facts.startTime,endTime:facts.endTime}
+    : facts.date&&facts.startTime&&(facts.bikeNumber||(facts.distance&&facts.duration))
+      ? {date:facts.date,startTime:facts.startTime,bikeNumber:facts.bikeNumber,distance:facts.distance,duration:facts.duration}
+      : null;
+  return identityFacts
+    ? Object.entries(identityFacts)
         .filter(([, value]) => value)
         .map(([key, value]) => key + "=" + value)
         .join("|")

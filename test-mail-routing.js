@@ -65,6 +65,11 @@ const messages = [
     sourceMailbox: "INBOX"
   },
   {
+    sender:'Uber Eats <offers@uber.com>',recipient:'account-c@icloud.com',subject:'£5 off your order',
+    body:'Get £5 off your next order. Minimum spend £10.',sentAt:'2026-10-05T14:00:00Z',receivedAt:'2026-10-05T14:00:10Z',
+    messageId:'<archived-used-promo@uber.com>',mailbox:'promo',sourceMailbox:'INBOX'
+  },
+  {
     sender: "Uber Eats <receipts@uber.com>",
     recipient: "account-b@icloud.com",
     subject: "Your receipt from Another Kitchen",
@@ -121,7 +126,12 @@ try {
   const routedReceipts = JSON.parse(fs.readFileSync(output, "utf8"));
   const routedTrash = JSON.parse(fs.readFileSync(trashOutput, "utf8"));
   assert.deepEqual(routedReceipts.messageIds, ["<receipt-inbox@uber.com>"]);
-  assert.deepEqual(routedTrash.messageIds, ["<archived-receipt@uber.com>", "<archived-promo@uber.com>"]);
+  assert.deepEqual(routedTrash.messageIds, ["<archived-receipt@uber.com>", "<archived-promo@uber.com>","<archived-used-promo@uber.com>"]);
+  execFileSync(process.execPath,['mac/plan-inbox-routing.js',input,dbPath,output,trashOutput,'--keep-receipts-and-used-promos'],{stdio:'pipe'});
+  const protectedPlan=JSON.parse(fs.readFileSync(trashOutput));
+  assert.deepEqual(protectedPlan.messageIds,['<archived-promo@uber.com>']);
+  assert.equal(protectedPlan.keptArchivedReceipts,1);assert.equal(protectedPlan.keptUsedPromoSources,1);
+  assert.equal(protectedPlan.messageTargets[0].recipient,'account-c@icloud.com');
 
   const exporterSource = fs.readFileSync("mac/export-uber-mail.js", "utf8");
   const moverSource = fs.readFileSync("mac/move-inbox-receipts.js", "utf8");
@@ -132,11 +142,12 @@ try {
     const destinations = Array.from({ length: destinationCount }, () => ({
       name: () => "Bin", mailboxes: () => []
     }));
-    const account = { mailboxes: () => destinations };
-    const message = { messageId: () => "<routing-test>", mailbox: () => ({ account: () => account }) };
+    const account = { id:()=> 'synthetic-account',mailboxes: () => destinations };
+    const message = { messageId: () => "<routing-test>", mailbox: () => ({ account: () => account }),toRecipients:()=>[{address:()=> 'archived@example.test'}],source:()=> 'Message-ID: <routing-test>\nTo: archived@example.test\nFrom: offers@uber.com\n\nSynthetic unused offer'};
     const collection = [message];
     collection.messageId = () => ["<routing-test>"];
     collection.dateReceived = () => [new Date()];
+    collection.id = () => [123];collection.byId=()=>message;
     const moves = [];
     const context = vm.createContext({
       ObjC: { import() {} }, $: {},
@@ -146,13 +157,24 @@ try {
       })
     });
     vm.runInContext(trashSource.replace(/^#!.*\n/, ""), context);
-    context.readUtf8 = () => JSON.stringify({ messageIds: ["<routing-test>"] });
+    context.readUtf8 = () => JSON.stringify({ messageIds: ["<routing-test>"],messageTargets:[{messageId:'<routing-test>',recipient:'archived@example.test'}] });
     context.stderr = () => {};
     const result = JSON.parse(context.run(["fixture", "60"]));
     assert.equal(result.trashed, destinationCount === 1 ? 1 : 0);
     assert.equal(result.failed, destinationCount === 1 ? 0 : 1);
     assert.equal(moves.length, destinationCount === 1 ? 1 : 0);
     if (moves.length) assert.equal(moves[0].options.to, destinations[0]);
+    if(destinationCount===1){
+      moves.length=0;
+      const planned=JSON.parse(context.run(['fixture','60','--plan']));assert.equal(planned.planned,1);assert.equal(moves.length,0);
+      context.readUtf8=()=>JSON.stringify(planned);
+      assert.equal(JSON.parse(context.run(['fixture','60','--execute-verified-plan'])).trashed,1);
+      moves.length=0;
+      planned.inventory[0].raw+=' changed';
+      assert.equal(JSON.parse(context.run(['fixture','60','--execute-verified-plan'])).failed,1);assert.equal(moves.length,0);
+      context.readUtf8=()=>JSON.stringify({messageIds:['<routing-test>'],messageTargets:[{messageId:'<routing-test>',recipient:'accessible@example.test'}]});
+      assert.equal(JSON.parse(context.run(['fixture','60'])).trashed,0);assert.equal(moves.length,0,'A shared Message-ID cannot move another account’s mail');
+    }
   }
   const commonSource = fs.readFileSync("mac/common.sh", "utf8");
   const exampleEnv = fs.readFileSync("tracker.example.env", "utf8");
@@ -206,6 +228,7 @@ try {
 
   console.log("✓ Inbox routing separates available receipts from archived-account mail");
   console.log("✓ Archived-account receipts are planned for Bin only after private import");
+  console.log("✓ Protected routing keeps receipts and used promos; original-source plans and account-qualified identities prevent unrelated moves");
   console.log("✓ Mail exporter and routing avoid timeout-prone whose queries");
 } finally {
   fs.rmSync(dir, { recursive: true, force: true });

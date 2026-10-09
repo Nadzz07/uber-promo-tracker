@@ -1,17 +1,22 @@
 import { firstMatch, number, sourceSnippet } from "./utils.js";
 
+function firstInText(text, patterns) {
+  return patterns.map(pattern => text.match(pattern)).filter(Boolean)
+    .sort((a, b) => a.index - b.index)[0] || null;
+}
+
 export function extractOfferDetails(text) {
-  const uberCashMatch = firstMatch(text, [
+  const uberCashMatch = firstInText(text, [
     /£\s*(\d+(?:\.\d{1,2})?)\s+(?:in\s+)?uber\s+cash\b/i,
     /(?:get|receive|you\s+have)\s+£\s*(\d+(?:\.\d{1,2})?)\s+(?:in\s+)?uber\s+cash\b/i
   ]);
 
-  const percentMatch = firstMatch(text, [
+  const percentMatch = firstInText(text, [
     /(\d{1,3})\s*%\s*(?:off|discount)/i,
-    /(?:save|get)\s*(\d{1,3})\s*%/i
+    /\bsave\s*(\d{1,3})\s*%/i
   ]);
 
-  const fixedMatch = firstMatch(text, [
+  const fixedMatch = firstInText(text, [
     /£\s*(\d+(?:\.\d{1,2})?)\s*(?:off|discount)\b/i,
     /(?:save|get)\s*£\s*(\d+(?:\.\d{1,2})?)\s*(?:off|discount)\b/i
   ]);
@@ -46,18 +51,14 @@ export function extractOfferDetails(text) {
   let discount = null;
   let discountMatch = null;
 
-  if (uberCashMatch) {
-    discountType = "uberCash";
-    discount = number(uberCashMatch[1]);
-    discountMatch = uberCashMatch;
-  } else if (percentMatch) {
-    discountType = "percent";
-    discount = number(percentMatch[1]);
-    discountMatch = percentMatch;
-  } else if (fixedMatch) {
-    discountType = "fixed";
-    discount = number(fixedMatch[1]);
-    discountMatch = fixedMatch;
+  // A later membership benefit or Cash footer cannot overwrite the quantified
+  // offer in the headline. "Get 6% cashback" is earning, not 6% off an order.
+  const firstDiscount = [
+    ["uberCash", uberCashMatch], ["percent", percentMatch], ["fixed", fixedMatch]
+  ].filter(([, match]) => match).sort((a, b) => a[1].index - b[1].index)[0];
+  if (firstDiscount) {
+    [discountType, discountMatch] = firstDiscount;
+    discount = number(discountMatch[1]);
   }
 
   const uses = usesMatch ? number(usesMatch[1]) : 1;
@@ -91,6 +92,7 @@ export function extractOfferDetails(text) {
       ? codeMatch[1].toUpperCase() : null,
     evidence: {
       discount: sourceSnippet(text, discountMatch),
+      discountPosition: discountMatch?.index ?? null,
       minimumSpend: sourceSnippet(text, minimumSpendMatch),
       promoCode: sourceSnippet(text, codeMatch),
       uses: sourceSnippet(text, usesMatch),

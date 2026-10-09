@@ -3,7 +3,6 @@
 exclude:
   - .github
   - .gitignore
-  - AUDIT.md
   - README.md
   - access-list.js
   - account-id.js
@@ -26,8 +25,12 @@ exclude:
   - private-backup.js
   - receipt-identity.js
   - RELEASE.md
-  - UI_HANDOFF.md
   - test-ui.js
+  - test-cash.js
+  - test-service.js
+  - test-source-clocks.js
+  - test-dashboard-data.js
+  - test-nav-gestures.js
   - test-finalisation.js
   - private-db.js
   - processor-test.html
