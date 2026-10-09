@@ -138,43 +138,42 @@ try {
   const trashSource = fs.readFileSync("mac/trash-archived-inbox.js", "utf8");
   // Exercise the optional router without touching Mail: missing or ambiguous
   // recovery folders must leave the original message untouched.
-  for (const destinationCount of [0, 1, 2]) {
-    const destinations = Array.from({ length: destinationCount }, () => ({
-      name: () => "Bin", mailboxes: () => []
-    }));
-    const account = { id:()=> 'synthetic-account',mailboxes: () => destinations };
-    const message = { messageId: () => "<routing-test>", mailbox: () => ({ account: () => account }),toRecipients:()=>[{address:()=> 'archived@example.test'}],source:()=> 'Message-ID: <routing-test>\nTo: archived@example.test\nFrom: offers@uber.com\n\nSynthetic unused offer'};
-    const collection = [message];
-    collection.messageId = () => ["<routing-test>"];
-    collection.dateReceived = () => [new Date()];
-    collection.id = () => [123];collection.byId=()=>message;
-    const moves = [];
-    const context = vm.createContext({
-      ObjC: { import() {} }, $: {},
-      Application: () => ({ inbox: { messages: collection },
-        move: (msg, options) => moves.push({ msg, options }),
-        delete: () => { throw new Error("Permanent deletion is forbidden"); }
-      })
-    });
-    vm.runInContext(trashSource.replace(/^#!.*\n/, ""), context);
-    context.readUtf8 = () => JSON.stringify({ messageIds: ["<routing-test>"],messageTargets:[{messageId:'<routing-test>',recipient:'archived@example.test'}] });
-    context.stderr = () => {};
-    const result = JSON.parse(context.run(["fixture", "60"]));
-    assert.equal(result.trashed, destinationCount === 1 ? 1 : 0);
-    assert.equal(result.failed, destinationCount === 1 ? 0 : 1);
-    assert.equal(moves.length, destinationCount === 1 ? 1 : 0);
-    if (moves.length) assert.equal(moves[0].options.to, destinations[0]);
-    if(destinationCount===1){
-      moves.length=0;
-      const planned=JSON.parse(context.run(['fixture','60','--plan']));assert.equal(planned.planned,1);assert.equal(moves.length,0);
-      context.readUtf8=()=>JSON.stringify(planned);
-      assert.equal(JSON.parse(context.run(['fixture','60','--execute-verified-plan'])).trashed,1);
-      moves.length=0;
-      planned.inventory[0].raw+=' changed';
-      assert.equal(JSON.parse(context.run(['fixture','60','--execute-verified-plan'])).failed,1);assert.equal(moves.length,0);
-      context.readUtf8=()=>JSON.stringify({messageIds:['<routing-test>'],messageTargets:[{messageId:'<routing-test>',recipient:'accessible@example.test'}]});
-      assert.equal(JSON.parse(context.run(['fixture','60'])).trashed,0);assert.equal(moves.length,0,'A shared Message-ID cannot move another account’s mail');
-    }
+  for (const destinationCount of [0,1,2]) for (const wrongMove of [false,true]) {
+    let sourceIds=[123,124], binIds=[];
+    const raw='Message-ID: <routing-test>\nTo: archived@example.test\nFrom: offers@uber.com\n\nSynthetic unused offer';
+    const message={id:()=>123,messageId:()=>'<routing-test>',toRecipients:()=>[{address:()=> 'archived@example.test'}],source:()=>raw};
+    const recovered={...message,id:()=>900};
+    const bins=Array.from({length:destinationCount},()=>({name:()=> 'Bin',mailboxes:()=>[],messages:{id:()=>binIds.slice(),byId:()=>recovered}}));
+    const physicalCollection={id:()=>sourceIds.slice(),byId:()=>message};
+    const physicalInbox={name:()=> 'INBOX',mailboxes:()=>[],messages:physicalCollection};
+    const account={id:()=> 'synthetic-account',mailboxes:()=>[physicalInbox,...bins]};
+    message.mailbox=()=>({account:()=>account});
+    const discovery={messageId:()=> '<routing-test>',mailbox:()=>({account:()=>account})};
+    const virtual={messageId:()=>['<routing-test>'],dateReceived:()=>[new Date()],id:()=>[123],byId:()=>discovery};
+    const moves=[];
+    const context=vm.createContext({ObjC:{import(){}},$:{},delay(){},Application:()=>({inbox:{messages:virtual},accounts:{byId:()=>account},move:(msg,options)=>{
+      assert.equal(msg,message,'Mutations must use a newly resolved physical reference, never the unified Inbox discovery object');
+      moves.push({msg,options});sourceIds=sourceIds.filter(id=>id!==(wrongMove?124:123));binIds.push(900);
+    },delete:()=>{throw Error('Permanent deletion forbidden');}})});
+    vm.runInContext(trashSource.replace(/^#!.*\n/,''),context);context.stderr=()=>{};
+    const targets={messageIds:['<routing-test>'],messageTargets:[{messageId:'<routing-test>',recipient:'archived@example.test'}]};
+    context.readUtf8=()=>JSON.stringify(targets);
+    assert.throws(()=>context.run(['fixture','60']),/original-source plan/);
+    const planned=JSON.parse(context.run(['fixture','60','--plan']));
+    assert.equal(moves.length,0);
+    if(destinationCount!==1){assert.equal(planned.failed,1);continue;}
+    assert.equal(planned.planned,1);
+    context.readUtf8=()=>JSON.stringify(planned);
+    const result=JSON.parse(context.run(['fixture','60','--execute-verified-plan']));
+    assert.equal(result.trashed,wrongMove?0:1);
+    assert.equal(result.halted,wrongMove);
+    assert.equal(result.failed,wrongMove?1:0);
+    if(wrongMove)assert.equal(result.movedTargets.length,0,'A neighbouring move must never be reported as a verified target move');
+    sourceIds=[123,124];binIds=[];moves.length=0;
+    planned.inventory[0].raw+=' changed';
+    assert.equal(JSON.parse(context.run(['fixture','60','--execute-verified-plan'])).failed,1);assert.equal(moves.length,0);
+    context.readUtf8=()=>JSON.stringify({...targets,messageTargets:[{messageId:'<routing-test>',recipient:'accessible@example.test'}]});
+    assert.equal(JSON.parse(context.run(['fixture','60','--plan'])).planned,0);assert.equal(moves.length,0);
   }
   const commonSource = fs.readFileSync("mac/common.sh", "utf8");
   const exampleEnv = fs.readFileSync("tracker.example.env", "utf8");

@@ -18,9 +18,10 @@ ellipsis and are never uploaded.
 - **Used:** five unique Eats receipts, or at least one Eats plus one Ride receipt.
   Lime journeys are included in Rides. Used and Archived accounts are excluded
   from recommendations.
-- **Not finished:** accessible accounts with incomplete receipt usage or offers
-  left to use. One remaining use still belongs here. Receipt completion and
-  individual offer use are separate.
+- **Not finished:** accessible accounts with a started, current promo that has
+  uses remaining. For example, 3 of 5 used leaves 2; 4 of 5 leaves 1. Unused
+  and expired offers do not enter this section. Lifetime receipt completion
+  remains separate from individual offer progress.
 
 Available, Expired, Fully used, Needs checking, manually done and ignored offers
 remain distinct. Manual offer changes are browser-local. Duplicate receipt
@@ -46,8 +47,11 @@ The mobile navigation supports tapping and held-finger sliding. Reduced motion,
 keyboard access, dialog focus and local preferences are supported.
 
 The website shows an imported snapshot. **Up to date** means a successful Mail
-scan within two hours; **Stale**, **Snapshot**, **Syncing** and **Attention** reflect
-the actual known scan state. Snapshot preparation is separate from Mail scan time.
+scan within two hours; **Update due**, **Snapshot**, **Syncing** and **Attention** reflect
+the actual known scan state. Update due means the last import is over two hours
+old. The status opens Sync & data; a gentle pulse represents a current import.
+Snapshot preparation is separate from Mail scan time. Expiry counts refresh
+while the page is open, including open account details.
 
 ## Private Mac setup
 
@@ -88,8 +92,10 @@ Archived / Can't log in routing to recoverable Bin/Trash exists as an optional
 utility with additional explicit opt-ins. It is disabled by the read-only safety
 switch. With `APPLE_MAIL_ARCHIVED_KEEP_EVIDENCE=true`, routing keeps receipts and
 confirmed or uncertain used-promo evidence. Account-qualified Message-IDs prevent
-moving another account's copy. A read-only `--plan` can retain original sources
-before an `--execute-verified-plan` move; changed sources fail closed. Preview
+moving another account's copy. A read-only `--plan` must retain original sources
+before an `--execute-verified-plan` move. Mutations use a newly resolved physical
+account Inbox rather than the unified Inbox. Every move verifies the exact
+removed object and recoverable original; any discrepancy halts further routing. Preview
 never routes messages. Mail movement requires its own explicit authorization;
 validation and interface work do not require it. Bin is never emptied.
 

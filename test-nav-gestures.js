@@ -60,6 +60,8 @@ try {
   const dispatch = async (type, position, view = 'home', extra = {}) => page.evaluate(({ type, position, view, extra }) => window.replayPointer(type, { ...position, ...extra }, view), { type, position, view, extra });
   const selections = () => page.evaluate(() => window.selected);
   const reset = () => page.evaluate(() => window.resetNavigation());
+  // Mobile viewport setup can emit a delayed resize, which intentionally cancels gestures.
+  await page.waitForTimeout(250);
   const home = await center('home'), more = await center('more');
 
   // The previous button===0 guard rejected this touch sequence before dragging began.
@@ -69,6 +71,7 @@ try {
   await dispatch('pointermove', more);
   assert.equal(await page.locator('#mainNav').evaluate(nav => nav.classList.contains('dragging')), true);
   assert.deepEqual(await selections(), [], 'Scrubbing previews the capsule without switching views before release');
+  await page.waitForFunction(() => { const a=document.querySelector('.nav-glider').getBoundingClientRect(),b=document.querySelector('[data-view="more"]').getBoundingClientRect(); return Math.abs(a.left-b.left)<1; });
   const followsFinger = await page.locator('#mainNav').evaluate(nav => {
     const glider = nav.querySelector('.nav-glider').getBoundingClientRect(), target = nav.querySelector('[data-view="more"]').getBoundingClientRect();
     return Math.abs(glider.left - target.left) < 1;

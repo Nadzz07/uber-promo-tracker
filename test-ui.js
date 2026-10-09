@@ -26,20 +26,12 @@ test('Layout selection overrides screen size while Auto follows the responsive b
   assert.equal(resolveLayout('mobile', 1920), 'mobile'); assert.equal(resolveLayout('desktop', 320), 'desktop');
 });
 
-test('Unfinished follows account receipt completion, including one use left, no offers and expired offers', () => {
-  for (const account of [
-    { canLogin: true, orderCount: 0, rideCount: 0 },
-    { canLogin: true, orderCount: 4, rideCount: 0, usesRemaining: 1 },
-    { canLogin: true, orderCount: 0, rideCount: 1, accountState: 'expired' },
-    { canLogin: true, orderCount: 2, rideCount: 0, accountState: 'fully_used' },
-    { canLogin: true, orderCount: 4, rideCount: 1, activePromoCount: 1, usesRemaining: 1 },
-    { canLogin: true, orderCount: 5, rideCount: 0, activePromoCount: 1 }
-  ]) assert.equal(accountUnfinished(account), true);
-  for (const account of [
-    { canLogin: false, orderCount: 0, rideCount: 0 },
-    { canLogin: true, orderCount: 5, rideCount: 0 },
-    { canLogin: true, orderCount: 1, rideCount: 1 }
-  ]) assert.equal(accountUnfinished(account), false);
+test('Not finished includes only started live promos, including one use left, without borrowing lifetime receipts', () => {
+  const live = { service:'Uber Eats', trackingState:'available', uses:5, usesRemaining:2, emailSentAt:time, expiresAt:'2026-10-20T12:00:00Z' };
+  for (const remaining of [1,2,4]) assert.equal(accountUnfinished({canLogin:true,orderCount:5,promos:[{...live,usesRemaining:remaining}]},undefined,Date.parse(time)),true);
+  for (const promo of [{...live,usesRemaining:5},{...live,usesRemaining:0},{...live,trackingState:'ignored'},{...live,trackingState:'needs_checking'},{...live,expiresAt:'2026-10-07T12:00:00Z'}]) assert.equal(accountUnfinished({canLogin:true,orderCount:4,promos:[promo]},undefined,Date.parse(time)),false);
+  assert.equal(accountUnfinished({canLogin:false,promos:[live]},undefined,Date.parse(time)),false);
+  assert.equal(accountUnfinished({canLogin:true,orderCount:4,rideCount:0}),false);
   assert.match(accountProgressDescription({orderCount:4,rideCount:0}), /4 of 5 Eats.*1 more Eats receipt/);
   assert.match(accountProgressDescription({orderCount:0,rideCount:1}), /One Eats receipt/);
   assert.match(accountProgressDescription({orderCount:4,rideCount:1,activePromoCount:1}), /Usage complete.*1 offer is still available/);

@@ -345,3 +345,77 @@ html[data-layout="desktop"] .bottom-nav {
 }
 
 .account-primary:disabled { opacity: .4; cursor: default; box-shadow: none; }
+
+/* Natural panel heights, one disclosure, and comparable labelled chart rows. */
+.home-analytics, html[data-layout="desktop"] .home-analytics { display: block; }
+.insights-disclosure > summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 0; min-height: 48px; color: var(--text); cursor: pointer; font-size: 14px; font-weight: 650; }
+.insights-disclosure > summary::before { content: '›'; color: var(--muted); transform: rotate(0); transition: transform .18s; }
+.insights-disclosure[open] > summary::before { transform: rotate(90deg); }
+.insights-disclosure > summary > span:first-child { flex: 1; }
+.insights-disclosure > summary > span:last-child { color: var(--muted); font-size: 12px; font-weight: 450; text-align: right; }
+.insights-panels { display: grid; grid-template-columns: 1fr; align-items: start; gap: 18px; }
+.analytics-panel { padding: 20px; }
+.analytics-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 14px; margin-bottom: 18px; }
+.analytics-heading h2 { margin: 0; font-size: 15px; font-weight: 650; }
+.analytics-heading > span { font-size: 11px; color: var(--dim); }
+.monthly-chart { display: grid; gap: 16px; }
+.monthly-row { display: grid; grid-template-columns: 66px minmax(0,1fr) 70px; align-items: center; gap: 12px; }
+.monthly-label strong { display: block; font-size: 12px; font-weight: 600; }
+.monthly-label span { display: block; margin-top: 3px; color: var(--dim); font-size: 10px; }
+.monthly-track { height: 12px; overflow: hidden; border-radius: 5px; background: rgba(255,255,255,.055); }
+.monthly-track > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,rgba(var(--accent-rgb),.4),rgba(var(--accent-rgb),.78)); }
+.monthly-value { text-align: right; font-size: 12px; font-weight: 600; }
+.chart-insight { margin: 20px 0 0; padding-top: 16px; border-top: 1px solid var(--line-soft); font-size: 12px; line-height: 1.55; }
+.chart-insight strong, .chart-insight span { display: block; }
+.chart-insight span { margin-top: 5px; color: var(--muted); font-size: 11px; }
+.analytics-panel > .advanced-btn { margin-top: 16px; min-height: 44px; }
+#homeAccounts > .ghost-btn { width: fit-content; justify-self: center; min-height: 46px; padding: 12px 22px; margin-top: 4px; font-size: 13px; }
+.account-list > .empty { grid-column: 1 / -1; }
+#weakWrap { display: none !important; }
+.offer-history { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+.offer-history > summary { min-height: 44px; font-size: 13px; cursor: pointer; color: var(--muted); font-weight: 600; }
+.offers-section > .offer-card + .offer-card { margin-top: 14px; }
+.past-offer { margin-top: 10px; border: 1px solid var(--line-soft); border-radius: 14px; padding: 0 14px; }
+.past-offer > summary { display: flex; justify-content: space-between; gap: 16px; min-height: 50px; align-items: center; cursor: pointer; font-size: 12px; }
+.past-offer > summary > span:last-child { color: var(--dim); font-size: 11px; }
+.past-offer > .offer-card { margin-bottom: 14px; }
+.offer-history > .ghost-btn, .activity-list > .ghost-btn { min-height: 44px; margin: 14px; padding: 10px 16px; }
+.offer-card .setting-note { margin-top: 12px; margin-bottom: 12px; }
+.offer-more { margin-top: 12px; }
+.offer-actions { margin-top: 14px; }
+.progress-track { margin-top: 8px; }
+.scan-pill { font-family: inherit; cursor: pointer; min-height: 34px; border: 1px solid var(--line); }
+.scan-pill.live .scan-dot { box-shadow: 0 0 10px rgba(var(--accent-rgb),.55); animation: sync-glow 3s ease-in-out infinite; }
+@keyframes sync-glow { 0%,100% { opacity: .7; box-shadow: 0 0 5px rgba(var(--accent-rgb),.3); } 50% { opacity: 1; box-shadow: 0 0 12px rgba(var(--accent-rgb),.65); } }
+.activity-summary { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.activity-card { padding: 16px; min-height: 90px; }
+.activity-card span { font-size: 12px; }
+.activity-card strong { font-size: 26px; }
+.activity-section .empty { min-height: 0; padding: 16px 20px; border: 0; text-align: left; font-size: 12px; }
+.activity-history { padding: 16px; border: 1px solid var(--line); border-radius: 18px; }
+.activity-history > summary { cursor: pointer; font-size: 13px; font-weight: 600; min-height: 30px; }
+.activity-history[open] > .activity-list { margin-top: 14px; }
+#view-used .screen-head { max-width: 760px; }
+#view-used .activity-section { max-width: none; }
+@media (min-width: 980px) {
+  html[data-layout="desktop"] .insights-panels { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  html[data-layout="desktop"] .home-workspace { align-items: start; margin-top: 22px; }
+  html[data-layout="desktop"] .home-workspace .section-head { margin-top: 0; }
+  html[data-layout="desktop"] .activity-summary { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  html[data-layout="desktop"] #homeAccounts[data-count="1"] { grid-template-columns: minmax(0,1fr); }
+  html[data-layout="desktop"] #homeAccounts[data-count="2"] { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  html[data-layout="desktop"] #homeAccounts[data-count="1"] .account-card { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: 12px 24px; align-items: start; }
+  html[data-layout="desktop"] #homeAccounts[data-count="1"] .account-top { grid-row: 1 / 3; }
+  html[data-layout="desktop"] #homeAccounts[data-count="1"] .pill-row { margin: 0; }
+  html[data-layout="desktop"] #homeAccounts[data-count="1"] .account-progress-note { margin: 0; }
+  html[data-layout="desktop"] #homeAccounts[data-count="1"] .account-actions { grid-column: 1 / -1; margin-top: 2px; }
+  html[data-layout="desktop"] .quick-card { min-height: 92px; padding: 16px; }
+  html[data-layout="desktop"] .quick-title { font-size: 14px; }
+  html[data-layout="desktop"] .quick-count { font-size: 12px; }
+  html[data-layout="desktop"] .quick-card .quick-sub { display: block; margin-top: 6px; font-size: 11px; line-height: 1.45; }
+  html[data-layout="desktop"] .screen-copy { font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+ .scan-pill .scan-dot { animation: none !important; }
+ .insights-disclosure > summary::before { transition: none; }
+}
