@@ -117,8 +117,14 @@ file_imported_receipts() {
   fi
 
   if [[ "$TRASH_ARCHIVED_MAIL" == true ]]; then
-    if ! osascript -l JavaScript mac/trash-archived-inbox.js "$TMP_DIR/archived-trash.json" "$PROMO_DAYS" > "$audit_dir/bin-result.local.json"; then
-      echo "Archived-account Bin routing failed; imported data is safe and affected messages remain in Inbox." >&2
+    if ! osascript -l JavaScript mac/trash-archived-inbox.js "$TMP_DIR/archived-trash.json" "$PROMO_DAYS" --plan "$audit_dir/bin-originals.local.json" > "$audit_dir/bin-plan-result.local.json"; then
+      echo "Original-source routing plan failed; no Bin routing was performed." >&2
+      return 1
     fi
+    if ! osascript -l JavaScript mac/trash-archived-inbox.js "$audit_dir/bin-originals.local.json" "$PROMO_DAYS" --execute-verified-plan > "$audit_dir/bin-result.local.json"; then
+      echo "Archived-account Bin routing failed; reconcile the retained plan and mailbox contents before retrying." >&2
+      return 1
+    fi
+    node -e 'const fs=require("fs"),r=JSON.parse(fs.readFileSync(process.argv[1])); if(r.failed || r.halted) { console.error("Mail routing halted; inspect the private result before retrying."); process.exit(1); }' "$audit_dir/bin-result.local.json"
   fi
 }

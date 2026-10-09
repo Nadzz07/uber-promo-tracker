@@ -2332,10 +2332,10 @@
         <div class="brand-title">Promo Tracker</div>
       </div>
       <div class="scan-wrap">
-        <div id="scanPill" class="scan-pill">
+        <button id="scanPill" class="scan-pill" type="button" data-open-sheet="health" aria-label="View sync status">
           <span class="scan-dot"></span>
           <span id="scanLabel">OPENING</span>
-        </div>
+        </button>
         <div id="scanTime" class="scan-time">Loading your data…</div>
       </div>
     </header>
@@ -2458,11 +2458,11 @@
           </button>
           <button class="quick-card" data-intent="cash">
             <div class="quick-top"><span class="quick-icon">£</span><span id="cashCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">Uber Cash</div><div class="quick-sub">Current offers and history. Check your wallet in Uber.</div></div>
+            <div><div class="quick-title">Uber Cash</div><div class="quick-sub">Current email offers. Confirm your wallet balance in Uber.</div></div>
           </button>
           <button class="quick-card" data-intent="unfinished">
             <div class="quick-top"><span class="quick-icon" aria-hidden="true">↻</span><span id="unfinishedCount" class="quick-count">0 accounts</span></div>
-            <div><div class="quick-title">Not finished</div><div class="quick-sub">Unused or partly used accounts, including any offers left to use.</div></div>
+            <div><div class="quick-title">Not finished</div><div class="quick-sub">Started promos with at least one use remaining.</div></div>
           </button>
           <button class="quick-card" data-intent="cash-promo">
             <div class="quick-top"><span class="quick-icon" aria-hidden="true">£+</span><span id="cashPromoCount" class="quick-count">0 accounts</span></div>
@@ -2521,15 +2521,15 @@
       <section id="view-used" class="view">
         <div class="screen-head">
           <div class="eyebrow">Activity & state</div>
-          <h1 class="screen-title">Used, done & expired.</h1>
-          <div class="screen-copy">A promo with orders remaining stays available after you use one order. Offer usage, expiry and account usage are separate. An expired offer is never receipt-confirmed as used.</div>
+          <h1 class="screen-title">Promo activity</h1>
+          <div class="screen-copy">Started promos with uses left appear in Not finished. These figures track individual offers; lifetime receipts and account completion are shown in Accounts and Receipts.</div>
         </div>
 
         <div class="activity-summary">
-          <div class="activity-card"><span>Recent uses</span><strong id="recentUseCount">0</strong></div>
+          <div class="activity-card"><span>Promos in progress</span><strong id="recentUseCount">0</strong></div>
           <div class="activity-card"><span>Fully used</span><strong id="fullyUsedCount">0</strong></div>
           <div class="activity-card"><span>Expired</span><strong id="expiredCount">0</strong></div>
-          <div class="activity-card"><span>Needs check</span><strong id="needsCheckCount">0</strong></div>
+          <div class="activity-card"><span>Needs checking</span><strong id="needsCheckCount">0</strong></div>
         </div>
 
         <div id="needsCheckingSection" class="activity-section">
@@ -2538,7 +2538,7 @@
         </div>
 
         <div id="recentActivitySection" class="activity-section">
-          <div class="activity-title">Recent / partial usage</div>
+          <div class="activity-title">Not finished · uses remaining</div>
           <div id="recentActivity" class="activity-list"></div>
         </div>
 
@@ -2547,10 +2547,10 @@
           <div id="fullyUsedList" class="activity-list"></div>
         </div>
 
-        <div id="expiredSection" class="activity-section">
-          <div class="activity-title">Expired</div>
+        <details id="expiredSection" class="activity-section activity-history">
+          <summary>Expired offers · history only</summary>
           <div id="expiredList" class="activity-list"></div>
-        </div>
+        </details>
 
         <div id="ignoredSection" class="activity-section">
           <div class="activity-title">Ignored offers</div>
@@ -2629,8 +2629,8 @@
     import { THEME_KEY, DEFAULT_COLOUR, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
     import { setupDraggableNavigation } from "./nav-gestures.js";
     import { DEVICE_ACCOUNTS_KEY, parseDeviceAccounts, deviceEmail } from "./device-accounts.js";
-    import { classifyAccount, accountStatusLabel, accountUsageDescription, accountUnfinished, accountProgressDescription } from "./account-state.js";
-    import { syncState } from "./dashboard-data.js";
+    import { classifyAccount, accountStatusLabel, accountUsageDescription, accountUnfinished, accountProgressDescription, offerInProgress } from "./account-state.js";
+    import { syncState, offerCountdown } from "./dashboard-data.js";
     import { classifyOfferTrackingState } from "./offer-state.js";
     import { isOfferExpired, expiryEndTime, applyOfferExpiryPolicy } from "./offer-time.js";
     import {
@@ -2675,6 +2675,9 @@
     let plannerSettings = readPlannerSettings();
     let openSheetType = null;
     let openAccountRef = null;
+    let expiredDisplayLimit = 50;
+    let accountHistoryLimit = 30;
+    let accountSheetClock = null;
     let deviceAccounts = readDeviceAccounts();
     let themeColour = readThemeColour();
     let layoutPreference = readLayoutPreference();
@@ -2873,7 +2876,7 @@
 
     function isExpiringSoon(promo) {
       const expiry = expiryEndTime(promo);
-      return expiry != null && expiry > Date.now() && expiry - Date.now() <= 3 * 86400000;
+      return expiry != null && expiry > Date.now() && expiry - Date.now() <= 7 * 86400000;
     }
 
     function accountDisplay(value) {
@@ -2920,6 +2923,7 @@
         if (date) {
           const instant = expiryEndTime(promo);
           const clock = instant == null ? "" : new Date(instant).toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" });
+          bits.push(offerCountdown(promo));
           bits.push((promo.expiryStatus === "estimated" ? "Estimated end " : "Ends ") + date + (clock ? " at " + clock + " UK" : ""));
           if (promo.expiryBasis === "tracker_35_day_rule") bits.push("35-day tracking limit from the first offer email; confirm activation and expiry in Uber");
         }
@@ -3030,21 +3034,21 @@
 
     function homeAccountsByIntent() {
       let list = currentIntent === "unfinished"
-        ? enrichedLoginAccounts().filter(accountUnfinished)
+        ? enrichedLoginAccounts().filter(account => accountUnfinished(account))
         : ["cash", "cash-promo"].includes(currentIntent)
           ? enrichedLoginAccounts().filter(account => account.promoCount > 0)
           : enrichedAvailableAccounts().filter(account => account.promoCount > 0);
 
       if (currentIntent === "cash") {
-        list = enrichedLoginAccounts().filter(account => account.cashHistory.length > 0);
+        list = enrichedLoginAccounts().filter(account => account.hasCash);
       }
 
       if (currentIntent === "15off15") {
         list = list.filter(account => account.has15off15);
       } else if (currentIntent === "cash") {
-        list = list.filter(account => account.cashHistory.length > 0);
+        list = list.filter(account => account.hasCash);
       } else if (currentIntent === "unfinished") {
-        list = list.filter(accountUnfinished);
+        list = list.filter(account => accountUnfinished(account));
       } else if (currentIntent === "cash-promo") {
         list = list.filter(account => account.hasCashAndPromo);
       }
@@ -3152,12 +3156,14 @@
       const generated = new Date(payload.sync?.lastSuccessfulMailScanAt || payload.generatedAt || '');
       pill.classList.add(state.className);
       label.textContent = state.label;
-      pill.title = 'Imported snapshot. Last successful Mail scan shown below; this website is not a continuous live feed.';
+      pill.title = state.className === 'stale' ? 'Update due: the last successful Mail import is over two hours old. Open Sync & data for details.' : 'Last successful Mail import shown below. This is an imported snapshot, with expiry checked as time passes.';
+      pill.setAttribute('aria-label', state.label + '. ' + pill.title);
       time.textContent =
         generated && !Number.isNaN(generated.getTime())
           ? generated.toLocaleString("en-GB", {
               day: "numeric",
               month: "short",
+              timeZone: "Europe/London",
               hour: "2-digit",
               minute: "2-digit"
             })
@@ -3187,10 +3193,8 @@
       if (availableSub) {
         availableSub.textContent =
           availableAccounts === 0
-            ? "none available"
-            : lowAvailability
-              ? "running low"
-              : "ready to use";
+            ? "no usable offers now"
+            : "with usable offers now";
       }
 
       const fee = effectiveFee();
@@ -3293,7 +3297,9 @@
       if (current.some(is15off15)) pills.push('<span class="pill">£15 off £15</span>');
       if (current.some(promo => promo.discountType === "uberCash")) pills.push('<span class="pill">Cash offer · wallet unverified</span>');
 
-      const multi = current.find(promo => Number(promo.uses || 1) > 1);
+      const multi = current.find(promo => offerInProgress(promo)) || current.find(promo => Number(promo.uses || 1) > 1);
+      const ending = current.slice().sort((a,b)=>(expiryEndTime(a)??Infinity)-(expiryEndTime(b)??Infinity))[0];
+      if (ending) pills.push('<span class="pill expiry-pill' + (isExpiringSoon(ending) ? ' warn' : '') + '">' + escapeHtml(offerCountdown(ending) + ' · ' + formatDate(new Date(expiryEndTime(ending)).toISOString())) + '</span>');
       if (multi) pills.push(offerUsePill(multi));
 
       if (current.length > 1) pills.push('<span class="pill">' + current.length + ' promos available</span>');
@@ -3342,18 +3348,19 @@
       setAnimatedText("bestCount", list.length);
       setAnimatedText("fifteenCount", list.filter(account => account.has15off15).length);
       setAnimatedText("cashCount", enrichedLoginAccounts().filter(account => account.hasCash).length + " current");
-      const unfinished = enrichedLoginAccounts().filter(accountUnfinished).length;
+      const unfinished = enrichedLoginAccounts().filter(account => accountUnfinished(account)).length;
       const cashAndPromo = enrichedLoginAccounts().filter(account => account.hasCashAndPromo).length;
       setAnimatedText("unfinishedCount", unfinished + (unfinished === 1 ? " account" : " accounts"));
       setAnimatedText("cashPromoCount", cashAndPromo + (cashAndPromo === 1 ? " account" : " accounts"));
     }
 
     function renderHomeAccounts() {
-      const previewLimit = document.documentElement.dataset.layout === 'mobile' ? 3 : 8;
+      const previewLimit = document.documentElement.dataset.layout === 'mobile' ? 3 : 9;
       const all = homeAccountsByIntent();
       const strongest = all[0] || null;
-      const weak = all.filter(account => weakAccount(account, strongest));
-      const strong = all.filter(account => !weakAccount(account, strongest));
+      const weak = [];
+      const strong = all;
+      document.getElementById("homeAccounts").dataset.count = Math.min(strong.length, previewLimit);
 
       const names = {
         best: "Best deal",
@@ -3366,13 +3373,13 @@
       document.getElementById("accountsKicker").textContent = names[currentIntent];
       document.getElementById("homeAccountMeta").textContent =
         all.length + (currentIntent === "unfinished" ? (all.length === 1 ? " unfinished account" : " unfinished accounts") : ["cash", "cash-promo"].includes(currentIntent) ? (all.length === 1 ? " account with offers" : " accounts with offers") : (all.length === 1 ? " available account" : " available accounts"));
-      document.getElementById("homeAccountsTitle").textContent = currentIntent === "unfinished" ? "Accounts not finished" : currentIntent === "cash" ? "Cash offers & history" : currentIntent === "cash-promo" ? "Cash & discount offers" : "Best accounts now";
+      document.getElementById("homeAccountsTitle").textContent = currentIntent === "unfinished" ? "Promos in progress" : currentIntent === "cash" ? "Current Cash offers" : currentIntent === "cash-promo" ? "Cash & discount offers" : "Best accounts now";
 
       document.getElementById("homeAccounts").innerHTML =
         strong.length
           ? strong.slice(0, previewLimit).map((account, index) => accountCard(account, index, currentIntent)).join("") +
-            (strong.length > previewLimit ? '<button class="ghost-btn" data-jump-accounts="true" data-target-filter="' + (currentIntent === "unfinished" ? 'unfinished' : ["cash", "cash-promo"].includes(currentIntent) ? currentIntent : 'offers') + '">View all ' + strong.length + ' accounts</button>' : '')
-          : '<div class="empty">No account matches this category right now.</div>';
+            (strong.length > previewLimit ? '<button class="ghost-btn" data-jump-accounts="true" data-target-filter="' + (currentIntent === "unfinished" ? 'unfinished' : ["cash", "cash-promo"].includes(currentIntent) ? currentIntent : 'offers') + '">View all ' + strong.length + ' accounts ›</button>' : '')
+          : '<div class="empty">' + (currentIntent === 'unfinished' ? 'No started promos with uses left. Unused offers are in Best deal; expired offers stay in History.' : 'No account matches this category right now.') + '</div>';
 
       const wrap = document.getElementById("weakWrap");
       wrap.style.display = weak.length ? "block" : "none";
@@ -3393,8 +3400,8 @@
       if (accountFilter === "review") list = list.filter(account => account.accountState === "needs_checking");
       if (accountFilter === "expired") list = list.filter(account => account.accountState === "expired");
       if (accountFilter === "offers") list = list.filter(account => account.recommendationEligible && account.promoCount > 0);
-      if (accountFilter === "cash") list = list.filter(account => account.cashHistory.length > 0);
-      if (accountFilter === "unfinished") list = list.filter(accountUnfinished);
+      if (accountFilter === "cash") list = list.filter(account => account.hasCash);
+      if (accountFilter === "unfinished") list = list.filter(account => accountUnfinished(account));
       if (accountFilter === "cash-promo") list = list.filter(account => account.hasCashAndPromo);
       if (accountFilter === "expiring") {
         list = list.filter(account =>
@@ -3477,7 +3484,7 @@
           continue;
         }
 
-        if (confirmed > 0 || activity.pendingManualUses > 0) {
+        if (promo.canLogin && remaining > 0 && (confirmed > 0 || activity.pendingManualUses > 0)) {
           recent.push(promo);
         }
       }
@@ -3522,7 +3529,7 @@
       }).join("");
 
       document.getElementById("recentActivity").innerHTML =
-        renderRecent || '<div class="empty">No partial-use activity yet.</div>';
+        renderRecent || '<div class="empty">No started promos with uses remaining.</div>';
 
       document.getElementById("fullyUsedList").innerHTML =
         fullyUsed.length
@@ -3545,7 +3552,7 @@
           : '<div class="empty">No fully used offers yet.</div>';
 
       document.getElementById("expiredList").innerHTML = expired.length
-        ? expired.map(promo => activityRow(promo, (promo.title || promoLabel(promo)) + ' · expired · ' + effectiveRemainingUses(manualStore, promo) + ' unused', '<span class="pill warn">Expired</span>')).join('')
+        ? expired.slice(0, expiredDisplayLimit).map(promo => activityRow(promo, (promo.title || promoLabel(promo)) + ' · expired · ' + effectiveRemainingUses(manualStore, promo) + ' unused', '<span class="pill warn">Expired</span>')).join('') + (expired.length > expiredDisplayLimit ? '<button class="ghost-btn" data-more-expired="true">Show 50 more expired offers</button>' : '')
         : '<div class="empty">No expired offers.</div>';
 
       document.getElementById("ignoredList").innerHTML =
@@ -3712,10 +3719,15 @@
 
       openSheetType = "account";
       openAccountRef = accountRef;
+      accountHistoryLimit = 30;
 
       setSheetHeading("Account", account.canLogin ? "Choose an offer or log a use." : "Receipt and savings history for an unavailable account.");
       renderAccountSheet();
       showSheet();
+    }
+
+    function accountSheetClockKey() {
+      return allPromosForAccount(openAccountRef).map(p => promoStateKey(p) + '|' + offerCountdown(p)).join(';');
     }
 
     function renderAccountSheet() {
@@ -3734,6 +3746,10 @@
         });
 
       const liveItems = items.filter(isPromoActive);
+      const reviewItems = items.filter(p => !isExpired(p) && p.trackingState === 'needs_checking' && effectivePromoState(manualStore,p) !== 'ignored');
+      const historicItems = items.filter(p => !liveItems.includes(p) && !reviewItems.includes(p));
+      accountSheetClock = accountSheetClockKey();
+      const historyOpen = document.querySelector('#accountOfferHistory')?.open || false;
       const best = bestForAccount(account);
       const bestSaving = Number(best?.calculation?.saving || 0);
 
@@ -3764,10 +3780,10 @@
           '</div>' +
         '</div>' +
         '<div class="sheet-section offers-section">' +
-          '<div class="sheet-section-title">' + (account.canLogin ? 'Offers on this account' : 'Offer history · account unavailable') + '</div>' +
-          (items.length
-            ? items.map(offerSheetCard).join("")
-            : '<div class="empty">No offers stored for this account.</div>') +
+          '<div class="sheet-section-title">' + (account.canLogin ? 'Current offers' : 'Account unavailable') + '</div>' +
+          (account.canLogin && liveItems.length ? liveItems.map(offerSheetCard).join('') : '<div class="empty">' + (account.canLogin ? 'No usable offers right now. Expired and completed offers are kept below.' : 'Historical offers cannot be used on this account.') + '</div>') +
+          (account.canLogin && reviewItems.length ? '<details class="offer-history"><summary>Terms need checking · ' + reviewItems.length + '</summary>' + reviewItems.map(offerSheetCard).join('') + '</details>' : '') +
+          (historicItems.length || !account.canLogin && items.length ? '<details id="accountOfferHistory" class="offer-history"' + (historyOpen ? ' open' : '') + '><summary>Past, completed &amp; ignored offers · ' + (account.canLogin ? historicItems.length : items.length) + '</summary><p class="sheet-help">History is preserved and excluded from current opportunities.</p>' + (account.canLogin ? historicItems : items).slice(0,accountHistoryLimit).map(p => '<details class="past-offer"><summary><span>' + escapeHtml(p.title || promoLabel(p)) + '</span><span>' + escapeHtml(isExpired(p) ? 'Expired' : effectivePromoState(manualStore,p) === 'ignored' ? 'Ignored' : 'Completed') + '</span></summary>' + offerSheetCard(p) + '</details>').join('') + ((account.canLogin ? historicItems.length : items.length) > accountHistoryLimit ? '<button class="ghost-btn" data-more-account-history="true">Show 30 more historical offers</button>' : '') + '</details>' : '') +
         '</div>';
 
       document.getElementById("sheetBody").innerHTML = body;
@@ -3938,13 +3954,19 @@
 
     function renderHomeAnalytics() {
       const target = document.getElementById('homeAnalytics');
+      const previous = target.querySelector('.insights-disclosure');
+      const expanded = previous ? previous.open : document.documentElement.dataset.layout === 'desktop';
       const months = (payload.receiptActivity?.months || []).slice(-6);
       const maximum = Math.max(1,...months.map(r=>Number(r.saved)));
-      const chart = months.length ? '<div class="savings-bars" role="img" aria-label="Confirmed savings by month">' + months.map(row=>
-        '<div class="savings-bar-column"><span class="savings-bar-value">' + escapeHtml(money(row.saved)) + '</span><div class="savings-bar-track"><span style="height:' + Math.max(2,Number(row.saved)/maximum*100) + '%"></span></div><span>' + escapeHtml(new Date(row.period+'-01T12:00:00Z').toLocaleString('en-GB',{month:'short',year:'2-digit'})) + '</span></div>'
+      const total = months.reduce((sum,r)=>sum + Number(r.saved),0);
+      const receiptCount = months.reduce((sum,r)=>sum + Number(r.eats) + Number(r.rides),0);
+      const peak = months.reduce((best,row)=>!best || Number(row.saved)>Number(best.saved) ? row : best,null);
+      const monthLabel = row => new Date(row.period+'-01T12:00:00Z').toLocaleString('en-GB',{month:'short',year:'2-digit'});
+      const chart = months.length ? '<div class="monthly-chart" aria-label="Confirmed savings by month">' + months.map(row=>
+        '<div class="monthly-row"><div class="monthly-label"><strong>' + escapeHtml(monthLabel(row)) + '</strong><span>' + (Number(row.eats)+Number(row.rides)) + ' receipts</span></div><div class="monthly-track" aria-hidden="true"><span style="width:' + Math.max(0,Number(row.saved)/maximum*100) + '%"></span></div><strong class="monthly-value">' + escapeHtml(money(row.saved)) + '</strong></div>'
       ).join('') + '</div>' : '<div class="empty">No verified receipt savings yet.</div>';
-      target.innerHTML = '<details class="analytics-panel glass"><summary>Confirmed savings by month</summary>' + chart + '<p class="sheet-help">Last six months with receipts. All accounts, including archived history.</p></details><details class="analytics-panel glass"><summary>Recent receipt activity</summary>' + receiptActivityRows(5) + '<button class="advanced-btn" data-open-sheet="receipts">View receipt activity ›</button></details>';
-      if (document.documentElement.dataset.layout==='desktop') target.querySelectorAll('details').forEach(d=>d.open=true);
+      const insight = peak ? '<p class="chart-insight"><strong>' + escapeHtml(monthLabel(peak)) + ' was strongest · ' + escapeHtml(money(peak.saved)) + '</strong><span>' + receiptCount + ' receipts across these months. Current month is still in progress; archived history is included.</span></p>' : '';
+      target.innerHTML = '<details class="insights-disclosure"' + (expanded ? ' open' : '') + '><summary><span>Receipt insights</span><span>' + escapeHtml(money(total)) + ' across ' + months.length + ' months</span></summary><div class="insights-panels"><section class="analytics-panel glass"><div class="analytics-heading"><h2>Savings by month</h2><span>Confirmed receipts</span></div>' + chart + insight + '</section><section class="analytics-panel glass"><div class="analytics-heading"><h2>Recent receipt activity</h2><span>Saved per day</span></div>' + receiptActivityRows(5) + '<button class="advanced-btn" data-open-sheet="receipts">View all receipt activity ›</button></section></div></details>';
     }
 
     function renderReceiptsSheet() {
@@ -3982,7 +4004,7 @@
         '<div class="sheet-section">' +
           '<div class="settings-explainer">' +
             '<strong>How syncing works</strong>' +
-            '<span>The website shows an imported snapshot. Up to date means a successful Mail scan within two hours. Stale means the scan is older. Snapshot means its scan time is unknown. Syncing appears only for a reported scan in progress.</span>' +
+            '<span>The website shows an imported snapshot. Up to date means a successful Mail scan within two hours. Update due means the scan is older; your Mac needs to import and publish a newer snapshot. Snapshot means its scan time is unknown. Syncing appears only for a reported scan in progress.</span>' +
             '<span>Total accounts includes every account. Can log in includes all accessible accounts. Archived includes accounts you cannot access. Accounts available requires login access and a current opportunity eligible under your account-used rule.</span>' +
           '</div>' +
         '</div>';
@@ -4265,6 +4287,8 @@
         return;
       }
 
+      if (event.target.closest('[data-more-expired]')) { expiredDisplayLimit += 50; renderUsed(); return; }
+      if (event.target.closest('[data-more-account-history]')) { accountHistoryLimit += 30; renderAccountSheet(); return; }
       const offersButton = event.target.closest("[data-account-offers]");
       if (offersButton) {
         openAccountSheet(offersButton.dataset.accountOffers);
@@ -4451,8 +4475,17 @@
       if (event.key === THEME_KEY) { applyTheme(readThemeColour()); if (openSheetType === 'appearance') renderAppearanceSheet(); }
       if (event.key === DEVICE_ACCOUNTS_KEY || event.key === null) { deviceAccounts = readDeviceAccounts(); renderAll(); if (openSheetType === 'account') renderAccountSheet(); if (openSheetType === 'device') renderDeviceSheet(); }
     });
-    document.addEventListener("visibilitychange", () => { if (!document.hidden && !loadInProgress) renderAll(); });
-    setInterval(() => { if (!document.hidden && !loadInProgress) renderAll(); }, 60000);
+    function refreshTimedViews() {
+      if (document.hidden || loadInProgress) return;
+      renderAll();
+      if (openSheetType === 'account' && accountSheetClock !== accountSheetClockKey()) {
+        const body=document.getElementById('sheetBody'), scroll=body.scrollTop, hadFocus=body.contains(document.activeElement);
+        renderAccountSheet(); body.scrollTop=scroll;
+        if (hadFocus) document.getElementById('sheetClose').focus();
+      }
+    }
+    document.addEventListener("visibilitychange", refreshTimedViews);
+    setInterval(refreshTimedViews, 60000);
     load();
   </script>
 </body>

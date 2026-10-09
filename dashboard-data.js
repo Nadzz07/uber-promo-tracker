@@ -1,4 +1,5 @@
 // Public dashboard calculations use derived receipt totals and actual sync times.
+import { expiryEndTime } from './offer-time.js';
 export function syncState(sync = {}, { now = Date.now(), error = false } = {}) {
   const checked = Date.parse(sync.lastSuccessfulMailScanAt || '');
   const started = Date.parse(sync.startedAt || '');
@@ -7,7 +8,18 @@ export function syncState(sync = {}, { now = Date.now(), error = false } = {}) {
   if (!Number.isFinite(checked) || checked > now + 5 * 60000) return { label: 'Snapshot', className: 'setup' };
   return now - checked <= 2 * 3600000
     ? { label: 'Up to date', className: 'live' }
-    : { label: 'Stale', className: 'stale' };
+    : { label: 'Update due', className: 'stale' };
+}
+
+export function offerCountdown(promo, now = Date.now()) {
+  const end = expiryEndTime(promo);
+  if (end == null) return 'Expiry needs checking';
+  const remaining = end - now;
+  if (remaining <= 0) return 'Expired';
+  const days = Math.ceil(remaining / 86400000);
+  const hours = Math.ceil(remaining / 3600000);
+  const time = days > 1 ? days + ' days left' : hours > 1 ? hours + ' hours left' : 'Under 1 hour left';
+  return (promo.expiryStatus === 'estimated' ? 'Estimated · ' : '') + time;
 }
 
 export function receiptActivity(receipts = [], rides = [], saving) {

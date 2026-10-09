@@ -5,7 +5,7 @@ import path from 'node:path';
 import {gunzipSync} from 'node:zlib';
 import {backupPrivateDb,compressPrivateBackup} from './private-backup.js';
 import { parseAccessList } from './access-list.js';
-import { syncState, receiptActivity } from './dashboard-data.js';
+import { syncState, receiptActivity, offerCountdown } from './dashboard-data.js';
 import { openPrivateDb, setAccountAccess, getAccounts, upsertTransportReceipt, getTransportReceipts, reconcileTransportReceiptIdentities } from './private-db.js';
 import { parseUberTransportReceipt } from './transport-receipt-parser.js';
 import { classifyAccount, accountStatusLabel } from './account-state.js';
@@ -14,7 +14,7 @@ import { confirmedReceiptSaving, estimateReceiptSavings } from './savings-intell
 const now=Date.parse('2026-10-09T12:00:00Z');
 assert.equal(syncState({}, {now}).label,'Snapshot');
 assert.equal(syncState({lastSuccessfulMailScanAt:'2026-10-09T11:00:00Z'},{now}).label,'Up to date');
-assert.equal(syncState({lastSuccessfulMailScanAt:'2026-10-09T08:00:00Z'},{now}).label,'Stale');
+assert.equal(syncState({lastSuccessfulMailScanAt:'2026-10-09T08:00:00Z'},{now}).label,'Update due');
 assert.equal(syncState({lastSuccessfulMailScanAt:'2026-10-10T12:00:00Z'},{now}).label,'Snapshot');
 assert.equal(syncState({state:'syncing',startedAt:'2026-10-09T11:50:00Z'},{now}).label,'Syncing');
 assert.equal(syncState({state:'syncing',startedAt:'2026-10-09T10:00:00Z'},{now}).label,'Snapshot');
@@ -99,3 +99,11 @@ try {
  assert.deepEqual(fs.readFileSync(source),original);
 } finally {fs.rmSync(folder,{recursive:true,force:true});}
 console.log('✓ Backup compression is lossless, owner-only and cannot replace the source database');
+
+const deadline = { expiresAt:'2026-10-12T12:00:00Z', expiryStatus:'exact' };
+assert.equal(offerCountdown(deadline,now),'3 days left');
+assert.equal(offerCountdown({...deadline,expiryStatus:'estimated'},now),'Estimated · 3 days left');
+assert.equal(offerCountdown({...deadline,expiresAt:'2026-10-09T12:30:00Z'},now),'Under 1 hour left');
+assert.equal(offerCountdown({...deadline,expiresAt:'2026-10-09T11:30:00Z'},now),'Expired');
+assert.equal(offerCountdown({},now),'Expiry needs checking');
+console.log('✓ Expiry countdown uses the actual deadline and distinguishes policy estimates from exact terms');

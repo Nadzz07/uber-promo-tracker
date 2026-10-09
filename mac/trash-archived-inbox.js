@@ -64,6 +64,7 @@ function run(argv) {
   const daysBack = Number(argv[1] || 60);
   const payload = JSON.parse(readUtf8(listPath));
   const mode=String(argv[2]||'');
+  if (!['--plan','--execute-verified-plan'].includes(mode)) throw new Error('Retain and verify an original-source plan before routing Mail.');
   const targets=payload.messageTargets||[];
   const wanted = new Set((payload.messageIds || []).map(normalizeMessageId).filter(Boolean));
   if(mode==='--plan')stderr('Preparing read-only Inbox plan: '+targets.length+' account-qualified targets.');
@@ -99,12 +100,26 @@ function run(argv) {
   if(mode==='--plan')stderr('Inbox metadata indexed: '+inboxIds.length+' messages; '+candidates.length+' matching physical copies.');
   let trashed = 0, failed = 0;
   const matched = new Set();
-  const inventory=[],destinations={},movedTargets=[];
+  const inventory=[],destinations={},sources={},sourceIds={},movedTargets=[];
+  let halted = false;
 
   for (const candidate of candidates) {
-    const message = Mail.inbox.messages.byId(candidate.physicalId);
+    // Unified Inbox references are suitable for discovery only. Resolve a new
+    // physical, account-rooted mailbox reference before any mutation.
+    const discovered = Mail.inbox.messages.byId(candidate.physicalId);
+    const owner = discovered.mailbox().account(), ownerId = String(owner.id());
+    let source = sources[ownerId];
+    if (!source) {
+      const boxes = [];
+      function visit(container) { for (const box of container.mailboxes()) { if (/^inbox$/i.test(String(box.name()).trim())) boxes.push(box); visit(box); } }
+      visit(Mail.accounts.byId(ownerId));
+      if (boxes.length !== 1) throw new Error('A unique physical Inbox is required; routing halted.');
+      source = sources[ownerId] = boxes[0];
+      sourceIds[ownerId] = source.messages.id();
+    }
+    const message = source.messages.byId(candidate.physicalId);
     const messageId = messageIdFor(message);
-    if (!messageId || messageId !== candidate.messageId || !wanted.has(messageId)) { failed++; continue; }
+    if (!messageId || messageId !== candidate.messageId || !wanted.has(messageId)) { failed++; halted = true; break; }
 
     try {
       const raw=String(message.source()||'');
@@ -114,21 +129,37 @@ function run(argv) {
       if(mode==='--execute-verified-plan'&&!payload.inventory?.some(t=>t.physicalId===candidate.physicalId&&t.recipient===recipient&&t.messageId===messageId&&t.raw===raw))throw new Error('Original source changed after routing verification');
       // Move to an explicit mailbox, independent of account deletion settings.
       // Missing/ambiguous destinations fail closed; there is no delete fallback.
-      const account=message.mailbox().account(),key=String(account.id());
+      const account=Mail.accounts.byId(ownerId),key=ownerId;
       const destination = destinations[key]||(destinations[key]=findRecoverableBin(account));
       if(mode==='--plan'){
         inventory.push({physicalId:candidate.physicalId,messageId,recipient,raw});
         if(inventory.length%100===0)stderr('Original sources retained for '+inventory.length+' Inbox copies.');
         matched.add(messageId+'|'+recipient);continue;
       }
+      const before = sourceIds[key], binBefore = new Set(destination.messages.id());
+      if (!before.includes(candidate.physicalId)) throw new Error('Physical source is absent');
       Mail.move(message, { to: destination });
+      let after, binAdded;
+      for (let attempt = 0; attempt < 12; attempt++) {
+        after = source.messages.id();
+        binAdded = destination.messages.id().filter(id => !binBefore.has(id));
+        if (!after.includes(candidate.physicalId) && binAdded.length) break;
+        delay(1);
+      }
+      const afterSet = new Set(after), removed = before.filter(id => !afterSet.has(id));
+      if (removed.length !== 1 || removed[0] !== candidate.physicalId || binAdded.length !== 1) throw new Error('Move identity postcondition failed');
+      const recovered = destination.messages.byId(binAdded[0]);
+      if (messageIdFor(recovered) !== messageId || recipientFor(recovered, String(recovered.source() || '')) !== recipient || String(recovered.source() || '') !== raw) throw new Error('Recoverable original differs');
+      sourceIds[key] = after;
       trashed++;
       movedTargets.push({physicalId:candidate.physicalId,messageId,recipient,mailAccountId:key});
       if(trashed%100===0)stderr('Moved '+trashed+' verified unused messages to recoverable Bin.');
       matched.add(messageId+'|'+recipient);
     } catch (_) {
       failed++;
-      stderr("Warning: an archived-account message could not be moved to Bin; it remains in Inbox.");
+      halted = true;
+      stderr("Routing halted: a Mail move or identity check failed. Reconcile the retained plan and mailbox contents before further moves.");
+      break;
     }
   }
 
@@ -143,6 +174,7 @@ function run(argv) {
     trashed,
     movedTargets:mode==='--plan'?undefined:movedTargets,
     failed,
+    halted,
     unmatched: targets.length - matched.size
   };
   if(mode==='--plan' && argv[3]){
