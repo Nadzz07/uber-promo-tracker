@@ -189,7 +189,7 @@ try {
     "receipt mover must not reintroduce Mail whose queries on Inbox"
   );
   assert.equal(
-    exporterSource.includes("box.messages.dateReceived()"),
+    exporterSource.includes("collection.dateReceived()"),
     true,
     "exporter should bulk-fetch date metadata before opening message bodies"
   );

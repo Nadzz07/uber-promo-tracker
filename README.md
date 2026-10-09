@@ -136,3 +136,17 @@ samples or a manual estimate for extra orders, a bounded allocation search (up
 to 24 accounts) and a £1,000 basket limit. Restaurant, item and location eligibility
 still depend on Uber. A displayed receipt total does not establish a live wallet
 balance or prove unstated Uber One fee discounts.
+
+Quick Find and its result cards share one panel. Categories include £12 off £15;
+View all preserves the selected category in Accounts. Activity and receipt
+insights use keyboard-accessible expandable sections.
+
+New accounts may be added from corroborated original receipt headers with
+**access pending verification**. A login method does not establish login access.
+Pending accounts remain searchable but cannot count as Accessible or Available
+Offers. Existing deactivation, rotation and exclusion records take precedence.
+The private discovery CLI writes a new registry and audit instead of replacing
+its inputs. Explicit calendar-day exports use start-inclusive/end-exclusive
+boundaries; they preserve older stored evidence. Routine sync remains read-only.
+User-authorised receipt filing uses the separate verified filing command and
+checks the original message and matching destination copy before counting it.

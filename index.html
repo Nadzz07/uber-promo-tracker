@@ -2440,7 +2440,7 @@
         </section>
 
         </div>
-        <section class="discovery-column glass" aria-labelledby="quickFindTitle">
+        <section class="discovery-column glass offer-browser" aria-labelledby="quickFindTitle">
         <div class="section-head">
           <div>
             <div class="eyebrow">Quick find</div>
@@ -2449,46 +2449,52 @@
         </div>
 
         <div id="quickGrid" class="quick-grid">
-          <button class="quick-card active" data-intent="best">
+          <button class="quick-card active" data-intent="best" aria-pressed="true" aria-controls="homeAccounts">
             <div class="quick-top"><span class="quick-icon">★</span><span id="bestCount" class="quick-count">0</span></div>
             <div><div class="quick-title">Best deal</div><div class="quick-sub">Strongest available account right now.</div></div>
           </button>
-          <button class="quick-card" data-intent="15off15">
+          <button class="quick-card" data-intent="15off15" aria-pressed="false" aria-controls="homeAccounts">
             <div class="quick-top"><span class="quick-icon">15</span><span id="fifteenCount" class="quick-count">0</span></div>
             <div><div class="quick-title">£15 off £15</div><div class="quick-sub">Full-value minimum-spend offers.</div></div>
           </button>
-          <button class="quick-card" data-intent="cash">
+          <button class="quick-card" data-intent="12off15" aria-pressed="false" aria-controls="homeAccounts">
+            <div class="quick-top"><span class="quick-icon">12</span><span id="twelveCount" class="quick-count">0</span></div>
+            <div><div class="quick-title">£12 off £15</div><div class="quick-sub">£12 discount with a £15 minimum spend.</div></div>
+          </button>
+          <button class="quick-card" data-intent="cash" aria-pressed="false" aria-controls="homeAccounts">
             <div class="quick-top"><span class="quick-icon">£</span><span id="cashCount" class="quick-count">0</span></div>
             <div><div class="quick-title">Uber Cash</div><div class="quick-sub">Current email offers. Confirm your wallet balance in Uber.</div></div>
           </button>
-          <button class="quick-card" data-intent="unfinished">
+          <button class="quick-card" data-intent="unfinished" aria-pressed="false" aria-controls="homeAccounts">
             <div class="quick-top"><span class="quick-icon" aria-hidden="true">↻</span><span id="unfinishedCount" class="quick-count">0 accounts</span></div>
             <div><div class="quick-title">Not finished</div><div class="quick-sub">Started promos with at least one use remaining.</div></div>
           </button>
-          <button class="quick-card" data-intent="cash-promo">
+          <button class="quick-card" data-intent="cash-promo" aria-pressed="false" aria-controls="homeAccounts">
             <div class="quick-top"><span class="quick-icon" aria-hidden="true">£+</span><span id="cashPromoCount" class="quick-count">0 accounts</span></div>
             <div><div class="quick-title">Uber Cash + promo</div><div class="quick-sub">Both offer types recorded on the same account. Combining them depends on Uber.</div></div>
           </button>
         </div>
 
-        </section>
-        </div>
-        <section class="best-section">
+        <section class="best-section" aria-labelledby="homeAccountsTitle">
         <div class="section-head">
           <div>
             <div id="accountsKicker" class="eyebrow">Best deal</div>
-            <div id="homeAccountsTitle" class="section-title">Best accounts now</div>
+            <h2 id="homeAccountsTitle" class="section-title">Best deals available</h2>
           </div>
-          <div id="homeAccountMeta" class="section-meta"></div>
+          <div id="homeAccountMeta" class="section-meta" role="status" aria-live="polite" aria-atomic="true"></div>
         </div>
 
+        <div class="results-tools"><p id="homeResultsHelp"></p><button id="resetQuickFind" class="text-btn" data-reset-intent="true" hidden>All available offers <span aria-hidden="true">↗</span></button></div>
         <div id="homeAccounts" class="account-list"></div>
+        <div id="homeResultsFooter" class="results-footer"></div>
 
         <details id="weakWrap" class="weak-wrap">
           <summary id="weakSummary">Other available accounts</summary>
           <div id="weakAccounts" class="weak-inner account-list"></div>
         </details>
         </section>
+        </section>
+        </div>
         <section id="homeAnalytics" class="home-analytics" aria-label="Receipt activity and savings"></section>
       </section>
 
@@ -2508,6 +2514,7 @@
           <option value="all">All tracked accounts</option>
           <option value="login">Can log in</option>
           <option value="locked">Can't log in</option>
+          <option value="pending">Access pending verification</option>
           <optgroup label="Receipt usage">
             <option value="used">All used accounts</option>
             <option value="used-login">Used · Can log in</option>
@@ -2528,6 +2535,8 @@
           <button class="filter-btn" data-account-filter="review">Offers need checking</button>
           <button class="filter-btn" data-account-filter="expired">Expired offers</button>
           <button class="filter-btn" data-account-filter="offers">Available offers</button>
+          <button class="filter-btn" data-account-filter="15off15">£15 off £15</button>
+          <button class="filter-btn" data-account-filter="12off15">£12 off £15</button>
           <button class="filter-btn" data-account-filter="cash">Uber Cash</button>
           <button class="filter-btn" data-account-filter="unfinished">Not finished</button>
           <button class="filter-btn" data-account-filter="cash-promo">Uber Cash + promo</button>
@@ -2552,39 +2561,45 @@
           <div class="activity-card"><span>Expired offers</span><strong id="expiredCount">0</strong></div>
         </div>
 
-        <section class="activity-section used-accounts-panel glass">
-          <div class="analytics-heading"><h2>Used accounts</h2><span>Receipt confirmed</span></div>
+        <details class="activity-section used-accounts-panel disclosure-card" open>
+          <summary><span><strong>Used accounts</strong><small>Completed receipt rule · access stays independent</small></span><span id="usedAccountsDisclosureCount" class="disclosure-count"></span></summary>
+          <div class="disclosure-body">
           <p id="usedAccountExplanation" class="activity-explanation"></p>
           <div id="usedAccountsList" class="activity-list"></div>
           <button class="advanced-btn" data-jump-accounts="true" data-target-filter="used">Manage all used accounts ›</button>
-        </section>
-        <div id="needsCheckingSection" class="activity-section">
-          <div class="activity-title">Needs checking · <span id="needsCheckCount">0</span></div>
+          </div>
+        </details>
+        <details id="needsCheckingSection" class="activity-section disclosure-card">
+          <summary><span><strong>Needs checking</strong></span><span id="needsCheckCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
           <div id="needsCheckingList" class="activity-list"></div>
-        </div>
-
-        <div id="recentActivitySection" class="activity-section">
-          <div class="activity-title">Not finished · uses remaining</div>
-          <div id="recentActivity" class="activity-list"></div>
-        </div>
-
-        <div id="fullyUsedSection" class="activity-section">
-          <div class="activity-title">Fully used · Finished offers</div>
-          <p class="activity-explanation">Includes confirmed full redemption and expiry after confirmed use. Actual order counts are preserved.</p>
-          <div id="fullyUsedList" class="activity-list"></div>
-        </div>
-
-        <details id="expiredSection" class="activity-section activity-history">
-          <summary>Expired offers · unused &amp; partially used</summary>
-          <p class="activity-explanation">Unused orders remain recorded. Expiry does not mean they were redeemed.</p>
-          <div id="expiredList" class="activity-list"></div>
+          </div>
         </details>
 
-        <details class="activity-section activity-history"><summary>Manually finished · awaiting confirmation</summary><div id="manualFinishedList" class="activity-list"></div></details>
-        <div id="ignoredSection" class="activity-section">
-          <div class="activity-title">Ignored offers</div>
+        <details id="recentActivitySection" class="activity-section disclosure-card">
+          <summary><span><strong>Not finished · uses remaining</strong></span><span id="recentDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
+          <div id="recentActivity" class="activity-list"></div>
+          </div>
+        </details>
+
+        <details id="fullyUsedSection" class="activity-section disclosure-card" open>
+          <summary><span><strong>Fully used · Finished offers</strong></span><span id="finishedDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
+          <p class="activity-explanation">Includes confirmed full redemption and expiry after confirmed use. Actual order counts are preserved.</p>
+          <div id="fullyUsedList" class="activity-list"></div>
+          </div>
+        </details>
+
+        <details id="expiredSection" class="activity-section activity-history disclosure-card">
+          <summary><span><strong>Expired offers</strong><small>Unused &amp; partially used · original counts preserved</small></span><span id="expiredDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
+          <p class="activity-explanation">Unused orders remain recorded. Expiry does not mean they were redeemed.</p>
+          <div id="expiredList" class="activity-list"></div></div>
+        </details>
+
+        <details class="activity-section activity-history disclosure-card"><summary><span><strong>Manually finished</strong><small>Awaiting receipt confirmation</small></span><span id="manualDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body"><div id="manualFinishedList" class="activity-list"></div></div></details>
+        <details id="ignoredSection" class="activity-section disclosure-card">
+          <summary><span><strong>Ignored offers</strong></span><span id="ignoredDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
           <div id="ignoredList" class="activity-list"></div>
-        </div>
+          </div>
+        </details>
       </section>
 
       <section id="view-more" class="view">
@@ -2728,9 +2743,6 @@
       root.dataset.layout = resolveLayout(layoutPreference, window.innerWidth);
       requestAnimationFrame(updateNavGlider);
       if (previous !== root.dataset.layout) requestAnimationFrame(() => {
-        document.querySelectorAll('#homeAnalytics details').forEach(panel => {
-          panel.open = root.dataset.layout === 'desktop';
-        });
         if (accounts.length) renderHomeAccounts();
       });
     }
@@ -2924,6 +2936,7 @@
     }
 
     function loginRouteText(value) {
+      if (value?.accessStatus === "pending" || value?.canLogin === null) return "Login access pending verification";
       const method = loginMethodLabel(value);
       return method === "Not set"
         ? "Login method not set"
@@ -3041,6 +3054,8 @@
       );
     }
 
+    function is12off15(promo) { return promo.discountType === "fixed" && Number(promo.discount) === 12 && Number(promo.minimumSpend) === 15; }
+
     function enrichedAccounts() {
       return accounts
         .map(account => {
@@ -3053,6 +3068,7 @@
             cashHistory: allPromosForAccount(account.accountRef).filter(promo => promo.discountType === "uberCash").sort((a,b) => String(b.emailSentAt || "").localeCompare(String(a.emailSentAt || ""))),
             hasCashAndPromo: current.some(promo => promo.discountType === "uberCash") && current.some(promo => promo.discountType === "fixed" || promo.discountType === "percent"),
             has15off15: current.some(is15off15),
+            has12off15: current.some(is12off15),
             hasMultiUse: current.some(promo => Number(promo.usesRemaining || 0) > 1),
             bestNow: bestForAccount(account)
           };
@@ -3080,6 +3096,8 @@
 
       if (currentIntent === "15off15") {
         list = list.filter(account => account.has15off15);
+      } else if (currentIntent === "12off15") {
+        list = list.filter(account => account.has12off15);
       } else if (currentIntent === "cash") {
         list = list.filter(account => account.hasCash);
       } else if (currentIntent === "unfinished") {
@@ -3308,10 +3326,11 @@
     }
 
     function accountCard(account, index = 0, context = "accounts") {
-      const best = account.bestNow || bestForAccount(account);
+      const selectedTerms = context === "12off15" ? is12off15 : context === "15off15" ? is15off15 : null;
+      const best = selectedTerms ? rankPromosForSpend((account.promos || activePromosForAccount(account.accountRef)).filter(selectedTerms), currentBasket(), {service:"Uber Eats",accountRef:account.accountRef,accessibleOnly:false})[0] || null : account.bestNow || bestForAccount(account);
       const current = account.promos || activePromosForAccount(account.accountRef);
       const cashOffer = context === "cash" ? current.find(promo => promo.discountType === "uberCash") || account.cashHistory?.[0] : best?.promo?.discountType === "uberCash" ? best.promo : null;
-      const displayedOffer = cashOffer || (context === "unfinished" ? current.find(promo => offerInProgress(promo)) : null) || best?.promo || current[0];
+      const displayedOffer = cashOffer || (context === "unfinished" ? current.find(promo => offerInProgress(promo)) : null) || best?.promo || (selectedTerms ? current.find(selectedTerms) : null) || current[0];
       const pills = [];
       /* Cash activation is explained once as text below the offer. */
 
@@ -3350,7 +3369,7 @@
           '</div>' +
           (pills.length ? '<div class="pill-row">' + pills.join("") + '</div>' : '') +
           (current.some(p => p.discountType === 'uberCash') ? '<div class="account-cash-note">Cash offer · wallet unverified. Confirm in Uber.</div>' : '') +
-          '<div class="account-progress-note">' + escapeHtml(context === 'best' || ['15off15','cash','cash-promo','unfinished'].includes(context) ? '' : accountStatusLabel(currentAccountState(account)) + ' · ' + receiptHistoryText(account)) + '</div>' +
+          '<div class="account-progress-note">' + escapeHtml(context === 'best' || ['15off15','12off15','cash','cash-promo','unfinished'].includes(context) ? '' : accountStatusLabel(currentAccountState(account)) + ' · ' + receiptHistoryText(account)) + '</div>' +
           '<div class="account-actions">' +
             '<button class="ghost-btn" data-account-offers="' + escapeHtml(account.accountRef) + '">View offers</button>' +
           '</div>' +
@@ -3363,6 +3382,7 @@
 
       setAnimatedText("bestCount", list.length);
       setAnimatedText("fifteenCount", list.filter(account => account.has15off15).length);
+      setAnimatedText("twelveCount", list.filter(account => account.has12off15).length);
       setAnimatedText("cashCount", enrichedLoginAccounts().filter(account => account.hasCash).length + " current");
       const unfinished = enrichedLoginAccounts().filter(account => accountUnfinished(account)).length;
       const cashAndPromo = enrichedLoginAccounts().filter(account => account.hasCashAndPromo).length;
@@ -3371,7 +3391,7 @@
     }
 
     function renderHomeAccounts() {
-      const previewLimit = document.documentElement.dataset.layout === 'mobile' ? 3 : 9;
+      const previewLimit = document.documentElement.dataset.layout === 'mobile' ? 3 : window.innerWidth >= 1280 ? 3 : 2;
       const all = homeAccountsByIntent();
       const strongest = all[0] || null;
       const weak = [];
@@ -3381,6 +3401,7 @@
       const names = {
         best: "Best deal",
         "15off15": "£15 off £15",
+        "12off15": "£12 off £15",
         cash: "Uber Cash",
         unfinished: "Not finished",
         "cash-promo": "Uber Cash + promo"
@@ -3389,13 +3410,23 @@
       document.getElementById("accountsKicker").textContent = names[currentIntent];
       document.getElementById("homeAccountMeta").textContent =
         all.length + (currentIntent === "unfinished" ? (all.length === 1 ? " unfinished account" : " unfinished accounts") : ["cash", "cash-promo"].includes(currentIntent) ? (all.length === 1 ? " account with offers" : " accounts with offers") : (all.length === 1 ? " available account" : " available accounts"));
-      document.getElementById("homeAccountsTitle").textContent = currentIntent === "unfinished" ? "Promos in progress" : currentIntent === "cash" ? "Current Cash offers" : currentIntent === "cash-promo" ? "Cash & discount offers" : "Best accounts now";
-
-      document.getElementById("homeAccounts").innerHTML =
-        strong.length
-          ? strong.slice(0, previewLimit).map((account, index) => accountCard(account, index, currentIntent)).join("") +
-            (strong.length > previewLimit ? '<button class="ghost-btn" data-jump-accounts="true" data-target-filter="' + (currentIntent === "unfinished" ? 'unfinished' : ["cash", "cash-promo"].includes(currentIntent) ? currentIntent : 'offers') + '">View all ' + strong.length + ' accounts ›</button>' : '')
-          : '<div class="empty">' + (currentIntent === 'unfinished' ? 'No started promos with uses left. Unused offers are in Best deal; expired offers stay in History.' : 'No account matches this category right now.') + '</div>';
+      const headings = { best: 'Best deals available', '15off15': '£15 off £15 offers', '12off15': '£12 off £15 offers', cash: 'Accounts with Uber Cash', unfinished: 'Offers with uses remaining', 'cash-promo': 'Accounts with both offer types' };
+      const help = { best: 'Ranked for your basket. Select an account to see its current offers.', '15off15': 'Full-value offers with a £15 minimum spend.', '12off15': '£12 off a qualifying £15 basket. Delivery and service fees remain separate.', cash: 'Current Cash email offers. Check activation and wallet balance in Uber.', unfinished: 'Started, valid promos with at least one use remaining. Expired offers stay in Activity.', 'cash-promo': 'Current Cash and discount offers on the same account. Combining them depends on Uber.' };
+      document.getElementById('homeAccountsTitle').textContent = headings[currentIntent];
+      document.getElementById('homeResultsHelp').textContent = help[currentIntent];
+      document.getElementById('resetQuickFind').hidden = currentIntent === 'best';
+      document.querySelectorAll('[data-intent]').forEach(button => {
+        const selected = button.dataset.intent === currentIntent;
+        button.classList.toggle('active', selected);
+        button.setAttribute('aria-pressed', String(selected));
+      });
+      document.getElementById('homeAccounts').innerHTML = strong.length
+        ? strong.slice(0, previewLimit).map((account, index) => accountCard(account, index, currentIntent)).join('')
+        : '<div class="empty">' + (currentIntent === 'unfinished' ? 'No started promos with uses left. Unused offers are in Best deal; expired offers stay in Activity.' : 'No account matches this category right now.') + '</div>';
+      const targetFilter = currentIntent === 'best' ? 'offers' : currentIntent;
+      document.getElementById('homeResultsFooter').innerHTML = strong.length > previewLimit
+        ? '<span>Showing ' + previewLimit + ' of ' + strong.length + ' matching accounts</span><button class="advanced-btn" data-jump-accounts="true" data-target-filter="' + targetFilter + '">View all ' + strong.length + ' accounts <span aria-hidden="true">›</span></button>'
+        : '';
 
       const wrap = document.getElementById("weakWrap");
       wrap.style.display = weak.length ? "block" : "none";
@@ -3416,6 +3447,8 @@
       if (accountFilter === "review") list = list.filter(account => account.accountState === "needs_checking");
       if (accountFilter === "expired") list = list.filter(account => account.accountState === "expired");
       if (accountFilter === "offers") list = list.filter(account => account.recommendationEligible && account.promoCount > 0);
+      if (accountFilter === "15off15") list = list.filter(account => account.recommendationEligible && account.has15off15);
+      if (accountFilter === "12off15") list = list.filter(account => account.recommendationEligible && account.has12off15);
       if (accountFilter === "cash") list = list.filter(account => account.canLogin && !account.archived && account.hasCash);
       if (accountFilter === "unfinished") list = list.filter(account => accountUnfinished(account));
       if (accountFilter === "cash-promo") list = list.filter(account => account.canLogin && !account.archived && account.hasCashAndPromo);
@@ -3522,6 +3555,7 @@
       document.getElementById("fullyUsedCount").textContent = fullyUsed.length;
       document.getElementById("expiredCount").textContent = expired.length;
       document.getElementById("needsCheckCount").textContent = needsChecking.length;
+      for (const [id,count] of Object.entries({usedAccountsDisclosureCount:usedAccounts.length, recentDisclosureCount:recent.length, finishedDisclosureCount:fullyUsed.length, expiredDisclosureCount:expired.length, manualDisclosureCount:manualFinished.length, ignoredDisclosureCount:ignored.length})) document.getElementById(id).textContent = count.toLocaleString("en-GB");
 
       document.getElementById("needsCheckingList").innerHTML =
         needsChecking.length
@@ -3972,7 +4006,7 @@
     function renderHomeAnalytics() {
       const target = document.getElementById('homeAnalytics');
       const previous = target.querySelector('.insights-disclosure');
-      const expanded = previous ? previous.open : document.documentElement.dataset.layout === 'desktop';
+      const expanded = previous ? previous.open : false;
       const months = (payload.receiptActivity?.months || []).slice(-6);
       const maximum = Math.max(1,...months.map(r=>Number(r.saved)));
       const total = months.reduce((sum,r)=>sum + Number(r.saved),0);
@@ -3983,7 +4017,7 @@
         '<div class="monthly-row"><div class="monthly-label"><strong>' + escapeHtml(monthLabel(row)) + '</strong><span>' + (Number(row.eats)+Number(row.rides)) + ' receipts</span></div><div class="monthly-track" aria-hidden="true"><span style="width:' + Math.max(0,Number(row.saved)/maximum*100) + '%"></span></div><strong class="monthly-value">' + escapeHtml(money(row.saved)) + '</strong></div>'
       ).join('') + '</div>' : '<div class="empty">No verified receipt savings yet.</div>';
       const insight = peak ? '<p class="chart-insight"><strong>' + escapeHtml(monthLabel(peak)) + ' was strongest · ' + escapeHtml(money(peak.saved)) + '</strong><span>' + receiptCount + ' receipts across these months. Current month is still in progress; archived history is included.</span></p>' : '';
-      target.innerHTML = '<details class="insights-disclosure"' + (expanded ? ' open' : '') + '><summary><span>Receipt insights</span><span>' + escapeHtml(money(total)) + ' across ' + months.length + ' months</span></summary><div class="insights-panels"><section class="analytics-panel glass"><div class="analytics-heading"><h2>Savings by month</h2><span>Confirmed receipts</span></div>' + chart + insight + '</section><section class="analytics-panel glass"><div class="analytics-heading"><h2>Recent receipt activity</h2><span>Saved per day</span></div>' + receiptActivityRows(5) + '<button class="advanced-btn" data-open-sheet="receipts">View all receipt activity ›</button></section></div></details>';
+      target.innerHTML = '<details class="insights-disclosure disclosure-card"' + (expanded ? ' open' : '') + '><summary><span><strong>Receipt insights</strong><small>Monthly savings &amp; recent receipts</small></span><span class="disclosure-count">' + escapeHtml(money(total)) + ' across ' + months.length + ' months</span></summary><div class="insights-panels disclosure-body"><section class="analytics-panel glass"><div class="analytics-heading"><h2>Savings by month</h2><span>Confirmed receipts</span></div>' + chart + insight + '</section><section class="analytics-panel glass"><div class="analytics-heading"><h2>Recent receipt activity</h2><span>Saved per day</span></div>' + receiptActivityRows(5) + '<button class="advanced-btn" data-open-sheet="receipts">View all receipt activity ›</button></section></div></details>';
     }
 
     function renderReceiptsSheet() {
@@ -4249,6 +4283,7 @@
       renderHomeAccounts();
       animateRegion("homeAccounts");
       animateRegion("weakAccounts");
+      if (document.documentElement.dataset.layout === "mobile") requestAnimationFrame(() => document.querySelector(".best-section").scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth"}));
     });
 
     let basketTimer;
@@ -4299,10 +4334,11 @@
         return;
       }
 
+      if (event.target.closest("[data-reset-intent]")) { currentIntent = "best"; renderHomeAccounts(); return; }
       const jumpAccounts = event.target.closest("[data-jump-accounts]");
       if (jumpAccounts) {
         accountFilter = jumpAccounts.dataset.targetFilter || 'offers';
-        document.getElementById('accountScope').value = ['all','login','locked','used','archived','used-login','used-locked','archived-login','archived-locked'].includes(accountFilter) ? accountFilter : 'all';
+        document.getElementById('accountScope').value = ['all','login','locked','used','archived','used-login','used-locked','archived-login','archived-locked','pending'].includes(accountFilter) ? accountFilter : 'all';
         accountDisplayLimit = 48;
         document.querySelectorAll('[data-account-filter]').forEach(button => button.classList.toggle('active', button.dataset.accountFilter === accountFilter));
         renderAccounts();

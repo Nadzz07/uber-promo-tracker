@@ -85,6 +85,7 @@ try {
   assert.equal(await page.locator('#expiredList').isVisible(),false,'Expired history is collapsed by default');
   await page.locator('#expiredSection > summary').click();
   assert.match(await page.locator('#expiredList').innerText(), /ex…ed/);
+  await page.locator('#needsCheckingSection > summary').click();
   assert.match(await page.locator('#needsCheckingList').innerText(), /re…ew/);
   assert.match(await page.locator('#needsCheckingList').innerText(), /order count needs verification/);
   assert.doesNotMatch(await page.locator('#needsCheckingList').innerText(), /96 orders/);
@@ -357,7 +358,7 @@ try {
   await filterPage.locator('[data-intent="cash-promo"]').click();
   assert.equal(await filterPage.locator('#homeAccounts .account-card').count(), 2);
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A101"]').count(), 1, 'Same-account cash and discount are required; expired, consumed, review and archived offers must not qualify');
-  assert.match(await filterPage.locator('[data-intent="cash-promo"]').innerText(), /Combining them depends on Uber/);
+  assert.match(await filterPage.locator('#homeResultsHelp').innerText(), /Combining them depends on Uber/);
   assert.equal(await filterPage.locator('#savedStat').innerText(), '£40');
   assert.match(await filterPage.locator('#recommendation').innerText(), /Save £12/, 'Finding both offers must not add £7 cash to £12 discount');
   await filterPage.locator('[data-view="accounts"]').click();
@@ -393,6 +394,8 @@ try {
     assert.equal(await filterPage.locator('.quick-card').evaluateAll(cards => cards.every(card => card.scrollWidth <= card.clientWidth+1 && card.scrollHeight <= card.clientHeight+1)), true, `Quick filter labels fit their cards at ${width}px`);
   }
   await filterPage.locator('[data-view="home"]').click();
+  if(await filterPage.locator('.insights-disclosure').getAttribute('open')===null) await filterPage.locator('.insights-disclosure > summary').click();
+  assert.equal(await filterPage.locator('.analytics-panel:visible').count(),2,'One disclosure opens both insights panels');
   await filterPage.locator('.insights-disclosure > summary').click();
   assert.equal(await filterPage.locator('.analytics-panel:visible').count(),0,'One disclosure closes both insights panels');
   await filterPage.locator('.insights-disclosure > summary').click();

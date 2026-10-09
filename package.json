@@ -6,14 +6,14 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "test": "node test-runner.js && node test-v2.js && node test-integration.js && node test-offer-state.js && node test-mail-routing.js && node test-mail-export.js && node test-round2.js && node validate-dashboard.js && node validate-release.js && node test-audit.js && node test-mbox.js && node test-finalisation.js && node test-ui.js && node test-cash.js && node test-service.js && node test-source-clocks.js && node test-dashboard-data.js && node test-account-management.js && node test-liquid-glass.js",
+    "test": "node test-runner.js && node test-v2.js && node test-integration.js && node test-offer-state.js && node test-mail-routing.js && node test-verified-filing.js && node test-mail-export.js && node test-round2.js && node validate-dashboard.js && node validate-release.js && node test-audit.js && node test-mbox.js && node test-finalisation.js && node test-ui.js && node test-cash.js && node test-service.js && node test-source-clocks.js && node test-dashboard-data.js && node test-account-management.js && node test-account-discovery.js && node test-liquid-glass.js",
     "accounts:export-device": "node mac/export-device-accounts.js",
     "generate": "node generate-promos.js",
     "db:init": "node mac/init-private-db.js",
     "access:import": "node mac/import-account-access.js",
     "build": "node build-site.js",
     "validate": "npm test && node validate-public.js && node validate-syntax.js",
-    "test:browser": "node test-browser.js && node test-nav-gestures.js && node test-completion-browser.js",
+    "test:browser": "node test-browser.js && node test-nav-gestures.js && node test-completion-browser.js && node test-discovery-browser.js",
     "mbox:import": "node mac/import-mbox.js",
     "accounts:remove-private": "node mac/remove-private-accounts.js"
   },
