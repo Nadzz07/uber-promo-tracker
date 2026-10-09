@@ -44,7 +44,7 @@ try {
   await page.route('**/promos.json?*', route => failPromos ? route.abort() : route.fulfill({ json: payload }));
   await page.route('**/history.json?*', route => failHistory ? route.abort() : route.fulfill({ json: { updatedAt: time, records: [] } }));
   await page.evaluate(() => localStorage.setItem('uber-eats-promo-tracker:planner-settings:v1', JSON.stringify({ maxOrders: 3, extraOrderFee: null, feeTouched: false })));
-  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await page.locator('#basketInput').inputValue(), '15.00', 'Default basket subtotal should be £15');
   const recommendation = await page.locator('#recommendation').innerText();
   assert.match(recommendation, /Save £10/); // At £15, one £10-off offer is the optimal single-order result.
@@ -66,7 +66,8 @@ try {
   assert.equal(await page.evaluate(() => document.activeElement.id), 'sheetClose');
   assert.match(await page.locator('#sheetBody .offer-details').first().innerText(), /Estimated end.*35-day tracking limit/, 'A capped deadline must be labelled as a tracker estimate');
   assert.equal(await page.locator('.sheet').evaluate(el => getComputedStyle(el).animationName), 'liquidSheetOpen');
-  assert.ok((await page.locator('.sheet').evaluate(el => parseFloat(getComputedStyle(el).animationDuration))) >= 0.6);
+  const sheetAnimation = await page.locator('.sheet').evaluate(el => parseFloat(getComputedStyle(el).animationDuration));
+  assert.ok(sheetAnimation >= .2 && sheetAnimation <= .4, 'Sheets should use a short, purposeful transition');
   assert.equal(await page.locator('#app').evaluate(e => e.inert), true);
   await page.keyboard.press('Shift+Tab');
   assert.equal(await page.evaluate(() => document.getElementById('sheetBackdrop').contains(document.activeElement)), true);
@@ -76,7 +77,7 @@ try {
   await page.keyboard.press('Escape');
   assert.equal(await page.locator('#app').evaluate(e => e.inert), false);
   offer.receiptConfirmedUses = 2; offer.usesRemaining = 3;
-  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   await page.locator('[data-account-offers="A001"]').first().click();
   assert.match(await page.locator('#sheetBody').innerText(), /3 left/);
   await page.keyboard.press('Escape');
@@ -90,14 +91,14 @@ try {
   assert.doesNotMatch(await page.locator('#sheetBody').innerText(), /96 left|of 96/);
   await page.keyboard.press('Escape');
   failHistory = true;
-  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.match(await page.locator('#recommendation').innerText(), /Save £10/);
   failPromos = true;
-  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'OFFLINE');
+  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Attention');
   assert.equal(await page.locator('[data-retry-load]').isVisible(), true);
   failPromos = false;
   await page.locator('[data-retry-load]').click();
-  await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   for (const width of [320, 360, 375, 390, 414, 430, 600, 768, 980, 1120, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.waitForFunction(expected => document.documentElement.dataset.layout === expected, width < 980 ? 'mobile' : 'desktop');
@@ -150,7 +151,8 @@ try {
       assert.ok(Math.max(...labelSizes) - Math.min(...labelSizes) < 0.1, `Home stat labels should use the same font size at ${width}px`);
       assert.ok(Math.min(...labelSizes) >= 11, `Home stat labels should remain readable at ${width}px`);
       const mobileColumns = await page.locator('.home-overview .stats-row').evaluate(row => getComputedStyle(row).gridTemplateColumns.split(' ').length);
-      assert.equal(mobileColumns, 1, `Phone Home stats should stack instead of shrinking labels at ${width}px`);
+      assert.equal(mobileColumns, 2, `Phone Home account metrics should use the requested 2×2 grid at ${width}px`);
+      assert.equal(await page.locator('.home-overview .stats-row .stat-card').count(),4);
     }
     if (process.env.TRACKER_SCREENSHOT_DIR && [390, 1440].includes(width)) await page.screenshot({ path: `${process.env.TRACKER_SCREENSHOT_DIR}/tracker-${width}.png`, fullPage: true });
   }
@@ -180,7 +182,7 @@ try {
   // A real-sized savings total must fit its desktop card, not hide behind ellipsis.
   payload.summary.totalSaved = 3382.60;
   await page.reload();
-  await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await page.locator('#savedStat').innerText(), '£3,382.60');
   for (const width of [390, 980, 1280, 1440]) {
     await page.setViewportSize({ width, height: 900 });
@@ -201,7 +203,7 @@ try {
   await page.waitForFunction(() => document.getElementById('recommendation').textContent.includes('£1,000'));
   // Without observed or explicitly chosen fees, avoid optimistic multi-order savings.
   payload.summary.feeModel = { sampleSize: 0, averageExtraOrderFees: 0 };
-  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   await page.locator('#basketInput').fill('30');
   await page.waitForFunction(() => document.getElementById('recommendation').textContent.includes('before delivery'));
   assert.match(await page.locator('#recommendation').innerText(), /Use 1 account/);
@@ -226,7 +228,7 @@ try {
   assert.ok((await page.locator('#app').boundingBox()).width <= 480);
   const phoneDock = await page.locator('#mainNav').evaluate(el => ({ width: el.offsetWidth, position: getComputedStyle(el).position }));
   assert.equal(phoneDock.position, 'fixed'); assert.ok(phoneDock.width <= 452);
-  await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await page.locator('html').getAttribute('data-layout'), 'mobile', 'Layout override must survive reload');
   await page.locator('[data-view="more"]').click();
   assert.equal(await page.locator('#view-more .screen-title').innerText(), 'Settings & tools');
@@ -267,7 +269,7 @@ try {
   const wheelColour = await page.locator('#themeColour').inputValue();
   await page.keyboard.press('Escape');
   offers.find(p => p.accountRef === 'A005').discount = 9; // Make the imported account the clear best recommendation.
-  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:theme:v1')), wheelColour);
 
   await page.locator('[data-view="more"]').click(); await page.locator('[data-open-sheet="device"]').click();
@@ -287,7 +289,7 @@ try {
   await page.locator('#accountsList [data-account-offers="A001"]').click();
   await page.locator('[data-copy-email="A001"]').click();
   assert.equal(await page.evaluate(() => window.testCopiedEmail), privateEmail);
-  await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.match(await page.locator('#recommendation').innerText(), /alot\.extralong\+login\.alpha/);
   assert.equal(requests.some(r => r.url.includes(privateEmail) || r.method !== 'GET'), false);
   await page.locator('[data-view="more"]').click(); await page.locator('[data-open-sheet="device"]').click();
@@ -331,21 +333,23 @@ try {
   const filterPayload = { schemaVersion: 3, generatedAt: time, accounts: filterAccounts, promos: filterOffers, summary: { totalSaved: 40 } };
   await filterPage.route('**/promos.json?*', route => route.fulfill({ json: filterPayload }));
   await filterPage.route('**/history.json?*', route => route.fulfill({ json: { updatedAt: time, records: [] } }));
-  await filterPage.goto(url); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await filterPage.goto(url); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await filterPage.locator('#unfinishedCount').innerText(), '9 accounts');
   await filterPage.locator('[data-intent="unfinished"]').click();
   assert.match(await filterPage.locator('#homeAccounts [data-card-account="A101"]').innerText(), /4 of 5 uses left/);
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A102"]').count(), 1, 'An unfinished account with one remaining use stays in the section');
-  for (const ref of ['A102','A104','A109','A107','A110']) assert.equal(await filterPage.locator('#homeAccounts [data-card-account="'+ref+'"]').count(), 1, 'Unused, expired and one-left accounts remain unfinished');
   for (const ref of ['A106','A111']) assert.equal(await filterPage.locator('#homeAccounts [data-card-account="'+ref+'"]').count(), 0, 'Archived and completed accounts without live offers stay out');
-  assert.match(await filterPage.locator('#homeAccounts [data-card-account="A109"]').innerText(), /4 of 5 Eats.*1 more Eats receipt/);
   await filterPage.locator('[data-jump-accounts][data-target-filter="unfinished"]').click();
   assert.equal(await filterPage.locator('#accountsMeta').innerText(),'9 accounts');
+  for (const ref of ['A102','A104','A109','A107','A110']) assert.equal(await filterPage.locator('#accountsList [data-card-account="'+ref+'"]').count(), 1, 'The full list retains unused, expired and one-left accounts');
+  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4 of 5 Eats.*1 more Eats receipt/);
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A108"]').count(),1,'The full section includes accounts with no offer yet');
   await filterPage.locator('[data-view="home"]').click();
   await filterPage.locator('[data-intent="cash"]').click();
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A107"]').count(), 1, 'Receipt completion cannot hide a current Cash offer');
-  assert.match(await filterPage.locator('#homeAccounts [data-card-account="A111"]').innerText(), /Past Cash offer · expired/);
+  await filterPage.locator('[data-jump-accounts][data-target-filter="cash"]').click();
+  assert.match(await filterPage.locator('#accountsList [data-card-account="A111"]').innerText(), /Past Cash offer · expired/);
+  await filterPage.locator('[data-view="home"]').click();
   assert.equal(await filterPage.locator('#cashPromoCount').innerText(), '2 accounts', 'Cash remains visible on a receipt-complete account; multiple offers count one account');
   await filterPage.locator('[data-intent="cash-promo"]').click();
   assert.equal(await filterPage.locator('#homeAccounts .account-card').count(), 2);
@@ -360,22 +364,22 @@ try {
   // A single remaining order is still available, but is no longer a repeat-order option.
   repeatOffer.usesRemaining = 1; repeatOffer.receiptConfirmedUses = 4;
   for (const promo of filterOffers.filter(p => p.accountRef === 'A101' && p.discountType === 'uberCash')) promo.usesRemaining = 0;
-  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await filterPage.locator('#unfinishedCount').innerText(), '9 accounts', 'One remaining use and partial receipts do not finish an account');
   assert.equal(await filterPage.locator('#cashPromoCount').innerText(), '1 account');
   assert.equal(await filterPage.locator('#activeStat').innerText(), '6', 'One use left must preserve account availability');
   filterOffers.splice(filterOffers.findIndex(p => p.id === 'another-single-102'), 1);
   filterOffers.push({ ...cashOffer, id: 'cash-102', accountRef: 'A102', accountMasked: 'si…le@example.invalid', usesRemaining: 1 });
-  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await filterPage.locator('#cashPromoCount').innerText(), '2 accounts', 'Percentage discounts also match with active cash');
   await filterPage.locator('[data-intent="cash-promo"]').click();
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A102"]').count(), 1);
   filterAccounts.find(a => a.accountRef === 'A109').orderCount = 5;
-  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await filterPage.locator('#unfinishedCount').innerText(), '9 accounts', 'Receipt completion cannot hide a remaining offer');
   filterOffers.find(p => p.accountRef === 'A109').usesRemaining = 0;
   filterOffers.find(p => p.accountRef === 'A109').receiptConfirmedUses = 5;
-  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'LIVE');
+  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await filterPage.locator('#unfinishedCount').innerText(), '8 accounts', 'The account leaves when receipt usage is complete and no live uses remain');
   await filterPage.locator('[data-intent="unfinished"]').click();
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A109"]').count(), 0);

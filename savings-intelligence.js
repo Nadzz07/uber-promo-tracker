@@ -187,7 +187,10 @@ export function estimateReceiptSavings(receipts = [], { now = new Date(), servic
       uberOneEstimateModel: {
         sampleSize: model.sampleSize,
         baselinePerEligibleOrder: model.baselinePerEligibleOrder,
-        confidence: model.confidence
+        confidence: model.confidence,
+        status: model.sampleSize ? 'available' : 'insufficient_evidence',
+        receiptsMentioningUberOne: receipts.filter(r=>r.uberOneSignal).length,
+        explanation: model.sampleSize ? 'Conservative estimate learned from explicit Uber One receipt amounts. Already reported savings are not estimated again.' : 'Receipts do not separately state an Uber One saving or the undiscounted delivery and service fees. Combined savings remain in confirmed totals. A missing estimate does not mean no Uber One benefit.'
       }
     },
     byAccount

@@ -59,6 +59,7 @@ export function parseAccessList(text) {
   }
 
   const records = new Map();
+  const accountStatusIndex = hasHeader ? header.findIndex(c => c === 'account_status' || c === 'account status') : -1;
 
   for (const [index, row] of rows.slice(hasHeader ? 1 : 0).entries()) {
     const email = String(row[emailIndex] || "").trim().toLowerCase();
@@ -87,6 +88,10 @@ export function parseAccessList(text) {
     }
 
     const previous = records.get(email);
+    const accountStatus = accountStatusIndex < 0 ? null : String(row[accountStatusIndex] || '').trim().toLowerCase();
+    if (accountStatus && !['active', 'archived', 'deactivated'].includes(accountStatus)) throw new Error('Unknown account status on data row ' + (index + 1) + '.');
+    if (accountStatus === 'deactivated' && canLogin) throw new Error('Deactivated accounts cannot be marked Can log in.');
+    if (previous?.accountStatus && accountStatus && previous.accountStatus !== accountStatus) throw new Error('Conflicting account statuses on data row ' + (index + 1) + '.');
     if (previous && previous.canLogin !== canLogin) {
       throw new Error("Conflicting login states on data row " + (index + 1) + ".");
     }
@@ -96,6 +101,7 @@ export function parseAccessList(text) {
 
     records.set(email, {
       canLogin,
+      accountStatus: accountStatus || previous?.accountStatus || null,
       loginMethod: loginMethod || previous?.loginMethod || null
     });
   }
@@ -105,6 +111,7 @@ export function parseAccessList(text) {
   return [...records].map(([email, value]) => ({
     email,
     canLogin: value.canLogin,
-    loginMethod: value.loginMethod
+    loginMethod: value.loginMethod,
+    ...(accountStatusIndex >= 0 ? { accountStatus: value.accountStatus } : {})
   }));
 }

@@ -6,7 +6,7 @@ import { maskAccountAlias } from "./account-map.js";
 import { offerFingerprint } from "./identity.js";
 import { estimateReceiptSavings, combinedReceiptSavings } from "./savings-intelligence.js";
 
-export const PRIVATE_DB_SCHEMA_VERSION = 7;
+export const PRIVATE_DB_SCHEMA_VERSION = 9;
 export const DEFAULT_PRIVATE_DB = "./uber-tracker.local.db";
 
 function normaliseAlias(value) {
@@ -168,6 +168,7 @@ function initSchema(db) {
 
 
   const transportColumns = new Set(db.prepare('PRAGMA table_info(transport_receipts)').all().map(r => r.name));
+  if (!transportColumns.has('trip_key')) db.exec('ALTER TABLE transport_receipts ADD COLUMN trip_key TEXT');
   for (const name of ['promotion_discount', 'uber_cash_used', 'uber_cash_savings', 'reported_savings', 'uber_one_savings']) {
     if (!transportColumns.has(name)) db.exec('ALTER TABLE transport_receipts ADD COLUMN ' + name + ' REAL');
   }
@@ -178,6 +179,7 @@ function initSchema(db) {
   if (!accountColumns.has("login_method")) {
     db.exec("ALTER TABLE accounts ADD COLUMN login_method TEXT");
   }
+  if (!accountColumns.has('account_status')) db.exec('ALTER TABLE accounts ADD COLUMN account_status TEXT');
 
   const receiptColumns = new Set(
     db.prepare("PRAGMA table_info(receipts)").all().map(row => row.name)
@@ -300,19 +302,21 @@ export function ensureAccount(
   };
 }
 
-export function setAccountAccess(db, alias, canLogin, loginMethod = null) {
+export function setAccountAccess(db, alias, canLogin, loginMethod = null, accountStatus = null) {
   const normalized = normaliseAlias(alias);
   // Access edits must not look like a new Mail observation or restart offer age.
   const account = getAccounts(db).find(a => a.alias === normalized) || ensureAccount(db, { alias: normalized });
   if (!account) return false;
+  if (accountStatus && !['active', 'archived', 'deactivated'].includes(accountStatus)) throw new Error('Invalid account status.');
+  if (canLogin && (accountStatus || account.accountStatus) === 'deactivated') throw new Error('Deactivated accounts cannot be marked Can log in.');
 
   if (loginMethod != null && !["iCloud", "Google", "Both"].includes(loginMethod)) {
     throw new Error("Invalid account login method.");
   }
 
   db.prepare(
-    "UPDATE accounts SET can_login = ?, login_method = COALESCE(?, login_method) WHERE alias = ?"
-  ).run(canLogin ? 1 : 0, loginMethod || null, normalized);
+    "UPDATE accounts SET can_login = ?, login_method = COALESCE(?, login_method), account_status = COALESCE(?, account_status) WHERE alias = ?"
+  ).run(canLogin ? 1 : 0, loginMethod || null, accountStatus || null, normalized);
 
   return true;
 }
@@ -324,7 +328,7 @@ export function resetAccountAccess(db) {
 export function getAccounts(db) {
   return db.prepare(`
     SELECT
-      account_ref, alias, masked, can_login, login_method,
+      account_ref, alias, masked, can_login, login_method, account_status,
       first_seen_at, last_seen_at, last_promo_at, last_receipt_at
     FROM accounts
     ORDER BY last_seen_at DESC, account_ref ASC
@@ -334,6 +338,8 @@ export function getAccounts(db) {
     masked: row.masked,
     canLogin: Boolean(row.can_login),
     loginMethod: row.login_method || null,
+    accountStatus: row.account_status || null,
+    deactivated: row.account_status === 'deactivated',
     firstSeenAt: row.first_seen_at,
     lastSeenAt: row.last_seen_at,
     lastPromoAt: row.last_promo_at,
@@ -915,17 +921,18 @@ export function upsertTransportReceipt(
     reported_savings = NULL, uber_one_savings = NULL, total = NULL
     WHERE message_key = ? AND account_ref = ?`).run(receipt.messageKey, receipt.accountRef);
   const previous = db.prepare(`SELECT receipt_id FROM transport_receipts WHERE account_ref = ? AND
-    ((? IS NOT NULL AND message_key = ?) OR (? IS NOT NULL AND upper(trim(trip_id)) = ?)) ORDER BY first_seen_at LIMIT 1`)
+    ((? IS NOT NULL AND message_key = ?) OR (? IS NOT NULL AND upper(trim(trip_id)) = ?) OR (? IS NOT NULL AND trip_key = ? AND transport_mode = ?)) ORDER BY CASE WHEN message_key = ? THEN 0 ELSE 1 END,first_seen_at LIMIT 1`)
     .get(receipt.accountRef, receipt.messageKey || null, receipt.messageKey || null,
       receipt.tripId ? String(receipt.tripId).trim().toUpperCase() : null,
-      receipt.tripId ? String(receipt.tripId).trim().toUpperCase() : null);
+      receipt.tripId ? String(receipt.tripId).trim().toUpperCase() : null,
+      receipt.tripKey || null,receipt.tripKey || null,receipt.transportMode || 'ride',receipt.messageKey || null);
   if (previous) receipt = { ...receipt, receiptId: previous.receipt_id };
   db.prepare(`
     INSERT INTO transport_receipts(
       receipt_id, account_ref, message_key, sent_at, received_at,
-      trip_id, transport_mode, total, first_seen_at, last_seen_at,
+      trip_id, trip_key, transport_mode, total, first_seen_at, last_seen_at,
       promotion_discount, uber_cash_used, uber_cash_savings, reported_savings, uber_one_savings
-    ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(receipt_id) DO UPDATE SET
       account_ref = excluded.account_ref,
       message_key = CASE WHEN excluded.received_at >= transport_receipts.received_at
@@ -948,6 +955,7 @@ export function upsertTransportReceipt(
         THEN COALESCE(excluded.uber_one_savings, transport_receipts.uber_one_savings)
         ELSE COALESCE(transport_receipts.uber_one_savings, excluded.uber_one_savings) END,
       trip_id = COALESCE(excluded.trip_id, transport_receipts.trip_id),
+      trip_key = COALESCE(excluded.trip_key, transport_receipts.trip_key),
       transport_mode = CASE WHEN excluded.received_at >= transport_receipts.received_at
         THEN excluded.transport_mode ELSE transport_receipts.transport_mode END,
       total = CASE WHEN excluded.received_at >= transport_receipts.received_at
@@ -961,6 +969,7 @@ export function upsertTransportReceipt(
     receipt.sentAt || receipt.receivedAt || null,
     receipt.receivedAt || null,
     receipt.tripId || null,
+    receipt.tripKey || null,
     receipt.transportMode || "ride",
     receipt.total ?? null,
     seenAt,
@@ -968,6 +977,52 @@ export function upsertTransportReceipt(
     receipt.promotionDiscount ?? null, receipt.uberCashUsed ?? null, receipt.uberCashSavings ?? null,
     receipt.reportedSavings ?? null, receipt.uberOneSavings ?? null
   );
+}
+
+// Run only after complete, validated source coverage. Duplicate derived rows
+// remain recoverable in a private journal; every original message is retained.
+export function reconcileTransportReceiptIdentities(db, processedMessageKeys, parsedSources = null) {
+  const rows=db.prepare('SELECT * FROM transport_receipts WHERE trip_key IS NOT NULL').all();
+  const groups=new Map();
+  for(const row of rows){
+    if(!row.message_key || !processedMessageKeys.has(row.message_key)) throw new Error('Complete receipt source coverage is required for identity reconciliation.');
+    const key=JSON.stringify([row.account_ref,row.transport_mode,row.trip_key]);
+    if(!groups.has(key))groups.set(key,[]);groups.get(key).push(row);
+  }
+  const duplicates=[...groups.values()].filter(g=>g.length>1);
+  for(const group of duplicates) if(new Set(group.map(r=>r.trip_id?.trim().toUpperCase()).filter(Boolean)).size>1) throw new Error('Conflicting trip IDs cannot be merged.');
+  db.exec('CREATE TABLE IF NOT EXISTS receipt_identity_repairs (duplicate_receipt_id TEXT PRIMARY KEY, retained_receipt_id TEXT NOT NULL, original_rows_json TEXT NOT NULL, repaired_at TEXT NOT NULL)');
+  let merged=0;
+  if (parsedSources) for(const [key,group] of groups) {
+    const sources=parsedSources.filter(r=>JSON.stringify([r.accountRef,r.transportMode||'ride',r.tripKey])===key);
+    if (!sources.length) throw new Error('Receipt identity has no currently accepted source.');
+    const reconstructed=dedupeReceipts(sources);
+    const [current]=reconstructed;
+    if (reconstructed.length!==1) throw new Error('Receipt sources cannot be reconstructed unambiguously.');
+    const financial={total:current.total??null,promotion_discount:current.promotionDiscount??null,uber_cash_used:current.uberCashUsed??null,uber_cash_savings:current.uberCashSavings??null,reported_savings:current.reportedSavings??null,uber_one_savings:current.uberOneSavings??null};
+    const columns=Object.keys(financial);
+    // Each component comes from the latest source that actually states it.
+    // A later sparse copy cannot erase a valid discount from an earlier copy.
+    for(const row of group){
+      db.prepare('UPDATE transport_receipts SET '+columns.map(k=>k+'=?').join(',')+' WHERE receipt_id=?').run(...columns.map(k=>financial[k]),row.receipt_id);
+      Object.assign(row,financial);
+    }
+  }
+  for(const group of duplicates){
+    group.sort((a,b)=>a.first_seen_at.localeCompare(b.first_seen_at)||a.receipt_id.localeCompare(b.receipt_id));
+    const retained=group[0],recent=[...group].sort((a,b)=>String(b.received_at).localeCompare(String(a.received_at))||b.last_seen_at.localeCompare(a.last_seen_at));
+    const result={...retained};
+    for(const column of Object.keys(retained).filter(k=>!['receipt_id','account_ref','first_seen_at','sent_at','last_seen_at'].includes(k))) result[column]=recent.find(r=>r[column]!=null)?.[column]??null;
+    result.sent_at=group.map(r=>r.sent_at).filter(Boolean).sort()[0]||null;
+    result.last_seen_at=group.map(r=>r.last_seen_at).sort().at(-1);
+    const columns=Object.keys(result).filter(k=>k!=='receipt_id');
+    db.prepare('UPDATE transport_receipts SET '+columns.map(k=>k+'=?').join(',')+' WHERE receipt_id=?').run(...columns.map(k=>result[k]),retained.receipt_id);
+    for(const row of group.slice(1)){
+      db.prepare('INSERT INTO receipt_identity_repairs VALUES(?,?,?,?)').run(row.receipt_id,retained.receipt_id,JSON.stringify(group),new Date().toISOString());
+      db.prepare('DELETE FROM transport_receipts WHERE receipt_id=?').run(row.receipt_id);merged++;
+    }
+  }
+  return {duplicateGroups:duplicates.length,mergedDerivedRows:merged,originalMessagesPreserved:true};
 }
 
 export function getTransportReceipts(db) {
@@ -992,6 +1047,7 @@ export function getTransportReceipts(db) {
     sentAt: row.sent_at,
     receivedAt: row.received_at,
     tripId: row.trip_id,
+    tripKey: row.trip_key || null,
     transportMode: row.transport_mode,
     promotionDiscount: row.promotion_discount, uberCashUsed: row.uber_cash_used, uberCashSavings: row.uber_cash_savings,
     reportedSavings: row.reported_savings, uberOneSavings: row.uber_one_savings,
@@ -1085,7 +1141,7 @@ export function getPublicAccountInsights(db) {
     const transport = rides.filter(r => r.accountRef === account.accountRef);
     const last = rows => rows.map(r => r.sentAt || r.receivedAt).filter(Boolean).sort().at(-1) || null;
     return { accountRef: account.accountRef, accountMasked: account.masked, canLogin: account.canLogin,
-      loginMethod: account.loginMethod, lastSeenAt: account.lastSeenAt, lastPromoAt: account.lastPromoAt,
+      loginMethod: account.loginMethod, deactivated: account.deactivated === true, lastSeenAt: account.lastSeenAt, lastPromoAt: account.lastPromoAt,
       lastOrderAt: last(orders), lastRideAt: last(transport), orderCount: orders.length, rideCount: transport.length,
       totalSaved: savings.get(account.accountRef)?.confirmedSaved || 0,
       activePromoCount: offers.filter(p => p.accountRef === account.accountRef && p.status === "active").length };

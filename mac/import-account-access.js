@@ -21,7 +21,7 @@ try {
   try {
     db.exec("BEGIN IMMEDIATE");
     if (reset) resetAccountAccess(db);
-    for (const row of records) setAccountAccess(db, row.email, row.canLogin, row.loginMethod);
+    for (const row of records) setAccountAccess(db, row.email, row.canLogin, row.loginMethod, row.accountStatus);
     db.exec("COMMIT");
     const accounts = getAccounts(db);
     const usable = accounts.filter(a => a.canLogin).length;

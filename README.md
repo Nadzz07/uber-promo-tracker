@@ -1,565 +1,121 @@
 # Uber Eats Promo Tracker
 
-A private, account-aware Uber Eats promotion intelligence system built around one practical question:
+[Open the tracker](https://nadzz07.github.io/uber-promo-tracker/).
 
-**Which email/account should I use for this order, and should I split the basket across multiple accounts?**
+Apple Mail and SQLite on the Mac hold the private account list, original message
+evidence, receipts and promo codes. GitHub Pages receives masked identities,
+offer facts and derived totals. Full login emails can be imported privately in
+**More → Login emails** on each device. They stay in that browser, wrap without
+ellipsis and are never uploaded.
 
-The Mac does the private work. GitHub Pages only receives a sanitised snapshot for the phone/desktop dashboard.
+## Dashboard and account rules
 
-Appearance and private login-email settings are under **More**. For the current
-UI changes, safe private reprocessing and local VS Code handoff, read
-[UI_HANDOFF.md](UI_HANDOFF.md). Full emails are imported on your own device and
-never added to the published snapshot.
+- **Total accounts:** every account, including archived and deactivated history.
+- **Can log in:** accounts marked accessible in the authoritative private list.
+- **Archived:** inaccessible accounts, including explicit Deactivated accounts.
+- **Accounts available:** accessible accounts with current opportunities eligible
+  under the account-used rule.
+- **Used:** five unique Eats receipts, or at least one Eats plus one Ride receipt.
+  Lime journeys are included in Rides. Used and Archived accounts are excluded
+  from recommendations.
+- **Not finished:** accessible accounts with incomplete receipt usage or offers
+  left to use. One remaining use still belongs here. Receipt completion and
+  individual offer use are separate.
 
-In **More → Appearance → Layout**, choose **Auto**, **Mobile** or **Desktop**.
-Auto follows the screen size; Mobile keeps the phone layout on a large screen;
-Desktop uses a separate dashboard design. This preference is saved on each device.
+Available, Expired, Fully used, Needs checking, manually done and ignored offers
+remain distinct. Manual offer changes are browser-local. Duplicate receipt
+copies count once; newer charges and sparse copies retain supported facts.
 
-## Architecture
+Offers end at the earlier explicit deadline or 35 elapsed days from the first
+observed matching offer email. The latter is labelled **Estimated end**; it
+cannot establish activation time. Reminders do not restart the clock. Unpriced
+marketing and uncertain terms cannot become ready discounts.
 
-```text
-Apple Mail on Mac
-  ├─ promo mailbox / Inbox
-  └─ Uber Receipts mailbox
-          ↓
-Mail exporter
-          ↓
-Parser v2
-  ├─ sender analysis
-  ├─ offer classification
-  ├─ discount/minimum-spend/code extraction
-  ├─ exact / estimated / unknown expiry
-  └─ evidence + confidence
-          ↓
-uber-tracker.local.db          ← PRIVATE, Git-ignored
-  ├─ accounts + can-login state
-  ├─ Mail messages/evidence
-  ├─ durable offers/history
-  ├─ receipts
-  └─ receipt-to-offer matches
-          ↓
-receipt usage + savings intelligence
-          ↓
-sanitiser
-          ↓
-promos.json + history.json     ← PUBLIC safe projection only
-          ↓
-GitHub Pages mobile-first dashboard
-```
+Confirmed savings use the larger of stated saving components and a stated
+receipt savings total, counting that amount once. Uber Cash balance payments
+are excluded unless explicit promotional evidence supports savings. Cash emails
+show recorded offers and history, not a verified wallet balance or guaranteed
+stacking. Missing Uber One estimates require explicit receipt samples; without
+them the dashboard explains **Unavailable**, rather than implying zero benefit.
 
-## Privacy model
+Home shows a compact account overview, confirmed Total saved, best accounts and
+an order planner. Secondary savings, history, receipts and import information
+are under More. Desktop uses responsive grids; mobile previews a shorter account
+list with access to all results. **More → Appearance** controls colour and layout.
+The mobile navigation supports tapping and held-finger sliding. Reduced motion,
+keyboard access, dialog focus and local preferences are supported.
 
-Private on the Mac:
+The website shows an imported snapshot. **Up to date** means a successful Mail
+scan within two hours; **Stale**, **Snapshot**, **Syncing** and **Attention** reflect
+the actual known scan state. Snapshot preparation is separate from Mail scan time.
 
-- full Hide My Email / recipient aliases
-- actual promo codes
-- raw Uber message bodies
-- parser evidence snippets
-- receipt merchant/order details
-- account login-access list
-- the private SQLite database
-- legacy database content
+## Private Mac setup
 
-Public JSON contains only safe derived information such as:
-
-- masked account email, e.g. `na…07@icloud.com`
-- internal anonymous account ref
-- whether that masked account is usable for recommendations
-- discount/minimum-spend/expiry fields
-- remaining-use state
-- aggregate receipt savings/order counts
-- aggregate fee estimate
-
-Never commit `uber-tracker.local.db`, `emails.local.json`, access lists, legacy DBs, `.env` files or raw Mail exports.
-
-## Account identity and login access
-
-The **recipient email is the Uber Eats account identity**.
-
-Each newly discovered recipient alias is automatically added to the private account registry. There are only two login states:
-
-- **Can log in**
-- **Can't log in**
-
-Login state is separate from **login method**. Login method is one of:
-
-- **iCloud** — sign in through the Apple/iCloud route
-- **Google** — sign in through Google, even when the account email itself is an iCloud address
-- **Both** — either route works
-
-Accounts discovered intentionally by the private tracker default to **Can log in** unless they are explicitly marked Archived/Can't log in. In normal production use, `account-access.local.csv` is the authoritative account universe: accounts outside it are skipped, and the imported access state decides whether each known account is available or Archived.
-
-The public UI shows the masked email plus the safe login method so the account chooser tells you how to sign in. Internal refs such as `A001` are join keys and are not the normal user-facing identity.
-
-### Import an access list
-
-Preferred CSV format:
-
-```csv
-Email,Login method,Login status,Notes
-alias-one@icloud.com,iCloud,Can log in,
-alias-two@icloud.com,Google,Can log in,Google login despite iCloud email
-alias-three@icloud.com,Both,Can log in,
-```
-
-The legacy `Provider` column is still accepted and is interpreted as the login method for backwards compatibility.
-
-Then:
+Use Node 22.13 or newer (24 recommended). Preserve existing local fixes and use
+the separate-clone and backup procedure in [RELEASE.md](RELEASE.md).
 
 ```bash
-node mac/import-account-access.js account-access.local.csv --reset
-```
-
-If you only have the list of accounts you **can** log into, create a text file containing one email per line:
-
-```text
-alias-one@icloud.com
-alias-three@icloud.com
-```
-
-Then run:
-
-```bash
-node mac/import-account-access.js accessible-accounts.local.txt --reset
-```
-
-`--reset` first marks every known account inaccessible, then applies the file. Future newly discovered accounts again default to inaccessible until added to your list.
-
-### Permanently remove private accounts
-
-To remove accounts from the private SQLite source of truth instead of merely marking them inaccessible, put one email per line in a Git-ignored local file such as `remove-accounts.local.txt` and run:
-
-```bash
-npm run accounts:remove-private -- remove-accounts.local.txt --db uber-tracker.local.db --erase-list
-```
-
-This transaction removes linked private messages, offers, Uber Eats receipts, Ride/Lime receipts and receipt-to-offer matches, then truncates the SQLite WAL and runs `VACUUM`. The command prints counts only and, with `--erase-list`, deletes the local removal list after a successful cleanup.
-
-When `account-access.local.csv` is present, normal Mail/MBOX generation treats it as the authoritative account universe and skips messages addressed to accounts outside it before storing anything. That prevents a permanently removed account from being recreated by an old receipt or offer that still exists in Apple Mail or an MBOX export. Set `TRACKER_ALLOW_UNKNOWN_ACCOUNTS=1` only when you intentionally want to discover/import accounts that are not yet in the private access list.
-
-## Parser v2
-
-The parser is split into distinct stages under `parser-v2/` rather than growing one giant regex file:
-
-- `sender.js` — Uber domain, Apple relay shape and display-name fallback
-- `classifier.js` — Uber Eats / ride / Uber One / unwanted-category classification
-- `discount.js` — fixed, percentage, Uber Cash, caps, uses, minimum spend and code
-- `expiry.js` — expiry extraction and evidence
-- `parser.js` — structured result assembly
-- `utils.js` — normalisation/date/evidence utilities
-
-Structured offer types include:
-
-- `uber_cash`
-- `fixed_order_discount`
-- `multi_order_discount`
-- `percentage_discount`
-- `ride_fixed_discount`
-- `ride_percentage_discount`
-- `reminder`
-- `non_promo`
-
-Ride classifications are retained privately for correct parsing, but the public tracker publishes **Uber Eats only**.
-
-### Expiry model
-
-Expiry is intentionally one of:
-
-- **exact** — explicit terms such as “Expires 20 Mar 2026 12:00AM”
-- **estimated** — wording such as “valid for 14 days” where the starting point is reliably the email date
-- **unknown** — no expiry is stated, or wording depends on an unknown account-activation date
-
-The parser leaves activation-dependent expiry unknown. The tracker separately applies your policy: at most 35 elapsed days from the first observed offer email, retaining an earlier explicit deadline. This is labelled a policy estimate, not a verified activation date. Reminders never restart it; missing/invalid dates still need checking.
-
-The rule is:
-
-> correct + unknown is better than incorrect + precise.
-
-Private evidence stores the source wording that justified extracted fields.
-
-## Deterministic current/history logic
-
-Bulk Mail reprocessing must not make an older email overwrite a newer one.
-
-Every parsed message stores its sent date. Durable offers track `first_sent_at` and `last_sent_at`, and newer source emails update the canonical offer record deterministically.
-
-Repeated reminder emails for the same offer family use a stable offer fingerprint that does **not** change merely because an updated reminder contains a different expiry date.
-
-## Receipts and savings
-
-Receipts are a separate evidence source, not promo emails.
-
-The receipt parser extracts, when present:
-
-- subtotal
-- Promotion discount
-- delivery fee
-- service fee
-- small-order fee
-- tip
-- Uber Cash / credits used
-- final total
-- order ID
-- receipt email sent time (an order-time proxy when no separate order timestamp is available)
-- recipient account
-
-Receipt evidence can:
-
-- confirm an Eats order on an account; one receipt does not by itself make a five-order offer Used
-- confirm a specific promo when the amount uniquely matches
-- decrement multi-use offers
-- mark single-use offers used
-- estimate the real extra cost of splitting baskets
-- build lifetime savings/order statistics
-
-For first/next-N Uber Eats offers, the email-defined order count is the usage limit. A 5-order offer with two unique qualifying Uber Eats orders has 3 uses left. Duplicate receipt copies count once. Uber transport receipts are stored separately and never decrement an Uber Eats offer. Lime/e-bike receipts count under the single **Ride** history category; receipt-backed rides are treated as completed history.
-
-Offer state is deliberately explicit:
-
-- **Available** — uses remain and the offer has not expired
-- **Fully used** — all individual offer uses are consumed (receipt confirmation and pending manual adjustments stay distinct)
-- **Expired** — the deadline passed; expiry is never evidence of a receipt-confirmed use
-- **Needs checking** — uses remain but expiry is unknown, or receipt evidence cannot be matched confidently
-
-Needs-checking offers are kept visible for review but excluded from recommendations until the ambiguity is resolved.
-
-Chronology is enforced: a receipt from before a promo email cannot consume that later promo.
-
-The Home headline is **Lifetime savings**. Confirmed receipt savings remain the durable base; a conservative missing-Uber-One estimate is kept visibly separate so estimated money is never styled as confirmed savings.
-
-Confirmed receipt saving uses the larger of (a) explicit saving components such as Promotion, explicitly promotional Uber Cash and an explicit Uber One saving, or (b) Uber's own “You saved £X”/total-savings line. This prevents double-counting when the receipt prints both a total and its components. A plain Uber Cash balance payment is shown separately and is not assumed to be saving: it might have been purchased. Confirmed ride/Lime discounts also contribute to lifetime, 30-day and per-account savings; the Eats Uber One estimate is never applied to rides.
-
-If a receipt mentions Uber One but omits the Uber One amount, the tracker may estimate that missing amount from the median of the user's own receipts that explicitly state an Uber One saving. With fewer than three explicit samples the estimate is discounted, each estimated order is capped conservatively, and receipts where Uber already reports extra saving do not get another estimate added. If there is no usable evidence, the estimate stays at zero rather than inventing a number.
-
-Savings insights expose the confirmed total, estimated missing Uber One, promo discounts, Uber Cash, explicit Uber One savings, the estimate sample size and the estimated total separately.
-
-## Basket optimiser
-
-The dashboard can optimise a planned basket across up to four accounts/orders.
-
-It:
-
-- considers **only accounts marked Can log in**
-- enforces minimum spend
-- applies percentage caps
-- handles fixed discounts and Uber Cash
-- assumes one tracked account promo per order
-- subtracts an estimated extra-order fee
-- maximises net saving
-- prefers fewer orders when net saving ties
-- prefers earlier expiry when two offers save the same amount
-- excludes receipt-confirmed used and manually Used/Ignore offers
-
-The extra-order fee is prefilled from observed receipt delivery/service/small-order fees when available and can be overridden.
-
-## Dashboard
-
-The site is mobile-first because the primary use is while ordering food.
-
-Main navigation:
-
-- **Home** — basket optimiser, quick categories and best usable accounts
-- **Accounts** — searchable accounts you can actually log into
-- **Used** — needs-checking matches, partial usage, fully used offers, expired offers and ignored offers
-- **More** — Archived accounts, savings insights, scan/data health and history
-
-Inaccessible accounts are deliberately hidden from the normal ordering flow.
-
-The UI uses a dark liquid-glass treatment with translucent panels, blur, equal-size quick tiles, compact phone spacing and a floating glass navigation bar. “Potential value” is intentionally not shown. Account cards show current-basket discounts, receipt progress, remaining uses and expiry. **Not finished** includes every accessible account with incomplete receipt usage or a live offer left to use. One remaining use stays visible even after the account meets the receipt rule; expired offers on incomplete accounts remain clearly labelled. **Uber Cash** shows current recorded offers and history, including receipt-complete accounts; it does not claim the current wallet balance. Tracker-policy expiry dates are labelled **Estimated end**. The chosen accent tints panels and navigation, and the bottom capsule supports held-finger sliding.
-
-Basket-splitting controls are hidden behind **Split settings**. The normal Home view uses a clearly editable pounds-and-pence subtotal and shows the recommended order/account split. Split settings explain the estimated extra fee per additional order and use large 1–4 order controls rather than exposing technical planner fields on Home.
-
-
-## Manual multi-use state
-
-The browser supports immediate usage adjustments before the next receipt scan.
-
-For a promotion such as:
-
-`£12 off £15 on 5 orders`
-
-if one receipt-confirmed use already exists, the UI shows:
-
-`1 of 5 used · 4 left`
-
-Tapping **Used 1 order** creates one pending manual use, so the UI immediately shows 3 left. When a later receipt confirms that same use, the pending adjustment is reconciled instead of being counted a second time.
-
-Offer controls live inside the account's **View offers** bottom sheet rather than on the main account cards:
-
-- **Used 1 order**
-- **Undo manual use**
-- **Mark fully used**
-- **Ignore offer / Restore offer**
-
-A partially used multi-use offer remains active and eligible for recommendations until its effective remaining uses reach zero or the offer expires.
-
-Account access and usage are separate. **Archived** means the private access list says Can't log in. A receipt-confirmed **Used account** has at least five unique Eats receipts, or at least one Eats and one ride/bike (including Lime) receipt. An **Available account** can log in, has not met that lifetime usage rule and has an available offer. A reviewable offer does not make the whole account Needs checking while another usable offer exists. **Fully used** still describes individual offers, not account receipt evidence.
-
-Receipt reconciliation is count-based; it cannot prove which unlinked manual tap corresponds to a receipt. Receipt-confirmed state remains the durable private truth in SQLite; browser manual state is an immediate convenience layer that reconciles as receipt evidence catches up.
-
-## Mac setup
-
-Requires **Node.js 22.13 or newer** because the private store uses Node's built-in SQLite API.
-
-From the GitHub repo folder:
-
-```bash
-bash mac/setup-v2.sh
-```
-
-This:
-
-1. verifies built-in SQLite support (Node 22.13+)
-2. creates/opens `uber-tracker.local.db`
-3. prints the Apple Mail mailbox names visible to scripting
-
-Apple may ask permission for Terminal/osascript to control Mail. Allow it.
-
-### Configure the receipt mailbox
-
-The default assumptions are:
-
-- promo folders: `INBOX`
-- promo lookback: 35 days
-- receipt folder: `Uber Receipts`
-- normal receipt lookback: 90 days
-- historical receipt depth: 3650 days
-- historical backfill chunk: 180 days
-
-Multiple promo folders are supported with a pipe-separated value, for example:
-
-```bash
-APPLE_MAIL_PROMO_FOLDERS="INBOX|Uber High Promos|Uber Cash"
-```
-
-Messages found in more than one configured folder are deduplicated before import.
-
-The normal updater deliberately keeps receipt scanning recent. Apple Mail's `whose` queries can time out on large mailboxes, so the exporter bulk-reads lightweight mailbox metadata, filters the requested date window locally, and opens full message content only for matching Uber messages. It never falls back to the old per-message full-mailbox crawl.
-
-Historical receipts are imported separately in bounded chunks and accumulated in the private SQLite database.
-
-### Inbox filing and Archived accounts
-
-Mail scans are read-only by default, including existing configurations that previously enabled routing. Preview never invokes Mail movement or deletion. Optional routing requires `TRACKER_READ_ONLY_MAIL=false` as well as the relevant move/trash flag. Keep the safety switch true for everyday use.
-
-If explicitly enabled, routing happens **after** the private import and public-snapshot validation. This ordering protects receipt history and savings even if Apple Mail filing fails.
-
-- receipts for **Available** accounts move from Inbox to `Uber Receipts`
-- Uber mail for **Archived / Can't log in** accounts moves from Inbox to the account's configured Bin/Trash
-- Archived receipts are imported first, so their historical orders and savings remain in the tracker
-- the tracker never empties Bin/Trash and never performs a targeted permanent erase
-- messages without a stable Message-ID, without successfully committed matching receipt/promo evidence, or that fail Mail automation, are left in Inbox for a safe retry
-
-Before enabling Archived-account Bin routing, confirm Mail > Settings > Accounts > Mailbox Behaviours has a Bin/Trash mailbox configured for each relevant mail account. Apple Mail controls how long deleted messages remain recoverable.
-
-If your Mail folder has a different name:
-
-```bash
+npm ci --ignore-scripts
 cp tracker.example.env tracker.local.env
 ```
 
-Edit `tracker.local.env` and set the exact mailbox name(s) shown by:
+Set the private database and authoritative CSV paths in `tracker.local.env`.
+Keep `TRACKER_READ_ONLY_MAIL=true`, `APPLE_MAIL_MOVE_INBOX_RECEIPTS=false` and
+`APPLE_MAIL_TRASH_ARCHIVED=false`. Mail Automation permission is required.
 
-```bash
-osascript -l JavaScript mac/list-mailboxes.js
-```
-
-`tracker.local.env` is private and Git-ignored.
-
-### Offline MBOX receipt import
-
-Apple Mail mailbox exports can be ingested without sending raw receipts to GitHub. The importer accepts either the extracted MBOX payload or the Apple Mail ZIP export, decodes MIME content locally, normalises forwarded Uber receipts back to the original Uber sender/recipient when the forwarded headers are present, and writes the same private message shape used by the normal Apple Mail exporter.
-
-```bash
-npm run mbox:import -- "/path/to/Uber Receipts.mbox.zip" emails.local.json
-```
-
-The ZIP/MBOX and generated `emails.local.json` are private and Git-ignored. The command prints counts only; it does not print account aliases or receipt bodies.
-
-To reconcile the imported history against the existing private SQLite state without publishing:
-
-```bash
-node generate-promos.js \
-  emails.local.json \
-  /tmp/uber-promos-preview.json \
-  /tmp/uber-history-preview.json \
-  uber-tracker.local.db
-```
-
-Receipt matching stays conservative. Duplicate Eats copies collapse through receipt identity, ride/Lime-bike updates use stable trip details when Uber does not provide a trip ID, and ambiguous Eats offer matches remain **Needs checking** rather than consuming a promotion by guesswork.
-
-### Private preview sync
-
-Before the first publish, run:
+The private CSV accepts `email,can_login,login_method,account_status`. Login
+methods are iCloud, Google or Both. Account status may be active, archived or
+deactivated; deactivated accounts cannot be marked accessible. Missing configured
+access lists block imports. Accounts outside the list are skipped.
 
 ```bash
 bash mac/preview-sync.sh
+node mac/validate-private-data.js --db /absolute/path/private.db --access /absolute/path/account-access.local.csv --output-dir tracker-validation.local.new
+node mac/export-device-accounts.js --db /absolute/path/private.db --output device-accounts.local.json
 ```
 
-This is fail-fast: if Mail export fails, no parser/import/move step runs afterward. It creates a consistent private SQLite backup, updates the database, and writes public-output previews only to a temporary directory. It never moves, trashes or deletes Mail messages. It does **not** commit or push anything.
+Validation backs up the source and reparses a copy twice. Complete-source repairs
+require every stored message; partial imports cannot rebuild offer clocks or
+merge legacy receipt identities. Prior derived records remain recoverable in
+private repair journals. Missing original evidence or unexplained discrepancies
+block release. Only original Mail/MBOX evidence can establish receipt coverage.
 
-### Run a live scan
+Backups include committed WAL data and have owner-only permissions. Optional
+`TRACKER_COMPRESS_BACKUPS=true` compresses generated backups only after verifying
+the decompressed bytes; the original database is never compressed or removed.
 
-After the private preview looks correct:
+Archived / Can't log in routing to recoverable Bin/Trash exists as an optional
+utility with additional explicit opt-ins. It is disabled by the read-only safety
+switch. With `APPLE_MAIL_ARCHIVED_KEEP_EVIDENCE=true`, routing keeps receipts and
+confirmed or uncertain used-promo evidence. Account-qualified Message-IDs prevent
+moving another account's copy. A read-only `--plan` can retain original sources
+before an `--execute-verified-plan` move; changed sources fail closed. Preview
+never routes messages. Mail movement requires its own explicit authorization;
+validation and interface work do not require it. Bin is never emptied.
 
-```bash
-bash mac/update-promos.sh
-```
-
-The updater:
-
-1. verifies a clean `main` checkout, takes the shared sync lock, and pulls with fast-forward only
-2. runs the regression suite
-3. exports recent Uber messages into a temporary file; a failed export preserves the last good export
-4. updates the private SQLite store
-5. recognises Uber Eats receipts found in `INBOX`
-6. optionally files those already-imported receipts into `Uber Receipts`
-7. generates sanitised `promos.json` and `history.json`
-8. validates privacy and consistency, then commits only those two public files and pushes `main`
-
-Receipt messages found in `INBOX` contribute to account/order/savings statistics in the same run before any optional move happens. The Mail move is only filing; SQLite is the durable tracker state.
-
-To enable Inbox filing:
-
-```bash
-APPLE_MAIL_MOVE_INBOX_RECEIPTS=true
-```
-
-in `tracker.local.env`.
-
-The updater does not mark Mail messages as read. Missing configured folders, unreadable selected messages, and mailbox changes during indexing fail the scan instead of publishing an incomplete result. Optional filing failures do not discard successfully imported receipts.
-
-All sync entry points use `.tracker-sync.lock`. If a process is interrupted, its exit handler removes the lock. After a hard crash, inspect `.tracker-sync.lock/pid` and verify that process is no longer running before removing that directory. Do not remove a lock held by an active sync.
-
-Publishing stops if the checkout has unrelated pending changes or unpublished code commits. A failed push leaves the data commit locally so it can be retried. Backfill and preview do not modify the checked-in public JSON. Never use `git reset --hard` to recover a sync.
-
-### Historical receipt backfill
-
-After the first normal sync works, import older receipt history in bounded chunks:
-
-```bash
-bash mac/backfill-receipts.sh
-```
-
-The default backfill covers up to 3650 days in 180-day chunks. Each chunk is idempotently merged into the private SQLite database, so rerunning after an interruption is safe. The script does not push to GitHub by itself; run the normal updater afterward when you are ready to publish the refreshed sanitised snapshot.
-
-### Hourly automation
-
-After the manual update succeeds:
-
-```bash
-bash mac/install-automation.sh
-```
-
-This installs an hourly LaunchAgent and preserves a usable Node/Git/Homebrew PATH.
-
-Logs:
-
-```text
-~/Library/Logs/UberPromoTracker/output.log
-~/Library/Logs/UberPromoTracker/error.log
-```
-
-## Safe legacy Python/SQLite import
-
-The old Python project remains separate and must not be modified during v2 development.
-
-The v2 importer opens a legacy SQLite database **read-only** and copies accepted historical rows into the new private DB.
-
-Use the old **test DB first**, not the old live DB:
-
-```bash
-OLD_PROJECT="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Uber Promo Tracker/uber_promo_tracker"
-
-node mac/import-legacy-db.js \
-  "$OLD_PROJECT/uber_promo_tracker.db.ride-test.db" \
-  uber-tracker.local.db
-```
-
-Legacy-only rows are marked historical and stay private. They do not become current public offers until a live Apple Mail scan observes the corresponding offer/account.
-
-The old database is never written to.
-
-## Tests
-
-Run:
-
-```bash
-npm test
-```
-
-The suite includes:
-
-- original parser/account/history regression tests
-- parser v2 expiry/classification/evidence cases
-- SQLite account/access/history tests
-- receipt parsing, reported-savings and conservative Uber One estimation tests
-- accessibility-gated basket splitting
-- end-to-end synthetic Mail → SQLite → receipt → public JSON generation
-- public privacy checks
-- mobile dashboard syntax/layout guards
-
-CI checks Node 22 and 24 on Linux and macOS, syntax-checks all JavaScript/shell entry points, validates public data, and exercises the mobile dashboard in Chromium.
-
-## Public site
-
-GitHub Pages:
-
-```text
-https://nadzz07.github.io/uber-promo-tracker/
-```
-
-The repository currently contains a sanitised live snapshot. Browser tests intercept deterministic empty and populated fixtures without replacing those files. Existing data must be regenerated and validated on the private Mac before deploying this repair. See [RELEASE.md](RELEASE.md).
-
-## Files that must stay private
-
-The repository ignores:
-
-- `uber-tracker.local.db*`
-- `emails.local.json`
-- `account-access.local.csv`
-- `accessible-accounts.local.txt`
-- `tracker.local.env`
-- old `*.db` / `*.db.*` files
-- `.env*`
-- raw `*.eml`
-- Python virtual environments and caches
-
-Do not force-add these files.
-
-## Current limitations
-
-- Apple Mail export/move integration still requires a live test on the actual Mac with its folders and Automation permissions. CI covers shell failure paths and JavaScript syntax, not a real Mail mailbox.
-- Receipt wording varies; the parser is conservative and ambiguous promo matches do not automatically consume an offer.
-- Restaurant/item/location eligibility cannot be proven from email text alone.
-- Manual Used/Ignore choices are browser-local; receipt-confirmed state is durable in SQLite.
-- The public site is intentionally a sanitised view, not a place to reveal full account aliases or promo codes.
-
-## Release and engineering validation
-
-See [AUDIT.md](AUDIT.md) for findings, coverage and remaining limits.
+## Tests and publication
 
 ```bash
 npm run validate
-npm ci --ignore-scripts
 npx playwright install chromium webkit
 npm run test:browser
 TRACKER_BROWSER_ENGINE=webkit npm run test:browser
 npm run build
 ```
 
-`npm test` needs only Node and Bash; Playwright is a development-only dependency for browser testing. Browser fixtures are intercepted in the test browser and are never written to `promos.json` or `history.json`.
+CI checks Node 22/24 on Linux/macOS and Chromium/WebKit. The build publishes only
+15 allowlisted application files; tests, documentation and private files are
+excluded. Keep regression tests so later updates cannot silently change receipts,
+savings, privacy or controls.
 
-The site build copies exactly the public HTML, two validated JSON snapshots, and their browser modules into `dist/`. Pages uploads only that directory. Its deployment job depends on successful validation, browser tests and the build. Pushes validate without deploying. Deployment requires a manual run on main with `private_data_verified=true` and a regenerated snapshot with `summary.accountStatusVersion=1`; see [RELEASE.md](RELEASE.md).
+Merge only after private original-source validation and all CI pass. Pages
+deployment is a separate guarded manual workflow on clean main with
+`private_data_verified=true`; verify the published snapshot and interactions.
+After a successful read-only preview, `bash mac/install-automation.sh` installs
+hourly safe-data sync. Hourly pushes do not deploy Pages automatically.
 
-Public offer titles are built from numeric offer facts. Raw subjects, promo codes, account aliases, receipt identifiers and parser evidence remain private. The generator checks the result against the actual private aliases and codes before replacing either snapshot. SQLite imports are transactional, database/export files use owner-only permissions, and corrected receipt parsing reuses existing message/receipt identities.
-
-Expiry wall clocks without an offset mean Europe/London. Exact times are kept through SQLite, public JSON, recommendations and the Used screen. Repeated reminder emails retain the first observed offer date for matching receipts. Expired offers stay visible in Used. Unknown or invalid expiry remains Needs checking.
-
-Access imports accept `email,can_login` CSV, spreadsheet CSV with `Email` and `Login status` headers, or one accessible address per line. Quotes, BOMs and curly apostrophes are handled. Empty files, unknown statuses and conflicting duplicate accounts fail before changing anything, including with `--reset`. Login method never decides access; only the explicit Can log in / Can't log in state does.
-
-The planner evaluates one-order savings at the exact penny subtotal. Multi-order splits use a bounded allocation grid (50p up to £120, £1 up to £300, £5 above that) and consider up to 24 accounts; they are estimates, not a guarantee of the global optimum or item-level eligibility. Baskets above £1,000 are rejected to keep the phone responsive.
-
-## Private database verification
-
-`node mac/validate-private-data.js --db /path/to/uber-tracker.local.db --access /path/to/account-access.local.csv` creates a consistent backup and reparses stored source messages twice against a copy. It reconstructs offer dates and latest accepted pointers from matching source families only after proving complete stored-message coverage. It reports receipt counts, account states and savings, checks repeatability of accounts, offers and history, and leaves the original unchanged. Prior derived dates are retained in a private repair journal. Normal partial imports preserve reminder clocks and do not perform this reconstruction. Missing source evidence blocks release. Validation output includes private files and must stay local. See [RELEASE.md](RELEASE.md) for the Mac release sequence.
+The planner estimates savings before delivery/service fees. It uses receipt fee
+samples or a manual estimate for extra orders, a bounded allocation search (up
+to 24 accounts) and a £1,000 basket limit. Restaurant, item and location eligibility
+still depend on Uber. A displayed receipt total does not establish a live wallet
+balance or prove unstated Uber One fee discounts.

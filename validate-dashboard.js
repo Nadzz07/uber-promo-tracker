@@ -42,7 +42,8 @@ assert.equal(html.includes("Accounts marked done"), false, "Used view should not
 assert.equal(html.includes("Done accounts"), false, "Used summary should focus on promo activity");
 assert.ok(html.includes("Not finished"));
 assert.ok(html.includes("Other available accounts"));
-assert.ok(html.includes("Lifetime savings"));
+assert.ok(html.includes("Total saved"));
+assert.ok(html.includes('id="loginStat"') && html.includes('id="archivedStat"'));
 assert.ok(html.includes("Overview"));
 assert.ok(html.includes("Total accounts"));
 assert.ok(html.includes("Promos available"));
@@ -150,7 +151,7 @@ for (const sheetType of ["advanced", "locked", "savings", "health", "history"]) 
 }
 
 assert.ok(
-  html.includes("Receipt processing keeps full account and Mail data private, updates savings and usage history, and publishes only the masked data this app needs."),
+  html.includes("The website shows an imported snapshot."),
   "sync-and-data sheet must explain the private-to-app data path"
 );
 

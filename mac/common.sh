@@ -2,7 +2,7 @@
 # Shared runtime, configuration and exclusive lock for every Mail sync entry point.
 umask 077
 if [[ -f tracker.local.env ]]; then source tracker.local.env; fi
-export TRACKER_ACCOUNT_ACCESS TRACKER_PRIVATE_DB TRACKER_FULL_RESCAN
+export TRACKER_ACCOUNT_ACCESS TRACKER_PRIVATE_DB TRACKER_FULL_RESCAN TRACKER_COMPRESS_BACKUPS
 
 run_tracker_tests() {
   env -u TRACKER_ACCOUNT_ACCESS -u TRACKER_ALLOW_UNKNOWN_ACCOUNTS -u TRACKER_PRIVATE_DB -u TRACKER_FULL_RESCAN npm test
@@ -100,9 +100,11 @@ file_imported_receipts() {
   # Routing is planned only after generate-promos has committed the private
   # receipt/account evidence. Mail movement can therefore fail without losing
   # receipt history or savings.
+  local preservation_args=()
+  if [[ "${APPLE_MAIL_ARCHIVED_KEEP_EVIDENCE:-true}" == true ]]; then preservation_args+=(--keep-receipts-and-used-promos); fi
   node mac/plan-inbox-routing.js \
     emails.local.json "$PRIVATE_DB" \
-    "$TMP_DIR/receipt-moves.json" "$TMP_DIR/archived-trash.json"
+    "$TMP_DIR/receipt-moves.json" "$TMP_DIR/archived-trash.json" "${preservation_args[@]}"
   local audit_dir="mail-routing.local.$(date -u +%Y%m%dT%H%M%SZ)-$$"
   mkdir "$audit_dir"
   cp "$TMP_DIR/receipt-moves.json" "$audit_dir/receipt-moves.local.json"

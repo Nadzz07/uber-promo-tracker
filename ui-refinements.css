@@ -13,6 +13,7 @@
   --surface-gradient: linear-gradient(145deg, rgba(255,255,255,.065), rgba(255,255,255,.025));
 }
 
+
 body {
   background:
     radial-gradient(ellipse at 8% 0%, rgba(var(--accent-rgb), .075), transparent 44%),
@@ -238,3 +239,109 @@ html[data-layout="desktop"] .bottom-nav {
 }
 
 .offer-card .setting-note { font-size: 11px; line-height: 1.55; color: var(--muted); }
+
+/* Short transitions preserve the glass effect without delaying navigation. */
+.sheet-backdrop.open .sheet { animation-duration: 320ms; }
+.view.motion-enter > * { animation-duration: 280ms; }
+.motion-refresh { animation-duration: 220ms; }
+.motion-value, .motion-status { animation-duration: 240ms; }
+.quick-card.active, .filter-btn.active { animation-duration: 180ms; }
+.nav-glider { transition-duration: 320ms, 320ms, 320ms, 160ms; }
+@media (hover: hover) and (pointer: fine) {
+  .quick-card:hover, .account-card:hover, .more-card:hover { transform: translateY(-1px); }
+}
+
+/* Compact account overview; secondary detail lives below the main account list. */
+.home-overview, html[data-layout="desktop"] .home-overview { padding: 0; border: 0; background: none; box-shadow: none; overflow: visible; }
+.home-overview::after { display: none; }
+.home-intro .eyebrow, .home-intro-copy { display: none; }
+.home-title, html[data-layout="desktop"] .home-title { margin: 0; font-size: 24px; }
+.home-overview .stats-row, html[data-layout="mobile"] .home-overview .stats-row, html[data-layout="desktop"] .home-overview .stats-row { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 16px 0 0; }
+.home-overview .stat-card, html[data-layout="mobile"] .home-overview .stat-card, html[data-layout="desktop"] .home-overview .stat-card { grid-column: auto; grid-row: auto; display: flex; flex-direction: column; align-items: flex-start; min-height: 93px; padding: 14px; border-radius: 17px; background: var(--surface-gradient); border: 1px solid var(--line-soft); box-shadow: none; }
+.home-overview .stat-card:nth-child(2) { order: 3; }
+.home-overview .stat-card:nth-child(3) { order: 2; }
+.home-overview .stat-card:nth-child(4) { order: 4; }
+.home-overview .stat-label, html[data-layout="desktop"] .home-overview .stat-label { font-size: 11px; line-height: 1.4; color: var(--muted); letter-spacing: 0; }
+.home-overview .stat-value, html[data-layout="desktop"] .home-overview .stat-value { margin-top: 7px; font-size: 26px; line-height: 1.1; color: var(--text); }
+.home-overview .stat-sub, html[data-layout="desktop"] .home-overview .stat-sub { margin-top: 6px; font-size: 10px; line-height: 1.4; }
+.home-overview .available-stat-card .stat-value { color: var(--green); }
+.home-overview .available-stat-card.watch, .home-overview .available-stat-card.empty-state { background: var(--surface-gradient); }
+.total-saved-card { display: flex; justify-content: space-between; align-items: center; gap: 14px; width: 100%; margin: 12px 0 0; padding: 18px; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(135deg,rgba(var(--accent-rgb),.09),rgba(255,255,255,.025)); color: var(--text); text-align: left; cursor: pointer; }
+.total-saved-card > span { min-width: 0; }
+.total-saved-card .stat-label, .total-saved-card .stat-sub, .saved-support > span { display: block; }
+.total-saved-card strong { display: block; margin: 7px 0; font-size: 31px; letter-spacing: -.035em; line-height: 1.15; }
+.saved-support { max-width: 45%; text-align: right; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.saved-support > span + span { margin-top: 5px; }
+.saved-link { color: var(--green); }
+.quick-grid, html[data-layout="desktop"] .quick-grid { gap: 8px; grid-template-columns: repeat(2,minmax(0,1fr)); grid-auto-rows: auto; }
+.quick-card, html[data-layout="desktop"] .quick-card { min-height: 68px; padding: 12px; border-radius: 16px; }
+.quick-top { margin-bottom: 7px; }
+.quick-icon { width: 23px; height: 23px; font-size: 12px; border-radius: 7px; }
+.quick-title { font-size: 12px; }
+.quick-count { font-size: 10px; }
+.quick-sub { display: none; }
+.quick-card[data-intent="cash-promo"] .quick-sub { display: block; margin-top: 5px; font-size: 10px; line-height: 1.45; }
+.quick-card:last-child { grid-column: 1 / -1; }
+.section-head, html[data-layout="desktop"] .section-head { margin: 22px 0 12px; }
+.section-title, html[data-layout="desktop"] .section-title { font-size: 20px; }
+.account-card, html[data-layout="desktop"] .account-card { padding: 16px; border-radius: 20px; }
+.screen-title, html[data-layout="desktop"] .screen-title { font-size: 28px; }
+.screen-copy { font-size: 12px; line-height: 1.6; }
+.more-card, html[data-layout="desktop"] .more-card { min-height: 125px; padding: 18px; border-radius: 20px; }
+.more-icon { width: 31px; height: 31px; font-size: 17px; border-radius: 10px; }
+.more-title, html[data-layout="desktop"] .more-title { margin-top: 12px; font-size: 15px; }
+.more-copy { font-size: 11px; }
+.archived-row { width: 100%; color: var(--text); text-align: left; border: 0; background: none; cursor: pointer; }
+#homeAccounts > .ghost-btn { grid-column: 1 / -1; min-height: 44px; padding: 12px; text-align: center; }
+.sheet-row { gap: 14px; }
+.sheet-row-value { flex-shrink: 0; }
+.home-analytics { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 24px; }
+.analytics-panel { min-width: 0; padding: 17px; border-radius: 20px; }
+.analytics-panel summary { font-size: 13px; font-weight: 600; cursor: pointer; }
+.analytics-panel[open] summary { margin-bottom: 18px; }
+.savings-bars { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 9px; align-items: end; }
+.savings-bar-column { min-width: 0; text-align: center; color: var(--muted); font-size: 9px; }
+.savings-bar-value { display: block; margin-bottom: 6px; font-size: 9px; white-space: nowrap; }
+.savings-bar-track { display: flex; align-items: flex-end; justify-content: center; height: 100px; margin-bottom: 8px; }
+.savings-bar-track > span { width: 65%; border-radius: 5px 5px 2px 2px; background: rgba(var(--accent-rgb),.65); }
+.scan-pill { padding: 8px 11px; font-size: 10px; white-space: nowrap; }
+.scan-pill.live .scan-dot { animation: sync-breathe 3s ease-in-out infinite; }
+.scan-pill.setup .scan-dot { background: var(--dim); box-shadow: none; }
+.scan-pill.stale .scan-dot { background: #d4b67b; box-shadow: none; animation: none; }
+.scan-pill.syncing .scan-dot { animation: sync-breathe 1.5s ease-in-out infinite; }
+@keyframes sync-breathe { 0%,100% { opacity: .6; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .scan-pill .scan-dot { animation: none !important; } }
+@media (min-width: 980px) {
+  html[data-layout="desktop"] .app-shell { width: min(1440px,100%); max-width: 1440px; margin: auto; padding: 24px 32px 36px; gap: 0 26px; }
+  html[data-layout="desktop"] .home-overview .stats-row { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  html[data-layout="desktop"] .home-overview .stat-card { min-height: 103px; padding: 18px; }
+  html[data-layout="desktop"] .total-saved-card { padding: 21px 24px; }
+  html[data-layout="desktop"] .home-workspace { grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: 20px; }
+  html[data-layout="desktop"] .hero-card { padding: 20px; }
+  html[data-layout="desktop"] .home-analytics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 979px) {
+  #view-home.active { display: flex; flex-direction: column; }
+  .home-overview { order: 1; }
+  .home-workspace { display: contents; }
+  .discovery-column { order: 2; }
+  .best-section { order: 3; }
+  .planner-column { order: 4; }
+  .home-analytics { order: 5; }
+  .planner-column, .discovery-column { width: 100%; }
+  .planner-column { margin-top: 16px; }
+  .discovery-column > .section-head { display: none; }
+  .topbar { padding-top: 8px; padding-bottom: 18px; }
+  .brand-title { font-size: 23px; }
+  .home-overview { margin-top: 0; }
+  .home-intro { min-height: 28px; }
+  .sheet { border-radius: 24px 24px 0 0; }
+  .sheet-header { padding: 18px; }
+  .sheet-title { font-size: 21px; }
+  .account-sheet-summary { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }
+  .account-sheet-summary > div { padding: 10px; }
+  .account-sheet-summary strong { font-size: 13px; }
+  .sheet-row .pill { max-width: 100px; white-space: normal; text-align: center; }
+}
+
+.account-primary:disabled { opacity: .4; cursor: default; box-shadow: none; }
