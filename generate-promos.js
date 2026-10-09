@@ -13,7 +13,7 @@ import { applyReceiptEvidence } from "./receipt-intelligence.js";
 import { toPublicPromo } from "./public-promo.js";
 import { combinedReceiptSavings, confirmedReceiptSaving } from "./savings-intelligence.js";
 import { receiptActivity } from "./dashboard-data.js";
-import { applyOfferTrackingStates } from "./offer-state.js";
+import { applyOfferTrackingStates, classifyOfferCompletion } from "./offer-state.js";
 import {
   DEFAULT_PRIVATE_DB,
   ensureAccount,
@@ -446,21 +446,24 @@ async function generatePromos() {
         estimatedUberOneSavings: stats.estimatedUberOneSavings,
         estimatedTotalSaved: stats.estimatedTotalSaved,
         lastOrderAt: stats.lastOrderAt || account.lastOrderAt || null,
-        ...classifyAccount({ ...account, orderCount: stats.orderCount }, refreshedOffers.filter(p => p.accountRef === account.accountRef))
+        ...classifyAccount({ ...account, orderCount: stats.orderCount }, refreshedOffers.filter(p => p.accountRef === account.accountRef), generatedAt)
       };
     });
 
     const summary = getSavingsSummary(db);
-    summary.accountStatusVersion = 1;
+    summary.accountStatusVersion = 2;
     summary.availableAccounts = accounts.filter(a => a.accountState === "available").length;
-    summary.usedAccounts = accounts.filter(a => a.accountState === "used").length;
+    summary.usedAccounts = accounts.filter(a => a.accountUsed).length;
+    const completions = publicPromos.map(p => classifyOfferCompletion(p, generatedAt));
+    for (const [field, predicate] of [['fullyUsedOffers','fullyUsed'],['finishedExpiredOffers','finishedExpired'],['fullyConsumedOffers','consumed'],['expiredUnusedOffers','expiredUnused'],['partiallyUsedOffers','partiallyUsed']]) summary[field] = completions.filter(c => c[predicate]).length;
+    summary.usedAccessibleAccounts = accounts.filter(a => a.accountUsed && a.canLogin).length;
     summary.completedUsageAccounts = accounts.filter(a => a.accountUsed).length;
     summary.partialUsageAccounts = accounts.filter(a => a.canLogin && a.partialUsage).length;
     summary.expiredAccounts = accounts.filter(a => a.accountState === "expired").length;
     summary.fullyUsedAccounts = accounts.filter(a => a.accountState === "fully_used").length;
-    summary.archivedAccounts = accounts.filter(a => a.accountState === "archived").length;
+    summary.archivedAccounts = accounts.filter(a => a.archived).length;
     summary.deactivatedAccounts = accounts.filter(a => a.deactivated).length;
-    summary.archivedConfirmedSaved = Math.round(accounts.filter(a => !a.canLogin).reduce((n,a)=>n+Number(a.totalSaved||0),0)*100)/100;
+    summary.archivedConfirmedSaved = Math.round(accounts.filter(a => a.archived).reduce((n,a)=>n+Number(a.totalSaved||0),0)*100)/100;
     summary.deactivatedConfirmedSaved = Math.round(accounts.filter(a => a.deactivated).reduce((n,a)=>n+Number(a.totalSaved||0),0)*100)/100;
     summary.needsCheckingAccounts = accounts.filter(a => a.accountState === "needs_checking").length;
     if (successfulMailScanAt) db.prepare("INSERT INTO meta(key,value) VALUES('last_successful_mail_scan_at',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value WHERE excluded.value > meta.value").run(successfulMailScanAt);

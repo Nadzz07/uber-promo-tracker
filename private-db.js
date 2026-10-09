@@ -1141,7 +1141,7 @@ export function getPublicAccountInsights(db) {
     const transport = rides.filter(r => r.accountRef === account.accountRef);
     const last = rows => rows.map(r => r.sentAt || r.receivedAt).filter(Boolean).sort().at(-1) || null;
     return { accountRef: account.accountRef, accountMasked: account.masked, canLogin: account.canLogin,
-      loginMethod: account.loginMethod, deactivated: account.deactivated === true, lastSeenAt: account.lastSeenAt, lastPromoAt: account.lastPromoAt,
+      loginMethod: account.loginMethod, accountStatus: account.accountStatus || (account.canLogin ? 'active' : 'archived'), deactivated: account.deactivated === true, lastSeenAt: account.lastSeenAt, lastPromoAt: account.lastPromoAt,
       lastOrderAt: last(orders), lastRideAt: last(transport), orderCount: orders.length, rideCount: transport.length,
       totalSaved: savings.get(account.accountRef)?.confirmedSaved || 0,
       activePromoCount: offers.filter(p => p.accountRef === account.accountRef && p.status === "active").length };

@@ -209,7 +209,7 @@ try {
   test('Preview and legacy automation configurations cannot route Mail by default; deploy requires explicit verification', () => {
     const preview = fs.readFileSync('mac/preview-sync.sh','utf8'); assert.equal(preview.includes('\nfile_imported_receipts\n'), false);
     const result = execFileSync('bash', ['-c', 'set -euo pipefail; source mac/common.sh; MOVE_INBOX_RECEIPTS=true; TRASH_ARCHIVED_MAIL=true; osascript(){ echo unsafe >&2; return 99; }; file_imported_receipts'], { encoding: 'utf8' }); assert.equal(result, '');
-    const workflow = fs.readFileSync('.github/workflows/pages.yml','utf8'); assert.match(workflow, /private_data_verified/); assert.match(workflow, /accountStatusVersion !== 1/); assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
+    const workflow = fs.readFileSync('.github/workflows/pages.yml','utf8'); assert.match(workflow, /private_data_verified/); assert.match(workflow, /accountStatusVersion !== 2/); assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   });
 } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
 console.log('Finalisation: ' + passed + ' regression groups passed.');

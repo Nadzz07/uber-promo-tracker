@@ -4,7 +4,7 @@ import { assertPublicSnapshot } from "./public-snapshot.js";
 const payload = JSON.parse(fs.readFileSync("promos.json", "utf8"));
 const history = JSON.parse(fs.readFileSync("history.json", "utf8"));
 assertPublicSnapshot(payload, history);
-const files = ["index.html", "promos.json", "history.json", "deal-intelligence.js", "manual-state.js", "offer-time.js", "offer-state.js", "account-state.js", "offer-details.js", "appearance.js", "device-accounts.js", "desktop-layout.css", "ui-refinements.css", "nav-gestures.js", "dashboard-data.js"];
+const files = ["index.html", "promos.json", "history.json", "deal-intelligence.js", "manual-state.js", "offer-time.js", "offer-state.js", "account-state.js", "offer-details.js", "appearance.js", "device-accounts.js", "desktop-layout.css", "ui-refinements.css", "nav-gestures.js", "dashboard-data.js", "liquid-glass.js", "liquid-glass.css"];
 fs.rmSync("dist", { recursive: true, force: true });
 fs.mkdirSync("dist");
 // Version the entire code bundle so a cached parent module cannot keep an
