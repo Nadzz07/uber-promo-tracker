@@ -30,6 +30,9 @@ exclude:
   - test-service.js
   - test-source-clocks.js
   - test-dashboard-data.js
+  - test-account-management.js
+  - test-completion-browser.js
+  - test-liquid-glass.js
   - test-nav-gestures.js
   - test-finalisation.js
   - private-db.js

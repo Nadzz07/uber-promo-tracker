@@ -79,7 +79,9 @@ assert.ok(
 console.log("✓ Release copy and public seed guard");
 
 const legacyConfig = fs.readFileSync("_config.yml", "utf8");
-const publicFiles = new Set(["index.html", "promos.json", "history.json", "deal-intelligence.js", "manual-state.js", "offer-time.js", "offer-state.js", "account-state.js", "offer-details.js", "appearance.js", "device-accounts.js", "desktop-layout.css", "ui-refinements.css", "nav-gestures.js", "dashboard-data.js", "_config.yml"]);
+const allowlist = fs.readFileSync("build-site.js", "utf8").match(/const files\s*=\s*(\[[^;]+\]);/);
+assert.ok(allowlist, "The validated public build allowlist must be readable");
+const publicFiles = new Set([...JSON.parse(allowlist[1]), "_config.yml"]);
 const trackedRoots = new Set(execFileSync("git", ["ls-files"], { encoding: "utf8" }).trim().split("\n").map(path => path.split("/")[0]));
 for (const name of trackedRoots) {
   if (name.startsWith(".") || publicFiles.has(name) || ["node_modules", "dist"].includes(name)) continue;
