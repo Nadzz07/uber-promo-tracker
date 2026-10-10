@@ -73,3 +73,5 @@ exclude:
   - "*.db*"
   - "*.sqlite*"
   - test-performance-browser.js
+  - test-promotion-verification.js
+  - test-guide-browser.js

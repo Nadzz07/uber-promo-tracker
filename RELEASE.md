@@ -8,9 +8,9 @@ is green. No Mail messages need to be moved, trashed or deleted for this release
 
 ## What changed
 
-- Account usage: five unique Eats receipts, or one Eats plus one ride/bike receipt
+- Account usage: five unique Eats receipts, or one Eats plus one Ride receipt
   (Lime included). Login access, account usage and individual offer usage are
-  independent. Used/Archived accounts are excluded from recommendations.
+  independent. Archived accounts are excluded from recommendations. Receipt-completed accounts can still have eligible current offers; usage and promotion completion are independent.
 - An account with a usable offer is not labelled Needs checking just because
   another offer is ambiguous. Unmatched discounts do not flag unrelated offers.
 - Offers expire at the earlier of explicit terms and 35 elapsed days from the
@@ -22,7 +22,7 @@ is green. No Mail messages need to be moved, trashed or deleted for this release
   are corrected. Reclassified untrusted records remain private but do not count
   as confirmed receipts. New deletions retain private hash tombstones; deletions
   predating this schema still rely on the authoritative access list.
-- Lifetime and 30-day savings include confirmed Eats and ride/bike savings.
+- Lifetime and 30-day savings include confirmed Eats and Ride savings.
   Reported savings are reconciled with components, never added to them. Plain
   Uber Cash balance payments are not assumed to be promotional savings.
   Missing Uber One remains an estimate learned from Eats evidence only.
@@ -99,7 +99,7 @@ Do not paste private files into chat or commit them.
    Include any other real receipt mailbox in a separate read-only MBOX import.
 
 4. Review `tracker-validation.local.final/report.json` and the generated masked
-   accounts/offers against known orders. Confirm five Eats vs Eats+ride status
+   accounts/offers against known orders. Confirm five Eats vs Eats+Ride status
    examples, duplicate/refund cases, earliest offer dates, and explicit receipt
    savings. The report must have zero receipts without reparseable evidence and
    no unexplained missing accounts/orders. Purchased Uber Cash must stay separate.

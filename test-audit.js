@@ -181,10 +181,10 @@ try {
     assert.equal(parseUberEatsReceipt(email).isReceipt, false);
     assert.equal(parseUberTransportReceipt(email).isReceipt, true);
   });
-  test('Uber Cash payment does not hide a first-N Eats order', () => {
+  test('Uber Cash payment and a normal order do not prove a tracked promotion redemption', () => {
     const cash = { ...base, id: 'cash', offerId: 'cash', discountType: 'uberCash', uses: 1 };
     const result = applyReceiptEvidence([base, cash], [{ ...receipt, promotionDiscount: 0, uberCashUsed: 10 }]);
-    assert.equal(result.promos[0].usesRemaining, 4); assert.equal(result.promos[1].usesRemaining, 1, "A balance payment alone cannot prove use of a tracked cash promotion");
+    assert.equal(result.promos[0].usesRemaining, 5); assert.equal(result.promos[1].usesRemaining, 1, "A balance payment alone cannot prove use of a tracked cash promotion");
   });
   test('Receipt identity normalises order IDs and scopes shared Message-ID to recipient', () => {
     assert.equal(receiptFingerprint(receipt), receiptFingerprint({ ...receipt, orderId: ' audit-001 ' }));

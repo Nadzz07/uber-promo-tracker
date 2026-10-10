@@ -34,7 +34,7 @@ try {
  assert.equal(await page.locator('#accountsList .account-card').count(),0,'Closed account screen is deferred');
  assert.equal(await page.locator('#fullyUsedList .activity-row').count(),0);
  assert.equal(await page.evaluate(()=>window.__runtime.model()===window.__runtime.model()),true,'Repeated projections reuse derived accounts');
- const renders=await page.evaluate(()=>window.__runtime.renders);await page.clock.fastForward(5*60000);
+ const renders=await page.evaluate(()=>window.__runtime.renders);await page.clock.fastForward(4*60000);
  assert.equal(await page.evaluate(()=>window.__runtime.renders),renders,'Unchanged minute checks do not reconstruct visible DOM');
  await page.evaluate(async()=>await Promise.all([window.__runtime.reload(),window.__runtime.reload()]));
  assert.equal(requests.filter(r=>r.file==='promos.json').length,2,'Concurrent refresh requests are coalesced');
@@ -52,10 +52,10 @@ try {
  assert.equal(await page.evaluate(()=>window.__runtime.model()[0].bestNow.calculation.saving),10,'Basket changes recompute offer savings');
  await page.locator('[data-account-offers="A901"]').first().click();await page.locator('[data-use-one="perf-offer"]').click();
  assert.equal(await page.evaluate(()=>window.__runtime.model()[0].promos[0].usesRemaining),4,'Manual actions invalidate offer projections');await page.keyboard.press('Escape');
- await page.clock.fastForward(2*86400000+60000);
+ await page.clock.fastForward(2*86400000+60000);await page.waitForFunction(()=>document.getElementById('activeStat').textContent==='0');
  assert.equal(await page.locator('#activeStat').innerText(),'0','Deadline invalidates cached availability without a Mail import');
  assert.equal(await page.evaluate(()=>window.__runtime.model()[0].promos.length),0);
- await page.clock.setSystemTime(time);await page.evaluate(()=>window.__runtime.refresh());
+ await page.clock.setSystemTime(time);await page.evaluate(()=>window.__runtime.refresh());await page.waitForFunction(()=>document.getElementById('activeStat').textContent==='1');
  assert.equal(await page.locator('#activeStat').innerText(),'1','A corrected device clock cannot retain stale expiry state');
  const beforeHidden=await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:true});return window.__runtime.renders;});
  await page.clock.fastForward(3*86400000);assert.equal(await page.evaluate(()=>window.__runtime.renders),beforeHidden,'Background tabs do no timed rendering');

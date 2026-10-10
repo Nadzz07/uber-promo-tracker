@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {accountUsage,classifyAccount} from './account-state.js';
+import {applyReceiptEvidence} from './receipt-intelligence.js';
+import {parseUberTransportReceipt} from './transport-receipt-parser.js';
+import {applyOfferExpiryPolicy} from './offer-time.js';
+import {normaliseManualStore,setOfferDone,reconcileManualStore,promotionActivity,confirmedUses,effectiveRemainingUses,acknowledgeEvidenceReview} from './manual-state.js';
+const now='2026-10-10T12:00:00Z';
+const base={id:'verified-five',service:'Uber Eats',accountRef:'A901',canLogin:true,discountType:'fixed',discount:15,minimumSpend:15,uses:5,usesVerified:true,receiptConfirmedUses:0,usesRemaining:5,trackingState:'available',firstEmailSentAt:'2026-10-01T09:00:00Z',expiresAt:'2026-11-30T09:00:00Z',expiryStatus:'exact'};
+const offer=n=>({...base,receiptConfirmedUses:n,usesRemaining:5-n,lastUsedAt:n?'2026-10-09T12:00:00Z':null});
+for(const [eats,rides,expected] of [[1,1,true],[5,0,true],[1,0,false]]) assert.equal(accountUsage({orderCount:eats,rideCount:rides}).accountUsed,expected);
+const lime=parseUberTransportReceipt({sender:'Lime <receipts@li.me>',recipient:'test@example.invalid',subject:'Your Lime ride receipt',body:'Thanks for riding with Lime\nRide total £3.00\nTrip ID: LIME-001',sentAt:now});
+assert.equal(lime.isReceipt,true);assert.equal(accountUsage({orderCount:1,rideCount:1}).accountUsed,true);
+const empty=normaliseManualStore();
+for(const [count,bucket] of [[0,'available'],[2,'partial'],[5,'completed']]) assert.equal(promotionActivity(empty,offer(count),now).bucket,bucket);
+assert.equal(promotionActivity(empty,{...offer(3),uses:3,usesRemaining:0},now).bucket,'completed');
+for(const n of [0,2]) {const p={...offer(n),firstEmailSentAt:'2026-09-01T09:00:00Z'};const c=promotionActivity(empty,p,now);assert.equal(c.bucket,n?'finished_expired':'expired_unused');assert.equal(c.consumed,false);assert.equal(c.confirmedUses,n);}
+const at='2026-10-10T12:01:00Z';let store=setOfferDone(empty,offer(2),true,at);store=reconcileManualStore(store,[offer(2)],at);
+assert.equal(promotionActivity(store,offer(2),now).bucket,'manual');assert.equal(confirmedUses(offer(2)),2);assert.equal(effectiveRemainingUses(store,offer(2)),0);
+const original=JSON.stringify(store);let partial=reconcileManualStore(store,[offer(3)],'2026-10-10T13:00:00Z');assert.equal(promotionActivity(partial,offer(3),now).status,'Manually finished · Unverified');assert.equal(confirmedUses(offer(3)),3);assert.equal(JSON.stringify(store),original);
+let verified=reconcileManualStore(partial,[offer(5)],'2026-10-10T14:00:00Z');assert.equal(promotionActivity(verified,offer(5),now).status,'Completed · Verified');assert.equal(verified.offers[base.id].history.length,2);assert.equal(verified.offers[base.id].history[0].at,at);assert.equal(verified.offers[base.id].forceDone,true);assert.equal(reconcileManualStore(verified,[offer(5)],'2026-10-10T15:00:00Z'),verified,'Unchanged evidence reuses the store and never repeats history events');
+const receipts=Array.from({length:5},(_,i)=>({receiptId:'receipt-'+i,orderId:'order-'+i,accountRef:base.accountRef,service:'Uber Eats',subtotal:20,promotionDiscount:15,total:5,sentAt:`2026-10-0${i+2}T12:00:00Z`}));
+const evidence=applyReceiptEvidence([base],[...receipts,{...receipts[0],receiptId:'duplicate',sentAt:'2026-10-02T12:02:00Z'}],{now});assert.equal(evidence.promos[0].receiptConfirmedUses,5);assert.equal(evidence.matches.length,5);assert.equal(promotionActivity(reconcileManualStore(store,evidence.promos,now),evidence.promos[0],now).bucket,'completed','Deduplicated sync evidence verifies the manual record');
+const ambiguous=applyReceiptEvidence([base,{...base,id:'second-identical-offer'}],[receipts[0]],{now});assert.ok(ambiguous.promos.every(p=>p.receiptConfirmedUses===0));assert.equal(ambiguous.matches[0].status,'ambiguous');
+const ordinary=applyReceiptEvidence([base],[{...receipts[0],promotionDiscount:0}],{now});assert.equal(ordinary.promos[0].receiptConfirmedUses,0);assert.equal(ordinary.matches.length,0,'A normal Eats receipt proves no particular promotion use');
+const undone=setOfferDone(store,offer(2),false,'2026-10-10T16:00:00Z');assert.equal(promotionActivity(undone,offer(2),now).bucket,'partial');assert.equal(confirmedUses(offer(2)),2);assert.equal(effectiveRemainingUses(undone,offer(2)),3);assert.equal(undone.offers[base.id].history.at(-1).type,'manual_finish_undone');
+const reminder=applyOfferExpiryPolicy({...base,firstEmailSentAt:'2026-09-01T09:00:00Z',emailSentAt:'2026-10-09T09:00:00Z'});assert.equal(reminder.expiresAt,'2026-10-06T09:00:00.000Z');
+for(const archived of [false,true]) {const account={canLogin:true,accountStatus:archived?'archived':'active',orderCount:1,rideCount:1};const c=classifyAccount(account,[base],now);assert.equal(c.accountUsed,true);assert.equal(c.archived,archived);assert.equal(c.recommendationEligible,!archived);assert.equal(account.canLogin,true);}
+const conflict=reconcileManualStore(verified,[offer(3)],now);assert.equal(promotionActivity(conflict,offer(3),now).bucket,'needs_checking');assert.equal(conflict.offers[base.id].history[0].at,at);assert.equal(promotionActivity(acknowledgeEvidenceReview(conflict,offer(3),now),offer(3),now).bucket,'manual');
+const ambiguousManual=reconcileManualStore(store,[{...offer(2),reviewReasons:['ambiguous_receipt_match']}],now);assert.equal(promotionActivity(ambiguousManual,offer(2),now).bucket,'needs_checking');assert.equal(acknowledgeEvidenceReview(ambiguousManual,{...offer(2),reviewReasons:['ambiguous_receipt_match']},now),ambiguousManual);
+console.log('✓ Account/Lime rules; complete/partial/expired distinctions; manual 2→3 and 2→5 verification; duplicate and ambiguous evidence; ordinary receipt safeguards; undo/history; first-email expiry; independent access/archive; conflicting evidence review');

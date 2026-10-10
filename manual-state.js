@@ -1,3 +1,5 @@
+import { classifyOfferCompletion } from './offer-state.js';
+
 function asCount(value, fallback = 0) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return fallback;
@@ -47,8 +49,7 @@ export function normaliseManualStore(payload = {}) {
 }
 
 export function getOfferManualState(store, promo) {
-  const safe = normaliseManualStore(store);
-  const raw = safe.offers[promoStateKey(promo)] || {};
+  const raw = store?.offers?.[promoStateKey(promo)] || {};
 
   return {
     manualUsesConsumed: asCount(raw.manualUsesConsumed, 0),
@@ -59,7 +60,14 @@ export function getOfferManualState(store, promo) {
     ignored: Boolean(raw.ignored),
     forceDone: Boolean(raw.forceDone),
     lastManualUseAt: raw.lastManualUseAt || null,
-    updatedAt: raw.updatedAt || null
+    updatedAt: raw.updatedAt || null,
+    manualFinishedAt: raw.manualFinishedAt || null,
+    verifiedAt: raw.verifiedAt || null,
+    lastEvidenceUpdate: raw.lastEvidenceUpdate || null,
+    lastEvidenceCount: raw.lastEvidenceCount ?? null,
+    lastEvidenceTotal: raw.lastEvidenceTotal ?? null,
+    verificationConflict: raw.verificationConflict || null,
+    history: Array.isArray(raw.history) ? raw.history : []
   };
 }
 
@@ -96,6 +104,7 @@ export function effectivePromoState(store, promo) {
   const state = getOfferManualState(store, promo);
 
   if (state.ignored) return "ignored";
+  if (state.verificationConflict) return "needs_checking";
   if (state.forceDone) return "used";
   if (promo?.receiptState === "used") return "used";
   if (effectiveRemainingUses(store, promo) <= 0) return "used";
@@ -195,7 +204,9 @@ export function setOfferDone(
   safe.offers[key] = {
     ...state,
     forceDone: Boolean(done),
-    updatedAt
+    manualFinishedAt: done ? updatedAt : state.manualFinishedAt,
+    updatedAt,
+    history: [...state.history, { type: done ? 'manually_finished' : 'manual_finish_undone', at: updatedAt, confirmedUses: confirmedUses(promo) }]
   };
 
   return safe;
@@ -223,6 +234,70 @@ export function manualActivity(store, promo) {
     ignored: state.ignored,
     forceDone: state.forceDone,
     effectiveRemaining: effectiveRemainingUses(store, promo),
-    effectiveState: effectivePromoState(store, promo)
+    effectiveState: effectivePromoState(store, promo),
+    manualFinishedAt: state.manualFinishedAt,
+    verifiedAt: state.verifiedAt,
+    lastEvidenceUpdate: state.lastEvidenceUpdate,
+    verificationConflict: state.verificationConflict,
+    history: state.history
   };
+}
+
+// Only reconcile offers with private manual records. Receipt evidence comes from
+// the deduplicated server projection; manual actions never create confirmations.
+export function reconcileManualStore(store, promos, evidenceAt = new Date().toISOString()) {
+  const keys = Object.keys(store?.offers || {});
+  if (!keys.length) return store;
+  const byId = promos instanceof Map ? promos : new Map(promos.map(p => [promoStateKey(p), p]));
+  let next = store;
+  for (const key of keys) {
+    const promo = byId.get(key);
+    if (!promo) continue;
+    const state = getOfferManualState(store, promo);
+    const count = confirmedUses(promo), total = Math.max(1, asCount(promo.uses, 1));
+    let conflict = state.verificationConflict;
+    if (state.lastEvidenceCount != null && count < state.lastEvidenceCount) conflict = 'Confirmed usage decreased. Review the updated evidence.';
+    if (state.lastEvidenceTotal != null && total !== state.lastEvidenceTotal) conflict = 'The permitted use count changed. Review the offer terms.';
+    if (state.forceDone && promo.reviewReasons?.includes('ambiguous_receipt_match')) conflict = 'A receipt could match more than one promotion.';
+    const complete = classifyOfferCompletion(promo).consumed && !conflict;
+    const newlyVerified = state.forceDone && complete && !state.verifiedAt;
+    const migratedHistory = state.forceDone && !state.history.length;
+    const history = migratedHistory ? [{type:"legacy_manual_finish", at:state.updatedAt, confirmedUses:state.receiptConfirmedBaseline}] : state.history;
+    const changed = migratedHistory || newlyVerified || conflict !== state.verificationConflict || count !== state.lastEvidenceCount || total !== state.lastEvidenceTotal;
+    if (!changed) continue;
+    if (next === store) next = normaliseManualStore(store);
+    next.offers[key] = { ...state, lastEvidenceCount: count, lastEvidenceTotal: total,
+      lastEvidenceUpdate: evidenceAt, verificationConflict: conflict,
+      verifiedAt: newlyVerified ? evidenceAt : state.verifiedAt,
+      history: newlyVerified ? [...history, { type: 'completion_verified', at: evidenceAt, confirmedUses: count }] : history };
+  }
+  return next;
+}
+
+export function acknowledgeEvidenceReview(store, promo, at = new Date().toISOString()) {
+  const next = rebaseOfferState(store, promo), key = promoStateKey(promo), state = next.offers[key];
+  // An ambiguous receipt cannot be resolved by clicking a button. It needs a
+  // corrected source match in a later snapshot before review can be acknowledged.
+  if (promo.reviewReasons?.includes('ambiguous_receipt_match')) return store;
+  next.offers[key] = { ...state, verificationConflict: null, lastEvidenceCount: confirmedUses(promo),
+    lastEvidenceTotal: Math.max(1, asCount(promo.uses, 1)),
+    history: [...state.history, { type: 'evidence_reviewed', at, confirmedUses: confirmedUses(promo) }] };
+  return reconcileManualStore(next, [promo], at);
+}
+
+// One primary bucket per promotion; expiry and manual history remain available
+// as supporting attributes. Account receipt usage is classified separately.
+export function promotionActivity(store, promo, now = new Date()) {
+  const manual = manualActivity(store, promo), completion = classifyOfferCompletion(promo, now);
+  let bucket, status;
+  if (manual.ignored) { bucket = 'ignored'; status = 'Ignored'; }
+  else if (manual.verificationConflict) { bucket = 'needs_checking'; status = 'Needs checking'; }
+  else if (completion.consumed) { bucket = 'completed'; status = 'Completed · Verified'; }
+  else if (manual.forceDone || manual.effectiveState === 'used') { bucket = 'manual'; status = 'Manually finished · Unverified'; }
+  else if (completion.finishedExpired) { bucket = 'finished_expired'; status = 'Finished · Expired'; }
+  else if (completion.expiredUnused) { bucket = 'expired_unused'; status = 'Expired · Unused'; }
+  else if (promo.trackingState === 'needs_checking') { bucket = 'needs_checking'; status = 'Needs checking'; }
+  else if (completion.partiallyUsed) { bucket = 'partial'; status = 'Partially used'; }
+  else { bucket = 'available'; status = 'Available'; }
+  return { ...completion, ...manual, bucket, status };
 }

@@ -14,23 +14,31 @@ ellipsis and are never uploaded.
 - **Accessible:** accounts marked accessible in the authoritative private list.
 - **Archived:** accounts outside active rotation, including Deactivated accounts.
   Archive status is independent of login access and receipt usage.
-- **Available Offers:** the number of accessible, unarchived accounts with current opportunities eligible
-  under the account-used rule.
-- **Used:** five unique Eats receipts, or at least one Eats plus one Ride receipt.
-  Lime journeys are included in Rides. Used and Archived accounts are excluded
-  from recommendations.
+- **Available Offers:** accessible accounts in active rotation with at least one eligible
+  current promotion. Account usage is independent.
+- **Fully used accounts:** five unique Eats receipts, or at least one Eats plus one Ride receipt.
+  Lime journeys are included in Rides. Archived accounts are excluded from recommendations. Fully used accounts can
+  still have eligible offers; usage does not change access or archive status.
 - **Not finished:** accessible accounts with a started, current promo that has
   uses remaining. For example, 3 of 5 used leaves 2; 4 of 5 leaves 1. Unused
   and expired offers do not enter this section. Lifetime receipt completion
   remains separate from individual offer progress.
 
-Fully used includes **Finished · Expired** (at least one receipt-confirmed use
-before expiry) and **Finished · Fully consumed** (every use receipt-confirmed).
-**Expired · Unused** has no confirmed use and never counts as Fully used.
-Partially used offers remain valid with confirmed usage and uses left. Actual
-order counts are preserved; expiry never changes 1/5 into 5/5. Account Used
-remains independent. Needs checking, manually done and ignored offers stay distinct. Manual offer changes are browser-local. Duplicate receipt
-copies count once; newer charges and sparse copies retain supported facts.
+**Completed promotions** have every permitted use receipt-confirmed and show
+**Completed · Verified**. **Finished · Expired** has some confirmed use before
+expiry; **Expired · Unused** has none. Neither expiry nor account usage proves
+full promotional redemption. Original counts remain unchanged.
+
+Manual completion removes a promotion from recommendations without inventing
+uses. New reliable receipt evidence automatically verifies full completion when
+the saved browser receives an updated snapshot. The original decision and its
+time remain in private device history; undo never deletes receipt evidence.
+Conflicting evidence is reviewable. Manual history remains in this browser's
+local storage and is never uploaded. Duplicate receipt copies count once.
+
+More → **Help & Guide** explains account statuses, promotion completion, expiry,
+manual verification, savings and Mail sync. It loads on demand and supports
+search, keyboard-accessible disclosures and contextual metric explanations.
 
 Offers end at the earlier explicit deadline or 35 elapsed days from the first
 observed matching offer email. The latter is labelled **Estimated end**; it
@@ -114,14 +122,15 @@ validation and interface work do not require it. Bin is never emptied.
 
 ```bash
 npm run validate
-npx playwright install chromium webkit
+npx playwright install chromium webkit firefox
 npm run test:browser
 TRACKER_BROWSER_ENGINE=webkit npm run test:browser
+TRACKER_BROWSER_ENGINE=firefox npm run test:browser
 npm run build
 ```
 
-CI checks Node 22/24 on Linux/macOS and Chromium/WebKit. The build publishes only
-17 allowlisted application files; tests, documentation and private files are
+CI checks Node 22/24 on Linux/macOS and Chromium/WebKit/Firefox. The build publishes only
+18 allowlisted application files; tests, documentation and private files are
 excluded. Keep regression tests so later updates cannot silently change receipts,
 savings, privacy or controls.
 

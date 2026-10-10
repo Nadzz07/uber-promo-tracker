@@ -141,80 +141,6 @@ function consumeBestMatch({ tracked, receipt, observed, mode, matches, stats }) 
   };
 }
 
-function orderCountCandidates(tracked, receipt) {
-  return tracked.filter(promo => {
-    if (promo.service !== "Uber Eats") return false;
-    if (Number(promo.uses || 1) <= 1) return false;
-    if (promo.discountType === "uberCash") return false;
-    if (promo.accountRef !== receipt.accountRef) return false;
-    if (promo.usesRemaining <= 0) return false;
-    if (!receiptCanUsePromo(receipt, promo)) return false;
-
-    const subtotal = number(receipt.subtotal);
-    if (subtotal == null || subtotal <= 0) return false;
-
-    const calculation = savingForSpend(promo, subtotal);
-    return Boolean(calculation.eligible);
-  });
-}
-
-function consumeOrderCountUse({ tracked, receipt, matches, stats }) {
-  const candidates = orderCountCandidates(tracked, receipt);
-
-  if (candidates.length === 0) {
-    return { consumed: false, ambiguous: false, candidateOfferIds: [] };
-  }
-
-  if (candidates.length > 1) {
-    const candidateOfferIds = candidates
-      .map(promo => promo.offerId || promo.id || null)
-      .filter(Boolean);
-
-    matches.push({
-      receiptId: receipt.receiptId || receipt.id || null,
-      offerId: null,
-      accountRef: receipt.accountRef,
-      observedSaving: number(receipt.promotionDiscount) || 0,
-      expectedSaving: null,
-      mode: "order_count",
-      status: "ambiguous",
-      candidateOfferIds
-    });
-
-    return {
-      consumed: false,
-      ambiguous: true,
-      candidateOfferIds
-    };
-  }
-
-  const promo = candidates[0];
-  promo.receiptConfirmedUses += 1;
-  promo.usesRemaining = Math.max(0, promo.usesRemaining - 1);
-  promo.receiptState = promo.usesRemaining === 0 ? "used" : "partial";
-  promo.lastUsedAt = receipt.sentAt || receipt.receivedAt || null;
-
-  if (stats) stats.confirmedPromoUses += 1;
-
-  const offerId = promo.offerId || promo.id || null;
-
-  matches.push({
-    receiptId: receipt.receiptId || receipt.id || null,
-    offerId,
-    accountRef: receipt.accountRef,
-    observedSaving: number(receipt.promotionDiscount) || 0,
-    expectedSaving: null,
-    mode: "order_count",
-    status: "confirmed"
-  });
-
-  return {
-    consumed: true,
-    ambiguous: false,
-    candidateOfferIds: offerId ? [offerId] : []
-  };
-}
-
 export function applyReceiptEvidence(promos = [], receipts = [], { now = new Date() } = {}) {
   const tracked = promos.map(promo => ({
     ...applyOfferExpiryPolicy(promo),
@@ -224,6 +150,11 @@ export function applyReceiptEvidence(promos = [], receipts = [], { now = new Dat
     lastUsedAt: null
   }));
 
+  const byAccount = new Map();
+  for (const promo of tracked) {
+    if (!byAccount.has(promo.accountRef)) byAccount.set(promo.accountRef, []);
+    byAccount.get(promo.accountRef).push(promo);
+  }
   const accountStats = new Map();
   const matches = [];
 
@@ -275,7 +206,7 @@ export function applyReceiptEvidence(promos = [], receipts = [], { now = new Dat
     if (!receipt.accountRef) continue;
 
     const promotionResult = consumeBestMatch({
-      tracked,
+      tracked: byAccount.get(receipt.accountRef) || [],
       receipt,
       observed: promotion,
       mode: "promotion",
@@ -284,7 +215,7 @@ export function applyReceiptEvidence(promos = [], receipts = [], { now = new Dat
     });
 
     const cashResult = consumeBestMatch({
-      tracked,
+      tracked: byAccount.get(receipt.accountRef) || [],
       receipt,
       observed: number(receipt.uberCashSavings) || 0,
       mode: "uberCash",
@@ -292,20 +223,9 @@ export function applyReceiptEvidence(promos = [], receipts = [], { now = new Dat
       stats
     });
 
-    const alreadyConsumed =
-      Boolean(promotionResult?.consumed);
+    // A normal Eats receipt does not identify a promotion. Only a unique,
+    // qualifying, explicitly discounted match above can confirm redemption.
 
-    const ambiguous =
-      Boolean(promotionResult?.ambiguous);
-
-    if (!alreadyConsumed && !ambiguous) {
-      consumeOrderCountUse({
-        tracked,
-        receipt,
-        matches,
-        stats
-      });
-    }
   }
 
   const uniqueEatsReceipts = orderedReceipts;

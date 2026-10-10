@@ -9,7 +9,7 @@ for(const confirmed of [0,1,5]){
  const state=classifyOfferTrackingState(value,{now});
  assert.equal(offerFinishedReason(value,now),confirmed===5?'Fully consumed':'Expired');
  assert.equal(state.trackingState,confirmed===5?'used':'expired');
- assert.equal(offerClosureLabel(value,now),confirmed===5?'Finished · Fully consumed':confirmed?'Finished · Expired':'Expired · Unused');
+ assert.equal(offerClosureLabel(value,now),confirmed===5?'Completed · Verified':confirmed?'Finished · Expired':'Expired · Unused');
  assert.equal(value.usesRemaining,5-confirmed,'Expiry preserves unredeemed orders');
  const reminder={...value,emailSentAt:'2026-10-08T12:00:00Z'};
  assert.equal(applyOfferExpiryPolicy(reminder).expiresAt,'2026-10-06T12:00:00.000Z','Reminder cannot restart first qualifying offer clock');
@@ -23,7 +23,7 @@ const scenarios=[
  {confirmed:1,expired:true,label:'Finished · Expired',fullyUsed:true},
  {confirmed:2,expired:true,label:'Finished · Expired',fullyUsed:true},
  {confirmed:4,expired:true,label:'Finished · Expired',fullyUsed:true},
- {confirmed:5,expired:false,label:'Finished · Fully consumed',fullyUsed:true}
+ {confirmed:5,expired:false,label:'Completed · Verified',fullyUsed:true}
 ];
 for(const row of scenarios){
  const promo={...offer,firstEmailSentAt:row.expired?'2026-09-01T12:00:00Z':'2026-10-08T12:00:00Z',emailSentAt:'2026-10-08T12:00:00Z',receiptConfirmedUses:row.confirmed,usesRemaining:5-row.confirmed,receiptState:row.confirmed===5?'used':row.confirmed?'partial':null};
@@ -54,7 +54,7 @@ for(const canLogin of [true,false])for(const archived of [true,false])for(const 
  const account={canLogin,accountStatus:archived?'archived':'active',orderCount:used?1:0,rideCount:used?1:0};
  const state={...account,...classifyAccount(account,[active])};
  assert.equal(state.archived,archived);assert.equal(state.accountUsed,used);
- assert.equal(state.recommendationEligible,canLogin&&!archived&&!used);
+ assert.equal(state.recommendationEligible,canLogin&&!archived);
  for(const [filter,expected] of [['all',true],['login',canLogin],['locked',!canLogin],['used',used],['used-login',used&&canLogin],['used-locked',used&&!canLogin],['archived-login',archived&&canLogin],['archived-locked',archived&&!canLogin]])assert.equal(matchesAccountFilter(state,filter),expected,filter);
  assert.equal(account.canLogin,canLogin);assert.equal(account.accountStatus,archived?'archived':'active');
 }
