@@ -3,6 +3,7 @@ const london = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit",
   hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23"
 });
+const londonDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' });
 
 export function offerTime(value) {
   if (!value) return null;
@@ -58,6 +59,6 @@ export function applyOfferExpiryPolicy(promo = {}) {
   if ((promo.expiresAt || promo.expires) && explicit == null) return promo;
   if (explicit != null && explicit <= deadline) return promo;
   const expiresAt = new Date(deadline).toISOString();
-  return { ...promo, expiresAt, expires: new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).format(deadline),
+  return { ...promo, expiresAt, expires: londonDate.format(deadline),
     expiryStatus: 'estimated', expiryBasis: 'tracker_35_day_rule', expiryConfidence: 'policy' };
 }

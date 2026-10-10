@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
-import { chromium, webkit } from 'playwright';
+import { chromium, webkit, firefox } from 'playwright';
 import { once } from 'node:events';
 import { execFileSync } from 'node:child_process';
 execFileSync(process.execPath, ['build-site.js']);
@@ -17,9 +17,9 @@ server.listen(0, '127.0.0.1'); await once(server, 'listening');
 const url = 'http://127.0.0.1:' + server.address().port;
 let browser;
 try {
-  const engine = process.env.TRACKER_BROWSER_ENGINE === 'webkit' ? webkit : chromium;
+  const engine = {chromium,webkit,firefox}[process.env.TRACKER_BROWSER_ENGINE || 'chromium'];
   browser = await engine.launch(engine === chromium ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined, args: ['--no-sandbox', '--disable-dev-shm-usage'] } : {});
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, timezoneId: 'America/Los_Angeles' });
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: engine !== firefox, hasTouch: true, timezoneId: 'America/Los_Angeles' });
   const page = await context.newPage(); const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   // First-sync behaviour must not depend on the user's checked-in live data.
@@ -246,8 +246,8 @@ try {
     await page.setViewportSize({ width, height: 900 });
     assert.equal(await page.locator('html').getAttribute('data-layout'), 'desktop');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Explicit Desktop must fit ${width}px`);
-    const navFits = await page.locator('.nav-btn').evaluateAll(buttons => buttons.every(button => button.scrollWidth <= button.clientWidth+1));
-    assert.equal(navFits, true, `Desktop navigation labels must fit at ${width}px`);
+    const navSizes = await page.locator('.nav-btn').evaluateAll(buttons => buttons.map(button => ({label:button.innerText,content:button.scrollWidth,width:button.clientWidth})));
+    assert.ok(navSizes.every(button => button.content <= button.width+1), `Desktop navigation labels must fit at ${width}px: ${JSON.stringify(navSizes)}`);
   }
   await page.setViewportSize({ width: 390, height: 844 });
   // The radio group works with keyboard selection and Auto can be restored.
@@ -416,7 +416,9 @@ try {
   assert.equal(await filterPage.locator('.offers-section > .offer-card').count(),0,'An open account sheet must also remove newly expired offers');
   await filterPage.keyboard.press('Escape');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A101"]').count(),0,'Expired offers leave Expiring soon');
+  await filterPage.locator('[data-view="home"]').click();
   assert.equal(Number(await filterPage.locator('#activeStat').innerText()),activeBefore-1,'Home availability follows the same current expiry checks');
+  await filterPage.locator('[data-view="accounts"]').click();
   await filterPage.locator('[data-account-filter="all"]').click();await filterPage.locator('#accountsList [data-account-offers="A101"]').click();
   assert.equal(await filterPage.locator('#accountOfferHistory').getAttribute('open'),null,'Past offers stay collapsed by default');
   assert.equal(await filterPage.locator('.offers-section > .offer-card').count(),0,'Expired offers do not appear among current offers');

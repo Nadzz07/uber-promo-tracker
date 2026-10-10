@@ -9,16 +9,26 @@ import { estimateReceiptSavings, combinedReceiptSavings } from "./savings-intell
 export const PRIVATE_DB_SCHEMA_VERSION = 10;
 export const DEFAULT_PRIVATE_DB = "./uber-tracker.local.db";
 
+// Statements are connection-local and reusable; the weak key lets closed
+// databases and their statements be collected together.
+const statementCaches = new WeakMap();
+function prepare(db, sql) {
+  let cache = statementCaches.get(db);
+  if (!cache) { cache = new Map(); statementCaches.set(db, cache); }
+  if (!cache.has(sql)) cache.set(sql, db.prepare(sql));
+  return cache.get(sql);
+}
+
 function normaliseAlias(value) {
   return String(value || "").trim().toLowerCase();
 }
 
 function getMeta(db, key) {
-  return db.prepare("SELECT value FROM meta WHERE key = ?").get(key)?.value ?? null;
+  return prepare(db, "SELECT value FROM meta WHERE key = ?").get(key)?.value ?? null;
 }
 
 function setMeta(db, key, value) {
-  db.prepare(
+  prepare(db,
     "INSERT INTO meta(key, value) VALUES(?, ?) " +
     "ON CONFLICT(key) DO UPDATE SET value = excluded.value"
   ).run(key, String(value));
@@ -167,13 +177,13 @@ function initSchema(db) {
   `);
 
 
-  const transportColumns = new Set(db.prepare('PRAGMA table_info(transport_receipts)').all().map(r => r.name));
+  const transportColumns = new Set(prepare(db, 'PRAGMA table_info(transport_receipts)').all().map(r => r.name));
   if (!transportColumns.has('trip_key')) db.exec('ALTER TABLE transport_receipts ADD COLUMN trip_key TEXT');
   for (const name of ['promotion_discount', 'uber_cash_used', 'uber_cash_savings', 'reported_savings', 'uber_one_savings']) {
     if (!transportColumns.has(name)) db.exec('ALTER TABLE transport_receipts ADD COLUMN ' + name + ' REAL');
   }
   const accountColumns = new Set(
-    db.prepare("PRAGMA table_info(accounts)").all().map(row => row.name)
+    prepare(db, "PRAGMA table_info(accounts)").all().map(row => row.name)
   );
 
   if (!accountColumns.has("login_method")) {
@@ -186,7 +196,7 @@ function initSchema(db) {
   if (!accountColumns.has('account_status')) db.exec('ALTER TABLE accounts ADD COLUMN account_status TEXT');
 
   const receiptColumns = new Set(
-    db.prepare("PRAGMA table_info(receipts)").all().map(row => row.name)
+    prepare(db, "PRAGMA table_info(receipts)").all().map(row => row.name)
   );
 
   if (!receiptColumns.has("uber_cash_savings")) db.exec("ALTER TABLE receipts ADD COLUMN uber_cash_savings REAL");
@@ -228,9 +238,9 @@ export function ensureAccount(
 ) {
   const normalized = normaliseAlias(alias);
   if (!normalized) return null;
-  if (db.prepare("SELECT 1 FROM deleted_accounts WHERE alias_hash = ?").get(createHash("sha256").update(normalized).digest("hex"))) return null;
+  if (prepare(db, "SELECT 1 FROM deleted_accounts WHERE alias_hash = ?").get(createHash("sha256").update(normalized).digest("hex"))) return null;
 
-  let row = db.prepare(
+  let row = prepare(db,
     "SELECT account_ref, alias, masked, can_login, login_access, login_method, first_seen_at, last_seen_at, " +
     "last_promo_at, last_receipt_at FROM accounts WHERE alias = ?"
   ).get(normalized);
@@ -240,7 +250,7 @@ export function ensureAccount(
     const ref = "A" + String(next).padStart(3, "0");
     const masked = maskAccountAlias(normalized);
 
-    db.prepare(`
+    prepare(db, `
       INSERT INTO accounts(
         account_ref, alias, masked, can_login,
         first_seen_at, last_seen_at, last_promo_at, last_receipt_at
@@ -257,7 +267,7 @@ export function ensureAccount(
 
     setMeta(db, "next_account_number", next + 1);
   } else {
-    db.prepare(`
+    prepare(db, `
       UPDATE accounts
       SET
         masked = COALESCE(masked, ?),
@@ -288,7 +298,7 @@ export function ensureAccount(
     );
   }
 
-  row = db.prepare(
+  row = prepare(db,
     "SELECT account_ref, alias, masked, can_login, login_access, login_method, first_seen_at, last_seen_at, " +
     "last_promo_at, last_receipt_at FROM accounts WHERE alias = ?"
   ).get(normalized);
@@ -310,7 +320,7 @@ export function ensureAccount(
 export function setAccountAccess(db, alias, canLogin, loginMethod = null, accountStatus = null) {
   const normalized = normaliseAlias(alias);
   // Access edits must not look like a new Mail observation or restart offer age.
-  const account = getAccounts(db).find(a => a.alias === normalized) || ensureAccount(db, { alias: normalized });
+  const account = getAccountByAlias(db, normalized) || ensureAccount(db, { alias: normalized });
   if (!account) return false;
   if (![true,false,null].includes(canLogin)) throw new Error("Invalid login access state.");
   if (accountStatus && !['active', 'archived', 'deactivated'].includes(accountStatus)) throw new Error('Invalid account status.');
@@ -320,7 +330,7 @@ export function setAccountAccess(db, alias, canLogin, loginMethod = null, accoun
     throw new Error("Invalid account login method.");
   }
 
-  db.prepare(
+  prepare(db,
     "UPDATE accounts SET can_login = ?, login_access = ?, login_method = COALESCE(?, login_method), account_status = COALESCE(?, account_status) WHERE alias = ?"
   ).run(canLogin === true ? 1 : 0, canLogin === null ? "pending" : canLogin ? "accessible" : "inaccessible", loginMethod || null, accountStatus || null, normalized);
 
@@ -331,14 +341,8 @@ export function resetAccountAccess(db) {
   db.exec("UPDATE accounts SET can_login = 0, login_access = 'inaccessible'");
 }
 
-export function getAccounts(db) {
-  return db.prepare(`
-    SELECT
-      account_ref, alias, masked, can_login, login_access, login_method, account_status,
-      first_seen_at, last_seen_at, last_promo_at, last_receipt_at
-    FROM accounts
-    ORDER BY last_seen_at DESC, account_ref ASC
-  `).all().map(row => ({
+function accountFromRow(row) {
+  return ({
     accountRef: row.account_ref,
     alias: row.alias,
     masked: row.masked,
@@ -351,7 +355,19 @@ export function getAccounts(db) {
     lastSeenAt: row.last_seen_at,
     lastPromoAt: row.last_promo_at,
     lastReceiptAt: row.last_receipt_at
-  }));
+  });
+}
+
+export function getAccountByAlias(db, alias) {
+  const row = prepare(db, `SELECT account_ref, alias, masked, can_login, login_access, login_method, account_status,
+    first_seen_at, last_seen_at, last_promo_at, last_receipt_at FROM accounts WHERE alias = ?`).get(normaliseAlias(alias));
+  return row ? accountFromRow(row) : null;
+}
+
+export function getAccounts(db) {
+  return prepare(db, `SELECT account_ref, alias, masked, can_login, login_access, login_method, account_status,
+    first_seen_at, last_seen_at, last_promo_at, last_receipt_at FROM accounts
+    ORDER BY last_seen_at DESC, account_ref ASC`).all().map(accountFromRow);
 }
 
 export function deleteAccountsPermanently(db, aliases = []) {
@@ -369,25 +385,25 @@ export function deleteAccountsPermanently(db, aliases = []) {
     receiptMatches: 0
   };
 
-  const find = db.prepare("SELECT account_ref FROM accounts WHERE alias = ?");
-  const count = table => db.prepare(
+  const find = prepare(db, "SELECT account_ref FROM accounts WHERE alias = ?");
+  const count = table => prepare(db,
     "SELECT COUNT(*) AS count FROM " + table + " WHERE account_ref = ?"
   );
-  const deleteByAccount = table => db.prepare(
+  const deleteByAccount = table => prepare(db,
     "DELETE FROM " + table + " WHERE account_ref = ?"
   );
-  const deleteMatches = db.prepare(`
+  const deleteMatches = prepare(db, `
     DELETE FROM receipt_offer_matches
     WHERE
       receipt_id IN (SELECT receipt_id FROM receipts WHERE account_ref = ?)
       OR offer_id IN (SELECT offer_id FROM offers WHERE account_ref = ?)
   `);
-  const deleteAccount = db.prepare(
+  const deleteAccount = prepare(db,
     "DELETE FROM accounts WHERE account_ref = ?"
   );
 
   for (const alias of uniqueAliases) {
-    db.prepare("INSERT OR IGNORE INTO deleted_accounts(alias_hash) VALUES(?)").run(createHash("sha256").update(alias).digest("hex"));
+    prepare(db, "INSERT OR IGNORE INTO deleted_accounts(alias_hash) VALUES(?)").run(createHash("sha256").update(alias).digest("hex"));
     const row = find.get(alias);
     if (!row) continue;
 
@@ -399,7 +415,7 @@ export function deleteAccountsPermanently(db, aliases = []) {
       count("transport_receipts").get(ref)?.count || 0
     );
 
-    const matchCount = db.prepare(`
+    const matchCount = prepare(db, `
       SELECT COUNT(*) AS count
       FROM receipt_offer_matches
       WHERE
@@ -425,26 +441,26 @@ export function upsertMessage(db, message) {
   // second receipt for a message already imported with an older parser.
   if (message.messageId && message.accountRef) {
     const id = String(message.messageId).trim().replace(/^<|>$/g, "").toLowerCase();
-    const previous = db.prepare("SELECT message_key FROM messages WHERE account_ref = ? AND lower(trim(message_id, '<> ')) = ?")
+    const previous = prepare(db, "SELECT message_key FROM messages WHERE account_ref = ? AND lower(trim(message_id, '<> ')) = ?")
       .all(message.accountRef, id);
     for (const row of previous) {
       if (row.message_key === message.messageKey) continue;
       for (const table of ["offers", "receipts", "transport_receipts"]) {
-        db.prepare("UPDATE " + table + " SET message_key = ? WHERE message_key = ?")
+        prepare(db, "UPDATE " + table + " SET message_key = ? WHERE message_key = ?")
           .run(message.messageKey, row.message_key);
       }
-      db.prepare("DELETE FROM messages WHERE message_key = ?").run(row.message_key);
+      prepare(db, "DELETE FROM messages WHERE message_key = ?").run(row.message_key);
     }
   }
   if (message.kind === "transport_receipt") {
-    db.prepare("DELETE FROM receipt_offer_matches WHERE receipt_id IN (SELECT receipt_id FROM receipts WHERE message_key = ?)")
+    prepare(db, "DELETE FROM receipt_offer_matches WHERE receipt_id IN (SELECT receipt_id FROM receipts WHERE message_key = ?)")
       .run(message.messageKey);
-    db.prepare("DELETE FROM receipts WHERE message_key = ?").run(message.messageKey);
+    prepare(db, "DELETE FROM receipts WHERE message_key = ?").run(message.messageKey);
   }
   if (message.kind === "receipt") {
-    db.prepare("DELETE FROM transport_receipts WHERE message_key = ?").run(message.messageKey);
+    prepare(db, "DELETE FROM transport_receipts WHERE message_key = ?").run(message.messageKey);
   }
-  db.prepare(`
+  prepare(db, `
     INSERT INTO messages(
       message_key, message_id, account_ref, kind, mailbox,
       sender, subject, body_text, sent_at, received_at,
@@ -494,17 +510,17 @@ export function upsertOffer(db, promo, seenAt = new Date().toISOString()) {
   // Keep clocks for reminders and count repairs of the same service/discount.
   // A primary coupon corrected from an unrelated footer value has its own
   // source history; borrowing the footer family's clock falsely expires it.
-  const previousFirst = promo.messageKey ? db.prepare(`SELECT MIN(first_sent_at) AS first_sent_at
+  const previousFirst = promo.messageKey ? prepare(db, `SELECT MIN(first_sent_at) AS first_sent_at
     FROM offers WHERE message_key = ? AND account_ref = ?
       AND status != 'parser_superseded' AND service IS ?
       AND discount_type IS ? AND discount IS ?`).get(promo.messageKey, promo.accountRef, promo.service || null, promo.discountType || null, promo.discount ?? null)?.first_sent_at : null;
   const firstSentAt = previousFirst && previousFirst < sourceSentAt ? previousFirst : sourceSentAt;
   // Correcting parsed terms changes the fingerprint. Retain superseded rows as
   // private evidence, but do not publish two offers for the same source message.
-  if (promo.messageKey) db.prepare(`UPDATE offers SET status = 'parser_superseded'
+  if (promo.messageKey) prepare(db, `UPDATE offers SET status = 'parser_superseded'
     WHERE message_key = ? AND account_ref = ? AND offer_id != ?`)
     .run(promo.messageKey, promo.accountRef, promo.offerId);
-  const existing = db.prepare(
+  const existing = prepare(db,
     "SELECT last_sent_at FROM offers WHERE offer_id = ?"
   ).get(promo.offerId);
 
@@ -513,7 +529,7 @@ export function upsertOffer(db, promo, seenAt = new Date().toISOString()) {
     String(sourceSentAt) >= String(existing.last_sent_at);
 
   if (!existing) {
-    db.prepare(`
+    prepare(db, `
       INSERT INTO offers(
         offer_id, account_ref, message_key, service, offer_type, title,
         discount_type, discount, max_saving, per_use_cap,
@@ -562,7 +578,7 @@ export function upsertOffer(db, promo, seenAt = new Date().toISOString()) {
     return;
   }
 
-  db.prepare(`
+  prepare(db, `
     UPDATE offers
     SET
       last_seen_at = ?,
@@ -649,7 +665,7 @@ export function upsertOffer(db, promo, seenAt = new Date().toISOString()) {
 // keep durable reminder clocks; they cannot prove that an earlier source was a
 // false parser extraction. Retain prior derived clocks privately for review.
 export function reconcileOfferSources(db, { processedMessageKeys, families }) {
-  const sources = db.prepare('SELECT message_key, account_ref, sender, body_text FROM messages').all();
+  const sources = prepare(db, 'SELECT message_key, account_ref, sender, body_text FROM messages').all();
   if (!(processedMessageKeys instanceof Set) || !(families instanceof Map) ||
       sources.some(m => !processedMessageKeys.has(m.message_key) ||
         !m.account_ref || !m.sender || m.body_text == null)) {
@@ -662,7 +678,7 @@ export function reconcileOfferSources(db, { processedMessageKeys, families }) {
     // explicit deadline. Only accepted matching sources may supply that term.
     const expirySource = promo?.expires || promo?.expiresAt ? promo : family.latestExpiry;
     const lastSentAt = promo?.emailSentAt || promo?.receivedAt;
-    const source = promo?.messageKey ? db.prepare('SELECT account_ref, accepted, kind FROM messages WHERE message_key = ?').get(promo.messageKey) : null;
+    const source = promo?.messageKey ? prepare(db, 'SELECT account_ref, accepted, kind FROM messages WHERE message_key = ?').get(promo.messageKey) : null;
     if (!source || !source.accepted || source.kind !== 'promo' ||
         source.account_ref !== promo.accountRef || promo.offerId !== offerId || offerFingerprint(promo) !== offerId ||
         !Number.isFinite(Date.parse(family.firstSentAt)) ||
@@ -671,14 +687,14 @@ export function reconcileOfferSources(db, { processedMessageKeys, families }) {
       throw new Error('Offer reconstruction has an invalid accepted source family.');
     }
     if (expirySource) {
-      const expiryMessage = db.prepare('SELECT account_ref, accepted, kind FROM messages WHERE message_key = ?').get(expirySource.messageKey);
+      const expiryMessage = prepare(db, 'SELECT account_ref, accepted, kind FROM messages WHERE message_key = ?').get(expirySource.messageKey);
       if (!expiryMessage?.accepted || expiryMessage.kind !== 'promo' ||
           expiryMessage.account_ref !== promo.accountRef || offerFingerprint(expirySource) !== offerId ||
           !processedMessageKeys.has(expirySource.messageKey)) {
         throw new Error('Offer reconstruction has an invalid accepted expiry source.');
       }
     }
-    const previous = db.prepare('SELECT first_sent_at, last_sent_at, message_key FROM offers WHERE offer_id = ?').get(offerId);
+    const previous = prepare(db, 'SELECT first_sent_at, last_sent_at, message_key FROM offers WHERE offer_id = ?').get(offerId);
     if (!previous) throw new Error('Offer reconstruction cannot invent a missing offer.');
     plans.push({ offerId, family, promo, expirySource, lastSentAt, previous });
   }
@@ -690,12 +706,12 @@ export function reconcileOfferSources(db, { processedMessageKeys, families }) {
     previous_message_key TEXT, canonical_message_key TEXT NOT NULL,
     repaired_at TEXT NOT NULL
   )`);
-  const record = db.prepare(`INSERT INTO offer_source_repairs (
+  const record = prepare(db, `INSERT INTO offer_source_repairs (
     offer_id, previous_first_sent_at, canonical_first_sent_at,
     previous_last_sent_at, canonical_last_sent_at,
     previous_message_key, canonical_message_key, repaired_at
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`);
-  const update = db.prepare(`UPDATE offers SET
+  const update = prepare(db, `UPDATE offers SET
     first_sent_at = ?, last_sent_at = ?, message_key = ?, title = ?,
     promo_code = ?, expires = ?, expires_at = ?, expiry_status = ?,
     expiry_basis = ?, expiry_confidence = ?, classification_confidence = ?,
@@ -748,7 +764,7 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
 
   sql += " ORDER BY o.last_sent_at DESC, o.offer_id ASC";
 
-  return db.prepare(sql).all(...args).map(row => ({
+  return prepare(db, sql).all(...args).map(row => ({
     offerId: row.offer_id,
     accountRef: row.account_ref,
     accountMasked: row.account_masked,
@@ -791,17 +807,17 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
 export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
   // A complete reparse of the SAME source may correct a former false extraction.
   // Sparse duplicates from different messages continue to preserve known facts.
-  if (receipt.reparsedSource && receipt.messageKey) db.prepare(`UPDATE receipts SET
+  if (receipt.reparsedSource && receipt.messageKey) prepare(db, `UPDATE receipts SET
     subtotal = NULL, promotion_discount = NULL, delivery_fee = NULL, service_fee = NULL,
     small_order_fee = NULL, tip = NULL, uber_cash_used = NULL, uber_cash_savings = NULL,
     reported_savings = NULL, uber_one_savings = NULL, uber_one_signal = 0, total = NULL
     WHERE message_key = ? AND account_ref = ?`).run(receipt.messageKey, receipt.accountRef);
-  const previous = db.prepare(`SELECT receipt_id FROM receipts WHERE account_ref = ? AND
+  const previous = prepare(db, `SELECT receipt_id FROM receipts WHERE account_ref = ? AND
     ((message_key IS NOT NULL AND message_key = ?) OR
      (order_id IS NOT NULL AND upper(trim(order_id)) = ?)) LIMIT 1`)
     .get(receipt.accountRef, receipt.messageKey || null, receipt.orderId ? String(receipt.orderId).trim().toUpperCase() : null);
   if (previous) receipt = { ...receipt, receiptId: previous.receipt_id };
-  db.prepare(`
+  prepare(db, `
     INSERT INTO receipts(
       receipt_id, account_ref, message_key, sent_at, received_at,
       order_id, merchant, subtotal, promotion_discount,
@@ -882,7 +898,7 @@ export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
 }
 
 export function getReceipts(db) {
-  return dedupeReceipts(db.prepare(`
+  return dedupeReceipts(prepare(db, `
     SELECT
       r.*,
       a.masked AS account_masked,
@@ -925,18 +941,18 @@ export function upsertTransportReceipt(
   receipt,
   seenAt = new Date().toISOString()
 ) {
-  if (receipt.reparsedSource && receipt.messageKey) db.prepare(`UPDATE transport_receipts SET
+  if (receipt.reparsedSource && receipt.messageKey) prepare(db, `UPDATE transport_receipts SET
     promotion_discount = NULL, uber_cash_used = NULL, uber_cash_savings = NULL,
     reported_savings = NULL, uber_one_savings = NULL, total = NULL
     WHERE message_key = ? AND account_ref = ?`).run(receipt.messageKey, receipt.accountRef);
-  const previous = db.prepare(`SELECT receipt_id FROM transport_receipts WHERE account_ref = ? AND
+  const previous = prepare(db, `SELECT receipt_id FROM transport_receipts WHERE account_ref = ? AND
     ((? IS NOT NULL AND message_key = ?) OR (? IS NOT NULL AND upper(trim(trip_id)) = ?) OR (? IS NOT NULL AND trip_key = ? AND transport_mode = ?)) ORDER BY CASE WHEN message_key = ? THEN 0 ELSE 1 END,first_seen_at LIMIT 1`)
     .get(receipt.accountRef, receipt.messageKey || null, receipt.messageKey || null,
       receipt.tripId ? String(receipt.tripId).trim().toUpperCase() : null,
       receipt.tripId ? String(receipt.tripId).trim().toUpperCase() : null,
       receipt.tripKey || null,receipt.tripKey || null,receipt.transportMode || 'ride',receipt.messageKey || null);
   if (previous) receipt = { ...receipt, receiptId: previous.receipt_id };
-  db.prepare(`
+  prepare(db, `
     INSERT INTO transport_receipts(
       receipt_id, account_ref, message_key, sent_at, received_at,
       trip_id, trip_key, transport_mode, total, first_seen_at, last_seen_at,
@@ -991,7 +1007,7 @@ export function upsertTransportReceipt(
 // Run only after complete, validated source coverage. Duplicate derived rows
 // remain recoverable in a private journal; every original message is retained.
 export function reconcileTransportReceiptIdentities(db, processedMessageKeys, parsedSources = null) {
-  const rows=db.prepare('SELECT * FROM transport_receipts WHERE trip_key IS NOT NULL').all();
+  const rows=prepare(db, 'SELECT * FROM transport_receipts WHERE trip_key IS NOT NULL').all();
   const groups=new Map();
   for(const row of rows){
     if(!row.message_key || !processedMessageKeys.has(row.message_key)) throw new Error('Complete receipt source coverage is required for identity reconciliation.');
@@ -1013,7 +1029,7 @@ export function reconcileTransportReceiptIdentities(db, processedMessageKeys, pa
     // Each component comes from the latest source that actually states it.
     // A later sparse copy cannot erase a valid discount from an earlier copy.
     for(const row of group){
-      db.prepare('UPDATE transport_receipts SET '+columns.map(k=>k+'=?').join(',')+' WHERE receipt_id=?').run(...columns.map(k=>financial[k]),row.receipt_id);
+      prepare(db, 'UPDATE transport_receipts SET '+columns.map(k=>k+'=?').join(',')+' WHERE receipt_id=?').run(...columns.map(k=>financial[k]),row.receipt_id);
       Object.assign(row,financial);
     }
   }
@@ -1025,17 +1041,17 @@ export function reconcileTransportReceiptIdentities(db, processedMessageKeys, pa
     result.sent_at=group.map(r=>r.sent_at).filter(Boolean).sort()[0]||null;
     result.last_seen_at=group.map(r=>r.last_seen_at).sort().at(-1);
     const columns=Object.keys(result).filter(k=>k!=='receipt_id');
-    db.prepare('UPDATE transport_receipts SET '+columns.map(k=>k+'=?').join(',')+' WHERE receipt_id=?').run(...columns.map(k=>result[k]),retained.receipt_id);
+    prepare(db, 'UPDATE transport_receipts SET '+columns.map(k=>k+'=?').join(',')+' WHERE receipt_id=?').run(...columns.map(k=>result[k]),retained.receipt_id);
     for(const row of group.slice(1)){
-      db.prepare('INSERT INTO receipt_identity_repairs VALUES(?,?,?,?)').run(row.receipt_id,retained.receipt_id,JSON.stringify(group),new Date().toISOString());
-      db.prepare('DELETE FROM transport_receipts WHERE receipt_id=?').run(row.receipt_id);merged++;
+      prepare(db, 'INSERT INTO receipt_identity_repairs VALUES(?,?,?,?)').run(row.receipt_id,retained.receipt_id,JSON.stringify(group),new Date().toISOString());
+      prepare(db, 'DELETE FROM transport_receipts WHERE receipt_id=?').run(row.receipt_id);merged++;
     }
   }
   return {duplicateGroups:duplicates.length,mergedDerivedRows:merged,originalMessagesPreserved:true};
 }
 
 export function getTransportReceipts(db) {
-  return dedupeReceipts(db.prepare(`
+  return dedupeReceipts(prepare(db, `
     SELECT
       r.*,
       a.masked AS account_masked,
@@ -1066,7 +1082,7 @@ export function getTransportReceipts(db) {
 }
 
 export function updateOfferUsage(db, promo) {
-  db.prepare(`
+  prepare(db, `
     UPDATE offers
     SET
       uses_remaining = ?,
@@ -1088,7 +1104,7 @@ export function updateOfferUsage(db, promo) {
 export function replaceReceiptMatches(db, matches = [], matchedAt = new Date().toISOString()) {
   db.exec("DELETE FROM receipt_offer_matches");
 
-  const insert = db.prepare(`
+  const insert = prepare(db, `
     INSERT INTO receipt_offer_matches(
       receipt_id, offer_id, status, expected_saving, observed_saving, matched_at
     ) VALUES(?, ?, ?, ?, ?, ?)
@@ -1113,7 +1129,7 @@ export function getSavingsSummary(db) {
   const feeSamples = receipts.filter(r => r.deliveryFee != null || r.serviceFee != null || r.smallOrderFee != null);
   const averageFees = feeSamples.length ? feeSamples.reduce((sum, r) => sum + Number(r.deliveryFee || 0) + Number(r.serviceFee || 0) + Number(r.smallOrderFee || 0), 0) / feeSamples.length : 0;
 
-  const accountCounts = db.prepare(`
+  const accountCounts = prepare(db, `
     SELECT
       COUNT(*) AS known_accounts,
       SUM(CASE WHEN can_login = 1 THEN 1 ELSE 0 END) AS accessible_accounts,
@@ -1122,7 +1138,7 @@ export function getSavingsSummary(db) {
     FROM accounts
   `).get();
 
-  const activePromoAccounts = db.prepare(`
+  const activePromoAccounts = prepare(db, `
     SELECT COUNT(DISTINCT account_ref) AS count
     FROM offers
     WHERE

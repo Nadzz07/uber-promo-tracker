@@ -2702,11 +2702,24 @@
     const STATE_KEY = "uber-eats-promo-tracker:manual-state:v3";
     const LEGACY_STATE_KEY = "uber-eats-promo-finder:promo-state:v2";
     const SETTINGS_KEY = "uber-eats-promo-tracker:planner-settings:v1";
+    const decimalMoney = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    const fractionalMoney = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const shortDate = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
+    const ukClock = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit' });
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     let liquidNavigation = null;
     let payload = {};
     let promos = [];
     let accounts = [];
+    let accountPromoIndex = new Map();
+    let accountStateMemo = new Map();
+    let activePromoMemo = new Map();
+    let enrichedMemo = null;
+    let enrichedBasket = null;
+    let projectionClock = 0;
+    let nextOfferExpiry = Infinity;
+    let renderedClockKey = null;
     let history = [];
     let historyUnavailable = false;
     let sheetOpener = null;
@@ -2827,6 +2840,7 @@
     }
 
     function saveManualStore() {
+      invalidateAccountProjection();
       try {
         localStorage.setItem(STATE_KEY, JSON.stringify(manualStore));
       } catch { showLocalNotice(); }
@@ -2873,10 +2887,8 @@
     }
 
     function money(value) {
-      return "£" + Number(value || 0).toLocaleString("en-GB", {
-        minimumFractionDigits: Number(value || 0) % 1 === 0 ? 0 : 2,
-        maximumFractionDigits: 2
-      });
+      const amount = Number(value || 0);
+      return '£' + (amount % 1 === 0 ? decimalMoney : fractionalMoney).format(amount);
     }
 
     function parseDateOnly(value, end = false) {
@@ -2902,10 +2914,7 @@
       const date = parseDateOnly(value);
       if (!date) return null;
 
-      return date.toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short"
-      });
+      return shortDate.format(date);
     }
 
     function daysUntil(value) {
@@ -2967,7 +2976,7 @@
         const date = formatDate(promo.expires);
         if (date) {
           const instant = expiryEndTime(promo);
-          const clock = instant == null ? "" : new Date(instant).toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" });
+          const clock = instant == null ? "" : ukClock.format(new Date(instant));
           bits.push(offerCountdown(promo));
           bits.push((promo.expiryStatus === "estimated" ? "Estimated end " : "Ends ") + date + (clock ? " at " + clock + " UK" : ""));
           if (promo.expiryBasis === "tracker_35_day_rule") bits.push("35-day tracking limit from the first offer email; confirm activation and expiry in Uber");
@@ -2996,11 +3005,16 @@
     }
 
     function currentAccountState(account) {
+      ensureAccountProjection();
+      const cached = accountStateMemo.get(account.accountRef);
+      if (cached) return { ...account, ...cached };
       const items = allPromosForAccount(account.accountRef).map(promo => ({ ...promo,
         trackingState: effectivePromoState(manualStore, promo) === 'ignored' ? 'ignored' : effectivePromoState(manualStore, promo) === 'used' ? 'used' : isExpired(promo) ? 'expired' : promo.trackingState,
         closedReason: effectivePromoState(manualStore, promo) === 'used' ? 'uses_finished' : isExpired(promo) ? 'expired' : promo.closedReason
       }));
-      return { ...account, ...classifyAccount(account, items) };
+      const classification = classifyAccount(account, items);
+      accountStateMemo.set(account.accountRef, classification);
+      return { ...account, ...classification };
     }
 
     function decisionPromos() {
@@ -3022,14 +3036,43 @@
     }
 
     function activePromosForAccount(accountRef) {
-      return promos
-        .filter(promo => promo.accountRef === accountRef)
+      ensureAccountProjection();
+      if (activePromoMemo.has(accountRef)) return activePromoMemo.get(accountRef);
+      const current = allPromosForAccount(accountRef)
         .filter(isPromoActive)
         .map(effectivePromo);
+      activePromoMemo.set(accountRef, current);
+      return current;
     }
 
     function allPromosForAccount(accountRef) {
-      return promos.filter(promo => promo.accountRef === accountRef);
+      return accountPromoIndex.get(accountRef) || [];
+    }
+
+    function rebuildAccountIndex() {
+      accountPromoIndex = new Map();
+      for (const promo of promos) {
+        if (!accountPromoIndex.has(promo.accountRef)) accountPromoIndex.set(promo.accountRef, []);
+        accountPromoIndex.get(promo.accountRef).push(promo);
+      }
+      invalidateAccountProjection();
+    }
+
+    function invalidateAccountProjection() {
+      accountStateMemo.clear();
+      activePromoMemo.clear();
+      enrichedMemo = null;
+      projectionClock = Date.now();
+      nextOfferExpiry = Infinity;
+      for (const promo of promos) {
+        const expiry = expiryEndTime(promo);
+        if (expiry != null && expiry > projectionClock) nextOfferExpiry = Math.min(nextOfferExpiry, expiry);
+      }
+    }
+
+    function ensureAccountProjection() {
+      const now = Date.now();
+      if (now < projectionClock || now >= nextOfferExpiry) invalidateAccountProjection();
     }
 
     function currentBasket() {
@@ -3057,7 +3100,11 @@
     function is12off15(promo) { return promo.discountType === "fixed" && Number(promo.discount) === 12 && Number(promo.minimumSpend) === 15; }
 
     function enrichedAccounts() {
-      return accounts
+      ensureAccountProjection();
+      const basket = currentBasket();
+      if (enrichedMemo && enrichedBasket === basket) return enrichedMemo;
+      enrichedBasket = basket;
+      enrichedMemo = accounts
         .map(account => {
           const current = activePromosForAccount(account.accountRef);
           return {
@@ -3073,6 +3120,7 @@
             bestNow: bestForAccount(account)
           };
         });
+      return enrichedMemo;
     }
 
     function enrichedLoginAccounts() {
@@ -3151,7 +3199,7 @@
     }
 
     function motionReduced() {
-      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      return reducedMotion.matches;
     }
 
     function replayMotion(element, className) {
@@ -3171,8 +3219,7 @@
       if (!element) return;
       const next = String(value);
       const changed = element.textContent !== next;
-      element.textContent = next;
-      if (changed) replayMotion(element, "motion-value");
+      if (changed) { element.textContent = next; replayMotion(element, "motion-value"); }
     }
 
     function renderStatus() {
@@ -4137,13 +4184,23 @@
 
     function renderAll() {
       renderStatus();
-      renderStats();
-      renderRecommendation();
-      renderQuickCounts();
-      renderHomeAccounts();
-      renderAccounts();
-      renderUsed();
-      renderMore();
+      if (currentView === 'home') {
+        renderStats();
+        renderRecommendation();
+        renderQuickCounts();
+        renderHomeAccounts();
+      } else if (currentView === 'accounts') renderAccounts();
+      else if (currentView === 'used') renderUsed();
+      else if (currentView === 'more') renderMore();
+      renderedClockKey = timedViewKey();
+    }
+
+    function timedViewKey() {
+      ensureAccountProjection();
+      const now = Date.now();
+      const countdowns = promos.filter(promo => expiryEndTime(promo) > now)
+        .map(promo => offerCountdown(promo, now)).join('|');
+      return currentView + '|' + projectionClock + '|' + syncState(payload.sync).className + '|' + countdowns;
     }
 
     function updateNavGlider() {
@@ -4159,6 +4216,7 @@
 
     function switchView(view) {
       currentView = view;
+      renderAll();
       let activeSection = null;
 
       document.querySelectorAll(".view").forEach(section => {
@@ -4220,7 +4278,7 @@
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 15000);
       try {
-        const response = await fetch(url + "?v=" + Date.now(), { cache: "no-store", signal: controller.signal });
+        const response = await fetch(url + "?snapshot=1", { cache: "no-cache", signal: controller.signal });
         if (!response.ok) throw new Error("Could not load snapshot");
         return await response.json();
       } finally { clearTimeout(timer); }
@@ -4250,6 +4308,7 @@
           return { ...promo, title: offerTitle(promo), ...classifyOfferTrackingState(promo, { reviewReasons: promo.reviewReasons || [] }) };
         });
         accounts = payload.accounts;
+        rebuildAccountIndex();
         renderAll();
       } catch (error) {
         loadError = true;
@@ -4290,7 +4349,7 @@
     document.getElementById("basketInput").addEventListener("input", () => {
       clearTimeout(basketTimer);
       basketTimer = setTimeout(() => {
-        renderRecommendation(); renderHomeAccounts(); renderAccounts();
+        renderAll();
         animateRegion("recommendation");
         animateRegion("homeAccounts");
         animateRegion("accountsList");
@@ -4341,7 +4400,6 @@
         document.getElementById('accountScope').value = ['all','login','locked','used','archived','used-login','used-locked','archived-login','archived-locked','pending'].includes(accountFilter) ? accountFilter : 'all';
         accountDisplayLimit = 48;
         document.querySelectorAll('[data-account-filter]').forEach(button => button.classList.toggle('active', button.dataset.accountFilter === accountFilter));
-        renderAccounts();
         switchView("accounts");
         return;
       }
@@ -4525,14 +4583,14 @@
 
     window.addEventListener("storage", event => {
       if (event.key === LAYOUT_KEY || event.key === null) { layoutPreference = readLayoutPreference(); applyLayoutPreference(); if (openSheetType === 'appearance') renderAppearanceSheet(); }
-      if (event.key === STATE_KEY) { manualStore = readManualStore(); renderAll(); if (openSheetType === "account") renderAccountSheet(); }
+      if (event.key === STATE_KEY || event.key === null) { manualStore = readManualStore(); invalidateAccountProjection(); renderAll(); if (openSheetType === "account") renderAccountSheet(); }
       if (event.key === SETTINGS_KEY) { plannerSettings = readPlannerSettings(); renderRecommendation(); }
       if (event.key === THEME_KEY) { applyTheme(readThemeColour()); if (openSheetType === 'appearance') renderAppearanceSheet(); }
       if (event.key === DEVICE_ACCOUNTS_KEY || event.key === null) { deviceAccounts = readDeviceAccounts(); renderAll(); if (openSheetType === 'account') renderAccountSheet(); if (openSheetType === 'device') renderDeviceSheet(); }
     });
     function refreshTimedViews() {
       if (document.hidden || loadInProgress) return;
-      renderAll();
+      if (renderedClockKey !== timedViewKey()) renderAll();
       if (openSheetType === 'account' && accountSheetClock !== accountSheetClockKey()) {
         const body=document.getElementById('sheetBody'), scroll=body.scrollTop, hadFocus=body.contains(document.activeElement);
         renderAccountSheet(); body.scrollTop=scroll;

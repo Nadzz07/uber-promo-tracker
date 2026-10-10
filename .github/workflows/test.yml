@@ -26,14 +26,17 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      - name: Install pinned build tools
+        run: npm ci --ignore-scripts
       - name: Run regression, integration, privacy and syntax checks
         run: npm run validate
       - name: Build allowlisted public site
         run: npm run build
   browser:
     strategy:
+      fail-fast: false
       matrix:
-        browser: [chromium, webkit]
+        browser: [chromium, webkit, firefox]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

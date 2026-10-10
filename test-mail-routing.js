@@ -132,6 +132,14 @@ try {
   assert.deepEqual(protectedPlan.messageIds,['<archived-promo@uber.com>']);
   assert.equal(protectedPlan.keptArchivedReceipts,1);assert.equal(protectedPlan.keptUsedPromoSources,1);
   assert.equal(protectedPlan.messageTargets[0].recipient,'account-c@icloud.com');
+  for (const [canLogin,status] of [[null,'active'],[false,'active'],[true,'archived']]) {
+    const editing=openPrivateDb(dbPath);try{setAccountAccess(editing,'account-c@icloud.com',canLogin,'iCloud',status);}finally{editing.close();}
+    execFileSync(process.execPath,['mac/plan-inbox-routing.js',input,dbPath,output,trashOutput,'--keep-receipts-and-used-promos'],{stdio:'pipe'});
+    assert.equal(JSON.parse(fs.readFileSync(trashOutput)).count,0,'Pending, active and accessible accounts stay out of Archived cleanup');
+  }
+  const editing=openPrivateDb(dbPath);try{setAccountAccess(editing,'account-c@icloud.com',false,'iCloud','deactivated');}finally{editing.close();}
+  execFileSync(process.execPath,['mac/plan-inbox-routing.js',input,dbPath,output,trashOutput,'--keep-receipts-and-used-promos'],{stdio:'pipe'});
+  assert.deepEqual(JSON.parse(fs.readFileSync(trashOutput)).messageIds,['<archived-promo@uber.com>']);
 
   const exporterSource = fs.readFileSync("mac/export-uber-mail.js", "utf8");
   const moverSource = fs.readFileSync("mac/move-inbox-receipts.js", "utf8");

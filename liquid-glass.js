@@ -33,7 +33,7 @@ export function createLiquidNavigation(nav) {
   const motion=win.matchMedia('(prefers-reduced-motion: reduce)');
   const states={x:{value:0,velocity:0},y:{value:0,velocity:0},width:{value:0,velocity:0},height:{value:0,velocity:0},flex:{value:0,velocity:0}};
   const targets={x:0,y:0,width:0,height:0,flex:0};
-  let frame=0, last=0, initialized=false, hapticPending=false, disposed=false;
+  let frame=0, last=0, initialized=false, hapticPending=false, disposed=false, lensSize='', paletteKey='';
   const ns='http://www.w3.org/2000/svg', make=(name, attrs)=>{const el=doc.createElementNS(ns,name);for(const [key,value] of Object.entries(attrs))el.setAttribute(key,value);return el;};
   // WebKit currently parses url() backdrop filters but does not render them.
   // Apply the shader only to renderers known to support it; Safari keeps the
@@ -48,6 +48,7 @@ export function createLiquidNavigation(nav) {
   function lens() {
     if(!refractive)return;
     const width=Math.max(1,Math.round(nav.clientWidth)),height=Math.max(1,Math.round(nav.clientHeight));
+    const size=width+'x'+height;if(size===lensSize)return;lensSize=size;
     const canvas=doc.createElement('canvas');canvas.width=width;canvas.height=height;
     const ctx=canvas.getContext('2d'),pixels=ctx.createImageData(width,height),radius=Math.min(width,height)/2;
     for(let y=0;y<height;y++)for(let x=0;x<width;x++){
@@ -62,6 +63,7 @@ export function createLiquidNavigation(nav) {
     nav.style.backdropFilter='url("#tracker-liquid-lens")';
   }
   function adaptiveMaterial() {
+    if(disposed||doc.hidden)return;
     const rect=nav.getBoundingClientRect(),samples=[];
     for(const fraction of [.15,.5,.85]){
       const under=doc.elementsFromPoint(rect.left+rect.width*fraction,rect.top+rect.height/2).find(el=>el!==nav&&!nav.contains(el)&&el!==svg);
@@ -75,6 +77,7 @@ export function createLiquidNavigation(nav) {
     const sample=samples.sort((a,b)=>luminance(b)-luminance(a))[0]||[14,16,21];
     const colour=win.getComputedStyle(doc.documentElement).getPropertyValue('--accent-rgb').split(',').map(Number);
     const palette=materialPalette(sample,colour.length===3?colour:undefined);
+    const key=JSON.stringify([palette.tint,palette.opacity,palette.accent]);if(key===paletteKey)return;paletteKey=key;
     nav.style.setProperty('--liquid-tint',palette.tint.join(','));nav.style.setProperty('--liquid-opacity',palette.opacity);
     nav.style.setProperty('--liquid-accent',`rgb(${palette.accent.join(',')})`);
   }
@@ -100,7 +103,7 @@ export function createLiquidNavigation(nav) {
     }
     paint();if(moving)frame=win.requestAnimationFrame(tick);else last=0;
   }
-  function wake(){if(!frame&&!motion.matches&&!doc.hidden)frame=win.requestAnimationFrame(tick);}
+  function wake(){if(!disposed&&!frame&&!motion.matches&&!doc.hidden)frame=win.requestAnimationFrame(tick);}
   function setTarget(next,{immediate=false}={}){
     Object.assign(targets,next);
     if(!initialized||immediate||motion.matches){for(const key of Object.keys(next))states[key]={value:next[key],velocity:0};initialized=true;paint();}
@@ -112,11 +115,13 @@ export function createLiquidNavigation(nav) {
     states.flex.velocity=-.72;hapticPending=event.pointerType==='touch'&&typeof win.navigator.vibrate==='function';adaptiveMaterial();wake();
   }
   let sampleFrame=0;
-  function scheduleMaterial(){if(!sampleFrame)sampleFrame=win.requestAnimationFrame(()=>{sampleFrame=0;adaptiveMaterial();});}
+  function scheduleMaterial(){if(!disposed&&!doc.hidden&&!sampleFrame)sampleFrame=win.requestAnimationFrame(()=>{sampleFrame=0;adaptiveMaterial();});}
+  function visibilityChange(){if(doc.hidden){win.cancelAnimationFrame(frame);win.cancelAnimationFrame(sampleFrame);frame=sampleFrame=last=0;}else{scheduleMaterial();wake();}}
   function motionChange(){hapticPending=false;if(motion.matches){win.cancelAnimationFrame(frame);frame=0;states.flex={value:0,velocity:0};for(const key of ['x','y','width','height'])states[key]={value:targets[key],velocity:0};paint();}}
   const resize=new win.ResizeObserver(()=>{lens();scheduleMaterial();});resize.observe(nav);
   const theme=new win.MutationObserver(scheduleMaterial);theme.observe(doc.documentElement,{attributes:true,attributeFilter:['style','data-layout']});
   nav.addEventListener('pointerdown',pointerDown);win.addEventListener('scroll',scheduleMaterial,{passive:true});motion.addEventListener('change',motionChange);
+  doc.addEventListener('visibilitychange',visibilityChange);
   lens();adaptiveMaterial();
-  return {setTarget,dragTo:next=>setTarget(next,{immediate:true}),refreshMaterial:scheduleMaterial,destroy(){disposed=true;win.cancelAnimationFrame(frame);win.cancelAnimationFrame(sampleFrame);resize.disconnect();theme.disconnect();svg.remove();nav.removeEventListener('pointerdown',pointerDown);win.removeEventListener('scroll',scheduleMaterial);motion.removeEventListener('change',motionChange);}};
+  return {setTarget,dragTo:next=>setTarget(next,{immediate:true}),refreshMaterial:scheduleMaterial,destroy(){disposed=true;win.cancelAnimationFrame(frame);win.cancelAnimationFrame(sampleFrame);resize.disconnect();theme.disconnect();svg.remove();nav.removeEventListener('pointerdown',pointerDown);win.removeEventListener('scroll',scheduleMaterial);motion.removeEventListener('change',motionChange);doc.removeEventListener('visibilitychange',visibilityChange);}};
 }
