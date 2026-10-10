@@ -13,11 +13,12 @@
     "access:import": "node mac/import-account-access.js",
     "build": "node build-site.js",
     "validate": "npm test && node validate-public.js && node validate-syntax.js",
-    "test:browser": "node test-browser.js && node test-nav-gestures.js && node test-completion-browser.js && node test-discovery-browser.js",
+    "test:browser": "node test-browser.js && node test-nav-gestures.js && node test-completion-browser.js && node test-discovery-browser.js && node test-performance-browser.js",
     "mbox:import": "node mac/import-mbox.js",
     "accounts:remove-private": "node mac/remove-private-accounts.js"
   },
   "devDependencies": {
+    "esbuild": "0.28.2",
     "playwright": "1.62.1"
   }
 }

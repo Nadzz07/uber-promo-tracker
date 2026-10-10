@@ -72,3 +72,4 @@ exclude:
   - "*.local"
   - "*.db*"
   - "*.sqlite*"
+  - test-performance-browser.js

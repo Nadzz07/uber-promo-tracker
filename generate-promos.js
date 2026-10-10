@@ -18,6 +18,7 @@ import {
   DEFAULT_PRIVATE_DB,
   ensureAccount,
   getAccounts,
+  getAccountByAlias,
   getOffers,
   getPublicAccountInsights,
   getReceipts,
@@ -306,7 +307,7 @@ async function generatePromos() {
         alias: promo.accountAlias,
         seenAt: promo.emailSentAt || promo.receivedAt || sentAt,
         kind: "promo"
-      }) : getAccounts(db).find(a => a.alias === promo.accountAlias);
+      }) : getAccountByAlias(db, promo.accountAlias);
       if (!account) continue;
 
       upsertMessage(db, {
@@ -415,6 +416,11 @@ async function generatePromos() {
       );
     }
 
+    const offersByAccount = new Map();
+    for (const offer of refreshedOffers) {
+      if (!offersByAccount.has(offer.accountRef)) offersByAccount.set(offer.accountRef, []);
+      offersByAccount.get(offer.accountRef).push(offer);
+    }
     const accounts = getPublicAccountInsights(db).map(account => {
       const stats = receiptStats.get(account.accountRef) || {
         orderCount: 0,
@@ -446,7 +452,7 @@ async function generatePromos() {
         estimatedUberOneSavings: stats.estimatedUberOneSavings,
         estimatedTotalSaved: stats.estimatedTotalSaved,
         lastOrderAt: stats.lastOrderAt || account.lastOrderAt || null,
-        ...classifyAccount({ ...account, orderCount: stats.orderCount }, refreshedOffers.filter(p => p.accountRef === account.accountRef), generatedAt)
+        ...classifyAccount({ ...account, orderCount: stats.orderCount }, offersByAccount.get(account.accountRef) || [], generatedAt)
       };
     });
 

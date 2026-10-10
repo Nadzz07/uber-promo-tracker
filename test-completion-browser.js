@@ -1,8 +1,8 @@
-import fs from 'node:fs';import assert from 'node:assert/strict';import http from 'node:http';import {once} from 'node:events';import {execFileSync} from 'node:child_process';import {chromium,webkit} from 'playwright';
+import fs from 'node:fs';import assert from 'node:assert/strict';import http from 'node:http';import {once} from 'node:events';import {execFileSync} from 'node:child_process';import {chromium,webkit,firefox} from 'playwright';
 execFileSync(process.execPath,['build-site.js']);
 const files=new Set(fs.readdirSync('dist')),server=http.createServer((req,res)=>{const file=new URL(req.url,'http://localhost').pathname.slice(1)||'index.html';if(!files.has(file)){res.writeHead(404).end();return;}res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.json')?'application/json':file.endsWith('.css')?'text/css':'text/html');res.end(fs.readFileSync('dist/'+file));});
 server.listen(0,'127.0.0.1');await once(server,'listening');
-const engine=process.env.TRACKER_BROWSER_ENGINE==='webkit'?webkit:chromium,browser=await engine.launch();
+const engine={chromium,webkit,firefox}[process.env.TRACKER_BROWSER_ENGINE||'chromium'],browser=await engine.launch();
 try{
  const now=Date.now(),time=new Date(now).toISOString();
  const definitions=[[0,false,true,'active',0,0],[1,false,true,'active',1,0],[0,true,false,'active',0,0],[1,true,true,'active',1,1],[2,true,true,'archived',2,0],[4,true,false,'archived',4,0],[5,false,false,'active',5,0],[0,false,true,'active',0,0]];
@@ -39,5 +39,5 @@ try{
   const displacement=page.locator('#tracker-liquid-lens feDisplacementMap');await displacement.evaluate(el=>el.setAttribute('scale','0'));const flat=await page.locator('#mainNav').screenshot();await displacement.evaluate(el=>el.setAttribute('scale','18'));const bent=await page.locator('#mainNav').screenshot();assert.ok(!flat.equals(bent),'SVG displacement must change the rendered backdrop pixels');
   await page.locator('#shader-proof').evaluate(el=>el.style.backgroundPosition='3px 0');const changed=await page.locator('#mainNav').screenshot();assert.ok(!bent.equals(changed),'Backdrop sampling must update with the underlying pixels');
  }
- assert.deepEqual(errors,[]);await page.close();console.log('✓ Final seven-situation table, Fully used counters, independent access/archive filters, preserved 1/5 expiry, deduped history and live refraction ('+(engine===chromium?'Chromium':'WebKit fallback')+')');
+ assert.deepEqual(errors,[]);await page.close();console.log('✓ Final seven-situation table, Fully used counters, independent access/archive filters, preserved 1/5 expiry, deduped history and live refraction ('+(process.env.TRACKER_BROWSER_ENGINE||'chromium')+')');
 }finally{await browser.close();server.close();}

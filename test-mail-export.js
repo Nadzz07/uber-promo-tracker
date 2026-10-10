@@ -62,4 +62,22 @@ try {
   assert.deepEqual(read(), {}, 'A parser code change forces a reparse');
   db.close();
 } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+const graph=fs.mkdtempSync(path.join(os.tmpdir(),'tracker-parser-graph-'));
+try {
+  for(const dir of ['', 'mac', 'parser-v2']) {
+    fs.mkdirSync(path.join(graph,dir),{recursive:true});
+    for(const name of fs.readdirSync(dir||'.').filter(name=>name.endsWith('.js')&&!name.includes('.local.'))) {
+      fs.copyFileSync(path.join(dir,name),path.join(graph,dir,name));
+    }
+  }
+  const original=parserFingerprint(graph);
+  for(const name of ['build-site.js','appearance.js','liquid-glass.js']) {
+    const file=path.join(graph,name),content=fs.readFileSync(file);fs.appendFileSync(file,'\n// appearance-only change\n');
+    assert.equal(parserFingerprint(graph),original,'Appearance/build changes preserve committed Mail body cache');fs.writeFileSync(file,content);
+  }
+  for(const name of ['parser-v2/discount.js','receipt-parser.js','receipt-identity.js','private-db.js','savings-intelligence.js','offer-time.js','generate-promos.js','mac/export-uber-mail.js']) {
+    const file=path.join(graph,name),content=fs.readFileSync(file);fs.appendFileSync(file,'\n// processing change\n');
+    assert.notEqual(parserFingerprint(graph),original,'Every ingestion dependency invalidates Mail body cache: '+name);fs.writeFileSync(file,content);
+  }
+} finally { fs.rmSync(graph,{recursive:true,force:true}); }
 console.log('✓ Incremental read-only Mail export: stable IDs, committed evidence, changed receipts and parser invalidation');

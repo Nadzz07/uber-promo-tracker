@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
 import { once } from 'node:events';
-import { chromium, webkit } from 'playwright';
+import { chromium, webkit, firefox } from 'playwright';
 
 const fixture = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>
 body { margin:0; min-height:1600px; }
@@ -49,9 +49,9 @@ const server = http.createServer((request, response) => {
 server.listen(0, '127.0.0.1'); await once(server, 'listening');
 let browser;
 try {
-  const engine = process.env.TRACKER_BROWSER_ENGINE === 'webkit' ? webkit : chromium;
+  const engine = {chromium,webkit,firefox}[process.env.TRACKER_BROWSER_ENGINE || 'chromium'];
   browser = await engine.launch(engine === chromium ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined, args: ['--no-sandbox', '--disable-dev-shm-usage'] } : {});
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: engine !== firefox, hasTouch: true });
   const page = await context.newPage(), errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('http://127.0.0.1:' + server.address().port); await page.waitForFunction(() => window.ready);
@@ -112,7 +112,7 @@ try {
   // Actual browser mouse capture remains supported, and normal clicks are not doubled.
   await reset();
   await page.mouse.move(home.clientX, home.clientY); await page.mouse.down();
-  assert.equal(await page.locator('#mainNav').evaluate(nav => nav.hasPointerCapture(1)), true);
+  assert.equal(await page.locator('#mainNav').evaluate(nav => nav.hasPointerCapture(window.captureCalls.at(-1))), true);
   await page.mouse.move(more.clientX, more.clientY, { steps: 8 }); await page.mouse.up();
   assert.deepEqual(await selections(), ['more']);
   await page.locator('[data-view="accounts"]').click();
@@ -171,7 +171,7 @@ try {
   await page.locator('[data-view="accounts"]').click();
   assert.deepEqual(await selections(), [], 'Destroy must remove gesture and click listeners');
   assert.deepEqual(errors, []);
-  console.log('Navigation gesture checks passed (' + (engine === webkit ? 'WebKit' : 'Chromium') + '): held touch, capture, taps, delayed clicks, mouse, cancel, multitouch, keyboard, orientation and cleanup.');
+  console.log('Navigation gesture checks passed (' + (process.env.TRACKER_BROWSER_ENGINE || 'chromium') + '): held touch, capture, taps, delayed clicks, mouse, cancel, multitouch, keyboard, orientation and cleanup.');
 } finally {
   await browser?.close(); await new Promise(resolve => server.close(resolve));
 }

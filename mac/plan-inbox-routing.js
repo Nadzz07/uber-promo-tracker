@@ -83,7 +83,12 @@ for (const email of messages) {
   ).trim().toLowerCase();
 
   const account = access.get(alias);
-  if(keepEvidence && account && !account.canLogin && retainedSources.has(account.accountRef+'|'+normalizedId(email.messageId))){
+  const cleanupEligible = account?.canLogin === false &&
+    (account.accountStatus === 'archived' || account.accountStatus === 'deactivated' || !account.accountStatus);
+  // Pending/new access is never a reason to send Mail to Bin. Accessible
+  // accounts stay protected even when separately marked Archived.
+  if (account?.canLogin !== true && !cleanupEligible) continue;
+  if(keepEvidence && cleanupEligible && retainedSources.has(account.accountRef+'|'+normalizedId(email.messageId))){
     // Keep all receipt-looking messages, including unsupported currencies, and
     // used/reviewable promo families. Only trusted, preserved Uber sources move.
     const receiptLike=isReceipt || /\breceipt\b|\b(?:your\s+)?trip\s+with\s+uber\b|\bthanks\s+for\s+(?:your\s+)?order\b/i.test(email.subject||'');

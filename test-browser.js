@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
-import { chromium, webkit } from 'playwright';
+import { chromium, webkit, firefox } from 'playwright';
 import { once } from 'node:events';
 import { execFileSync } from 'node:child_process';
 execFileSync(process.execPath, ['build-site.js']);
@@ -17,9 +17,9 @@ server.listen(0, '127.0.0.1'); await once(server, 'listening');
 const url = 'http://127.0.0.1:' + server.address().port;
 let browser;
 try {
-  const engine = process.env.TRACKER_BROWSER_ENGINE === 'webkit' ? webkit : chromium;
+  const engine = {chromium,webkit,firefox}[process.env.TRACKER_BROWSER_ENGINE || 'chromium'];
   browser = await engine.launch(engine === chromium ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined, args: ['--no-sandbox', '--disable-dev-shm-usage'] } : {});
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, timezoneId: 'America/Los_Angeles' });
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: engine !== firefox, hasTouch: true, timezoneId: 'America/Los_Angeles' });
   const page = await context.newPage(); const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   // First-sync behaviour must not depend on the user's checked-in live data.
@@ -416,7 +416,9 @@ try {
   assert.equal(await filterPage.locator('.offers-section > .offer-card').count(),0,'An open account sheet must also remove newly expired offers');
   await filterPage.keyboard.press('Escape');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A101"]').count(),0,'Expired offers leave Expiring soon');
+  await filterPage.locator('[data-view="home"]').click();
   assert.equal(Number(await filterPage.locator('#activeStat').innerText()),activeBefore-1,'Home availability follows the same current expiry checks');
+  await filterPage.locator('[data-view="accounts"]').click();
   await filterPage.locator('[data-account-filter="all"]').click();await filterPage.locator('#accountsList [data-account-offers="A101"]').click();
   assert.equal(await filterPage.locator('#accountOfferHistory').getAttribute('open'),null,'Past offers stay collapsed by default');
   assert.equal(await filterPage.locator('.offers-section > .offer-card').count(),0,'Expired offers do not appear among current offers');
