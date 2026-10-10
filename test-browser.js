@@ -246,8 +246,8 @@ try {
     await page.setViewportSize({ width, height: 900 });
     assert.equal(await page.locator('html').getAttribute('data-layout'), 'desktop');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Explicit Desktop must fit ${width}px`);
-    const navFits = await page.locator('.nav-btn').evaluateAll(buttons => buttons.every(button => button.scrollWidth <= button.clientWidth+1));
-    assert.equal(navFits, true, `Desktop navigation labels must fit at ${width}px`);
+    const navSizes = await page.locator('.nav-btn').evaluateAll(buttons => buttons.map(button => ({label:button.innerText,content:button.scrollWidth,width:button.clientWidth})));
+    assert.ok(navSizes.every(button => button.content <= button.width+1), `Desktop navigation labels must fit at ${width}px: ${JSON.stringify(navSizes)}`);
   }
   await page.setViewportSize({ width: 390, height: 844 });
   // The radio group works with keyboard selection and Auto can be restored.

@@ -106,6 +106,11 @@ html[data-layout="desktop"] .sheet { width: min(100%,620px); border-bottom: 1px 
   html[data-layout="desktop"] .home-overview .stat-card { padding: 20px; }
   html[data-layout="desktop"] .account-list { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
+/* Native fallback fonts can be wider than the Mac system font. Preserve the
+   label size while leaving enough room in the compact desktop dock. */
+@media (min-width: 901px) and (max-width: 1100px) {
+  html[data-layout="desktop"] .nav-btn { gap: 4px; padding: 0 3px; }
+}
 @media (max-width: 900px) {
   html[data-layout="desktop"] .app-shell { display: block; padding: 24px; }
   html[data-layout="desktop"] .bottom-nav { width: min(100%,480px); margin: 22px 0; }
