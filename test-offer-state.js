@@ -45,8 +45,8 @@ const trusted = "Uber Eats <offers@uber.com>";
       service: "Uber Eats",
       accountRef: "A001",
       subtotal: 25,
-      promotionDiscount: 0,
-      total: 25,
+      promotionDiscount: 15,
+      total: 10,
       sentAt: "2026-10-02T18:00:00Z"
     },
     {
@@ -55,8 +55,8 @@ const trusted = "Uber Eats <offers@uber.com>";
       service: "Uber Eats",
       accountRef: "A001",
       subtotal: 22,
-      promotionDiscount: 0,
-      total: 22,
+      promotionDiscount: 15,
+      total: 7,
       sentAt: "2026-10-03T18:00:00Z"
     },
     {
@@ -65,8 +65,8 @@ const trusted = "Uber Eats <offers@uber.com>";
       service: "Uber Eats",
       accountRef: "A001",
       subtotal: 22,
-      promotionDiscount: 0,
-      total: 22,
+      promotionDiscount: 15,
+      total: 7,
       sentAt: "2026-10-03T18:02:00Z"
     },
     {
@@ -90,7 +90,7 @@ const trusted = "Uber Eats <offers@uber.com>";
   assert.equal(result.promos[0].usesRemaining, 3);
   assert.equal(result.promos[0].trackingState, "available");
 
-  console.log("✓ Two unique Eats orders leave 3 of 5 uses; duplicate and ride receipts do not count");
+  console.log("✓ Two unique explicitly discounted Eats orders leave 3 of 5 uses; duplicate and ride receipts do not count");
 }
 
 {
@@ -152,7 +152,7 @@ const trusted = "Uber Eats <offers@uber.com>";
       offerType: "multi_order_discount",
       title: "£8 off first 5 orders",
       discountType: "fixed",
-      discount: 8,
+      discount: 10,
       minimumSpend: 15,
       uses: 5,
       accountRef: "A002",
@@ -168,8 +168,8 @@ const trusted = "Uber Eats <offers@uber.com>";
     service: "Uber Eats",
     accountRef: "A002",
     subtotal: 25,
-    promotionDiscount: 0,
-    total: 25,
+    promotionDiscount: 10,
+    total: 15,
     sentAt: "2026-10-02T18:00:00Z"
   }], {
     now: "2026-10-05T12:00:00Z"

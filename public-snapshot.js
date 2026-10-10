@@ -51,7 +51,7 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     const summary = payload.summary;
     for (const [field, count] of [
       ['knownAccounts', payload.accounts.length], ['accessibleAccounts', payload.accounts.filter(a => a.canLogin).length],
-      ['inaccessibleAccounts', payload.accounts.filter(a => a.canLogin === false).length], ['availableAccounts', payload.accounts.filter(a => a.accountState === 'available').length],
+      ['inaccessibleAccounts', payload.accounts.filter(a => a.canLogin === false).length], ['availableAccounts', payload.accounts.filter(a => a.recommendationEligible).length],
       ['usedAccounts', payload.accounts.filter(a => independent ? a.accountUsed : a.accountState === 'used').length], ['archivedAccounts', payload.accounts.filter(a => independent ? a.archived : a.accountState === 'archived').length],
       ['needsCheckingAccounts', payload.accounts.filter(a => a.accountState === 'needs_checking').length],
       ['trackedOrders', payload.accounts.reduce((n, a) => n + a.orderCount, 0)]
@@ -61,6 +61,8 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
       const completions = payload.promos.map(p => classifyOfferCompletion(p, payload.generatedAt));
       for (const [field, predicate] of [['fullyUsedOffers','fullyUsed'],['finishedExpiredOffers','finishedExpired'],['fullyConsumedOffers','consumed'],['expiredUnusedOffers','expiredUnused'],['partiallyUsedOffers','partiallyUsed']]) if (summary[field] !== completions.filter(c => c[predicate]).length) throw new Error('Finished offer counter disagrees with confirmed usage: ' + field);
     }
+    if (summary.completedPromotions != null && summary.completedPromotions !== payload.promos.filter(p => classifyOfferCompletion(p, payload.generatedAt).consumed).length) throw new Error('Completed promotions disagree with receipt evidence.');
+    if (summary.completedPromotions != null && summary.fullyUsedAccounts !== payload.accounts.filter(a => a.accountUsed).length) throw new Error('Fully used accounts disagree with receipts.');
     if (independent && summary.usedAccessibleAccounts !== payload.accounts.filter(a => a.accountUsed && a.canLogin).length) throw new Error('Used accessible counter disagrees with accounts.');
     for (const [summaryField, accountField] of [['totalSaved', 'totalSaved'], ['estimatedUberOneSavings', 'estimatedUberOneSavings'], ['estimatedTotalSaved', 'estimatedTotalSaved']]) {
       if (Math.abs(Number(summary[summaryField]) - payload.accounts.reduce((sum, a) => sum + Number(a[accountField] || 0), 0)) > 0.011) throw new Error('Savings summary disagrees with accounts.');

@@ -36,7 +36,7 @@ try {
     { ...offer, id: 'test-locked', accountRef: 'A003', accountMasked: 'lo…ed@example.invalid', canLogin: false, discount: 40 },
     { ...offer, id: 'test-expired', accountRef: 'A004', accountMasked: 'ex…ed@example.invalid', discount: 30, expiresAt: new Date(Date.now() - 1000).toISOString() },
     { ...offer, id: 'test-offer-5', accountRef: 'A005', accountMasked: 'be…ta@example.invalid' },
-    { ...offer, id: 'test-used-account', accountRef: 'A006', accountMasked: 'us…ed@example.invalid', discount: 100 },
+    { ...offer, id: 'test-used-account', accountRef: 'A006', accountMasked: 'us…ed@example.invalid', discount: 5 },
     { ...offer, id: 'test-bad-count', accountRef: 'A007', accountMasked: 'ba…nt@example.invalid', discount: 15, uses: 96, usesRemaining: 96, receiptConfirmedUses: 0, receiptState: null, title: '£15 off on 96 orders' }
   ];
   const payload = { schemaVersion: 3, generatedAt: time, summary: { totalSaved: 10, estimatedTotalSaved: 15, estimatedUberOneSavings: 5, knownAccounts: 999, accessibleAccounts: 999, feeModel: { sampleSize: 1, averageExtraOrderFees: 3 } }, accounts: offers.map(p => ({ accountRef: p.accountRef, accountMasked: p.accountMasked, canLogin: p.canLogin, orderCount: p.accountRef === 'A006' ? 5 : 0, rideCount: 0 })), promos: offers };
@@ -49,7 +49,7 @@ try {
   const recommendation = await page.locator('#recommendation').innerText();
   assert.match(recommendation, /Save £10/); // At £15, one £10-off offer is the optimal single-order result.
   assert.equal(await page.locator('#usableStat').innerText(), '7');
-  assert.equal(await page.locator('#activeStat').innerText(), '2');
+  assert.equal(await page.locator('#activeStat').innerText(), '3');
   assert.equal(await page.locator('#savedStat').innerText(), '£10');
   assert.match(await page.locator('#savedStatSub').innerText(), /£5 estimated/);
   await page.locator('[data-view="accounts"]').click();
@@ -83,8 +83,8 @@ try {
   await page.keyboard.press('Escape');
   await page.locator('[data-view="used"]').click();
   assert.equal(await page.locator('#expiredList').isVisible(),false,'Expired history is collapsed by default');
-  await page.locator('#expiredSection > summary').click();
-  assert.match(await page.locator('#expiredList').innerText(), /ex…ed/);
+  await page.locator('#finishedExpiredSection > summary').click();
+  assert.match(await page.locator('#finishedExpiredList').innerText(), /ex…ed/);
   await page.locator('#needsCheckingSection > summary').click();
   assert.match(await page.locator('#needsCheckingList').innerText(), /re…ew/);
   assert.match(await page.locator('#needsCheckingList').innerText(), /order count needs verification/);
@@ -371,7 +371,7 @@ try {
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await filterPage.locator('#unfinishedCount').innerText(), '7 accounts', 'One remaining use and partial receipts do not finish an account');
   assert.equal(await filterPage.locator('#cashPromoCount').innerText(), '1 account');
-  assert.equal(await filterPage.locator('#activeStat').innerText(), '6', 'One use left must preserve account availability');
+  assert.equal(await filterPage.locator('#activeStat').innerText(), '8', 'One use left must preserve account availability');
   filterOffers.splice(filterOffers.findIndex(p => p.id === 'another-single-102'), 1);
   filterOffers.push({ ...cashOffer, id: 'cash-102', accountRef: 'A102', accountMasked: 'si…le@example.invalid', usesRemaining: 1 });
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');

@@ -37,13 +37,13 @@ export function classifyAccount(account = {}, offers = [], now = Date.now()) {
   const state = archived ? 'archived' : account.accessStatus === 'pending' || account.canLogin == null ? 'pending_access' : !account.canLogin ? 'inaccessible' : usage.accountUsed ? 'used' : available.length ? 'available' : review.length ? 'needs_checking' : offers.length && expired.length === offers.length ? 'expired' : offers.length && finished.length === offers.length ? 'fully_used' : 'no_offers';
   return { ...usage, archived, accountStatus: account.deactivated || account.accountStatus === 'deactivated' ? 'deactivated' : archived ? 'archived' : 'active', accountState: state, activePromoCount: available.length, reviewOfferCount: review.length,
     fullyUsedOfferCount: finished.length, expiredUnusedOfferCount: offers.filter(p => classifyOfferCompletion(p, now).expiredUnused).length,
-    needsReview: state === 'needs_checking', recommendationEligible: state === 'available' };
+    needsReview: state === 'needs_checking', recommendationEligible: account.canLogin === true && account.accessStatus !== 'pending' && !archived && available.length > 0 };
 }
 
 export function accountStatusLabel(account) {
   if (account.accessStatus === 'pending' || account.canLogin == null) return 'Login access pending verification';
   if (account.deactivated) return 'Deactivated · can’t log in';
-  return { archived: 'Archived · outside active rotation', inaccessible: 'Can’t log in', used: 'Used · receipt confirmed', available: 'Available', needs_checking: 'Offers need checking', expired: 'Offers expired', fully_used: 'Offers fully used', no_offers: 'No current offers' }[account.accountState] || 'No current offers';
+  return { archived: 'Archived · outside active rotation', inaccessible: 'Can’t log in', used: 'Fully used account · receipt confirmed', available: 'Available', needs_checking: 'Offers need checking', expired: 'Offers expired', fully_used: 'Offers finished', no_offers: 'No current offers' }[account.accountState] || 'No current offers';
 }
 
 export function accountUsageDescription(account = {}) {

@@ -34,7 +34,7 @@ export function classifyOfferCompletion(promo = {}, now = new Date()) {
   return { fullyUsed, consumed, finishedExpired, expiredUnused: expired && confirmed === 0,
     partiallyUsed: !expired && !consumed && confirmed > 0 && state.trackingState === 'available',
     confirmedUses: confirmed, totalUses: total,
-    displayStatus: consumed ? 'Finished · Fully consumed' : finishedExpired ? 'Finished · Expired'
+    displayStatus: consumed ? 'Completed · Verified' : finishedExpired ? 'Finished · Expired'
       : expired ? 'Expired · Unused' : state.trackingState === 'needs_checking' ? 'Needs checking'
       : confirmed > 0 ? 'Partially used' : 'Available' };
 }
@@ -81,8 +81,8 @@ export function classifyOfferTrackingState(
   if (expiryTime != null && nowTime >= expiryTime) {
     return {
       trackingState: "expired",
-      needsReview: false,
-      reviewReasons: [],
+      needsReview: reasons.size > 0,
+      reviewReasons: [...reasons],
       closedReason: "expired"
     };
   }

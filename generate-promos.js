@@ -458,7 +458,7 @@ async function generatePromos() {
 
     const summary = getSavingsSummary(db);
     summary.accountStatusVersion = 2;
-    summary.availableAccounts = accounts.filter(a => a.accountState === "available").length;
+    summary.availableAccounts = accounts.filter(a => a.recommendationEligible).length;
     summary.usedAccounts = accounts.filter(a => a.accountUsed).length;
     const completions = publicPromos.map(p => classifyOfferCompletion(p, generatedAt));
     for (const [field, predicate] of [['fullyUsedOffers','fullyUsed'],['finishedExpiredOffers','finishedExpired'],['fullyConsumedOffers','consumed'],['expiredUnusedOffers','expiredUnused'],['partiallyUsedOffers','partiallyUsed']]) summary[field] = completions.filter(c => c[predicate]).length;
@@ -466,7 +466,8 @@ async function generatePromos() {
     summary.completedUsageAccounts = accounts.filter(a => a.accountUsed).length;
     summary.partialUsageAccounts = accounts.filter(a => a.canLogin && a.partialUsage).length;
     summary.expiredAccounts = accounts.filter(a => a.accountState === "expired").length;
-    summary.fullyUsedAccounts = accounts.filter(a => a.accountState === "fully_used").length;
+    summary.fullyUsedAccounts = summary.usedAccounts;
+    summary.completedPromotions = completions.filter(c => c.consumed).length;
     summary.archivedAccounts = accounts.filter(a => a.archived).length;
     summary.deactivatedAccounts = accounts.filter(a => a.deactivated).length;
     summary.archivedConfirmedSaved = Math.round(accounts.filter(a => a.archived).reduce((n,a)=>n+Number(a.totalSaved||0),0)*100)/100;

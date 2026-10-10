@@ -2381,21 +2381,25 @@
           <div class="stats-row">
             <div class="stat-card">
               <div class="stat-label">Total Accounts</div>
+              <button class="metric-help" data-metric-help="accounts" data-metric-label="Total Accounts" aria-label="Explain Total Accounts">i</button>
               <div id="usableStat" class="stat-value">0</div>
               <div class="stat-sub">All tracked accounts.</div>
             </div>
-            <div id="availableStatCard" class="stat-card available-stat-card" title="Accounts with an eligible offer now. Expired offers, used accounts and accounts outside active rotation are excluded.">
+            <div id="availableStatCard" class="stat-card available-stat-card" title="Accounts with an eligible offer now. Expired offers and accounts outside active rotation are excluded. Account receipt usage is independent.">
               <div class="stat-label accounts-available-label">Available Offers</div>
+              <button class="metric-help" data-metric-help="accounts" data-metric-label="Available Offers" aria-label="Explain Available Offers">i</button>
               <div id="activeStat" class="stat-value available">0</div>
               <div id="availableStatSub" class="stat-sub">Ready to use now.</div>
             </div>
             <div class="stat-card">
               <div class="stat-label">Accessible</div>
+              <button class="metric-help" data-metric-help="accounts" data-metric-label="Accessible" aria-label="Explain Accessible">i</button>
               <div id="loginStat" class="stat-value">0</div>
               <div class="stat-sub">Can still log in.</div>
             </div>
             <div class="stat-card">
               <div class="stat-label">Archived</div>
+              <button class="metric-help" data-metric-help="accounts" data-metric-label="Archived" aria-label="Explain Archived">i</button>
               <div id="archivedStat" class="stat-value">0</div>
               <div class="stat-sub">Not in active rotation.</div>
             </div>
@@ -2516,7 +2520,7 @@
           <option value="locked">Can't log in</option>
           <option value="pending">Access pending verification</option>
           <optgroup label="Receipt usage">
-            <option value="used">All used accounts</option>
+            <option value="used">Fully used accounts</option>
             <option value="used-login">Used · Can log in</option>
             <option value="used-locked">Used · Can't log in</option>
           </optgroup>
@@ -2526,7 +2530,7 @@
             <option value="archived-locked">Archived · Can't log in</option>
           </optgroup>
           <optgroup label="Offer history">
-            <option value="finished">Has Fully used offers</option>
+            <option value="finished">Has finished promotions</option>
             <option value="expired-unused">Expired · Unused offers</option>
           </optgroup>
         </select>
@@ -2551,22 +2555,22 @@
         <div class="screen-head">
           <div class="eyebrow">Activity & state</div>
           <h1 class="screen-title">Used / Finished</h1>
-          <div class="screen-copy">Used accounts meet the receipt rule. Expired offers with no confirmed use stay Expired · Unused. Started offers that expire are Finished · Expired; confirmed redemption of every use is Finished · Fully consumed. Access and archive status stay separate.</div>
+          <div class="screen-copy">Fully used accounts meet your Eats + Ride or five Eats receipt rule. Completed promotions have every use verified. Expiry and manual completion keep their own reasons; login access and archive status stay independent.</div>
         </div>
 
         <div class="activity-summary">
-          <div class="activity-card"><span>Promos in progress</span><strong id="recentUseCount">0</strong></div>
-          <div class="activity-card"><span>Fully used</span><strong id="fullyUsedCount">0</strong></div>
-          <div class="activity-card"><span>Used accounts</span><strong id="usedAccountCount">0</strong></div>
-          <div class="activity-card"><span>Expired offers</span><strong id="expiredCount">0</strong></div>
+          <div class="activity-card"><span>Fully used accounts</span><button class="metric-help" data-metric-help="usage" aria-label="Explain Fully used accounts">i</button><strong id="usedAccountCount">0</strong></div>
+          <div class="activity-card"><span>Completed promotions</span><button class="metric-help" data-metric-help="completion" aria-label="Explain Completed promotions">i</button><strong id="fullyUsedCount">0</strong></div>
+          <div class="activity-card"><span>Partially used promotions</span><button class="metric-help" data-metric-help="partial" aria-label="Explain Partially used promotions">i</button><strong id="recentUseCount">0</strong></div>
+          <div class="activity-card"><span>Expired offers</span><button class="metric-help" data-metric-help="expiry" aria-label="Explain Expired offers">i</button><strong id="expiredCount">0</strong></div>
         </div>
 
         <details class="activity-section used-accounts-panel disclosure-card" open>
-          <summary><span><strong>Used accounts</strong><small>Completed receipt rule · access stays independent</small></span><span id="usedAccountsDisclosureCount" class="disclosure-count"></span></summary>
+          <summary><span><strong>Fully used accounts</strong><small>Receipt rule met · access stays independent</small></span><span id="usedAccountsDisclosureCount" class="disclosure-count"></span></summary>
           <div class="disclosure-body">
           <p id="usedAccountExplanation" class="activity-explanation"></p>
           <div id="usedAccountsList" class="activity-list"></div>
-          <button class="advanced-btn" data-jump-accounts="true" data-target-filter="used">Manage all used accounts ›</button>
+          <button class="advanced-btn" data-jump-accounts="true" data-target-filter="used">Manage fully used accounts ›</button>
           </div>
         </details>
         <details id="needsCheckingSection" class="activity-section disclosure-card">
@@ -2576,25 +2580,30 @@
         </details>
 
         <details id="recentActivitySection" class="activity-section disclosure-card">
-          <summary><span><strong>Not finished · uses remaining</strong></span><span id="recentDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
+          <summary><span><strong>Partially used promotions</strong></span><span id="recentDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
           <div id="recentActivity" class="activity-list"></div>
           </div>
         </details>
 
         <details id="fullyUsedSection" class="activity-section disclosure-card" open>
-          <summary><span><strong>Fully used · Finished offers</strong></span><span id="finishedDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
-          <p class="activity-explanation">Includes confirmed full redemption and expiry after confirmed use. Actual order counts are preserved.</p>
+          <summary><span><strong>Completed promotions</strong></span><span id="finishedDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
+          <p class="activity-explanation">Every permitted use is receipt-confirmed. A fully used account or an expired promotion alone does not prove full redemption.</p>
           <div id="fullyUsedList" class="activity-list"></div>
           </div>
         </details>
 
+        <details id="finishedExpiredSection" class="activity-section disclosure-card">
+          <summary><span><strong>Finished · Expired</strong><small>Some uses confirmed before expiry</small></span><span id="finishedExpiredCount" class="disclosure-count">0</span></summary>
+          <div class="disclosure-body"><div id="finishedExpiredList" class="activity-list"></div></div>
+        </details>
+
         <details id="expiredSection" class="activity-section activity-history disclosure-card">
-          <summary><span><strong>Expired offers</strong><small>Unused &amp; partially used · original counts preserved</small></span><span id="expiredDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
+          <summary><span><strong>Expired · Unused</strong><small>No confirmed promotional redemptions</small></span><span id="expiredDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
           <p class="activity-explanation">Unused orders remain recorded. Expiry does not mean they were redeemed.</p>
           <div id="expiredList" class="activity-list"></div></div>
         </details>
 
-        <details class="activity-section activity-history disclosure-card"><summary><span><strong>Manually finished</strong><small>Awaiting receipt confirmation</small></span><span id="manualDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body"><div id="manualFinishedList" class="activity-list"></div></div></details>
+        <details class="activity-section activity-history disclosure-card"><summary><span><strong>Manually finished</strong><small>Unverified · excluded from recommendations</small></span><span id="manualDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body"><div id="manualFinishedList" class="activity-list"></div></div></details>
         <details id="ignoredSection" class="activity-section disclosure-card">
           <summary><span><strong>Ignored offers</strong></span><span id="ignoredDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
           <div id="ignoredList" class="activity-list"></div>
@@ -2609,6 +2618,10 @@
         </div>
 
         <div class="more-grid">
+          <button class="more-card" data-open-guide="overview">
+            <div class="more-icon">?</div><div class="more-title">Help &amp; Guide</div>
+            <div class="more-copy">Understand accounts, promotions, savings and Mail sync.</div>
+          </button>
           <button class="more-card" data-open-sheet="appearance">
             <div class="more-icon">◉</div>
             <div class="more-title">Appearance</div>
@@ -2645,6 +2658,13 @@
             <div class="more-copy">Eats and Rides activity, with confirmed savings.</div>
           </button>
         </div>
+      </section>
+      <section id="view-help" class="view" aria-labelledby="guideTitle">
+        <button class="advanced-btn" data-guide-back="true">‹ Back to More</button>
+        <div class="screen-head"><div class="eyebrow">Help &amp; Guide</div><h1 id="guideTitle" class="screen-title" tabindex="-1">Understand your tracker</h1>
+          <div class="screen-copy">Clear answers, practical examples and the rules behind your figures.</div><p class="guide-updated">Last updated <time datetime="2026-10-10">10 October 2026</time></p></div>
+        <div class="guide-search"><label for="guideSearch">Find an explanation</label><input id="guideSearch" type="search" placeholder="Search statuses, savings, sync…" autocomplete="off" aria-controls="guideSections"><p id="guideSearchStatus" role="status"></p></div>
+        <div id="guideSections" class="guide-sections"></div>
       </section>
     </main>
 
@@ -2696,7 +2716,10 @@
       promoStateKey,
        setOfferDone,
       setOfferIgnored,
-      undoManualUse
+      undoManualUse,
+      reconcileManualStore,
+      promotionActivity,
+      acknowledgeEvidenceReview
     } from "./manual-state.js";
 
     const STATE_KEY = "uber-eats-promo-tracker:manual-state:v3";
@@ -2704,8 +2727,10 @@
     const SETTINGS_KEY = "uber-eats-promo-tracker:planner-settings:v1";
     const decimalMoney = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
     const fractionalMoney = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const shortDate = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
+    const shortDate = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Europe/London' });
     const ukClock = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit' });
+    const evidenceDate = new Intl.DateTimeFormat('en-GB', {year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'Europe/London'});
+    function formatEvidenceTime(value) { const time = new Date(value).getTime(); return value && Number.isFinite(time) ? evidenceDate.format(new Date(time)) + ' UK' : ''; }
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     let liquidNavigation = null;
@@ -2713,6 +2738,7 @@
     let promos = [];
     let accounts = [];
     let accountPromoIndex = new Map();
+    let promoKeyIndex = new Map();
     let accountStateMemo = new Map();
     let activePromoMemo = new Map();
     let enrichedMemo = null;
@@ -2724,6 +2750,8 @@
     let historyUnavailable = false;
     let sheetOpener = null;
     let loadInProgress = false;
+    let lastSnapshotCheckedAt = 0;
+    const snapshotCache = new Map();
     let loadError = false;
     let currentView = "home";
     let currentIntent = "best";
@@ -3009,7 +3037,7 @@
       const cached = accountStateMemo.get(account.accountRef);
       if (cached) return { ...account, ...cached };
       const items = allPromosForAccount(account.accountRef).map(promo => ({ ...promo,
-        trackingState: effectivePromoState(manualStore, promo) === 'ignored' ? 'ignored' : effectivePromoState(manualStore, promo) === 'used' ? 'used' : isExpired(promo) ? 'expired' : promo.trackingState,
+        trackingState: effectivePromoState(manualStore,promo) === 'needs_checking' ? 'needs_checking' : effectivePromoState(manualStore, promo) === 'ignored' ? 'ignored' : effectivePromoState(manualStore, promo) === 'used' ? 'used' : isExpired(promo) ? 'expired' : promo.trackingState,
         closedReason: effectivePromoState(manualStore, promo) === 'used' ? 'uses_finished' : isExpired(promo) ? 'expired' : promo.closedReason
       }));
       const classification = classifyAccount(account, items);
@@ -3021,7 +3049,7 @@
       const eligible = new Set(accounts.map(currentAccountState).filter(a => a.recommendationEligible).map(a => a.accountRef));
       return promos
         .filter(promo =>
-          eligible.has(promo.accountRef) && promo.service === "Uber Eats" &&
+          eligible.has(promo.accountRef) && isPromoActive(promo) &&
           promo.trackingState !== "needs_checking" &&
           promo.trackingState !== "used" &&
           !isExpired(promo)
@@ -3050,6 +3078,7 @@
     }
 
     function rebuildAccountIndex() {
+      promoKeyIndex = new Map(promos.map(p => [promoStateKey(p),p]));
       accountPromoIndex = new Map();
       for (const promo of promos) {
         if (!accountPromoIndex.has(promo.accountRef)) accountPromoIndex.set(promo.accountRef, []);
@@ -3236,7 +3265,7 @@
         label.textContent = "Attention";
         pill.classList.add('stale');
         time.textContent = "Unable to refresh data";
-        syncStrip.innerHTML = '<strong>Update unavailable</strong><span>Try refreshing. The last loaded snapshot stays on this device.</span>';
+        syncStrip.innerHTML = '<strong>Update unavailable</strong><span>The last loaded snapshot stays on this device.</span><button class="ghost-btn" data-retry-load="true">Try again</button>';
         syncStrip.style.display = "flex";
         return;
       }
@@ -3550,119 +3579,89 @@
     function renderUsed() {
       const usedAccounts = enrichedAccounts().filter(account => account.accountUsed).sort((a,b) => String(b.lastOrderAt || b.lastRideAt || '').localeCompare(String(a.lastOrderAt || a.lastRideAt || '')));
       document.getElementById('usedAccountCount').textContent = usedAccounts.length;
-      document.getElementById('usedAccountExplanation').textContent = usedAccounts.length + ' accounts meet the receipt rule; ' + usedAccounts.filter(a=>a.canLogin).length + ' can still log in. Account use does not automatically archive an account or consume every promo.';
-      document.getElementById('usedAccountsList').innerHTML = usedAccounts.length ? usedAccounts.slice(0,6).map(account => activityRow(account, receiptHistoryText(account) + ' · ' + (account.canLogin ? 'Can log in' : 'Can’t log in') + (account.archived ? ' · Archived' : ''), '<button class="restore-btn" data-account-offers="' + escapeHtml(account.accountRef) + '">View</button>')).join('') : '<div class="empty">No receipt-completed accounts yet.</div>';
-      const recent = [];
-      const fullyUsed = [];
-      const manualFinished = [];
-      const needsChecking = [];
-      const expired = [];
-      const ignored = [];
+      document.getElementById('usedAccountExplanation').textContent = usedAccounts.length + ' fully used accounts meet the receipt rule; ' + usedAccounts.filter(a=>a.canLogin).length + ' can still log in. Account use does not archive an account or complete its promotions.';
+      document.getElementById('usedAccountsList').innerHTML = usedAccounts.length ? usedAccounts.slice(0,6).map(account => activityRow(account, receiptHistoryText(account) + ' · ' + (account.canLogin ? 'Can log in' : 'Can’t log in') + (account.archived ? ' · Archived' : ''), '<button class="restore-btn" data-account-offers="' + escapeHtml(account.accountRef) + '">View</button>')).join('') : '<div class="empty">No fully used accounts yet.</div>';
+      const buckets = {completed:[], partial:[], finished_expired:[], expired_unused:[], manual:[], needs_checking:[], ignored:[], available:[]};
+      for (const promo of promos) buckets[promotionActivity(manualStore, promo).bucket].push(promo);
+      document.getElementById('fullyUsedCount').textContent = buckets.completed.length;
+      document.getElementById('recentUseCount').textContent = buckets.partial.length;
+      document.getElementById('expiredCount').textContent = buckets.finished_expired.length + buckets.expired_unused.length;
+      for (const [id,count] of Object.entries({usedAccountsDisclosureCount:usedAccounts.length, recentDisclosureCount:buckets.partial.length, finishedDisclosureCount:buckets.completed.length, finishedExpiredCount:buckets.finished_expired.length, expiredDisclosureCount:buckets.expired_unused.length, manualDisclosureCount:buckets.manual.length, needsCheckCount:buckets.needs_checking.length, ignoredDisclosureCount:buckets.ignored.length})) document.getElementById(id).textContent = count.toLocaleString('en-GB');
+      const definitions = [['completed','fullyUsedList','No promotions have every use verified yet. Receipts can confirm account use and savings without identifying a specific promotion.'], ['partial','recentActivity','No partially used promotions.'], ['finished_expired','finishedExpiredList','No promotions have expired after confirmed use.'], ['expired_unused','expiredList','No unused expired offers.'], ['manual','manualFinishedList','No manually finished promotions awaiting verification.'], ['needs_checking','needsCheckingList','Nothing needs checking.'], ['ignored','ignoredList','No ignored offers.']];
+      for (const [bucket,id,empty] of definitions) {
+        const list = buckets[bucket];
+        document.getElementById(id).innerHTML = list.length ? list.slice(0, expiredDisplayLimit).map(promo => {
+          const activity = promotionActivity(manualStore, promo);
+          const reviewText = activity.verificationConflict || (promo.reviewReasons?.includes('ambiguous_receipt_match') ? 'receipt match is ambiguous' : promo.reviewReasons?.includes('unverified_use_count') ? 'order count needs verification from the original offer' : promo.reviewReasons?.includes('missing_discount_terms') ? 'discount terms need checking' : promo.trackingState === 'needs_checking' ? 'expiry is unknown' : '');
+          const detail = (promo.title || promoLabel(promo)) + ' · ' + activity.status + ' · ' + activity.confirmedUses + '/' + activity.totalUses + ' confirmed used' + (reviewText ? ' · ' + reviewText : '');
+          return activityRow(promo, detail, (bucket === 'ignored' ? '<button class="restore-btn" data-unignore-offer="' + escapeHtml(promoStateKey(promo)) + '">Restore</button>' : '') + '<button class="restore-btn" data-account-offers="' + escapeHtml(promo.accountRef) + '">View</button>');
+        }).join('') + (list.length > expiredDisplayLimit ? '<button class="ghost-btn" data-more-expired="true">Show 50 more</button>' : '') : '<div class="empty">' + empty + '</div>';
+      }
+    }
 
-      for (const promo of promos.filter(p => p.service === "Uber Eats")) {
-        const activity = manualActivity(manualStore, promo);
-        const confirmed = confirmedUses(promo);
-        const total = Math.max(1, Number(promo.uses || 1));
-        const remaining = effectiveRemainingUses(manualStore, promo);
-
-        if (activity.ignored) {
-          ignored.push(promo);
-          continue;
-        }
-
-        const completion = classifyOfferCompletion(promo);
-        if (completion.fullyUsed) {
-          fullyUsed.push(promo);
-          if (completion.finishedExpired) expired.push(promo);
-          continue;
-        }
-        if (completion.expiredUnused) { expired.push(promo); continue; }
-
-        if (
-          activity.effectiveState === "used" ||
-          promo.trackingState === "used"
-        ) {
-          manualFinished.push(promo);
-          continue;
-        }
-
-        if (promo.closedReason === 'expired' || isExpired(promo)) { expired.push(promo); continue; }
-
-        if (promo.trackingState === "needs_checking") {
-          needsChecking.push(promo);
-          continue;
-        }
-
-        if (promo.canLogin && remaining > 0 && (confirmed > 0 || activity.pendingManualUses > 0)) {
-          recent.push(promo);
+    let guideModule, guideLoading;
+    const metricExplanations = {
+      'Total Accounts':['accounts','Every tracked account, including archived, deactivated and pending accounts.'],
+      'Available Offers':['accounts','Accessible accounts in active rotation with an eligible current offer. Used accounts can still qualify; expired, ignored and manually finished offers do not.'],
+      'Accessible':['accounts','Accounts confirmed as usable for login. This is separate from usage and archive status.'],
+      'Archived':['accounts','Outside active rotation. An archived account can still be accessible.'],
+      usage:['accounts','Accounts with Eats + Ride receipts, or at least five Eats receipts. Lime counts as Ride. This does not complete individual promotions.'],
+      completion:['promotions','Only promotions with every permitted use receipt-confirmed. Expiry and manual completion alone do not count.'],
+      partial:['promotions','Valid promotions with some confirmed redemptions and uses remaining. Manual completion is kept separate.'],
+      expiry:['expiry','Expired promotions in the Finished · Expired and Expired · Unused buckets. Other primary statuses remain in their own sections.']
+    };
+    async function openGuide(topic = 'overview') {
+      closeSheet();
+      switchView('help');
+      document.getElementById('guideSearch').value = '';
+      if (!guideModule) {
+        document.getElementById('guideSections').innerHTML = '<p role="status">Loading guide…</p>';
+        try {
+          guideModule = await (guideLoading ||= import('./help-guide.js'));
+          document.getElementById('guideSections').innerHTML = guideModule.guideSections.map(section => '<details id="guide-' + section.id + '" class="disclosure-card"><summary><span><strong>' + escapeHtml(section.title) + '</strong><small>' + escapeHtml(section.summary) + '</small></span></summary><div class="disclosure-body">' + section.content + '</div></details>').join('');
+        } catch {
+          guideLoading = null;
+          document.getElementById('guideSections').innerHTML = '<p role="status">The guide could not load. Check your connection and try again.</p><button class="advanced-btn" data-open-guide="overview">Try again</button>';
+          return;
         }
       }
-
-      document.getElementById("recentUseCount").textContent = recent.length;
-      document.getElementById("fullyUsedCount").textContent = fullyUsed.length;
-      document.getElementById("expiredCount").textContent = expired.length;
-      document.getElementById("needsCheckCount").textContent = needsChecking.length;
-      for (const [id,count] of Object.entries({usedAccountsDisclosureCount:usedAccounts.length, recentDisclosureCount:recent.length, finishedDisclosureCount:fullyUsed.length, expiredDisclosureCount:expired.length, manualDisclosureCount:manualFinished.length, ignoredDisclosureCount:ignored.length})) document.getElementById(id).textContent = count.toLocaleString("en-GB");
-
-      document.getElementById("needsCheckingList").innerHTML =
-        needsChecking.length
-          ? needsChecking.map(promo => {
-              const reasons = Array.isArray(promo.reviewReasons)
-                ? promo.reviewReasons
-                : [];
-              const reasonText = reasons.includes("ambiguous_receipt_match")
-                ? "receipt match is ambiguous"
-                : reasons.includes('unverified_use_count') ? 'order count needs verification from the original offer'
-                : reasons.includes('missing_discount_terms') ? 'discount terms need verification from the original message' : "expiry is unknown";
-
-              return activityRow(
-                promo,
-                (promo.title || promoLabel(promo)) + " · " + reasonText,
-                '<button class="restore-btn" data-account-offers="' + escapeHtml(promo.accountRef) + '">Open</button>'
-              );
-            }).join("")
-          : '<div class="empty">Nothing needs checking.</div>';
-
-      const renderRecent = recent.map(promo => {
-        const total = Math.max(1, Number(promo.uses || 1));
-        const remaining = effectiveRemainingUses(manualStore, promo);
-        const used = Math.max(0, total - remaining);
-        const pending = pendingManualUses(manualStore, promo);
-        const suffix = pending > 0 ? " · " + pending + " awaiting receipt" : "";
-
-        return activityRow(
-          promo,
-          (promo.title || promoLabel(promo)) + " · " + used + " of " + total +
-          " used · " + remaining + " left" + suffix,
-          '<button class="restore-btn" data-account-offers="' + escapeHtml(promo.accountRef) + '">Open</button>'
-        );
-      }).join("");
-
-      document.getElementById("recentActivity").innerHTML =
-        renderRecent || '<div class="empty">No started promos with uses remaining.</div>';
-
-      document.getElementById("fullyUsedList").innerHTML = fullyUsed.length
-        ? fullyUsed.map(promo => activityRow(promo, (promo.title || promoLabel(promo)) + ' · ' + classifyOfferCompletion(promo).displayStatus + ' · ' + confirmedUses(promo) + '/' + Math.max(1,Number(promo.uses||1)) + ' confirmed used', '<button class="restore-btn" data-account-offers="' + escapeHtml(promo.accountRef) + '">View</button>')).join('')
-        : '<div class="empty">No offers have confirmed full redemption or expiry after confirmed use. Receipts can confirm account use and savings without identifying which promo was redeemed. Receipt-completed accounts are listed above.</div>';
-      document.getElementById('manualFinishedList').innerHTML = manualFinished.length
-        ? manualFinished.map(promo => activityRow(promo, (promo.title || promoLabel(promo)) + ' · ' + (manualActivity(manualStore,promo).forceDone ? 'Manually marked finished' : 'Logged uses awaiting receipts') + ' · ' + confirmedUses(promo) + ' receipt-confirmed', '<button class="restore-btn" data-account-offers="' + escapeHtml(promo.accountRef) + '">View</button>')).join('')
-        : '<div class="empty">No manually finished offers.</div>';
-
-      document.getElementById("expiredList").innerHTML = expired.length
-        ? expired.slice(0, expiredDisplayLimit).map(promo => activityRow(promo, (promo.title || promoLabel(promo)) + ' · ' + offerClosureLabel(promo) + ' · ' + confirmedUses(promo) + '/' + Math.max(1,Number(promo.uses||1)) + ' confirmed used · ' + effectiveRemainingUses(manualStore, promo) + ' unused', '<span class="pill warn">Expired</span>')).join('') + (expired.length > expiredDisplayLimit ? '<button class="ghost-btn" data-more-expired="true">Show 50 more expired offers</button>' : '')
-        : '<div class="empty">No expired offers.</div>';
-
-      document.getElementById("ignoredList").innerHTML =
-        ignored.length
-          ? ignored.map(promo =>
-              activityRow(
-                promo,
-                (promo.title || promoLabel(promo)) + " · ignored",
-                '<button class="restore-btn" data-unignore-offer="' + escapeHtml(promoStateKey(promo)) + '">Restore</button>'
-              )
-            ).join("")
-          : '<div class="empty">No ignored offers.</div>';
+      if (currentView !== 'help') return;
+      const query = document.getElementById('guideSearch').value;
+      searchGuide(query);
+      const target = document.getElementById('guide-' + topic);
+      if (target && !query.trim()) { target.open = true; target.querySelector('summary').focus(); target.scrollIntoView({block:'start',behavior:motionReduced()?'instant':'smooth'}); }
+      else if (!query.trim()) document.getElementById('guideTitle').focus();
     }
+    function searchGuide(query) {
+      if (!guideModule) return;
+      const terms = query.toLocaleLowerCase('en-GB').trim().split(/\s+/).filter(Boolean);
+      let visible = 0;
+      for (const section of guideModule.guideSections) {
+        const element = document.getElementById('guide-' + section.id);
+        const match = terms.every(term => element.textContent.toLocaleLowerCase('en-GB').includes(term));
+        element.hidden = !match;
+        if (terms.length) element.open = match;
+        if (match) visible++;
+      }
+      document.getElementById('guideSearchStatus').textContent = terms.length ? visible + (visible === 1 ? ' section found' : ' sections found') : 'Browse ' + visible + ' guide sections.';
+    }
+    document.getElementById('guideSearch').addEventListener('input', event => searchGuide(event.target.value));
+    document.addEventListener('click', event => {
+      if (event.target.closest('[data-guide-back]')) { switchView('more'); return; }
+      const guide = event.target.closest('[data-open-guide]');
+      if (guide) { openGuide(guide.dataset.openGuide); return; }
+      const info = event.target.closest('[data-metric-help]');
+      if (info) {
+        const key = info.dataset.metricLabel || info.dataset.metricHelp;
+        const [topic,copy] = metricExplanations[key];
+        openSheetType = 'metric-help';
+        setSheetHeading(info.dataset.metricLabel || info.getAttribute('aria-label').replace('Explain ',''), 'About this figure');
+        document.getElementById('sheetBody').innerHTML = '<p class="sheet-help">' + escapeHtml(copy) + '</p><button class="action-btn primary" data-open-guide="' + topic + '">Learn more ›</button>';
+        showSheet();
+      }
+      const review = event.target.closest('[data-review-evidence]');
+      if (review) { const promo = promoByKey(review.dataset.reviewEvidence); if (promo) { manualStore = acknowledgeEvidenceReview(manualStore,promo); refreshAfterStateChange(); } }
+    });
 
     function renderMore() {
       const locked = accounts.filter(accountArchived).length;
@@ -3751,18 +3750,12 @@
       const remaining = activity.ignored
         ? rawRemaining
         : effectiveRemainingUses(manualStore, promo);
-      const used = Math.max(0, total - remaining);
+      const used = confirmed;
       const progress = Math.max(0, Math.min(100, (used / total) * 100));
       const state = effectivePromoState(manualStore, promo);
 
-      let status = "";
-      if (activity.ignored) status = '<span class="pill warn">Ignored · uses preserved</span>';
-      else if (classifyOfferCompletion(promo).consumed) status = '<span class="pill good">Finished · Fully consumed</span>';
-      else if (isExpired(promo) || promo.closedReason === "expired") status = '<span class="pill warn">' + escapeHtml(offerClosureLabel(promo)) + ' · unused orders preserved</span>';
-      else if (promo.trackingState === "needs_checking") status = '<span class="pill warn">Needs checking</span>';
-      else if (state === "used") status = '<span class="pill">Finished · ' + (activity.forceDone ? 'Manually marked' : 'Logged uses awaiting receipts') + '</span>';
-      else if (pending > 0) status = '<span class="pill good">' + pending + ' awaiting receipt</span>';
-      else status = '<span class="pill">' + classifyOfferCompletion(promo).displayStatus + '</span>';
+      const lifecycle = promotionActivity(manualStore, promo);
+      const status = '<span class="pill' + (lifecycle.bucket === 'completed' ? ' good' : lifecycle.bucket === 'needs_checking' || isExpired(promo) ? ' warn' : '') + '">' + escapeHtml(lifecycle.status) + '</span>';
 
       const useButtonDisabled =
         promo.canLogin === false ||
@@ -3787,9 +3780,18 @@
             (confirmed > 0 ? '<span class="pill">' + confirmed + ' receipt-confirmed</span>' : '') +
           '</div>' +
           (useCountNeedsReview(promo) ? '<div class="setting-note">Verify the order count from the original offer before recording a use.</div>' : '<div class="use-progress">' +
-            '<div class="use-line"><span>' + used + ' of ' + total + ' used</span><span>' + remaining + ' left</span></div>' +
+            '<div class="use-line"><span>' + used + ' of ' + total + ' confirmed used</span><span>' + Math.max(0,total-confirmed) + (isExpired(promo) || activity.forceDone ? ' unredeemed' : ' left') + '</span></div>' +
             '<div class="progress-track"><div class="progress-fill" style="width:' + progress + '%"></div></div>' +
           '</div>') +
+          '<details class="offer-verification disclosure-card" data-verify-key="' + escapeHtml(promoStateKey(promo)) + '"' + (document.querySelector('#sheetBody details[data-verify-key="' + CSS.escape(promoStateKey(promo)) + '"]')?.open ? ' open' : '') + '><summary><span><strong>Verification &amp; history</strong><small>' + escapeHtml(lifecycle.status) + '</small></span></summary><div class="disclosure-body">' +
+            '<p>' + confirmed + '/' + total + ' uses confirmed from receipts.' + (pending ? ' ' + pending + ' manually logged uses await evidence.' : '') + '</p>' +
+            '<p>Manual completion: ' + (activity.forceDone ? 'Marked finished' + (activity.manualFinishedAt ? ' on ' + escapeHtml(formatEvidenceTime(activity.manualFinishedAt)) : '') : 'Not currently marked finished') + '.</p>' +
+            '<p>Verification: ' + (lifecycle.bucket === 'completed' ? 'Every permitted use confirmed.' : 'Complete redemption remains unverified.') + '</p>' +
+            '<p>Last evidence update: ' + escapeHtml(formatEvidenceTime(activity.lastEvidenceUpdate || payload.generatedAt) || 'Not yet available') + '. Last confirmed use: ' + escapeHtml(formatEvidenceTime(promo.lastUsedAt) || 'None recorded') + '.</p>' +
+            (activity.verificationConflict ? '<p role="status">' + escapeHtml(activity.verificationConflict) + '</p><button class="action-btn" data-review-evidence="' + escapeHtml(promoStateKey(promo)) + '"' + (promo.reviewReasons?.includes('ambiguous_receipt_match') ? ' disabled' : '') + '>Accept current confirmed count</button>' : '') +
+            (promo.reviewReasons?.includes('ambiguous_receipt_match') ? '<p>A receipt could match more than one offer. No redemption is assigned until the source evidence identifies it.</p>' : '') +
+            (activity.history.length ? '<ol class="completion-history">' + activity.history.map(event => '<li>' + escapeHtml(({manually_finished:'Marked finished manually',legacy_manual_finish:'Existing manual finish · last saved',manual_finish_undone:'Manual finish undone',completion_verified:'Completion verified from receipts',evidence_reviewed:'Updated evidence reviewed'})[event.type] || 'Manual action') + ' · ' + escapeHtml(formatEvidenceTime(event.at) || 'Date unavailable') + ' · ' + Number(event.confirmedUses || 0) + ' confirmed</li>').join('') + '</ol>' : '<p>No completion actions recorded.</p>') +
+            '<button class="advanced-btn" data-open-guide="verification">Learn about verification ›</button></div></details>' +
           '<div class="offer-actions">' +
             '<button class="action-btn primary" data-use-one="' + escapeHtml(promoStateKey(promo)) + '"' +
               (useButtonDisabled ? ' disabled' : '') + '>Used 1 order</button>' +
@@ -3802,7 +3804,7 @@
               ? '<button class="action-btn warning" data-toggle-ignore="' + escapeHtml(promoStateKey(promo)) + '" data-ignore="false">Restore offer</button>'
               : '<button class="action-btn warning" data-toggle-ignore="' + escapeHtml(promoStateKey(promo)) + '" data-ignore="true">Ignore offer</button>') +
             (activity.forceDone
-              ? '<button class="action-btn" data-mark-offer-done="' + escapeHtml(promoStateKey(promo)) + '" data-done="false">Restore offer</button>'
+              ? '<button class="action-btn" data-mark-offer-done="' + escapeHtml(promoStateKey(promo)) + '" data-done="false">Undo manual finish</button>'
               : state === "used"
                 ? '<button class="action-btn" disabled>Finished</button>'
                 : '<button class="action-btn danger" data-mark-offer-done="' + escapeHtml(promoStateKey(promo)) + '" data-done="true">Mark finished manually</button>') +
@@ -3848,6 +3850,7 @@
       const historicItems = items.filter(p => !liveItems.includes(p) && !reviewItems.includes(p));
       accountSheetClock = accountSheetClockKey();
       const historyOpen = document.querySelector('#accountOfferHistory')?.open || false;
+      const expandedHistory = new Set([...document.querySelectorAll('#sheetBody details[data-history-key][open]')].map(el=>el.dataset.historyKey));
       const best = bestForAccount(account);
       const bestSaving = Number(best?.calculation?.saving || 0);
 
@@ -3881,7 +3884,7 @@
           '<div class="sheet-section-title">' + (account.canLogin ? 'Current offers' : 'Account unavailable') + '</div>' +
           (account.canLogin && liveItems.length ? liveItems.map(offerSheetCard).join('') : '<div class="empty">' + (account.canLogin ? 'No usable offers right now. Expired and completed offers are kept below.' : 'Historical offers cannot be used on this account.') + '</div>') +
           (account.canLogin && reviewItems.length ? '<details class="offer-history"><summary>Terms need checking · ' + reviewItems.length + '</summary>' + reviewItems.map(offerSheetCard).join('') + '</details>' : '') +
-          (historicItems.length || !account.canLogin && items.length ? '<details id="accountOfferHistory" class="offer-history"' + (historyOpen ? ' open' : '') + '><summary>Past, completed &amp; ignored offers · ' + (account.canLogin ? historicItems.length : items.length) + '</summary><p class="sheet-help">History is preserved and excluded from current opportunities.</p>' + (account.canLogin ? historicItems : items).slice(0,accountHistoryLimit).map(p => '<details class="past-offer"><summary><span>' + escapeHtml(p.title || promoLabel(p)) + '</span><span>' + escapeHtml(offerClosureLabel(p) ? offerClosureLabel(p) : effectivePromoState(manualStore,p) === 'ignored' ? 'Ignored' : manualActivity(manualStore,p).forceDone ? 'Finished · Manually marked' : 'Finished · Logged uses') + '</span></summary>' + offerSheetCard(p) + '</details>').join('') + ((account.canLogin ? historicItems.length : items.length) > accountHistoryLimit ? '<button class="ghost-btn" data-more-account-history="true">Show 30 more historical offers</button>' : '') + '</details>' : '') +
+          (historicItems.length || !account.canLogin && items.length ? '<details id="accountOfferHistory" class="offer-history"' + (historyOpen ? ' open' : '') + '><summary>Past, completed &amp; ignored offers · ' + (account.canLogin ? historicItems.length : items.length) + '</summary><p class="sheet-help">History is preserved and excluded from current opportunities.</p>' + (account.canLogin ? historicItems : items).slice(0,accountHistoryLimit).map(p => '<details class="past-offer" data-history-key="' + escapeHtml(promoStateKey(p)) + '"' + (expandedHistory.has(promoStateKey(p)) ? ' open' : '') + '><summary><span>' + escapeHtml(p.title || promoLabel(p)) + '</span><span>' + escapeHtml(promotionActivity(manualStore,p).status) + '</span></summary>' + offerSheetCard(p) + '</details>').join('') + ((account.canLogin ? historicItems.length : items.length) > accountHistoryLimit ? '<button class="ghost-btn" data-more-account-history="true">Show 30 more historical offers</button>' : '') + '</details>' : '') +
         '</div>';
 
       document.getElementById("sheetBody").innerHTML = body;
@@ -4103,13 +4106,13 @@
           '<div class="settings-explainer">' +
             '<strong>How syncing works</strong>' +
             '<span>The website shows an imported snapshot. Up to date means a successful Mail scan within two hours. Update due means the scan is older; your Mac needs to import and publish a newer snapshot. Snapshot means its scan time is unknown. Syncing appears only for a reported scan in progress.</span>' +
-            '<span>Total accounts includes every account. Can log in includes all accessible accounts. Archived means outside active rotation and can include accessible accounts. Available Offers counts accounts with login access and an eligible current offer, excluding used and archived accounts. Fully used offers include full confirmed redemption or expiry after confirmed use; expired unused offers stay separate.</span>' +
+            '<span>Total accounts includes every account. Can log in includes all accessible accounts. Archived means outside active rotation and can include accessible accounts. Available Offers counts accessible accounts in active rotation with an eligible current offer. Fully used accounts meet the receipt rule and may still have offers. Completed promotions require every use to be confirmed; expiry and manual completion remain separate.</span>' +
           '</div>' +
         '</div>';
     }
 
     function renderHistorySheet() {
-      setSheetHeading("Promo history", "Recent available, used and expired Uber Eats offers.");
+      setSheetHeading("Promo history", "Recent promotions with their current status and original expiry.");
 
       const rows = history.slice(0, 60);
 
@@ -4122,7 +4125,7 @@
                 '<div class="sheet-row-meta">' + escapeHtml(offerTitle(row)) +
                   (row.expires ? ' · ends ' + escapeHtml(formatDate(row.expires) || row.expires) : '') +
                 '</div></div><span class="pill ' + (row.status === "active" ? 'good' : '') + '">' +
-                escapeHtml(classifyOfferCompletion(row).displayStatus) + '</span></div>'
+                escapeHtml(promotionActivity(manualStore, promoKeyIndex.get(promoStateKey(row)) || row).status) + '</span></div>'
               )).join("") +
               '</div>'
             : '<div class="empty">' + (historyUnavailable ? 'History is temporarily unavailable. Your current offers are still loaded.' : 'No promo history yet.') + '</div>') +
@@ -4173,10 +4176,16 @@
     }
 
     function promoByKey(key) {
-      return promos.find(promo => promoStateKey(promo) === key) || null;
+      return promoKeyIndex.get(key) || null;
+    }
+
+    function reconcileLocalEvidence() {
+      const next = reconcileManualStore(manualStore, promoKeyIndex, payload.generatedAt || new Date().toISOString());
+      if (next !== manualStore) { manualStore = next; saveManualStore(); }
     }
 
     function refreshAfterStateChange() {
+      reconcileLocalEvidence();
       saveManualStore();
       renderAll();
       if (openSheetType === "account") renderAccountSheet();
@@ -4226,8 +4235,8 @@
       });
 
       document.querySelectorAll("[data-view]").forEach(button => {
-        button.classList.toggle("active", button.dataset.view === view);
-        if (button.dataset.view === view) button.setAttribute("aria-current", "page");
+        button.classList.toggle("active", button.dataset.view === (view === "help" ? "more" : view));
+        if (button.dataset.view === (view === "help" ? "more" : view)) button.setAttribute("aria-current", "page");
         else button.removeAttribute("aria-current");
       });
 
@@ -4280,7 +4289,13 @@
       try {
         const response = await fetch(url + "?snapshot=1", { cache: "no-cache", signal: controller.signal });
         if (!response.ok) throw new Error("Could not load snapshot");
-        return await response.json();
+        const etag = response.headers.get('etag');
+        const cached = snapshotCache.get(url);
+        if (etag && cached?.etag === etag) return cached.value;
+        const value = await response.json();
+        if (etag) snapshotCache.set(url, {etag,value});
+        else snapshotCache.delete(url);
+        return value;
       } finally { clearTimeout(timer); }
     }
 
@@ -4294,6 +4309,8 @@
         if (current.status !== "fulfilled" || !Array.isArray(current.value?.promos) || !Array.isArray(current.value?.accounts)) {
           throw new Error("Tracker data unavailable");
         }
+        const sameHistory = previous.status === 'fulfilled' && previous.value.records === history;
+        if (current.value === payload && sameHistory && !loadError) { renderStatus(); return; }
         loadError = false;
         payload = current.value;
         historyUnavailable = previous.status !== "fulfilled" || !Array.isArray(previous.value?.records) ||
@@ -4309,7 +4326,9 @@
         });
         accounts = payload.accounts;
         rebuildAccountIndex();
+        reconcileLocalEvidence();
         renderAll();
+        if (openSheetType === "account") renderAccountSheet();
       } catch (error) {
         loadError = true;
         document.getElementById("scanLabel").textContent = "Attention";
@@ -4321,7 +4340,7 @@
           document.getElementById("recommendation").innerHTML = '<div class="empty">Offers will appear after the next successful data sync.</div>';
           document.getElementById("homeAccounts").innerHTML = '<div class="empty">Your accounts will appear once data loads.</div>';
         }
-      } finally { loadInProgress = false; }
+      } finally { loadInProgress = false; lastSnapshotCheckedAt = Date.now(); refreshTimedViews(); }
     }
 
     const mainNav = document.getElementById('mainNav');
@@ -4537,12 +4556,16 @@
       if (doneOffer) {
         const promo = promoByKey(doneOffer.dataset.markOfferDone);
         if (promo) {
+          if (doneOffer.dataset.done === "true" && !window.confirm("Mark this promotion finished manually? It will leave recommendations, but only receipt evidence can verify every use. Your confirmed count and this decision will be preserved.")) return;
           manualStore = setOfferDone(
             manualStore,
             promo,
             doneOffer.dataset.done === "true"
           );
           refreshAfterStateChange();
+          const past = document.querySelector('#sheetBody details[data-history-key="' + CSS.escape(promoStateKey(promo)) + '"]');
+          if (past) { document.getElementById('accountOfferHistory').open = true; past.open = true; }
+          document.querySelector('#sheetBody [data-mark-offer-done="' + CSS.escape(promoStateKey(promo)) + '"]')?.focus();
         }
         return;
       }
@@ -4583,7 +4606,7 @@
 
     window.addEventListener("storage", event => {
       if (event.key === LAYOUT_KEY || event.key === null) { layoutPreference = readLayoutPreference(); applyLayoutPreference(); if (openSheetType === 'appearance') renderAppearanceSheet(); }
-      if (event.key === STATE_KEY || event.key === null) { manualStore = readManualStore(); invalidateAccountProjection(); renderAll(); if (openSheetType === "account") renderAccountSheet(); }
+      if (event.key === STATE_KEY || event.key === null) { manualStore = readManualStore(); reconcileLocalEvidence(); invalidateAccountProjection(); renderAll(); if (openSheetType === "account") renderAccountSheet(); }
       if (event.key === SETTINGS_KEY) { plannerSettings = readPlannerSettings(); renderRecommendation(); }
       if (event.key === THEME_KEY) { applyTheme(readThemeColour()); if (openSheetType === 'appearance') renderAppearanceSheet(); }
       if (event.key === DEVICE_ACCOUNTS_KEY || event.key === null) { deviceAccounts = readDeviceAccounts(); renderAll(); if (openSheetType === 'account') renderAccountSheet(); if (openSheetType === 'device') renderDeviceSheet(); }
@@ -4596,6 +4619,9 @@
         renderAccountSheet(); body.scrollTop=scroll;
         if (hadFocus) document.getElementById('sheetClose').focus();
       }
+      // Revalidate at most every five minutes while visible. ETags reuse the
+      // existing projections on unchanged imports; background tabs stay idle.
+      if (Date.now() - lastSnapshotCheckedAt >= 5 * 60000 || Date.now() < lastSnapshotCheckedAt) load();
     }
     document.addEventListener("visibilitychange", refreshTimedViews);
     setInterval(refreshTimedViews, 60000);

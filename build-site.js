@@ -5,7 +5,7 @@ import { transformSync, version as minifierVersion } from "esbuild";
 const payload = JSON.parse(fs.readFileSync("promos.json", "utf8"));
 const history = JSON.parse(fs.readFileSync("history.json", "utf8"));
 assertPublicSnapshot(payload, history);
-const files = ["index.html", "promos.json", "history.json", "deal-intelligence.js", "manual-state.js", "offer-time.js", "offer-state.js", "account-state.js", "offer-details.js", "appearance.js", "device-accounts.js", "desktop-layout.css", "ui-refinements.css", "nav-gestures.js", "dashboard-data.js", "liquid-glass.js", "liquid-glass.css"];
+const files = ["index.html", "promos.json", "history.json", "deal-intelligence.js", "manual-state.js", "offer-time.js", "offer-state.js", "account-state.js", "offer-details.js", "appearance.js", "device-accounts.js", "desktop-layout.css", "ui-refinements.css", "nav-gestures.js", "dashboard-data.js", "liquid-glass.js", "liquid-glass.css", "help-guide.js"];
 fs.rmSync("dist", { recursive: true, force: true });
 fs.mkdirSync("dist");
 // Version the entire code bundle so a cached parent module cannot keep an
@@ -22,7 +22,7 @@ const compact = (source, loader, module = false) => transformSync(source, {
 }).code;
 for (const file of files) {
   if (/\.(?:html|js|css)$/.test(file)) {
-    let content = fs.readFileSync(file, 'utf8').replace(/(from\s+["']|(?:href|src)=["'])(\.\/)?([a-z-]+\.(?:js|css))(["'])/g,
+    let content = fs.readFileSync(file, 'utf8').replace(/(from\s+["']|import\(\s*["']|(?:href|src)=["'])(\.\/)?([a-z-]+\.(?:js|css))(["'])/g,
       (match, prefix, relative, asset, quote) => versions.has(asset) ? prefix + (relative || '') + asset + '?v=' + versions.get(asset) + quote : match);
     if (file.endsWith('.html')) content = content
       .replace(/<style>([\s\S]*?)<\/style>/g, (_, css) => '<style>' + compact(css, 'css') + '</style>')
