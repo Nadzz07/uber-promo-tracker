@@ -1,4 +1,4 @@
-import { isOfferExpired } from './offer-time.js';
+import { applyOfferExpiryPolicy, isOfferExpired } from './offer-time.js';
 import { classifyOfferCompletion } from './offer-state.js';
 
 // Explicit rotation status takes precedence over access. The fallback reads older
@@ -30,13 +30,14 @@ export function accountUsage(account = {}) {
 export function classifyAccount(account = {}, offers = [], now = Date.now()) {
   const usage = accountUsage(account);
   const archived = accountArchived(account);
-  const available = offers.filter(p => p.trackingState === 'available');
+  const available = offers.filter(p => offerEligible(p, now));
   const review = offers.filter(p => p.trackingState === 'needs_checking');
   const expired = offers.filter(p => p.trackingState === 'expired' || p.closedReason === 'expired');
   const finished = offers.filter(p => classifyOfferCompletion(p, now).fullyUsed);
   const state = archived ? 'archived' : account.accessStatus === 'pending' || account.canLogin == null ? 'pending_access' : !account.canLogin ? 'inaccessible' : usage.accountUsed ? 'used' : available.length ? 'available' : review.length ? 'needs_checking' : offers.length && expired.length === offers.length ? 'expired' : offers.length && finished.length === offers.length ? 'fully_used' : 'no_offers';
   return { ...usage, archived, accountStatus: account.deactivated || account.accountStatus === 'deactivated' ? 'deactivated' : archived ? 'archived' : 'active', accountState: state, activePromoCount: available.length, reviewOfferCount: review.length,
     fullyUsedOfferCount: finished.length, expiredUnusedOfferCount: offers.filter(p => classifyOfferCompletion(p, now).expiredUnused).length,
+    hasEligibleOffers: available.length > 0,
     needsReview: state === 'needs_checking', recommendationEligible: account.canLogin === true && account.accessStatus !== 'pending' && !archived && available.length > 0 };
 }
 
@@ -74,4 +75,39 @@ export function accountProgressDescription(account = {}) {
   if (rides > 0) return 'Receipt progress · ' + eats + ' Eats, ' + rides + (rides===1 ? ' Ride.' : ' Rides.') + ' One Eats receipt will complete this account.';
   if (eats > 0) return 'Receipt progress · ' + eats + ' of 5 Eats. Needs a Ride or ' + (5 - eats) + ' more Eats ' + (5 - eats === 1 ? 'receipt.' : 'receipts.');
   return 'No receipt usage yet. Account completion needs five Eats, or Eats plus a Ride.';
+}
+
+// Eligibility describes the offer evidence. Readiness describes account access.
+// Recheck time even when a persisted tracking state has become stale.
+export function offerEligible(promo = {}, now = Date.now()) {
+  const scope = promo.offerScope || promo.evidence?.discountScope;
+  return !['product', 'uncertain'].includes(scope) && promo.trackingState === 'available' && promo.sourceEvidenceStatus !== 'missing' && promo.termsVerification !== 'needs_verification' && !promo.ignored && !promo.forceDone &&
+    promo.receiptState !== 'used' && Number(promo.usesRemaining ?? promo.uses ?? 1) > 0 &&
+    !isOfferExpired(applyOfferExpiryPolicy(promo), now) && !classifyOfferCompletion(promo, now).consumed;
+}
+
+export function eligibleAccountCounts(accounts = []) {
+  let available = 0, ready = 0;
+  for (const account of accounts) if (account.hasEligibleOffers ?? Number(account.activePromoCount) > 0) {
+    available++;
+    if (account.recommendationEligible) ready++;
+  }
+  return { available, ready, attention: available - ready };
+}
+
+export function matchesOfferScope(account, scope = 'ready') {
+  if (!(account.hasEligibleOffers ?? Number(account.activePromoCount) > 0)) return false;
+  return scope === 'all' || (scope === 'archived' ? accountArchived(account)
+    : scope === 'attention' ? !account.recommendationEligible : account.recommendationEligible);
+}
+
+export function offerReadinessRank(account) {
+  if (account.canLogin === true && account.accessStatus !== 'pending') return accountArchived(account) ? 1 : 0;
+  return account.canLogin == null || account.accessStatus === 'pending' ? 2 : 3;
+}
+
+export function offerReadinessLabel(account) {
+  const rank = offerReadinessRank(account);
+  return rank === 0 ? (account.hasEligibleOffers ?? Number(account.activePromoCount) > 0) ? 'Ready to use · accessible' : 'Accessible · active rotation' : rank === 1 ? 'Accessible · archived'
+    : rank === 2 ? 'Login access pending verification' : 'Can’t log in' + (accountArchived(account) ? ' · archived' : '');
 }

@@ -26,7 +26,8 @@ export function classifyOfferCompletion(promo = {}, now = new Date()) {
   const total = Math.max(1, Number(normalized.uses) || 1);
   const confirmed = Math.max(0, Number(normalized.receiptConfirmedUses) || 0);
   const end = expiryEndTime(normalized), nowTime = timeOf(now) ?? Date.now();
-  const consumed = !useCountNeedsReview(normalized) && confirmed >= total;
+  const confirmedTotal = normalized.usesVerified !== false && normalized.evidence?.usesBasis !== 'single_use_default';
+  const consumed = confirmedTotal && !useCountNeedsReview(normalized) && confirmed >= total;
   const expired = end != null && nowTime >= end;
   const finishedExpired = expired && confirmed > 0 && !consumed;
   const fullyUsed = consumed || finishedExpired;
@@ -60,13 +61,18 @@ export function classifyOfferTrackingState(
   const reasons = new Set(
     Array.isArray(reviewReasons) ? reviewReasons.filter(reason => reason && reason !== "unknown_expiry") : []
   );
+  if (promo.evidence?.discountScope === 'uncertain' || promo.offerScope === 'uncertain') reasons.add('unconfirmed_discount_scope');
+  if (promo.sourceEvidenceStatus === 'missing' || promo.termsVerification === 'needs_verification') reasons.add('missing_offer_source');
   if (useCountNeedsReview(promo)) reasons.add('unverified_use_count');
   if (!['fixed', 'percent', 'uberCash'].includes(promo.discountType) ||
-      !Number.isFinite(Number(promo.discount)) || Number(promo.discount) <= 0) {
+      !Number.isFinite(Number(promo.discount)) || Number(promo.discount) <= 0 || (promo.discountType === 'percent' && Number(promo.discount) > 100)) {
     reasons.add('missing_discount_terms');
   }
 
-  if (promo.receiptState === "used" || remaining <= 0) {
+  const usageFinished = promo.receiptState === "used" || remaining <= 0;
+  const totalUnconfirmed = promo.usesVerified === false || promo.evidence?.usesBasis === 'single_use_default';
+  if (usageFinished && totalUnconfirmed) reasons.add('unverified_use_count');
+  if (usageFinished && !totalUnconfirmed) {
     return {
       trackingState: "used",
       needsReview: false,

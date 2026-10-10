@@ -49,7 +49,8 @@ try {
   const recommendation = await page.locator('#recommendation').innerText();
   assert.match(recommendation, /Save £10/); // At £15, one £10-off offer is the optimal single-order result.
   assert.equal(await page.locator('#usableStat').innerText(), '7');
-  assert.equal(await page.locator('#activeStat').innerText(), '3');
+  assert.equal(await page.locator('#activeStat').innerText(), '4', 'Available Offers includes a current offer on an inaccessible account');
+  assert.match(await page.locator('#offerScopeSummary').innerText(), /3 ready.*1 need attention/);
   assert.equal(await page.locator('#savedStat').innerText(), '£10');
   assert.match(await page.locator('#savedStatSub').innerText(), /£5 estimated/);
   await page.locator('[data-view="accounts"]').click();
@@ -79,7 +80,7 @@ try {
   offer.receiptConfirmedUses = 2; offer.usesRemaining = 3;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   await page.locator('[data-account-offers="A001"]').first().click();
-  assert.match(await page.locator('#sheetBody').innerText(), /3 left/);
+  assert.match(await page.locator('#sheetBody').innerText(), /3 not confirmed redeemed/);
   await page.keyboard.press('Escape');
   await page.locator('[data-view="used"]').click();
   assert.equal(await page.locator('#expiredList').isVisible(),false,'Expired history is collapsed by default');
@@ -339,13 +340,13 @@ try {
   await filterPage.goto(url); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await filterPage.locator('#unfinishedCount').innerText(), '7 accounts');
   await filterPage.locator('[data-intent="unfinished"]').click();
-  assert.match(await filterPage.locator('#homeAccounts [data-card-account="A101"]').innerText(), /4 of 5 uses left/);
+  assert.match(await filterPage.locator('#homeAccounts [data-card-account="A101"]').innerText(), /1\/5 confirmed · up to 4 left/);
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A102"]').count(), 1, 'An unfinished account with one remaining use stays in the section');
   for (const ref of ['A106','A111','A108','A103']) assert.equal(await filterPage.locator('#homeAccounts [data-card-account="'+ref+'"]').count(), 0, 'Archived and completed accounts without live offers stay out');
   await filterPage.locator('[data-jump-accounts][data-target-filter="unfinished"]').click();
   assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts');
   for (const ref of ['A102','A104','A109','A107','A110']) assert.equal(await filterPage.locator('#accountsList [data-card-account="'+ref+'"]').count(), 1, 'The full list retains unused, expired and one-left accounts');
-  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /1 of 5 uses left/);
+  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4\/5 confirmed · up to 1 left/);
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A108"]').count(),0,'Untouched accounts do not count as started promos');
   await filterPage.locator('[data-view="home"]').click();
   await filterPage.locator('[data-intent="cash"]').click();
@@ -371,7 +372,8 @@ try {
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await filterPage.locator('#unfinishedCount').innerText(), '7 accounts', 'One remaining use and partial receipts do not finish an account');
   assert.equal(await filterPage.locator('#cashPromoCount').innerText(), '1 account');
-  assert.equal(await filterPage.locator('#activeStat').innerText(), '8', 'One use left must preserve account availability');
+  assert.equal(await filterPage.locator('#activeStat').innerText(), '9', 'One use left preserves eligibility, including an inaccessible account');
+  assert.match(await filterPage.locator('#offerScopeSummary').innerText(), /8 ready.*1 need attention/);
   filterOffers.splice(filterOffers.findIndex(p => p.id === 'another-single-102'), 1);
   filterOffers.push({ ...cashOffer, id: 'cash-102', accountRef: 'A102', accountMasked: 'si…le@example.invalid', usesRemaining: 1 });
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');

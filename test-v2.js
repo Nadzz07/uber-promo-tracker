@@ -128,7 +128,7 @@ test("account-activation duration stays unknown", () => {
   assert.equal(promo.expiryBasis, null);
 });
 
-test("grocery subject is rejected separately from expiry logic", () => {
+test("grocery order coupon is preserved separately from expiry logic", () => {
   const promo = parseUberPromo({
     sender: trusted,
     subject: "50% off groceries",
@@ -136,11 +136,11 @@ test("grocery subject is rejected separately from expiry logic", () => {
     sentAt: "2026-10-05T12:00:00Z"
   });
 
-  assert.equal(promo.isPromo, false);
-  assert.equal(promo.rejectionReason, "category_excluded");
+  assert.equal(promo.isPromo, true);
+  assert.equal(promo.rejectionReason, null);
 });
 
-test("supermarket marketing is rejected", () => {
+test("supermarket order discount is preserved", () => {
   const promo = parseUberPromo({
     sender: trusted,
     subject: "Save £10 at the supermarket",
@@ -148,8 +148,8 @@ test("supermarket marketing is rejected", () => {
     sentAt: "2026-10-05T12:00:00Z"
   });
 
-  assert.equal(promo.isPromo, false);
-  assert.equal(promo.rejectionReason, "category_excluded");
+  assert.equal(promo.isPromo, true);
+  assert.equal(promo.rejectionReason, null);
 });
 
 test("Uber Cash is a structured offer type", () => {

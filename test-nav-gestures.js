@@ -5,13 +5,14 @@ import http from 'node:http';
 import { once } from 'node:events';
 import { chromium, webkit, firefox } from 'playwright';
 
-const fixture = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+const fixture = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/liquid-glass.css"><style>
+:root { --accent:#74dee5; }
 body { margin:0; min-height:1600px; }
 #mainNav { position:fixed; bottom:8px; left:14px; width:calc(100% - 40px); display:grid; grid-template-columns:repeat(4,1fr); padding:5px; border:1px solid; border-radius:99px; touch-action:none; user-select:none; -webkit-user-select:none; }
 #mainNav.vertical { top:10px; left:10px; bottom:auto; width:90px; grid-template-columns:1fr; }
 .nav-btn { height:58px; position:relative; background:transparent; border:0; }
 .nav-glider { position:absolute; top:0; left:0; background:rgba(20,20,20,.15); pointer-events:none; }
-</style></head><body><nav id="mainNav"><span class="nav-glider"></span>
+</style></head><body><nav id="mainNav" class="bottom-nav"><span class="nav-glider"></span>
 <button class="nav-btn active" data-view="home">Home</button><button class="nav-btn" data-view="accounts">Accounts</button>
 <button class="nav-btn" data-view="used">Used</button><button class="nav-btn" data-view="more">More</button></nav>
 <script type="module">
@@ -40,6 +41,7 @@ window.compatibilityClick = (view='home') => nav.querySelector('[data-view="'+vi
 window.ready = true; restore();
 </script></body></html>`;
 const server = http.createServer((request, response) => {
+  if (request.url === '/liquid-glass.css') { response.setHeader('Content-Type','text/css'); response.end(fs.readFileSync(new URL('./liquid-glass.css',import.meta.url))); return; }
   if (request.url === '/nav-gestures.js') {
     response.setHeader('Content-Type', 'text/javascript'); response.end(fs.readFileSync(new URL('./nav-gestures.js', import.meta.url))); return;
   }
@@ -82,7 +84,9 @@ try {
   await page.waitForTimeout(150);
   await page.evaluate(() => window.compatibilityClick('home'));
   assert.deepEqual(await selections(), ['more'], 'A delayed compatibility click must not undo the drag');
+  assert.equal(await page.locator('[data-view="more"]').evaluate(el=>getComputedStyle(el).outlineStyle),'none','Touch selection must not add a second focus capsule');
   await page.keyboard.press('Home');
+  assert.equal(await page.locator('[data-view="home"]').evaluate(el=>getComputedStyle(el).outlineStyle),'solid','Keyboard focus remains visible');
   assert.deepEqual(await selections(), ['more', 'home'], 'Keyboard navigation must work immediately after a drag');
 
   // Actual browser touch taps must select once despite capture retargeting the click.

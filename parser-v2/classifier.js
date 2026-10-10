@@ -1,12 +1,3 @@
-const EXCLUDED_CATEGORIES = [
-  "grocery",
-  "groceries",
-  "supermarket",
-  "convenience store",
-  "alcohol",
-  "tobacco"
-];
-
 export function classifyMessage({ subject, text, contentText = text, senderAnalysis, offer }) {
   const subjectText = String(subject || "");
   const corpus = String(text || "");
@@ -25,22 +16,13 @@ export function classifyMessage({ subject, text, contentText = text, senderAnaly
     };
   }
 
-  const excludedCategory = EXCLUDED_CATEGORIES.find(term => lowerSubject.includes(term));
-
-  if (excludedCategory) {
-    return {
-      accepted: false,
-      offerType: "non_promo",
-      service: "Uber Eats",
-      confidence: "high",
-      rejectionReason: "category_excluded"
-    };
-  }
-
   const content = String(contentText || "");
   const firstOne = content.search(/\buber\s*one\b/i);
   const discountPosition = offer.evidence?.discountPosition;
   const subjectDiscount = /(?:£\s*\d+(?:\.\d{1,2})?\s*(?:off|discount)|\d{1,3}\s*%\s*(?:off|discount)|\bsave\s+\d{1,3}\s*%|£\s*\d+(?:\.\d{1,2})?\s+(?:in\s+)?uber\s+cash)/i.test(subjectText);
+  if (offer.evidence?.discountScope === 'product') {
+    return {accepted:false, offerType:'non_promo', service:'Uber Eats', confidence:'high', rejectionReason:'product_deal_not_account_promotion'};
+  }
   const foodSubject = /uber\s*eats|ubereats|\b(?:food|orders?|deliver(?:y|ies)|meals?|basket)\b/i.test(subjectText);
   const rideSubject = /\b(?:rides?|road trip|trips?|car ride|car rides|car)\b/i.test(subjectText);
   const oneSubject = /\buber\s*one\b/i.test(subjectText);

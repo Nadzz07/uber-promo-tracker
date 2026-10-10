@@ -25,7 +25,7 @@ export function parseUberPromoV2({
   const compactText = rawText.replace(/\s+/g, " ").trim();
 
   const senderAnalysis = analyseSender(sender);
-  const offer = extractOfferDetails(compactText);
+  const offer = extractOfferDetails(compactText, { subject });
   const expiry = extractExpiry(compactText, sent);
   const classification = classifyMessage({
     subject,

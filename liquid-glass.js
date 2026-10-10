@@ -82,7 +82,9 @@ export function createLiquidNavigation(nav) {
     nav.style.setProperty('--liquid-accent',`rgb(${palette.accent.join(',')})`);
   }
   function paint() {
-    glider.style.width=states.width.value+'px';glider.style.height=states.height.value+'px';
+    const width=states.width.value+'px',height=states.height.value+'px';
+    if(glider.style.width!==width)glider.style.width=width;
+    if(glider.style.height!==height)glider.style.height=height;
     glider.style.transform=`translate3d(${states.x.value}px,${states.y.value}px,0) scale(${1+states.flex.value},${1-states.flex.value*.4})`;
     glider.style.setProperty('--fluid-flex',Math.min(1,Math.abs(states.flex.value)*30));
   }
@@ -91,7 +93,7 @@ export function createLiquidNavigation(nav) {
     const dt=last?Math.min((time-last)/1000,.032):1/60;last=time;
     let moving=false;
     for(const key of Object.keys(states)){
-      const before=states[key];states[key]=springStep(before,targets[key],dt,key==='flex'?{stiffness:600,damping:28}:undefined);
+      const before=states[key];states[key]=springStep(before,targets[key],dt,key==='flex'?{stiffness:600,damping:28}:{stiffness:760,damping:48});
       if(key==='flex'&&hapticPending&&before.velocity<0&&states[key].velocity>=0){
         hapticPending=false;
         // One best-effort tick at measured maximum deflection. iOS Safari has

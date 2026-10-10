@@ -4,7 +4,7 @@ import path from "node:path";
 import { parserFingerprint } from "./parser-fingerprint.js";
 import { assertPublicSnapshot } from "./public-snapshot.js";
 import { parseAccessList } from "./access-list.js";
-import { classifyAccount } from "./account-state.js";
+import { eligibleAccountCounts, classifyAccount } from "./account-state.js";
 import { isOfferExpired } from "./offer-time.js";
 import { parseUberPromo } from "./parser.js";
 import { parseUberEatsReceipt } from "./receipt-parser.js";
@@ -458,7 +458,11 @@ async function generatePromos() {
 
     const summary = getSavingsSummary(db);
     summary.accountStatusVersion = 2;
-    summary.availableAccounts = accounts.filter(a => a.recommendationEligible).length;
+    summary.offerEligibilityVersion = 1;
+    const eligibility = eligibleAccountCounts(accounts);
+    summary.availableAccounts = eligibility.available;
+    summary.readyToUseAccounts = eligibility.ready;
+    summary.offerAttentionAccounts = eligibility.attention;
     summary.usedAccounts = accounts.filter(a => a.accountUsed).length;
     const completions = publicPromos.map(p => classifyOfferCompletion(p, generatedAt));
     for (const [field, predicate] of [['fullyUsedOffers','fullyUsed'],['finishedExpiredOffers','finishedExpired'],['fullyConsumedOffers','consumed'],['expiredUnusedOffers','expiredUnused'],['partiallyUsedOffers','partiallyUsed']]) summary[field] = completions.filter(c => c[predicate]).length;
