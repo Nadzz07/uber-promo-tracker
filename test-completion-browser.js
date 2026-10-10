@@ -20,7 +20,7 @@ try{
  for(const [id,count] of [['usableStat',8],['activeStat',3],['loginStat',5],['archivedStat',2]])assert.equal(await page.locator('#'+id).innerText(),String(count));
  const firstCard=page.locator('#homeAccounts [data-card-account="A901"]');
  assert.match(await firstCard.locator('.account-offer').innerText(),/£12 off on 5 orders/);
- assert.match(await firstCard.locator('.pill-row').innerText(),/5 of 5 uses left/);
+ assert.match(await firstCard.locator('.pill-row').innerText(),/0\/5 confirmed · up to 5 left/);
  assert.ok(!(await firstCard.locator('.pill-row').innerText()).includes('2 of 2'),'Uses must belong to the displayed offer');
  assert.ok((await firstCard.locator('.expiry-pill').innerText()).includes(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',day:'numeric',month:'short'}).format(lateUKDeadline)),'Expiry date must use UK time in a non-UK browser');
  await page.locator('[data-view="used"]').click();assert.equal(await page.locator('#fullyUsedCount').innerText(),'1');assert.equal(await page.locator('#usedAccountCount').innerText(),'2');
@@ -29,7 +29,7 @@ try{
  assert.equal(await page.locator('#fullyUsedList .activity-row').count(),1,'History/current copies must not double-count');
  await page.locator('[data-view="accounts"]').click();
  for(const [filter,count] of [['all',8],['login',5],['locked',3],['used-login',1],['used-locked',1],['archived-login',1],['archived-locked',1],['finished',5],['expired-unused',1]]){await page.locator('#accountScope').selectOption(filter);assert.equal(await page.locator('#accountsMeta').innerText(),count+(count===1?' account':' accounts'),filter);}
- await page.locator('#accountScope').selectOption('all');await page.locator('#accountsList [data-account-offers="A904"]').click();await page.locator('#accountOfferHistory > summary').click();await page.locator('.past-offer > summary').click();assert.match(await page.locator('.past-offer').innerText(),/Finished · Expired/);assert.match(await page.locator('.past-offer').innerText(),/1 of 5 confirmed used/);assert.match(await page.locator('.past-offer').innerText(),/4 unredeemed/);await page.keyboard.press('Escape');
+ await page.locator('#accountScope').selectOption('all');await page.locator('#accountsList [data-account-offers="A904"]').click();await page.locator('#accountOfferHistory > summary').click();await page.locator('.past-offer > summary').click();assert.match(await page.locator('.past-offer').innerText(),/Finished · Expired/);assert.match(await page.locator('.past-offer').innerText(),/1 of 5 confirmed used/);assert.match(await page.locator('.past-offer').innerText(),/4 not confirmed redeemed/);await page.keyboard.press('Escape');
  await page.locator('[data-view="home"]').click();assert.equal(await page.locator('#homeAccounts [data-card-account="A908"]').count(),1,'Current eligible offer survives another finished offer');
  const badges=await page.locator('.account-card .pill-row').allTextContents();assert.ok(badges.every(text=>!/Login:|Partial account usage|promos available|Available/.test(text)),'Cards repeat secondary badges');
  await page.emulateMedia({reducedMotion:'reduce'});await page.locator('[data-view="more"]').click();await page.waitForTimeout(50);

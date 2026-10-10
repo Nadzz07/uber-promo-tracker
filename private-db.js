@@ -741,6 +741,7 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
   let sql = `
     SELECT
       o.*,
+      m.accepted AS source_accepted, m.kind AS source_kind,
       a.masked AS account_masked,
       a.can_login AS can_login,
       a.login_method AS login_method
@@ -764,14 +765,30 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
 
   sql += " ORDER BY o.last_sent_at DESC, o.offer_id ASC";
 
+  // A corrected term can change a fingerprint. Link only retired extractions
+  // of the same original message and advertised discount, never by account
+  // or value alone. This lets browsers preserve their private manual actions.
+  const correctionKey = row => JSON.stringify([row.message_key, row.account_ref, row.service,
+    row.discount_type, row.discount, row.promo_code, JSON.parse(row.evidence_json || '{}').discountPosition]);
+  const previousIds = new Map();
+  for (const row of prepare(db, "SELECT * FROM offers WHERE status = 'parser_superseded'").all()) {
+    const position = JSON.parse(row.evidence_json || '{}').discountPosition;
+    if (!row.message_key || !Number.isInteger(position)) continue;
+    const key = correctionKey(row);
+    if (!previousIds.has(key)) previousIds.set(key, []);
+    previousIds.get(key).push(row.offer_id);
+  }
+
   return prepare(db, sql).all(...args).map(row => ({
     offerId: row.offer_id,
+    previousOfferIds: previousIds.get(correctionKey(row)) || [],
     accountRef: row.account_ref,
     accountMasked: row.account_masked,
     canLogin: row.login_access === "pending" ? null : Boolean(row.can_login),
     ...(row.login_access ? { accessStatus: row.login_access === "pending" ? "pending" : row.can_login ? "accessible" : "inaccessible" } : {}),
     loginMethod: row.login_method || null,
     messageKey: row.message_key,
+    sourceEvidenceStatus: row.source_accepted === 1 && row.source_kind === "promo" ? "verified" : "missing",
     service: row.service,
     offerType: row.offer_type,
     title: row.title,

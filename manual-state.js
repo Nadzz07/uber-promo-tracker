@@ -246,14 +246,30 @@ export function manualActivity(store, promo) {
 // Only reconcile offers with private manual records. Receipt evidence comes from
 // the deduplicated server projection; manual actions never create confirmations.
 export function reconcileManualStore(store, promos, evidenceAt = new Date().toISOString()) {
-  const keys = Object.keys(store?.offers || {});
+  let keys = Object.keys(store?.offers || {});
   if (!keys.length) return store;
   const byId = promos instanceof Map ? promos : new Map(promos.map(p => [promoStateKey(p), p]));
   let next = store;
+  for (const promo of byId.values()) {
+    const key = promoStateKey(promo);
+    if (next.offers[key]) continue;
+    const candidates = (promo.previousOfferIds || []).map(id => store.offers[id]).filter(Boolean)
+      .sort((a,b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
+    if (!candidates.length) continue;
+    if (next === store) next = normaliseManualStore(store);
+    const original = candidates[0];
+    const history = [...new Map(candidates.flatMap(record => record.history?.length ? record.history
+      : record.forceDone ? [{type:'legacy_manual_finish',at:record.updatedAt,confirmedUses:record.receiptConfirmedBaseline || 0}] : [])
+      .map(event => [JSON.stringify(event),event])).values()].sort((a,b) => String(a.at || '').localeCompare(String(b.at || '')));
+    next.offers[key] = { ...original,
+      verificationConflict: original.verificationConflict || 'The offer terms were corrected from the original email. Review this saved decision.',
+      history: [...history, {type:'offer_terms_corrected',at:evidenceAt,confirmedUses:confirmedUses(promo)}] };
+  }
+  keys = Object.keys(next.offers);
   for (const key of keys) {
     const promo = byId.get(key);
     if (!promo) continue;
-    const state = getOfferManualState(store, promo);
+    const state = getOfferManualState(next, promo);
     const count = confirmedUses(promo), total = Math.max(1, asCount(promo.uses, 1));
     let conflict = state.verificationConflict;
     if (state.lastEvidenceCount != null && count < state.lastEvidenceCount) conflict = 'Confirmed usage decreased. Review the updated evidence.';
@@ -293,7 +309,7 @@ export function promotionActivity(store, promo, now = new Date()) {
   if (manual.ignored) { bucket = 'ignored'; status = 'Ignored'; }
   else if (manual.verificationConflict) { bucket = 'needs_checking'; status = 'Needs checking'; }
   else if (completion.consumed) { bucket = 'completed'; status = 'Completed · Verified'; }
-  else if (manual.forceDone || manual.effectiveState === 'used') { bucket = 'manual'; status = 'Manually finished · Unverified'; }
+  else if (manual.forceDone || (manual.effectiveState === 'used' && promo.trackingState !== 'needs_checking')) { bucket = 'manual'; status = 'Manually finished · Unverified'; }
   else if (completion.finishedExpired) { bucket = 'finished_expired'; status = 'Finished · Expired'; }
   else if (completion.expiredUnused) { bucket = 'expired_unused'; status = 'Expired · Unused'; }
   else if (promo.trackingState === 'needs_checking') { bucket = 'needs_checking'; status = 'Needs checking'; }

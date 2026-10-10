@@ -14,8 +14,9 @@ ellipsis and are never uploaded.
 - **Accessible:** accounts marked accessible in the authoritative private list.
 - **Archived:** accounts outside active rotation, including Deactivated accounts.
   Archive status is independent of login access and receipt usage.
-- **Available Offers:** accessible accounts in active rotation with at least one eligible
-  current promotion. Account usage is independent.
+- **Available Offers:** accounts with an eligible current promotion, regardless of access or archive status. Each account counts once.
+- **Ready to Use:** eligible, accessible and not archived. The planner uses this group only.
+- **Needs Attention:** eligible but archived, inaccessible or pending. Find an offer can browse these independently.
 - **Fully used accounts:** five unique Eats receipts, or at least one Eats plus one Ride receipt.
   Lime journeys are included in Rides. Archived accounts are excluded from recommendations. Fully used accounts can
   still have eligible offers; usage does not change access or archive status.
@@ -159,3 +160,5 @@ its inputs. Explicit calendar-day exports use start-inclusive/end-exclusive
 boundaries; they preserve older stored evidence. Routine sync remains read-only.
 User-authorised receipt filing uses the separate verified filing command and
 checks the original message and matching destination copy before counting it.
+
+Advertised order discounts are separate from calculated effective percentages. Product-specific catalogue deals are excluded; grocery and supermarket order coupons remain eligible. Mixed emails preserve the genuine order offer. Uncertain scope or missing original evidence is reviewable. Private original messages and superseded derived records remain retained.

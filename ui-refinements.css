@@ -585,3 +585,21 @@ html[data-layout="desktop"] .offer-browser .quick-card .quick-sub { display:none
 .offer-verification { margin:14px 0; }
 .completion-history { max-height:240px;overflow:auto;line-height:1.65; }
 @media(max-width:600px) { .guide-sections {gap:10px;} .guide-sections .disclosure-body {font-size:14px;} }
+
+/* Offer access is a compact scope control within the existing results panel. */
+.offer-scope-row { display:flex; align-items:center; gap:12px; margin:0 0 10px; flex-wrap:wrap; }
+.offer-scope-row label { font-size:12px; color:var(--muted); }
+.offer-scope-row .account-scope { width:auto; min-width:180px; flex:1; margin:0; }
+.offer-scope-row[hidden] { display:none; }
+.offer-scope-summary { display:flex; align-items:center; gap:6px; margin:0 0 16px; color:var(--muted); font-size:12px; }
+.inline-help { position:static; flex-shrink:0; }
+.account-readiness { margin:8px 0 0; color:var(--muted); font-size:12px; line-height:1.5; }
+.account-readiness.needs-attention { color:var(--muted); }
+.use-line { gap:12px; flex-wrap:wrap; }
+
+/* Keep page changes lightweight while the spring capsule follows the selection. */
+@keyframes liquidViewIn {
+  from { opacity:0; transform:translateY(6px); }
+  to { opacity:1; transform:translateY(0); }
+}
+

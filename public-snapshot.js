@@ -36,7 +36,7 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
       if (independent && !['active', 'archived', 'deactivated'].includes(account.accountStatus)) throw new Error('Explicit account rotation status is required.');
       for (const field of ['orderCount', 'rideCount']) if (!Number.isInteger(account[field]) || account[field] < 0) throw new Error('Invalid receipt counter.');
       const expected = classifyAccount(account, payload.promos.filter(p => p.accountRef === account.accountRef), payload.generatedAt);
-      for (const field of [...(independent ? ['archived', 'accountStatus', 'fullyUsedOfferCount', 'expiredUnusedOfferCount'] : []), 'accountUsed', 'accountUsedReason', 'accountState', 'activePromoCount', 'reviewOfferCount', 'needsReview', 'recommendationEligible']) {
+      for (const field of [...(payload.summary.offerEligibilityVersion === 1 ? ['hasEligibleOffers'] : []), ...(independent ? ['archived', 'accountStatus', 'fullyUsedOfferCount', 'expiredUnusedOfferCount'] : []), 'accountUsed', 'accountUsedReason', 'accountState', 'activePromoCount', 'reviewOfferCount', 'needsReview', 'recommendationEligible']) {
         if (expected[field] !== account[field]) throw new Error('Account status disagrees with offer/receipt evidence: ' + field);
       }
     }
@@ -51,11 +51,16 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     const summary = payload.summary;
     for (const [field, count] of [
       ['knownAccounts', payload.accounts.length], ['accessibleAccounts', payload.accounts.filter(a => a.canLogin).length],
-      ['inaccessibleAccounts', payload.accounts.filter(a => a.canLogin === false).length], ['availableAccounts', payload.accounts.filter(a => a.recommendationEligible).length],
+      ['inaccessibleAccounts', payload.accounts.filter(a => a.canLogin === false).length], ['availableAccounts', payload.accounts.filter(a => summary.offerEligibilityVersion === 1 ? a.hasEligibleOffers : a.recommendationEligible).length],
       ['usedAccounts', payload.accounts.filter(a => independent ? a.accountUsed : a.accountState === 'used').length], ['archivedAccounts', payload.accounts.filter(a => independent ? a.archived : a.accountState === 'archived').length],
       ['needsCheckingAccounts', payload.accounts.filter(a => a.accountState === 'needs_checking').length],
       ['trackedOrders', payload.accounts.reduce((n, a) => n + a.orderCount, 0)]
     ]) if (summary[field] !== count) throw new Error('Summary counter disagrees with accounts: ' + field);
+    if (summary.offerEligibilityVersion === 1) {
+      if (summary.readyToUseAccounts !== payload.accounts.filter(a => a.recommendationEligible).length ||
+          summary.offerAttentionAccounts !== summary.availableAccounts - summary.readyToUseAccounts) throw new Error('Offer readiness counters disagree with accounts.');
+      for (const account of payload.accounts) if (account.hasEligibleOffers !== (account.activePromoCount > 0)) throw new Error('Eligible offer flag disagrees with accounts.');
+    }
     if (summary.pendingAccessAccounts != null && summary.pendingAccessAccounts !== payload.accounts.filter(a => a.canLogin == null).length) throw new Error("Pending access counter disagrees with accounts.");
     if (independent) {
       const completions = payload.promos.map(p => classifyOfferCompletion(p, payload.generatedAt));

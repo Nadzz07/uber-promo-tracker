@@ -51,6 +51,7 @@ export function setupDraggableNavigation({ nav, onSelect, onRestore = () => {}, 
   function pointerDown(event) {
     // Touch/pen button values vary. Only reject a non-primary MOUSE button.
     if (gesture || event.isPrimary === false || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    nav.dataset.inputMode = 'pointer';
     const items = buttons();
     if (!items.length) return;
     const button = buttonFor(event.target), active = nav.querySelector('[data-view].active') || items[0];
@@ -99,6 +100,7 @@ export function setupDraggableNavigation({ nav, onSelect, onRestore = () => {}, 
     const button = buttonFor(event.target);
     if (button) { cancel(); select(button); }
   }
+  function inputKeyDown() { nav.dataset.inputMode = 'keyboard'; }
   function keyDown(event) {
     if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
     const items = buttons(), index = items.indexOf(document.activeElement);
@@ -114,7 +116,7 @@ export function setupDraggableNavigation({ nav, onSelect, onRestore = () => {}, 
     [nav, 'pointerdown', pointerDown], [window, 'pointermove', pointerMove, { passive: false }],
     [window, 'pointerup', pointerUp], [window, 'pointercancel', pointerCancel],
     [nav, 'lostpointercapture', pointerCancel], [nav, 'click', click], [nav, 'keydown', keyDown],
-    [nav, 'contextmenu', contextMenu], [window, 'blur', cancel], [window, 'resize', cancel],
+    [window, 'keydown', inputKeyDown], [nav, 'contextmenu', contextMenu], [window, 'blur', cancel], [window, 'resize', cancel],
     [document, 'visibilitychange', visibilityChange]
   ];
   for (const [target, type, listener, options] of listeners) target.addEventListener(type, listener, options);

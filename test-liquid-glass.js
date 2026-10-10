@@ -27,3 +27,7 @@ navigation.setTarget({x:20});doc.hidden=true;listeners.get('doc-visibilitychange
 navigation.refreshMaterial();assert.equal(frames.size,0);doc.hidden=false;listeners.get('doc-visibilitychange')();assert.ok(frames.size>0);
 navigation.destroy();assert.equal(listeners.size,0);assert.equal(frames.size,0);navigation.refreshMaterial();navigation.setTarget({x:40});assert.equal(frames.size,0,'Disposed navigation cannot schedule new work');
 console.log('✓ Stable material sampling, background suspension and complete navigation listener/frame disposal');
+
+let navigationSpring={value:0,velocity:0};
+for(let i=0;i<18;i++) navigationSpring=springStep(navigationSpring,100,1/60,{stiffness:760,damping:48});
+assert.ok(Math.abs(navigationSpring.value-100)<.2,'Navigation reaches its selected tab within 300ms without a slow trailing slide');

@@ -11,6 +11,7 @@ is green. No Mail messages need to be moved, trashed or deleted for this release
 - Account usage: five unique Eats receipts, or one Eats plus one Ride receipt
   (Lime included). Login access, account usage and individual offer usage are
   independent. Archived accounts are excluded from recommendations. Receipt-completed accounts can still have eligible current offers; usage and promotion completion are independent.
+- Eligible promotions count independently of access and archive status. Ready to Use requires confirmed access and active rotation; Needs Attention covers other eligible accounts. Product-specific discounts do not count as order coupons; grocery and supermarket order promotions remain eligible. Uncertain scope or missing sources need checking.
 - An account with a usable offer is not labelled Needs checking just because
   another offer is ambiguous. Unmatched discounts do not flag unrelated offers.
 - Offers expire at the earlier of explicit terms and 35 elapsed days from the

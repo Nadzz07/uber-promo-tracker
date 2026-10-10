@@ -11,9 +11,13 @@ export function publicOfferTitle(promo) {
 export function toPublicPromo(promo) {
   return {
     id: promo.id || promo.offerId || null,
+    ...(promo.previousOfferIds?.length ? { previousOfferIds: promo.previousOfferIds } : {}),
     service: promo.service,
     offerType: promo.offerType || null,
     title: offerTitle(promo),
+    offerScope: promo.evidence?.discountScope || null,
+    termsVerification: promo.sourceEvidenceStatus === 'verified' && promo.evidence?.discount ? 'email_verified' : 'needs_verification',
+    minimumSpendVerified: Boolean(promo.evidence?.minimumSpend),
     discountType: promo.discountType,
     discount: promo.discount,
     maxSaving: promo.maxSaving,
