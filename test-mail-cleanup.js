@@ -2,6 +2,10 @@ import assert from 'node:assert/strict';import{classifyCleanupMessage,cleanupPre
 const accounts=new Map([['a@icloud.com',{accountRef:'A001',canLogin:true}],['b@icloud.com',{accountRef:'A002',canLogin:false}],['c@icloud.com',{accountRef:'A003',canLogin:null}]]);
 const base={sender:'offers@uber.com',recipient:'a@icloud.com',sentAt:'2026-10-11T12:00:00Z',receivedAt:'2026-10-11T12:00:01Z',messageId:'id@uber.com'};
 const check=(subject,body,expected,extra={})=>assert.equal(classifyCleanupMessage({...base,subject,body,...extra},accounts).category,expected,subject);
+check('50% off Eurostar Plus & Premier for two or more','Travelling with a companion? Book 2 or more Eurostar Plus or Premier tickets and enjoy 50% off! Unsubscribe.','retained_eurostar',{recipient:'b@icloud.com'});
+check('Eurostar Snow is now live for bookings!','Book the Eurostar ski train. Every train trip earns 3% back in credits. Unsubscribe.','excluded_marketing');
+check('Sandwich season keeps on giving','Get 40% off all regular sandwiches at JOE & THE JUICE. Unsubscribe.','excluded_marketing');
+check('Make their day with a gift','Get 10% off* your first gift card order. Unsubscribe.','excluded_marketing');
 check('£12 off £15 Uber Eats','£12 off your next Uber Eats order. Minimum spend £15. Unsubscribe','genuine_promotion');check('£12 off £15 Uber Eats','£12 off your next Uber Eats order. Minimum spend £15. Unsubscribe','inaccessible_promotion',{recipient:'b@icloud.com'});
 check('84% off Lucozade Orange','Lucozade Orange energy drink (900ml). A discount on this product only. Unsubscribe','excluded_marketing');check('40% off your next Uber Ride','Get 40% off your next Uber ride. Unsubscribe','excluded_marketing');check('20% off your next Uber Ride','Enjoy 20% off your next Reserve trip. Unsubscribe','genuine_promotion');
 check('Your receipt from Example','Thanks for your order. Total £4.93. Get 50% off next time.','protected_receipt',{recipient:'b@icloud.com',sender:'receipts@uber.com'});

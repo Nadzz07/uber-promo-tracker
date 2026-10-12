@@ -1,3 +1,4 @@
+import {receiptWhen} from './receipt-date.js';
 import { dedupeReceipts } from "./receipt-identity.js";
 import { receiptFinancials, financialSummary } from './receipt-financials.js';
 function number(value) {
@@ -121,7 +122,7 @@ export function estimateReceiptSavings(receipts = [], { now = new Date(), servic
     const otherConfirmed = roundMoney(Math.max(0, confirmed - components));
     const estimatedUberOne = missingUberOneEstimate(receipt, model);
     const estimatedTotal = roundMoney(confirmed + estimatedUberOne);
-    const when = receipt.sentAt || receipt.receivedAt || null;
+    const when = receiptWhen(receipt) || null;
 
     const stats = receipt.accountRef
       ? (byAccount.get(receipt.accountRef) || emptyStats())

@@ -33,3 +33,9 @@ const {encryptFinance}=await import('./private-finance-vault.js');const large={k
 const combinedScheduled=receiptFinancials({...receipt,promotionDiscount:14.85,reportedSavings:16.35,financialEvidence:{reportedKind:'combined',scheduleSavings:1.5}});assert.equal(combinedScheduled.total,16.35);assert.equal(combinedScheduled.conflict,false);assert.equal(combinedScheduled.categories.schedule,1.5);assert.equal(Object.values(combinedScheduled.categories).reduce((a,b)=>a+b,0),16.35);console.log('✓ A combined reported total already containing schedule savings is never counted twice');
 
 const twoAccounts=[...accounts,{accountRef:'A002',canLogin:true,accountStatus:'active'}],secondOffer={...offer,id:'no-cash-required',accountRef:'A002',discount:15};const conserved=rankCheckoutOptions([offer,secondOffer],15,{accounts:twoAccounts,wallets:{A001:{balance:50,at:now,stacking:'supported'}},now});assert.equal(conserved[0].accountRef,'A002');assert.equal(conserved[0].cashUsed,0);assert.equal(rankCheckoutOptions([offer],15,{accounts:[{...accounts[0],lastRideAt:'2026-10-11T13:00:00Z'}],wallets,now}).some(o=>o.cashUsed>0),false);const cashOnly=rankCheckoutOptions([],15,{accounts,wallets:{A001:{balance:20,at:now,stacking:'unknown'}},now});assert.equal(cashOnly[0].outOfPocket,0);assert.equal(cashOnly[0].cashRemaining,5);console.log('✓ Equal-payment choices conserve cash across accounts; newer Ride spending invalidates a balance; verified cash can pay without an active coupon');
+
+// Delivery and pickup restrictions cannot enter the wrong checkout comparison.
+const {matchesFulfilment}=await import('./deal-intelligence.js');
+assert.equal(matchesFulfilment({restrictions:{fulfilment:'delivery_only'}},'pickup'),false);
+assert.equal(matchesFulfilment({restrictions:{fulfilment:'pickup_only'}},'delivery'),false);
+assert.equal(matchesFulfilment({restrictions:{fulfilment:'unknown'}},'delivery'),true);

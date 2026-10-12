@@ -5,6 +5,11 @@ const london = new Intl.DateTimeFormat("en-GB", {
 });
 const londonDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' });
 
+export function ukDateKey(value) {
+  const instant = typeof value === 'number' ? value : value ? Date.parse(value) : NaN;
+  return Number.isFinite(instant) ? londonDate.format(instant) : null;
+}
+
 export function offerTime(value) {
   if (!value) return null;
   const local = String(value).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?$/);

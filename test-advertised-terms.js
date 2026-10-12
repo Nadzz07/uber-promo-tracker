@@ -7,6 +7,10 @@ import {offerFingerprint} from './identity.js';
 import {promotionActivity,normaliseManualStore,reconcileManualStore,setOfferDone,getOfferManualState,setOfferIgnored} from './manual-state.js';
 import {openPrivateDb,ensureAccount,upsertMessage,upsertOffer,getOffers} from './private-db.js';
 const input={sender:'Uber <uber@uber.com>',recipient:'test@example.invalid',subject:'Uber Eats offer',sentAt:'2026-10-10T12:00:00Z'};
+const primaryTerms=parseUberPromo({...input,subject:'£12 off your first 5 orders',body:'<h1>£12 off your first 5 orders</h1><div>Other restaurant 30% off £20&#43;</div><p>*Terms and conditions apply. Get £12 off your first 5 orders with Uber Eats using promo code SYNTHETIC12. Valid until 5 Nov 2026 11:00PM. Offer only applies when you spend £15 or more excluding delivery and other fees. The user must apply the promo code before ordering. This offer may not be combined with other offers. Pick-up excluded.</p>'});
+assert.equal(primaryTerms.minimumSpend,15);assert.equal(primaryTerms.uses,5);assert.equal(primaryTerms.maxSaving,null);assert.equal(primaryTerms.expiresAt,'2026-11-05T23:00:00');assert.equal(primaryTerms.evidence.restrictions.fulfilment,'delivery_only');assert.equal(primaryTerms.evidence.restrictions.stacking,'no_other_promotions');
+const conflictTerms=parseUberPromo({...input,subject:'£12 off your first 5 orders',body:'Terms and conditions apply. Get £12 off your first 5 orders. Minimum spend £15. Minimum basket £20.'});
+assert.equal(conflictTerms.evidence.termsConflict,true);assert.equal(classifyOfferTrackingState(conflictTerms,{now:input.sentAt}).trackingState,'needs_checking');
 const percent=parseUberPromo({...input,subject:'50% off your next 3 orders',body:'Uber Eats. Maximum £10 per order. Minimum basket £15. Ends 15 October 2026.'});
 assert.equal(percent.isPromo,true);assert.equal(percent.discountType,'percent');assert.equal(percent.discount,50);assert.equal(percent.perUseCap,10);assert.equal(percent.minimumSpend,15);assert.equal(effectiveDiscountPercent(percent,30),33.33);
 const fixed=parseUberPromo({...input,subject:'£12.60 off £15',body:'Save £12.60 off your Uber Eats order when you spend £15. Ends 15 October 2026.'});
@@ -60,6 +64,9 @@ try {
  upsertOffer(db,prior,input.sentAt);
  const corrected={...prior,offerId:'corrected-coupon',minimumSpend:15};upsertOffer(db,corrected,input.sentAt);
  assert.deepEqual(getOffers(db).find(p=>p.offerId===corrected.offerId).previousOfferIds,['old-coupon']);
+ upsertMessage(db,{messageKey:'reminder-coupon',accountRef:ref,kind:'promo',accepted:true,bodyText:'Synthetic reminder.',parsedAt:input.sentAt});
+ upsertOffer(db,{...corrected,messageKey:'reminder-coupon',emailSentAt:'2026-10-11T12:00:00Z'},input.sentAt);
+ assert.deepEqual(getOffers(db).find(p=>p.offerId===corrected.offerId).previousOfferIds,['old-coupon'],'Corrected manual identity survives a later reminder source');
  const otherAnchor={...corrected,offerId:'another-discount',evidence:{...corrected.evidence,discountPosition:200}};upsertOffer(db,otherAnchor,input.sentAt);
  assert.deepEqual(getOffers(db).find(p=>p.offerId===otherAnchor.offerId).previousOfferIds,[],'A different advertised discount must not inherit a manual decision');
 } finally {db.close();}

@@ -1,5 +1,6 @@
 // Public dashboard calculations use derived receipt totals and actual sync times.
 import { expiryEndTime } from './offer-time.js';
+import { receiptDay } from './receipt-date.js';
 export function syncState(sync = {}, { now = Date.now(), error = false } = {}) {
   const checked = Date.parse(sync.lastSuccessfulMailScanAt || '');
   const started = Date.parse(sync.startedAt || '');
@@ -19,18 +20,19 @@ export function offerCountdown(promo, now = Date.now()) {
   const days = Math.ceil(remaining / 86400000);
   const hours = Math.ceil(remaining / 3600000);
   const time = days > 1 ? days + ' days left' : hours > 1 ? hours + ' hours left' : 'Under 1 hour left';
-  return (promo.expiryStatus === 'estimated' ? 'Estimated · ' : '') + time;
+  return (promo.expiryStatus === 'estimated' ? '~' : '') + time;
 }
 
 export function receiptActivity(receipts = [], rides = [], saving) {
   const days = new Map(), months = new Map();
   for (const [items, kind] of [[receipts, 'eats'], [rides, 'rides']]) for (const receipt of items) {
-    const when = receipt.sentAt || receipt.receivedAt;
-    if (!when || !Number.isFinite(Date.parse(when))) continue;
-    const day = new Date(when).toISOString().slice(0,10), month = day.slice(0,7);
+    const day = receiptDay(receipt);
+    if (!day) continue;
+    const month = day.slice(0,7);
     for (const [map, key] of [[days, day], [months, month]]) {
       const row = map.get(key) || { period: key, eats: 0, rides: 0, saved: 0 };
       row[kind]++;
+      if (!receipt.orderDate) row.dateFallbacks = (row.dateFallbacks || 0) + 1;
       row.saved = Math.round((row.saved + saving(receipt)) * 100) / 100;
       map.set(key, row);
     }
