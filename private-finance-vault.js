@@ -5,11 +5,30 @@ const encode=bytes=>{const view=new Uint8Array(bytes),parts=[];for(let i=0;i<vie
 const decode=value=>Uint8Array.from(atob(value),c=>c.charCodeAt(0));
 // Serialize the version check and write across browser tabs. IndexedDB provides
 // the same exclusion on older browsers without Web Locks; it stores no ledger.
-async function withFinanceLock(storage,action){
+const revisionFor=async value=>value===null?null:encode(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)));
+async function withFinanceLock(storage,previous,next,action){
  if(storage!==globalThis.localStorage)return action();
- if(globalThis.navigator?.locks?.request)return navigator.locks.request(KEY+'-save',action);
  if(!globalThis.indexedDB)throw Error('This browser cannot safely coordinate private edits. Use a current browser.');
- return new Promise((resolve,reject)=>{const open=indexedDB.open(KEY+'-lock',1);open.onupgradeneeded=()=>open.result.createObjectStore('mutex');open.onerror=()=>reject(Error('Private storage could not be locked.'));open.onsuccess=()=>{const db=open.result,transaction=db.transaction('mutex','readwrite');let result;transaction.oncomplete=()=>{db.close();resolve(result);};transaction.onabort=()=>{db.close();reject(transaction.error||Error('Private storage update failed.'));};const request=transaction.objectStore('mutex').get('save');request.onsuccess=()=>{try{result=action();transaction.objectStore('mutex').put(1,'save');}catch(error){transaction.abort();db.close();reject(error);}};};});
+ const [expectedRevision,nextRevision]=await Promise.all([revisionFor(previous),revisionFor(next)]);
+ const save=()=>new Promise((resolve,reject)=>{
+  const open=indexedDB.open(KEY+'-lock',1);
+  open.onupgradeneeded=()=>open.result.createObjectStore('mutex');
+  open.onerror=()=>reject(Error('Private storage could not be locked.'));
+  open.onsuccess=()=>{
+   const db=open.result,transaction=db.transaction('mutex','readwrite');let result;
+   transaction.oncomplete=()=>{db.close();resolve(result);};
+   transaction.onabort=()=>{db.close();reject(transaction.error||Error('Private storage update failed.'));};
+   const request=transaction.objectStore('mutex').get('save');
+   request.onsuccess=()=>{try{
+    // localStorage caches can lag across Firefox processes even under Web
+    // Locks. IndexedDB serializes this authoritative revision comparison.
+    const stored=request.result;
+    if(stored?.revision!==undefined&&stored.revision!==expectedRevision){const error=Error('Private finances changed in another tab. Unlock the latest copy before editing.');error.financeConflict=true;throw error;}
+    result=action();transaction.objectStore('mutex').put({revision:nextRevision},'save');
+   }catch(error){transaction.abort();reject(error);}};
+  };
+ });
+ return globalThis.navigator?.locks?.request?navigator.locks.request(KEY+'-save',save):save();
 }
 async function keyFor(password,salt){if(String(password).length<10)throw Error('Use a passphrase of at least 10 characters.');const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt,iterations},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);}
 export async function encryptFinance(data,password){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));const key=await keyFor(password,salt);const encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(KEY)},key,new TextEncoder().encode(JSON.stringify(data)));return {kind:'uber-tracker-encrypted-finance',schemaVersion:1,iterations,salt:encode(salt),iv:encode(iv),ciphertext:encode(encrypted)};}
@@ -21,7 +40,7 @@ export class PrivateFinanceVault{
  async unlock(password){const saved=this.storage.getItem(KEY),epoch=this.epoch;const data=saved?await decryptFinance(JSON.parse(saved),password):{kind:'uber-tracker-private-finance',schemaVersion:1,accounts:[],receipts:[],events:[]};if(epoch!==this.epoch||this.storage.getItem(KEY)!==saved)throw Error('Private finances changed or were locked. Unlock again.');this.saved=saved;this.data=data;this.password=password;if(!saved)await this.persist(this.data);return this.data;}
  lock(){this.epoch++;this.data=null;this.password=null;}
  current(){return currentFinancialEvents(this.data?.events||[]);}
- async persist(data){const epoch=this.epoch,password=this.password,previous=this.saved;const encrypted=await encryptFinance(data,password);return withFinanceLock(this.storage,()=>{if(epoch!==this.epoch)throw Error('Private finances were locked. Unlock before saving.');if(this.storage.getItem(KEY)!==previous){this.lock();throw Error('Private finances changed in another tab. Unlock the latest copy before editing.');}const saved=JSON.stringify(encrypted);this.storage.setItem(KEY,saved);this.saved=saved;this.data=data;return data;});}
+ async persist(data){const epoch=this.epoch,password=this.password,previous=this.saved;const encrypted=await encryptFinance(data,password),next=JSON.stringify(encrypted);return withFinanceLock(this.storage,previous,next,()=>{if(epoch!==this.epoch)throw Error('Private finances were locked. Unlock before saving.');if(this.storage.getItem(KEY)!==previous){this.lock();throw Error('Private finances changed in another tab. Unlock the latest copy before editing.');}this.storage.setItem(KEY,next);this.saved=next;this.data=data;return data;}).catch(error=>{if(error.financeConflict)this.lock();throw error;});}
  async import(data){if(!this.data)throw Error('Unlock private finances first.');validateFinanceData(data);const incoming=new Map(data.events.map(e=>[e.id,e]));for(const e of this.data.events){if(incoming.has(e.id)&&JSON.stringify(incoming.get(e.id))!==JSON.stringify(e))throw Error('Conflicting history. Both originals remain unchanged.');incoming.set(e.id,e);}const receipts=new Map(data.receipts.map(r=>[r.receiptId,r]));for(const r of this.data.receipts)if(!receipts.has(r.receiptId))receipts.set(r.receiptId,r);const accounts=new Map(data.accounts.map(a=>[a.accountRef,a]));for(const a of this.data.accounts)if(!accounts.has(a.accountRef))accounts.set(a.accountRef,a);const merged=validateFinanceData({...data,accounts:[...accounts.values()],receipts:[...receipts.values()],events:[...incoming.values()]});return this.persist(merged);}
  append(input){const execute=async()=>{if(!this.data)throw Error('Unlock private finances first.');const last=this.data.events.reduce((n,e)=>Math.max(n,Date.parse(e.at)),0);const value=input.action==='undo'?{}:input.kind==='receipt'?validateFinancialCorrection(input.value):validateCashEntry(input.value);const event={...input,value,id:crypto.randomUUID(),at:new Date(Math.max(Date.now(),last+1)).toISOString()};const next=validateFinanceData({...this.data,events:[...this.data.events,event]});await this.persist(next);return event;};const result=this.queue.then(execute);this.queue=result.catch(()=>{});return result;}
  encryptedBackup(){const value=this.storage.getItem(KEY);if(!value)throw Error('No saved private finances.');return value;}
