@@ -3,6 +3,8 @@ const accounts=new Map([['a@icloud.com',{accountRef:'A001',canLogin:true}],['b@i
 const base={sender:'offers@uber.com',recipient:'a@icloud.com',sentAt:'2026-10-11T12:00:00Z',receivedAt:'2026-10-11T12:00:01Z',messageId:'id@uber.com'};
 const check=(subject,body,expected,extra={})=>assert.equal(classifyCleanupMessage({...base,subject,body,...extra},accounts).category,expected,subject);
 check('50% off Eurostar Plus & Premier for two or more','Travelling with a companion? Book 2 or more Eurostar Plus or Premier tickets and enjoy 50% off! Unsubscribe.','retained_eurostar',{recipient:'b@icloud.com'});
+check('50% off Eurostar Plus & Premier for two or more','Book 2 or more Eurostar Plus tickets and enjoy 50% off. Unsubscribe.','uncertain',{recipient:'unverified@icloud.com'});
+check('50% off Eurostar Plus & Premier for two or more','Book 2 or more Eurostar Plus tickets and enjoy 50% off. Unsubscribe.','uncertain',{recipient:'c@icloud.com'});
 check('Eurostar Snow is now live for bookings!','Book the Eurostar ski train. Every train trip earns 3% back in credits. Unsubscribe.','excluded_marketing');
 check('Sandwich season keeps on giving','Get 40% off all regular sandwiches at JOE & THE JUICE. Unsubscribe.','excluded_marketing');
 check('Make their day with a gift','Get 10% off* your first gift card order. Unsubscribe.','excluded_marketing');

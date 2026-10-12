@@ -14,8 +14,8 @@ export function classifyCleanupMessage(message,accounts=new Map()) {
  if(/\b(?:verification|security|sign[ -]?in|login|recover|password|phone|payment|transaction|refund|charge|invoice)\b/i.test(subject)&&/verification|\bcode\b|\botp\b|phone number|password|recover|security|account activity|payment|transaction|refund|charged|mastercard|visa|invoice/i.test(text.slice(subject.length)))return result('protected_security_transaction','Security, access or essential transaction evidence.');
  if(hasForwardedReceiptClaims(subject,message.body))return result('uncertain','Forwarded identity is not independently verified.');
  const sender=analyseSender(message.sender);if(sender.trusted!==true||sender.confidence!=='high')return result('uncertain','Sender identity is not sufficiently supported.');
- if (/^50% off Eurostar Plus & Premier for two or more\s*$/i.test(subject.trim()) && /Eurostar Plus|Premier/i.test(text) && /(?:50\s*%\s*off|enjoy 50\s*%)/i.test(text) && /(?:2|two) or more|companion/i.test(text)) return result('retained_eurostar','Explicitly protected 50% Eurostar companion offer; keep in Archive.','Archive');
  const alias=extractAccountAlias(message.recipient),account=accounts.get(alias);if(!account||account.canLogin==null)return result('uncertain','Unknown recipient or pending login verification.');
+ if (/^50% off Eurostar Plus & Premier for two or more\s*$/i.test(subject.trim()) && /Eurostar Plus|Premier/i.test(text) && /(?:50\s*%\s*off|enjoy 50\s*%)/i.test(text) && /(?:2|two) or more|companion/i.test(text)) return result('retained_eurostar','Explicitly protected 50% Eurostar companion offer; keep in Archive.','Archive');
  const promo=parseUberPromo(message),scope=promo.evidence?.discountScope||promo.offerScope;
  const marketing=promo.isPromo||/\bunsubscribe\b/i.test(text)&&/\b(?:offer|promotion|discount|save|off|try|order|trip|shop)\b/i.test(text);
  if(!marketing)return result('uncertain','No clear promotion or marketing evidence.');
