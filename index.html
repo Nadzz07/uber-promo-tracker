@@ -2696,6 +2696,7 @@
   </div>
 
   <script type="module">
+    import { financeIcon, financeHero, financeMetric } from "./finance-layout.js";
     import { offerTitle, useCountNeedsReview, effectiveDiscountPercent } from "./offer-details.js";
     import { THEME_KEY, DEFAULT_COLOUR, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
     import { offerFinishedReason, offerClosureLabel, classifyOfferCompletion } from "./offer-state.js";
@@ -2777,6 +2778,8 @@
     let openSheetType = null;
     let financeView = null;
     let financeModule = null;
+    let financeSession = null;
+    let financeOpenRevision = 0;
     let privateWallets = {};
     let privateMigrationPending = false;
     let openAccountRef = null;
@@ -4032,10 +4035,17 @@
       const labels={eatsPromotions:'Eats promotions',ridePromotions:'Ride promotions',combinedUberOnePromotions:'Combined Uber One & promotions',explicitUberOne:'Explicit Uber One',schedule:'Schedule savings',other:'Other verified / unallocated savings'};
       const row=(title,value)=>'<div class="sheet-row"><div class="sheet-row-title">'+escapeHtml(title)+'</div><div class="sheet-row-value">'+escapeHtml(value)+'</div></div>';
       setSheetHeading('Savings', 'Receipt savings & private corrections.');
-      document.getElementById('sheetBody').innerHTML='<div class="savings-hero"><div class="savings-hero-label">Total savings · supported</div><div class="savings-hero-value">'+escapeHtml(money(summary.totalSaved||0))+'</div><p class="sheet-help">Receipt savings, including corrections. Cash payments stay separate.</p></div>'+
-        '<div class="savings-metrics sheet-section insight-grid"><div class="insight"><div class="insight-label">Uber Cash used</div><div class="insight-value">'+escapeHtml(money(financial.cashUsed??summary.uberCashUsed??0))+'</div><p class="sheet-help">Payment, not savings</p></div><div class="insight"><div class="insight-label">Out of pocket</div><div class="insight-value">'+escapeHtml(financial.paymentKnown?money(financial.outOfPocket):'Unknown')+'</div><p class="sheet-help">'+Number(financial.paymentKnown||0)+' receipts with payment evidence</p></div><div class="insight"><div class="insight-label">Last 30 days</div><div class="insight-value">'+escapeHtml(money(summary.recentConfirmedSaved||0))+'</div><p class="sheet-help">Supported savings</p></div><div class="insight"><div class="insight-label">Missing details</div><div class="insight-value">'+Number(financial.missing||0)+'</div><button class="advanced-btn" data-open-sheet="finance" aria-label="Review privately: Missing savings details">Review privately ›</button></div></div>'+
-        '<details class="disclosure-card"><summary><span><strong>Savings breakdown</strong><small>Each amount contributes once to the total</small></span></summary><div class="disclosure-body sheet-list">'+Object.entries(labels).map(([key,title])=>row(title,money(categories[key]||0))).join('')+'</div></details>'+
-        '<details class="disclosure-card"><summary><span><strong>Evidence & estimates</strong><small>Missing figures and historical accounts</small></span></summary><div class="disclosure-body"><div class="sheet-list">'+row('Archived accounts · included in total',money(summary.archivedConfirmedSaved||0))+row('Manual corrections · included',String(financial.manual||0))+row('Email/manual differences requiring review',String(financial.conflicting||0))+row('Estimated missing Uber One',summary.uberOneEstimateModel?.sampleSize?money(summary.estimatedUberOneSavings||0):'Unavailable')+'</div><p class="sheet-help">'+escapeHtml(summary.uberOneEstimateModel?.explanation||'An estimate needs reliable receipt evidence. Missing savings are unknown, not proof of £0.')+'</p><p class="sheet-help">Combined Uber One and promotional amounts stay combined until reliable itemized evidence identifies their components. Archived history is included, not added again.</p></div></details><div class="savings-navigation"><button class="sheet-action-row" data-open-sheet="finance"><span>Private finances<small>Receipt corrections &amp; Cash balances</small></span></button><button class="sheet-action-row" data-open-guide="savings"><span>How savings work</span></button></div>';
+      document.getElementById('sheetBody').innerHTML=financeHero('Total savings',money(summary.totalSaved||0),'Receipt savings & corrections')+
+        '<div class="savings-metrics sheet-section insight-grid">'+
+        financeMetric('wallet','Uber Cash used',money(financial.cashUsed??summary.uberCashUsed??0),'Payment, not savings')+
+        financeMetric('bag','Out of pocket',financial.paymentKnown?money(financial.outOfPocket):'Unknown',Number(financial.paymentKnown||0)+' known payments')+
+        financeMetric('calendar','Last 30 days',money(summary.recentConfirmedSaved||0),'Supported savings')+
+        financeMetric('receipt','Missing details',Number(financial.missing||0),'Review receipts',{panel:'receipt',missing:true})+'</div>'+
+        '<details class="disclosure-card"><summary>'+financeIcon('chart')+'<span><strong>Savings breakdown</strong><small>See where your savings come from</small></span></summary><div class="disclosure-body sheet-list">'+Object.entries(labels).map(([key,title])=>row(title,money(categories[key]||0))).join('')+'<p class="sheet-help">Each amount contributes once to the total.</p></div></details>'+
+        '<details class="disclosure-card"><summary>'+financeIcon('receipt')+'<span><strong>Evidence & estimates</strong><small>Missing figures and historical accounts</small></span></summary><div class="disclosure-body"><div class="sheet-list">'+row('Archived accounts · included in total',money(summary.archivedConfirmedSaved||0))+row('Manual corrections · included',String(financial.manual||0))+row('Email/manual differences requiring review',String(financial.conflicting||0))+row('Estimated missing Uber One',summary.uberOneEstimateModel?.sampleSize?money(summary.estimatedUberOneSavings||0):'Unavailable')+'</div><p class="sheet-help">'+escapeHtml(summary.uberOneEstimateModel?.explanation||'An estimate needs reliable receipt evidence. Missing savings are unknown, not proof of £0.')+'</p><p class="sheet-help">Combined Uber One and promotional amounts stay combined until reliable itemized evidence identifies their components. Archived history is included, not added again.</p></div></details>'+
+        '<div class="savings-navigation"><button class="sheet-action-row" data-open-sheet="finance" data-finance-target="receipt">'+financeIcon('shield')+'<span>Private receipt corrections<small>Adjust and review amounts</small></span></button>'+
+        '<button class="sheet-action-row" data-open-sheet="finance" data-finance-target="cash">'+financeIcon('wallet')+'<span>Cash balances<small>Balances verified in Uber</small></span></button>'+
+        '<button class="sheet-action-row finance-help-row" data-open-guide="savings">'+financeIcon('info')+'<span>How savings work</span></button></div>';
     }
 
     function receiptActivityRows(limit = 20) {
@@ -4126,6 +4136,14 @@
     }
 
     function setSheetHeading(title, sub) {
+      const sheet = document.querySelector('.sheet');
+      const financeLayout = title === 'Savings' || title === 'Private finances';
+      sheet.toggleAttribute('data-finance-layout', financeLayout);
+      sheet.toggleAttribute('data-finance-concealed', title === 'Private finances' && document.hidden);
+      let icon = sheet.querySelector('.finance-heading-icon');
+      if (!icon) { icon = document.createElement('span'); icon.className = 'finance-heading-icon'; sheet.querySelector('.sheet-head').prepend(icon); }
+      icon.hidden = !financeLayout;
+      if (financeLayout) icon.innerHTML = financeIcon(title === 'Savings' ? 'savings' : 'shield');
       document.getElementById("sheetTitle").textContent = title;
       document.getElementById("sheetSub").textContent = sub || "";
     }
@@ -4153,9 +4171,10 @@
       openAccountRef = null;
     }
 
-    function openUtilitySheet(type) {
+    function openUtilitySheet(type, financeTarget = null, financeMissing = false) {
       if (financeView) financeView.destroy();
       openSheetType = type;
+      const financeRevision = ++financeOpenRevision;
       openAccountRef = null;
 
       if (type === "advanced") renderAdvancedSheet();
@@ -4167,11 +4186,19 @@
       if (type === "appearance") renderAppearanceSheet();
       if (type === "device") renderDeviceSheet();
       if (type === 'finance') {
-        setSheetHeading('Private finances', 'Encrypted receipt corrections & verified Cash balances');
+        setSheetHeading('Private finances', 'Receipt corrections & Cash balances.');
         const host=document.getElementById('sheetBody');
         host.innerHTML='<p class="sheet-help" role="status">Loading private finances…</p>';
         financeModule ||= import('./private-finance-ui.js');
-        financeModule.then(module=>{if(openSheetType!=='finance')return;financeView=module.financeInterface({host,vault:financeView?.vault,accountLabel:ref=>accountDisplay(accounts.find(a=>a.accountRef===ref)||{accountRef:ref}),accountUsage:ref=>{const a=accounts.find(a=>a.accountRef===ref);return a?Number(a.orderCount||0)+Number(a.rideCount||0):null;},onUpdate:vault=>{privateWallets=vault.current().wallets;renderRecommendation();}});}).catch(()=>{if(openSheetType==='finance')host.innerHTML='<p role="alert">Private finances could not load. Please refresh and try again.</p>';});
+        financeModule.then(module=>{
+          if(openSheetType!=='finance'||financeRevision!==financeOpenRevision)return;
+          financeSession ||= new module.PrivateFinanceSession({onLock:()=>{privateWallets={};if(openSheetType==='finance')financeView?.render();else if(document.getElementById('sheetTitle').textContent==='Private finances')document.getElementById('sheetBody').replaceChildren();renderRecommendation();}});
+          financeSession.visibility(document.hidden);
+          financeView=module.financeInterface({host,vault:financeSession.vault,initialPanel:financeTarget,missingOnly:financeMissing,
+            accountLabel:ref=>accountDisplay(accounts.find(a=>a.accountRef===ref)||{accountRef:ref}),
+            accountUsage:ref=>{const a=accounts.find(a=>a.accountRef===ref);return a?Number(a.orderCount||0)+Number(a.rideCount||0):null;},
+            onUpdate:vault=>{financeSession.visibility(document.hidden);privateWallets=vault.current().wallets;renderRecommendation();}});
+        }).catch(()=>{if(openSheetType==='finance'&&financeRevision===financeOpenRevision)host.innerHTML='<p role="alert">Private finances could not load. Please refresh and try again.</p>';});
       }
 
       showSheet();
@@ -4438,7 +4465,7 @@
 
       const sheetButton = event.target.closest("[data-open-sheet]");
       if (sheetButton) {
-        openUtilitySheet(sheetButton.dataset.openSheet);
+        openUtilitySheet(sheetButton.dataset.openSheet, sheetButton.dataset.financeTarget, sheetButton.dataset.financeMissing === 'true');
         return;
       }
 
@@ -4487,7 +4514,7 @@
       const archivedAccount = event.target.closest('[data-account-offers]');
       if (archivedAccount) { openAccountSheet(archivedAccount.dataset.accountOffers); return; }
       const sheetButton = event.target.closest('[data-open-sheet]');
-      if (sheetButton) { openUtilitySheet(sheetButton.dataset.openSheet); return; }
+      if (sheetButton) { openUtilitySheet(sheetButton.dataset.openSheet, sheetButton.dataset.financeTarget, sheetButton.dataset.financeMissing === 'true'); return; }
       const colourButton = event.target.closest('[data-theme-colour]');
       if (colourButton) { chooseTheme(colourButton.dataset.themeColour); return; }
       if (event.target.id === 'resetTheme') { chooseTheme(DEFAULT_COLOUR); return; }
@@ -4619,7 +4646,7 @@
     });
 
     window.addEventListener("storage", event => {
-      if(event.key==='uber-tracker-finance-encrypted-v1'||event.key===null){financeView?.vault.lock();privateWallets={};if(openSheetType==='finance')financeView?.render();renderRecommendation();}
+      if(event.key==='uber-tracker-finance-encrypted-v1'||event.key===null){financeSession?.lock();privateWallets={};renderRecommendation();}
       if (event.key === LAYOUT_KEY || event.key === null) { layoutPreference = readLayoutPreference(); applyLayoutPreference(); if (openSheetType === 'appearance') renderAppearanceSheet(); }
       if (event.key === STATE_KEY || event.key === null) { manualStore = readManualStore(); reconcileLocalEvidence(); invalidateAccountProjection(); renderAll(); if (openSheetType === "account") renderAccountSheet(); }
       if (event.key === SETTINGS_KEY) { plannerSettings = readPlannerSettings(); renderRecommendation(); }
@@ -4638,7 +4665,8 @@
       // existing projections on unchanged imports; background tabs stay idle.
       if (Date.now() - lastSnapshotCheckedAt >= 5 * 60000 || Date.now() < lastSnapshotCheckedAt) load();
     }
-    document.addEventListener("visibilitychange", ()=>{if(document.hidden&&financeView?.vault.data){financeView.vault.lock();privateWallets={};if(openSheetType==='finance')financeView.render();}refreshTimedViews();});
+    document.addEventListener("visibilitychange", ()=>{financeSession?.visibility(document.hidden);document.querySelector('.sheet').toggleAttribute('data-finance-concealed', openSheetType==='finance' && document.hidden);refreshTimedViews();});
+    window.addEventListener("pagehide", ()=>financeSession?.lock());
     setInterval(refreshTimedViews, 60000);
     load();
   </script>

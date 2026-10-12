@@ -786,3 +786,90 @@ body::before, body::after { display: none; }
   .sheet, .bottom-nav, html[data-layout="desktop"] .bottom-nav,
   .savings-hero, .total-saved-card { background-color: var(--surface); }
 }
+
+/* Savings and the private vault share a compact financial dashboard. The
+   reflected hero is decorative; tiles and expanded forms stay solid. */
+.finance-icon { display:block; width:26px; height:26px; flex:0 0 26px; }
+.finance-heading-icon, .finance-icon-surface {
+  display:grid; place-items:center; flex:0 0 auto; width:42px; height:42px;
+  border:1px solid rgba(255,255,255,.22); border-radius:14px;
+  background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.025));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13); color:var(--text);
+}
+.finance-heading-icon[hidden] { display:none; }
+.sheet[data-finance-layout] { display:flex; flex-direction:column; }
+.sheet[data-finance-layout] .sheet-handle, .sheet[data-finance-layout] .sheet-head { flex-shrink:0; }
+.sheet[data-finance-layout] .sheet-body { min-height:0; max-height:none; overflow-y:auto; }
+.sheet[data-finance-layout] .sheet-head { gap:12px; }
+.sheet[data-finance-layout] .sheet-close { width:44px; height:44px; }
+.sheet[data-finance-layout] .sheet-head > div { flex:1; min-width:0; }
+.sheet[data-finance-layout] .sheet-title { font-size:23px; }
+.sheet[data-finance-layout] .sheet-sub { font-size:12px; line-height:1.5; }
+.sheet[data-finance-layout] .finance-hero {
+  position:relative; isolation:isolate; overflow:hidden; padding:20px;
+  border:1px solid rgba(255,255,255,.24); border-radius:26px;
+  background:linear-gradient(140deg,rgba(79,85,99,.64),rgba(35,39,48,.96) 60%,rgba(49,56,67,.82));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 8px 24px rgba(0,0,0,.16);
+}
+.finance-hero::before {
+  content:''; position:absolute; z-index:-1; pointer-events:none;
+  width:135%; height:180%; left:-51%; top:-106%; border-radius:50%;
+  border:1px solid rgba(255,255,255,.2);
+  background:linear-gradient(170deg,transparent 40%,rgba(255,255,255,.045));
+  transform:rotate(-24deg); box-shadow:0 8px 22px rgba(255,255,255,.035);
+}
+.finance-hero-heading { display:flex; align-items:center; gap:12px; margin-bottom:15px; }
+.sheet[data-finance-layout] .savings-hero-label { font-size:15px; font-weight:550; text-transform:none; letter-spacing:0; }
+.sheet[data-finance-layout] .savings-hero-value {
+  color:var(--text); font-size:clamp(30px,10vw,43px); line-height:1.12; letter-spacing:-.045em; margin:0;
+}
+.finance-confirmation { display:flex; align-items:center; gap:8px; margin:16px 0 0; font-size:12px; line-height:1.5; color:var(--muted); }
+.finance-confirmation .finance-icon { color:var(--green); width:21px; height:21px; flex-basis:21px; }
+.sheet[data-finance-layout] .savings-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:14px 0; }
+.sheet[data-finance-layout] .savings-metrics .insight {
+  gap:6px; min-height:136px; padding:14px; border:1px solid rgba(255,255,255,.15); border-radius:22px;
+  background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.015)),var(--surface);
+  color:var(--text); text-align:left; font:inherit; box-shadow:var(--surface-shadow);
+}
+.sheet[data-finance-layout] .savings-metrics .insight-value { display:block; color:var(--text); font-weight:700; font-size:clamp(21px,6.5vw,29px); letter-spacing:-.03em; }
+.sheet[data-finance-layout] .savings-metrics .sheet-help { padding-top:0; font-size:10px; line-height:1.5; }
+.metric-action { cursor:pointer; }
+.metric-action:hover { border-color:rgba(var(--accent-rgb),.35)!important; }
+.metric-action:focus-visible { outline:2px solid var(--green); outline-offset:3px; }
+.sheet[data-finance-layout] .disclosure-card > summary::before,
+.sheet[data-finance-layout] .sheet-action-row::before { display:none; }
+.sheet[data-finance-layout] .disclosure-card > summary::after,
+.sheet[data-finance-layout] .sheet-action-row::after { content:'›'; margin-left:auto; color:var(--muted); font-size:23px; line-height:1; }
+.sheet[data-finance-layout] .disclosure-card[open] > summary::after { transform:rotate(90deg); }
+.sheet[data-finance-layout] .disclosure-card > summary > span,
+.sheet[data-finance-layout] .sheet-action-row > span { flex:1; min-width:0; }
+.sheet[data-finance-layout] .disclosure-card > summary,
+.sheet[data-finance-layout] .sheet-action-row { gap:14px; min-height:72px; padding:16px; }
+.sheet[data-finance-layout] .disclosure-card,
+.sheet[data-finance-layout] .sheet-action-row { border-radius:22px; background:var(--surface-gradient); }
+.sheet[data-finance-layout] .disclosure-card > summary strong,
+.sheet[data-finance-layout] .sheet-action-row > span { font-size:13px; line-height:1.5; }
+.sheet[data-finance-layout] .savings-navigation { margin-top:12px; }
+.sheet[data-finance-layout] .finance-help-row { justify-content:center; min-height:48px; padding:12px; }
+.sheet[data-finance-layout] .finance-help-row > span { flex:0 1 auto; font-size:12px; }
+.sheet[data-finance-layout] .finance-help-row::after { display:none; }
+.finance-help-row .finance-icon { width:18px; height:18px; flex-basis:18px; }
+.finance-session-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+.finance-session-bar > span { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--muted); }
+.finance-session-bar .finance-icon { width:17px; height:17px; flex-basis:17px; color:var(--green); }
+.finance-session-bar .advanced-btn { display:flex; align-items:center; gap:6px; min-height:44px; margin:0; }
+.finance-session-help { font-size:11px; line-height:1.6; }
+.finance-unlock { padding:20px; border:1px solid var(--line); border-radius:24px; background:var(--surface-gradient); }
+.finance-unlock h3 { margin:16px 0 8px; font-size:20px; }
+.finance-unlock form { margin-top:20px; }
+.finance-empty .finance-icon-surface { margin-bottom:16px; }
+.sheet[data-finance-layout] p[role="status"]:empty { display:none; }
+.sheet[data-finance-layout] .finance-controls { margin:0; }
+.sheet[data-finance-concealed] .sheet-body { visibility:hidden; }
+@media (max-width:767px) {
+  .sheet[data-finance-layout] { max-height:calc(100dvh - env(safe-area-inset-top) - 12px); }
+}
+@media (max-width:350px) {
+  .sheet[data-finance-layout] .sheet-title { font-size:20px; }
+  .sheet[data-finance-layout] .savings-metrics .insight { padding:12px; }
+}

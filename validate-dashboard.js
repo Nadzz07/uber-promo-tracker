@@ -56,8 +56,8 @@ assert.ok(html.includes("Evidence &amp; estimates") || html.includes("Evidence &
 assert.equal(html.includes('Estimated missing Uber One</div><div class="insight-value" style="color:var(--green)"'), false, "Estimated savings must not use confirmed green styling");
 assert.ok(html.includes("Confirmed receipts"));
 assert.ok(html.includes("Estimated missing Uber One"));
-assert.ok(html.includes("Missing savings details"));
-assert.ok(html.includes("savings-hero"));
+assert.ok(html.includes("Missing details"));
+assert.ok(html.includes("financeHero"));
 assert.ok(html.includes("grid-template-columns: auto minmax(0,1fr) 36px"));
 assert.ok(html.includes("Archived accounts"));
 assert.ok(html.includes("Needs checking"));

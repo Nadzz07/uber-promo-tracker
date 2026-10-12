@@ -34,6 +34,33 @@ async function keyFor(password,salt){if(String(password).length<10)throw Error('
 export async function encryptFinance(data,password){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));const key=await keyFor(password,salt);const encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(KEY)},key,new TextEncoder().encode(JSON.stringify(data)));return {kind:'uber-tracker-encrypted-finance',schemaVersion:1,iterations,salt:encode(salt),iv:encode(iv),ciphertext:encode(encrypted)};}
 export async function decryptFinance(envelope,password){if(envelope?.kind!=='uber-tracker-encrypted-finance'||envelope.schemaVersion!==1||envelope.iterations!==iterations||String(envelope.ciphertext).length>20000000)throw Error('Not a supported encrypted financial backup.');try{const salt=decode(envelope.salt),iv=decode(envelope.iv);if(salt.length!==16||iv.length!==12)throw Error();const key=await keyFor(password,salt);return validateFinanceData(JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(KEY)},key,decode(envelope.ciphertext)))));}catch{throw Error('Could not unlock. Check the passphrase and backup file.');}}
 export function validateFinanceData(data){if(data?.kind!=='uber-tracker-private-finance'||data.schemaVersion!==1||!Array.isArray(data.receipts)||data.receipts.length>100000||!Array.isArray(data.events)||data.events.length>100000||!Array.isArray(data.accounts))throw Error('Not a supported private finance file.');const accounts=new Set(data.accounts.map(a=>a.accountRef));const receipts=new Map();for(const r of data.receipts){if(!r.receiptId||!accounts.has(r.accountRef)||receipts.has(r.receiptId))throw Error('Invalid or duplicate receipt identity.');receipts.set(r.receiptId,r);}for(const e of data.events){if(!/^[a-z0-9-]{8,80}$/i.test(e.id)||!['receipt','cash'].includes(e.kind)||!['set','undo'].includes(e.action)||!Number.isFinite(Date.parse(e.at))||!accounts.has(e.accountRef)|| (e.kind==='receipt'&&receipts.get(e.recordId)?.accountRef!==e.accountRef)||(e.kind==='cash'&&e.recordId!==e.accountRef))throw Error('Financial history does not match these private accounts and receipts.');if(e.action==='set'){if(e.kind==='receipt')validateFinancialCorrection(e.value);else validateCashEntry(e.value);}}return data;}
+// Keys remain in memory. Mobile browsers can suspend timers, so also check the
+// background deadline before revealing the vault when the app becomes visible.
+export class PrivateFinanceSession {
+ constructor({vault = new PrivateFinanceVault(), onLock = () => {}, now = Date.now,
+   setTimer = (callback, delay) => setTimeout(callback, delay), clearTimer = timer => clearTimeout(timer), graceMs = 5 * 60000} = {}) {
+  Object.assign(this, {vault, onLock, now, setTimer, clearTimer, graceMs});
+  this.hiddenAt = null; this.timer = null;
+ }
+ visibility(hidden) {
+  if (!this.vault.data) { this.cancel(); return; }
+  if (hidden) {
+   if (this.hiddenAt == null) {
+    this.hiddenAt = this.now();
+    this.timer = this.setTimer(() => this.lock(), this.graceMs);
+   }
+  } else {
+   if (this.hiddenAt != null && (this.now() - this.hiddenAt >= this.graceMs || this.now() < this.hiddenAt)) this.lock();
+   this.cancel();
+  }
+ }
+ cancel() {
+  if (this.timer != null) this.clearTimer(this.timer);
+  this.timer = null; this.hiddenAt = null;
+ }
+ lock() { this.cancel(); this.vault.lock(); this.onLock(this.vault); }
+}
+
 export class PrivateFinanceVault{
  constructor(storage=localStorage){this.storage=storage;this.data=null;this.password=null;this.queue=Promise.resolve();this.epoch=0;this.saved=null;}
  hasSaved(){return Boolean(this.storage.getItem(KEY));}
