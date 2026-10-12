@@ -192,7 +192,11 @@ uses Mail's delete command or empties Bin.
 
 More → Private finances loads only when opened. Import an owner-only private
 finance export, then save receipt corrections or a current Uber Cash balance
-inside encrypted browser storage. The passphrase is never stored. Export an
+inside encrypted browser storage. The passphrase remains in memory only for the
+current page session; it is never persisted. Closing a sheet or briefly switching
+apps does not require unlocking again. Manual Lock, reload/navigation, five minutes
+in the background, or another tab changing the vault locks it. Background contents
+are concealed, and returning checks the deadline even if mobile timers were suspended. Export an
 encrypted backup before clearing browser data. Device changes are not uploaded;
 transfer them privately to the Mac ledger to include them in later snapshots:
 

@@ -2,9 +2,24 @@ import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import {financialSummary,receiptFinancials,currentFinancialEvents} from './receipt-financials.js';
 import {initFinancialLedger,appendFinancialEvent,readFinancialEvents,mergeFinancialEvents} from './financial-ledger.js';
-import {PrivateFinanceVault,decryptFinance} from './private-finance-vault.js';
+import {PrivateFinanceVault,PrivateFinanceSession,decryptFinance} from './private-finance-vault.js';
 import {rankCheckoutOptions} from './deal-intelligence.js';
 const receipt={receiptId:'rcp_test',accountRef:'A001',service:'Uber Eats',total:4.93};
+// A phone app switch must preserve the session, but a suspended timer must
+// never extend the background deadline. No credentials are persisted here.
+{
+ let clock=1000,timer=null,locks=0;
+ const sessionVault={data:{receipts:[]},lock(){this.data=null;}};
+ const session=new PrivateFinanceSession({vault:sessionVault,now:()=>clock,
+   setTimer:callback=>(timer=callback,1),clearTimer:()=>{timer=null;},onLock:()=>locks++});
+ session.visibility(true);clock+=30000;session.visibility(false);
+ assert.ok(sessionVault.data);assert.equal(timer,null);assert.equal(locks,0);
+ session.visibility(true);clock+=5*60000;session.visibility(false);
+ assert.equal(sessionVault.data,null);assert.equal(locks,1,'Expired background session locks even when timer was suspended');
+ sessionVault.data={};session.visibility(true);timer();assert.equal(locks,2);
+ sessionVault.data={};session.visibility(true);session.lock();assert.equal(timer,null);assert.equal(locks,3);
+ sessionVault.data={};session.visibility(true);clock-=1;session.visibility(false);assert.equal(locks,4,'A clock rollback does not extend an unlock');
+}
 assert.equal(receiptFinancials(receipt).total,null);
 assert.equal(receiptFinancials({uberCashUsed:12}).total,null);
 assert.equal(receiptFinancials({...receipt,promotionDiscount:10,reportedSavings:10,uberCashUsed:12}).total,10);
