@@ -2,7 +2,7 @@ import { classifyMessage } from "./classifier.js";
 import { extractOfferDetails } from "./discount.js";
 import { extractExpiry } from "./expiry.js";
 import { analyseSender } from "./sender.js";
-import { hasForwardedReceiptClaims } from "../receipt-text.js";
+import { hasForwardedReceiptClaims, receiptText } from "../receipt-text.js";
 import {
   asDate,
   extractAccountAlias,
@@ -22,12 +22,16 @@ export function parseUberPromoV2({
 } = {}) {
   const received = asDate(receivedAt);
   const sent = sentAt ? asDate(sentAt) : received;
-  const rawText = normaliseText(subject + "\n" + body);
+  const rawText = normaliseText(receiptText(subject, body));
   const compactText = rawText.replace(/\s+/g, " ").trim();
 
   const senderAnalysis = analyseSender(sender);
   const offer = extractOfferDetails(compactText, { subject });
-  const expiry = extractExpiry(compactText, sent);
+  if (/<[a-z][^>]*>/i.test(body)) {
+    const previous = extractOfferDetails(normaliseText(subject + '\n' + body).replace(/\s+/g,' ').trim(), {subject});
+    if(previous.discountType===offer.discountType && previous.discount===offer.discount && previous.code===offer.code) offer.evidence.previousDiscountPosition=previous.evidence.discountPosition;
+  }
+  const expiry = extractExpiry(offer.termsText || compactText, sent);
   const classification = classifyMessage({
     subject,
     text: compactText + " " + sender,

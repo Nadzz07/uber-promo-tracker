@@ -543,6 +543,37 @@ html[data-layout="desktop"] .bottom-nav {
 }
 @media (prefers-reduced-motion:reduce) { .disclosure-card > summary::before { transition:none; } .disclosure-card[open] > .disclosure-body { animation:none; } }
 .offer-browser .quick-card[data-intent="cash-promo"], .offer-browser .quick-card:last-child, html[data-layout="desktop"] .offer-browser .quick-card:last-child { grid-column:auto; }
+
+/* Each independent card has its own boundary, including expanded panels. */
+.sheet-body > .disclosure-card, .sheet-body > .sheet-section + .sheet-section { margin-top:14px; }
+.offer-card > .disclosure-card, #recommendation > .disclosure-card { margin-top:14px; }
+.plan-list { gap:12px; }
+.plan-body { min-width:0; }
+html[data-layout] .plan-row.checkout-row { grid-template-columns:minmax(0,1fr) auto; align-items:start; }
+html[data-layout] .plan-account { width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.plan-saving { white-space:nowrap; }
+.plan-subtotal { line-height:1.5; }
+.finance-controls { display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }
+.finance-controls .advanced-btn { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:10px 16px; }
+.finance-empty { padding:18px; border:1px solid var(--line-soft); border-radius:18px; background:var(--glass-soft); }
+.finance-empty h3 { margin:0 0 8px; font-size:18px; }
+.finance-empty p { margin:0; }
+.terms-grid { display:grid; grid-template-columns:minmax(90px,.65fr) minmax(0,1fr); gap:10px 14px; font-size:13px; line-height:1.5; }
+.terms-grid dt { color:var(--muted); }
+.terms-grid dd { margin:0; overflow-wrap:anywhere; }
+.insight-grid { gap:12px; align-items:start; }
+.insight { min-height:0; }
+.insight .sheet-help { margin:8px 0 0; }
+.insight .advanced-btn { margin-top:10px; }
+@media(max-width:430px) {
+ .plan-row:not(.checkout-row) { grid-template-columns:26px minmax(0,1fr) auto; gap:8px; }
+ html[data-layout] .plan-row.checkout-row { grid-template-columns:minmax(0,1fr); gap:8px; }
+ .checkout-row .plan-saving { grid-row:1; }
+ .checkout-row .plan-body { grid-row:2; }
+ .finance-controls .advanced-btn { flex:1 1 130px; font-size:12px; }
+ .insight-value { font-size:24px; }
+ .sheet-body { padding-bottom:calc(28px + env(safe-area-inset-bottom,0px)); }
+}
 html[data-layout="desktop"] .offer-browser .quick-card .quick-sub { display:none; }
 @media (min-width:1280px) {
  html[data-layout="desktop"] .offer-browser #homeAccounts { grid-template-columns:repeat(3,minmax(0,1fr)); }
@@ -612,3 +643,10 @@ html[data-layout="desktop"] .offer-browser .quick-card .quick-sub { display:none
 .scan-wrap { min-width: 118px; }
 
 [data-finance-form] input[type="checkbox"] { width:20px; min-height:20px; margin:0 8px 0 0; padding:0; vertical-align:middle; }
+
+.planner-mode { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:14px 0; font-size:12px; color:var(--muted); }
+.planner-mode select { max-width:55%; min-height:44px; padding:8px 12px; border:1px solid var(--line-soft); border-radius:14px; background:var(--glass-soft); color:var(--text); font:inherit; }
+.total-saved-card { flex-wrap:wrap; gap:12px; }
+.total-saved-card > span:first-child { flex:1 1 180px; min-width:0; }
+.saved-support { flex:0 1 110px; }
+.total-saved-card strong { overflow-wrap:anywhere; }

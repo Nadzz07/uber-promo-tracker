@@ -8,7 +8,7 @@ import { estimateReceiptSavings, combinedReceiptSavings } from "./savings-intell
 import { hasForwardedReceiptClaims } from "./receipt-text.js";
 import { initFinancialLedger } from './financial-ledger.js';
 
-export const PRIVATE_DB_SCHEMA_VERSION = 12;
+export const PRIVATE_DB_SCHEMA_VERSION = 13;
 export const DEFAULT_PRIVATE_DB = "./uber-tracker.local.db";
 
 // Statements are connection-local and reusable; the weak key lets closed
@@ -239,12 +239,25 @@ function initSchema(db) {
   initFinancialLedger(db);
   for (const table of ['receipts','transport_receipts']) {
     if (!db.prepare('PRAGMA table_info('+table+')').all().some(c=>c.name==='financial_evidence_json')) db.exec('ALTER TABLE '+table+' ADD COLUMN financial_evidence_json TEXT');
+    for(const column of ['order_at','order_date','date_basis']) if(!db.prepare('PRAGMA table_info('+table+')').all().some(c=>c.name===column)) db.exec('ALTER TABLE '+table+' ADD COLUMN '+column+' TEXT');
   }
   db.exec(`CREATE TABLE IF NOT EXISTS receipt_source_projections (
     table_name TEXT NOT NULL, receipt_id TEXT NOT NULL, message_key TEXT NOT NULL,
     received_at TEXT, payload_json TEXT NOT NULL,
     PRIMARY KEY(table_name,receipt_id,message_key));
     CREATE INDEX IF NOT EXISTS receipt_sources_record ON receipt_source_projections(table_name,receipt_id);`);
+  db.exec(`CREATE TABLE IF NOT EXISTS offer_correction_links (
+    offer_id TEXT NOT NULL, previous_offer_id TEXT NOT NULL,
+    PRIMARY KEY(offer_id,previous_offer_id));
+    INSERT OR IGNORE INTO offer_correction_links
+    SELECT n.offer_id,o.offer_id FROM offers n JOIN offers o
+      ON n.message_key=o.message_key AND n.account_ref=o.account_ref
+      AND n.service IS o.service AND n.discount_type IS o.discount_type
+      AND n.discount IS o.discount AND n.promo_code IS o.promo_code
+    WHERE n.status!='parser_superseded' AND o.status='parser_superseded'
+      AND json_extract(o.evidence_json,'$.discountPosition') IS NOT NULL
+      AND (json_extract(o.evidence_json,'$.discountPosition')=json_extract(n.evidence_json,'$.discountPosition')
+        OR json_extract(o.evidence_json,'$.discountPosition')=json_extract(n.evidence_json,'$.previousDiscountPosition'));`);
 
   if (getMeta(db, "next_account_number") == null) {
     setMeta(db, "next_account_number", 1);
@@ -541,6 +554,14 @@ export function upsertMessage(db, message) {
 
 export function upsertOffer(db, promo, seenAt = new Date().toISOString()) {
   const sourceSentAt = promo.emailSentAt || promo.receivedAt || seenAt;
+  if(promo.messageKey) {
+    const positions=[promo.evidence?.discountPosition,promo.evidence?.previousDiscountPosition].filter(Number.isInteger);
+    const retired=prepare(db,`SELECT offer_id,evidence_json FROM offers WHERE message_key=? AND account_ref=? AND service IS ? AND discount_type IS ? AND discount IS ? AND promo_code IS ? AND offer_id!=?`).all(promo.messageKey,promo.accountRef,promo.service||null,promo.discountType||null,promo.discount??null,promo.code||null,promo.offerId);
+    for(const old of retired) if(positions.includes(JSON.parse(old.evidence_json||'{}').discountPosition)) {
+      prepare(db,'INSERT OR IGNORE INTO offer_correction_links VALUES(?,?)').run(promo.offerId,old.offer_id);
+      for(const link of prepare(db,'SELECT previous_offer_id FROM offer_correction_links WHERE offer_id=?').all(old.offer_id)) prepare(db,'INSERT OR IGNORE INTO offer_correction_links VALUES(?,?)').run(promo.offerId,link.previous_offer_id);
+    }
+  }
   // Keep clocks for reminders and count repairs of the same service/discount.
   // A primary coupon corrected from an unrelated footer value has its own
   // source history; borrowing the footer family's clock falsely expires it.
@@ -805,6 +826,11 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
   const correctionKey = row => JSON.stringify([row.message_key, row.account_ref, row.service,
     row.discount_type, row.discount, row.promo_code, JSON.parse(row.evidence_json || '{}').discountPosition]);
   const previousIds = new Map();
+  const durableIds = new Map();
+  for(const link of prepare(db,'SELECT * FROM offer_correction_links ORDER BY previous_offer_id').all()) {
+    if(!durableIds.has(link.offer_id))durableIds.set(link.offer_id,[]);
+    durableIds.get(link.offer_id).push(link.previous_offer_id);
+  }
   for (const row of prepare(db, "SELECT * FROM offers WHERE status = 'parser_superseded'").all()) {
     const position = JSON.parse(row.evidence_json || '{}').discountPosition;
     if (!row.message_key || !Number.isInteger(position)) continue;
@@ -815,7 +841,7 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
 
   return prepare(db, sql).all(...args).map(row => ({
     offerId: row.offer_id,
-    previousOfferIds: previousIds.get(correctionKey(row)) || [],
+    previousOfferIds: [...new Set([...(durableIds.get(row.offer_id)||[]), ...(previousIds.get(correctionKey(row)) || []), ...(Number.isInteger(JSON.parse(row.evidence_json || '{}').previousDiscountPosition) ? previousIds.get(JSON.stringify([row.message_key,row.account_ref,row.service,row.discount_type,row.discount,row.promo_code,JSON.parse(row.evidence_json || '{}').previousDiscountPosition])) || [] : [])])],
     accountRef: row.account_ref,
     accountMasked: row.account_masked,
     canLogin: row.login_access === "pending" ? null : Boolean(row.can_login),
@@ -876,12 +902,16 @@ function projectReceiptFinancialSources(db, table, receipt) {
   const kind=table==='receipts'?'receipt':'transport_receipt';
   if(!message?.accepted||message.kind!==kind)return;
   const fields=['total','promotionDiscount','uberCashUsed','uberCashSavings','reportedSavings','uberOneSavings',...(table==='receipts'?['subtotal','deliveryFee','serviceFee','smallOrderFee','tip']:[])];
-  const payload={receivedAt:receipt.receivedAt||receipt.sentAt,financial:receipt.evidence?.financial||receipt.financialEvidence||{}};
+  const payload={orderDate:receipt.orderDate||null,orderAt:receipt.orderAt||null,dateBasis:receipt.dateBasis||'email_fallback',receivedAt:receipt.receivedAt||receipt.sentAt,financial:receipt.evidence?.financial||receipt.financialEvidence||{}};
   for(const key of fields)payload[key]=receipt[key]??null;
   prepare(db,`INSERT INTO receipt_source_projections VALUES(?,?,?,?,?) ON CONFLICT(table_name,receipt_id,message_key) DO UPDATE SET received_at=excluded.received_at,payload_json=excluded.payload_json`).run(table,receipt.receiptId,receipt.messageKey,payload.receivedAt??null,JSON.stringify(payload));
   const sources=prepare(db,`SELECT p.payload_json FROM receipt_source_projections p JOIN messages m USING(message_key) WHERE p.table_name=? AND p.receipt_id=? AND m.accepted=1 AND m.kind=? ORDER BY p.received_at,p.message_key`).all(table,receipt.receiptId,kind).map(r=>JSON.parse(r.payload_json));
   const values=Object.fromEntries(fields.map(k=>[k,null])),financial={};
   for(const source of sources){for(const key of fields)if(source[key]!=null)values[key]=source[key];if(source.reportedSavings!=null)financial.reportedKind=source.financial.reportedKind||'total';for(const key of ['scheduleSavings','outOfPocket'])if(source.financial[key]!=null)financial[key]=source.financial[key];}
+  const dated=sources.filter(s=>s.orderDate);
+  const dates=[...new Set(dated.map(s=>s.orderDate))];
+  const order=dated.at(-1);
+  prepare(db,'UPDATE '+table+' SET order_at=?,order_date=?,date_basis=? WHERE receipt_id=?').run(dates.length===1?order.orderAt:null,dates.length===1?order.orderDate:null,dates.length>1?'conflicting_order_dates':order?.dateBasis||'email_fallback',receipt.receiptId);
   const column=key=>key.replace(/[A-Z]/g,c=>'_'+c.toLowerCase());
   prepare(db,'UPDATE '+table+' SET '+fields.map(k=>column(k)+'=?').join(',')+',financial_evidence_json=? WHERE receipt_id=?').run(...fields.map(k=>values[k]),JSON.stringify(financial),receipt.receiptId);
 }
@@ -1004,6 +1034,9 @@ export function getReceipts(db) {
     ...(row.login_access ? { accessStatus: row.login_access === "pending" ? "pending" : row.can_login ? "accessible" : "inaccessible" } : {}),
     sentAt: row.sent_at,
     receivedAt: row.received_at,
+    orderAt: row.order_at,
+    orderDate: row.order_date,
+    dateBasis: row.date_basis || 'email_fallback',
     orderId: row.order_id,
     merchant: row.merchant,
     subtotal: row.subtotal,
@@ -1163,6 +1196,9 @@ export function getTransportReceipts(db) {
     ...(row.login_access ? { accessStatus: row.login_access === "pending" ? "pending" : row.can_login ? "accessible" : "inaccessible" } : {}),
     sentAt: row.sent_at,
     receivedAt: row.received_at,
+    orderAt: row.order_at,
+    orderDate: row.order_date,
+    dateBasis: row.date_basis || 'email_fallback',
     tripId: row.trip_id,
     tripKey: row.trip_key || null,
     transportMode: row.transport_mode,
@@ -1261,7 +1297,7 @@ export function getPublicAccountInsights(db, {receipts=getReceipts(db),rides=get
   return getAccounts(db).map(account => {
     const orders = ordersByAccount.get(account.accountRef)||[];
     const transport = ridesByAccount.get(account.accountRef)||[];
-    const last = rows => rows.map(r => r.sentAt || r.receivedAt).filter(Boolean).sort().at(-1) || null;
+    const last = rows => rows.map(r => r.orderAt || r.orderDate || r.sentAt || r.receivedAt).filter(Boolean).sort().at(-1) || null;
     return { accountRef: account.accountRef, accountMasked: account.masked, canLogin: account.canLogin,
       accessStatus: account.accessStatus || (account.canLogin ? "accessible" : "inaccessible"), loginMethod: account.loginMethod, accountStatus: account.accountStatus || (account.canLogin ? 'active' : 'archived'), deactivated: account.deactivated === true, lastSeenAt: account.lastSeenAt, lastPromoAt: account.lastPromoAt,
       lastOrderAt: last(orders), lastRideAt: last(transport), orderCount: orders.length, rideCount: transport.length,

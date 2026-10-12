@@ -86,3 +86,5 @@ exclude:
   - test-mail-cleanup.js
   - test-reviewed-cleanup.js
   - test-finance-browser.js
+  - test-order-dates.js
+  - test-compact-browser.js

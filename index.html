@@ -2,6 +2,7 @@
 <html lang="en" data-layout="mobile" data-layout-preference="auto">
 <head>
   <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#101712">
@@ -2433,6 +2434,7 @@
             </span>
           </label>
 
+          <div class="planner-mode"><label for="plannerFulfilment">Order type</label><select id="plannerFulfilment"><option value="delivery">Delivery</option><option value="pickup">Pickup</option></select></div>
           <div id="recommendation" class="recommendation">
             <div class="empty">Preparing your recommendation…</div>
           </div>
@@ -2706,6 +2708,7 @@
     import {
       planBasketSplit,
       rankCheckoutOptions,
+      matchesFulfilment,
       rankPromosForSpend
     } from "./deal-intelligence.js";
 
@@ -2898,10 +2901,11 @@
             stored.extraOrderFee != null && stored.extraOrderFee !== "" && Number.isFinite(Number(stored.extraOrderFee))
               ? Math.max(0, Number(stored.extraOrderFee))
               : null,
+          fulfilment: stored.fulfilment === 'pickup' ? 'pickup' : 'delivery',
           feeTouched: Boolean(stored.feeTouched)
         };
       } catch {
-        return { maxOrders: 3, extraOrderFee: null, feeTouched: false };
+        return { maxOrders: 3, extraOrderFee: null, feeTouched: false, fulfilment: 'delivery' };
       }
     }
 
@@ -3009,24 +3013,11 @@
 
     function serverPromoMeta(promo) {
       const bits = [];
-
-      if (promo.minimumSpend) bits.push(money(promo.minimumSpend) + " minimum");
-      if (promo.maxSaving) bits.push(money(promo.maxSaving) + " max");
-
-      if (promo.expires || promo.expiresAt) {
-        const date = formatDate(promo.expires || promo.expiresAt);
-        if (date) {
-          const instant = expiryEndTime(promo);
-          const clock = instant == null ? "" : ukClock.format(new Date(instant));
-          bits.push(offerCountdown(promo));
-          bits.push((promo.expiryStatus === "estimated" ? "Estimated end " : "Ends ") + date + (clock ? " at " + clock + " UK" : ""));
-          if (promo.expiryBasis === "tracker_35_day_rule") bits.push("35-day tracking limit from the first offer email; confirm activation and expiry in Uber");
-        }
-      } else {
-        bits.push("Expiry unknown");
-      }
-
-      return bits.join(" · ");
+      if (promo.minimumSpend) bits.push('Min. ' + money(promo.minimumSpend));
+      if (promo.discountType === 'percent' && promo.maxSaving) bits.push('Max. ' + money(promo.maxSaving));
+      bits.push(offerCountdown(promo));
+      if (promo.restrictions?.fulfilment === 'pickup_only') bits.push('Pickup only');
+      return bits.join(' · ');
     }
 
     function effectivePromo(promo) {
@@ -3341,6 +3332,7 @@
     }
 
     function renderRecommendation() {
+      document.getElementById('plannerFulfilment').value = plannerSettings.fulfilment || 'delivery';
       const target = document.getElementById("recommendation");
       if(privateMigrationPending){target.innerHTML='<div class="empty">Import your updated private login file to reconnect saved offer decisions after the security update. Your previous actions remain saved.<button class="advanced-btn" data-open-sheet="device">Import private login file</button></div>';return;}
 
@@ -3353,7 +3345,7 @@
       }
 
       const plan = planBasketSplit(
-        decisionPromos().filter(p=>p.discountType!=='uberCash'),
+        decisionPromos().filter(p=>p.discountType!=='uberCash' && matchesFulfilment(p,plannerSettings.fulfilment)),
         currentBasket(),
         {
           service: "Uber Eats",
@@ -3363,8 +3355,8 @@
         }
       );
 
-      const checkout=rankCheckoutOptions(decisionPromos(),currentBasket(),{wallets:privateWallets,accounts,fees:Object.fromEntries(Object.entries(privateWallets).filter(([ref,w])=>w.basketSubtotal===currentBasket()&&w.checkoutFees!=null&&Date.now()-Date.parse(w.at)<2*3600000&&!accounts.some(a=>a.accountRef===ref&&Date.parse(a.lastOrderAt)>Date.parse(w.at))).map(([ref,w])=>[ref,w.checkoutFees]))});
-      const optionRow=o=>'<div class="plan-row"><div class="plan-body"><button class="plan-account" data-account-offers="'+escapeHtml(o.accountRef)+'">'+escapeHtml(accountDisplay(accounts.find(a=>a.accountRef===o.accountRef)||{accountRef:o.accountRef}))+'</button><div class="plan-promo">'+escapeHtml(o.promo?offerTitle(o.promo):'Verified Uber Cash balance')+'</div><div class="plan-subtotal">Basket '+escapeHtml(money(o.basket))+' · promo −'+escapeHtml(money(o.promotionDiscount))+' · Cash used '+escapeHtml(money(o.cashUsed))+(o.cashRemaining!=null?' · Cash remaining '+escapeHtml(money(o.cashRemaining)):'')+'</div><div class="plan-subtotal">'+escapeHtml(o.conditional?'Conditional: verify promo and Cash can combine in Uber.':o.estimated?'Estimate before delivery & service fees. Verify eligibility in Uber.':'Includes recorded fees. Verify eligibility in Uber.')+(o.promo?'<div class="plan-subtotal">'+escapeHtml(serverPromoMeta(o.promo))+'</div>':'')+(o.restriction?'<div class="plan-subtotal">'+escapeHtml(String(o.restriction))+'</div>':'')+'</div></div><div class="plan-saving">Pay '+escapeHtml(money(o.outOfPocket))+'</div></div>';
+      const checkout=rankCheckoutOptions(decisionPromos(),currentBasket(),{wallets:privateWallets,accounts,fulfilment:plannerSettings.fulfilment,fees:Object.fromEntries(Object.entries(privateWallets).filter(([ref,w])=>w.basketSubtotal===currentBasket()&&w.checkoutFees!=null&&Date.now()-Date.parse(w.at)<2*3600000&&!accounts.some(a=>a.accountRef===ref&&Date.parse(a.lastOrderAt)>Date.parse(w.at))).map(([ref,w])=>[ref,w.checkoutFees]))});
+      const optionRow=o=>'<div class="plan-row checkout-row"><div class="plan-body"><button class="plan-account" data-account-offers="'+escapeHtml(o.accountRef)+'">'+escapeHtml(accountDisplay(accounts.find(a=>a.accountRef===o.accountRef)||{accountRef:o.accountRef}))+'</button><div class="plan-promo">'+escapeHtml(o.promo?offerTitle(o.promo):'Verified Uber Cash balance')+'</div><div class="plan-subtotal">Basket '+escapeHtml(money(o.basket))+' · promo −'+escapeHtml(money(o.promotionDiscount))+' · Cash used '+escapeHtml(money(o.cashUsed))+(o.cashRemaining!=null?' · Cash remaining '+escapeHtml(money(o.cashRemaining)):'')+'</div><div class="plan-subtotal">'+escapeHtml(o.conditional?'Conditional · confirm Cash stacking.':o.estimated?'Before fees · confirm in Uber.':'Recorded fees included · confirm in Uber.')+(o.promo?'<div class="plan-subtotal">'+escapeHtml(serverPromoMeta(o.promo))+'</div>':'')+(o.promo?.restrictions?.merchantLimited?'<div class="plan-subtotal">Selected merchants · check in Uber</div>':'')+'</div></div><div class="plan-saving">Pay '+escapeHtml(money(o.outOfPocket))+'</div></div>';
       if(checkout.length && Object.keys(privateWallets).length) {
         const best=checkout[0];
         target.innerHTML='<div class="recommendation-top"><div><div class="recommendation-title">Lowest out-of-pocket option</div><div class="recommendation-copy">Promos &amp; verified Cash · same-account comparison</div></div><div class="recommendation-save">'+escapeHtml(money(best.outOfPocket))+'<small>'+(best.estimated?'estimated before fees':'with recorded fees')+'</small></div></div><div class="plan-list">'+optionRow(best)+'</div><details class="disclosure-card"><summary>Compare other checkout options</summary><div class="disclosure-body plan-list">'+checkout.slice(1,9).map(optionRow).join('')+'</div></details><button class="advanced-btn" data-open-sheet="finance">Update private Cash balances</button>'+(plan.eligible&&plan.orderCount>1?'<p class="sheet-help">Split estimate: '+plan.orderCount+' orders could save '+escapeHtml(money(plan.netSaving))+' after estimated extra fees. Cash comparison above is for one basket.</p>':'');
@@ -3512,7 +3504,7 @@
       document.getElementById("homeAccountMeta").textContent =
         all.length + (currentIntent === "unfinished" ? (all.length === 1 ? " unfinished account" : " unfinished accounts") : ["cash", "cash-promo"].includes(currentIntent) ? (all.length === 1 ? " account with offers" : " accounts with offers") : (all.length === 1 ? " available account" : " available accounts"));
       const headings = { best: 'Best deals available', '15off15': '£15 off £15 offers', '12off15': '£12 off £15 offers', cash: 'Accounts with Uber Cash', unfinished: 'Offers with uses remaining', 'cash-promo': 'Accounts with both offer types' };
-      const help = { best: 'Ranked for your basket. Select an account to see its current offers.', '15off15': 'Full-value offers with a £15 minimum spend.', '12off15': '£12 off a qualifying £15 basket. Delivery and service fees remain separate.', cash: 'Current Cash email offers. Check activation and wallet balance in Uber.', unfinished: 'Started, valid promos with at least one use remaining. Expired offers stay in Activity.', 'cash-promo': 'Current Cash and discount offers on the same account. Combining them depends on Uber.' };
+      const help = { best: 'Best for your basket · confirm eligibility in Uber.', '15off15': 'Full-value offers with a £15 minimum spend.', '12off15': '£12 off £15 · before fees.', cash: 'Cash offers · wallet balance unverified.', unfinished: 'Started promotions with uses remaining.', 'cash-promo': 'Current Cash and discount offers on the same account. Combining them depends on Uber.' };
       document.getElementById('homeAccountsTitle').textContent = headings[currentIntent];
       document.getElementById('homeResultsHelp').textContent = help[currentIntent] + (currentOfferScope === 'ready' ? ' Ready to use only.' : ' Eligibility is separate from login and archive status. Check the access label before using an account.') + ' Remaining uses are not confirmed redeemed; confirm availability in Uber.';
       document.getElementById('resetQuickFind').hidden = currentIntent === 'best';
@@ -3815,11 +3807,19 @@
             '<div class="offer-value">' + escapeHtml(promoLabel(promo)) + '</div>' +
           '</div>' +
           '<details class="disclosure-card offer-terms"><summary><span><strong>Offer details</strong><small>' + (promo.offerScope === 'uncertain' ? 'Order or product scope needs checking' : promo.termsVerification === 'email_verified' ? 'Discount found in original email' : 'Check original terms') + '</small></span></summary><div class="disclosure-body">' +
-            '<p>Advertised: ' + escapeHtml(offerTitle(promo)) + '.</p>' +
-            '<p>Minimum basket: ' + (promo.minimumSpendVerified || Number(promo.minimumSpend) > 0 ? escapeHtml(money(promo.minimumSpend)) : 'Not stated in saved email; confirm in Uber') + '.</p>' +
-            '<p>Maximum discount: ' + (promo.perUseCap != null ? escapeHtml(money(promo.perUseCap)) + ' per use' : promo.maxSaving != null ? escapeHtml(money(promo.maxSaving)) : 'Not stated in saved email') + '.</p>' +
-            (effectiveDiscountPercent(promo, currentBasket()) != null ? '<p>Calculated effective discount: ' + effectiveDiscountPercent(promo, currentBasket()) + '% at ' + escapeHtml(money(currentBasket())) + ' spend, before fees. This is a calculation, separate from the advertised terms.</p>' : '') +
-            '<p>' + escapeHtml(serverPromoMeta(promo)) + '.</p><p>Activation and remaining uses have not been confirmed in Uber. ' + confirmed + '/' + total + ' uses have receipt evidence.' + (promo.usesVerified ? ' The permitted use count is stated in the email.' : ' The tracker uses a single-use allowance where no count was stated; confirm the actual count in Uber.') + '</p></div></details>' +
+            '<dl class="terms-grid"><dt>Advertised</dt><dd>' + escapeHtml(offerTitle(promo)) + '</dd>' +
+            '<dt>Minimum</dt><dd>' + (promo.minimumSpendVerified ? escapeHtml(money(promo.minimumSpend)) : 'Unknown') + '</dd>' +
+            '<dt>Cap</dt><dd>' + (promo.perUseCap != null ? escapeHtml(money(promo.perUseCap)) + ' per use · explicit' : promo.maxSaving != null ? escapeHtml(money(promo.maxSaving)) + ' · explicit' : promo.discountType === 'fixed' ? escapeHtml(money(promo.discount)) + ' fixed value' : 'Not stated') + '</dd>' +
+            '<dt>Expiry</dt><dd>' + escapeHtml((promo.expiryStatus === 'estimated' ? 'Est. ends ' : 'Ends ') + (formatDate(promo.expires || promo.expiresAt) || 'Unknown') + (promo.expiryStatus !== 'estimated' && expiryEndTime(promo) != null ? ' at ' + ukClock.format(new Date(expiryEndTime(promo))) + ' UK' : '')) + '</dd>' +
+            (effectiveDiscountPercent(promo, currentBasket()) != null ? '<dt>Calculated</dt><dd>' + effectiveDiscountPercent(promo, currentBasket()) + '% at ' + escapeHtml(money(currentBasket())) + ' before fees</dd>' : '') +
+            '<dt>Activation</dt><dd>' + (promo.restrictions?.promoCodeRequired ? 'Apply promo code in Uber' : 'Confirm in Uber') + '</dd>' +
+            '<dt>Use count</dt><dd>' + (promo.usesVerified ? total + ' stated in email' : 'Allowance needs checking') + '</dd>' +
+            (promo.restrictions?.fulfilment !== 'unknown' && promo.restrictions?.fulfilment ? '<dt>Order type</dt><dd>' + (promo.restrictions.fulfilment === 'delivery_only' ? 'Delivery · pickup excluded' : 'Pickup only') + '</dd>' : '') +
+            (promo.restrictions?.stacking === 'no_other_promotions' ? '<dt>Combining</dt><dd>No other promotions</dd>' : '') +
+            (promo.restrictions?.excludesFees ? '<dt>Minimum excludes</dt><dd>Delivery & other fees</dd>' : '') +
+            (promo.restrictions?.excludesAlcoholTobacco ? '<dt>Excluded</dt><dd>Alcohol & tobacco baskets</dd>' : '') +
+            (promo.restrictions?.merchantLimited ? '<dt>Merchants</dt><dd>Selected merchants · confirm in Uber</dd>' : '') +
+            '</dl><p class="sheet-help">Eligibility and remaining uses require confirmation in Uber.</p><button class="advanced-btn" data-open-guide="promotions">How offers work ›</button></div></details>' +
           '<div class="pill-row">' + status +
             (confirmed > 0 ? '<span class="pill">' + confirmed + ' receipt-confirmed</span>' : '') +
           '</div>' +
@@ -3828,9 +3828,9 @@
             '<div class="progress-track"><div class="progress-fill" style="width:' + progress + '%"></div></div>' +
           '</div>') +
           '<details class="offer-verification disclosure-card" data-verify-key="' + escapeHtml(promoStateKey(promo)) + '"' + (document.querySelector('#sheetBody details[data-verify-key="' + CSS.escape(promoStateKey(promo)) + '"]')?.open ? ' open' : '') + '><summary><span><strong>Usage &amp; history</strong><small>' + escapeHtml(lifecycle.status) + '</small></span></summary><div class="disclosure-body">' +
-            '<p>' + confirmed + '/' + total + ' uses confirmed from receipts.' + (pending ? ' ' + pending + ' manually logged uses await evidence.' : '') + '</p>' +
-            '<p>Manual completion: ' + (activity.forceDone ? 'Marked finished' + (activity.manualFinishedAt ? ' on ' + escapeHtml(formatEvidenceTime(activity.manualFinishedAt)) : '') : 'Not currently marked finished') + '.</p>' +
-            '<p>Verification: ' + (activity.verificationConflict ? 'Conflicting evidence needs review.' : lifecycle.consumed ? 'Every permitted use confirmed.' : 'Complete redemption remains unverified.') + '</p>' +
+            '<p>' + confirmed + '/' + total + ' receipt-confirmed uses.' + (pending ? ' ' + pending + ' manually logged uses await evidence.' : '') + '</p>' +
+            '<p>Manual: ' + (activity.forceDone ? 'Marked finished' + (activity.manualFinishedAt ? ' on ' + escapeHtml(formatEvidenceTime(activity.manualFinishedAt)) : '') : 'Open') + '.</p>' +
+            '<p>Verification: ' + (activity.verificationConflict ? 'Conflicting evidence needs review.' : lifecycle.consumed ? 'Every permitted use confirmed.' : 'Incomplete.') + '</p>' +
             '<p>Last evidence update: ' + escapeHtml(formatEvidenceTime(activity.lastEvidenceUpdate || payload.generatedAt) || 'Not yet available') + '. Last confirmed use: ' + escapeHtml(formatEvidenceTime(promo.lastUsedAt) || 'None recorded') + '.</p>' +
             (activity.verificationConflict ? '<p role="status">' + escapeHtml(activity.verificationConflict) + '</p><button class="action-btn" data-review-evidence="' + escapeHtml(promoStateKey(promo)) + '"' + (promo.reviewReasons?.includes('ambiguous_receipt_match') ? ' disabled' : '') + '>Accept current confirmed count</button>' : '') +
             (promo.reviewReasons?.includes('ambiguous_receipt_match') ? '<p>A receipt could match more than one offer. No redemption is assigned until the source evidence identifies it.</p>' : '') +
@@ -4030,8 +4030,8 @@
       const summary=payload.summary||{}, financial=summary.financialBreakdown||{}, categories=financial.categories||{};
       const labels={eatsPromotions:'Eats promotions',ridePromotions:'Ride promotions',combinedUberOnePromotions:'Combined Uber One & promotions',explicitUberOne:'Explicit Uber One',schedule:'Schedule savings',other:'Other verified / unallocated savings'};
       const row=(title,value)=>'<div class="sheet-row"><div class="sheet-row-title">'+escapeHtml(title)+'</div><div class="sheet-row-value">'+escapeHtml(value)+'</div></div>';
-      setSheetHeading('Savings', 'Supported totals, separate payment sources and private corrections.');
-      document.getElementById('sheetBody').innerHTML='<div class="savings-hero"><div class="savings-hero-label">Total savings · supported</div><div class="savings-hero-value">'+escapeHtml(money(summary.totalSaved||0))+'</div><p class="sheet-help">Non-overlapping receipt savings, including reported corrections. Cash payments are separate. Missing amounts remain unknown.</p></div>'+
+      setSheetHeading('Savings', 'Receipt savings & private corrections.');
+      document.getElementById('sheetBody').innerHTML='<div class="savings-hero"><div class="savings-hero-label">Total savings · supported</div><div class="savings-hero-value">'+escapeHtml(money(summary.totalSaved||0))+'</div><p class="sheet-help">Supported receipt savings, including corrections. Cash payments stay separate.</p></div>'+
         '<div class="sheet-section insight-grid"><div class="insight"><div class="insight-label">Uber Cash used · payment</div><div class="insight-value">'+escapeHtml(money(financial.cashUsed??summary.uberCashUsed??0))+'</div></div><div class="insight"><div class="insight-label">Known out-of-pocket spending</div><div class="insight-value">'+escapeHtml(financial.paymentKnown?money(financial.outOfPocket):'Unknown')+'</div><p class="sheet-help">'+Number(financial.paymentKnown||0)+' receipts with payment evidence</p></div><div class="insight"><div class="insight-label">Last 30 days · savings</div><div class="insight-value">'+escapeHtml(money(summary.recentConfirmedSaved||0))+'</div></div><div class="insight"><div class="insight-label">Missing savings details</div><div class="insight-value">'+Number(financial.missing||0)+'</div><button class="advanced-btn" data-open-sheet="finance">Review privately ›</button></div></div>'+
         '<details class="disclosure-card"><summary><span><strong>Savings breakdown</strong><small>Each amount contributes once to the total</small></span></summary><div class="disclosure-body sheet-list">'+Object.entries(labels).map(([key,title])=>row(title,money(categories[key]||0))).join('')+'</div></details>'+
         '<details class="disclosure-card"><summary><span><strong>Evidence & estimates</strong><small>Missing figures and historical accounts</small></span></summary><div class="disclosure-body"><div class="sheet-list">'+row('Archived accounts · included in total',money(summary.archivedConfirmedSaved||0))+row('Manual corrections · included',String(financial.manual||0))+row('Email/manual differences requiring review',String(financial.conflicting||0))+row('Estimated missing Uber One',summary.uberOneEstimateModel?.sampleSize?money(summary.estimatedUberOneSavings||0):'Unavailable')+'</div><p class="sheet-help">'+escapeHtml(summary.uberOneEstimateModel?.explanation||'An estimate needs reliable receipt evidence. Missing savings are unknown, not proof of £0.')+'</p><p class="sheet-help">Combined Uber One and promotional amounts stay combined until reliable itemized evidence identifies their components. Archived history is included, not added again.</p></div></details><div class="sheet-section"><button class="advanced-btn" data-open-sheet="finance">Private receipt corrections & Cash balances ›</button><button class="advanced-btn" data-open-guide="savings">How savings work ›</button></div>';
@@ -4040,7 +4040,7 @@
     function receiptActivityRows(limit = 20) {
       const rows = payload.receiptActivity?.days || [];
       return rows.length ? '<div class="sheet-list">' + rows.slice(0,limit).map(row=>
-        '<div class="sheet-row"><div><div class="sheet-row-title">' + escapeHtml(formatDate(row.period) || row.period) + '</div><div class="sheet-row-meta">' + Number(row.eats) + ' Eats · ' + Number(row.rides) + (Number(row.rides)===1 ? ' Ride' : ' Rides') + '</div></div><div class="sheet-row-value">' + escapeHtml(money(row.saved)) + '</div></div>'
+        '<div class="sheet-row"><div><div class="sheet-row-title">' + escapeHtml(formatDate(row.period) || row.period) + '</div><div class="sheet-row-meta">' + Number(row.eats) + ' Eats · ' + Number(row.rides) + (Number(row.rides)===1 ? ' Ride' : ' Rides') + (row.dateFallbacks ? ' · '+row.dateFallbacks+' email-date fallback' : '') + '</div></div><div class="sheet-row-value">' + escapeHtml(money(row.saved)) + '</div></div>'
       ).join('') + '</div>' : '<div class="empty">Receipt activity will appear after a verified import.</div>';
     }
 
@@ -4375,6 +4375,7 @@
     });
 
     let basketTimer;
+    document.getElementById('plannerFulfilment').addEventListener('change', event=>{plannerSettings.fulfilment=event.target.value;savePlannerSettings();renderRecommendation();});
     document.getElementById("basketInput").addEventListener("input", () => {
       clearTimeout(basketTimer);
       basketTimer = setTimeout(() => {

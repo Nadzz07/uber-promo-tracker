@@ -65,7 +65,7 @@ try {
   for (const hidden of ['lo…ed', 're…ew', 'ex…ed', 'us…ed', 'ba…nt']) assert.equal(recommendation.includes(hidden), false);
   await page.locator('[data-account-offers="A001"]').first().click();
   assert.equal(await page.evaluate(() => document.activeElement.id), 'sheetClose');
-  assert.match(await page.locator('#sheetBody .offer-details').first().innerText(), /Ends 31 Dec at 23:59 UK/, 'An explicit Uber deadline takes priority over the fallback window');
+  await page.locator('.offer-terms > summary').first().click();assert.match(await page.locator('.terms-grid').first().innerText(), /Ends 31 Dec at 23:59 UK/, 'An explicit Uber deadline takes priority over the fallback window');
   assert.equal(await page.locator('.sheet').evaluate(el => getComputedStyle(el).animationName), 'liquidSheetOpen');
   const sheetAnimation = await page.locator('.sheet').evaluate(el => parseFloat(getComputedStyle(el).animationDuration));
   assert.ok(sheetAnimation >= .2 && sheetAnimation <= .4, 'Sheets should use a short, purposeful transition');

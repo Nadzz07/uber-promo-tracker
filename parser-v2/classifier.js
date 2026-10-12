@@ -3,6 +3,10 @@ export function classifyMessage({ subject, text, contentText = text, senderAnaly
   const corpus = String(text || "");
   const lowerSubject = subjectText.toLowerCase();
 
+  if (/\bEurostar\b/i.test(subjectText)) {
+    return {accepted:false,offerType:'non_promo',service:'Uber Travel',confidence:'high',rejectionReason:'travel_campaign_not_eats_or_ride'};
+  }
+
   const receiptSignal =
     /\breceipt\b|\bthanks\s+for\s+(?:your\s+)?order\b|\border\s+total\b/i.test(corpus);
 

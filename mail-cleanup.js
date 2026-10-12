@@ -15,13 +15,17 @@ export function classifyCleanupMessage(message,accounts=new Map()) {
  if(hasForwardedReceiptClaims(subject,message.body))return result('uncertain','Forwarded identity is not independently verified.');
  const sender=analyseSender(message.sender);if(sender.trusted!==true||sender.confidence!=='high')return result('uncertain','Sender identity is not sufficiently supported.');
  const alias=extractAccountAlias(message.recipient),account=accounts.get(alias);if(!account||account.canLogin==null)return result('uncertain','Unknown recipient or pending login verification.');
+ if (/^50% off Eurostar Plus & Premier for two or more\s*$/i.test(subject.trim()) && /Eurostar Plus|Premier/i.test(text) && /(?:50\s*%\s*off|enjoy 50\s*%)/i.test(text) && /(?:2|two) or more|companion/i.test(text)) return result('retained_eurostar','Explicitly protected 50% Eurostar companion offer; keep in Archive.','Archive');
  const promo=parseUberPromo(message),scope=promo.evidence?.discountScope||promo.offerScope;
  const marketing=promo.isPromo||/\bunsubscribe\b/i.test(text)&&/\b(?:offer|promotion|discount|save|off|try|order|trip|shop)\b/i.test(text);
  if(!marketing)return result('uncertain','No clear promotion or marketing evidence.');
  if(account.canLogin===false)return result('inaccessible_promotion','Promotional mail for an account that cannot log in.','Bin');
+ if (/Eurostar Snow|safety drives us|Audio Recording feature|Comfort Electric|summer restock|shopping list|summer hosting/i.test(subject) && !promo.isPromo) return result('excluded_marketing','General announcement without a usable account-specific order offer.','Bin');
+ if (/\bEurostar\b/i.test(subject) && !/\b(?:your|next)\s+(?:ride|trip)\b/i.test(subject)) return result('excluded_marketing','General Eurostar advertising; protected companion campaign handled separately.','Bin');
  const ride40=promo.service==='Uber'&&promo.discountType==='percent'&&Number(promo.discount)===40&&/\bride|\btrip/i.test(text);
  if(ride40)return result('excluded_marketing','Specifically excluded 40% Ride promotion.','Bin');
  if(scope==='product'||promo.rejectionReason==='product_deal_not_account_promotion')return result('excluded_marketing','Confirmed product-specific offer; genuine order discounts are retained.','Bin');
+ if(promo.evidence?.termsConflict)return result('uncertain','Conflicting promotional conditions; preserve for review.');
  if(promo.isPromo&&promo.discount>0&&scope!=='uncertain')return result('genuine_promotion','Genuine account/order-level promotion or reminder.','Archive');
  if(promo.isPromo||scope==='uncertain'||promo.discount>0)return result('uncertain','Offer terms or scope need review.');
  return result('excluded_marketing','Clear generic marketing without a qualifying offer.','Bin');

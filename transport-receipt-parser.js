@@ -1,4 +1,5 @@
 import { savingsAmount, uberOneSavingAmount } from "./receipt-parser.js";
+import { receiptOrderDate } from './receipt-date.js';
 import { analyseSender } from "./parser-v2/sender.js";
 import { receiptText, moneyForLabel, hasTransportSignal, hasForwardedReceiptClaims, receiptFinancialEvidence } from "./receipt-text.js";
 import {
@@ -148,6 +149,7 @@ export function parseUberTransportReceipt({
     accountAlias: extractAccountAlias(recipient),
     sentAt: sent.toISOString(),
     receivedAt: received.toISOString(),
+    ...receiptOrderDate(receiptText('', body).replace(/\s+/g, ' ').trim()),
     tripId: tripId.value,
     tripKey,
     total: total.value,

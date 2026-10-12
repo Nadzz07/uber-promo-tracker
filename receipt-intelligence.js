@@ -1,3 +1,4 @@
+import {receiptWhen} from './receipt-date.js';
 import { dedupeReceipts } from "./receipt-identity.js";
 import { savingForSpend } from "./deal-intelligence.js";
 import { applyOfferTrackingStates } from "./offer-state.js";
@@ -29,7 +30,7 @@ function timeOf(value) {
 }
 
 function receiptCanUsePromo(receipt, promo) {
-  const receiptTime = timeOf(receipt.sentAt || receipt.receivedAt);
+  const receiptTime = timeOf(receiptWhen(receipt));
   if (receiptTime == null) return false;
 
   const promoTime = timeOf(promo.firstEmailSentAt || promo.emailSentAt || promo.receivedAt);
@@ -118,7 +119,7 @@ function consumeBestMatch({ tracked, receipt, observed, mode, matches, stats }) 
   best.promo.receiptConfirmedUses += 1;
   best.promo.usesRemaining = Math.max(0, best.promo.usesRemaining - 1);
   best.promo.receiptState = best.promo.usesRemaining === 0 ? "used" : "partial";
-  best.promo.lastUsedAt = receipt.sentAt || receipt.receivedAt || null;
+  best.promo.lastUsedAt = receiptWhen(receipt) || null;
 
   if (stats) stats.confirmedPromoUses += 1;
 
@@ -183,13 +184,13 @@ export function applyReceiptEvidence(promos = [], receipts = [], { now = new Dat
     .filter(receipt => !receipt.service || receipt.service === "Uber Eats")
     .slice()
     .sort((a, b) =>
-      String(a.sentAt || a.receivedAt || "")
-        .localeCompare(String(b.sentAt || b.receivedAt || ""))
+      String(receiptWhen(a) || "")
+        .localeCompare(String(receiptWhen(b) || ""))
     );
 
   for (const receipt of orderedReceipts) {
     const stats = statsFor(receipt);
-    const when = receipt.sentAt || receipt.receivedAt || null;
+    const when = receiptWhen(receipt) || null;
     const promotion = number(receipt.promotionDiscount) || 0;
     const cash = number(receipt.uberCashUsed) || 0;
 

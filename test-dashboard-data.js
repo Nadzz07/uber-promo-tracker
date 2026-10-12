@@ -41,7 +41,7 @@ console.log('✓ Restored deactivated accounts retain explicit status and cannot
 const eats=[{accountRef:'A001',receiptId:'e1',sentAt:'2026-09-01T12:00:00Z',promotionDiscount:12,reportedSavings:15,uberCashUsed:20,uberOneSignal:true}];
 const rides=[{sentAt:'2026-09-02T12:00:00Z',promotionDiscount:5,transportMode:'bike'}];
 const activity=receiptActivity(eats,rides,confirmedReceiptSaving);
-assert.deepEqual(activity.months,[{period:'2026-09',eats:1,rides:1,saved:20}]);
+assert.deepEqual(activity.months,[{period:'2026-09',eats:1,rides:1,saved:20,dateFallbacks:2}]);
 const summary=estimateReceiptSavings(eats,{now:new Date(now)}).summary;
 assert.equal(summary.totalSaved,15);
 assert.equal(summary.uberOneEstimateModel.status,'insufficient_evidence');
@@ -102,7 +102,7 @@ console.log('✓ Backup compression is lossless, owner-only and cannot replace t
 
 const deadline = { expiresAt:'2026-10-12T12:00:00Z', expiryStatus:'exact' };
 assert.equal(offerCountdown(deadline,now),'3 days left');
-assert.equal(offerCountdown({...deadline,expiryStatus:'estimated'},now),'Estimated · 3 days left');
+assert.equal(offerCountdown({...deadline,expiryStatus:'estimated'},now),'~3 days left');
 assert.equal(offerCountdown({...deadline,expiresAt:'2026-10-09T12:30:00Z'},now),'Under 1 hour left');
 assert.equal(offerCountdown({...deadline,expiresAt:'2026-10-09T11:30:00Z'},now),'Expired');
 assert.equal(offerCountdown({},now),'Expiry needs checking');

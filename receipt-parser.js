@@ -1,4 +1,5 @@
 import { analyseSender } from "./parser-v2/sender.js";
+import { receiptOrderDate } from './receipt-date.js';
 import { receiptText, moneyForLabel, hasTransportSignal, hasForwardedReceiptClaims, receiptFinancialEvidence } from "./receipt-text.js";
 import {
   asDate,
@@ -144,6 +145,7 @@ export function parseUberEatsReceipt({
     accountAlias: extractAccountAlias(recipient),
     sentAt: sent.toISOString(),
     receivedAt: received.toISOString(),
+    ...receiptOrderDate(receiptText('', body).replace(/\s+/g, ' ').trim()),
     orderId: orderId.value,
     orderKey,
     merchant: merchantMatch ? merchantMatch[1].trim().slice(0, 120) : null,

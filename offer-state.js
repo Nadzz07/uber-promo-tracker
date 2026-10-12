@@ -61,6 +61,7 @@ export function classifyOfferTrackingState(
   const reasons = new Set(
     Array.isArray(reviewReasons) ? reviewReasons.filter(reason => reason && reason !== "unknown_expiry") : []
   );
+  if (promo.evidence?.termsConflict || promo.termsConflict) reasons.add('conflicting_offer_terms');
   if (promo.evidence?.discountScope === 'uncertain' || promo.offerScope === 'uncertain') reasons.add('unconfirmed_discount_scope');
   if (promo.sourceEvidenceStatus === 'missing' || promo.termsVerification === 'needs_verification') reasons.add('missing_offer_source');
   if (useCountNeedsReview(promo)) reasons.add('unverified_use_count');
