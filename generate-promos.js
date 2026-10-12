@@ -13,6 +13,8 @@ import { applyReceiptEvidence } from "./receipt-intelligence.js";
 import { toPublicPromo } from "./public-promo.js";
 import { combinedReceiptSavings, confirmedReceiptSaving } from "./savings-intelligence.js";
 import { receiptActivity } from "./dashboard-data.js";
+import {readFinancialEvents} from './financial-ledger.js';
+import {currentFinancialEvents} from './receipt-financials.js';
 import { applyOfferTrackingStates, classifyOfferCompletion } from "./offer-state.js";
 import {
   DEFAULT_PRIVATE_DB,
@@ -38,6 +40,7 @@ import {
 } from "./private-db.js";
 import {
   messageKey,
+  publicOfferIdentity,
   offerFingerprint,
   receiptFingerprint,
   transportReceiptFingerprint
@@ -370,8 +373,10 @@ async function generatePromos() {
       includeHistorical: false
     });
 
-    const receipts = getReceipts(db);
-    const transportReceipts = getTransportReceipts(db);
+    const corrections=currentFinancialEvents(readFinancialEvents(db)).corrections;
+    const adjust=r=>corrections[r.receiptId]?{...r,financialCorrection:corrections[r.receiptId]}:r;
+    const receipts = getReceipts(db).map(adjust);
+    const transportReceipts = getTransportReceipts(db).map(adjust);
     const evidence = applyReceiptEvidence(durableOffers, receipts, { now: generatedAt });
 
     for (const promo of evidence.promos) {
@@ -395,7 +400,8 @@ async function generatePromos() {
     const publicPromos = refreshedOffers
       .map(promo => toPublicPromo({
         ...promo,
-        id: promo.offerId
+        id: publicOfferIdentity(db, promo.offerId),
+        previousOfferIds: (promo.previousOfferIds || []).map(id => publicOfferIdentity(db, id))
       }));
 
     const receiptStats = receiptStatsByAccount(receipts, transportReceipts);
@@ -421,7 +427,7 @@ async function generatePromos() {
       if (!offersByAccount.has(offer.accountRef)) offersByAccount.set(offer.accountRef, []);
       offersByAccount.get(offer.accountRef).push(offer);
     }
-    const accounts = getPublicAccountInsights(db).map(account => {
+    const accounts = getPublicAccountInsights(db,{receipts,rides:transportReceipts,offers:refreshedOffers}).map(account => {
       const stats = receiptStats.get(account.accountRef) || {
         orderCount: 0,
         promoSavings: 0,
@@ -456,7 +462,7 @@ async function generatePromos() {
       };
     });
 
-    const summary = getSavingsSummary(db);
+    const summary = getSavingsSummary(db,{receipts,rides:transportReceipts});
     summary.accountStatusVersion = 2;
     summary.offerEligibilityVersion = 1;
     const eligibility = eligibleAccountCounts(accounts);
@@ -477,6 +483,7 @@ async function generatePromos() {
     summary.archivedConfirmedSaved = Math.round(accounts.filter(a => a.archived).reduce((n,a)=>n+Number(a.totalSaved||0),0)*100)/100;
     summary.deactivatedConfirmedSaved = Math.round(accounts.filter(a => a.deactivated).reduce((n,a)=>n+Number(a.totalSaved||0),0)*100)/100;
     summary.needsCheckingAccounts = accounts.filter(a => a.accountState === "needs_checking").length;
+    summary.receiptSourcesNeedingReview=accounts.reduce((n,a)=>n+a.sourceReviewCount,0);
     if (successfulMailScanAt) db.prepare("INSERT INTO meta(key,value) VALUES('last_successful_mail_scan_at',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value WHERE excluded.value > meta.value").run(successfulMailScanAt);
     const lastSuccessfulMailScanAt = db.prepare("SELECT value FROM meta WHERE key='last_successful_mail_scan_at'").get()?.value || null;
     const eligibleRefs = new Set(accounts.filter(a => a.recommendationEligible).map(a => a.accountRef));
@@ -530,7 +537,8 @@ async function generatePromos() {
         .map(promo => ({
           ...toPublicPromo({
             ...promo,
-            id: promo.offerId
+            id: publicOfferIdentity(db, promo.offerId),
+            previousOfferIds: (promo.previousOfferIds || []).map(id => publicOfferIdentity(db, id))
           }),
           status: historyStatus(promo),
           firstSeenAt: promo.firstSeenAt || null,

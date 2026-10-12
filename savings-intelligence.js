@@ -1,4 +1,5 @@
 import { dedupeReceipts } from "./receipt-identity.js";
+import { receiptFinancials, financialSummary } from './receipt-financials.js';
 function number(value) {
   if (value == null || value === "") return 0;
   const result = Number(value);
@@ -31,12 +32,7 @@ function observedComponents(receipt) {
 }
 
 export function confirmedReceiptSaving(receipt = {}) {
-  return roundMoney(
-    Math.max(
-      observedComponents(receipt),
-      number(receipt.reportedSavings)
-    )
-  );
+  return receiptFinancials(receipt).total ?? 0;
 }
 
 function uberOneEstimateModel(receipts = []) {
@@ -206,6 +202,7 @@ export function combinedReceiptSavings(eats = [], rides = [], options = {}) {
   const summary = { ...food.summary, eatsConfirmedSaved: food.summary.confirmedSaved, rideConfirmedSaved: transport.summary.confirmedSaved, trackedRides: transport.summary.orderCount };
   for (const field of fields) summary[field] = roundMoney(food.summary[field] + transport.summary[field]);
   summary.totalSaved = summary.confirmedSaved;
+  summary.financialBreakdown = financialSummary([...eats,...rides]);
   summary.recentConfirmedSaved = roundMoney(food.summary.recentConfirmedSaved + transport.summary.recentConfirmedSaved);
   summary.recentEstimatedTotalSaved = roundMoney(food.summary.recentEstimatedTotalSaved + transport.summary.recentEstimatedTotalSaved);
   summary.recentRides = transport.summary.recentOrders;

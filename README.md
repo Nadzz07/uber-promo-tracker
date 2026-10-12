@@ -162,3 +162,5 @@ User-authorised receipt filing uses the separate verified filing command and
 checks the original message and matching destination copy before counting it.
 
 Advertised order discounts are separate from calculated effective percentages. Product-specific catalogue deals are excluded; grocery and supermarket order coupons remain eligible. Mixed emails preserve the genuine order offer. Uncertain scope or missing original evidence is reviewable. Private original messages and superseded derived records remain retained.
+
+Private financial corrections use an encrypted device ledger and an owner-only Mac transfer. Routine Mail sync remains read-only; Archive/Bin cleanup requires an approved dry-run. See RELEASE.md for the supported workflow.

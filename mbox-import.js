@@ -326,14 +326,13 @@ function forwardedUberHeaders(body) {
 export function normaliseForwardedUberMessage(message = {}) {
   const forwarded = forwardedUberHeaders(message.body);
   if (!forwarded) return message;
-  if (!forwarded.sentAt) throw new Error("Forwarded Uber/Lime message lacks a valid original date; supply the original export.");
+  // Body headers are claims, not authoritative Mail headers. Preserve the
+  // complete outer identity; only a separately obtained original can confirm
+  // the receipt and its account. This also covers callers of dedupeMboxMessages.
   return {
     ...message,
-    sender: forwarded.sender,
-    recipient: forwarded.recipient,
-    subject: forwarded.subject || String(message.subject || "").replace(/^Fwd:\s*/i, ""),
-    sentAt: forwarded.sentAt,
-    forwardedByUser: true
+    forwardedClaims: forwarded,
+    sourceEvidenceStatus: 'forwarded_needs_review'
   };
 }
 
@@ -367,7 +366,7 @@ export function dedupeMboxMessages(messages = []) {
 export function looksLikeUberMail(message = {}) {
   const subject = String(message.subject || "");
   const sender = String(message.sender || "");
-  return /\buber\b/i.test(subject) ||
+  return Boolean(message.forwardedClaims) || /\buber\b/i.test(subject) ||
     looksLikeUberSender(sender);
 }
 

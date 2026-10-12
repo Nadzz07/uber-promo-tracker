@@ -430,3 +430,15 @@ export function planBasketSplit(
     }))
   };
 }
+
+// Cash email grants never supply wallet balances. Only separately verified,
+// same-account wallet records participate in checkout comparisons.
+export function rankCheckoutOptions(promos=[],subtotal,{wallets={},accounts=[],fees={},now=new Date().toISOString()}={}) {
+  const basket=number(subtotal);if(basket==null||basket<=0||basket>1000)return [];
+  const result=[],byAccount=new Map(accounts.filter(a=>a.canLogin===true&&a.archived!==true&&a.accountStatus!=='archived'&&a.accountStatus!=='deactivated').map(a=>[a.accountRef,a]));
+  const walletFor=ref=>{const w=wallets[ref],account=byAccount.get(ref);if(!w||!account||!Number.isFinite(Number(w.balance))||Number(w.balance)<0||!Number.isFinite(Date.parse(w.at))||Date.parse(w.at)>Date.parse(now))return null;if([account.lastOrderAt,account.lastRideAt].some(at=>at&&Date.parse(at)>Date.parse(w.at)))return null;return w;};
+  const add=(promo,ref,discount,cashUsed,kind,conditional=false)=>{const w=walletFor(ref),knownFee=number(fees[ref]),fee=knownFee!=null&&knownFee>=0?knownFee:0;const beforeCash=roundMoney(Math.max(0,basket-discount)+fee);const spent=roundMoney(Math.min(cashUsed,beforeCash));result.push({promo,accountRef:ref,basket,promotionDiscount:discount,cashUsed:spent,fees:knownFee!=null?fee:null,outOfPocket:roundMoney(beforeCash-spent),cashRemaining:w?roundMoney(Number(w.balance)-spent):null,kind,conditional,estimated:knownFee==null,expires:promo?.expires||null,restriction:promo?.restrictions||null});};
+  for(const item of rankPromosForSpend(promos.filter(p=>p.discountType!=='uberCash'),basket,{service:'Uber Eats',accessibleOnly:true})) {const p=item.promo,ref=p.accountRef;if(accounts.length&&!byAccount.has(ref))continue;add(p,ref,item.calculation.saving,0,'promo');const w=walletFor(ref);if(w&&Number(w.balance)>0&&w.stacking!=='unsupported')add(p,ref,item.calculation.saving,Number(w.balance),'promo_cash',w.stacking!=='supported');}
+  for(const [ref]of byAccount){const w=walletFor(ref);if(w&&Number(w.balance)>0)add(null,ref,0,Number(w.balance),'cash');}
+  return result.sort((a,b)=>Number(a.conditional)-Number(b.conditional)||a.outOfPocket-b.outOfPocket||a.cashUsed-b.cashUsed||((a.promo?.discountType==='fixed'&&b.promo?.discountType==='fixed')?Number(a.promo.discount)-Number(b.promo.discount):0)||b.cashRemaining-a.cashRemaining||b.promotionDiscount-a.promotionDiscount||String(a.expires||'9999').localeCompare(String(b.expires||'9999'))||a.accountRef.localeCompare(b.accountRef));
+}

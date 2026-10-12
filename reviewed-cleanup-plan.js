@@ -1,0 +1,7 @@
+import fs from 'node:fs';
+import path from 'node:path';
+// JSONL ends only at LF. readline also splits Unicode U+2028/U+2029, which can
+// legally occur inside JSON strings containing an original promotional message.
+export async function* jsonLines(stream){stream.setEncoding('utf8');let pending='';for await(const chunk of stream){pending+=chunk;if(pending.length>80000000)throw Error('Private source exceeds the bounded JSONL limit.');let end;while((end=pending.indexOf('\n'))!==-1){yield pending.slice(0,end);pending=pending.slice(end+1);}}if(pending.trim())yield pending;}
+export function targetKey(t){return JSON.stringify([t.accountId,t.path,t.nativeId]);}
+export function verifiedCleanupTargets(directory,approval){const verified=new Set();if(!directory.endsWith('.local')&&!directory.endsWith('.local/'))throw Error('Resume audits must be in a private directory.');for(const file of fs.readdirSync(directory).filter(f=>/^cleanup-batch-\d+\.local\.jsonl$/.test(f))){for(const line of fs.readFileSync(path.join(directory,file),'utf8').split('\n').filter(Boolean)){const r=JSON.parse(line);if(r.approvalDigest!==approval)throw Error('Resume audit belongs to a different approval.');if(r.verified!==true)throw Error('An earlier batch needs reconciliation before resuming.');if(verified.has(targetKey(r)))throw Error('Duplicate verified move in audit history.');verified.add(targetKey(r));}}return verified;}

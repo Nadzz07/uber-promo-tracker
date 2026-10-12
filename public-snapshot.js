@@ -2,7 +2,7 @@ import { classifyOfferCompletion } from "./offer-state.js";
 import { classifyAccount } from "./account-state.js";
 import { publicOfferTitle } from "./public-promo.js";
 
-const forbidden = /^(?:alias|email|accountAlias|code|promo_code|promoCode|recipient|sender|subject|body|bodyText|body_text|evidence|evidence_json|merchant|orderId|tripId|messageId|messageKey|mailbox|sourceMailbox)$/i;
+const forbidden = /^(?:alias|email|accountAlias|code|promo_code|promoCode|recipient|sender|subject|body|bodyText|body_text|evidence|evidence_json|merchant|orderId|tripId|messageId|messageKey|mailbox|sourceMailbox|financialCorrection|financialEvents|financialEvidence|financial_evidence_json|wallet|wallets|balance|currentCashBalance|manualNote|recordId|eventId|note)$/i;
 const email = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
 const masked = /[a-z0-9._%+-]{0,2}…[a-z0-9._%+-]{0,2}@[a-z0-9.-]+\.[a-z]{2,}/gi;
 
@@ -27,6 +27,8 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
   if ([1, 2].includes(payload.summary?.accountStatusVersion)) {
     const independent = payload.summary.accountStatusVersion === 2;
     const accounts = new Map();
+    const offersByAccount=new Map();
+    for(const p of payload.promos){if(!offersByAccount.has(p.accountRef))offersByAccount.set(p.accountRef,[]);offersByAccount.get(p.accountRef).push(p);}
     for (const account of payload.accounts) {
       if (!account.accountRef || accounts.has(account.accountRef)) throw new Error('Duplicate or missing account reference.');
       accounts.set(account.accountRef, account);
@@ -35,7 +37,7 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
       if (account.deactivated && account.canLogin) throw new Error('Deactivated accounts cannot be available for login.');
       if (independent && !['active', 'archived', 'deactivated'].includes(account.accountStatus)) throw new Error('Explicit account rotation status is required.');
       for (const field of ['orderCount', 'rideCount']) if (!Number.isInteger(account[field]) || account[field] < 0) throw new Error('Invalid receipt counter.');
-      const expected = classifyAccount(account, payload.promos.filter(p => p.accountRef === account.accountRef), payload.generatedAt);
+      const expected = classifyAccount(account, offersByAccount.get(account.accountRef)||[], payload.generatedAt);
       for (const field of [...(payload.summary.offerEligibilityVersion === 1 ? ['hasEligibleOffers'] : []), ...(independent ? ['archived', 'accountStatus', 'fullyUsedOfferCount', 'expiredUnusedOfferCount'] : []), 'accountUsed', 'accountUsedReason', 'accountState', 'activePromoCount', 'reviewOfferCount', 'needsReview', 'recommendationEligible']) {
         if (expected[field] !== account[field]) throw new Error('Account status disagrees with offer/receipt evidence: ' + field);
       }

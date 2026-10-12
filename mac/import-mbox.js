@@ -90,7 +90,7 @@ async function main() {
   await input.completed;
 
   const uberMessages = dedupeMboxMessages(parsed.filter(looksLikeUberMail));
-  const forwarded = uberMessages.filter(message => message.forwardedByUser).length;
+  const forwarded = parsed.filter(message => message.forwardedClaims).length;
 
   await writeAtomic(outputPath, {
     exportedAt: new Date().toISOString(),
@@ -100,7 +100,7 @@ async function main() {
 
   console.log("MBOX messages read: " + parsed.length);
   console.log("Uber messages exported: " + uberMessages.length);
-  console.log("Forwarded Uber copies normalised: " + forwarded);
+  console.log("Forwarded copies retained for review, not confirmed from body headers: " + forwarded);
   console.log("Private JSON written: " + path.resolve(outputPath));
 }
 

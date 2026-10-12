@@ -18,7 +18,7 @@ for(const [scope,refs] of [['ready',['ready']],['all',['ready','archived','pendi
 assert.deepEqual([...projected.slice(0,4)].reverse().sort((a,b)=>offerReadinessRank(a)-offerReadinessRank(b)).map(a=>a.accountRef),['ready','archived','pending','locked']);
 for(const a of records)assert.equal(a.hasEligibleOffers,undefined,'Account inputs must not be mutated');
 for(const p of [{...offer,usesRemaining:0},{...offer,receiptConfirmedUses:5},{...offer,receiptState:'used'},{...offer,trackingState:'needs_checking'},{...offer,offerScope:'product'},{...offer,offerScope:'uncertain'},{...offer,ignored:true},{...offer,forceDone:true}])assert.equal(offerEligible(p,now),false);
-const old={...offer,firstEmailSentAt:'2026-09-01T12:00:00Z',emailSentAt:'2026-10-09T12:00:00Z'};
+const old={...offer,expiresAt:null,expires:null,expiryStatus:'unknown',firstEmailSentAt:'2026-09-01T12:00:00Z',emailSentAt:'2026-10-09T12:00:00Z'};
 assert.equal(applyOfferExpiryPolicy(old).expiresAt,'2026-10-06T12:00:00.000Z');
 assert.equal(classifyAccount(records[0],[old],now).hasEligibleOffers,false,'Persisted available state and recent reminder cannot override expiry');
 for(const action of [setOfferDone,setOfferIgnored]){

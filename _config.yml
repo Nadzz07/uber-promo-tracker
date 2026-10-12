@@ -1,6 +1,8 @@
 # Defense in depth for repositories still using legacy branch-based Pages.
 # The custom workflow remains the validated release path.
 exclude:
+  - cleanup-policy.js
+  - reviewed-cleanup-plan.js
   - .github
   - .gitignore
   - README.md
@@ -77,3 +79,10 @@ exclude:
   - test-guide-browser.js
   - test-advertised-terms.js
   - test-offer-eligibility.js
+  - test-security-boundaries.js
+  - financial-ledger.js
+  - test-financial-ledger.js
+  - mail-cleanup.js
+  - test-mail-cleanup.js
+  - test-reviewed-cleanup.js
+  - test-finance-browser.js

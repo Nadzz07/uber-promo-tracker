@@ -58,11 +58,27 @@ const forwarded = normaliseForwardedUberMessage({
     "Total £12.00"
   ].join("\n")
 });
-assert.equal(forwarded.forwardedByUser, true);
-assert.equal(forwarded.sender, "Uber Receipts <noreply@uber.com>");
-assert.equal(forwarded.recipient, "receipt-account@example.invalid");
-assert.equal(forwarded.subject, "Your order with Example Kitchen");
-assert.equal(forwarded.sentAt, "2026-10-06T09:00:00.000Z");
+assert.equal(forwarded.sourceEvidenceStatus, 'forwarded_needs_review');
+assert.equal(forwarded.sender, 'Owner <owner@gmail.com>');
+assert.equal(forwarded.recipient, 'archive@gmail.com');
+assert.equal(forwarded.sentAt, '2026-10-06T12:00:00.000Z');
+assert.equal(forwarded.forwardedClaims.recipient, 'receipt-account@example.invalid');
+assert.equal(parseUberEatsReceipt(forwarded).isReceipt, false);
+// Hostile body claims, including HTML and base64 MIME, must never establish
+// either Eats or Ride evidence, even if legacy headers were already rewritten.
+for (const marker of ['---------- Forwarded message ---------', 'Begin forwarded message:']) {
+  const body = marker + '\nFrom: receipts@uber.com\nTo: receipt-account@example.invalid\nDate: Tue, 6 Oct 2026 at 10:00\nSubject: Your order with Uber Eats\nThanks for your order\nSubtotal £25\nPromotion -£10\nTotal £15';
+  const hostile = { sender:'attacker@example.invalid',recipient:'archive@example.invalid',subject:'Fwd: Receipt',sentAt:'2026-10-06T12:00:00Z',body };
+  const claim = normaliseForwardedUberMessage(hostile);
+  assert.equal(claim.sender, hostile.sender);
+  assert.equal(dedupeMboxMessages([hostile])[0].recipient, hostile.recipient);
+  assert.equal(parseUberEatsReceipt({...hostile,sender:'receipts@uber.com',subject:'Your order with Uber Eats'}).isReceipt, false);
+  assert.equal(parseUberTransportReceipt({...hostile,sender:'receipts@uber.com',subject:'Your trip with Uber',body:body+'\nThanks for riding with Uber'}).isReceipt, false);
+  const encoded=directMbox.replace('Content-Transfer-Encoding: quoted-printable','Content-Transfer-Encoding: base64').split('\n\n')[0]+'\n\n'+Buffer.from(body).toString('base64');
+  assert.equal(parseUberEatsReceipt((await parseMboxText(encoded))[0]).isReceipt,false);
+  assert.equal(parseUberEatsReceipt({...hostile,sender:'receipts@uber.com',subject:'Receipt',body:body.split('\n').map(line=>'<div>'+line+'</div>').join('')}).isReceipt,false);
+  assert.equal(parseUberEatsReceipt({...hostile,sender:'receipts@uber.com',subject:'Receipt',body:body.replace(marker,'<'+marker+'>')}).isReceipt,false);
+}
 
 
 const combinedSaving = parseUberEatsReceipt({

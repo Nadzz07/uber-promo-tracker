@@ -1,5 +1,14 @@
 import { number } from "./parser-v2/utils.js";
 
+// Apply at the confirmation boundary too: legacy imports may already have
+// replaced outer headers, and JSON imports do not pass through the MBOX codec.
+export function hasForwardedReceiptClaims(subject, body) {
+  const text = receiptText('', body);
+  const marker = /(?:-{2,}\s*Forwarded\s+message\s*-{2,}|Begin\s+forwarded\s+message:)/i;
+  return /^\s*(?:fw|fwd):/i.test(String(subject || '')) ||
+    marker.test(String(body || '')) || marker.test(text);
+}
+
 export function receiptText(subject, body) {
   return (String(subject || "") + "\n" + String(body || ""))
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
@@ -24,6 +33,13 @@ export function moneyForLabel(text, labels) {
     }
   }
   return { value: null, match: null };
+}
+
+export function receiptFinancialEvidence(text) {
+  const combined=/£\s*\d+(?:[.,]\d{1,2})?\s+uber\s*one\s+savings?\s+and\s+other\s+promotions?\s+applied/i.test(text);
+  const payment=text.match(/\b(?:mastercard|visa|amex|card payment|paid by card)\b[^\n£]{0,80}£\s*(\d+(?:\.\d{1,2})?)/i);
+  return {reportedKind:combined?'combined':'total',scheduleSavings:moneyForLabel(text,['schedule savings','scheduled savings','schedule discount']).value,
+    outOfPocket:payment?Number(payment[1]):null};
 }
 
 export function hasTransportSignal(subject, text) {

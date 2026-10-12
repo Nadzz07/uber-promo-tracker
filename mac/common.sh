@@ -67,12 +67,12 @@ export_recent_mail() {
   echo "Exporting recent Mail..."
   node mac/export-known-messages.js "${PRIVATE_DB:-uber-tracker.local.db}" > "$TMP_DIR/known-messages.json"
   osascript -l JavaScript mac/export-uber-mail.js \
-    "$PROMO_DAYS" "$PROMO_FOLDERS" "$RECEIPT_DAYS" "$RECEIPT_FOLDER" 0 0 "" "$TMP_DIR/known-messages.json" \
+    "$PROMO_DAYS" "$PROMO_FOLDERS" "$RECEIPT_DAYS" "$RECEIPT_FOLDER" 0 0 "" "$TMP_DIR/known-messages.json" "" "" "${TRACKER_DISCOVER_RECEIPT_ACCOUNTS:-false}" \
     > "$TMP_DIR/emails.json"
   node --input-type=module -e 'import fs from "node:fs"; const p=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(!Array.isArray(p.messages)) throw new Error("Invalid Mail export"); console.log("Exported messages: " + p.messages.length);' "$TMP_DIR/emails.json"
   # Receipt discovery needs the full receipt window in Inbox too. Previously
   # Inbox ages 35–90 days fell between the promo scan and historical backfill.
-  osascript -l JavaScript mac/export-uber-mail.js "$RECEIPT_DAYS" "INBOX" 0 "$RECEIPT_FOLDER" 0 0 "" "$TMP_DIR/known-messages.json" > "$TMP_DIR/inbox-candidates.json"
+  osascript -l JavaScript mac/export-uber-mail.js "$RECEIPT_DAYS" "INBOX" 0 "$RECEIPT_FOLDER" 0 0 "" "$TMP_DIR/known-messages.json" "" "" "${TRACKER_DISCOVER_RECEIPT_ACCOUNTS:-false}" > "$TMP_DIR/inbox-candidates.json"
   node mac/find-inbox-receipts.js "$TMP_DIR/inbox-candidates.json" "$TMP_DIR/inbox-receipt-ids.json" "$TMP_DIR/inbox-receipts.json"
   node --input-type=module - "$TMP_DIR/emails.json" "$TMP_DIR/inbox-receipts.json" <<'JS'
 import fs from 'node:fs';
@@ -86,45 +86,18 @@ main.messages = [...unique.values()];
 fs.writeFileSync(mainPath + '.tmp', JSON.stringify(main));
 fs.renameSync(mainPath + '.tmp', mainPath);
 JS
+  if [[ "${TRACKER_DISCOVER_RECEIPT_ACCOUNTS:-false}" == true ]]; then
+    node mac/register-receipt-accounts.js "$TMP_DIR/emails.json" "$PRIVATE_DB" "$TRACKER_ACCOUNT_ACCESS"
+  fi
   cp "$TMP_DIR/emails.json" emails.local.json.tmp
   mv emails.local.json.tmp emails.local.json
 }
 
 file_imported_receipts() {
-  # An explicit second opt-in protects existing local configs that enabled routing.
+  # Routine sync is read-only regardless of stale opt-ins in a local env file.
+  # Cleanup and receipt filing require a separate reviewed approval workflow.
   if [[ "${TRACKER_READ_ONLY_MAIL:-true}" != false ]]; then return; fi
-  if [[ "$MOVE_INBOX_RECEIPTS" != true && "$TRASH_ARCHIVED_MAIL" != true ]]; then
-    return
-  fi
-
-  # Routing is planned only after generate-promos has committed the private
-  # receipt/account evidence. Mail movement can therefore fail without losing
-  # receipt history or savings.
-  local preservation_args=()
-  if [[ "${APPLE_MAIL_ARCHIVED_KEEP_EVIDENCE:-true}" == true ]]; then preservation_args+=(--keep-receipts-and-used-promos); fi
-  node mac/plan-inbox-routing.js \
-    emails.local.json "$PRIVATE_DB" \
-    "$TMP_DIR/receipt-moves.json" "$TMP_DIR/archived-trash.json" "${preservation_args[@]}"
-  local audit_dir="mail-routing.local.$(date -u +%Y%m%dT%H%M%SZ)-$$"
-  mkdir "$audit_dir"
-  cp "$TMP_DIR/receipt-moves.json" "$audit_dir/receipt-moves.local.json"
-  cp "$TMP_DIR/archived-trash.json" "$audit_dir/archived-bin.local.json"
-
-  if [[ "$MOVE_INBOX_RECEIPTS" == true ]]; then
-    if ! osascript -l JavaScript mac/move-inbox-receipts.js "$TMP_DIR/receipt-moves.json" "$RECEIPT_FOLDER" "$PROMO_DAYS" > "$audit_dir/receipt-result.local.json"; then
-      echo "Receipt filing failed; imported data is safe. Filing can be retried on the next sync." >&2
-    fi
-  fi
-
-  if [[ "$TRASH_ARCHIVED_MAIL" == true ]]; then
-    if ! osascript -l JavaScript mac/trash-archived-inbox.js "$TMP_DIR/archived-trash.json" "$PROMO_DAYS" --plan "$audit_dir/bin-originals.local.json" > "$audit_dir/bin-plan-result.local.json"; then
-      echo "Original-source routing plan failed; no Bin routing was performed." >&2
-      return 1
-    fi
-    if ! osascript -l JavaScript mac/trash-archived-inbox.js "$audit_dir/bin-originals.local.json" "$PROMO_DAYS" --execute-verified-plan > "$audit_dir/bin-result.local.json"; then
-      echo "Archived-account Bin routing failed; reconcile the retained plan and mailbox contents before retrying." >&2
-      return 1
-    fi
-    node -e 'const fs=require("fs"),r=JSON.parse(fs.readFileSync(process.argv[1])); if(r.failed || r.halted) { console.error("Mail routing halted; inspect the private result before retrying."); process.exit(1); }' "$audit_dir/bin-result.local.json"
+  if [[ "$MOVE_INBOX_RECEIPTS" == true || "$TRASH_ARCHIVED_MAIL" == true ]]; then
+    echo "Mail routing opt-ins are ignored during routine read-only sync."
   fi
 }

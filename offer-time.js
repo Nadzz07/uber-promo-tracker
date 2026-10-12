@@ -49,15 +49,15 @@ export function isOfferExpired(promo, now = Date.now()) {
   return expiry != null && new Date(now).getTime() >= expiry;
 }
 
-// User policy: at most 35 elapsed days from the first observed offer email.
-// An earlier explicit deadline still wins; receipt usage never starts this clock.
+// Reliable Uber deadlines take priority. Only missing/estimated deadlines use
+// 35 elapsed days from the first qualifying email; reminders cannot restart it.
 export function applyOfferExpiryPolicy(promo = {}) {
+  const explicit = expiryEndTime(promo);
+  if (explicit != null && promo.expiryStatus === 'exact') return promo;
   const anchor = offerTime(promo.firstEmailSentAt || promo.emailSentAt);
   if (anchor == null) return promo;
   const deadline = anchor + 35 * 86400000;
-  const explicit = expiryEndTime(promo);
   if ((promo.expiresAt || promo.expires) && explicit == null) return promo;
-  if (explicit != null && explicit <= deadline) return promo;
   const expiresAt = new Date(deadline).toISOString();
   return { ...promo, expiresAt, expires: londonDate.format(deadline),
     expiryStatus: 'estimated', expiryBasis: 'tracker_35_day_rule', expiryConfidence: 'policy' };

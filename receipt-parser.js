@@ -1,5 +1,5 @@
 import { analyseSender } from "./parser-v2/sender.js";
-import { receiptText, moneyForLabel, hasTransportSignal } from "./receipt-text.js";
+import { receiptText, moneyForLabel, hasTransportSignal, hasForwardedReceiptClaims, receiptFinancialEvidence } from "./receipt-text.js";
 import {
   asDate,
   extractAccountAlias,
@@ -120,6 +120,7 @@ export function parseUberEatsReceipt({
 
   const hasReceiptAmounts = subtotal.value != null || total.value != null;
   const isReceipt =
+    !hasForwardedReceiptClaims(subject, body) &&
     Boolean(senderAnalysis.trusted) && senderAnalysis.confidence === "high" &&
     !hasTransportSignal(subject, text) &&
     receiptSignal &&
@@ -161,6 +162,7 @@ export function parseUberEatsReceipt({
     senderVerified: senderAnalysis.trusted,
     senderConfidence: senderAnalysis.confidence,
     evidence: {
+      financial: receiptFinancialEvidence(text),
       subtotal: sourceSnippet(text, subtotal.match),
       promotion: sourceSnippet(text, promotionDiscount.match),
       deliveryFee: sourceSnippet(text, deliveryFee.match),

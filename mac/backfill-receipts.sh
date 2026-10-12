@@ -87,15 +87,9 @@ while (( START < HISTORY_DAYS )); do
       "$TMP_DIR/history.json" \
       "$PRIVATE_DB"
 
-    # Use only IDs whose evidence was committed to SQLite, not the parse-only list.
-    node mac/plan-inbox-routing.js "$TMP_DIR/inbox-receipts.json" "$PRIVATE_DB" "$TMP_DIR/receipt-moves.json" "$TMP_DIR/archived-trash.json"
-    if [[ "$MOVE_INBOX_RECEIPTS" == "true" && "${TRACKER_READ_ONLY_MAIL:-true}" == false ]]; then
-      MOVE_RESULT="$(
-        osascript -l JavaScript mac/move-inbox-receipts.js \
-          "$TMP_DIR/receipt-moves.json" "$RECEIPT_FOLDER" "$END" "$START"
-      )"
-      echo "  Inbox receipt filing: $MOVE_RESULT"
-    fi
+    # Backfill, like hourly sync, preserves all Mail messages. Filing is a
+    # separate original-qualified operation after an approved dry run.
+
   fi
 
   START="$END"

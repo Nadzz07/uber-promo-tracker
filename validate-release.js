@@ -68,8 +68,8 @@ assert.ok(
   "release docs should describe recoverable Archived-account Mail routing"
 );
 assert.ok(
-  fs.readFileSync("mac/common.sh", "utf8").includes("plan-inbox-routing.js"),
-  "release sync should plan Mail routing after private import"
+  !fs.readFileSync("mac/common.sh", "utf8").includes("node mac/plan-inbox-routing.js"),
+  "routine sync must not execute Mail cleanup"
 );
 assert.ok(
   fs.readFileSync("mac/trash-archived-inbox.js", "utf8").includes("Mail.move(message, { to: destination })"),

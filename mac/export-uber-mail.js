@@ -185,7 +185,7 @@ function bulkMailboxIndex(box, range = null) {
   }
 }
 
-function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, knownMessages = {}, calendarRange = null, audit = null) {
+function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, knownMessages = {}, calendarRange = null, audit = null, captureReceiptHeaders = false) {
   const range = calendarRange || dateRange(daysBack, olderThanDays, scanAt);
 
   stderr("Reading Mail metadata: " + sourceMailbox + "...");
@@ -243,7 +243,7 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, 
     if (!recipient || !body.trim()) throw new Error("A selected message is incomplete; retry after Mail finishes downloading.");
     if (Number(message.id()) !== Number(row.id)) throw new Error("Mailbox changed during export; retry the scan.");
 
-    if (calendarRange && /receipt|thanks for (?:your )?order|your.*trip/i.test(row.subject)) {
+    if ((calendarRange || captureReceiptHeaders) && /receipt|thanks for (?:your )?(?:order|riding)|your.*trip/i.test(row.subject)) {
       try { rawSource = String(message.source() || ""); } catch (_) { throw new Error("Original receipt headers unavailable; retry after download."); }
     }
     const rawMessageId = row.messageId || headerValue(rawSource, "Message-ID");
@@ -259,6 +259,7 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, 
       messageId: rawMessageId || null,
       mailbox: role,
       sourceMailbox: sourceMailbox || null,
+      ...(captureReceiptHeaders ? {originalHeaders:rawSource ? rawSource.split(/\r?\n\r?\n/,1)[0] : null} : {}),
       ...(calendarRange ? { mailNativeId:row.id, originalHeaders:rawSource ? rawSource.split(/\r?\n\r?\n/,1)[0] : null, originalSource:rawSource || null } : {})
     });
   }
@@ -316,6 +317,7 @@ function run(argv) {
   }
   const knownMessages = readKnownMessages(argv[7]);
   const calendarRange = argv[8] || argv[9] ? dateRange(0,0,scanAt,argv[8],argv[9]) : null;
+  const captureReceiptHeaders = argv[10] === 'true';
   const scanAudit = [];
   const Mail = Application("Mail");
   Mail.includeStandardAdditions = false;
@@ -343,7 +345,7 @@ function run(argv) {
           promoOlderThanDays,
           promoMailboxName,
           scanAt,
-          knownMessages, calendarRange, scanAudit
+          knownMessages, calendarRange, scanAudit, captureReceiptHeaders
         )
       );
       scannedMailboxes.push({
@@ -375,7 +377,7 @@ function run(argv) {
           receiptOlderThanDays,
           receiptMailboxName,
           scanAt,
-          knownMessages, calendarRange, scanAudit
+          knownMessages, calendarRange, scanAudit, captureReceiptHeaders
         )
       );
       scannedMailboxes.push({

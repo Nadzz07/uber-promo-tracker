@@ -48,6 +48,34 @@ export function normaliseManualStore(payload = {}) {
   };
 }
 
+// This mapping is supplied only in the owner's private device export. The
+// original entries remain as history; no code-derived ID is published again.
+export function migratePrivateOfferIds(store, migrations = []) {
+  if (!Array.isArray(migrations) || migrations.length > 50000) throw new Error('Invalid private offer migration.');
+  const safe = normaliseManualStore(store);
+  for (const row of migrations) {
+    if (!/^off_[a-f0-9]{20}$/.test(row?.from || '') || !/^pub_[a-f0-9]{32}$/.test(row?.to || '')) throw new Error('Invalid private offer identity.');
+    const old = safe.offers[row.from];
+    if (!old) continue;
+    const current = safe.offers[row.to];
+    if (current?.history?.some(item => item.action === 'private_identity_migration' && item.from === row.from)) continue;
+    const conflict = current && (Boolean(current.ignored) !== Boolean(old.ignored) || Boolean(current.forceDone) !== Boolean(old.forceDone) || Number(current.manualUsesConsumed || 0) !== Number(old.manualUsesConsumed || 0));
+    safe.offers[row.to] = { ...old, ...(current || {}),
+      ignored: Boolean(old.ignored || current?.ignored), forceDone: Boolean(old.forceDone || current?.forceDone),
+      manualUsesConsumed: Math.max(Number(old.manualUsesConsumed || 0), Number(current?.manualUsesConsumed || 0)),
+      manualFinishedAt: old.manualFinishedAt || current?.manualFinishedAt || null,
+      ...(conflict ? {verificationConflict:'Saved decisions from before and after the identity update differ. Review the preserved history.'} : {}),
+      history: [...(old.history || []), ...(current?.history || []), {action:'private_identity_migration',from:row.from,at:new Date().toISOString()}] };
+  }
+  return safe;
+}
+
+export function hasUnmigratedPrivateOfferState(store) {
+  const migrated=new Set();
+  for(const [id,state]of Object.entries(store?.offers||{}))if(/^pub_/.test(id))for(const event of state.history||[])if(event.action==='private_identity_migration')migrated.add(event.from);
+  return Object.entries(store?.offers||{}).some(([id,state])=>/^off_[a-f0-9]{20}$/.test(id)&&!migrated.has(id)&&(state.forceDone||state.ignored||Number(state.manualUsesConsumed)>0));
+}
+
 export function getOfferManualState(store, promo) {
   const raw = store?.offers?.[promoStateKey(promo)] || {};
 
