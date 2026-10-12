@@ -39,3 +39,17 @@ const {matchesFulfilment}=await import('./deal-intelligence.js');
 assert.equal(matchesFulfilment({restrictions:{fulfilment:'delivery_only'}},'pickup'),false);
 assert.equal(matchesFulfilment({restrictions:{fulfilment:'pickup_only'}},'delivery'),false);
 assert.equal(matchesFulfilment({restrictions:{fulfilment:'unknown'}},'delivery'),true);
+
+// Purchase dates without a clock must not hide a new same-day receipt.
+const dayOnlyAccount={...accounts[0],orderCount:1,rideCount:1,lastRideAt:'2026-10-11'};
+const knownCountWallet={...wallets[dayOnlyAccount.accountRef],balance:12,stacking:'supported',at:'2026-10-11T12:00:00Z',receiptCount:2};
+const datedOptions=account=>rankCheckoutOptions([],15,{accounts:[account],wallets:{[account.accountRef]:knownCountWallet},now:'2026-10-11T14:00:00Z'});
+assert.ok(datedOptions(dayOnlyAccount).some(o=>o.cashUsed>0),'A current verified balance can be used after existing receipt evidence');
+assert.ok(datedOptions({...dayOnlyAccount,rideCount:2}).every(o=>o.cashUsed===0),'A new same-day receipt requires rechecking Cash');
+assert.ok(datedOptions({...dayOnlyAccount,orderCount:0}).every(o=>o.cashUsed===0),'Changed evidence must not silently retain a balance');
+console.log('✓ Same-day receipt-count changes invalidate Cash without inventing purchase times');
+
+const {validateCashEntry}=await import('./receipt-financials.js');
+assert.equal(validateCashEntry({balance:12,receiptCount:2}).receiptCount,2);
+assert.throws(()=>validateCashEntry({balance:12,receiptCount:'2'}),/Invalid receipt evidence count/);
+assert.throws(()=>validateCashEntry({balance:12,receiptCount:-1}),/Invalid receipt evidence count/);
