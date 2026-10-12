@@ -1,6 +1,5 @@
 // Public dashboard calculations use derived receipt totals and actual sync times.
-import { expiryEndTime } from './offer-time.js';
-import { receiptDay } from './receipt-date.js';
+import { expiryEndTime, ukDateKey } from './offer-time.js';
 export function syncState(sync = {}, { now = Date.now(), error = false } = {}) {
   const checked = Date.parse(sync.lastSuccessfulMailScanAt || '');
   const started = Date.parse(sync.startedAt || '');
@@ -26,7 +25,9 @@ export function offerCountdown(promo, now = Date.now()) {
 export function receiptActivity(receipts = [], rides = [], saving) {
   const days = new Map(), months = new Map();
   for (const [items, kind] of [[receipts, 'eats'], [rides, 'rides']]) for (const receipt of items) {
-    const day = receiptDay(receipt);
+    // Do not load the private receipt parser on the public dashboard's cold
+    // path. This projection uses the already verified purchase date only.
+    const day = receipt.orderDate || ukDateKey(receipt.sentAt || receipt.receivedAt);
     if (!day) continue;
     const month = day.slice(0,7);
     for (const [map, key] of [[days, day], [months, month]]) {
