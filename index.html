@@ -4140,6 +4140,7 @@
     }
 
     function closeSheet() {
+      if (openSheetType === 'finance') financeView?.destroy();
       const backdrop = document.getElementById("sheetBackdrop");
       backdrop.classList.remove("open");
       backdrop.setAttribute("aria-hidden", "true");
