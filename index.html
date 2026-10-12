@@ -4170,7 +4170,7 @@
         const host=document.getElementById('sheetBody');
         host.innerHTML='<p class="sheet-help" role="status">Loading private finances…</p>';
         financeModule ||= import('./private-finance-ui.js');
-        financeModule.then(module=>{if(openSheetType!=='finance')return;financeView=module.financeInterface({host,vault:financeView?.vault,accountLabel:ref=>accountDisplay(accounts.find(a=>a.accountRef===ref)||{accountRef:ref}),onUpdate:vault=>{privateWallets=vault.current().wallets;renderRecommendation();}});}).catch(()=>{if(openSheetType==='finance')host.innerHTML='<p role="alert">Private finances could not load. Please refresh and try again.</p>';});
+        financeModule.then(module=>{if(openSheetType!=='finance')return;financeView=module.financeInterface({host,vault:financeView?.vault,accountLabel:ref=>accountDisplay(accounts.find(a=>a.accountRef===ref)||{accountRef:ref}),accountUsage:ref=>{const a=accounts.find(a=>a.accountRef===ref);return a?Number(a.orderCount||0)+Number(a.rideCount||0):null;},onUpdate:vault=>{privateWallets=vault.current().wallets;renderRecommendation();}});}).catch(()=>{if(openSheetType==='finance')host.innerHTML='<p role="alert">Private finances could not load. Please refresh and try again.</p>';});
       }
 
       showSheet();
