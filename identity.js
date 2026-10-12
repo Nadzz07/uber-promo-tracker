@@ -1,4 +1,20 @@
-import { createHash } from "node:crypto";
+import { createHash, createHmac, randomBytes } from "node:crypto";
+
+// Private deduplication IDs never leave SQLite. Keyed publication IDs prevent
+// public readers testing guessed promo codes against an unkeyed fingerprint.
+export function publicOfferIdentity(db, privateId) {
+  let key = db.prepare("SELECT value FROM meta WHERE key='public_offer_identity_key'").get()?.value;
+  if (!key) {
+    key = randomBytes(32).toString('hex');
+    db.prepare("INSERT INTO meta(key,value) VALUES('public_offer_identity_key',?)").run(key);
+  }
+  if (!/^[a-f0-9]{64}$/.test(key)) throw new Error('Invalid private publication key; restore the database backup.');
+  return keyedPublicOfferId(key, privateId);
+}
+
+export function keyedPublicOfferId(key, privateId) {
+  return 'pub_' + createHmac('sha256', Buffer.from(key, 'hex')).update(String(privateId)).digest('hex').slice(0, 32);
+}
 
 export function stableHash(value, length = 20) {
   return createHash("sha256")

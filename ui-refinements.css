@@ -592,6 +592,10 @@ html[data-layout="desktop"] .offer-browser .quick-card .quick-sub { display:none
 .offer-scope-row .account-scope { width:auto; min-width:180px; flex:1; margin:0; }
 .offer-scope-row[hidden] { display:none; }
 .offer-scope-summary { display:flex; align-items:center; gap:6px; margin:0 0 16px; color:var(--muted); font-size:12px; }
+.metric-help.inline-help { position:relative; inset:auto; flex:0 0 44px; margin:0; border-radius:50%; }
+[data-finance-form] { display:grid; gap:12px; }
+[data-finance-form] input, [data-finance-form] select { width:100%; min-width:0; min-height:44px; font:inherit; color:var(--text); background:var(--surface,rgba(128,128,128,.08)); border:1px solid var(--line); border-radius:12px; padding:10px 12px; }
+[data-finance-form] label { color:var(--muted); font-size:13px; }
 .inline-help { position:static; flex-shrink:0; }
 .account-readiness { margin:8px 0 0; color:var(--muted); font-size:12px; line-height:1.5; }
 .account-readiness.needs-attention { color:var(--muted); }
@@ -603,3 +607,8 @@ html[data-layout="desktop"] .offer-browser .quick-card .quick-sub { display:none
   to { opacity:1; transform:translateY(0); }
 }
 
+
+/* Keep snapshot labels from shifting the compact header during first load. */
+.scan-wrap { min-width: 118px; }
+
+[data-finance-form] input[type="checkbox"] { width:20px; min-height:20px; margin:0 8px 0 0; padding:0; vertical-align:middle; }

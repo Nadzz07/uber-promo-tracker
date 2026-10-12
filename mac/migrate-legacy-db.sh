@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+umask 077
 
 cd "$(dirname "$0")/.."
 
@@ -25,10 +26,13 @@ if ! command -v node >/dev/null 2>&1; then
   exit 1
 fi
 
-TMP_EXPORT="./legacy-promos.local.json"
+MIGRATION_TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/uber-legacy-migration.XXXXXX")"
+chmod 700 "$MIGRATION_TMP_DIR"
+TMP_EXPORT="$MIGRATION_TMP_DIR/legacy-promos.local.json"
 
 cleanup() {
   rm -f "$TMP_EXPORT"
+  rmdir "$MIGRATION_TMP_DIR"
 }
 trap cleanup EXIT
 

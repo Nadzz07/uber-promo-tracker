@@ -109,7 +109,8 @@ test('The true earliest accepted reminder stays earliest while a rejected latest
   assert.equal(repaired.expires_at, reminder.expiresAt); assert.equal(repaired.expiry_status, 'exact');
   const candidate = getOffers(db).find(p => p.offerId === first.offerId);
   assert.ok(candidate, 'Accepted reminder must restore the family to the read model');
-  assert.equal(applyOfferExpiryPolicy(candidate).expiresAt, '2026-07-08T17:05:15.000Z', 'September reminder must not restart the June clock');
+  assert.equal(applyOfferExpiryPolicy(candidate).expiresAt, reminder.expiresAt, 'Reliable Uber deadline takes priority over the fallback');
+  assert.equal(applyOfferExpiryPolicy({...candidate,expires:null,expiresAt:null,expiryStatus:'unknown'}).expiresAt, '2026-07-08T17:05:15.000Z', 'Without reliable terms the reminder must not restart the June fallback');
 });
 
 test('A rejected stale explicit deadline cannot survive a latest accepted source with unknown expiry', (db, ref) => {

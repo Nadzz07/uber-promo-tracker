@@ -1,10 +1,22 @@
 import fs from "node:fs/promises";
+import { randomUUID } from "node:crypto";
 import { migrateLegacyRows } from "./legacy-migration.js";
 
 const inputPath = process.argv[2] || "./legacy-promos.local.json";
 const privateHistoryPath = process.argv[3] || "./history.local.json";
 const accountMapPath = process.argv[4] || "./accounts.local.json";
 const publicHistoryPath = process.argv[5] || "./history.json";
+
+async function writePrivateJson(destination, value) {
+  const temporary = destination + '.tmp-' + randomUUID();
+  try {
+    await fs.writeFile(temporary, JSON.stringify(value, null, 2) + '\n', { mode: 0o600, flag: 'wx' });
+    await fs.rename(temporary, destination);
+    await fs.chmod(destination, 0o600);
+  } finally {
+    await fs.unlink(temporary).catch(error => { if (error.code !== 'ENOENT') throw error; });
+  }
+}
 
 async function readJson(path, fallback) {
   try {
@@ -39,15 +51,8 @@ async function main() {
       importedAt: new Date().toISOString()
     });
 
-    await fs.writeFile(
-      privateHistoryPath,
-      JSON.stringify(result.privateHistory, null, 2) + "\n"
-    );
-
-    await fs.writeFile(
-      accountMapPath,
-      JSON.stringify(result.accountState, null, 2) + "\n"
-    );
+    await writePrivateJson(privateHistoryPath, result.privateHistory);
+    await writePrivateJson(accountMapPath, result.accountState);
 
     await fs.writeFile(
       publicHistoryPath,

@@ -35,6 +35,13 @@ assert.equal(idsCalls,6,"Bounded retry fails closed after three inconsistent sna
 idsCalls=0; collection.id=()=>++idsCalls===2 ? [55] : [44];
 assert.equal(scan({}).length,1,"A transient mutation recovers with a fresh aligned bulk snapshot");
 collection.id=()=>[44];
+let rawReads=0;
+message.source=()=>{rawReads++;return 'From: Uber <receipts@uber.com>\nTo: alpha@example.invalid\nMessage-ID: native@uber.com\n\nTotal £10';};
+const withHeaders=ctx.scanMailbox(box,'receipt',90,0,'INBOX','2026-10-08T12:00:00Z',{},null,null,true);
+assert.match(withHeaders[0].originalHeaders,/To: alpha@example.invalid/);
+assert.equal(rawReads,1);
+assert.equal(ctx.scanMailbox(box,'receipt',90,0,'INBOX','2026-10-08T12:00:00Z',{[key]:date},null,null,true).length,0);
+assert.equal(rawReads,1,'Discovery does not download unchanged receipt originals again');
 const range=ctx.dateRange(0,0,date,"2026-10-08T23:00:00Z","2026-10-09T23:00:00Z");
 assert.equal(range.end-range.start,24*60*60*1000);
 assert.throws(()=>ctx.dateRange(0,0,date,"invalid","2026-10-09T23:00:00Z"),/boundaries/);

@@ -5,8 +5,10 @@ import fs from "node:fs";
 import { maskAccountAlias } from "./account-map.js";
 import { offerFingerprint } from "./identity.js";
 import { estimateReceiptSavings, combinedReceiptSavings } from "./savings-intelligence.js";
+import { hasForwardedReceiptClaims } from "./receipt-text.js";
+import { initFinancialLedger } from './financial-ledger.js';
 
-export const PRIVATE_DB_SCHEMA_VERSION = 10;
+export const PRIVATE_DB_SCHEMA_VERSION = 12;
 export const DEFAULT_PRIVATE_DB = "./uber-tracker.local.db";
 
 // Statements are connection-local and reusable; the weak key lets closed
@@ -210,7 +212,39 @@ function initSchema(db) {
     db.exec("ALTER TABLE receipts ADD COLUMN uber_one_signal INTEGER NOT NULL DEFAULT 0");
   }
 
+  // Old MBOX imports discarded outer identity. Reassess that stored state even
+  // during an empty/incremental sync; changing only fresh parsing is insufficient.
+  // Retain the exact prior source and derived receipt row for independent review.
+  db.exec(`CREATE TABLE IF NOT EXISTS source_boundary_reviews (
+    message_key TEXT PRIMARY KEY, original_json TEXT NOT NULL,
+    reason TEXT NOT NULL, reviewed_at TEXT NOT NULL
+  )`);
+  if (!getMeta(db, 'forwarded_boundary_v1')) {
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const at = new Date().toISOString();
+      const save = prepare(db,'INSERT OR IGNORE INTO source_boundary_reviews VALUES(?,?,?,?)');
+      const reject = prepare(db,"UPDATE messages SET accepted=0,kind='other',rejection_reason='forwarded_source_needs_review' WHERE message_key=?");
+      for (const row of prepare(db,"SELECT * FROM messages WHERE accepted=1").all()) {
+        if (!hasForwardedReceiptClaims(row.subject,row.body_text)) continue;
+        save.run(row.message_key,JSON.stringify(row),'forwarded_source_needs_review',at);
+        reject.run(row.message_key);
+      }
+      setMeta(db,'forwarded_boundary_v1',at);
+      db.exec('COMMIT');
+    } catch (error) { db.exec('ROLLBACK');throw error; }
+  }
+
   setMeta(db, "schema_version", PRIVATE_DB_SCHEMA_VERSION);
+  initFinancialLedger(db);
+  for (const table of ['receipts','transport_receipts']) {
+    if (!db.prepare('PRAGMA table_info('+table+')').all().some(c=>c.name==='financial_evidence_json')) db.exec('ALTER TABLE '+table+' ADD COLUMN financial_evidence_json TEXT');
+  }
+  db.exec(`CREATE TABLE IF NOT EXISTS receipt_source_projections (
+    table_name TEXT NOT NULL, receipt_id TEXT NOT NULL, message_key TEXT NOT NULL,
+    received_at TEXT, payload_json TEXT NOT NULL,
+    PRIMARY KEY(table_name,receipt_id,message_key));
+    CREATE INDEX IF NOT EXISTS receipt_sources_record ON receipt_source_projections(table_name,receipt_id);`);
 
   if (getMeta(db, "next_account_number") == null) {
     setMeta(db, "next_account_number", 1);
@@ -821,19 +855,49 @@ export function getOffers(db, { service = null, includeHistorical = false } = {}
   }));
 }
 
+// A newly obtained original may be older than the forwarded delivery. Prefer
+// its independently accepted source without losing the former derived record.
+function restoreRejectedReceiptSource(db, table, receipt, priorId, seenAt) {
+  if (!receipt.reparsedSource || !receipt.messageKey || !priorId) return;
+  const original = prepare(db, 'SELECT accepted,kind FROM messages WHERE message_key=?').get(receipt.messageKey);
+  if (!original?.accepted || original.kind !== (table === 'receipts' ? 'receipt' : 'transport_receipt')) return;
+  const prior = prepare(db, `SELECT r.* FROM ${table} r LEFT JOIN messages m USING(message_key) WHERE r.receipt_id=? AND (m.message_key IS NULL OR m.accepted=0)`).get(priorId);
+  if (!prior) return;
+  db.exec(`CREATE TABLE IF NOT EXISTS receipt_source_restorations (
+    table_name TEXT NOT NULL, receipt_id TEXT NOT NULL, original_message_key TEXT NOT NULL,
+    verified_message_key TEXT NOT NULL, original_row_json TEXT NOT NULL, restored_at TEXT NOT NULL,
+    PRIMARY KEY(table_name,receipt_id,verified_message_key))`);
+  prepare(db, 'INSERT OR IGNORE INTO receipt_source_restorations VALUES(?,?,?,?,?,?)').run(table,priorId,prior.message_key||'missing_source',receipt.messageKey,JSON.stringify(prior),seenAt);
+  prepare(db, `UPDATE ${table} SET message_key=?,sent_at=?,received_at=? WHERE receipt_id=?`).run(receipt.messageKey,receipt.sentAt||receipt.receivedAt,receipt.receivedAt,priorId);
+}
+
+function projectReceiptFinancialSources(db, table, receipt) {
+  const message=receipt.messageKey&&prepare(db,'SELECT accepted,kind FROM messages WHERE message_key=?').get(receipt.messageKey);
+  const kind=table==='receipts'?'receipt':'transport_receipt';
+  if(!message?.accepted||message.kind!==kind)return;
+  const fields=['total','promotionDiscount','uberCashUsed','uberCashSavings','reportedSavings','uberOneSavings',...(table==='receipts'?['subtotal','deliveryFee','serviceFee','smallOrderFee','tip']:[])];
+  const payload={receivedAt:receipt.receivedAt||receipt.sentAt,financial:receipt.evidence?.financial||receipt.financialEvidence||{}};
+  for(const key of fields)payload[key]=receipt[key]??null;
+  prepare(db,`INSERT INTO receipt_source_projections VALUES(?,?,?,?,?) ON CONFLICT(table_name,receipt_id,message_key) DO UPDATE SET received_at=excluded.received_at,payload_json=excluded.payload_json`).run(table,receipt.receiptId,receipt.messageKey,payload.receivedAt??null,JSON.stringify(payload));
+  const sources=prepare(db,`SELECT p.payload_json FROM receipt_source_projections p JOIN messages m USING(message_key) WHERE p.table_name=? AND p.receipt_id=? AND m.accepted=1 AND m.kind=? ORDER BY p.received_at,p.message_key`).all(table,receipt.receiptId,kind).map(r=>JSON.parse(r.payload_json));
+  const values=Object.fromEntries(fields.map(k=>[k,null])),financial={};
+  for(const source of sources){for(const key of fields)if(source[key]!=null)values[key]=source[key];if(source.reportedSavings!=null)financial.reportedKind=source.financial.reportedKind||'total';for(const key of ['scheduleSavings','outOfPocket'])if(source.financial[key]!=null)financial[key]=source.financial[key];}
+  const column=key=>key.replace(/[A-Z]/g,c=>'_'+c.toLowerCase());
+  prepare(db,'UPDATE '+table+' SET '+fields.map(k=>column(k)+'=?').join(',')+',financial_evidence_json=? WHERE receipt_id=?').run(...fields.map(k=>values[k]),JSON.stringify(financial),receipt.receiptId);
+}
+
 export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
-  // A complete reparse of the SAME source may correct a former false extraction.
-  // Sparse duplicates from different messages continue to preserve known facts.
+  const previous = prepare(db, `SELECT receipt_id FROM receipts WHERE account_ref = ? AND
+    (receipt_id = ? OR (message_key IS NOT NULL AND message_key = ?) OR
+     (order_id IS NOT NULL AND upper(trim(order_id)) = ?)) LIMIT 1`)
+    .get(receipt.accountRef, receipt.receiptId || null, receipt.messageKey || null, receipt.orderId ? String(receipt.orderId).trim().toUpperCase() : null);
+  if (previous) receipt = { ...receipt, receiptId: previous.receipt_id };
+  restoreRejectedReceiptSource(db, 'receipts', receipt, previous?.receipt_id, seenAt);
   if (receipt.reparsedSource && receipt.messageKey) prepare(db, `UPDATE receipts SET
     subtotal = NULL, promotion_discount = NULL, delivery_fee = NULL, service_fee = NULL,
     small_order_fee = NULL, tip = NULL, uber_cash_used = NULL, uber_cash_savings = NULL,
     reported_savings = NULL, uber_one_savings = NULL, uber_one_signal = 0, total = NULL
     WHERE message_key = ? AND account_ref = ?`).run(receipt.messageKey, receipt.accountRef);
-  const previous = prepare(db, `SELECT receipt_id FROM receipts WHERE account_ref = ? AND
-    ((message_key IS NOT NULL AND message_key = ?) OR
-     (order_id IS NOT NULL AND upper(trim(order_id)) = ?)) LIMIT 1`)
-    .get(receipt.accountRef, receipt.messageKey || null, receipt.orderId ? String(receipt.orderId).trim().toUpperCase() : null);
-  if (previous) receipt = { ...receipt, receiptId: previous.receipt_id };
   prepare(db, `
     INSERT INTO receipts(
       receipt_id, account_ref, message_key, sent_at, received_at,
@@ -912,12 +976,15 @@ export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
     seenAt,
     seenAt
   );
+  projectReceiptFinancialSources(db, 'receipts', receipt);
 }
 
 export function getReceipts(db) {
   return dedupeReceipts(prepare(db, `
     SELECT
       r.*,
+      m.evidence_json AS source_evidence,
+      a.login_access,
       a.masked AS account_masked,
       a.can_login AS can_login
     FROM receipts r
@@ -928,6 +995,7 @@ export function getReceipts(db) {
   `).all().map(row => ({
     messageKey: row.message_key,
     service: "Uber Eats",
+    financialEvidence: row.financial_evidence_json ? JSON.parse(row.financial_evidence_json) : JSON.parse(row.source_evidence || '{}').financial || null,
     id: row.receipt_id,
     receiptId: row.receipt_id,
     accountRef: row.account_ref,
@@ -958,17 +1026,18 @@ export function upsertTransportReceipt(
   receipt,
   seenAt = new Date().toISOString()
 ) {
-  if (receipt.reparsedSource && receipt.messageKey) prepare(db, `UPDATE transport_receipts SET
-    promotion_discount = NULL, uber_cash_used = NULL, uber_cash_savings = NULL,
-    reported_savings = NULL, uber_one_savings = NULL, total = NULL
-    WHERE message_key = ? AND account_ref = ?`).run(receipt.messageKey, receipt.accountRef);
   const previous = prepare(db, `SELECT receipt_id FROM transport_receipts WHERE account_ref = ? AND
-    ((? IS NOT NULL AND message_key = ?) OR (? IS NOT NULL AND upper(trim(trip_id)) = ?) OR (? IS NOT NULL AND trip_key = ? AND transport_mode = ?)) ORDER BY CASE WHEN message_key = ? THEN 0 ELSE 1 END,first_seen_at LIMIT 1`)
-    .get(receipt.accountRef, receipt.messageKey || null, receipt.messageKey || null,
+    (receipt_id = ? OR (? IS NOT NULL AND message_key = ?) OR (? IS NOT NULL AND upper(trim(trip_id)) = ?) OR (? IS NOT NULL AND trip_key = ? AND transport_mode = ?)) ORDER BY CASE WHEN message_key = ? THEN 0 ELSE 1 END,first_seen_at LIMIT 1`)
+    .get(receipt.accountRef, receipt.receiptId || null, receipt.messageKey || null, receipt.messageKey || null,
       receipt.tripId ? String(receipt.tripId).trim().toUpperCase() : null,
       receipt.tripId ? String(receipt.tripId).trim().toUpperCase() : null,
       receipt.tripKey || null,receipt.tripKey || null,receipt.transportMode || 'ride',receipt.messageKey || null);
   if (previous) receipt = { ...receipt, receiptId: previous.receipt_id };
+  restoreRejectedReceiptSource(db, 'transport_receipts', receipt, previous?.receipt_id, seenAt);
+  if (receipt.reparsedSource && receipt.messageKey) prepare(db, `UPDATE transport_receipts SET
+    promotion_discount = NULL, uber_cash_used = NULL, uber_cash_savings = NULL,
+    reported_savings = NULL, uber_one_savings = NULL, total = NULL
+    WHERE message_key = ? AND account_ref = ?`).run(receipt.messageKey, receipt.accountRef);
   prepare(db, `
     INSERT INTO transport_receipts(
       receipt_id, account_ref, message_key, sent_at, received_at,
@@ -1019,12 +1088,14 @@ export function upsertTransportReceipt(
     receipt.promotionDiscount ?? null, receipt.uberCashUsed ?? null, receipt.uberCashSavings ?? null,
     receipt.reportedSavings ?? null, receipt.uberOneSavings ?? null
   );
+  projectReceiptFinancialSources(db, 'transport_receipts', receipt);
 }
 
 // Run only after complete, validated source coverage. Duplicate derived rows
 // remain recoverable in a private journal; every original message is retained.
 export function reconcileTransportReceiptIdentities(db, processedMessageKeys, parsedSources = null) {
-  const rows=prepare(db, 'SELECT * FROM transport_receipts WHERE trip_key IS NOT NULL').all();
+  const rows=prepare(db, `SELECT r.* FROM transport_receipts r LEFT JOIN messages m USING(message_key)
+    WHERE r.trip_key IS NOT NULL AND (m.message_key IS NULL OR (m.accepted=1 AND m.kind='transport_receipt'))`).all();
   const groups=new Map();
   for(const row of rows){
     if(!row.message_key || !processedMessageKeys.has(row.message_key)) throw new Error('Complete receipt source coverage is required for identity reconciliation.');
@@ -1071,6 +1142,8 @@ export function getTransportReceipts(db) {
   return dedupeReceipts(prepare(db, `
     SELECT
       r.*,
+      m.evidence_json AS source_evidence,
+      a.login_access,
       a.masked AS account_masked,
       a.can_login AS can_login
     FROM transport_receipts r
@@ -1081,6 +1154,7 @@ export function getTransportReceipts(db) {
   `).all().map(row => ({
     messageKey: row.message_key,
     service: "Uber",
+    financialEvidence: row.financial_evidence_json ? JSON.parse(row.financial_evidence_json) : JSON.parse(row.source_evidence || '{}').financial || null,
     id: row.receipt_id,
     receiptId: row.receipt_id,
     accountRef: row.account_ref,
@@ -1139,9 +1213,8 @@ export function replaceReceiptMatches(db, matches = [], matchedAt = new Date().t
   }
 }
 
-export function getSavingsSummary(db) {
-  const receipts = getReceipts(db);
-  const savings = combinedReceiptSavings(receipts, getTransportReceipts(db));
+export function getSavingsSummary(db, {receipts=getReceipts(db),rides=getTransportReceipts(db)}={}) {
+  const savings = combinedReceiptSavings(receipts, rides);
 
   const feeSamples = receipts.filter(r => r.deliveryFee != null || r.serviceFee != null || r.smallOrderFee != null);
   const averageFees = feeSamples.length ? feeSamples.reduce((sum, r) => sum + Number(r.deliveryFee || 0) + Number(r.serviceFee || 0) + Number(r.smallOrderFee || 0), 0) / feeSamples.length : 0;
@@ -1176,19 +1249,23 @@ export function getSavingsSummary(db) {
   };
 }
 
-export function getPublicAccountInsights(db) {
-  const receipts = getReceipts(db);
-  const rides = getTransportReceipts(db);
-  const offers = getOffers(db, { service: "Uber Eats" });
+export function getPublicAccountInsights(db, {receipts=getReceipts(db),rides=getTransportReceipts(db),offers=getOffers(db,{service:'Uber Eats'})}={}) {
+  const ordersByAccount=new Map(),ridesByAccount=new Map(),offerCounts=new Map();
+  const sourceReviews=new Map(prepare(db,`SELECT account_ref,count(*) AS n FROM (
+    SELECT r.account_ref FROM receipts r JOIN messages m USING(message_key) WHERE m.accepted=0 AND m.rejection_reason='forwarded_source_needs_review'
+    UNION ALL SELECT r.account_ref FROM transport_receipts r JOIN messages m USING(message_key) WHERE m.accepted=0 AND m.rejection_reason='forwarded_source_needs_review'
+  ) GROUP BY account_ref`).all().map(r=>[r.account_ref,Number(r.n)]));
+  for(const [rows,index]of [[receipts,ordersByAccount],[rides,ridesByAccount]])for(const r of rows){if(!index.has(r.accountRef))index.set(r.accountRef,[]);index.get(r.accountRef).push(r);}
+  for(const p of offers)if(p.status==='active')offerCounts.set(p.accountRef,(offerCounts.get(p.accountRef)||0)+1);
   const savings = estimateReceiptSavings(receipts).byAccount;
   return getAccounts(db).map(account => {
-    const orders = receipts.filter(r => r.accountRef === account.accountRef);
-    const transport = rides.filter(r => r.accountRef === account.accountRef);
+    const orders = ordersByAccount.get(account.accountRef)||[];
+    const transport = ridesByAccount.get(account.accountRef)||[];
     const last = rows => rows.map(r => r.sentAt || r.receivedAt).filter(Boolean).sort().at(-1) || null;
     return { accountRef: account.accountRef, accountMasked: account.masked, canLogin: account.canLogin,
       accessStatus: account.accessStatus || (account.canLogin ? "accessible" : "inaccessible"), loginMethod: account.loginMethod, accountStatus: account.accountStatus || (account.canLogin ? 'active' : 'archived'), deactivated: account.deactivated === true, lastSeenAt: account.lastSeenAt, lastPromoAt: account.lastPromoAt,
       lastOrderAt: last(orders), lastRideAt: last(transport), orderCount: orders.length, rideCount: transport.length,
-      totalSaved: savings.get(account.accountRef)?.confirmedSaved || 0,
-      activePromoCount: offers.filter(p => p.accountRef === account.accountRef && p.status === "active").length };
+      totalSaved: savings.get(account.accountRef)?.confirmedSaved || 0,sourceReviewCount:sourceReviews.get(account.accountRef)||0,
+      activePromoCount: offerCounts.get(account.accountRef)||0 };
   });
 }

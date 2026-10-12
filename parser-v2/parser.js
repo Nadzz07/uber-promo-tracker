@@ -2,6 +2,7 @@ import { classifyMessage } from "./classifier.js";
 import { extractOfferDetails } from "./discount.js";
 import { extractExpiry } from "./expiry.js";
 import { analyseSender } from "./sender.js";
+import { hasForwardedReceiptClaims } from "../receipt-text.js";
 import {
   asDate,
   extractAccountAlias,
@@ -34,6 +35,10 @@ export function parseUberPromoV2({
     senderAnalysis,
     offer
   });
+  if (hasForwardedReceiptClaims(subject, body)) {
+    classification.accepted = false;
+    classification.rejectionReason = 'forwarded_source_needs_review';
+  }
 
   let title = String(subject || "").trim();
 

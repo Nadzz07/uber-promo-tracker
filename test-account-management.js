@@ -3,7 +3,7 @@ import {accountArchived,accountUsage,classifyAccount,matchesAccountFilter,accoun
 import {applyOfferExpiryPolicy} from './offer-time.js';
 import {classifyOfferTrackingState,offerFinishedReason,offerClosureLabel,classifyOfferCompletion} from './offer-state.js';
 import {openPrivateDb,setAccountAccess,getPublicAccountInsights} from './private-db.js';
-const now='2026-10-09T12:00:00Z',offer={discountType:'fixed',discount:12,uses:5,usesRemaining:5,service:'Uber Eats',emailSentAt:'2026-09-01T12:00:00Z',firstEmailSentAt:'2026-09-01T12:00:00Z',expiresAt:'2026-11-01T12:00:00Z',expiryStatus:'exact'};
+const now='2026-10-09T12:00:00Z',offer={discountType:'fixed',discount:12,uses:5,usesRemaining:5,service:'Uber Eats',emailSentAt:'2026-09-01T12:00:00Z',firstEmailSentAt:'2026-09-01T12:00:00Z',expiresAt:null,expiryStatus:'unknown'};
 for(const confirmed of [0,1,5]){
  const value={...offer,usesRemaining:5-confirmed,receiptConfirmedUses:confirmed,receiptState:confirmed===5?'used':'partial'};
  const state=classifyOfferTrackingState(value,{now});

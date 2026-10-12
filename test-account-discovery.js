@@ -27,3 +27,16 @@ try {
  const snapshot=JSON.parse(fs.readFileSync(pub));assert.equal(snapshot.accounts.length,1);const a=snapshot.accounts[0];assert.equal(a.canLogin,null);assert.equal(a.accessStatus,'pending');assert.equal(a.accountUsed,true);assert.equal(a.archived,false);assert.equal(a.recommendationEligible,false);assert.equal(snapshot.summary.pendingAccessAccounts,1);assert.equal(snapshot.summary.accessibleAccounts,0);assert.equal(snapshot.summary.inaccessibleAccounts,0);assert.equal(snapshot.summary.availableAccounts,1);assert.equal(snapshot.summary.readyToUseAccounts,0);assert.equal(snapshot.summary.offerAttentionAccounts,1);assert.equal(snapshot.summary.trackedOrders,5);
  console.log('✓ Pending access survives the real Mail importer, completed account receipts and public export without granting access or archiving');
 } finally {fs.rmSync(dir,{recursive:true,force:true});}
+
+const registered=fs.mkdtempSync(path.join(os.tmpdir(),'tracker-safe-registration-'));
+try{
+ const access=path.join(registered,'account-access.local.csv'),input=path.join(registered,'mail.local.json'),database=path.join(registered,'private.db');
+ const {openPrivateDb,ensureAccount}=await import('./private-db.js');const db=openPrivateDb(database);ensureAccount(db,{alias:'existing@example.invalid'});db.close();
+ const before='email,can_login,login_method,account_status,Notes\nexisting@example.invalid,true,iCloud,active,Preserve this note\n';fs.writeFileSync(access,before);
+ fs.writeFileSync(input,JSON.stringify({messages:[receipt,receipt,{...receipt,recipient:'uncertain@example.invalid'}]}));
+ const register=()=>JSON.parse(execFileSync(process.execPath,['mac/register-receipt-accounts.js',input,database,access],{encoding:'utf8'}));
+ assert.equal(register().newReceiptAccounts,1);assert.ok(fs.readFileSync(access,'utf8').startsWith(before));
+ const rows=parseAccessList(fs.readFileSync(access,'utf8'));assert.equal(rows.at(-1).canLogin,null);assert.equal(rows.at(-1).loginMethod,null);
+ assert.equal(fs.statSync(access).mode&0o777,0o600);assert.equal(register().newReceiptAccounts,0,'Repeat hourly scans do not add duplicate accounts');
+ console.log('✓ Hourly original-receipt discovery safely appends pending accounts, preserves registry notes/access, rejects ambiguous identities and is idempotent');
+}finally{fs.rmSync(registered,{recursive:true,force:true});}

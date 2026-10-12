@@ -14,8 +14,9 @@ is green. No Mail messages need to be moved, trashed or deleted for this release
 - Eligible promotions count independently of access and archive status. Ready to Use requires confirmed access and active rotation; Needs Attention covers other eligible accounts. Product-specific discounts do not count as order coupons; grocery and supermarket order promotions remain eligible. Uncertain scope or missing sources need checking.
 - An account with a usable offer is not labelled Needs checking just because
   another offer is ambiguous. Unmatched discounts do not flag unrelated offers.
-- Offers expire at the earlier of explicit terms and 35 elapsed days from the
-  first observed offer email. The latter is a labelled policy estimate; it cannot
+- Offers follow a reliable explicit Uber deadline, whether earlier or later than
+  35 days. Without one, expiry is 35 elapsed days from the first qualifying offer
+  email. The latter is a labelled policy estimate; it cannot
   prove the activation date. Invalid/missing dates remain reviewable. Reminders
   do not restart the clock. Expiry is distinct from consumed uses.
 - Trusted sender/relay matching, direct Lime receipts, original account To
@@ -167,6 +168,13 @@ from `tracker.local.env` is exported to the importer; a missing configured CSV
 blocks sync rather than allowing excluded accounts to return. Synthetic tests
 run without the owner's private configuration in their environment.
 
+Set `TRACKER_DISCOVER_RECEIPT_ACCOUNTS=true` to register genuinely new receipt
+accounts during hourly scans. Original sender, recipient and Message-ID headers
+must agree; forwarded or ambiguous evidence and historical exclusions cannot
+restore accounts. New rows have pending access and no guessed login method.
+The private CSV is backed up and extended without rewriting existing notes or
+access classifications. Discovery performs no Mail moves.
+
 For large historical mailboxes, Mail's **Export Mailbox** action can create a
 read-only local MBOX copy without changing messages. Keep that export private.
 `parseMboxStream` supports an awaited `onMessage` callback for bounded-memory
@@ -179,3 +187,47 @@ explicit opt-ins and `TRACKER_READ_ONLY_MAIL=false`. Their plans and results are
 retained in owner-only `mail-routing.local.*` directories. Bin routing uses an
 explicit, unique recoverable mailbox and fails closed when unavailable; it never
 uses Mail's delete command or empties Bin.
+
+## Private financial corrections and reviewed Mail cleanup
+
+More → Private finances loads only when opened. Import an owner-only private
+finance export, then save receipt corrections or a current Uber Cash balance
+inside encrypted browser storage. The passphrase is never stored. Export an
+encrypted backup before clearing browser data. Device changes are not uploaded;
+transfer them privately to the Mac ledger to include them in later snapshots:
+
+```sh
+node mac/private-finance.js export --db /absolute/private.local.db --file finance-new.local.json
+node mac/private-finance.js import --db /absolute/private.local.db --file uber-finance-transfer.local.json
+```
+
+These commands back up the database before opening it. Corrections are append-only
+private events; undo preserves original email evidence. Importing the same event
+again is idempotent. A conflicting event identity stops the import.
+
+Forwarded body headers cannot establish a receipt's sender or account. Historical
+records relying on them remain in the database and its source-review journal,
+but do not contribute to confirmed counters until independently verified.
+
+Routine hourly sync is read-only, including when old move flags remain set.
+Promotional cleanup is separate: capture physical sources using
+`mac/preview-mail-cleanup.js`, classify with `mail-cleanup.js`, and present a
+masked dry-run with Archive/Bin counts. Obtain explicit approval of that preview
+before invoking `mac/execute-mail-cleanup.js`. The execution command requires the
+approved report digest and matching compressed plan digest. It verifies each
+same-account destination original and source removal, stopping on any mismatch.
+Never empty Bin. Do not enable a future cleanup schedule until its policy has
+been tested and separately approved. Keep the private source captures and audit
+trail for recovery; exclude all `*.local.*` artifacts from GitHub.
+
+Future cleanup has its own daily policy and launch agent. It is disabled without
+an explicitly approved owner-only policy file and its exact SHA-256 digest.
+`mac/run-cleanup-policy.js` checks the immutable classifier fingerprint, scans
+only messages received after policy activation or its successful checkpoint,
+preserves original sources and transactionally imports known-account terms into
+the backed-up private database before filing, protects receipts/security/uncertain identities,
+and moves at most 250 copies per run. It shares the sync lock with read-only
+imports and stops after any incomplete move verification. A pending failure
+requires reconciliation. `mac/install-cleanup-policy.js` installs this separate
+job only after approval; it never modifies the hourly job. Changing the parser
+or cleanup rules invalidates policy approval until the new rules are reviewed.

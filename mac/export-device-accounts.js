@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { DEVICE_ACCOUNTS_KIND } from '../device-accounts.js';
+import { keyedPublicOfferId } from '../identity.js';
 
 let source = process.env.TRACKER_PRIVATE_DB || 'uber-tracker.local.db';
 let output = 'device-accounts.local.json';
@@ -17,10 +18,18 @@ if (!source || !output || !fs.existsSync(source)) throw new Error('An existing p
 source = path.resolve(source); output = path.resolve(output);
 if (!/\.local\.json$/.test(output) || fs.existsSync(output)) throw new Error('Choose a NEW *.local.json file; existing exports are never overwritten.');
 const db = new DatabaseSync(source, { readOnly: true });
-let rows;
-try { rows = db.prepare('SELECT account_ref AS accountRef, masked AS accountMasked, alias AS email FROM accounts ORDER BY account_ref').all(); }
+let rows, offerIdMigrations = [];
+try {
+  rows = db.prepare('SELECT account_ref AS accountRef, masked AS accountMasked, alias AS email FROM accounts ORDER BY account_ref').all();
+  const key = db.prepare("SELECT value FROM meta WHERE key='public_offer_identity_key'").get()?.value;
+  if (key) {
+    if (!/^[a-f0-9]{64}$/.test(key)) throw new Error('Invalid publication key.');
+    offerIdMigrations = db.prepare('SELECT offer_id FROM offers').all().map(r => ({from:r.offer_id,to:keyedPublicOfferId(key,r.offer_id)}));
+
+  }
+}
 finally { db.close(); }
 const file = fs.openSync(output, 'wx', 0o600);
-try { fs.writeFileSync(file, JSON.stringify({ schemaVersion: 1, kind: DEVICE_ACCOUNTS_KIND, accounts: rows }, null, 2) + '\n'); }
+try { fs.writeFileSync(file, JSON.stringify({ schemaVersion: 1, kind: DEVICE_ACCOUNTS_KIND, accounts: rows, offerIdMigrations }, null, 2) + '\n'); }
 finally { fs.closeSync(file); }
 console.log('Created private device export (' + rows.length + ' accounts). Keep this file off Git and import it in More → Login emails.');

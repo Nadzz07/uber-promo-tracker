@@ -65,7 +65,7 @@ try {
   for (const hidden of ['lo…ed', 're…ew', 'ex…ed', 'us…ed', 'ba…nt']) assert.equal(recommendation.includes(hidden), false);
   await page.locator('[data-account-offers="A001"]').first().click();
   assert.equal(await page.evaluate(() => document.activeElement.id), 'sheetClose');
-  assert.match(await page.locator('#sheetBody .offer-details').first().innerText(), /Estimated end.*35-day tracking limit/, 'A capped deadline must be labelled as a tracker estimate');
+  assert.match(await page.locator('#sheetBody .offer-details').first().innerText(), /Ends 31 Dec at 23:59 UK/, 'An explicit Uber deadline takes priority over the fallback window');
   assert.equal(await page.locator('.sheet').evaluate(el => getComputedStyle(el).animationName), 'liquidSheetOpen');
   const sheetAnimation = await page.locator('.sheet').evaluate(el => parseFloat(getComputedStyle(el).animationDuration));
   assert.ok(sheetAnimation >= .2 && sheetAnimation <= .4, 'Sheets should use a short, purposeful transition');
@@ -404,7 +404,7 @@ try {
   assert.equal(await filterPage.locator('.analytics-panel:visible').count(),2);
   assert.equal(await filterPage.locator('.monthly-row').count(),3);
   assert.match(await filterPage.locator('.chart-insight').innerText(),/Jul 26 was strongest.*£39/);
-  assert.equal(await filterPage.locator('.monthly-track > span').last().evaluate(e=>e.getBoundingClientRect().width),0,'Zero savings must not become a decorative positive bar');
+  assert.equal(await filterPage.locator('.monthly-track > span').first().evaluate(e=>e.getBoundingClientRect().width),0,'Zero savings must not become a decorative positive bar');
   // A published available state cannot survive its deadline, even without a new import.
   const clockNow=Date.now();
   repeatOffer.expiresAt=new Date(clockNow+2*86400000).toISOString();repeatOffer.expiryStatus='exact';
