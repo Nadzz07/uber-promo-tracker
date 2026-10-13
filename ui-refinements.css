@@ -974,6 +974,7 @@ body::before, body::after { display: none; }
 #view-used .activity-section { margin-top:14px; }
 #view-used .activity-section > summary { gap:12px; padding:16px; min-height:74px; }
 #view-used .activity-section > summary > .app-icon-surface { flex:0 0 24px; width:24px; height:24px; border:0; background:none; box-shadow:none; }
+#view-used .used-accounts-panel > summary > .app-icon-surface { color:var(--green); }
 #needsCheckingSection > summary > .app-icon-surface { color:var(--amber); }
 #view-used .activity-section > summary::before { display:none; }
 #view-used .activity-section > summary::after { content:'›'; font-size:24px; color:var(--muted); }
