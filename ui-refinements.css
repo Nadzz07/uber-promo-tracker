@@ -964,8 +964,8 @@ body::before, body::after { display: none; }
 .search-input, .account-scope, .sheet-input, .sheet-select { min-height:48px; border:1px solid var(--line); background:var(--surface-inset); color:var(--text); }
 .activity-summary { gap:14px; margin:24px 0; }
 .activity-card { display:block; padding:15px; min-height:0; border-radius:22px; background:var(--surface-gradient); }
-.activity-card > .activity-card-label { display:flex; align-items:center; gap:8px; min-height:35px; padding-right:28px; font-size:12px; line-height:1.45; }
-.activity-card-label > span:last-child { min-width:0; }
+.activity-card > .activity-card-label { display:flex; align-items:center; gap:8px; min-height:35px; padding-right:28px; font-size:12px; font-weight:600; line-height:1.45; color:var(--muted); }
+.activity-card-label > span:last-child { min-width:0; font:inherit; color:inherit; }
 .metric-icon { display:grid; place-items:center; flex:0 0 20px; width:20px; height:20px; color:var(--muted); }
 .metric-icon > .finance-icon { width:20px; height:20px; flex-basis:20px; }
 .activity-card:first-child .metric-icon { color:var(--green); }
