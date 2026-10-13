@@ -1,6 +1,9 @@
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const paths = {
   edit: '<path d="m16 3 5 5M3 21l5-1L21 7l-5-5L3 15v6Z"/>',
+  cloud: '<path d="M6 19a5 5 0 0 1-1-10 7 7 0 0 1 13-2 6 6 0 0 1 0 12H6Z"/>',
+  key: '<circle cx="8" cy="8" r="5"/><path d="m12 12 9 9M16 16l3-3M19 19l3-3"/>',
+  search: '<circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/>',
   savings: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v5c0 4 16 4 16 0V5M4 10v5c0 4 16 4 16 0v-5M4 15v4c0 4 16 4 16 0v-4"/>',
   wallet: '<path d="M20 8V5H5a3 3 0 0 0 0 6h16v10H5a3 3 0 0 1-3-3V8M21 12h-6v6h6"/><path d="M17 15h.01"/>',
   bag: '<path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/>',
@@ -11,7 +14,7 @@ const paths = {
   history: '<path d="M3 5v5h5M3 10a9 9 0 1 1 1 8M12 7v6l4 2"/>',
   lock: '<rect x="5" y="10" width="14" height="12" rx="3"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 15v3"/>',
   check: '<path d="m5 12 4 4L19 6"/>',
-  insights: '<path d="M4 21V15h3v6M11 21V9h3v12M18 21V3h3v18"/>',
+  insights: '<rect x="3" y="15" width="4" height="7" rx="1" fill="currentColor" stroke="none"/><rect x="10" y="9" width="4" height="13" rx="1" fill="currentColor" stroke="none"/><rect x="17" y="3" width="4" height="19" rx="1" fill="currentColor" stroke="none"/>',
   user: '<circle cx="12" cy="7" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/>',
   settings: '<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="16" cy="17" r="3"/>',
   help: '<path d="M3 3c3-1 6 0 9 2 3-2 6-3 9-2v17c-3-1-6 0-9 2-3-2-6-3-9-2V3Z"/><path d="M12 5v17"/>',

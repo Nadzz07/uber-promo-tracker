@@ -60,8 +60,10 @@ try{
   assert.equal(await page.locator('#savedStat').innerText(),saved,'Visual actions cannot alter savings');
   await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="appearance"]').click();await page.locator('[data-theme-colour="#c5a0ff"]').click();await page.keyboard.press('Escape');await page.locator('#view-more [data-open-sheet="receipts"]').click();
   assert.equal(await page.locator('.finance-heading-icon').evaluate(el=>getComputedStyle(el).color),'rgb(197, 160, 255)');
-  assert.ok(await page.locator('.insights-hero').evaluate(el=>getComputedStyle(el).backgroundImage.includes('197, 160, 255')&&getComputedStyle(el,'::before').borderColor.includes('197, 160, 255')),'Receipt insights shares the chosen Savings material');
-  assert.equal(await page.locator('.savings-bar-track > span').count(),1,'Chart follows actual month records');
+  assert.ok(await page.locator('.insights-hero').evaluate(el=>getComputedStyle(el).backgroundImage.includes('197, 160, 255')&&getComputedStyle(el).borderColor.includes('197, 160, 255')),'The approved solid Receipt insights hero follows the chosen accent');
+  assert.equal(await page.locator('.receipt-record-metric strong').first().innerText(),'2','Receipt records retain the actual combined service count');
+  assert.equal(await page.locator('.receipt-record-summary > p').innerText(),'1 Eats · 1 Ride','Service counts remain visible');
+  assert.equal(await page.locator('#sheetBody .monthly-track > span').count(),1,'Chart follows actual month records');
   assert.equal(await page.locator('#sheetBody .empty').filter({hasText:'Receipt activity will appear'}).count(),1,'Receipt empty state is available');
   assert.ok(await page.locator('.sheet').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
   await page.keyboard.press('Escape');await page.locator('#view-more [data-open-sheet="savings"]').click();
@@ -70,6 +72,8 @@ try{
   await page.keyboard.press('Escape');await page.locator('[data-view="home"]').click();
   assert.ok(await page.locator('.total-saved-card').evaluate(el=>getComputedStyle(el).backgroundImage.includes('197, 160, 255')&&getComputedStyle(el,'::before').borderColor.includes('197, 160, 255')),'Home shares the themed Savings material');
   assert.ok(await page.locator('.home-overview').evaluate(el=>el.querySelector('.total-saved-card').getBoundingClientRect().top<el.querySelector('.home-intro').getBoundingClientRect().top),'Savings leads the overview');
+  const homeHeroHeight=await page.locator('.total-saved-card').evaluate(el=>el.getBoundingClientRect().height);
+  assert.ok(homeHeroHeight<=170,'Home savings keeps compact preview proportions: '+name+' / '+width+' / '+homeHeroHeight);
   await page.locator('[data-view="used"]').click();
   const metrics=await page.locator('.activity-card').evaluateAll(cards=>cards.map(card=>({height:card.getBoundingClientRect().height,overflow:card.scrollWidth>card.clientWidth+1,icon:card.querySelector('.app-icon-surface').getBoundingClientRect().width})));
   assert.ok(metrics.every(card=>card.height<=(width<370?145:130)&&!card.overflow&&card.icon<=32),'Used tiles and icons remain balanced without oversized empty space: '+name+' / '+width+' / '+JSON.stringify(metrics));
@@ -82,6 +86,45 @@ try{
    assert.ok(await page.locator('.sheet').evaluate(el=>el.getBoundingClientRect().bottom<=421),'Sheet remains above an emulated keyboard viewport');
   }
   assert.deepEqual(errors,[]);await page.close();
+
+  // Reference layout with real-shaped totals: no illustrative counts, dates or filters.
+  const populated={...snapshot,summary:{...snapshot.summary,financialBreakdown:{missing:1}},receiptActivity:{months:[
+   {period:'2025-12',eats:1,rides:0,saved:0},{period:'2026-01',eats:0,rides:1,saved:28.86},
+   {period:'2026-02',eats:0,rides:1,saved:42.44},{period:'2026-03',eats:0,rides:1,saved:573.64},
+   {period:'2026-04',eats:0,rides:1,saved:95.76},{period:'2026-05',eats:0,rides:1,saved:110.97}],
+   days:Array.from({length:5},(_,i)=>({period:'2026-10-0'+(9-i),eats:i===0?1:0,rides:1,saved:i*3,dateFallbacks:i===4?1:0}))}};
+  const populatedPage=await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'});
+  await populatedPage.route('**/promos.json*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(populated)}));
+  await populatedPage.goto('http://127.0.0.1:'+server.address().port);await populatedPage.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
+  await populatedPage.locator('[data-view="accounts"]').click();
+  assert.equal(await populatedPage.locator('#accountsTotal').innerText(),'8');assert.equal(await populatedPage.locator('#accountsAccessible').innerText(),'8');
+  await populatedPage.locator('.accounts-stat [data-metric-label="Total accounts"]').click();
+  assert.match(await populatedPage.locator('#sheetBody').innerText(),/Every tracked account/);await populatedPage.keyboard.press('Escape');
+  await populatedPage.locator('.accounts-stat [data-metric-label="Can log in"]').click();
+  assert.match(await populatedPage.locator('#sheetBody').innerText(),/separate from usage and archive/);await populatedPage.keyboard.press('Escape');
+  await populatedPage.locator('[data-view="more"]').click();await populatedPage.locator('#view-more [data-open-sheet="receipts"]').click();
+  assert.match(await populatedPage.locator('.insights-hero strong').innerText(),/851\.67/);
+  assert.equal(await populatedPage.locator('#sheetBody .monthly-track > span').count(),6);
+  const widths=await populatedPage.locator('#sheetBody .monthly-track').evaluateAll(tracks=>tracks.map(t=>({bar:t.firstElementChild.getBoundingClientRect().width,track:t.getBoundingClientRect().width})));
+  assert.equal(widths[5].bar,0,'Zero savings remains zero');
+  assert.ok(Math.abs(widths[2].bar-widths[2].track)<1,'The largest actual amount fills the old horizontal bar');
+  assert.ok(Math.abs(widths[1].bar/widths[1].track-95.76/573.64)<.01,'Horizontal bars retain proportional savings');
+  assert.match(await populatedPage.locator('#sheetBody .monthly-label').last().innerText(),/Dec 25/,'Month labels retain their years');
+  assert.match(await populatedPage.locator('#sheetBody .monthly-value').nth(2).innerText(),/573\.64/,'Exact amounts remain readable beside the bars');
+  const heroHeight=await populatedPage.locator('.insights-hero').evaluate(el=>el.getBoundingClientRect().height);
+  assert.ok(heroHeight<=(width<768?140:150),'Receipt hero keeps the reference proportions: '+name+' / '+width+' / '+heroHeight);
+  assert.ok(await populatedPage.locator('.insights-chart-card').evaluate(el=>el.getBoundingClientRect().height<=270),'Horizontal chart stays compact across responsive widths');
+  assert.equal(await populatedPage.locator('.receipt-record-metric strong').last().innerText(),'1');
+  assert.equal(await populatedPage.locator('.receipt-activity-card:visible').count(),3,'Recent activity has the approved short preview');
+  await populatedPage.locator('.receipt-activity-more > summary').click();
+  assert.equal(await populatedPage.locator('.receipt-activity-card:visible').count(),5,'View all preserves every available daily record');
+  assert.match(await populatedPage.locator('.receipt-activity-list').last().innerText(),/email-date fallback/,'Date qualifications remain visible');
+  assert.ok(await populatedPage.locator('.sheet').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'Approved insight cards cannot overflow');
+  assert.equal(await populatedPage.locator('.insights-chart-card select').count(),0,'No nonfunctional illustrative range control');
+  await populatedPage.locator('.receipt-record-metric[data-open-sheet="finance"]').click();
+  await populatedPage.locator('#financePassword').waitFor();
+  assert.equal(await populatedPage.locator('#sheetTitle').innerText(),'Private finances','Missing details uses the existing private corrections route');
+  await populatedPage.close();
  }
  console.log('✓ Sitewide sheets: unknown/zero fees, preview/cancel/private apply, ignore/manual decisions, independent receipt states, theme propagation, empty/error and keyboard viewport ('+name+')');
 }finally{await browser.close();server.close();}
