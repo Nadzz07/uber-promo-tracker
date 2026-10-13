@@ -4062,14 +4062,11 @@
       const previous = target.querySelector('.insights-disclosure');
       const expanded = previous ? previous.open : false;
       const months = (payload.receiptActivity?.months || []).slice(-6);
-      const maximum = Math.max(1,...months.map(r=>Number(r.saved)));
       const total = months.reduce((sum,r)=>sum + Number(r.saved),0);
       const receiptCount = months.reduce((sum,r)=>sum + Number(r.eats) + Number(r.rides),0);
       const peak = months.reduce((best,row)=>!best || Number(row.saved)>Number(best.saved) ? row : best,null);
       const monthLabel = row => new Date(row.period+'-01T12:00:00Z').toLocaleString('en-GB',{month:'short',year:'2-digit'});
-      const chart = months.length ? '<div class="monthly-chart" aria-label="Confirmed savings by month">' + months.slice().reverse().map(row=>
-        '<div class="monthly-row"><div class="monthly-label"><strong>' + escapeHtml(monthLabel(row)) + '</strong><span>' + (Number(row.eats)+Number(row.rides)) + ' receipts</span></div><div class="monthly-track" aria-hidden="true"><span style="width:' + Math.max(0,Number(row.saved)/maximum*100) + '%"></span></div><strong class="monthly-value">' + escapeHtml(money(row.saved)) + '</strong></div>'
-      ).join('') + '</div>' : '<div class="empty">No verified receipt savings yet.</div>';
+      const chart = monthlySavingsChart();
       const insight = peak ? '<p class="chart-insight"><strong>' + escapeHtml(monthLabel(peak)) + ' was strongest · ' + escapeHtml(money(peak.saved)) + '</strong><span>' + receiptCount + ' receipts across these months. Current month is still in progress; archived history is included.</span></p>' : '';
       target.innerHTML = '<details class="insights-disclosure disclosure-card"' + (expanded ? ' open' : '') + '><summary>' + financeIcon('insights') + '<span><strong>Receipt insights</strong><small>Monthly savings &amp; recent receipts</small></span><span class="disclosure-count">' + escapeHtml(money(total)) + ' across ' + months.length + ' months</span></summary><div class="insights-panels disclosure-body"><section class="analytics-panel glass"><div class="analytics-heading"><h2>Savings by month</h2><span>Confirmed receipts</span></div>' + chart + insight + '</section><section class="analytics-panel glass"><div class="analytics-heading"><h2>Recent receipt activity</h2><span>Saved per day</span></div>' + receiptActivityRows(5) + '<button class="advanced-btn" data-open-sheet="receipts">View all receipt activity ›</button></section></div></details>';
     }
@@ -4077,14 +4074,10 @@
     function monthlySavingsChart() {
       const months = (payload.receiptActivity?.months || []).slice(-6);
       const maximum = Math.max(1, ...months.map(row => Number(row.saved)));
-      const magnitude = 10 ** Math.floor(Math.log10(maximum));
-      const step = Math.ceil(maximum / (3 * magnitude)) * magnitude;
-      const ceiling = step * 3;
-      const showYear = new Set(months.map(row => row.period.slice(0,4))).size > 1;
-      return months.length ? '<div class="monthly-savings-plot"><div class="savings-chart-axis" aria-hidden="true">' + [3,2,1,0].map(tick => '<span>' + escapeHtml(money(tick * step)) + '</span>').join('') + '</div><div class="savings-bar-chart" aria-label="Confirmed savings by month">' + months.map(row => {
-        const label = new Date(row.period + '-01T12:00:00Z').toLocaleString('en-GB', {month:'short', ...(showYear ? {year:'2-digit'} : {})});
-        return '<div class="savings-bar-column"><strong class="chart-readable-value">' + escapeHtml(money(row.saved)) + '</strong><div class="savings-bar-track" aria-hidden="true"><span style="height:' + Math.max(0,Number(row.saved) / ceiling * 100) + '%"></span></div><span>' + escapeHtml(label) + '</span></div>';
-      }).join('') + '</div></div>' : '<div class="empty">No verified monthly savings yet.</div>';
+      return months.length ? '<div class="monthly-chart" aria-label="Confirmed savings by month">' + months.slice().reverse().map(row => {
+        const label = new Date(row.period + '-01T12:00:00Z').toLocaleString('en-GB', {month:'short',year:'2-digit'});
+        return '<div class="monthly-row"><div class="monthly-label"><strong>' + escapeHtml(label) + '</strong><span>' + (Number(row.eats) + Number(row.rides)) + ' receipts</span></div><div class="monthly-track" aria-hidden="true"><span style="width:' + Math.max(0,Number(row.saved) / maximum * 100) + '%"></span></div><strong class="monthly-value">' + escapeHtml(money(row.saved)) + '</strong></div>';
+      }).join('') + '</div>' : '<div class="empty">No verified receipt savings yet.</div>';
     }
 
     function renderReceiptsSheet() {
@@ -4093,7 +4086,7 @@
       const total = months.reduce((sum, row) => sum + Number(row.saved), 0);
       const eats = Number(summary.trackedOrders || 0), rides = Number(summary.trackedRides || 0);
       const days = payload.receiptActivity?.days || [];
-      setSheetHeading('Receipt insights', 'Monthly savings and recent receipt activity.');
+      setSheetHeading('Receipt insights', 'Monthly savings and recent receipts.');
       document.getElementById('sheetBody').innerHTML =
         '<div class="insights-hero"><span class="app-icon-surface">' + financeIcon('savings') + '</span><div><span class="insights-hero-label">Receipt savings</span><strong>' + escapeHtml(money(total)) + '</strong><p class="insights-period">Across ' + months.length + ' months</p><p>Based on receipt records.</p></div></div>' +
         '<section class="setting-card insights-chart-card"><div class="insights-chart-heading"><h3 class="setting-title">Monthly savings</h3><span>' + months.length + ' months</span></div>' + monthlySavingsChart() + '</section>' +

@@ -3,7 +3,7 @@
 ## Approved preview refinement · 13 October
 
 Receipt insights follows the approved Mint Focus layout: a solid accent-tinted
-savings hero, ascending bar icon, monthly chart with a dynamic pound-value scale,
+savings hero, ascending bar icon, original horizontal monthly savings bars,
 one receipt-records/missing-details summary, and separate recent-activity cards.
 The preview opens the existing full daily history and missing-details opens the
 existing private corrections flow. Public activity remains aggregated; exact
