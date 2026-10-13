@@ -235,3 +235,14 @@ imports and stops after any incomplete move verification. A pending failure
 requires reconciliation. `mac/install-cleanup-policy.js` installs this separate
 job only after approval; it never modifies the hourly job. Changing the parser
 or cleanup rules invalidates policy approval until the new rules are reviewed.
+
+## Shared Savings material and card sizing
+
+Home and Savings share a curved CSS reflection tinted by the saved appearance
+colour. The effect uses the existing accent tokens and adds no image downloads.
+Ordinary cards stay solid graphite. Shared line icons, sheet headers and trailing
+chevrons apply to expanded views as well as their entry cards. Used / Finished
+keeps its four summary tiles and all eight independent status groups; its tiles
+size to their contents instead of reserving a large empty area. Controls retain
+44px touch targets, and unknown fees, private imports, encrypted finances and the
+15-minute background lock retain their existing behaviour.

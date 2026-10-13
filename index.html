@@ -2368,6 +2368,10 @@
     <main>
       <section id="view-home" class="view active">
         <section class="home-overview glass">
+          <button class="total-saved-card" data-open-sheet="savings"><span class="app-icon-surface" data-icon="savings"></span>
+            <span><span class="stat-label">Total saved</span><strong id="savedStat">£0</strong><span id="savedStatSub" class="stat-sub">confirmed receipts</span></span>
+            <span class="saved-support"><span id="homeReceiptCount">0 receipts</span><span id="homeUberOne">Uber One estimate unavailable</span><span class="saved-link">View savings ›</span></span>
+          </button>
           <div class="home-intro">
             <div class="home-intro-main">
               <div class="eyebrow">Overview</div>
@@ -2406,10 +2410,6 @@
               <div class="stat-sub">Not in active rotation.</div>
             </div>
           </div>
-          <button class="total-saved-card" data-open-sheet="savings"><span class="app-icon-surface" data-icon="savings"></span>
-            <span><span class="stat-label">Total saved</span><strong id="savedStat">£0</strong><span id="savedStatSub" class="stat-sub">confirmed receipts</span></span>
-            <span class="saved-support"><span id="homeReceiptCount">0 receipts</span><span id="homeUberOne">Uber One estimate unavailable</span><span class="saved-link">View savings ›</span></span>
-          </button>
         </section>
 
         <div class="home-workspace">
@@ -2431,7 +2431,7 @@
             <span class="basket-value-wrap">
               <span class="basket-currency">£</span>
               <input id="basketInput" class="basket-input" type="number" max="1000" min="0" step="0.01" value="15.00" inputmode="decimal" aria-label="Basket subtotal">
-              <span class="basket-edit-icon" aria-hidden="true">✎</span>
+              <span class="basket-edit-icon" aria-hidden="true" data-icon="edit"></span>
             </span>
           </label>
 
@@ -3409,13 +3409,13 @@
       return (
         '<article class="account-card' + (account.accountRef === selectedAccountRef ? ' picked' : '') + '" data-card-account="' + escapeHtml(account.accountRef) + '">' +
           '<div class="account-top">' +
-            '<div style="min-width:0">' +
+            '<div class="account-identity"><span class="app-icon-surface" aria-hidden="true">' + financeIcon('user') + '</span><div class="account-identity-copy">' +
               '<div class="account-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
               '<div class="account-login-route">' + escapeHtml(loginRouteText(account)) + '</div>' +
-              '<div class="account-offer">' + escapeHtml(headline) + '</div>' +
-            '</div>' +
+            '</div></div>' +
             save +
           '</div>' +
+          '<div class="account-offer">' + escapeHtml(headline) + '</div>' +
           (pills.length ? '<div class="pill-row">' + pills.join("") + '</div>' : '') +
           (current.some(p => p.discountType === 'uberCash') ? '<div class="account-cash-note">Cash offer · wallet unverified. Confirm in Uber.</div>' : '') +
           '<div class="account-readiness' + (account.recommendationEligible ? '' : ' needs-attention') + '">' + escapeHtml(readiness) + '</div>' +
@@ -3942,7 +3942,7 @@
         '</div>' +
         '<div class="setting-card">' +
           '<div class="setting-card-head">' +
-            '<div class="setting-icon">£</div>' +
+            '<div class="setting-icon">' + financeIcon('wallet') + '</div>' +
             '<div><div class="setting-title">Extra fee per extra order</div>' +
             '<div class="setting-copy">What another split order is likely to add in delivery, service or small-order fees.</div></div>' +
           '</div>' +
@@ -3958,7 +3958,7 @@
         '</div>' +
         '<div class="setting-card">' +
           '<div class="setting-card-head">' +
-            '<div class="setting-icon">#</div>' +
+            '<div class="setting-icon">' + financeIcon('bag') + '</div>' +
             '<div><div class="setting-title">Maximum split orders</div>' +
             '<div class="setting-copy">The most separate Uber Eats orders or accounts a recommendation can use for one basket.</div></div>' +
           '</div>' +
