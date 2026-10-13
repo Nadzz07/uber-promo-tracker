@@ -75,7 +75,7 @@ try{
   const homeHeroHeight=await page.locator('.total-saved-card').evaluate(el=>el.getBoundingClientRect().height);
   assert.ok(homeHeroHeight<=170,'Home savings keeps compact preview proportions: '+name+' / '+width+' / '+homeHeroHeight);
   await page.locator('[data-view="used"]').click();
-  const metrics=await page.locator('.activity-card').evaluateAll(cards=>cards.map(card=>({height:card.getBoundingClientRect().height,overflow:card.scrollWidth>card.clientWidth+1,icon:card.querySelector('.app-icon-surface').getBoundingClientRect().width})));
+  const metrics=await page.locator('.activity-card').evaluateAll(cards=>cards.map(card=>({height:card.getBoundingClientRect().height,overflow:card.scrollWidth>card.clientWidth+1,icon:card.querySelector('.metric-icon').getBoundingClientRect().width})));
   assert.ok(metrics.every(card=>card.height<=(width<370?145:130)&&!card.overflow&&card.icon<=32),'Used tiles and icons remain balanced without oversized empty space: '+name+' / '+width+' / '+JSON.stringify(metrics));
   assert.equal(await page.locator('#view-used > details').count(),8,'Every existing status group remains available');
   await page.locator('[data-view="more"]').click();

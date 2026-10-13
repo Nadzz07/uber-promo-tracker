@@ -2654,9 +2654,15 @@
   <script type="module">
     import { financeIcon, financeHero, financeMetric } from "./finance-layout.js";
     document.querySelectorAll('[data-icon]').forEach(element => { element.innerHTML = financeIcon(element.dataset.icon); element.setAttribute('aria-hidden','true'); });
-    const statusIcons = ['check','receipt','partial','history'];
-    document.querySelectorAll('.activity-card').forEach((card,index) => card.insertAdjacentHTML('afterbegin','<span class="app-icon-surface">'+financeIcon(statusIcons[index])+'</span>'));
-    const groupIcons = ['check','alert','partial','receipt','history','calendar','check','ignored'];
+    const statusIcons = ['check','receipt','partial','clock'];
+    document.querySelectorAll('.activity-card').forEach((card,index) => {
+      const label = card.querySelector('span');
+      const text = label.textContent;
+      label.className = 'activity-card-label';
+      label.innerHTML = '<span class="metric-icon">' + financeIcon(statusIcons[index]) + '</span><span>' + escapeHtml(text) + '</span>';
+    });
+    document.querySelectorAll('.metric-help').forEach(button => { button.innerHTML = financeIcon('info'); });
+    const groupIcons = ['check','alert','partial','receipt','clock','calendar','check','ignored'];
     document.querySelectorAll('#view-used .activity-section > summary').forEach((summary,index) => summary.insertAdjacentHTML('afterbegin','<span class="app-icon-surface">'+financeIcon(groupIcons[index])+'</span>'));
     import { offerTitle, useCountNeedsReview, effectiveDiscountPercent } from "./offer-details.js";
     import { THEME_KEY, DEFAULT_COLOUR, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
