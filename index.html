@@ -3711,19 +3711,20 @@
         '<div class="sheet-section"><button id="forgetDeviceAccounts" class="action-btn"' + (Object.keys(deviceAccounts).length ? '' : ' disabled') + '>Forget login emails on this device</button></div>';
     }
 
-    function renderDevicePreview(mapping, value) {
-      pendingDeviceImport = {mapping, value};
+    function renderDevicePreview(mapping, value, limit = 6) {
+      pendingDeviceImport = {mapping, value, limit};
       setSheetHeading('Review import', 'Check matching entries before applying.');
       const entries = Object.entries(mapping);
       const added = entries.filter(([ref]) => !deviceAccounts[ref]).length;
       document.getElementById('sheetBody').innerHTML =
         '<div class="import-summary"><div><span>New entries</span><strong>' + added + '</strong></div><div><span>Existing entries</span><strong>' + (entries.length - added) + '</strong></div><div><span>Matched</span><strong>' + entries.length + '</strong></div></div>' +
         '<p class="sheet-help">This replaces the saved login list. Removed or unmatched tracker accounts are excluded. Offer decisions are reconnected without changing receipt evidence.</p><div class="import-entries">' +
-        entries.map(([ref, row]) => {
+        entries.slice(0, limit).map(([ref, row]) => {
           const account = accounts.find(a => a.accountRef === ref);
           const access = account.accessStatus === 'pending' || account.canLogin == null ? 'Access pending verification' : account.canLogin ? 'Can log in' : 'Can’t log in';
           return '<article class="import-entry"><div class="import-entry-head"><span class="app-icon-surface">' + financeIcon('user') + '</span><div><strong>' + escapeHtml(row.email) + '</strong><span class="pill">' + (deviceAccounts[ref] ? 'Existing' : 'New') + '</span></div></div><div class="import-access"><span>Current login status</span><strong>' + escapeHtml(access) + '</strong></div></article>';
-        }).join('') + '</div><p id="deviceImportStatus" class="sheet-help" role="status">Nothing has been saved yet. No information is uploaded.</p><div class="sheet-confirm-actions"><button class="account-primary" data-apply-device-import="true">Apply import</button><button class="account-secondary" data-cancel-device-import="true">Back to import</button></div>';
+        }).join('') + '</div><p class="sheet-help">Showing ' + Math.min(limit, entries.length) + ' of ' + entries.length + ' matching entries. Applying imports all matching entries.</p>' +
+        (entries.length > limit ? '<button class="advanced-btn" data-show-import-entries="true">Show 20 more entries</button>' : '') + '<p id="deviceImportStatus" class="sheet-help" role="status">Nothing has been saved yet. No information is uploaded.</p><div class="sheet-confirm-actions"><button class="account-primary" data-apply-device-import="true">Apply import</button><button class="account-secondary" data-cancel-device-import="true">Back to import</button></div>';
     }
 
     async function importDeviceAccounts(file) {
@@ -3742,9 +3743,11 @@
 
     function applyDeviceImport() {
       if (!pendingDeviceImport) return;
-      const {mapping, value} = pendingDeviceImport;
+      const {value} = pendingDeviceImport;
+      let mapping, migrated;
+      try { mapping = parseDeviceAccounts(value, accounts); migrated = migratePrivateOfferIds(manualStore, value.offerIdMigrations || []); }
+      catch (error) { document.getElementById('deviceImportStatus').textContent = error.message; return; }
       try {
-        const migrated = migratePrivateOfferIds(manualStore, value.offerIdMigrations || []);
         const previous = localStorage.getItem(STATE_KEY);
         localStorage.setItem(STATE_KEY, JSON.stringify(migrated));
         try { localStorage.setItem(DEVICE_ACCOUNTS_KEY, JSON.stringify(mapping)); }
@@ -4550,6 +4553,17 @@
     });
 
     document.getElementById("sheetBody").addEventListener("click", event => {
+      if (event.target.closest('[data-show-import-entries]')) {
+        if (pendingDeviceImport) {
+          const {mapping, value, limit} = pendingDeviceImport;
+          const body = document.getElementById('sheetBody'), scroll = body.scrollTop;
+          renderDevicePreview(mapping, value, limit + 20);
+          body.scrollTop = scroll;
+          const next = body.querySelectorAll('.import-entry')[limit];
+          if (next) { next.tabIndex = -1; next.focus({preventScroll:true}); }
+        }
+        return;
+      }
       if (event.target.closest('[data-apply-device-import]')) { applyDeviceImport(); return; }
       if (event.target.closest('[data-cancel-device-import]')) { renderDeviceSheet(); return; }
       if (event.target.closest('[data-show-more-archived]')) {
