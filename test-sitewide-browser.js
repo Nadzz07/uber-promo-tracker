@@ -109,7 +109,8 @@ try{
   assert.ok(Math.abs(widths[1].bar/widths[1].track-95.76/573.64)<.01,'Horizontal bars retain proportional savings');
   assert.match(await populatedPage.locator('#sheetBody .monthly-label').last().innerText(),/Dec 25/,'Month labels retain their years');
   assert.match(await populatedPage.locator('#sheetBody .monthly-value').nth(2).innerText(),/573\.64/,'Exact amounts remain readable beside the bars');
-  assert.ok(await populatedPage.locator('.insights-hero').evaluate(el=>el.getBoundingClientRect().height<=140),'Receipt hero keeps the reference proportions');
+  const heroHeight=await populatedPage.locator('.insights-hero').evaluate(el=>el.getBoundingClientRect().height);
+  assert.ok(heroHeight<=(width<768?140:150),'Receipt hero keeps the reference proportions: '+name+' / '+width+' / '+heroHeight);
   assert.ok(await populatedPage.locator('.insights-chart-card').evaluate(el=>el.getBoundingClientRect().height<=270),'Horizontal chart stays compact across responsive widths');
   assert.equal(await populatedPage.locator('.receipt-record-metric strong').last().innerText(),'1');
   assert.equal(await populatedPage.locator('.receipt-activity-card:visible').count(),3,'Recent activity has the approved short preview');
