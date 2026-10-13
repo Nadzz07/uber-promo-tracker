@@ -814,7 +814,7 @@ body::before, body::after { display: none; }
   background:var(--hero-surface);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 8px 24px rgba(0,0,0,.16);
 }
-.finance-hero::before, .total-saved-card::before, .insights-hero::before {
+.finance-hero::before, .total-saved-card::before {
   content:''; position:absolute; z-index:-1; pointer-events:none;
   width:190%; height:220%; left:-60%; top:-120%; border-radius:50%;
   border:1px solid rgba(var(--accent-rgb),.46);
@@ -1062,18 +1062,82 @@ body::before, body::after { display: none; }
 .device-import { display:block; margin:18px 0; font-size:14px; }
 .device-import input { display:block; width:100%; margin-top:14px; font:inherit; color:var(--muted); }
 .device-import input::file-selector-button { padding:12px 16px; min-height:44px; margin-right:12px; border:1px solid var(--line); border-radius:12px; background:var(--surface); color:var(--text); font:inherit; cursor:pointer; }
-.insights-hero { position:relative; isolation:isolate; overflow:hidden; display:flex; align-items:center; gap:20px; padding:22px; border:1px solid var(--hero-edge); border-radius:24px; background:var(--hero-surface); box-shadow:var(--surface-shadow); }
+.insights-hero { display:flex; align-items:center; gap:18px; padding:22px; border:1px solid rgba(var(--accent-rgb),.35); border-radius:22px; background:linear-gradient(125deg,rgba(var(--accent-rgb),.08),rgba(var(--accent-rgb),.015)),var(--surface-inset); }
 .insights-hero > div { min-width:0; }
-.insights-hero > .app-icon-surface { width:42px; height:42px; color:var(--green); }
-.insights-hero strong { display:block; margin:8px 0; font-size:clamp(28px,8vw,42px); letter-spacing:-.035em; color:var(--green); }
-.insights-hero span, .insights-hero p { font-size:13px; line-height:1.55; }
+.insights-hero > .app-icon-surface { flex:0 0 58px; width:58px; height:58px; border-radius:50%; color:var(--green); border-color:rgba(var(--accent-rgb),.35); background:linear-gradient(140deg,rgba(var(--accent-rgb),.16),rgba(var(--accent-rgb),.035)); }
+.insights-hero > .app-icon-surface .finance-icon { width:30px; height:30px; }
+.insights-hero strong { display:block; margin:6px 0; font-size:clamp(28px,8vw,40px); line-height:1.12; letter-spacing:-.035em; color:var(--green); }
+.insights-hero span, .insights-hero p { font-size:12px; line-height:1.55; }
+.insights-hero .insights-hero-label { font-size:16px; color:var(--text); }
+.insights-hero .insights-period { font-size:14px; margin-bottom:3px; color:var(--muted); }
 .insights-hero p { margin:0; color:var(--muted); }
-.savings-bar-chart { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:12px; margin-top:24px; }
+.insights-chart-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.insights-chart-heading h3 { margin:0; }
+.insights-chart-heading > span { flex-shrink:0; padding:7px 10px; border:1px solid var(--line); border-radius:12px; color:var(--muted); font-size:11px; }
+.monthly-savings-plot { display:grid; grid-template-columns:42px minmax(0,1fr); gap:8px; margin-top:28px; }
+.savings-chart-axis { display:flex; height:160px; flex-direction:column; justify-content:space-between; color:var(--muted); font-size:10px; text-align:right; }
+.savings-chart-axis > span { transform:translateY(-50%); }
+.savings-bar-chart { position:relative; display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; margin:0; }
+.savings-bar-chart::before { content:''; position:absolute; pointer-events:none; inset:0 0 auto; height:160px; border-left:1px solid var(--line); border-bottom:1px solid var(--line); border-top:1px solid var(--line-soft); background:repeating-linear-gradient(to top,transparent 0,transparent calc(33.333% - 1px),var(--line-soft) calc(33.333% - 1px),var(--line-soft) 33.333%); }
 .savings-bar-column { min-width:0; text-align:center; }
-.savings-bar-column strong { display:block; font-size:10px; color:var(--muted); font-weight:500; white-space:nowrap; }
-.savings-bar-track { display:flex; align-items:flex-end; height:150px; border-bottom:1px solid var(--line); margin:12px 0; }
-.savings-bar-track span { display:block; width:100%; border-radius:5px 5px 0 0; background:linear-gradient(var(--green),rgba(var(--accent-rgb),.6)); }
+.savings-bar-column .chart-readable-value { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.savings-bar-track { position:relative; display:flex; justify-content:center; align-items:flex-end; height:160px; border:0; margin:0 0 12px; }
+.savings-bar-track span { display:block; width:78%; border-radius:5px 5px 0 0; background:linear-gradient(var(--green),rgba(var(--accent-rgb),.85)); }
 .savings-bar-column > span { display:block; font-size:11px; line-height:1.5; color:var(--muted); }
+.receipt-record-summary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); border:1px solid var(--line); border-radius:22px; padding:18px 0 12px; background:var(--surface-gradient); }
+.receipt-record-metric { display:flex; align-items:center; gap:10px; padding:0 16px; min-width:0; border:0; background:transparent; color:var(--text); font:inherit; text-align:left; }
+.receipt-record-metric + .receipt-record-metric { border-left:1px solid var(--line); cursor:pointer; }
+.receipt-record-metric .app-icon-surface { flex:0 0 34px; width:34px; height:34px; border-radius:50%; color:var(--muted); }
+.receipt-record-metric > div { min-width:0; }
+.receipt-record-metric > div > span { display:block; font-size:11px; color:var(--muted); line-height:1.5; }
+.receipt-record-metric strong { display:block; font-size:25px; margin-top:4px; line-height:1.2; }
+.receipt-record-summary > p { grid-column:1 / -1; text-align:center; color:var(--muted); font-size:11px; margin:14px 12px 0; }
+.receipt-activity-list { display:grid; gap:12px; }
+.receipt-activity-card { display:flex; align-items:center; gap:12px; padding:16px; border:1px solid var(--line); border-radius:20px; background:var(--surface-gradient); }
+.receipt-activity-card > .app-icon-surface { flex:0 0 36px; width:36px; height:36px; border-radius:50%; color:var(--muted); }
+.receipt-activity-copy { min-width:0; flex:1; }
+.receipt-activity-card .sheet-row-value { color:var(--green); text-align:right; white-space:normal; overflow-wrap:anywhere; max-width:36%; }
+.receipt-activity-card .sheet-row-value small { display:block; color:var(--muted); font-size:9px; font-weight:400; margin-bottom:3px; }
+.insights-recent { position:relative; margin:24px 0; }
+.insights-recent .sheet-section-title { margin:0 72px 14px 0 !important; }
+.receipt-activity-more > summary { position:absolute; right:0; top:0; min-height:44px; margin-top:-12px; display:flex; align-items:center; gap:7px; color:var(--green); cursor:pointer; list-style:none; font-size:12px; }
+.receipt-activity-more > summary::-webkit-details-marker { display:none; }
+.receipt-activity-more > summary > span { font-size:22px; }
+.receipt-activity-more[open] > summary > span { transform:rotate(90deg); }
+.receipt-activity-more[open] > .receipt-activity-list { margin-top:12px; }
+.insights-privacy { text-align:center; }
+
+/* Match the approved icon shapes and account hierarchy without changing routes. */
+.sheet:not([data-finance-layout]) .finance-heading-icon { width:50px; height:50px; border-radius:50%; }
+.sheet[data-screen="Receipt insights"] .finance-heading-icon { width:38px; height:46px; border:0; background:none; box-shadow:none; }
+.sheet[data-screen="Receipt insights"] .finance-heading-icon .finance-icon { width:34px; height:34px; }
+.more-icon, .tools-intro > .app-icon-surface, #view-used .activity-section > summary > .app-icon-surface, .activity-card > .app-icon-surface, .import-entry-head > .app-icon-surface, .setting-icon, .icon-explainer > .finance-icon { border-radius:50%; }
+.tools-intro > .app-icon-surface { width:48px; height:48px; }
+.accounts-summary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:24px 0 20px; }
+.accounts-stat { position:relative; display:flex; align-items:center; gap:12px; min-width:0; padding:16px; border:1px solid var(--line); border-radius:20px; background:var(--surface-gradient); }
+.accounts-stat .app-icon-surface { flex:0 0 34px; width:34px; height:34px; border-color:rgba(var(--accent-rgb),.28); color:var(--green); background:rgba(var(--accent-rgb),.08); }
+.accounts-stat > div { min-width:0; flex:1; }
+.accounts-stat > div > span { display:block; font-size:11px; line-height:1.5; color:var(--muted); padding-right:12px; }
+.accounts-stat strong { display:block; font-size:26px; margin-top:5px; line-height:1.2; }
+.accounts-stat .metric-help { top:7px; right:7px; }
+.account-top { flex-wrap:wrap; align-items:center; gap:12px; }
+.account-top > .account-identity { flex:1 1 190px; }
+.account-access-pill { flex:0 0 auto; }
+.account-identity .account-provider { color:var(--muted); background:var(--surface-inset); }
+.account-offer { color:var(--green); }
+.account-saving-summary { margin:6px 0 12px; }
+.account-saving-summary .save-now { display:flex; align-items:baseline; gap:8px; font-size:14px; text-align:left; }
+.account-saving-summary .save-now small { display:inline; margin:0; font-size:11px; }
+.account-actions .ghost-btn { width:100%; text-align:center; }
+.brand-title, .screen-title, .home-title, .sheet-title { font-weight:700; }
+.sheet-row-title, .account-email, .account-sheet-email, .offer-name, .more-title, .setting-title, .sheet-section-title, .tools-intro strong { font-weight:650; }
+.savings-hero-value, .total-saved-card strong, .insights-hero strong, .stat-value, .activity-card strong { font-weight:700; }
+.account-login-route { color:var(--muted); font-weight:450; }
+.search-wrap { position:relative; }
+.search-icon { position:absolute; inset:0 auto 0 16px; display:grid; place-items:center; color:var(--muted); pointer-events:none; }
+.search-wrap:has(.search-icon) .search-input { padding-left:48px; }
+.filter-btn { border-radius:999px; }
+.sheet:not([data-finance-layout]) .device-import { border:0; padding:0; background:none; }
 .guide-sections { gap:14px; }
 .guide-section > summary { padding:20px; font-size:15px; min-height:72px; }
 .guide-section-content, .guide-content { font-size:14px; line-height:1.75; }

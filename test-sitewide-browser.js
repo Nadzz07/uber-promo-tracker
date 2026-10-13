@@ -60,7 +60,10 @@ try{
   assert.equal(await page.locator('#savedStat').innerText(),saved,'Visual actions cannot alter savings');
   await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="appearance"]').click();await page.locator('[data-theme-colour="#c5a0ff"]').click();await page.keyboard.press('Escape');await page.locator('#view-more [data-open-sheet="receipts"]').click();
   assert.equal(await page.locator('.finance-heading-icon').evaluate(el=>getComputedStyle(el).color),'rgb(197, 160, 255)');
-  assert.ok(await page.locator('.insights-hero').evaluate(el=>getComputedStyle(el).backgroundImage.includes('197, 160, 255')&&getComputedStyle(el,'::before').borderColor.includes('197, 160, 255')),'Receipt insights shares the chosen Savings material');
+  assert.ok(await page.locator('.insights-hero').evaluate(el=>getComputedStyle(el).backgroundImage.includes('197, 160, 255')&&getComputedStyle(el).borderColor.includes('197, 160, 255')),'The approved solid Receipt insights hero follows the chosen accent');
+  assert.equal(await page.locator('.receipt-record-metric strong').first().innerText(),'2','Receipt records retain the actual combined service count');
+  assert.equal(await page.locator('.receipt-record-summary > p').innerText(),'1 Eats · 1 Ride','Service counts remain visible');
+  assert.equal(await page.locator('.savings-chart-axis > span').count(),4,'Chart includes pound-value grid labels');
   assert.equal(await page.locator('.savings-bar-track > span').count(),1,'Chart follows actual month records');
   assert.equal(await page.locator('#sheetBody .empty').filter({hasText:'Receipt activity will appear'}).count(),1,'Receipt empty state is available');
   assert.ok(await page.locator('.sheet').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
@@ -82,6 +85,40 @@ try{
    assert.ok(await page.locator('.sheet').evaluate(el=>el.getBoundingClientRect().bottom<=421),'Sheet remains above an emulated keyboard viewport');
   }
   assert.deepEqual(errors,[]);await page.close();
+
+  // Reference layout with real-shaped totals: no illustrative counts, dates or filters.
+  const populated={...snapshot,summary:{...snapshot.summary,financialBreakdown:{missing:1}},receiptActivity:{months:[
+   {period:'2025-12',eats:1,rides:0,saved:0},{period:'2026-01',eats:0,rides:1,saved:28.86},
+   {period:'2026-02',eats:0,rides:1,saved:42.44},{period:'2026-03',eats:0,rides:1,saved:573.64},
+   {period:'2026-04',eats:0,rides:1,saved:95.76},{period:'2026-05',eats:0,rides:1,saved:110.97}],
+   days:Array.from({length:5},(_,i)=>({period:'2026-10-0'+(9-i),eats:i===0?1:0,rides:1,saved:i*3,dateFallbacks:i===4?1:0}))}};
+  const populatedPage=await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'});
+  await populatedPage.route('**/promos.json*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(populated)}));
+  await populatedPage.goto('http://127.0.0.1:'+server.address().port);await populatedPage.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
+  await populatedPage.locator('[data-view="accounts"]').click();
+  assert.equal(await populatedPage.locator('#accountsTotal').innerText(),'8');assert.equal(await populatedPage.locator('#accountsAccessible').innerText(),'8');
+  await populatedPage.locator('.accounts-stat [data-metric-label="Total accounts"]').click();
+  assert.match(await populatedPage.locator('#sheetBody').innerText(),/Every tracked account/);await populatedPage.keyboard.press('Escape');
+  await populatedPage.locator('.accounts-stat [data-metric-label="Can log in"]').click();
+  assert.match(await populatedPage.locator('#sheetBody').innerText(),/separate from usage and archive/);await populatedPage.keyboard.press('Escape');
+  await populatedPage.locator('[data-view="more"]').click();await populatedPage.locator('#view-more [data-open-sheet="receipts"]').click();
+  assert.match(await populatedPage.locator('.insights-hero strong').innerText(),/851\.67/);
+  assert.match(await populatedPage.locator('.savings-chart-axis').innerText(),/£600/);
+  assert.equal(await populatedPage.locator('.savings-bar-track > span').count(),6);
+  const heights=await populatedPage.locator('.savings-bar-track > span').evaluateAll(bars=>bars.map(b=>b.getBoundingClientRect().height));
+  assert.equal(heights[0],0,'Zero savings remains zero');assert.ok(Math.abs(heights[3]-160*573.64/600)<1,'Bars use the labelled monetary scale');
+  assert.match(await populatedPage.locator('.savings-bar-column > span').first().innerText(),/Dec 25/,'Year is shown when months cross years');
+  assert.equal(await populatedPage.locator('.receipt-record-metric strong').last().innerText(),'1');
+  assert.equal(await populatedPage.locator('.receipt-activity-card:visible').count(),3,'Recent activity has the approved short preview');
+  await populatedPage.locator('.receipt-activity-more > summary').click();
+  assert.equal(await populatedPage.locator('.receipt-activity-card:visible').count(),5,'View all preserves every available daily record');
+  assert.match(await populatedPage.locator('.receipt-activity-list').last().innerText(),/email-date fallback/,'Date qualifications remain visible');
+  assert.ok(await populatedPage.locator('.sheet').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'Approved insight cards cannot overflow');
+  assert.equal(await populatedPage.locator('.insights-chart-card select').count(),0,'No nonfunctional illustrative range control');
+  await populatedPage.locator('.receipt-record-metric[data-open-sheet="finance"]').click();
+  await populatedPage.locator('#financePassword').waitFor();
+  assert.equal(await populatedPage.locator('#sheetTitle').innerText(),'Private finances','Missing details uses the existing private corrections route');
+  await populatedPage.close();
  }
  console.log('✓ Sitewide sheets: unknown/zero fees, preview/cancel/private apply, ignore/manual decisions, independent receipt states, theme propagation, empty/error and keyboard viewport ('+name+')');
 }finally{await browser.close();server.close();}

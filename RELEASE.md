@@ -1,5 +1,22 @@
 # Evidence-based tracker release
 
+## Approved preview refinement · 13 October
+
+Receipt insights follows the approved Mint Focus layout: a solid accent-tinted
+savings hero, ascending bar icon, monthly chart with a dynamic pound-value scale,
+one receipt-records/missing-details summary, and separate recent-activity cards.
+The preview opens the existing full daily history and missing-details opens the
+existing private corrections flow. Public activity remains aggregated; exact
+receipts are kept in the encrypted private vault. Mockup data and unsupported
+service/range filters are not introduced.
+
+Accounts uses the approved compact totals, provider identity, separate login
+badge, offer section and full-width account action. Shared circles, typography,
+search and filter styling follow the supplied previews. Savings and Private
+finances retain their approved layouts and accent-driven curved hero surface.
+All existing account classifications, financial calculations, fee semantics,
+imports, encryption and the 15-minute background lock remain in place.
+
 The cloud repair changes code only. `promos.json` and `history.json` are preserved.
 The cloud has no private Mac SQLite database, account list or Apple Mail access.
 Passing synthetic tests does not establish that every real receipt was captured.

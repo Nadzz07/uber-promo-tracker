@@ -2511,10 +2511,14 @@
         <div class="screen-head">
           <div class="eyebrow">Your accounts</div>
           <h1 class="screen-title">Accounts</h1>
-          <div class="screen-copy">Offers, access and receipt history. Login access stays independent of usage and archive status.</div>
+          <div class="screen-copy">Find an account and check its offers.</div>
         </div>
-
+        <div class="accounts-summary" aria-label="Account totals">
+          <div class="accounts-stat"><span class="app-icon-surface" data-icon="savings"></span><div><span>Total accounts</span><strong id="accountsTotal">0</strong></div><button class="metric-help" data-metric-help="Total Accounts" data-metric-label="Total accounts" aria-label="Explain Total accounts">i</button></div>
+          <div class="accounts-stat"><span class="app-icon-surface" data-icon="key"></span><div><span>Can log in</span><strong id="accountsAccessible">0</strong></div><button class="metric-help" data-metric-help="Accessible" data-metric-label="Can log in" aria-label="Explain Can log in">i</button></div>
+        </div>
         <div class="search-wrap">
+          <span class="search-icon" data-icon="search" aria-hidden="true"></span>
           <input id="accountSearch" class="search-input" type="search" aria-label="Search accounts" placeholder="Search email…" autocomplete="off">
         </div>
 
@@ -2958,6 +2962,13 @@
         : "Sign in with " + method;
     }
 
+    function accountProviderIcon(account) {
+      const method = loginMethodLabel(account);
+      return method === 'iCloud' ? financeIcon('cloud') : method === 'Google'
+        ? '<svg class="finance-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><text x="12" y="19" text-anchor="middle" fill="currentColor" font-family="Arial,sans-serif" font-size="22" font-weight="700">G</text></svg>'
+        : financeIcon('user');
+    }
+
     function receiptHistoryText(account) {
       const eats = Number(account?.orderCount || 0);
       const rides = Number(account?.rideCount || 0);
@@ -3263,6 +3274,8 @@
     function renderStats() {
       const summary = payload.summary || {};
       const totalAccounts = accounts.length;
+      document.getElementById('accountsTotal').textContent = totalAccounts.toLocaleString('en-GB');
+      document.getElementById('accountsAccessible').textContent = accounts.filter(account => account.canLogin === true).length.toLocaleString('en-GB');
       const eligibility = eligibleAccountCounts(enrichedAccounts());
       const availableAccounts = eligibility.available;
 
@@ -3409,19 +3422,20 @@
       return (
         '<article class="account-card' + (account.accountRef === selectedAccountRef ? ' picked' : '') + '" data-card-account="' + escapeHtml(account.accountRef) + '">' +
           '<div class="account-top">' +
-            '<div class="account-identity"><span class="app-icon-surface" aria-hidden="true">' + financeIcon('user') + '</span><div class="account-identity-copy">' +
+            '<div class="account-identity"><span class="app-icon-surface account-provider" aria-hidden="true">' + accountProviderIcon(account) + '</span><div class="account-identity-copy">' +
               '<div class="account-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
               '<div class="account-login-route">' + escapeHtml(loginRouteText(account)) + '</div>' +
             '</div></div>' +
-            save +
+            '<span class="pill account-access-pill' + (account.canLogin === true ? ' good' : '') + '">' + (account.canLogin === true ? 'Can log in' : account.canLogin === false ? 'Can’t log in' : 'Access pending') + '</span>' +
           '</div>' +
           '<div class="account-offer">' + escapeHtml(headline) + '</div>' +
+          '<div class="account-saving-summary">' + save + '</div>' +
           (pills.length ? '<div class="pill-row">' + pills.join("") + '</div>' : '') +
           (current.some(p => p.discountType === 'uberCash') ? '<div class="account-cash-note">Cash offer · wallet unverified. Confirm in Uber.</div>' : '') +
           '<div class="account-readiness' + (account.recommendationEligible ? '' : ' needs-attention') + '">' + escapeHtml(readiness) + '</div>' +
           '<div class="account-progress-note">' + escapeHtml(context === 'best' || ['15off15','12off15','cash','cash-promo','unfinished'].includes(context) ? '' : accountStatusLabel(currentAccountState(account)) + ' · ' + receiptHistoryText(account)) + '</div>' +
           '<div class="account-actions">' +
-            '<button class="ghost-btn" data-account-offers="' + escapeHtml(account.accountRef) + '">View offers</button>' +
+            '<button class="ghost-btn" data-account-offers="' + escapeHtml(account.accountRef) + '">View account</button>' +
           '</div>' +
         '</article>'
       );
@@ -3640,7 +3654,9 @@
       const info = event.target.closest('[data-metric-help]');
       if (info) {
         const key = info.dataset.metricLabel || info.dataset.metricHelp;
-        const [topic,copy] = metricExplanations[key];
+        const explanation = metricExplanations[key] || metricExplanations[info.dataset.metricHelp];
+        if (!explanation) return;
+        const [topic,copy] = explanation;
         openSheetType = 'metric-help';
         setSheetHeading(info.dataset.metricLabel || info.getAttribute('aria-label').replace('Explain ',''), 'About this figure');
         document.getElementById('sheetBody').innerHTML = '<p class="sheet-help">' + escapeHtml(copy) + '</p><button class="action-btn primary" data-open-guide="' + topic + '">Learn more ›</button>';
@@ -3790,10 +3806,10 @@
       return (
         '<div class="offer-card">' +
           '<div class="offer-top">' +
-            '<div style="min-width:0">' +
+            '<div class="account-identity"><span class="app-icon-surface">' + financeIcon('bag') + '</span><div class="account-identity-copy">' +
               '<div class="offer-name">' + escapeHtml(promo.title || promoLabel(promo)) + '</div>' +
               '<div class="offer-details">' + escapeHtml(serverPromoMeta(promo)) + '</div>' +
-            '</div>' +
+            '</div></div>' +
             '<div class="offer-value">' + escapeHtml(promoLabel(promo)) + '</div>' +
           '</div>' +
           '<details class="disclosure-card offer-terms"><summary><span><strong>Offer details</strong><small>' + (promo.offerScope === 'uncertain' ? 'Order or product scope needs checking' : promo.termsVerification === 'email_verified' ? 'Discount found in original email' : 'Check original terms') + '</small></span></summary><div class="disclosure-body">' +
@@ -3891,11 +3907,11 @@
       const body =
         '<div class="account-sheet-hero">' +
           '<div class="account-sheet-top">' +
-            '<div style="min-width:0">' +
+            '<div class="account-identity"><span class="app-icon-surface account-provider">' + accountProviderIcon(account) + '</span><div class="account-identity-copy">' +
               '<div class="account-sheet-label">Uber Eats account</div>' +
               '<div class="account-sheet-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
               '<div class="account-login-route">' + escapeHtml(loginRouteText(account)) + '</div>' +
-            '</div>' +
+            '</div></div>' +
             '<div class="account-status-badge ' + (account.canLogin ? 'ok' : 'no') + '">' +
               '<span class="status-dot"></span>' +
               escapeHtml(accountStatusLabel(currentAccountState(account))) +
@@ -4034,10 +4050,10 @@
         '<button class="sheet-action-row finance-help-row" data-open-guide="savings">'+financeIcon('info')+'<span>How savings work</span></button></div>';
     }
 
-    function receiptActivityRows(limit = 20) {
+    function receiptActivityRows(limit = 20, {start = 0, cards = false} = {}) {
       const rows = payload.receiptActivity?.days || [];
-      return rows.length ? '<div class="sheet-list">' + rows.slice(0,limit).map(row=>
-        '<div class="sheet-row"><div><div class="sheet-row-title">' + escapeHtml(formatDate(row.period) || row.period) + '</div><div class="sheet-row-meta">' + Number(row.eats) + ' Eats · ' + Number(row.rides) + ' Ride' + (row.dateFallbacks ? ' · '+row.dateFallbacks+' email-date fallback' : '') + '</div></div><div class="sheet-row-value">' + escapeHtml(money(row.saved)) + '</div></div>'
+      return rows.length ? '<div class="' + (cards ? 'receipt-activity-list' : 'sheet-list') + '">' + rows.slice(start,start + limit).map(row=>
+        '<div class="' + (cards ? 'receipt-activity-card' : 'sheet-row') + '">' + (cards ? '<span class="app-icon-surface">' + financeIcon('receipt') + '</span>' : '') + '<div class="receipt-activity-copy"><div class="sheet-row-title">' + (cards ? 'Daily total · ' : '') + escapeHtml(formatDate(row.period) || row.period) + '</div><div class="sheet-row-meta">' + Number(row.eats) + ' Eats · ' + Number(row.rides) + ' Ride' + (row.dateFallbacks ? ' · '+row.dateFallbacks+' email-date fallback' : '') + '</div></div><div class="sheet-row-value">' + (cards ? '<small>Receipt savings</small>' : '') + escapeHtml(money(row.saved)) + '</div></div>'
       ).join('') + '</div>' : '<div class="empty">Receipt activity will appear after a verified import.</div>';
     }
 
@@ -4061,23 +4077,29 @@
     function monthlySavingsChart() {
       const months = (payload.receiptActivity?.months || []).slice(-6);
       const maximum = Math.max(1, ...months.map(row => Number(row.saved)));
-      return months.length ? '<div class="savings-bar-chart" aria-label="Confirmed savings by month">' + months.map(row => {
-        const label = new Date(row.period + '-01T12:00:00Z').toLocaleString('en-GB', {month:'short',year:'2-digit'});
-        return '<div class="savings-bar-column"><strong>' + escapeHtml(money(row.saved)) + '</strong><div class="savings-bar-track" aria-hidden="true"><span style="height:' + Math.max(0,Number(row.saved) / maximum * 100) + '%"></span></div><span>' + escapeHtml(label) + '</span></div>';
-      }).join('') + '</div>' : '<div class="empty">No verified monthly savings yet.</div>';
+      const magnitude = 10 ** Math.floor(Math.log10(maximum));
+      const step = Math.ceil(maximum / (3 * magnitude)) * magnitude;
+      const ceiling = step * 3;
+      const showYear = new Set(months.map(row => row.period.slice(0,4))).size > 1;
+      return months.length ? '<div class="monthly-savings-plot"><div class="savings-chart-axis" aria-hidden="true">' + [3,2,1,0].map(tick => '<span>' + escapeHtml(money(tick * step)) + '</span>').join('') + '</div><div class="savings-bar-chart" aria-label="Confirmed savings by month">' + months.map(row => {
+        const label = new Date(row.period + '-01T12:00:00Z').toLocaleString('en-GB', {month:'short', ...(showYear ? {year:'2-digit'} : {})});
+        return '<div class="savings-bar-column"><strong class="chart-readable-value">' + escapeHtml(money(row.saved)) + '</strong><div class="savings-bar-track" aria-hidden="true"><span style="height:' + Math.max(0,Number(row.saved) / ceiling * 100) + '%"></span></div><span>' + escapeHtml(label) + '</span></div>';
+      }).join('') + '</div></div>' : '<div class="empty">No verified monthly savings yet.</div>';
     }
 
     function renderReceiptsSheet() {
       const summary = payload.summary || {};
       const months = (payload.receiptActivity?.months || []).slice(-6);
       const total = months.reduce((sum, row) => sum + Number(row.saved), 0);
+      const eats = Number(summary.trackedOrders || 0), rides = Number(summary.trackedRides || 0);
+      const days = payload.receiptActivity?.days || [];
       setSheetHeading('Receipt insights', 'Monthly savings and recent receipt activity.');
       document.getElementById('sheetBody').innerHTML =
-        '<div class="insights-hero"><span class="app-icon-surface">' + financeIcon('savings') + '</span><div><span>Receipt savings · recent months</span><strong>' + escapeHtml(money(total)) + '</strong><p>' + months.length + ' months · based on receipt records</p></div></div>' +
-        '<section class="setting-card"><h3 class="setting-title">Monthly savings</h3>' + monthlySavingsChart() + '</section>' +
-        '<div class="insight-grid">' + financeMetric('bag','Eats receipts',Number(summary.trackedOrders || 0)) + financeMetric('receipt','Ride receipts',Number(summary.trackedRides || 0)) + '</div>' +
-        '<section class="sheet-section"><h3 class="sheet-section-title">Recent receipt activity</h3>' + receiptActivityRows(90) + '</section>' +
-        '<button class="sheet-action-row" data-open-sheet="savings">' + financeIcon('info') + '<span>Evidence & estimates<small>See what your receipts confirm</small></span></button><p class="sheet-help">Daily totals are aggregated. Exact private receipt details are available in Private finances after importing your Mac file.</p>';
+        '<div class="insights-hero"><span class="app-icon-surface">' + financeIcon('savings') + '</span><div><span class="insights-hero-label">Receipt savings</span><strong>' + escapeHtml(money(total)) + '</strong><p class="insights-period">Across ' + months.length + ' months</p><p>Based on receipt records.</p></div></div>' +
+        '<section class="setting-card insights-chart-card"><div class="insights-chart-heading"><h3 class="setting-title">Monthly savings</h3><span>' + months.length + ' months</span></div>' + monthlySavingsChart() + '</section>' +
+        '<div class="receipt-record-summary"><div class="receipt-record-metric"><span class="app-icon-surface">' + financeIcon('receipt') + '</span><div><span>Receipt records</span><strong>' + (eats + rides).toLocaleString('en-GB') + '</strong></div></div><button class="receipt-record-metric" data-open-sheet="finance" data-finance-target="receipt" data-finance-missing="true"><span class="app-icon-surface">' + financeIcon('info') + '</span><div><span>Missing details</span><strong>' + Number(summary.financialBreakdown?.missing || 0).toLocaleString('en-GB') + '</strong></div></button><p>' + eats + ' Eats · ' + rides + ' Ride</p></div>' +
+        '<section class="sheet-section insights-recent"><h3 class="sheet-section-title">Recent receipt activity</h3>' + receiptActivityRows(3,{cards:true}) + (days.length > 3 ? '<details class="receipt-activity-more"><summary>View all <span aria-hidden="true">›</span></summary>' + receiptActivityRows(87,{start:3,cards:true}) + '</details>' : '') + '</section>' +
+        '<button class="sheet-action-row" data-open-sheet="savings">' + financeIcon('info') + '<span>Evidence & estimates<small>See what your receipts confirm</small></span></button><p class="sheet-help insights-privacy">Daily totals are aggregated. Exact receipts stay in Private finances.</p>';
     }
 
     function renderAboutSheet() {
@@ -4150,6 +4172,7 @@
 
     function setSheetHeading(title, sub) {
       const sheet = document.querySelector('.sheet');
+      sheet.dataset.screen = title;
       const financeLayout = title === 'Savings' || title === 'Private finances';
       sheet.toggleAttribute('data-finance-layout', financeLayout);
       sheet.toggleAttribute('data-finance-concealed', title === 'Private finances' && document.hidden);
