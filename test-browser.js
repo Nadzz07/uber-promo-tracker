@@ -235,8 +235,8 @@ try {
   await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await page.locator('html').getAttribute('data-layout'), 'mobile', 'Layout override must survive reload');
   await page.locator('[data-view="more"]').click();
-  assert.equal(await page.locator('#view-more .screen-title').innerText(), 'Settings & tools');
-  assert.equal(await page.locator('#view-more .eyebrow').count(), 0, 'Settings must not repeat More as kicker and heading');
+  assert.equal(await page.locator('#view-more .screen-title').innerText(), 'More');
+  assert.equal(await page.locator('#view-more .more-group').count(), 3, 'Tools retain grouped destinations');
   await page.locator('[data-open-sheet="appearance"]').click();
   await page.locator('[name="layoutPreference"][value="desktop"]').check();
   assert.equal(await page.locator('html').getAttribute('data-layout'), 'desktop');
@@ -282,6 +282,7 @@ try {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
   await page.evaluate(() => { Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => { window.testCopiedEmail = text; } } }); });
   await page.locator('#deviceAccountsFile').setInputFiles({ name: 'device-accounts.local.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ schemaVersion: 1, kind: 'uber-tracker-device-accounts', accounts: [{ accountRef: 'A001', accountMasked: offer.accountMasked, email: privateEmail }] })) });
+  await page.locator('[data-apply-device-import]').click();
   await page.waitForFunction(() => document.getElementById('deviceImportStatus').textContent.includes('1 emails imported'));
   assert.deepEqual(requests, [], 'Importing private emails must not make any network request');
   await page.keyboard.press('Escape'); await page.locator('[data-view="accounts"]').click();

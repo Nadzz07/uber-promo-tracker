@@ -38,7 +38,7 @@ export function validateFinanceData(data){if(data?.kind!=='uber-tracker-private-
 // background deadline before revealing the vault when the app becomes visible.
 export class PrivateFinanceSession {
  constructor({vault = new PrivateFinanceVault(), onLock = () => {}, now = Date.now,
-   setTimer = (callback, delay) => setTimeout(callback, delay), clearTimer = timer => clearTimeout(timer), graceMs = 5 * 60000} = {}) {
+   setTimer = (callback, delay) => setTimeout(callback, delay), clearTimer = timer => clearTimeout(timer), graceMs = 15 * 60000} = {}) {
   Object.assign(this, {vault, onLock, now, setTimer, clearTimer, graceMs});
   this.hiddenAt = null; this.timer = null;
  }

@@ -10,6 +10,15 @@ const paths = {
   history: '<path d="M3 5v5h5M3 10a9 9 0 1 1 1 8M12 7v6l4 2"/>',
   lock: '<rect x="5" y="10" width="14" height="12" rx="3"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 15v3"/>',
   check: '<path d="m5 12 4 4L19 6"/>',
+  insights: '<path d="M4 21V15h3v6M11 21V9h3v12M18 21V3h3v18"/>',
+  user: '<circle cx="12" cy="7" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/>',
+  settings: '<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="16" cy="17" r="3"/>',
+  help: '<path d="M3 3c3-1 6 0 9 2 3-2 6-3 9-2v17c-3-1-6 0-9 2-3-2-6-3-9-2V3Z"/><path d="M12 5v17"/>',
+  grid: '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
+  ignored: '<path d="m3 3 18 18M10 5c6-1 10 7 10 7a19 19 0 0 1-3 4M6 6a20 20 0 0 0-4 6s4 7 10 7c2 0 3-1 4-2"/><path d="M9 9a4 4 0 0 0 6 6"/>',
+  partial: '<circle cx="12" cy="12" r="9"/><path d="M12 3v9h9"/>',
+  alert: '<path d="m12 3 10 18H2L12 3ZM12 9v5M12 17h.01"/>',
+  star: '<path d="m12 2 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6Z"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>'
 };
 export function financeIcon(name) {

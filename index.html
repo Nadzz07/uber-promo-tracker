@@ -2406,7 +2406,7 @@
               <div class="stat-sub">Not in active rotation.</div>
             </div>
           </div>
-          <button class="total-saved-card" data-open-sheet="savings">
+          <button class="total-saved-card" data-open-sheet="savings"><span class="app-icon-surface" data-icon="savings"></span>
             <span><span class="stat-label">Total saved</span><strong id="savedStat">£0</strong><span id="savedStatSub" class="stat-sub">confirmed receipts</span></span>
             <span class="saved-support"><span id="homeReceiptCount">0 receipts</span><span id="homeUberOne">Uber One estimate unavailable</span><span class="saved-link">View savings ›</span></span>
           </button>
@@ -2420,7 +2420,7 @@
               <div class="eyebrow">Order planner</div>
               <h1 class="hero-title">Plan your order</h1>
             </div>
-            <span class="hero-spark">✦</span>
+            <span class="hero-spark" data-icon="bag"></span>
           </div>
 
           <label class="basket-editor" for="basketInput">
@@ -2459,27 +2459,27 @@
         <p class="offer-scope-summary"><span id="offerScopeSummary"></span><button class="metric-help inline-help" data-metric-help="accounts" data-metric-label="Ready to Use" aria-label="Explain offer readiness">i</button></p>
         <div id="quickGrid" class="quick-grid">
           <button class="quick-card active" data-intent="best" aria-pressed="true" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon">★</span><span id="bestCount" class="quick-count">0</span></div>
+            <div class="quick-top"><span class="quick-icon" data-icon="star"></span><span id="bestCount" class="quick-count">0</span></div>
             <div><div class="quick-title">Best deal</div><div class="quick-sub">Strongest available account right now.</div></div>
           </button>
           <button class="quick-card" data-intent="15off15" aria-pressed="false" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon">15</span><span id="fifteenCount" class="quick-count">0</span></div>
+            <div class="quick-top"><span class="quick-icon" data-icon="bag"></span><span id="fifteenCount" class="quick-count">0</span></div>
             <div><div class="quick-title">£15 off £15</div><div class="quick-sub">Full-value minimum-spend offers.</div></div>
           </button>
           <button class="quick-card" data-intent="12off15" aria-pressed="false" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon">12</span><span id="twelveCount" class="quick-count">0</span></div>
+            <div class="quick-top"><span class="quick-icon" data-icon="bag"></span><span id="twelveCount" class="quick-count">0</span></div>
             <div><div class="quick-title">£12 off £15</div><div class="quick-sub">£12 discount with a £15 minimum spend.</div></div>
           </button>
           <button class="quick-card" data-intent="cash" aria-pressed="false" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon">£</span><span id="cashCount" class="quick-count">0</span></div>
+            <div class="quick-top"><span class="quick-icon" data-icon="wallet"></span><span id="cashCount" class="quick-count">0</span></div>
             <div><div class="quick-title">Uber Cash</div><div class="quick-sub">Current email offers. Confirm your wallet balance in Uber.</div></div>
           </button>
           <button class="quick-card" data-intent="unfinished" aria-pressed="false" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon" aria-hidden="true">↻</span><span id="unfinishedCount" class="quick-count">0 accounts</span></div>
+            <div class="quick-top"><span class="quick-icon" aria-hidden="true" data-icon="history"></span><span id="unfinishedCount" class="quick-count">0 accounts</span></div>
             <div><div class="quick-title">Not finished</div><div class="quick-sub">Started promos with at least one use remaining.</div></div>
           </button>
           <button class="quick-card" data-intent="cash-promo" aria-pressed="false" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon" aria-hidden="true">£+</span><span id="cashPromoCount" class="quick-count">0 accounts</span></div>
+            <div class="quick-top"><span class="quick-icon" aria-hidden="true" data-icon="wallet"></span><span id="cashPromoCount" class="quick-count">0 accounts</span></div>
             <div><div class="quick-title">Uber Cash + promo</div><div class="quick-sub">Both offer types recorded on the same account. Combining them depends on Uber.</div></div>
           </button>
         </div>
@@ -2510,8 +2510,8 @@
       <section id="view-accounts" class="view">
         <div class="screen-head">
           <div class="eyebrow">Your accounts</div>
-          <h1 class="screen-title">Your accounts.</h1>
-          <div class="screen-copy">Every tracked account. Login access, receipt usage and archive status are independent. Used means five Eats receipts, or Eats plus a Ride. Archived means outside active rotation; it does not change login access.</div>
+          <h1 class="screen-title">Accounts</h1>
+          <div class="screen-copy">Offers, access and receipt history. Login access stays independent of usage and archive status.</div>
         </div>
 
         <div class="search-wrap">
@@ -2561,7 +2561,7 @@
         <div class="screen-head">
           <div class="eyebrow">Activity & state</div>
           <h1 class="screen-title">Used / Finished</h1>
-          <div class="screen-copy">Fully used accounts meet your Eats + Ride or five Eats receipt rule. Completed promotions have every use verified. Expiry and manual completion keep their own reasons; login access and archive status stay independent.</div>
+          <div class="screen-copy">Fully used: Eats + Ride, or five Eats receipts. Completed promotions: every use verified. Expiry, manual completion and login access stay separate.</div>
         </div>
 
         <div class="activity-summary">
@@ -2617,59 +2617,11 @@
         </details>
       </section>
 
-      <section id="view-more" class="view">
-        <div class="screen-head">
-          <h1 class="screen-title">Settings &amp; tools</h1>
-          <div class="screen-copy">Your layout, colours, login emails and tracker tools.</div>
-        </div>
-
-        <div class="more-grid">
-          <button class="more-card" data-open-guide="overview">
-            <div class="more-icon">?</div><div class="more-title">Help &amp; Guide</div>
-            <div class="more-copy">Understand accounts, promotions, savings and Mail sync.</div>
-          </button>
-          <button class="more-card" data-open-sheet="appearance">
-            <div class="more-icon">◉</div>
-            <div class="more-title">Appearance</div>
-            <div class="more-copy">Choose Mobile or Desktop and your own theme colour.</div>
-          </button>
-          <button class="more-card" data-open-sheet="device">
-            <div class="more-icon">@</div>
-            <div class="more-title">Login emails</div>
-            <div class="more-copy">Show and copy full addresses privately on this device.</div>
-          </button>
-          <button class="more-card" data-open-sheet="locked">
-            <div class="more-icon">×</div>
-            <div class="more-title">Archived</div>
-            <div id="lockedCardCopy" class="more-copy">0 archived accounts kept for receipt and savings history.</div>
-          </button>
-          <button class="more-card" data-open-sheet="savings">
-            <div class="more-icon">£</div>
-            <div class="more-title">Savings</div>
-            <div class="more-copy">Confirmed receipts, Uber One estimates and strongest accounts.</div>
-          </button>
-          <button class="more-card" data-open-sheet="finance"><div class="more-icon">£</div><div class="more-title">Private finances</div><div class="more-copy">Encrypted corrections and verified Cash balances.</div></button>
-          <button class="more-card" data-open-sheet="health">
-            <div class="more-icon">◎</div>
-            <div class="more-title">Sync & data</div>
-            <div class="more-copy">Sync status, account totals and receipt coverage.</div>
-          </button>
-          <button class="more-card" data-open-sheet="history">
-            <div class="more-icon">↺</div>
-            <div class="more-title">History</div>
-            <div class="more-copy">Recent available, used and expired offer history.</div>
-          </button>
-          <button class="more-card" data-open-sheet="receipts">
-            <div class="more-icon">≡</div>
-            <div class="more-title">Receipts</div>
-            <div class="more-copy">Eats and Rides activity, with confirmed savings.</div>
-          </button>
-        </div>
-      </section>
+      <section id="view-more" class="view"><div class="screen-head"><h1 class="screen-title">More</h1><div class="screen-copy">Tools, settings and help.</div></div><div class="tools-intro"><span class="app-icon-surface" data-icon="grid"></span><div><strong>Your tracker tools</strong><p>Everything in one place.</p></div></div><div class="more-grid"><section class="more-group"><h2 class="eyebrow">Savings & finances</h2><div class="more-group-list"><button class="more-card" data-open-sheet="savings"><span class="more-icon" data-icon="savings"></span><span class="more-content"><span class="more-title">Savings</span><span class="more-copy">Receipt savings and breakdowns</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="finance"><span class="more-icon" data-icon="lock"></span><span class="more-content"><span class="more-title">Private finances</span><span class="more-copy">Balances and private corrections</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="receipts"><span class="more-icon" data-icon="insights"></span><span class="more-content"><span class="more-title">Receipt insights</span><span class="more-copy">Monthly savings and recent activity</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section><section class="more-group"><h2 class="eyebrow">Tools</h2><div class="more-group-list"><button class="more-card" data-jump-planner="true"><span class="more-icon" data-icon="bag"></span><span class="more-content"><span class="more-title">Order Planner</span><span class="more-copy">Compare offers for your basket</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="device"><span class="more-icon" data-icon="shield"></span><span class="more-content"><span class="more-title">Private account import</span><span class="more-copy">Full login emails on your device</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="locked"><span class="more-icon" data-icon="history"></span><span class="more-content"><span class="more-title">Archived accounts</span><span class="more-copy" id="lockedCardCopy"></span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="history"><span class="more-icon" data-icon="calendar"></span><span class="more-content"><span class="more-title">Promo history</span><span class="more-copy">Review past offers and their status</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section><section class="more-group"><h2 class="eyebrow">Preferences & support</h2><div class="more-group-list"><button class="more-card" data-open-sheet="appearance"><span class="more-icon" data-icon="settings"></span><span class="more-content"><span class="more-title">Settings</span><span class="more-copy">Layout and your theme colour</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-guide="overview"><span class="more-icon" data-icon="help"></span><span class="more-content"><span class="more-title">Help & Guide</span><span class="more-copy">Understand offers, usage and savings</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="health"><span class="more-icon" data-icon="history"></span><span class="more-content"><span class="more-title">Sync & data</span><span class="more-copy">Scan freshness and receipt coverage</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="about"><span class="more-icon" data-icon="info"></span><span class="more-content"><span class="more-title">About this tracker</span><span class="more-copy">Privacy and how it works</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section></div></section>
       <section id="view-help" class="view" aria-labelledby="guideTitle">
         <button class="advanced-btn" data-guide-back="true">‹ Back to More</button>
         <div class="screen-head"><div class="eyebrow">Help &amp; Guide</div><h1 id="guideTitle" class="screen-title" tabindex="-1">Understand your tracker</h1>
-          <div class="screen-copy">Clear answers, practical examples and the rules behind your figures.</div><p class="guide-updated">Last updated <time datetime="2026-10-12">12 October 2026</time></p></div>
+          <div class="screen-copy">Clear answers, practical examples and the rules behind your figures.</div><p class="guide-updated">Last updated <time datetime="2026-10-13">13 October 2026</time></p></div>
         <div class="guide-search"><label for="guideSearch">Find an explanation</label><input id="guideSearch" type="search" placeholder="Search statuses, savings, sync…" autocomplete="off" aria-controls="guideSections"><p id="guideSearchStatus" role="status"></p></div>
         <div id="guideSections" class="guide-sections"></div>
       </section>
@@ -2697,6 +2649,11 @@
 
   <script type="module">
     import { financeIcon, financeHero, financeMetric } from "./finance-layout.js";
+    document.querySelectorAll('[data-icon]').forEach(element => { element.innerHTML = financeIcon(element.dataset.icon); element.setAttribute('aria-hidden','true'); });
+    const statusIcons = ['check','receipt','partial','history'];
+    document.querySelectorAll('.activity-card').forEach((card,index) => card.insertAdjacentHTML('afterbegin','<span class="app-icon-surface">'+financeIcon(statusIcons[index])+'</span>'));
+    const groupIcons = ['check','alert','partial','receipt','history','calendar','check','ignored'];
+    document.querySelectorAll('#view-used .activity-section > summary').forEach((summary,index) => summary.insertAdjacentHTML('afterbegin','<span class="app-icon-surface">'+financeIcon(groupIcons[index])+'</span>'));
     import { offerTitle, useCountNeedsReview, effectiveDiscountPercent } from "./offer-details.js";
     import { THEME_KEY, DEFAULT_COLOUR, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
     import { offerFinishedReason, offerClosureLabel, classifyOfferCompletion } from "./offer-state.js";
@@ -3005,7 +2962,7 @@
       const eats = Number(account?.orderCount || 0);
       const rides = Number(account?.rideCount || 0);
       if (eats === 0 && rides === 0) return "No receipt history";
-      return eats + " Eats · " + rides + (rides===1 ? " Ride" : " Rides");
+      return eats + " Eats · " + rides + " Ride";
     }
 
     function promoLabel(promo) {
@@ -3330,7 +3287,7 @@
 
       const fee = effectiveFee();
       document.getElementById("feeNote").textContent =
-        fee > 0
+        hasFeeEstimate()
           ? "Includes about " + money(fee) + " per extra split order"
           : "No extra split-fee estimate yet";
     }
@@ -3701,7 +3658,7 @@
     }
 
     function renderAppearanceSheet() {
-      setSheetHeading('Appearance', 'Your layout and colour.');
+      setSheetHeading('Settings', 'Your layout and colour.');
       document.getElementById('sheetBody').innerHTML =
         '<fieldset class="layout-settings"><legend>Layout</legend><div class="layout-control">' +
           [['auto','Auto'],['mobile','Mobile'],['desktop','Desktop']].map(([value,label]) =>
@@ -3741,15 +3698,32 @@
       });
     }
 
+    let pendingDeviceImport = null;
     function renderDeviceSheet() {
-      setSheetHeading('Login emails', 'Full addresses, only on this device.');
+      pendingDeviceImport = null;
+      setSheetHeading('Private account import', 'Full login emails on your device.');
       const count = accounts.filter(account => deviceEmail(deviceAccounts, account)).length;
       document.getElementById('sheetBody').innerHTML =
-        '<div class="settings-explainer"><strong>' + count + ' full login emails available</strong>' +
-        '<span>Import your private device-accounts export from your Mac. Addresses appear in account lists and can be copied from an account. Nothing is uploaded or added to the public tracker.</span></div>' +
-        '<label class="device-import" for="deviceAccountsFile">Import private login emails<input id="deviceAccountsFile" type="file" accept="application/json,.json"></label>' +
-        '<div id="deviceImportStatus" role="status">Stored in this browser on this device. Use this on your own device only; forgetting emails removes this saved copy.</div>' +
+        '<div class="settings-explainer icon-explainer">' + financeIcon('shield') + '<div><strong>Stored on your device</strong><span>Full emails stay private. Login access comes from your Mac registry.</span></div></div>' +
+        '<section class="setting-card"><h3 class="setting-title">Import accounts</h3><p class="sheet-help">Choose the private device-accounts export from your Mac. Review matching entries before applying.</p><label class="device-import" for="deviceAccountsFile">Choose private file<input id="deviceAccountsFile" type="file" accept="application/json,.json"></label></section>' +
+        '<div id="deviceImportStatus" class="sheet-help" role="status">' + count + ' full login emails available in this browser.</div>' +
+        '<div class="settings-explainer icon-explainer">' + financeIcon('info') + '<div><strong>What gets imported</strong><span>Matching login emails and saved offer references. No passwords or recovery details. Access status stays independent.</span></div></div>' +
         '<div class="sheet-section"><button id="forgetDeviceAccounts" class="action-btn"' + (Object.keys(deviceAccounts).length ? '' : ' disabled') + '>Forget login emails on this device</button></div>';
+    }
+
+    function renderDevicePreview(mapping, value) {
+      pendingDeviceImport = {mapping, value};
+      setSheetHeading('Review import', 'Check matching entries before applying.');
+      const entries = Object.entries(mapping);
+      const added = entries.filter(([ref]) => !deviceAccounts[ref]).length;
+      document.getElementById('sheetBody').innerHTML =
+        '<div class="import-summary"><div><span>New entries</span><strong>' + added + '</strong></div><div><span>Existing entries</span><strong>' + (entries.length - added) + '</strong></div><div><span>Matched</span><strong>' + entries.length + '</strong></div></div>' +
+        '<p class="sheet-help">This replaces the saved login list. Removed or unmatched tracker accounts are excluded. Offer decisions are reconnected without changing receipt evidence.</p><div class="import-entries">' +
+        entries.map(([ref, row]) => {
+          const account = accounts.find(a => a.accountRef === ref);
+          const access = account.accessStatus === 'pending' || account.canLogin == null ? 'Access pending verification' : account.canLogin ? 'Can log in' : 'Can’t log in';
+          return '<article class="import-entry"><div class="import-entry-head"><span class="app-icon-surface">' + financeIcon('user') + '</span><div><strong>' + escapeHtml(row.email) + '</strong><span class="pill">' + (deviceAccounts[ref] ? 'Existing' : 'New') + '</span></div></div><div class="import-access"><span>Current login status</span><strong>' + escapeHtml(access) + '</strong></div></article>';
+        }).join('') + '</div><p id="deviceImportStatus" class="sheet-help" role="status">Nothing has been saved yet. No information is uploaded.</p><div class="sheet-confirm-actions"><button class="account-primary" data-apply-device-import="true">Apply import</button><button class="account-secondary" data-cancel-device-import="true">Back to import</button></div>';
     }
 
     async function importDeviceAccounts(file) {
@@ -3760,16 +3734,25 @@
         let value;
         try { value = JSON.parse(await file.text()); } catch { throw new Error('Choose a valid JSON device-accounts export.'); }
         const mapping = parseDeviceAccounts(value, accounts);
-        const migrated = migratePrivateOfferIds(manualStore, value.offerIdMigrations || []);
-        try { localStorage.setItem(STATE_KEY, JSON.stringify(migrated)); } catch { throw new Error('Could not save private offer history.'); }
-        manualStore = migrated;
-        invalidateAccountProjection();
-        try { localStorage.setItem(DEVICE_ACCOUNTS_KEY, JSON.stringify(mapping)); } catch { throw new Error('Browser storage is unavailable. Enable storage on your own device and try again.'); }
-        deviceAccounts = mapping;
-        renderAll();
-        renderDeviceSheet();
-        document.getElementById('deviceImportStatus').textContent = Object.keys(mapping).length + ' emails imported privately. Open an account to copy its full address.';
+        migratePrivateOfferIds(manualStore, value.offerIdMigrations || []);
+        if (openSheetType !== 'device' || !status?.isConnected) return;
+        renderDevicePreview(mapping, value);
       } catch (error) { if (status?.isConnected) status.textContent = error.message; }
+    }
+
+    function applyDeviceImport() {
+      if (!pendingDeviceImport) return;
+      const {mapping, value} = pendingDeviceImport;
+      try {
+        const migrated = migratePrivateOfferIds(manualStore, value.offerIdMigrations || []);
+        const previous = localStorage.getItem(STATE_KEY);
+        localStorage.setItem(STATE_KEY, JSON.stringify(migrated));
+        try { localStorage.setItem(DEVICE_ACCOUNTS_KEY, JSON.stringify(mapping)); }
+        catch (error) { if (previous == null) localStorage.removeItem(STATE_KEY); else localStorage.setItem(STATE_KEY, previous); throw error; }
+        manualStore = migrated; deviceAccounts = mapping;
+        invalidateAccountProjection(); renderAll(); renderDeviceSheet();
+        document.getElementById('deviceImportStatus').textContent = Object.keys(mapping).length + ' emails imported privately. Open an account to copy its full address.';
+      } catch { document.getElementById('deviceImportStatus').textContent = 'Browser storage is unavailable. No import was applied. Enable storage on your own device and try again.'; }
     }
 
     function offerSheetCard(promo) {
@@ -3869,7 +3852,7 @@
       openAccountRef = accountRef;
       accountHistoryLimit = 30;
 
-      setSheetHeading("Account", account.canLogin ? "Choose an offer or log a use." : "Receipt and savings history for an unavailable account.");
+      setSheetHeading("Account details", account.canLogin ? "Choose an offer or log a use." : "Receipt and savings history for an unavailable account.");
       renderAccountSheet();
       showSheet();
     }
@@ -3963,12 +3946,12 @@
           '<label class="setting-money" for="sheetFeeInput">' +
             '<span>£</span>' +
             '<input id="sheetFeeInput" type="number" min="0" step="0.01" value="' +
-              escapeHtml(effectiveFee().toFixed(2)) + '">' +
+              escapeHtml(hasFeeEstimate() ? effectiveFee().toFixed(2) : '') + '" placeholder="Not entered" inputmode="decimal">' +
             (learned > 0
               ? '<em>Receipt estimate ' + escapeHtml(money(learned)) + '</em>'
               : '<em>Manual estimate</em>') +
           '</label>' +
-          '<div class="setting-note">If another order adds about £2.49 in fees, that cost is subtracted before your saving is shown.</div>' +
+          '<div class="setting-note">Leave blank if unknown. Missing fees are not treated as £0. Entered fees are subtracted from split savings.</div>' +
         '</div>' +
         '<div class="setting-card">' +
           '<div class="setting-card-head">' +
@@ -4051,7 +4034,7 @@
     function receiptActivityRows(limit = 20) {
       const rows = payload.receiptActivity?.days || [];
       return rows.length ? '<div class="sheet-list">' + rows.slice(0,limit).map(row=>
-        '<div class="sheet-row"><div><div class="sheet-row-title">' + escapeHtml(formatDate(row.period) || row.period) + '</div><div class="sheet-row-meta">' + Number(row.eats) + ' Eats · ' + Number(row.rides) + (Number(row.rides)===1 ? ' Ride' : ' Rides') + (row.dateFallbacks ? ' · '+row.dateFallbacks+' email-date fallback' : '') + '</div></div><div class="sheet-row-value">' + escapeHtml(money(row.saved)) + '</div></div>'
+        '<div class="sheet-row"><div><div class="sheet-row-title">' + escapeHtml(formatDate(row.period) || row.period) + '</div><div class="sheet-row-meta">' + Number(row.eats) + ' Eats · ' + Number(row.rides) + ' Ride' + (row.dateFallbacks ? ' · '+row.dateFallbacks+' email-date fallback' : '') + '</div></div><div class="sheet-row-value">' + escapeHtml(money(row.saved)) + '</div></div>'
       ).join('') + '</div>' : '<div class="empty">Receipt activity will appear after a verified import.</div>';
     }
 
@@ -4069,13 +4052,40 @@
         '<div class="monthly-row"><div class="monthly-label"><strong>' + escapeHtml(monthLabel(row)) + '</strong><span>' + (Number(row.eats)+Number(row.rides)) + ' receipts</span></div><div class="monthly-track" aria-hidden="true"><span style="width:' + Math.max(0,Number(row.saved)/maximum*100) + '%"></span></div><strong class="monthly-value">' + escapeHtml(money(row.saved)) + '</strong></div>'
       ).join('') + '</div>' : '<div class="empty">No verified receipt savings yet.</div>';
       const insight = peak ? '<p class="chart-insight"><strong>' + escapeHtml(monthLabel(peak)) + ' was strongest · ' + escapeHtml(money(peak.saved)) + '</strong><span>' + receiptCount + ' receipts across these months. Current month is still in progress; archived history is included.</span></p>' : '';
-      target.innerHTML = '<details class="insights-disclosure disclosure-card"' + (expanded ? ' open' : '') + '><summary><span><strong>Receipt insights</strong><small>Monthly savings &amp; recent receipts</small></span><span class="disclosure-count">' + escapeHtml(money(total)) + ' across ' + months.length + ' months</span></summary><div class="insights-panels disclosure-body"><section class="analytics-panel glass"><div class="analytics-heading"><h2>Savings by month</h2><span>Confirmed receipts</span></div>' + chart + insight + '</section><section class="analytics-panel glass"><div class="analytics-heading"><h2>Recent receipt activity</h2><span>Saved per day</span></div>' + receiptActivityRows(5) + '<button class="advanced-btn" data-open-sheet="receipts">View all receipt activity ›</button></section></div></details>';
+      target.innerHTML = '<details class="insights-disclosure disclosure-card"' + (expanded ? ' open' : '') + '><summary>' + financeIcon('insights') + '<span><strong>Receipt insights</strong><small>Monthly savings &amp; recent receipts</small></span><span class="disclosure-count">' + escapeHtml(money(total)) + ' across ' + months.length + ' months</span></summary><div class="insights-panels disclosure-body"><section class="analytics-panel glass"><div class="analytics-heading"><h2>Savings by month</h2><span>Confirmed receipts</span></div>' + chart + insight + '</section><section class="analytics-panel glass"><div class="analytics-heading"><h2>Recent receipt activity</h2><span>Saved per day</span></div>' + receiptActivityRows(5) + '<button class="advanced-btn" data-open-sheet="receipts">View all receipt activity ›</button></section></div></details>';
+    }
+
+    function monthlySavingsChart() {
+      const months = (payload.receiptActivity?.months || []).slice(-6);
+      const maximum = Math.max(1, ...months.map(row => Number(row.saved)));
+      return months.length ? '<div class="savings-bar-chart" aria-label="Confirmed savings by month">' + months.map(row => {
+        const label = new Date(row.period + '-01T12:00:00Z').toLocaleString('en-GB', {month:'short',year:'2-digit'});
+        return '<div class="savings-bar-column"><strong>' + escapeHtml(money(row.saved)) + '</strong><div class="savings-bar-track" aria-hidden="true"><span style="height:' + Math.max(0,Number(row.saved) / maximum * 100) + '%"></span></div><span>' + escapeHtml(label) + '</span></div>';
+      }).join('') + '</div>' : '<div class="empty">No verified monthly savings yet.</div>';
     }
 
     function renderReceiptsSheet() {
-      const summary=payload.summary || {};
-      setSheetHeading('Receipts', 'Deduplicated receipt activity. Full original receipts remain private on your Mac.');
-      document.getElementById('sheetBody').innerHTML = '<div class="sheet-section"><div class="insight-grid"><div class="insight"><div class="insight-label">Eats receipts</div><div class="insight-value">' + Number(summary.trackedOrders||0) + '</div></div><div class="insight"><div class="insight-label">Ride receipts</div><div class="insight-value">' + Number(summary.trackedRides||0) + '</div></div></div></div><div class="sheet-section">' + receiptActivityRows(90) + '</div>';
+      const summary = payload.summary || {};
+      const months = (payload.receiptActivity?.months || []).slice(-6);
+      const total = months.reduce((sum, row) => sum + Number(row.saved), 0);
+      setSheetHeading('Receipt insights', 'Monthly savings and recent receipt activity.');
+      document.getElementById('sheetBody').innerHTML =
+        '<div class="insights-hero"><span class="app-icon-surface">' + financeIcon('savings') + '</span><div><span>Receipt savings · recent months</span><strong>' + escapeHtml(money(total)) + '</strong><p>' + months.length + ' months · based on receipt records</p></div></div>' +
+        '<section class="setting-card"><h3 class="setting-title">Monthly savings</h3>' + monthlySavingsChart() + '</section>' +
+        '<div class="insight-grid">' + financeMetric('bag','Eats receipts',Number(summary.trackedOrders || 0)) + financeMetric('receipt','Ride receipts',Number(summary.trackedRides || 0)) + '</div>' +
+        '<section class="sheet-section"><h3 class="sheet-section-title">Recent receipt activity</h3>' + receiptActivityRows(90) + '</section>' +
+        '<button class="sheet-action-row" data-open-sheet="savings">' + financeIcon('info') + '<span>Evidence & estimates<small>See what your receipts confirm</small></span></button><p class="sheet-help">Daily totals are aggregated. Exact private receipt details are available in Private finances after importing your Mac file.</p>';
+    }
+
+    function renderAboutSheet() {
+      setSheetHeading('About this tracker', 'Offers, receipts and savings in one place.');
+      const row = (icon, title, detail) => '<div class="settings-explainer icon-explainer">' + financeIcon(icon) + '<div><strong>' + title + '</strong><span>' + detail + '</span></div></div>';
+      document.getElementById('sheetBody').innerHTML = '<div class="tools-intro"><span class="app-icon-surface">' + financeIcon('grid') + '</span><div><strong>Uber Eats Promo Tracker</strong><p>Your offers, receipt evidence and Order Planner.</p></div></div><h3 class="sheet-section-title">How it works</h3>' +
+        row('user','Accounts and offers','Find eligible offers and check login access independently.') +
+        row('receipt','Receipts and savings','Review Eats and Ride activity, supported totals and clearly labelled estimates.') +
+        row('shield','Your privacy','Published views use masked accounts and safe totals. Full emails, original receipts and promo codes stay private.') +
+        row('check','Understanding status','Account usage, verified promotion completion, expiry, manual finish and login access keep separate rules.') +
+        '<button class="sheet-action-row" data-open-guide="overview">' + financeIcon('help') + '<span>Open Help & Guide</span></button>';
     }
 
     function renderHealthSheet() {
@@ -4142,8 +4152,9 @@
       sheet.toggleAttribute('data-finance-concealed', title === 'Private finances' && document.hidden);
       let icon = sheet.querySelector('.finance-heading-icon');
       if (!icon) { icon = document.createElement('span'); icon.className = 'finance-heading-icon'; sheet.querySelector('.sheet-head').prepend(icon); }
-      icon.hidden = !financeLayout;
-      if (financeLayout) icon.innerHTML = financeIcon(title === 'Savings' ? 'savings' : 'shield');
+      icon.hidden = false;
+      const icons = {'Savings':'savings','Private finances':'shield','Settings':'settings','Account details':'user','Private account import':'shield','Review import':'receipt','Receipt insights':'insights','About this tracker':'info','Split settings':'settings','Ignore offer':'ignored','Mark promotion finished':'check','Archived accounts':'history','Promo history':'calendar','Sync & data':'history'};
+      icon.innerHTML = financeIcon(icons[title] || 'info');
       document.getElementById("sheetTitle").textContent = title;
       document.getElementById("sheetSub").textContent = sub || "";
     }
@@ -4159,6 +4170,7 @@
     }
 
     function closeSheet() {
+      pendingDeviceImport = null; pendingOfferAction = null;
       if (openSheetType === 'finance') financeView?.destroy();
       const backdrop = document.getElementById("sheetBackdrop");
       backdrop.classList.remove("open");
@@ -4177,6 +4189,7 @@
       const financeRevision = ++financeOpenRevision;
       openAccountRef = null;
 
+      if (type === 'about') renderAboutSheet();
       if (type === "advanced") renderAdvancedSheet();
       if (type === "locked") renderLockedSheet();
       if (type === "savings") renderSavingsSheet();
@@ -4202,6 +4215,23 @@
       }
 
       showSheet();
+    }
+
+    let pendingOfferAction = null;
+    function revealOfferHistory(promo) {
+      const past = document.querySelector('#sheetBody details[data-history-key="' + CSS.escape(promoStateKey(promo)) + '"]');
+      if (past) { document.getElementById('accountOfferHistory').open = true; past.open = true; }
+      document.querySelector('#sheetBody [data-mark-offer-done="' + CSS.escape(promoStateKey(promo)) + '"], #sheetBody [data-toggle-ignore="' + CSS.escape(promoStateKey(promo)) + '"]')?.focus();
+    }
+    function renderOfferConfirmation(promo, kind) {
+      pendingOfferAction = {key:promoStateKey(promo), kind};
+      openSheetType = 'offer-confirmation';
+      const ignoring = kind === 'ignore';
+      setSheetHeading(ignoring ? 'Ignore offer' : 'Mark promotion finished', ignoring ? 'Exclude this offer from recommendations.' : 'Record a manual promotion status.');
+      document.getElementById('sheetBody').innerHTML = '<div class="confirmation-offer"><span class="app-icon-surface">' + financeIcon('bag') + '</span><div><strong>' + escapeHtml(offerTitle(promo)) + '</strong><p>' + escapeHtml(accountDisplay(promo)) + '</p><small>' + confirmedUses(promo) + ' of ' + Math.max(1,Number(promo.uses || 1)) + ' uses receipt-confirmed</small></div></div>' +
+        '<div class="settings-explainer icon-explainer">' + financeIcon('info') + '<div><strong>' + (ignoring ? 'What changes' : 'Manual completion') + '</strong><span>' + (ignoring ? 'This offer moves to Ignored offers and is excluded from recommendations.' : 'This records your decision. It does not verify that every promotional use was redeemed.') + '</span></div></div>' +
+        '<div class="settings-explainer icon-explainer">' + financeIcon('shield') + '<div><strong>History and access stay independent</strong><span>Receipt evidence, confirmed savings and login access keep their existing rules.</span></div></div><div class="sheet-confirm-actions"><button class="account-primary" data-confirm-offer-action="true">' + (ignoring ? 'Ignore offer' : 'Mark finished manually') + '</button><button class="account-secondary" data-cancel-offer-action="true">Cancel</button></div><p class="sheet-help">You can undo this decision later.</p>';
+      document.getElementById('sheetClose').focus();
     }
 
     function promoByKey(key) {
@@ -4279,6 +4309,19 @@
       window.scrollTo({ top: 0, behavior: "instant" });
     }
 
+    function updateVisibleViewport() {
+      const viewport = window.visualViewport;
+      if (!viewport) return;
+      document.documentElement.style.setProperty('--app-viewport-height', viewport.height + 'px');
+      document.documentElement.style.setProperty('--app-viewport-top', viewport.offsetTop + 'px');
+      const editing = document.activeElement?.matches('input:not([type="radio"]):not([type="checkbox"]):not([type="color"]),textarea,select');
+      document.documentElement.toggleAttribute('data-keyboard-open', Boolean(editing && window.innerHeight - viewport.height > 150));
+    }
+    window.visualViewport?.addEventListener('resize', updateVisibleViewport);
+    window.visualViewport?.addEventListener('scroll', updateVisibleViewport);
+    document.addEventListener('focusin', updateVisibleViewport);
+    document.addEventListener('focusout', () => requestAnimationFrame(updateVisibleViewport));
+    updateVisibleViewport();
     window.addEventListener("resize", applyLayoutPreference);
     requestAnimationFrame(updateNavGlider);
 
@@ -4443,6 +4486,7 @@
     });
 
     document.getElementById("app").addEventListener("click", event => {
+      if (event.target.closest('[data-jump-planner]')) { switchView('home'); requestAnimationFrame(() => { document.getElementById('basketInput').focus({preventScroll:true}); document.querySelector('.hero-card').scrollIntoView({block:'start',behavior:motionReduced()?'instant':'smooth'}); }); return; }
       if (event.target.closest("[data-retry-load]")) { load(); return; }
       const showMore = event.target.closest("[data-show-more-accounts]");
       if (showMore) {
@@ -4497,7 +4541,7 @@
       if (!openSheetType) return;
       if (event.key === "Escape") closeSheet();
       if (event.key === "Tab") {
-        const controls = [...document.querySelectorAll('#sheetBackdrop button:not([disabled]), #sheetBackdrop input, #sheetBackdrop [tabindex="0"]')]
+        const controls = [...document.querySelectorAll('#sheetBackdrop button:not([disabled]), #sheetBackdrop input:not([disabled]), #sheetBackdrop select:not([disabled]), #sheetBackdrop summary, #sheetBackdrop [tabindex="0"]')]
           .filter(element => element.getClientRects().length);
         const first = controls[0], last = controls[controls.length - 1];
         if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
@@ -4506,6 +4550,8 @@
     });
 
     document.getElementById("sheetBody").addEventListener("click", event => {
+      if (event.target.closest('[data-apply-device-import]')) { applyDeviceImport(); return; }
+      if (event.target.closest('[data-cancel-device-import]')) { renderDeviceSheet(); return; }
       if (event.target.closest('[data-show-more-archived]')) {
         archivedDisplayLimit += 80;
         renderLockedSearch(document.getElementById('sheetLockedSearch')?.value || '');
@@ -4580,36 +4626,31 @@
       }
 
       const ignoreButton = event.target.closest("[data-toggle-ignore]");
-      if (ignoreButton) {
-        const promo = promoByKey(ignoreButton.dataset.toggleIgnore);
-        if (promo) {
-          manualStore = setOfferIgnored(
-            manualStore,
-            promo,
-            ignoreButton.dataset.ignore === "true"
-          );
-          refreshAfterStateChange();
-        }
-        return;
-      }
-
       const doneOffer = event.target.closest("[data-mark-offer-done]");
-      if (doneOffer) {
-        const promo = promoByKey(doneOffer.dataset.markOfferDone);
+      if (ignoreButton || doneOffer) {
+        const button = ignoreButton || doneOffer;
+        const promo = promoByKey(ignoreButton ? button.dataset.toggleIgnore : button.dataset.markOfferDone);
         if (promo) {
-          if (doneOffer.dataset.done === "true" && !window.confirm("Mark this promotion finished manually? It will leave recommendations, but only receipt evidence can verify every use. Your confirmed count and this decision will be preserved.")) return;
-          manualStore = setOfferDone(
-            manualStore,
-            promo,
-            doneOffer.dataset.done === "true"
-          );
-          refreshAfterStateChange();
-          const past = document.querySelector('#sheetBody details[data-history-key="' + CSS.escape(promoStateKey(promo)) + '"]');
-          if (past) { document.getElementById('accountOfferHistory').open = true; past.open = true; }
-          document.querySelector('#sheetBody [data-mark-offer-done="' + CSS.escape(promoStateKey(promo)) + '"]')?.focus();
+          const enabled = ignoreButton ? button.dataset.ignore === 'true' : button.dataset.done === 'true';
+          if (enabled) renderOfferConfirmation(promo, ignoreButton ? 'ignore' : 'done');
+          else {
+            manualStore = ignoreButton ? setOfferIgnored(manualStore,promo,false) : setOfferDone(manualStore,promo,false);
+            refreshAfterStateChange(); revealOfferHistory(promo);
+          }
         }
         return;
       }
+      if (event.target.closest('[data-confirm-offer-action]')) {
+        const action = pendingOfferAction;
+        const promo = action && promoByKey(action.key);
+        if (promo) {
+          manualStore = action.kind === 'ignore' ? setOfferIgnored(manualStore,promo,true) : setOfferDone(manualStore,promo,true);
+          openSheetType = 'account'; pendingOfferAction = null;
+          refreshAfterStateChange(); revealOfferHistory(promo);
+        }
+        return;
+      }
+      if (event.target.closest('[data-cancel-offer-action]')) { pendingOfferAction=null; openSheetType='account'; renderAccountSheet(); return; }
 
       if (event.target.id === "resetPlannerSettings") {
         plannerSettings = {
@@ -4628,8 +4669,9 @@
       if (event.target.id === 'themeColour') chooseTheme(event.target.value);
       if (event.target.id === 'themeBrightness') { const hsl = colourHsl(themeColour); chooseTheme(hslColour(hsl.hue, hsl.saturation, Number(event.target.value))); }
       if (event.target.id === "sheetFeeInput") {
-        plannerSettings.extraOrderFee = Math.max(0, Number(event.target.value || 0));
-        plannerSettings.feeTouched = true;
+        const amount = event.target.value.trim();
+        plannerSettings.extraOrderFee = amount === '' ? null : Math.max(0, Number(amount));
+        plannerSettings.feeTouched = amount !== '';
         savePlannerSettings();
         renderStats();
         renderRecommendation();
