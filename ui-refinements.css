@@ -969,7 +969,7 @@ body::before, body::after { display: none; }
 .metric-icon { display:grid; place-items:center; flex:0 0 20px; width:20px; height:20px; color:var(--muted); }
 .metric-icon > .finance-icon { width:20px; height:20px; flex-basis:20px; }
 .activity-card:first-child .metric-icon { color:var(--green); }
-.activity-card strong { display:block; margin:12px 0 0; font-size:30px; line-height:1.15; letter-spacing:-.03em; }
+.activity-card strong { display:block; margin:10px 0 0; font-size:30px; line-height:1.15; letter-spacing:-.03em; }
 .activity-card .metric-help { top:10px; right:8px; }
 #view-used .activity-section { margin-top:14px; }
 #view-used .activity-section > summary { gap:12px; padding:16px; min-height:74px; }
