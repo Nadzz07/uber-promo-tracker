@@ -14,7 +14,8 @@ const receipt={receiptId:'rcp_test',accountRef:'A001',service:'Uber Eats',total:
    setTimer:callback=>(timer=callback,1),clearTimer:()=>{timer=null;},onLock:()=>locks++});
  session.visibility(true);clock+=30000;session.visibility(false);
  assert.ok(sessionVault.data);assert.equal(timer,null);assert.equal(locks,0);
- session.visibility(true);clock+=5*60000;session.visibility(false);
+ session.visibility(true);clock+=14*60000;session.visibility(false);assert.ok(sessionVault.data,'Fourteen minutes in the background stays unlocked');
+ session.visibility(true);clock+=15*60000;session.visibility(false);
  assert.equal(sessionVault.data,null);assert.equal(locks,1,'Expired background session locks even when timer was suspended');
  sessionVault.data={};session.visibility(true);timer();assert.equal(locks,2);
  sessionVault.data={};session.visibility(true);session.lock();assert.equal(timer,null);assert.equal(locks,3);
