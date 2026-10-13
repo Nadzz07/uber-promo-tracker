@@ -60,9 +60,21 @@ try{
   assert.equal(await page.locator('#savedStat').innerText(),saved,'Visual actions cannot alter savings');
   await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="appearance"]').click();await page.locator('[data-theme-colour="#c5a0ff"]').click();await page.keyboard.press('Escape');await page.locator('#view-more [data-open-sheet="receipts"]').click();
   assert.equal(await page.locator('.finance-heading-icon').evaluate(el=>getComputedStyle(el).color),'rgb(197, 160, 255)');
+  assert.ok(await page.locator('.insights-hero').evaluate(el=>getComputedStyle(el).backgroundImage.includes('197, 160, 255')&&getComputedStyle(el,'::before').borderColor.includes('197, 160, 255')),'Receipt insights shares the chosen Savings material');
   assert.equal(await page.locator('.savings-bar-track > span').count(),1,'Chart follows actual month records');
   assert.equal(await page.locator('#sheetBody .empty').filter({hasText:'Receipt activity will appear'}).count(),1,'Receipt empty state is available');
   assert.ok(await page.locator('.sheet').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
+  await page.keyboard.press('Escape');await page.locator('#view-more [data-open-sheet="savings"]').click();
+  const heroColours=await page.locator('.finance-hero').evaluate(el=>({surface:getComputedStyle(el).backgroundImage,reflection:getComputedStyle(el,'::before').backgroundImage,edge:getComputedStyle(el,'::before').borderColor}));
+  assert.ok([heroColours.surface,heroColours.reflection,heroColours.edge].every(value=>value.includes('197, 160, 255')),'The Savings surface and curved reflection follow the chosen colour');
+  await page.keyboard.press('Escape');await page.locator('[data-view="home"]').click();
+  assert.ok(await page.locator('.total-saved-card').evaluate(el=>getComputedStyle(el).backgroundImage.includes('197, 160, 255')&&getComputedStyle(el,'::before').borderColor.includes('197, 160, 255')),'Home shares the themed Savings material');
+  assert.ok(await page.locator('.home-overview').evaluate(el=>el.querySelector('.total-saved-card').getBoundingClientRect().top<el.querySelector('.home-intro').getBoundingClientRect().top),'Savings leads the overview');
+  await page.locator('[data-view="used"]').click();
+  const metrics=await page.locator('.activity-card').evaluateAll(cards=>cards.map(card=>({height:card.getBoundingClientRect().height,overflow:card.scrollWidth>card.clientWidth+1,icon:card.querySelector('.app-icon-surface').getBoundingClientRect().width})));
+  assert.ok(metrics.every(card=>card.height<=(width<370?145:130)&&!card.overflow&&card.icon<=32),'Used tiles and icons remain balanced without oversized empty space: '+name+' / '+width+' / '+JSON.stringify(metrics));
+  assert.equal(await page.locator('#view-used > details').count(),8,'Every existing status group remains available');
+  await page.locator('[data-view="more"]').click();
   await page.keyboard.press('Escape');await page.locator('#view-more [data-open-sheet="device"]').click();
   await page.locator('#deviceAccountsFile').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{}')});await page.waitForFunction(()=>document.getElementById('deviceImportStatus').textContent.includes('Choose a tracker'));assert.match(await page.locator('#deviceImportStatus').innerText(),/Choose a tracker/);
   if(width<768){
