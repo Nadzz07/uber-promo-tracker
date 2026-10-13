@@ -72,6 +72,7 @@ try{
   await page.keyboard.press('Escape');await page.locator('[data-view="home"]').click();
   assert.ok(await page.locator('.total-saved-card').evaluate(el=>getComputedStyle(el).backgroundImage.includes('197, 160, 255')&&getComputedStyle(el,'::before').borderColor.includes('197, 160, 255')),'Home shares the themed Savings material');
   assert.ok(await page.locator('.home-overview').evaluate(el=>el.querySelector('.total-saved-card').getBoundingClientRect().top<el.querySelector('.home-intro').getBoundingClientRect().top),'Savings leads the overview');
+  assert.ok(await page.locator('.total-saved-card').evaluate(el=>el.getBoundingClientRect().height<=170),'Home savings keeps compact preview proportions');
   await page.locator('[data-view="used"]').click();
   const metrics=await page.locator('.activity-card').evaluateAll(cards=>cards.map(card=>({height:card.getBoundingClientRect().height,overflow:card.scrollWidth>card.clientWidth+1,icon:card.querySelector('.app-icon-surface').getBoundingClientRect().width})));
   assert.ok(metrics.every(card=>card.height<=(width<370?145:130)&&!card.overflow&&card.icon<=32),'Used tiles and icons remain balanced without oversized empty space: '+name+' / '+width+' / '+JSON.stringify(metrics));
