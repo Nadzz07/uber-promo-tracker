@@ -1208,6 +1208,11 @@ body::before, body::after { display: none; }
 .finance-breakdown .disclosure-body, [data-finance-panel] > .disclosure-body { animation:none; }
 
 /* Home is an overview. The original interactive controls live in detail views. */
+.topbar > div:first-child { min-width:0; flex:1; }
+.topbar .brand-title { white-space:normal; overflow-wrap:anywhere; }
+.topbar .scan-wrap { min-width:0; max-width:45%; }
+.topbar .scan-time { white-space:normal; overflow-wrap:anywhere; }
+.topbar .scan-pill { max-width:100%; }
 #view-home .home-overview { margin-top:12px; margin-bottom:0; }
 #view-home.active { display:block; }
 #view-home .home-intro, html[data-layout="desktop"] #view-home .home-intro { margin-top:22px; }
@@ -1243,6 +1248,10 @@ body::before, body::after { display: none; }
 .home-action-row strong { display:block; font-size:15px; line-height:1.4; }
 .home-action-row small { display:block; margin-top:3px; font-size:12px; color:var(--muted); line-height:1.5; }
 #homeAnalytics { margin:0; }
+.home-privacy { display:none; }
+.app-shell:has(#view-home.active) > .privacy { margin-top:16px; }
+.app-shell:has(#view-home.active) > .privacy .home-privacy { display:block; }
+.app-shell:has(#view-home.active) > .privacy .full-privacy { display:none; }
 .detail-view-head { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin:20px 0; }
 .detail-view-head h1 { width:100%; order:2; font-size:27px; margin:0; letter-spacing:-.035em; }
 .detail-back, .detail-switch { min-height:44px; display:flex; align-items:center; gap:8px; background:none; border:0; color:var(--muted); font:inherit; font-size:14px; cursor:pointer; padding:0 6px; }

@@ -27,7 +27,9 @@ try{for(const [width,height,largeText] of [[390,844,false],[430,932,false],[1440
   assert.ok(await page.locator('.total-saved-card').evaluate(e=>getComputedStyle(e).backgroundImage.includes('255, 199, 120')),'Home follows the selected Amber theme');
  }
  if(largeText)await page.addStyleTag({content:`
+  body {font-family:Arial,sans-serif}
   #app .brand-title {font-size:34px!important}
+  #app .scan-time,#app .scan-pill {font-size:18px!important}
   #app .stat-label,#app .home-action-row small {font-size:18px!important}
   #app .stat-value {font-size:43px!important}
   #app .home-action-row strong,#app .account-email {font-size:22px!important}
@@ -44,7 +46,8 @@ try{for(const [width,height,largeText] of [[390,844,false],[430,932,false],[1440
  assert.deepEqual(await page.locator('#view-home .stat-label').allTextContents(),['Total saved','Total accounts','Accounts available','Can log in','Archived']);
  assert.equal(await page.locator('#homeReadyCount').innerText(),'2 ready to use');
  assert.equal(await page.locator('#view-home').evaluate(e=>getComputedStyle(e).animationName),'none','Reduced motion disables view entry animation');
- assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Home overflow at '+width+' / larger text '+largeText);
+ const overflow=await page.evaluate(()=>({fits:document.documentElement.scrollWidth<=innerWidth,items:[...document.querySelectorAll('#view-home *, .topbar *')].filter(e=>e.getClientRects().length&&e.getBoundingClientRect().right>innerWidth+1).map(e=>({tag:e.tagName,class:e.className,width:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right}))}));
+ assert.ok(overflow.fits,'Home overflow at '+width+' / larger text '+largeText+' '+JSON.stringify(overflow.items));
  if(output&&!largeText&&[430,1440].includes(width))await page.screenshot({path:output+'/'+name+'-'+width+'-home.png',fullPage:width>=980});
  if(width===390&&!largeText){assert.ok(await page.locator('#homeAnalytics').evaluate(e=>e.getBoundingClientRect().bottom<innerHeight+100),'Overview allows little natural scrolling on typical iPhone viewport');}
  const find=page.locator('[data-home-detail="offers"]').first();await find.focus();await page.keyboard.press('Enter');await page.locator('#view-offers.active').waitFor();
