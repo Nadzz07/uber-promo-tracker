@@ -6,12 +6,12 @@ import {once} from 'node:events';
 import {execFileSync} from 'node:child_process';
 import {chromium,webkit,firefox} from 'playwright';
 execFileSync(process.execPath,['build-site.js']);
-const stamp=new Date().toISOString(),account={accountRef:'A001',accountMasked:'te…01@example.invalid',canLogin:true,orderCount:2,rideCount:1};
+const stamp=new Date().toISOString(),account={accountRef:'A001',accountMasked:'te…01@example.invalid',canLogin:true,orderCount:2,rideCount:1,receiptReviewCount:2};
 const offer={id:'mobile-offer',...account,service:'Uber Eats',discountType:'fixed',discount:12,minimumSpend:15,uses:5,usesRemaining:4,receiptConfirmedUses:1,usesVerified:true,firstEmailSentAt:stamp,emailSentAt:stamp,expiresAt:new Date(Date.now()+10*86400000).toISOString(),expiryStatus:'exact'};
-const snapshot={accounts:[account],promos:[offer],generatedAt:stamp,sync:{lastSuccessfulMailScanAt:stamp},summary:{totalSaved:24.89,trackedOrders:2,trackedRides:1}};
-const transfer={kind:'uber-tracker-private-finance',schemaVersion:1,accounts:[{accountRef:'A001'}],receipts:[
- {receiptId:'rcp_adjusted',accountRef:'A001',service:'Uber Eats',merchant:'Adjusted receipt',sentAt:'2025-12-28T03:30:00Z',total:0,financialEvidence:{outOfPocket:0}},
- {receiptId:'rcp_charged',accountRef:'A001',service:'Uber Eats',sentAt:'2025-12-27T03:30:00Z',promotionDiscount:12,total:5.62,financialEvidence:{outOfPocket:5.62}},
+const snapshot={accounts:[account],promos:[offer],generatedAt:stamp,sync:{lastSuccessfulMailScanAt:stamp},summary:{totalSaved:24.89,trackedOrders:2,trackedRides:1,financialBreakdown:{missing:2}}};
+const transfer={kind:'uber-tracker-private-finance',schemaVersion:1,receiptReviewVersion:1,accounts:[{accountRef:'A001'}],receipts:[
+ {receiptId:'rcp_adjusted',accountRef:'A001',service:'Uber Eats',merchant:'Adjusted receipt',sentAt:'2025-12-28T03:30:00Z',total:0,financialEvidence:{outOfPocket:0},financialReview:{reasons:['refund','adjusted_receipt'],revision:'a'.repeat(64)}},
+ {receiptId:'rcp_charged',accountRef:'A001',service:'Uber Eats',sentAt:'2025-12-27T03:30:00Z',promotionDiscount:12,total:5.62,financialEvidence:{outOfPocket:5.62},financialReview:{reasons:['adjusted_receipt'],revision:'b'.repeat(64)}},
  {receiptId:'rcp_ride',accountRef:'A001',service:'Uber',sentAt:'2025-12-26T03:30:00Z',reportedSavings:12.89,financialEvidence:{reportedKind:'combined'}}
 ],events:[]};
 const files=new Set(fs.readdirSync('dist'));
@@ -36,7 +36,7 @@ try{for(const width of [320,390,430,844,1024]){
  await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="finance"]').click();await page.locator('#financePassword').waitFor();await fields(page);
  await page.locator('#financePassword').fill('mobile test passphrase');await page.locator('[data-finance-form="unlock"] button').click();await page.locator('.finance-empty').waitFor();
  await page.locator('[data-finance-import]').setInputFiles({name:'finance.local.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(transfer))});await page.locator('#financeReceipt option').first().waitFor({state:'attached'});
- await page.locator('[data-finance-panel="receipt"] > summary').click();await page.locator('#financeReceipt').selectOption('rcp_adjusted');await fields(page);
+ await page.locator('[data-finance-panel="receipt"] > summary').click();await page.locator('#financeReceipt').selectOption('rcp_adjusted');await fields(page);assert.equal(await page.locator('#financePaid').getAttribute('required'),'','Final payment required for refund review');await page.locator('#financeMissingOnly').check();assert.equal(await page.locator('#financeReceipt option').count(),2,'Known savings with an adjustment stay in Missing details');await page.locator('#financeMissingOnly').uncheck();
  await page.locator('[data-finance-disclosure="breakdown"] > summary').click();assert.equal(await page.locator('#finance-ridePromotions').isVisible(),false,'Only the receipt service is shown first');
  await page.locator('#financeTotal').fill('16.21');await page.locator('#financePaid').fill('0');await page.locator('#finance-eatsPromotions').fill('12');await page.locator('#finance-explicitUberOne').fill('4.21');
  assert.equal(await page.locator('[data-finance-breakdown-total]').innerText(),'£16.21');assert.equal(await page.locator('[data-finance-breakdown-check]').innerText(),'Matches total savings.');
@@ -47,20 +47,28 @@ try{for(const width of [320,390,430,844,1024]){
  await page.locator('[data-finance-form="receipt"] button[type="submit"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="receipt"]')?.dataset.state==='saved');
  assert.equal(await page.locator('[data-finance-disclosure="breakdown"]').getAttribute('open'),'','Saving keeps expanded breakdown');assert.match(await page.locator('[data-finance-feedback="receipt"]').innerText(),/Saved correction.*Adjusted receipt/);
  assert.ok(await page.locator('[data-finance-feedback="receipt"]').evaluate(e=>{const r=e.getBoundingClientRect(),s=e.closest('.sheet-body').getBoundingClientRect();return r.top>=s.top-1&&r.bottom<=s.bottom+1;}),'Saved confirmation stays in view');
+ if(process.env.TRACKER_SCREENSHOT_DIR&&width===390){fs.mkdirSync(process.env.TRACKER_SCREENSHOT_DIR,{recursive:true,mode:0o700});await page.screenshot({path:process.env.TRACKER_SCREENSHOT_DIR+'/03-correction-saved.png'});}
  const decrypt=()=>page.evaluate(async()=>{const {decryptFinance}=await import('./private-finance-vault.js');return decryptFinance(JSON.parse(localStorage.getItem('uber-tracker-finance-encrypted-v1')),'mobile test passphrase');});
- const saved=await decrypt();assert.equal(saved.events[0].value.total,16.21);assert.equal(saved.events[0].value.outOfPocket,0);assert.deepEqual(saved.events[0].value.breakdown,{eatsPromotions:12,explicitUberOne:4.21});
+ const saved=await decrypt();assert.equal(saved.events[0].value.total,16.21);assert.equal(saved.events[0].value.outOfPocket,0);assert.deepEqual(saved.events[0].value.breakdown,{eatsPromotions:12,explicitUberOne:4.21});assert.equal(saved.events[0].value.reviewedReceiptRevision,'a'.repeat(64));assert.equal(await page.locator('#financePaid').getAttribute('required'),null,'Review completes only after final savings and payment are saved');
  // A mismatch shows a nearby error and preserves typed values and ciphertext.
  const ciphertext=await page.evaluate(()=>localStorage.getItem('uber-tracker-finance-encrypted-v1'));
  await page.locator('#financeTotal').fill('12');await page.locator('[data-finance-form="receipt"] button[type="submit"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="receipt"]')?.dataset.state==='error');
  assert.match(await page.locator('[data-finance-feedback="receipt"]').innerText(),/exceeds/);assert.equal(await page.locator('#financeTotal').inputValue(),'12');assert.equal(await page.evaluate(()=>localStorage.getItem('uber-tracker-finance-encrypted-v1')),ciphertext);
- // Viewing history preserves saved corrections and balances without a bulk reset.
+ // Undo/redo restores exact previous values, including the review state.
+ await page.locator('[data-finance-action="undo-receipt"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="receipt"]')?.dataset.state==='saved');assert.equal(await page.locator('#financeTotal').inputValue(),'');assert.equal(await page.locator('#financePaid').getAttribute('required'),'');assert.match(await page.locator('.savings-hero-value').innerText(),/24.89/);
+ await page.locator('[data-finance-action="redo-receipt"]').click();await page.waitForFunction(()=>document.querySelector('#financeTotal')?.value==='16.21');assert.equal((await decrypt()).events.at(-1).historyAction,'redo');
+ // Cash and original data survive a receipt-only reset; cancel is harmless.
  await page.locator('[data-finance-panel="cash"] > summary').click();await page.locator('#financeBalance').fill('12');await page.locator('[data-finance-form="cash"] button[type="submit"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="cash"]')?.dataset.state==='saved');
  await page.locator('[data-finance-panel="history"] > summary').click();
- assert.equal(await page.locator('[data-finance-action*="reset-history"]').count(),0,'No bulk history reset controls');
- assert.equal(await page.locator('[data-finance-panel="history"] .sheet-row').count(),2,'Saved history remains visible');
- const retained=await decrypt();assert.equal(retained.events.length,2);assert.deepEqual(retained.receipts,transfer.receipts);assert.deepEqual(retained.accounts,transfer.accounts);assert.equal(retained.events[0].value.total,16.21);assert.equal(retained.events[1].value.balance,12);assert.match(await page.locator('.savings-hero-value').innerText(),/41.10/);assert.equal(await page.locator('#savedStat').innerText(),'£24.89','Viewing private history cannot change published Mac totals');
- assert.equal(await page.locator('#financeBalance').inputValue(),'12');await fields(page);assert.deepEqual(errors,[]);assert.deepEqual(writes,[]);
+ assert.equal(await page.locator('[data-finance-action="reset-receipts"]').count(),1);
+ assert.equal(await page.locator('[data-finance-panel="history"] .sheet-row').count(),4,'Saved history remains visible');
+ const retained=await decrypt();assert.equal(retained.events.length,4);assert.deepEqual(retained.receipts,transfer.receipts);assert.deepEqual(retained.accounts,transfer.accounts);assert.equal(retained.events[0].value.total,16.21);assert.equal(retained.events[3].value.balance,12);assert.match(await page.locator('.savings-hero-value').innerText(),/41.10/);assert.equal(await page.locator('#savedStat').innerText(),'£24.89','Viewing private history cannot change published Mac totals');
+ assert.equal(await page.locator('#financeBalance').inputValue(),'12');
+ await page.locator('[data-finance-action="reset-receipts"]').click();if(process.env.TRACKER_SCREENSHOT_DIR&&width===390){await page.locator('[data-finance-action="confirm-reset-receipts"]').scrollIntoViewIfNeeded();await page.screenshot({path:process.env.TRACKER_SCREENSHOT_DIR+'/04-receipt-only-reset.png'});}await page.locator('[data-finance-action="cancel-reset-receipts"]').click();assert.equal((await decrypt()).events.length,4);
+ await page.locator('[data-finance-action="reset-receipts"]').click();await page.locator('[data-finance-action="confirm-reset-receipts"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="history"]')?.dataset.state==='saved');const reset=await decrypt();assert.equal(reset.events.length,1);assert.equal(reset.events[0].kind,'cash');assert.deepEqual(reset.receipts,transfer.receipts);assert.deepEqual(reset.accounts,transfer.accounts);assert.match(await page.locator('.savings-hero-value').innerText(),/24.89/);assert.equal(await page.locator('#financeBalance').inputValue(),'12');assert.match(await page.locator('[data-finance-feedback="history"]').innerText(),/Receipt corrections cleared/);assert.equal(await page.locator('[data-finance-action="reset-receipts"]').count(),0);
+ await page.keyboard.press('Escape');await page.locator('[data-view="accounts"]').click();await page.locator('#accountsList [data-finance-account="A001"]').first().click();await page.locator('#financeReceipt').waitFor();assert.equal(await page.locator('#financeReceipt option').count(),2,'Account Missing details includes both refunded/adjusted receipts');assert.match(await page.locator('#financeReceiptEvidence').innerText(),/needs checking/);
+ await fields(page);assert.deepEqual(errors,[]);assert.deepEqual(writes,[]);
  await context.close();
  }
- console.log('✓ Mobile/touch fields ≥16px, large amounts preserved, pinch zoom enabled; receipt-style breakdown, visible save/error feedback, draft/search/scroll preservation and preserved encrypted history ('+name+')');
+ console.log('✓ Mobile/touch fields ≥16px, large amounts preserved, pinch zoom enabled; receipt-style breakdown, visible save/error feedback, draft/search/scroll preservation, durable undo/redo, refund review and receipt-only reset preserving Cash and originals ('+name+')');
 }finally{await browser.close();server.close();}

@@ -2,7 +2,7 @@ import { classifyOfferCompletion } from "./offer-state.js";
 import { classifyAccount } from "./account-state.js";
 import { publicOfferTitle } from "./public-promo.js";
 
-const forbidden = /^(?:alias|email|accountAlias|code|promo_code|promoCode|recipient|sender|subject|body|bodyText|body_text|evidence|evidence_json|merchant|orderId|tripId|messageId|messageKey|mailbox|sourceMailbox|financialCorrection|financialEvents|financialEvidence|financial_evidence_json|wallet|wallets|balance|currentCashBalance|manualNote|recordId|eventId|note)$/i;
+const forbidden = /^(?:alias|email|accountAlias|code|promo_code|promoCode|recipient|sender|subject|body|bodyText|body_text|evidence|evidence_json|merchant|orderId|tripId|messageId|messageKey|mailbox|sourceMailbox|financialCorrection|financialEvents|financialEvidence|financialReview|financial_evidence_json|wallet|wallets|balance|currentCashBalance|manualNote|recordId|eventId|note)$/i;
 const email = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
 const masked = /[a-z0-9._%+-]{0,2}…[a-z0-9._%+-]{0,2}@[a-z0-9.-]+\.[a-z]{2,}/gi;
 
@@ -37,6 +37,7 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
       if (account.deactivated && account.canLogin) throw new Error('Deactivated accounts cannot be available for login.');
       if (independent && !['active', 'archived', 'deactivated'].includes(account.accountStatus)) throw new Error('Explicit account rotation status is required.');
       for (const field of ['orderCount', 'rideCount']) if (!Number.isInteger(account[field]) || account[field] < 0) throw new Error('Invalid receipt counter.');
+      if(account.receiptReviewCount!=null&&(!Number.isInteger(account.receiptReviewCount)||account.receiptReviewCount<0||account.receiptReviewCount>account.orderCount+account.rideCount))throw Error('Invalid financial review counter.');
       const expected = classifyAccount(account, offersByAccount.get(account.accountRef)||[], payload.generatedAt);
       for (const field of [...(payload.summary.offerEligibilityVersion === 1 ? ['hasEligibleOffers'] : []), ...(independent ? ['archived', 'accountStatus', 'fullyUsedOfferCount', 'expiredUnusedOfferCount'] : []), 'accountUsed', 'accountUsedReason', 'accountState', 'activePromoCount', 'reviewOfferCount', 'needsReview', 'recommendationEligible']) {
         if (expected[field] !== account[field]) throw new Error('Account status disagrees with offer/receipt evidence: ' + field);
@@ -51,6 +52,7 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
       if (promo.trackingState === 'expired' && promo.closedReason !== 'expired') throw new Error('Expired offer cannot be described as receipt used.');
     }
     const summary = payload.summary;
+    if(summary.financialBreakdown?.adjustmentsNeedingReview!=null&&summary.financialBreakdown.adjustmentsNeedingReview!==payload.accounts.reduce((n,a)=>n+(a.receiptReviewCount||0),0))throw Error('Financial review counters disagree with accounts.');
     for (const [field, count] of [
       ['knownAccounts', payload.accounts.length], ['accessibleAccounts', payload.accounts.filter(a => a.canLogin).length],
       ['inaccessibleAccounts', payload.accounts.filter(a => a.canLogin === false).length], ['availableAccounts', payload.accounts.filter(a => summary.offerEligibilityVersion === 1 ? a.hasEligibleOffers : a.recommendationEligible).length],

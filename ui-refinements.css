@@ -763,6 +763,8 @@ body::before, body::after { display: none; }
 .sheet-action-row small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; font-weight: 400; line-height: 1.45; }
 .sheet-action-row:hover { border-color: rgba(var(--accent-rgb),.28); }
 .sheet-action-row:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+.account-card .receipt-review-action { min-height:44px; padding:10px 12px; margin:10px 0; border-radius:14px; }
+.account-card .receipt-review-action > svg { width:20px; height:20px; }
 .finance-controls .advanced-btn, .sheet-input, .sheet-select, .search-input {
   border-radius: var(--control-radius);
 }

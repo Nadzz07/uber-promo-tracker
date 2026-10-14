@@ -2653,6 +2653,7 @@
 
   <script type="module">
     import { financeIcon, financeHero, financeMetric } from "./finance-layout.js";
+    import { financialSummary, receiptFinancials } from "./receipt-financials.js";
     document.querySelectorAll('[data-icon]').forEach(element => { element.innerHTML = financeIcon(element.dataset.icon); element.setAttribute('aria-hidden','true'); });
     const statusIcons = ['check','receipt','partial','clock'];
     document.querySelectorAll('.activity-card').forEach((card,index) => {
@@ -3392,6 +3393,17 @@
       return "";
     }
 
+    let reviewData=null, reviewView=null;
+    function privateReceiptReview() {
+      const data=financeSession?.vault.data;
+      if(!data)return null;
+      if(data!==reviewData){const corrections=financeSession.vault.current().corrections;const counts=new Map(),refs=new Set(data.accounts.map(a=>a.accountRef));for(const r of data.receipts)if(receiptFinancials(r,corrections[r.receiptId]).needsAdjustmentReview)counts.set(r.accountRef,(counts.get(r.accountRef)||0)+1);reviewData=data;reviewView={counts,refs,version:data.receiptReviewVersion,summary:financialSummary(data.receipts,corrections)};}
+      return reviewView;
+    }
+    function receiptReviewCount(account) {const local=privateReceiptReview();return local?.version===1&&local.refs.has(account.accountRef)?local.counts.get(account.accountRef)||0:Number(account.receiptReviewCount||0);}
+    function missingDetailsCount() {const local=privateReceiptReview(),published=Number(payload.summary?.financialBreakdown?.missing||0);return local?.version===1?local.summary.missing:Math.max(local?.summary.missing||0,published);}
+    function receiptReviewAction(account) {const count=receiptReviewCount(account);return count?'<button class="sheet-action-row receipt-review-action" data-open-sheet="finance" data-finance-target="receipt" data-finance-missing="true" data-finance-account="'+escapeHtml(account.accountRef)+'">'+financeIcon('receipt')+'<span>Missing details · '+count+' receipt'+(count===1?'':'s')+'<small>Refund or adjustment · check final amounts</small></span></button>':'';}
+
     function accountCard(account, index = 0, context = "accounts") {
       const selectedTerms = context === "12off15" ? is12off15 : context === "15off15" ? is15off15 : null;
       const best = selectedTerms ? rankPromosForSpend((account.promos || activePromosForAccount(account.accountRef)).filter(selectedTerms), currentBasket(), {service:"Uber Eats",accountRef:account.accountRef,accessibleOnly:false})[0] || null : account.bestNow || bestForAccount(account);
@@ -3440,6 +3452,7 @@
           (current.some(p => p.discountType === 'uberCash') ? '<div class="account-cash-note">Cash offer · wallet unverified. Confirm in Uber.</div>' : '') +
           '<div class="account-readiness' + (account.recommendationEligible ? '' : ' needs-attention') + '">' + escapeHtml(readiness) + '</div>' +
           '<div class="account-progress-note">' + escapeHtml(context === 'best' || ['15off15','12off15','cash','cash-promo','unfinished'].includes(context) ? '' : accountStatusLabel(currentAccountState(account)) + ' · ' + receiptHistoryText(account)) + '</div>' +
+          receiptReviewAction(account) +
           '<div class="account-actions">' +
             '<button class="ghost-btn" data-account-offers="' + escapeHtml(account.accountRef) + '">View account</button>' +
           '</div>' +
@@ -3518,7 +3531,7 @@
       let list = enrichedAccounts().filter(account => matchesAccountFilter(account, accountFilter));
       if (accountFilter === "finished") list = list.filter(account => account.fullyUsedOfferCount > 0);
       if (accountFilter === "expired-unused") list = list.filter(account => account.expiredUnusedOfferCount > 0);
-      if (accountFilter === "review") list = list.filter(account => account.accountState === "needs_checking" || Number(account.sourceReviewCount||0)>0);
+      if (accountFilter === "review") list = list.filter(account => account.accountState === "needs_checking" || Number(account.sourceReviewCount||0)>0 || receiptReviewCount(account)>0);
       if (accountFilter === "expired") list = list.filter(account => account.accountState === "expired");
       const offerFilter = ['offers','15off15','12off15','cash','unfinished','cash-promo','expiring'].includes(accountFilter);
       if(offerFilter&&privateMigrationPending){document.getElementById('accountsList').innerHTML='<div class="empty">Import the updated private login file to apply your saved promotion decisions before browsing recommendations.<button class="advanced-btn" data-open-sheet="device">Import private file</button></div>';return;}
@@ -3586,12 +3599,14 @@
       document.getElementById('usedAccountExplanation').textContent = usedAccounts.length + ' fully used accounts meet the receipt rule; ' + usedAccounts.filter(a=>a.canLogin).length + ' can still log in. Account use does not archive an account or complete its promotions.';
       document.getElementById('usedAccountsList').innerHTML = usedAccounts.length ? usedAccounts.slice(0,6).map(account => activityRow(account, receiptHistoryText(account) + ' · ' + (account.canLogin ? 'Can log in' : 'Can’t log in') + (account.archived ? ' · Archived' : ''), '<button class="restore-btn" data-account-offers="' + escapeHtml(account.accountRef) + '">View</button>')).join('') : '<div class="empty">No fully used accounts yet.</div>';
       const sourceReviews=enrichedAccounts().filter(a=>Number(a.sourceReviewCount||0)>0);
+      const financialReviews=enrichedAccounts().filter(a=>receiptReviewCount(a)>0);
+      const reviewAccountCount=new Set([...sourceReviews,...financialReviews].map(a=>a.accountRef)).size;
       const buckets = {completed:[], partial:[], finished_expired:[], expired_unused:[], manual:[], needs_checking:[], ignored:[], available:[]};
       for (const promo of promos) buckets[promotionActivity(manualStore, promo).bucket].push(promo);
       document.getElementById('fullyUsedCount').textContent = buckets.completed.length;
       document.getElementById('recentUseCount').textContent = buckets.partial.length;
       document.getElementById('expiredCount').textContent = buckets.finished_expired.length + buckets.expired_unused.length;
-      for (const [id,count] of Object.entries({usedAccountsDisclosureCount:usedAccounts.length, recentDisclosureCount:buckets.partial.length, finishedDisclosureCount:buckets.completed.length, finishedExpiredCount:buckets.finished_expired.length, expiredDisclosureCount:buckets.expired_unused.length, manualDisclosureCount:buckets.manual.length, needsCheckCount:buckets.needs_checking.length+sourceReviews.length, ignoredDisclosureCount:buckets.ignored.length})) document.getElementById(id).textContent = count.toLocaleString('en-GB');
+      for (const [id,count] of Object.entries({usedAccountsDisclosureCount:usedAccounts.length, recentDisclosureCount:buckets.partial.length, finishedDisclosureCount:buckets.completed.length, finishedExpiredCount:buckets.finished_expired.length, expiredDisclosureCount:buckets.expired_unused.length, manualDisclosureCount:buckets.manual.length, needsCheckCount:buckets.needs_checking.length+reviewAccountCount, ignoredDisclosureCount:buckets.ignored.length})) document.getElementById(id).textContent = count.toLocaleString('en-GB');
       const definitions = [['completed','fullyUsedList','No promotions have every use verified yet. Receipts can confirm account use and savings without identifying a specific promotion.'], ['partial','recentActivity','No partially used promotions.'], ['finished_expired','finishedExpiredList','No promotions have expired after confirmed use.'], ['expired_unused','expiredList','No unused expired offers.'], ['manual','manualFinishedList','No manually finished promotions awaiting verification.'], ['needs_checking','needsCheckingList','Nothing needs checking.'], ['ignored','ignoredList','No ignored offers.']];
       for (const [bucket,id,empty] of definitions) {
         const list = buckets[bucket];
@@ -3603,6 +3618,7 @@
         }).join('') + (list.length > expiredDisplayLimit ? '<button class="ghost-btn" data-more-expired="true">Show 50 more</button>' : '') : '<div class="empty">' + empty + '</div>';
       }
       if(sourceReviews.length){const list=document.getElementById('needsCheckingList');if(!buckets.needs_checking.length)list.innerHTML='';list.insertAdjacentHTML('beforeend','<div class="sheet-help">Receipt sources · '+sourceReviews.length+' accounts. These preserved records do not count as confirmed usage or savings.</div>'+sourceReviews.slice(0,expiredDisplayLimit).map(a=>activityRow(a,a.sourceReviewCount+' receipt sources need independent original verification','<button class="restore-btn" data-account-offers="'+escapeHtml(a.accountRef)+'">Review</button>')).join(''));}
+      if(financialReviews.length){const list=document.getElementById('needsCheckingList');if(!buckets.needs_checking.length&&!sourceReviews.length)list.innerHTML='';list.insertAdjacentHTML('beforeend','<p class="sheet-help">Refunds &amp; adjustments · financial review. Usage, promotions and login access stay independent.</p>'+financialReviews.slice(0,expiredDisplayLimit).map(a=>activityRow(a,receiptReviewCount(a)+' refunded or adjusted receipts need final amounts checked','<button class="restore-btn" data-open-sheet="finance" data-finance-target="receipt" data-finance-missing="true" data-finance-account="'+escapeHtml(a.accountRef)+'">Review</button>')).join(''));}
     }
 
     let guideModule, guideLoading;
@@ -3930,6 +3946,7 @@
           '</div>' +
           '<div class="account-login-route">' + escapeHtml(accountProgressDescription(currentAccountState(account))) + '</div>' +
           (Number(account.sourceReviewCount||0)>0?'<p class="sheet-help" role="status">'+account.sourceReviewCount+' preserved receipt sources await independent original verification. They are excluded from confirmed usage and savings.</p>':'')+
+          receiptReviewAction(account) +
           '<div class="account-sheet-actions">' +
             (deviceEmail(deviceAccounts, account)
               ? '<button class="account-secondary" data-copy-email="' + escapeHtml(account.accountRef) + '">Copy login email</button>'
@@ -4048,7 +4065,7 @@
         financeMetric('wallet','Uber Cash used',money(financial.cashUsed??summary.uberCashUsed??0),'Payment, not savings')+
         financeMetric('bag','Out of pocket',financial.paymentKnown?money(financial.outOfPocket):'Unknown',Number(financial.paymentKnown||0)+' known payments')+
         financeMetric('calendar','Last 30 days',money(summary.recentConfirmedSaved||0),'Supported savings')+
-        financeMetric('receipt','Missing details',Number(financial.missing||0),'Review receipts',{panel:'receipt',missing:true})+'</div>'+
+        financeMetric('receipt','Missing details',missingDetailsCount(),'Review receipts',{panel:'receipt',missing:true})+'</div>'+
         '<details class="disclosure-card"><summary>'+financeIcon('chart')+'<span><strong>Savings breakdown</strong><small>See where your savings come from</small></span></summary><div class="disclosure-body sheet-list">'+Object.entries(labels).map(([key,title])=>row(title,money(categories[key]||0))).join('')+'<p class="sheet-help">Each amount contributes once to the total.</p></div></details>'+
         '<details class="disclosure-card"><summary>'+financeIcon('receipt')+'<span><strong>Evidence & estimates</strong><small>Missing figures and historical accounts</small></span></summary><div class="disclosure-body"><div class="sheet-list">'+row('Archived accounts · included in total',money(summary.archivedConfirmedSaved||0))+row('Manual corrections · included',String(financial.manual||0))+row('Email/manual differences requiring review',String(financial.conflicting||0))+row('Estimated missing Uber One',summary.uberOneEstimateModel?.sampleSize?money(summary.estimatedUberOneSavings||0):'Unavailable')+'</div><p class="sheet-help">'+escapeHtml(summary.uberOneEstimateModel?.explanation||'An estimate needs reliable receipt evidence. Missing savings are unknown, not proof of £0.')+'</p><p class="sheet-help">Combined Uber One and promotional amounts stay combined until reliable itemized evidence identifies their components. Archived history is included, not added again.</p></div></details>'+
         '<div class="savings-navigation"><button class="sheet-action-row" data-open-sheet="finance" data-finance-target="receipt">'+financeIcon('shield')+'<span>Private receipt corrections<small>Adjust and review amounts</small></span></button>'+
@@ -4096,7 +4113,7 @@
       document.getElementById('sheetBody').innerHTML =
         '<div class="insights-hero"><span class="app-icon-surface">' + financeIcon('savings') + '</span><div><span class="insights-hero-label">Receipt savings</span><strong>' + escapeHtml(money(total)) + '</strong><p class="insights-period">Across ' + months.length + ' months</p><p>Based on receipt records.</p></div></div>' +
         '<section class="setting-card insights-chart-card"><div class="insights-chart-heading"><h3 class="setting-title">Monthly savings</h3><span>' + months.length + ' months</span></div>' + monthlySavingsChart() + '</section>' +
-        '<div class="receipt-record-summary"><div class="receipt-record-metric"><span class="app-icon-surface">' + financeIcon('receipt') + '</span><div><span>Receipt records</span><strong>' + (eats + rides).toLocaleString('en-GB') + '</strong></div></div><button class="receipt-record-metric" data-open-sheet="finance" data-finance-target="receipt" data-finance-missing="true"><span class="app-icon-surface">' + financeIcon('info') + '</span><div><span>Missing details</span><strong>' + Number(summary.financialBreakdown?.missing || 0).toLocaleString('en-GB') + '</strong></div></button><p>' + eats + ' Eats · ' + rides + ' Ride</p></div>' +
+        '<div class="receipt-record-summary"><div class="receipt-record-metric"><span class="app-icon-surface">' + financeIcon('receipt') + '</span><div><span>Receipt records</span><strong>' + (eats + rides).toLocaleString('en-GB') + '</strong></div></div><button class="receipt-record-metric" data-open-sheet="finance" data-finance-target="receipt" data-finance-missing="true"><span class="app-icon-surface">' + financeIcon('info') + '</span><div><span>Missing details</span><strong>' + missingDetailsCount().toLocaleString('en-GB') + '</strong></div></button><p>' + eats + ' Eats · ' + rides + ' Ride</p></div>' +
         '<section class="sheet-section insights-recent"><h3 class="sheet-section-title">Recent receipt activity</h3>' + receiptActivityRows(3,{cards:true}) + (days.length > 3 ? '<details class="receipt-activity-more"><summary>View all <span aria-hidden="true">›</span></summary>' + receiptActivityRows(87,{start:3,cards:true}) + '</details>' : '') + '</section>' +
         '<button class="sheet-action-row" data-open-sheet="savings">' + financeIcon('info') + '<span>Evidence & estimates<small>See what your receipts confirm</small></span></button><p class="sheet-help insights-privacy">Daily totals are aggregated. Exact receipts stay in Private finances.</p>';
     }
@@ -4208,7 +4225,7 @@
       openAccountRef = null;
     }
 
-    function openUtilitySheet(type, financeTarget = null, financeMissing = false) {
+    function openUtilitySheet(type, financeTarget = null, financeMissing = false, financeAccount = null) {
       if (financeView) financeView.destroy();
       openSheetType = type;
       const financeRevision = ++financeOpenRevision;
@@ -4230,12 +4247,12 @@
         financeModule ||= import('./private-finance-ui.js');
         financeModule.then(module=>{
           if(openSheetType!=='finance'||financeRevision!==financeOpenRevision)return;
-          financeSession ||= new module.PrivateFinanceSession({onLock:()=>{privateWallets={};if(openSheetType==='finance')financeView?.render();else if(document.getElementById('sheetTitle').textContent==='Private finances')document.getElementById('sheetBody').replaceChildren();renderRecommendation();}});
+          financeSession ||= new module.PrivateFinanceSession({onLock:()=>{privateWallets={};reviewData=reviewView=null;renderAccounts();renderHomeAccounts();renderUsed();if(openSheetType==='finance')financeView?.render();else if(document.getElementById('sheetTitle').textContent==='Private finances')document.getElementById('sheetBody').replaceChildren();renderRecommendation();}});
           financeSession.visibility(document.hidden);
-          financeView=module.financeInterface({host,vault:financeSession.vault,initialPanel:financeTarget,missingOnly:financeMissing,
+          financeView=module.financeInterface({host,vault:financeSession.vault,initialPanel:financeTarget,missingOnly:financeMissing,initialAccountRef:financeAccount,publishedReviewCount:accounts.reduce((n,a)=>n+Number(a.receiptReviewCount||0),0),
             accountLabel:ref=>accountDisplay(accounts.find(a=>a.accountRef===ref)||{accountRef:ref}),
             accountUsage:ref=>{const a=accounts.find(a=>a.accountRef===ref);return a?Number(a.orderCount||0)+Number(a.rideCount||0):null;},
-            onUpdate:vault=>{financeSession.visibility(document.hidden);privateWallets=vault.current().wallets;renderRecommendation();}});
+            onUpdate:vault=>{financeSession.visibility(document.hidden);privateWallets=vault.current().wallets;reviewData=reviewView=null;renderAccounts();renderHomeAccounts();renderUsed();renderRecommendation();}});
         }).catch(()=>{if(openSheetType==='finance'&&financeRevision===financeOpenRevision)host.innerHTML='<p role="alert">Private finances could not load. Please refresh and try again.</p>';});
       }
 
@@ -4534,7 +4551,7 @@
 
       const sheetButton = event.target.closest("[data-open-sheet]");
       if (sheetButton) {
-        openUtilitySheet(sheetButton.dataset.openSheet, sheetButton.dataset.financeTarget, sheetButton.dataset.financeMissing === 'true');
+        openUtilitySheet(sheetButton.dataset.openSheet, sheetButton.dataset.financeTarget, sheetButton.dataset.financeMissing === 'true', sheetButton.dataset.financeAccount);
         return;
       }
 
@@ -4596,7 +4613,7 @@
       const archivedAccount = event.target.closest('[data-account-offers]');
       if (archivedAccount) { openAccountSheet(archivedAccount.dataset.accountOffers); return; }
       const sheetButton = event.target.closest('[data-open-sheet]');
-      if (sheetButton) { openUtilitySheet(sheetButton.dataset.openSheet, sheetButton.dataset.financeTarget, sheetButton.dataset.financeMissing === 'true'); return; }
+      if (sheetButton) { openUtilitySheet(sheetButton.dataset.openSheet, sheetButton.dataset.financeTarget, sheetButton.dataset.financeMissing === 'true', sheetButton.dataset.financeAccount); return; }
       const colourButton = event.target.closest('[data-theme-colour]');
       if (colourButton) { chooseTheme(colourButton.dataset.themeColour); return; }
       if (event.target.id === 'resetTheme') { chooseTheme(DEFAULT_COLOUR); return; }
