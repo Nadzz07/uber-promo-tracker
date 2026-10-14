@@ -1184,6 +1184,7 @@ body::before, body::after { display: none; }
 }
 @media (prefers-reduced-motion:reduce) {
   *, *::before, *::after { scroll-behavior:auto !important; }
+  .view.active { animation:none !important; }
 }
 
 /* A font floor on actual small/touch screens, including dynamically opened sheets.

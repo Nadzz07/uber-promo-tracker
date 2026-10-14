@@ -17,12 +17,12 @@ server.listen(0,'127.0.0.1');await once(server,'listening');
 const name=process.env.TRACKER_BROWSER_ENGINE||'chromium',browser=await{chromium,webkit,firefox}[name].launch(),url='http://127.0.0.1:'+server.address().port;
 const output=process.env.TRACKER_SCREENSHOT_DIR;
 if(output)fs.mkdirSync(output,{recursive:true,mode:0o700});
-try{for(const [width,height,largeText] of [[390,844,false],[1440,1000,false],[320,568,false],[390,844,true]]){
+try{for(const [width,height,largeText] of [[390,844,false],[430,932,false],[1440,1000,false],[320,568,false],[390,844,true]]){
  const context=await browser.newContext({viewport:{width,height},hasTouch:width<980,reducedMotion:'reduce',timezoneId:'Europe/London'}),page=await context.newPage(),errors=[];
  page.on('pageerror',e=>{errors.push(e.message);console.log('Page error: '+e.message);});
  await context.addInitScript(({accounts,emails})=>localStorage.setItem('uber-eats-promo-tracker:device-accounts:v1',JSON.stringify(Object.fromEntries(accounts.map((a,i)=>[a.accountRef,{email:emails[i],accountMasked:a.accountMasked}])))),{accounts,emails});
  await page.goto(url);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
- if(output&&!largeText&&[390,1440].includes(width)){
+ if(output&&!largeText&&[430,1440].includes(width)){
   await page.locator('[data-view="more"]').click();await page.locator('[data-open-sheet="appearance"]').click();await page.locator('[data-theme-colour="#ffc778"]').click();await page.keyboard.press('Escape');await page.locator('[data-view="home"]').click();
   assert.ok(await page.locator('.total-saved-card').evaluate(e=>getComputedStyle(e).backgroundImage.includes('255, 199, 120')),'Home follows the selected Amber theme');
  }
@@ -43,8 +43,9 @@ try{for(const [width,height,largeText] of [[390,844,false],[1440,1000,false],[32
  assert.equal(await page.locator('#view-home #quickGrid').count(),0);
  assert.deepEqual(await page.locator('#view-home .stat-label').allTextContents(),['Total saved','Total accounts','Accounts available','Can log in','Archived']);
  assert.equal(await page.locator('#homeReadyCount').innerText(),'2 ready to use');
+ assert.equal(await page.locator('#view-home').evaluate(e=>getComputedStyle(e).animationName),'none','Reduced motion disables view entry animation');
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Home overflow at '+width+' / larger text '+largeText);
- if(output&&!largeText&&[390,1440].includes(width))await page.screenshot({path:output+'/'+name+'-'+width+'-home.png',fullPage:true});
+ if(output&&!largeText&&[430,1440].includes(width))await page.screenshot({path:output+'/'+name+'-'+width+'-home.png',fullPage:width>=980});
  if(width===390&&!largeText){assert.ok(await page.locator('#homeAnalytics').evaluate(e=>e.getBoundingClientRect().bottom<innerHeight+100),'Overview allows little natural scrolling on typical iPhone viewport');}
  const find=page.locator('[data-home-detail="offers"]').first();await find.focus();await page.keyboard.press('Enter');await page.locator('#view-offers.active').waitFor();
  assert.equal(await page.locator('[data-view="home"]').getAttribute('aria-current'),'page');
@@ -55,7 +56,7 @@ try{for(const [width,height,largeText] of [[390,844,false],[1440,1000,false],[32
  await page.locator('#view-offers [data-home-detail="planner"]').click();await page.locator('#basketInput').fill('30');await page.locator('#plannerFulfilment').selectOption('pickup');await page.waitForFunction(()=>document.getElementById('homePlannerSummary').textContent==='Basket £30 · Pickup');
  const result=await page.locator('#recommendation').innerText();await page.locator('[data-open-sheet="advanced"]').click();await page.goBack();await page.waitForFunction(()=>document.getElementById('sheetBackdrop').getAttribute('aria-hidden')==='true');assert.ok(await page.locator('#view-planner').isVisible());
  await page.goBack();await page.locator('#view-offers.active').waitFor();await page.goForward();await page.locator('#view-planner.active').waitFor();assert.equal(await page.locator('#basketInput').inputValue(),'30');assert.equal(await page.locator('#plannerFulfilment').inputValue(),'pickup');assert.equal(await page.locator('#recommendation').innerText(),result);
- if(output&&!largeText&&[390,1440].includes(width))await page.screenshot({path:output+'/'+name+'-'+width+'-planner.png',fullPage:true});
+ if(output&&!largeText&&[430,1440].includes(width))await page.screenshot({path:output+'/'+name+'-'+width+'-planner.png',fullPage:true});
  await page.locator('#view-planner [data-home-back]').click();await page.locator('#view-home.active').waitFor();assert.equal(await page.locator('#homePlannerSummary').innerText(),'Basket £30 · Pickup');
  await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.locator('#recommendation').innerText(),result);
  await page.locator('[data-view="home"]').click();await page.locator('#homeAnalytics button').click();assert.equal(await page.locator('.monthly-row').count(),2);await page.keyboard.press('Escape');
@@ -73,7 +74,7 @@ try{for(const [width,height,largeText] of [[390,844,false],[1440,1000,false],[32
  await undo.click();await page.waitForFunction(()=>document.querySelector('#financeBalance').value==='0');assert.equal(await page.locator('#financeStacking').inputValue(),'unknown');await redo.click();await page.waitForFunction(()=>document.querySelector('#financeBalance').value==='12');
  await page.locator('#financeBalance').fill('');assert.ok(await save.isDisabled());await page.locator('#financeBalance').fill('12');
  await page.locator('[data-finance-panel="history"] > summary').click();assert.equal(await page.locator('.finance-history-row').count(),5);assert.equal(await page.locator('.finance-history-row').first().locator('.sheet-row-title').innerText(),emails[0]);assert.match(await page.locator('.finance-history-row').first().innerText(),/Cash balance · Redone/);assert.equal(await page.locator('.finance-history-date span').last().innerText(),'12:40');
- if(output&&!largeText&&[390,1440].includes(width)){await page.locator('[data-finance-panel="cash"]').evaluate(e=>{const h=e.closest('.sheet-body');h.scrollTop+=e.getBoundingClientRect().top-h.getBoundingClientRect().top;});await page.screenshot({path:output+'/'+name+'-'+width+'-cash.png'});await page.locator('[data-finance-panel="history"]').scrollIntoViewIfNeeded();await page.screenshot({path:output+'/'+name+'-'+width+'-history.png'});}
+ if(output&&!largeText&&[430,1440].includes(width)){await page.locator('[data-finance-panel="cash"]').evaluate(e=>{const h=e.closest('.sheet-body');h.scrollTop+=e.getBoundingClientRect().top-h.getBoundingClientRect().top;});await page.screenshot({path:output+'/'+name+'-'+width+'-cash.png'});await page.locator('[data-finance-panel="history"]').scrollIntoViewIfNeeded();await page.screenshot({path:output+'/'+name+'-'+width+'-history.png'});}
  // Transfer and encrypted backup must retain exact records; no network writes.
  if(await page.locator('[data-finance-panel="tools"]').getAttribute('open')===null)await page.locator('[data-finance-panel="tools"] > summary').click();
  for(const [action,encrypted] of [['transfer',false],['backup',true]]){const download=page.waitForEvent('download');await page.locator('[data-finance-action="'+action+'"]').click();const file=await download,value=JSON.parse(fs.readFileSync(await file.path(),'utf8'));const restored=encrypted?await page.evaluate(async v=>(await import('./private-finance-vault.js')).decryptFinance(v,'preview test passphrase'),value):value;assert.deepEqual(restored.events,(await decrypt()).events);assert.deepEqual(restored.receipts,transfer.receipts);}
@@ -82,5 +83,5 @@ try{for(const [width,height,largeText] of [[390,844,false],[1440,1000,false],[32
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  if(width<980){assert.ok((await page.locator('input,select,textarea').evaluateAll(fields=>fields.map(e=>parseFloat(getComputedStyle(e).fontSize)))).every(n=>n>=16));assert.ok(!/maximum-scale|user-scalable=no/.test(await page.locator('meta[name="viewport"]').getAttribute('content')));}
  assert.deepEqual(errors,[]);await context.close();
-}assert.equal(writes,0);console.log('✓ Compact Home, Back/Forward/focus and persistent filters/planner; private Cash blank/zero, account drafts, explicit coverage, fees, save/reopen/undo/redo/history and encrypted transfer roundtrip; 4 sizes/text configurations ('+name+')');
+}assert.equal(writes,0);console.log('✓ Compact Home, Back/Forward/focus and persistent filters/planner; private Cash blank/zero, account drafts, explicit coverage, fees, save/reopen/undo/redo/history and encrypted transfer roundtrip; 5 sizes/text configurations ('+name+')');
 }finally{await browser.close();server.close();}
