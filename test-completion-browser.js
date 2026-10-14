@@ -20,7 +20,7 @@ try{
  assert.deepEqual(await page.locator('.home-overview .stats-row .stat-label').allTextContents(),['Total accounts','Accounts available','Can log in','Archived']);
  for(const [id,count] of [['usableStat',8],['activeStat',3],['loginStat',5],['archivedStat',2]])assert.equal(await page.locator('#'+id).innerText(),String(count));
  await openHomeDetail(page,'offers');const firstCard=page.locator('#homeAccounts [data-card-account="A901"]');
- assert.match(await firstCard.locator('.account-offer').innerText(),/£12 off on 5 orders/);
+ assert.equal(await firstCard.locator('.account-offer').innerText(),'£12 off £15');assert.match(await firstCard.locator('.offer-preview-description').innerText(),/£12 off on 5 orders/);
  assert.match(await firstCard.locator('.pill-row').innerText(),/0\/5 confirmed · up to 5 left/);
  assert.ok(!(await firstCard.locator('.pill-row').innerText()).includes('2 of 2'),'Uses must belong to the displayed offer');
  assert.ok((await firstCard.locator('.expiry-pill').innerText()).includes(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',day:'numeric',month:'short'}).format(lateUKDeadline)),'Expiry date must use UK time in a non-UK browser');

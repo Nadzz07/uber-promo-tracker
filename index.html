@@ -2447,7 +2447,7 @@
             <div class="quick-top"><span class="quick-icon" aria-hidden="true" data-icon="wallet"></span><span id="cashPromoCount" class="quick-count">0</span></div>
             <div><div class="quick-title">Cash + promo</div></div>
           </button>
-        </div><details class="offer-filter-help"><summary>About offer filters</summary><dl><dt>Best deal</dt><dd>Strongest available account right now.</dd><dt>£15 off £15</dt><dd>Full-value minimum-spend offers.</dd><dt>£12 off £15</dt><dd>£12 discount with a £15 minimum spend.</dd><dt>Uber Cash</dt><dd>Current email offers. Confirm your wallet balance in Uber.</dd><dt>Not finished</dt><dd>Started promos with at least one use remaining.</dd><dt>Uber Cash + promo</dt><dd>Both offer types recorded on the same account. Combining them depends on Uber.</dd></dl></details></div>
+        </div></div>
 
         <section class="best-section" aria-labelledby="homeAccountsTitle">
         <div class="section-head">
@@ -2460,7 +2460,7 @@
 
         <div class="results-tools"><button id="resetQuickFind" class="text-btn" data-reset-intent="true" hidden>All available offers <span aria-hidden="true">↗</span></button></div>
         <div id="homeAccounts" class="account-list"></div>
-        <details class="offer-matching-help"><summary><span data-icon="info" aria-hidden="true"></span>Check offer eligibility in Uber</summary><p id="homeResultsHelp"></p></details>
+        <details class="offer-matching-help"><summary><span data-icon="info" aria-hidden="true"></span>Check offer eligibility in Uber</summary><p id="homeResultsHelp"></p><details class="offer-filter-help"><summary>About offer filters</summary><dl><dt>Best deal</dt><dd>Strongest available account right now.</dd><dt>£15 off £15</dt><dd>Full-value minimum-spend offers.</dd><dt>£12 off £15</dt><dd>£12 discount with a £15 minimum spend.</dd><dt>Uber Cash</dt><dd>Current email offers. Confirm your wallet balance in Uber.</dd><dt>Not finished</dt><dd>Started promos with at least one use remaining.</dd><dt>Uber Cash + promo</dt><dd>Both offer types recorded on the same account. Combining them depends on Uber.</dd></dl></details></details>
         <div id="homeResultsFooter" class="results-footer"></div>
 
         <details id="weakWrap" class="weak-wrap">
@@ -3288,7 +3288,7 @@
       availableCard?.classList.toggle("watch", lowAvailability);
       availableCard?.classList.toggle("empty-state", availableAccounts === 0);
       if (availableSub) {
-        availableSub.textContent = eligibility.ready + " ready · " + eligibility.attention + " need attention";
+        availableSub.textContent = eligibility.ready + " ready · " + eligibility.attention + " to check";
       }
 
       const fee = effectiveFee();
@@ -3391,7 +3391,7 @@
     function missingDetailsCount() {const local=privateReceiptReview(),published=Number(payload.summary?.financialBreakdown?.missing||0);return local?.version===1?local.summary.missing:Math.max(local?.summary.missing||0,published);}
     function receiptReviewAction(account) {const count=receiptReviewCount(account);return count?'<button class="sheet-action-row receipt-review-action" data-open-sheet="finance" data-finance-target="receipt" data-finance-missing="true" data-finance-account="'+escapeHtml(account.accountRef)+'">'+financeIcon('receipt')+'<span>Missing details · '+count+' receipt'+(count===1?'':'s')+'<small>Refund or adjustment · check final amounts</small></span></button>':'';}
 
-    function accountCard(account, index = 0, context = "accounts") {
+    function accountCard(account, index = 0, context = "accounts", preview = false) {
       const selectedTerms = context === "12off15" ? is12off15 : context === "15off15" ? is15off15 : null;
       const best = selectedTerms ? rankPromosForSpend((account.promos || activePromosForAccount(account.accountRef)).filter(selectedTerms), currentBasket(), {service:"Uber Eats",accountRef:account.accountRef,accessibleOnly:false})[0] || null : account.bestNow || bestForAccount(account);
       const current = account.promos || activePromosForAccount(account.accountRef);
@@ -3423,6 +3423,23 @@
           ? '<div class="save-now">-' + escapeHtml(money(best.calculation.saving)) +
               '<small>on ' + escapeHtml(money(currentBasket())) + '</small></div>'
           : '<div class="save-now" style="color:var(--muted)">—<small>no eligible saving</small></div>';
+
+      if (preview) {
+        const offer = displayedOffer;
+        const isCash = offer?.discountType === 'uberCash';
+        const primary = !offer ? 'No promos available' : isCash ? money(offer.discount) + ' Uber Cash' : offer.discountType === 'fixed'
+          ? money(offer.discount) + ' off' + (offer.minimumSpend ? ' ' + money(offer.minimumSpend) : '') : offer.discount + '% off';
+        const chosen = account.accountRef === selectedAccountRef;
+        const bestNow = !chosen && context === 'best' && index === 0 && best && currentAccountState(account).recommendationEligible;
+        const meta = [ending ? '<span class="expiry-pill">' + escapeHtml(offerCountdown(ending) + ' · ' + new Intl.DateTimeFormat('en-GB', {timeZone:'Europe/London',day:'numeric',month:'short'}).format(expiryEndTime(ending))) + '</span>' : '', multi ? '<span class="pill-row">' + offerUsePill(multi) + '</span>' : ''].filter(Boolean).join(' · ');
+        return '<article class="account-card offer-preview-card' + (chosen ? ' picked' : '') + '" data-card-account="' + escapeHtml(account.accountRef) + '">' +
+          '<div class="account-top"><div class="account-identity"><span class="app-icon-surface account-provider" aria-hidden="true">' + accountProviderIcon(account) + '</span><div class="account-identity-copy"><div class="account-email">' + escapeHtml(accountDisplay(account)) + '</div><div class="account-login-route">' + escapeHtml(loginRouteText(account)) + '</div></div></div><span class="pill account-access-pill' + (account.canLogin === true ? ' good' : '') + '">' + (account.canLogin === true ? 'Can log in' : account.canLogin === false ? 'Can’t log in' : 'Access pending') + '</span><button class="offer-preview-open" data-account-offers="' + escapeHtml(account.accountRef) + '" aria-label="View account ' + escapeHtml(accountDisplay(account)) + '"><span aria-hidden="true">›</span></button></div>' +
+          (chosen || bestNow ? '<span class="offer-preview-best">' + (chosen ? 'Chosen' : 'Best now') + '</span>' : '') +
+          '<div class="account-offer">' + escapeHtml(primary) + '</div><div class="offer-preview-description">' + escapeHtml(isCash ? 'Wallet unverified · confirm in Uber' : headline) + '</div>' +
+          (meta ? '<div class="offer-preview-meta">' + financeIcon('calendar') + '<span>' + meta + '</span></div>' : '') +
+          (!currentAccountState(account).recommendationEligible ? '<div class="offer-preview-restriction account-readiness needs-attention">' + escapeHtml(readiness) + '</div>' : '') +
+          (offer?.restrictions?.merchantLimited ? '<div class="offer-preview-restriction">Selected merchants · check in Uber</div>' : '') + receiptReviewAction(account) + '</article>';
+      }
 
       return (
         '<article class="account-card' + (account.accountRef === selectedAccountRef ? ' picked' : '') + '" data-card-account="' + escapeHtml(account.accountRef) + '">' +
@@ -3496,7 +3513,7 @@
         button.setAttribute('aria-pressed', String(selected));
       });
       document.getElementById('homeAccounts').innerHTML = strong.length
-        ? strong.slice(0, previewLimit).map((account, index) => accountCard(account, index, currentIntent)).join('')
+        ? strong.slice(0, previewLimit).map((account, index) => accountCard(account, index, currentIntent, true)).join('')
         : '<div class="empty">' + (currentIntent === 'unfinished' ? 'No confirmed started promos in this group. Offers with no confirmed usage are in Best deal; expired offers stay in Activity.' : 'No account matches this category right now.') + '</div>';
       const targetFilter = currentIntent === 'best' ? 'offers' : currentIntent;
       document.getElementById('homeResultsFooter').innerHTML = strong.length > previewLimit
