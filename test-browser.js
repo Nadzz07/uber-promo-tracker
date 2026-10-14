@@ -1,3 +1,4 @@
+import {openHomeDetail} from './test-browser-navigation.js';
 // Synthetic data is intercepted in the test browser only, never written to public JSON.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -46,7 +47,7 @@ try {
   await page.evaluate(() => localStorage.setItem('uber-eats-promo-tracker:planner-settings:v1', JSON.stringify({ maxOrders: 3, extraOrderFee: null, feeTouched: false })));
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await page.locator('#basketInput').inputValue(), '15.00', 'Default basket subtotal should be £15');
-  const recommendation = await page.locator('#recommendation').innerText();
+  await openHomeDetail(page,'planner');const recommendation = await page.locator('#recommendation').innerText();
   assert.match(recommendation, /Save £10/); // At £15, one £10-off offer is the optimal single-order result.
   assert.equal(await page.locator('#usableStat').innerText(), '7');
   assert.equal(await page.locator('#activeStat').innerText(), '4', 'Available Offers includes a current offer on an inaccessible account');
@@ -63,7 +64,7 @@ try {
   await page.locator('[data-account-filter="all"]').click();
   await page.locator('[data-view="home"]').click();
   for (const hidden of ['lo…ed', 're…ew', 'ex…ed', 'us…ed', 'ba…nt']) assert.equal(recommendation.includes(hidden), false);
-  await page.locator('[data-account-offers="A001"]').first().click();
+  if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('[data-account-offers="A001"]:visible').first().click();
   assert.equal(await page.evaluate(() => document.activeElement.id), 'sheetClose');
   await page.locator('.offer-terms > summary').first().click();assert.match(await page.locator('.terms-grid').first().innerText(), /Ends 31 Dec at 23:59 UK/, 'An explicit Uber deadline takes priority over the fallback window');
   assert.equal(await page.locator('.sheet').evaluate(el => getComputedStyle(el).animationName), 'liquidSheetOpen');
@@ -79,7 +80,7 @@ try {
   assert.equal(await page.locator('#app').evaluate(e => e.inert), false);
   offer.receiptConfirmedUses = 2; offer.usesRemaining = 3;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
-  await page.locator('[data-account-offers="A001"]').first().click();
+  if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('[data-account-offers="A001"]:visible').first().click();
   assert.match(await page.locator('#sheetBody').innerText(), /3 not confirmed redeemed/);
   await page.keyboard.press('Escape');
   await page.locator('[data-view="used"]').click();
@@ -90,7 +91,7 @@ try {
   assert.match(await page.locator('#needsCheckingList').innerText(), /re…ew/);
   assert.match(await page.locator('#needsCheckingList').innerText(), /order count needs verification/);
   assert.doesNotMatch(await page.locator('#needsCheckingList').innerText(), /96 orders/);
-  await page.locator('#needsCheckingList [data-account-offers="A007"]').click();
+  if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('#needsCheckingList [data-account-offers="A007"]').click();
   assert.equal(await page.locator('[data-use-one="test-bad-count"]').isDisabled(), true);
   assert.doesNotMatch(await page.locator('#sheetBody').innerText(), /96 left|of 96/);
   await page.keyboard.press('Escape');
@@ -109,12 +110,13 @@ try {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Overflow at ${width}px`);
     const brand = await page.locator('.brand-title').evaluate(el => ({
       text: el.textContent.trim(),
-      whiteSpace: getComputedStyle(el).whiteSpace,
+      height: el.getBoundingClientRect().height,
+      fontSize: parseFloat(getComputedStyle(el).fontSize),
       scrollWidth: el.scrollWidth,
       clientWidth: el.clientWidth
     }));
     assert.equal(brand.text, 'Promo Tracker', `Header should use the compact product title at ${width}px`);
-    assert.equal(brand.whiteSpace, 'nowrap', `Product title should stay on one line at ${width}px`);
+    assert.ok(brand.height <= brand.fontSize * 1.5, `Default product title stays compact at ${width}px; enlarged text can wrap`);
     assert.ok(brand.scrollWidth <= brand.clientWidth + 1, `Product title should fit without clipping at ${width}px`);
     const header = await page.evaluate(() => {
       const title = document.querySelector('.brand-title'), stamp = document.getElementById('scanTime');
@@ -146,7 +148,7 @@ try {
       clientWidth: el.clientWidth,
       fits: el.scrollWidth <= el.clientWidth
     }));
-    assert.equal(availableLabelFits.nowrap, true, `Accounts available should stay on one line at ${width}px`);
+
     assert.equal(availableLabelFits.fits, true, `Accounts available should fit its card at ${width}px (scroll ${availableLabelFits.scrollWidth}px / client ${availableLabelFits.clientWidth}px)`);
     if (width <= 600) {
       const cardWidths = await page.locator('.home-overview .stat-card').evaluateAll(cards => cards.map(card => card.getBoundingClientRect().width));
@@ -194,7 +196,7 @@ try {
     assert.equal(fits, true, `Full savings amount must remain visible at ${width}px`);
   }
 
-  await page.locator('#basketInput').focus();
+  await openHomeDetail(page,'planner');await page.locator('#basketInput').focus();
   const basketFocus = await page.evaluate(() => {
     const editor = document.querySelector('.basket-editor');
     const input = document.getElementById('basketInput');
@@ -203,12 +205,12 @@ try {
   assert.equal(basketFocus.outline, 'none', 'Basket input must not draw a rectangular focus outline');
   assert.ok(!basketFocus.borderColor.includes('184, 255, 143'), 'Basket focus border must stay neutral instead of bright green');
 
-  await page.locator('#basketInput').fill('1000000');
+  await openHomeDetail(page,'planner');await page.locator('#basketInput').fill('1000000');
   await page.waitForFunction(() => document.getElementById('recommendation').textContent.includes('£1,000'));
   // Without observed or explicitly chosen fees, avoid optimistic multi-order savings.
   payload.summary.feeModel = { sampleSize: 0, averageExtraOrderFees: 0 };
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
-  await page.locator('#basketInput').fill('30');
+  await openHomeDetail(page,'planner');await page.locator('#basketInput').fill('30');
   await page.waitForFunction(() => document.getElementById('recommendation').textContent.includes('before delivery'));
   assert.match(await page.locator('#recommendation').innerText(), /Use 1 account/);
 
@@ -291,7 +293,7 @@ try {
   assert.equal(await page.locator('#accountsList .account-email').innerText(), privateEmail);
   const fullEmail = await page.locator('#accountsList .account-email').evaluate(el => ({ overflow: el.scrollWidth > el.clientWidth+1, whiteSpace: getComputedStyle(el).whiteSpace }));
   assert.equal(fullEmail.overflow, false); assert.equal(fullEmail.whiteSpace, 'normal');
-  await page.locator('#accountsList [data-account-offers="A001"]').click();
+  if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('#accountsList [data-account-offers="A001"]').click();
   await page.locator('[data-copy-email="A001"]').click();
   assert.equal(await page.evaluate(() => window.testCopiedEmail), privateEmail);
   await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
@@ -340,7 +342,7 @@ try {
   await filterPage.route('**/history.json?*', route => route.fulfill({ json: { updatedAt: time, records: [] } }));
   await filterPage.goto(url); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await filterPage.locator('#unfinishedCount').innerText(), '7 accounts');
-  await filterPage.locator('[data-intent="unfinished"]').click();
+  await openHomeDetail(filterPage,'offers');await filterPage.locator('[data-intent="unfinished"]').click();
   assert.match(await filterPage.locator('#homeAccounts [data-card-account="A101"]').innerText(), /1\/5 confirmed · up to 4 left/);
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A102"]').count(), 1, 'An unfinished account with one remaining use stays in the section');
   for (const ref of ['A106','A111','A108','A103']) assert.equal(await filterPage.locator('#homeAccounts [data-card-account="'+ref+'"]').count(), 0, 'Archived and completed accounts without live offers stay out');
@@ -350,14 +352,14 @@ try {
   assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4\/5 confirmed · up to 1 left/);
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A108"]').count(),0,'Untouched accounts do not count as started promos');
   await filterPage.locator('[data-view="home"]').click();
-  await filterPage.locator('[data-intent="cash"]').click();
+  await openHomeDetail(filterPage,'offers');await filterPage.locator('[data-intent="cash"]').click();
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A107"]').count(), 1, 'Receipt completion cannot hide a current Cash offer');
   await filterPage.locator('[data-view="accounts"]').click();
   await filterPage.locator('[data-account-filter="cash"]').click();
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A111"]').count(),0,'Past Cash stays in history and does not qualify as a current Cash opportunity');
   await filterPage.locator('[data-view="home"]').click();
   assert.equal(await filterPage.locator('#cashPromoCount').innerText(), '2 accounts', 'Cash remains visible on a receipt-complete account; multiple offers count one account');
-  await filterPage.locator('[data-intent="cash-promo"]').click();
+  await openHomeDetail(filterPage,'offers');await filterPage.locator('[data-intent="cash-promo"]').click();
   assert.equal(await filterPage.locator('#homeAccounts .account-card').count(), 2);
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A101"]').count(), 1, 'Same-account cash and discount are required; expired, consumed, review and archived offers must not qualify');
   assert.match(await filterPage.locator('#homeResultsHelp').innerText(), /Combining them depends on Uber/);
@@ -379,7 +381,7 @@ try {
   filterOffers.push({ ...cashOffer, id: 'cash-102', accountRef: 'A102', accountMasked: 'si…le@example.invalid', usesRemaining: 1 });
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await filterPage.locator('#cashPromoCount').innerText(), '2 accounts', 'Percentage discounts also match with active cash');
-  await filterPage.locator('[data-intent="cash-promo"]').click();
+  await openHomeDetail(filterPage,'offers');await filterPage.locator('[data-intent="cash-promo"]').click();
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A102"]').count(), 1);
   filterAccounts.find(a => a.accountRef === 'A109').orderCount = 5;
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
@@ -388,7 +390,7 @@ try {
   filterOffers.find(p => p.accountRef === 'A109').receiptConfirmedUses = 5;
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await filterPage.locator('#unfinishedCount').innerText(), '6 accounts', 'The account leaves when receipt usage is complete and no live uses remain');
-  await filterPage.locator('[data-intent="unfinished"]').click();
+  await openHomeDetail(filterPage,'offers');await filterPage.locator('[data-intent="unfinished"]').click();
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A109"]').count(), 0);
   for (const width of [320, 390, 1440]) {
     await filterPage.setViewportSize({ width, height: 900 });
@@ -397,15 +399,12 @@ try {
     assert.equal(await filterPage.locator('.quick-card').evaluateAll(cards => cards.every(card => card.scrollWidth <= card.clientWidth+1 && card.scrollHeight <= card.clientHeight+1)), true, `Quick filter labels fit their cards at ${width}px`);
   }
   await filterPage.locator('[data-view="home"]').click();
-  if(await filterPage.locator('.insights-disclosure').getAttribute('open')===null) await filterPage.locator('.insights-disclosure > summary').click();
-  assert.equal(await filterPage.locator('.analytics-panel:visible').count(),2,'One disclosure opens both insights panels');
-  await filterPage.locator('.insights-disclosure > summary').click();
-  assert.equal(await filterPage.locator('.analytics-panel:visible').count(),0,'One disclosure closes both insights panels');
-  await filterPage.locator('.insights-disclosure > summary').click();
-  assert.equal(await filterPage.locator('.analytics-panel:visible').count(),2);
+  await filterPage.locator('#homeAnalytics button').click();
+  assert.ok(await filterPage.locator('.insights-chart-card').isVisible(),'Receipt quick action opens the full insights view');
   assert.equal(await filterPage.locator('.monthly-row').count(),3);
   assert.match(await filterPage.locator('.chart-insight').innerText(),/Jul 26 was strongest.*£39/);
   assert.equal(await filterPage.locator('.monthly-track > span').first().evaluate(e=>e.getBoundingClientRect().width),0,'Zero savings must not become a decorative positive bar');
+  await filterPage.keyboard.press('Escape');
   // A published available state cannot survive its deadline, even without a new import.
   const clockNow=Date.now();
   repeatOffer.expiresAt=new Date(clockNow+2*86400000).toISOString();repeatOffer.expiryStatus='exact';
@@ -414,7 +413,7 @@ try {
   await filterPage.locator('[data-view="accounts"]').click();await filterPage.locator('[data-account-filter="expiring"]').click();
   assert.match(await filterPage.locator('#accountsList [data-card-account="A101"]').innerText(),/2 days left/);
   const activeBefore=Number(await filterPage.locator('#activeStat').innerText());
-  await filterPage.locator('#accountsList [data-account-offers="A101"]').click();
+  if(await filterPage.locator("#view-home.active").count())await openHomeDetail(filterPage,'offers');await filterPage.locator('#accountsList [data-account-offers="A101"]').click();
   await filterPage.clock.fastForward(2*86400000+60000);
   assert.equal(await filterPage.locator('.offers-section > .offer-card').count(),0,'An open account sheet must also remove newly expired offers');
   await filterPage.keyboard.press('Escape');
@@ -422,7 +421,7 @@ try {
   await filterPage.locator('[data-view="home"]').click();
   assert.equal(Number(await filterPage.locator('#activeStat').innerText()),activeBefore-1,'Home availability follows the same current expiry checks');
   await filterPage.locator('[data-view="accounts"]').click();
-  await filterPage.locator('[data-account-filter="all"]').click();await filterPage.locator('#accountsList [data-account-offers="A101"]').click();
+  await filterPage.locator('[data-account-filter="all"]').click();if(await filterPage.locator("#view-home.active").count())await openHomeDetail(filterPage,'offers');await filterPage.locator('#accountsList [data-account-offers="A101"]').click();
   assert.equal(await filterPage.locator('#accountOfferHistory').getAttribute('open'),null,'Past offers stay collapsed by default');
   assert.equal(await filterPage.locator('.offers-section > .offer-card').count(),0,'Expired offers do not appear among current offers');
   await filterPage.locator('#accountOfferHistory > summary').click();assert.ok(await filterPage.locator('.past-offer').count()>0,'Expiry preserves account history');

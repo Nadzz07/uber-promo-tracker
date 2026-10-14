@@ -2370,13 +2370,12 @@
         <section class="home-overview glass">
           <button class="total-saved-card" data-open-sheet="savings"><span class="app-icon-surface" data-icon="savings"></span>
             <span><span class="stat-label">Total saved</span><strong id="savedStat">£0</strong><span id="savedStatSub" class="stat-sub">confirmed receipts</span></span>
-            <span class="saved-support"><span id="homeReceiptCount">0 receipts</span><span id="homeUberOne">Uber One estimate unavailable</span><span class="saved-link">View savings ›</span></span>
+            <span class="saved-support"><span id="homeReceiptCount">0 receipts</span><span id="homeUberOne" hidden>Uber One estimate unavailable</span><span class="saved-link">View savings ›</span></span>
           </button>
           <div class="home-intro">
             <div class="home-intro-main">
-              <div class="eyebrow">Overview</div>
               <h1 class="home-title">Overview</h1>
-              <div class="home-intro-copy">Your accounts and confirmed savings.</div>
+
             </div>
             <div id="syncStrip" class="sync-strip home-sync" role="status">
               <strong>Waiting for first update</strong>
@@ -2386,25 +2385,25 @@
 
           <div class="stats-row">
             <div class="stat-card">
-              <div class="stat-label">Total Accounts</div>
+              <span class="overview-icon" data-icon="user"></span><div class="stat-label">Total accounts</div>
               <button class="metric-help" data-metric-help="accounts" data-metric-label="Total Accounts" aria-label="Explain Total Accounts">i</button>
               <div id="usableStat" class="stat-value">0</div>
               <div class="stat-sub">All tracked accounts.</div>
             </div>
             <div id="availableStatCard" class="stat-card available-stat-card" title="Accounts with an eligible offer now. Expired offers and accounts outside active rotation are excluded. Account receipt usage is independent.">
-              <div class="stat-label accounts-available-label">Available Offers</div>
+              <span class="overview-icon" data-icon="star"></span><div class="stat-label accounts-available-label">Accounts available</div>
               <button class="metric-help" data-metric-help="accounts" data-metric-label="Available Offers" aria-label="Explain Available Offers">i</button>
               <div id="activeStat" class="stat-value available">0</div>
               <div id="availableStatSub" class="stat-sub">Current eligible promotions.</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Accessible</div>
+              <span class="overview-icon" data-icon="key"></span><div class="stat-label">Can log in</div>
               <button class="metric-help" data-metric-help="accounts" data-metric-label="Accessible" aria-label="Explain Accessible">i</button>
               <div id="loginStat" class="stat-value">0</div>
               <div class="stat-sub">Can still log in.</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Archived</div>
+              <span class="overview-icon" data-icon="receipt"></span><div class="stat-label">Archived</div>
               <button class="metric-help" data-metric-help="accounts" data-metric-label="Archived" aria-label="Explain Archived">i</button>
               <div id="archivedStat" class="stat-value">0</div>
               <div class="stat-sub">Not in active rotation.</div>
@@ -2412,42 +2411,14 @@
           </div>
         </section>
 
-        <div class="home-workspace">
-        <div class="planner-column">
-        <section class="hero-card glass">
-          <div class="hero-heading">
-            <div>
-              <div class="eyebrow">Order planner</div>
-              <h1 class="hero-title">Plan your order</h1>
-            </div>
-            <span class="hero-spark" data-icon="bag"></span>
-          </div>
-
-          <label class="basket-editor" for="basketInput">
-            <span class="basket-editor-copy">
-              <strong>Basket subtotal</strong>
-              <small>Tap the amount to edit</small>
-            </span>
-            <span class="basket-value-wrap">
-              <span class="basket-currency">£</span>
-              <input id="basketInput" class="basket-input" type="number" max="1000" min="0" step="0.01" value="15.00" inputmode="decimal" aria-label="Basket subtotal">
-              <span class="basket-edit-icon" aria-hidden="true" data-icon="edit"></span>
-            </span>
-          </label>
-
-          <div class="planner-mode"><label for="plannerFulfilment">Order type</label><select id="plannerFulfilment"><option value="delivery">Delivery</option><option value="pickup">Pickup</option></select></div>
-          <div id="recommendation" class="recommendation">
-            <div class="empty">Preparing your recommendation…</div>
-          </div>
-
-          <div class="hero-footer">
-            <button class="advanced-btn" data-open-sheet="advanced">Split settings <span aria-hidden="true">›</span></button>
-            <div id="feeNote" class="fee-note"></div>
-          </div>
+        <section class="home-quick-actions" aria-labelledby="quickActionsTitle">
+          <h2 id="quickActionsTitle">Quick actions</h2>
+          <button class="home-action-row" data-home-detail="offers"><span data-icon="star"></span><span><strong>Find an offer</strong><small id="homeReadyCount">Loading offers…</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
+          <button class="home-action-row" data-home-detail="planner"><span data-icon="bag"></span><span><strong>Order Planner</strong><small id="homePlannerSummary">Loading planner…</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
+          <section id="homeAnalytics" class="home-analytics" aria-label="Receipt activity and savings"></section>
         </section>
-
-        </div>
-        <section class="discovery-column glass offer-browser" aria-labelledby="quickFindTitle">
+      </section>
+<section id="view-offers" class="view home-detail" aria-labelledby="offersTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true"><span aria-hidden="true">‹</span> Home</button><h1 id="offersTitle" tabindex="-1">Find an offer</h1><button class="detail-switch" data-home-detail="planner">Order Planner <span aria-hidden="true">›</span></button></div>        <section class="discovery-column glass offer-browser" aria-labelledby="quickFindTitle">
         <div class="section-head">
           <div>
             <div class="eyebrow">Quick find</div>
@@ -2455,6 +2426,7 @@
           </div>
         </div>
 
+        <div class="search-wrap"><span class="search-icon" data-icon="search" aria-hidden="true"></span><input id="homeOfferSearch" class="search-input" type="search" aria-label="Search offers and accounts" placeholder="Search accounts or offers…" autocomplete="off"></div>
         <div class="offer-scope-row"><label for="offerScope">Offer access</label><select id="offerScope" class="account-scope" aria-controls="homeAccounts"><option value="ready">Ready to use</option><option value="all">All eligible offers</option><option value="archived">Archived accounts with offers</option><option value="attention">Accounts requiring attention</option></select></div>
         <p class="offer-scope-summary"><span id="offerScopeSummary"></span><button class="metric-help inline-help" data-metric-help="accounts" data-metric-label="Ready to Use" aria-label="Explain offer readiness">i</button></p>
         <div id="quickGrid" class="quick-grid">
@@ -2503,10 +2475,42 @@
         </details>
         </section>
         </section>
-        </div>
-        <section id="homeAnalytics" class="home-analytics" aria-label="Receipt activity and savings"></section>
-      </section>
+</section>
+<section id="view-planner" class="view home-detail" aria-labelledby="plannerTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true"><span aria-hidden="true">‹</span> Home</button><h1 id="plannerTitle" tabindex="-1">Order Planner</h1><button class="detail-switch" data-home-detail="offers">Find an offer <span aria-hidden="true">›</span></button></div>        <div class="planner-column">
+        <section class="hero-card glass">
+          <div class="hero-heading">
+            <div>
+              <div class="eyebrow">Order planner</div>
+              <h1 class="hero-title">Plan your order</h1>
+            </div>
+            <span class="hero-spark" data-icon="bag"></span>
+          </div>
 
+          <label class="basket-editor" for="basketInput">
+            <span class="basket-editor-copy">
+              <strong>Basket subtotal</strong>
+              <small>Tap the amount to edit</small>
+            </span>
+            <span class="basket-value-wrap">
+              <span class="basket-currency">£</span>
+              <input id="basketInput" class="basket-input" type="number" max="1000" min="0" step="0.01" value="15.00" inputmode="decimal" aria-label="Basket subtotal">
+              <span class="basket-edit-icon" aria-hidden="true" data-icon="edit"></span>
+            </span>
+          </label>
+
+          <div class="planner-mode"><label for="plannerFulfilment">Order type</label><select id="plannerFulfilment"><option value="delivery">Delivery</option><option value="pickup">Pickup</option></select></div>
+          <div id="recommendation" class="recommendation">
+            <div class="empty">Preparing your recommendation…</div>
+          </div>
+
+          <div class="hero-footer">
+            <button class="advanced-btn" data-open-sheet="advanced">Split settings <span aria-hidden="true">›</span></button>
+            <div id="feeNote" class="fee-note"></div>
+          </div>
+        </section>
+
+        </div>
+</section>
       <section id="view-accounts" class="view">
         <div class="screen-head">
           <div class="eyebrow">Your accounts</div>
@@ -2632,8 +2636,11 @@
     </main>
 
     <div class="privacy">
+      <span class="home-privacy">Masked accounts and safe totals. Private data stays on your device.</span>
+      <span class="full-privacy">
       Published data contains masked accounts and safe totals. Full login emails can be imported privately on your device;
       they are never uploaded. Raw Mail, receipts and promo codes remain private.
+      </span>
     </div>
   </div>
 
@@ -3147,6 +3154,8 @@
 
     function homeAccountsByIntent() {
       let list = enrichedAccounts().filter(account => matchesOfferScope(account, currentOfferScope));
+      const search = document.getElementById("homeOfferSearch").value.trim().toLowerCase();
+      if (search) list = list.filter(account => [accountDisplay(account), account.accountRef, ...account.promos.map(offerTitle)].join(" ").toLowerCase().includes(search));
 
       if (currentIntent === "15off15") {
         list = list.filter(account => account.has15off15);
@@ -3313,6 +3322,7 @@
     }
 
     function renderRecommendation() {
+      document.getElementById("homePlannerSummary").textContent = "Basket " + money(currentBasket()) + " · " + (plannerSettings.fulfilment === "pickup" ? "Pickup" : "Delivery");
       document.getElementById('plannerFulfilment').value = plannerSettings.fulfilment || 'delivery';
       const target = document.getElementById("recommendation");
       if(privateMigrationPending){target.innerHTML='<div class="empty">Import your updated private login file to reconnect saved offer decisions after the security update. Your previous actions remain saved.<button class="advanced-btn" data-open-sheet="device">Import private login file</button></div>';return;}
@@ -3463,6 +3473,7 @@
     function renderQuickCounts() {
       const list = enrichedAccounts().filter(account => matchesOfferScope(account, currentOfferScope));
       const counts = eligibleAccountCounts(enrichedAccounts());
+      document.getElementById('homeReadyCount').textContent = counts.ready.toLocaleString('en-GB') + ' ready to use';
       document.getElementById('offerScopeSummary').textContent = counts.ready + ' ready to use · ' + counts.attention + ' need attention';
       document.getElementById('offerScope').value = currentOfferScope;
       setAnimatedText("bestCount", list.length);
@@ -4082,16 +4093,7 @@
 
     function renderHomeAnalytics() {
       const target = document.getElementById('homeAnalytics');
-      const previous = target.querySelector('.insights-disclosure');
-      const expanded = previous ? previous.open : false;
-      const months = (payload.receiptActivity?.months || []).slice(-6);
-      const total = months.reduce((sum,r)=>sum + Number(r.saved),0);
-      const receiptCount = months.reduce((sum,r)=>sum + Number(r.eats) + Number(r.rides),0);
-      const peak = months.reduce((best,row)=>!best || Number(row.saved)>Number(best.saved) ? row : best,null);
-      const monthLabel = row => new Date(row.period+'-01T12:00:00Z').toLocaleString('en-GB',{month:'short',year:'2-digit'});
-      const chart = monthlySavingsChart();
-      const insight = peak ? '<p class="chart-insight"><strong>' + escapeHtml(monthLabel(peak)) + ' was strongest · ' + escapeHtml(money(peak.saved)) + '</strong><span>' + receiptCount + ' receipts across these months. Current month is still in progress; archived history is included.</span></p>' : '';
-      target.innerHTML = '<details class="insights-disclosure disclosure-card"' + (expanded ? ' open' : '') + '><summary>' + financeIcon('insights') + '<span><strong>Receipt insights</strong><small>Monthly savings &amp; recent receipts</small></span><span class="disclosure-count">' + escapeHtml(money(total)) + ' across ' + months.length + ' months</span></summary><div class="insights-panels disclosure-body"><section class="analytics-panel glass"><div class="analytics-heading"><h2>Savings by month</h2><span>Confirmed receipts</span></div>' + chart + insight + '</section><section class="analytics-panel glass"><div class="analytics-heading"><h2>Recent receipt activity</h2><span>Saved per day</span></div>' + receiptActivityRows(5) + '<button class="advanced-btn" data-open-sheet="receipts">View all receipt activity ›</button></section></div></details>';
+      if (!target.firstElementChild) target.innerHTML = '<button class="home-action-row" data-open-sheet="receipts">' + financeIcon('insights') + '<span><strong>Receipt insights</strong><small>Monthly savings &amp; receipts</small></span><span class="row-chevron" aria-hidden="true">›</span></button>';
     }
 
     function monthlySavingsChart() {
@@ -4103,16 +4105,25 @@
       }).join('') + '</div>' : '<div class="empty">No verified receipt savings yet.</div>';
     }
 
+    function monthlySavingsInsight() {
+      const months = (payload.receiptActivity?.months || []).slice(-6);
+      const peak = months.reduce((best,row)=>!best || Number(row.saved)>Number(best.saved) ? row : best,null);
+      if (!peak) return '';
+      const label = new Date(peak.period+'-01T12:00:00Z').toLocaleString('en-GB',{month:'short',year:'2-digit'});
+      const receipts = months.reduce((sum,row)=>sum+Number(row.eats)+Number(row.rides),0);
+      return '<p class="chart-insight"><strong>' + escapeHtml(label) + ' was strongest · ' + escapeHtml(money(peak.saved)) + '</strong><span>' + receipts + ' receipts across these months. Current month is still in progress; archived history is included.</span></p>';
+    }
+
     function renderReceiptsSheet() {
       const summary = payload.summary || {};
       const months = (payload.receiptActivity?.months || []).slice(-6);
       const total = months.reduce((sum, row) => sum + Number(row.saved), 0);
       const eats = Number(summary.trackedOrders || 0), rides = Number(summary.trackedRides || 0);
       const days = payload.receiptActivity?.days || [];
-      setSheetHeading('Receipt insights', 'Monthly savings and recent receipts.');
+      setSheetHeading('Receipt insights', 'Confirmed receipts · monthly savings.');
       document.getElementById('sheetBody').innerHTML =
         '<div class="insights-hero"><span class="app-icon-surface">' + financeIcon('savings') + '</span><div><span class="insights-hero-label">Receipt savings</span><strong>' + escapeHtml(money(total)) + '</strong><p class="insights-period">Across ' + months.length + ' months</p><p>Based on receipt records.</p></div></div>' +
-        '<section class="setting-card insights-chart-card"><div class="insights-chart-heading"><h3 class="setting-title">Monthly savings</h3><span>' + months.length + ' months</span></div>' + monthlySavingsChart() + '</section>' +
+        '<section class="setting-card insights-chart-card"><div class="insights-chart-heading"><h3 class="setting-title">Monthly savings</h3><span>' + months.length + ' months</span></div>' + monthlySavingsChart() + '</section>' + monthlySavingsInsight() +
         '<div class="receipt-record-summary"><div class="receipt-record-metric"><span class="app-icon-surface">' + financeIcon('receipt') + '</span><div><span>Receipt records</span><strong>' + (eats + rides).toLocaleString('en-GB') + '</strong></div></div><button class="receipt-record-metric" data-open-sheet="finance" data-finance-target="receipt" data-finance-missing="true"><span class="app-icon-surface">' + financeIcon('info') + '</span><div><span>Missing details</span><strong>' + missingDetailsCount().toLocaleString('en-GB') + '</strong></div></button><p>' + eats + ' Eats · ' + rides + ' Ride</p></div>' +
         '<section class="sheet-section insights-recent"><h3 class="sheet-section-title">Recent receipt activity</h3>' + receiptActivityRows(3,{cards:true}) + (days.length > 3 ? '<details class="receipt-activity-more"><summary>View all <span aria-hidden="true">›</span></summary>' + receiptActivityRows(87,{start:3,cards:true}) + '</details>' : '') + '</section>' +
         '<button class="sheet-action-row" data-open-sheet="savings">' + financeIcon('info') + '<span>Evidence & estimates<small>See what your receipts confirm</small></span></button><p class="sheet-help insights-privacy">Daily totals are aggregated. Exact receipts stay in Private finances.</p>';
@@ -4202,6 +4213,14 @@
     }
 
     function showSheet() {
+      if (!routeRestoring && ['offers','planner'].includes(currentView)) {
+        const state = window.history.state;
+        if (routeEntries.has(state?.trackerEntry)) routeEntries.get(state.trackerEntry).scroll = window.scrollY;
+        const entry = ++routeSerial;
+        currentRouteEntry = entry;
+        routeEntries.set(entry, {opener: document.activeElement, scroll: window.scrollY});
+        window.history[state?.trackerSheet ? 'replaceState' : 'pushState']({trackerView: currentView, trackerEntry: entry, trackerSheet: openSheetType, trackerAccount: openAccountRef}, '', '#' + currentView);
+      }
       if (!document.getElementById("sheetBackdrop").classList.contains("open")) sheetOpener = document.activeElement;
       document.getElementById("app").inert = true;
       const backdrop = document.getElementById("sheetBackdrop");
@@ -4211,7 +4230,8 @@
       document.getElementById("sheetClose").focus();
     }
 
-    function closeSheet() {
+    function closeSheet(skipHistory = false) {
+      if (!skipHistory && !routeRestoring && window.history.state?.trackerSheet) window.history.back();
       pendingDeviceImport = null; pendingOfferAction = null;
       if (openSheetType === 'finance') financeView?.destroy();
       const backdrop = document.getElementById("sheetBackdrop");
@@ -4295,7 +4315,7 @@
 
     function renderAll() {
       renderStatus();
-      if (currentView === 'home') {
+      if (['home','offers','planner'].includes(currentView)) {
         renderStats();
         renderRecommendation();
         renderQuickCounts();
@@ -4325,7 +4345,25 @@
       glider.style.transform = "translate3d(" + active.offsetLeft + "px," + active.offsetTop + "px,0)";
     }
 
+    let routeRestoring = false, routeSerial = 0, currentRouteEntry = 0;
+    const routeEntries = new Map([[0, {scroll: 0}]]);
+    const initialView = ['offers','planner'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
+    window.history.replaceState({trackerView: initialView, trackerEntry: 0}, '', initialView === 'home' ? location.href : '#' + initialView);
+    window.history.scrollRestoration = 'manual';
+    function recordViewRoute(view) {
+      if (routeRestoring || (window.history.state?.trackerView === view && !window.history.state?.trackerSheet)) return;
+      const old = window.history.state?.trackerEntry;
+      if (routeEntries.has(old)) routeEntries.get(old).scroll = window.scrollY;
+      const entry = ++routeSerial;
+      currentRouteEntry = entry;
+      routeEntries.set(entry, {opener: document.activeElement, scroll: 0});
+      // A programmatic destination selected from a sheet replaces that sheet's
+      // entry rather than racing an asynchronous history.back().
+      const method = window.history.state?.trackerSheet ? 'replaceState' : 'pushState';
+      window.history[method]({trackerView: view, trackerEntry: entry}, '', '#' + view);
+    }
     function switchView(view) {
+      recordViewRoute(view);
       currentView = view;
       renderAll();
       let activeSection = null;
@@ -4337,8 +4375,8 @@
       });
 
       document.querySelectorAll("[data-view]").forEach(button => {
-        button.classList.toggle("active", button.dataset.view === (view === "help" ? "more" : view));
-        if (button.dataset.view === (view === "help" ? "more" : view)) button.setAttribute("aria-current", "page");
+        button.classList.toggle("active", button.dataset.view === (view === "help" ? "more" : ["offers","planner"].includes(view) ? "home" : view));
+        if (button.dataset.view === (view === "help" ? "more" : ["offers","planner"].includes(view) ? "home" : view)) button.setAttribute("aria-current", "page");
         else button.removeAttribute("aria-current");
       });
 
@@ -4350,6 +4388,26 @@
       }
       window.scrollTo({ top: 0, behavior: "instant" });
     }
+
+    function returnHome() {
+      if (routeEntries.get(window.history.state?.trackerEntry)?.opener?.closest('#view-home')) window.history.back();
+      else { const detail = currentView; switchView('home'); document.querySelector('#view-home [data-home-detail="' + detail + '"]')?.focus({preventScroll:true}); }
+    }
+    window.addEventListener('popstate', event => {
+      const leaving = routeEntries.get(currentRouteEntry), state = event.state;
+      if (!state?.trackerView) return;
+      currentRouteEntry = state.trackerEntry;
+      routeRestoring = true;
+      closeSheet(true);
+      switchView(state.trackerView);
+      if (state.trackerSheet === 'advanced') openUtilitySheet('advanced');
+      else if (state.trackerSheet === 'account') openAccountSheet(state.trackerAccount);
+      routeRestoring = false;
+      window.scrollTo({top:routeEntries.get(state.trackerEntry)?.scroll || 0,behavior:'instant'});
+      const opener = leaving?.opener;
+      if (!state.trackerSheet && opener?.isConnected && opener.getClientRects().length) opener.focus({preventScroll:true});
+      else if (!state.trackerSheet) document.querySelector('#view-' + state.trackerView + ' h1')?.focus({preventScroll:true});
+    });
 
     function updateVisibleViewport() {
       const viewport = window.visualViewport;
@@ -4462,6 +4520,8 @@
     updateNavGlider();
     setupDraggableNavigation({ nav: mainNav, onSelect: switchView, onRestore: updateNavGlider, onGliderMove: next => liquidNavigation.dragTo(next) });
 
+    if (initialView !== 'home') { routeRestoring = true; switchView(initialView); routeRestoring = false; }
+    document.getElementById('homeOfferSearch').addEventListener('input', renderHomeAccounts);
     document.getElementById('offerScope').addEventListener('change', event => {
       currentOfferScope = event.target.value;
       renderHomeAccounts();
@@ -4528,7 +4588,10 @@
     });
 
     document.getElementById("app").addEventListener("click", event => {
-      if (event.target.closest('[data-jump-planner]')) { switchView('home'); requestAnimationFrame(() => { document.getElementById('basketInput').focus({preventScroll:true}); document.querySelector('.hero-card').scrollIntoView({block:'start',behavior:motionReduced()?'instant':'smooth'}); }); return; }
+      if (event.target.closest('[data-home-back]')) { returnHome(); return; }
+      const homeDetail = event.target.closest('[data-home-detail]');
+      if (homeDetail) { switchView(homeDetail.dataset.homeDetail); routeEntries.get(currentRouteEntry).opener = homeDetail; document.getElementById(homeDetail.dataset.homeDetail + 'Title').focus({preventScroll:true}); return; }
+      if (event.target.closest('[data-jump-planner]')) { switchView('planner'); requestAnimationFrame(() => { document.getElementById('basketInput').focus({preventScroll:true}); document.querySelector('.hero-card').scrollIntoView({block:'start',behavior:motionReduced()?'instant':'smooth'}); }); return; }
       if (event.target.closest("[data-retry-load]")) { load(); return; }
       const showMore = event.target.closest("[data-show-more-accounts]");
       if (showMore) {
@@ -4573,14 +4636,14 @@
       }
     });
 
-    document.getElementById("sheetClose").addEventListener("click", closeSheet);
+    document.getElementById("sheetClose").addEventListener("click", () => closeSheet());
 
     document.getElementById("sheetBackdrop").addEventListener("click", event => {
       if (event.target.id === "sheetBackdrop") closeSheet();
     });
 
     document.addEventListener("keydown", event => {
-      if (!openSheetType) return;
+      if (!openSheetType) { if (event.key === "Escape" && ["offers","planner"].includes(currentView)) returnHome(); return; }
       if (event.key === "Escape") closeSheet();
       if (event.key === "Tab") {
         const controls = [...document.querySelectorAll('#sheetBackdrop button:not([disabled]), #sheetBackdrop input:not([disabled]), #sheetBackdrop select:not([disabled]), #sheetBackdrop summary, #sheetBackdrop [tabindex="0"]')]
@@ -4639,9 +4702,9 @@
         document.querySelectorAll("[data-intent]").forEach(item => {
           item.classList.toggle("active", item.dataset.intent === "best");
         });
-        closeSheet();
+        closeSheet(true);
         renderHomeAccounts();
-        switchView("home");
+        switchView("offers");
         requestAnimationFrame(() => {
           const card = document.querySelector('[data-card-account="' + CSS.escape(selectedAccountRef) + '"]');
           card?.scrollIntoView({ behavior: "smooth", block: "center" });

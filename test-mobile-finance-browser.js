@@ -1,3 +1,4 @@
+import {openHomeDetail} from './test-browser-navigation.js';
 // Computed mobile sizes and real encrypted form flows; fixtures stay off disk.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
@@ -31,7 +32,7 @@ try{for(const width of [320,390,430,844,1024]){
  page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.method()!=='GET')writes.push(r.url());});
  await page.goto(url);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');await fields(page);
  assert.equal(await page.locator('#basketInput').evaluate(e=>parseFloat(getComputedStyle(e).fontSize)),width<=370?27:31,'Large basket amount keeps its size');
- await page.locator('[data-open-sheet="advanced"]').click();await fields(page);assert.equal(await page.locator('.setting-money input').first().evaluate(e=>parseFloat(getComputedStyle(e).fontSize)),25,'Sheet amount keeps its larger size');await page.keyboard.press('Escape');
+ await openHomeDetail(page,'planner');await page.locator('[data-open-sheet="advanced"]').click();await fields(page);assert.equal(await page.locator('.setting-money input').first().evaluate(e=>parseFloat(getComputedStyle(e).fontSize)),25,'Sheet amount keeps its larger size');await page.keyboard.press('Escape');
  await page.locator('[data-view="accounts"]').click();await page.locator('#accountsList [data-account-offers]').first().click();await page.locator('[data-toggle-ignore][data-ignore="true"]').click();await page.locator('#sheetBody').evaluate(e=>{const field=document.createElement('textarea');field.id='futureSheetTextarea';field.className='sheet-input';e.append(field);});await fields(page);await page.keyboard.press('Escape');
  await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="finance"]').click();await page.locator('#financePassword').waitFor();await fields(page);
  await page.locator('#financePassword').fill('mobile test passphrase');await page.locator('[data-finance-form="unlock"] button').click();await page.locator('.finance-empty').waitFor();
