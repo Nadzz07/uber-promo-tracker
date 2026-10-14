@@ -428,12 +428,61 @@ export function planBasketSplit(
   return {
     ...best,
     benefitVsSingle: roundMoney(best.netSaving - (single?.netSaving || 0)),
-    alternatives: plans.slice(1, 4).map(plan => ({
-      orderCount: plan.orderCount,
-      netSaving: plan.netSaving,
-      estimatedPay: plan.estimatedPay
-    }))
+    // Keep the allocations: an alternative must name the accounts and the
+    // basket assigned to each one, not just its headline cost.
+    alternatives: plans.slice(1, 4)
   };
+}
+
+// Compare the existing split calculation with the existing same-account Cash
+// calculation. A saved wallet must never override a cheaper split. Unknown
+// checkout fees remain null; the split surcharge is an estimate, added once.
+export function rankBasketPlans(promos = [], subtotal, {
+  wallets = {}, accounts = [], fees = {}, fulfilment = 'delivery',
+  maxOrders = 3, extraOrderFee = 1, now = new Date().toISOString()
+} = {}) {
+  const split = planBasketSplit(promos.filter(p => p.discountType !== 'uberCash' && matchesFulfilment(p, fulfilment)), subtotal, {
+    service: 'Uber Eats', accessibleOnly: true, maxOrders, extraOrderFee
+  });
+  const candidates = [];
+  if (split.eligible) {
+    for (const plan of [split, ...(split.alternatives || [])].filter(p => p.orderCount > 1)) {
+      candidates.push({...plan, kind: 'split', conditional: false, cashUsed: 0, checkoutFees: null,
+        orders: plan.orders.map((order, i) => {
+          const roundedFee = roundMoney(Math.max(0, number(extraOrderFee) || 0));
+          const extraFee = !i ? 0 : i === plan.orders.length - 1
+            ? roundMoney(plan.extraFees - roundedFee * (i - 1)) : roundedFee;
+          return {...order, cashUsed: 0, checkoutFees: null, extraFee,
+            estimatedPay: roundMoney(order.pay + extraFee)};
+        })});
+    }
+  }
+  for (const option of rankCheckoutOptions(promos, subtotal, {wallets, accounts, fees, fulfilment, now})) {
+    candidates.push({eligible: true, kind: option.kind, conditional: option.conditional,
+      subtotal: option.basket, grossSaving: option.promotionDiscount,
+      extraFees: 0, checkoutFees: option.fees, cashUsed: option.cashUsed,
+      estimatedPay: option.outOfPocket, orderCount: 1, accountCount: 1,
+      netSaving: roundMoney(option.basket - option.outOfPocket),
+      orders: [{accountRef: option.accountRef, accountMasked: option.promo?.accountMasked || null,
+        promo: option.promo, subtotal: option.basket, saving: option.promotionDiscount,
+        pay: roundMoney(option.basket - option.promotionDiscount),
+        cashUsed: option.cashUsed, cashRemaining: option.cashRemaining,
+        checkoutFees: option.fees, extraFee: 0, estimatedPay: option.outOfPocket}]
+    });
+  }
+  // Cost is primary. Fewer orders and conserving Cash break equal-cost ties.
+  candidates.sort((a, b) => a.estimatedPay - b.estimatedPay || a.cashUsed - b.cashUsed || a.orderCount - b.orderCount);
+  for (const plan of candidates) plan.key = plan.kind + ':' + plan.orders.map(o => [o.accountRef, o.promo?.id || 'wallet', o.subtotal].join('/')).join('|');
+  const suggested = candidates.find(p => !p.conditional);
+  if (!suggested) return {suggested: null, plans: [], reason: split.reason || 'No verified checkout option fits this basket.'};
+  // A few ordering strategies, rather than repeated accounts with the same
+  // deal. Preserve conditional Cash comparisons, clearly labelled for review.
+  const seen = new Set(), distinct = candidates.filter(plan => {
+    const signature = [plan.kind, plan.orderCount, plan.grossSaving, plan.cashUsed, plan.estimatedPay, plan.conditional].join('|');
+    if (seen.has(signature)) return false;
+    seen.add(signature); return true;
+  });
+  return {suggested, plans: [suggested, ...distinct.filter(p => p.key !== suggested.key).slice(0, 3)]};
 }
 
 // Cash email grants never supply wallet balances. Only separately verified,

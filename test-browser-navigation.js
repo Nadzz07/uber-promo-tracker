@@ -5,3 +5,8 @@ export async function openHomeDetail(page,name) {
   await page.locator('#view-home [data-home-detail="'+name+'"]').click();
   await page.locator('#view-'+name+'.active').waitFor();
 }
+
+export async function leaveReceiptEditor(page) {
+ const back=page.locator('[data-finance-action="receipt-overview"]');
+ if(await back.isVisible()) await back.click();
+}

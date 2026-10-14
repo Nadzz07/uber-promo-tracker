@@ -2418,43 +2418,36 @@
           <section id="homeAnalytics" class="home-analytics" aria-label="Receipt activity and savings"></section>
         </section>
       </section>
-<section id="view-offers" class="view home-detail" aria-labelledby="offersTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true"><span aria-hidden="true">‹</span> Home</button><h1 id="offersTitle" tabindex="-1">Find an offer</h1><button class="detail-switch" data-home-detail="planner">Order Planner <span aria-hidden="true">›</span></button></div>        <section class="discovery-column glass offer-browser" aria-labelledby="quickFindTitle">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">Quick find</div>
-            <h2 id="quickFindTitle" class="section-title">Find an offer</h2>
-          </div>
-        </div>
-
+<section id="view-offers" class="view home-detail" aria-labelledby="offersTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span></button><h1 id="offersTitle" tabindex="-1">Find an offer</h1><button class="detail-switch" data-home-detail="planner">Order Planner <span aria-hidden="true">›</span></button></div>        <section class="discovery-column glass offer-browser" aria-labelledby="offersTitle">
         <div class="search-wrap"><span class="search-icon" data-icon="search" aria-hidden="true"></span><input id="homeOfferSearch" class="search-input" type="search" aria-label="Search offers and accounts" placeholder="Search accounts or offers…" autocomplete="off"></div>
-        <div class="offer-scope-row"><label for="offerScope">Offer access</label><select id="offerScope" class="account-scope" aria-controls="homeAccounts"><option value="ready">Ready to use</option><option value="all">All eligible offers</option><option value="archived">Archived accounts with offers</option><option value="attention">Accounts requiring attention</option></select></div>
+        <div class="offer-controls"><div class="offer-scope-row"><span data-icon="settings" aria-hidden="true"></span><label for="offerScope">Offer access</label><select id="offerScope" class="account-scope" aria-controls="homeAccounts"><option value="ready">Ready to use</option><option value="all">All eligible offers</option><option value="archived">Archived accounts with offers</option><option value="attention">Accounts requiring attention</option></select></div><button class="offer-filter-toggle" aria-controls="offerFilterPanel" aria-expanded="true" data-offer-filters="true"><span data-icon="filter" aria-hidden="true"></span> Filters</button></div>
         <p class="offer-scope-summary"><span id="offerScopeSummary"></span><button class="metric-help inline-help" data-metric-help="accounts" data-metric-label="Ready to Use" aria-label="Explain offer readiness">i</button></p>
-        <div id="quickGrid" class="quick-grid">
+        <div id="offerFilterPanel"><div id="quickGrid" class="quick-grid">
           <button class="quick-card active" data-intent="best" aria-pressed="true" aria-controls="homeAccounts">
             <div class="quick-top"><span class="quick-icon" data-icon="star"></span><span id="bestCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">Best deal</div><div class="quick-sub">Strongest available account right now.</div></div>
+            <div><div class="quick-title">Best deal</div></div>
           </button>
           <button class="quick-card" data-intent="15off15" aria-pressed="false" aria-controls="homeAccounts">
             <div class="quick-top"><span class="quick-icon" data-icon="bag"></span><span id="fifteenCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">£15 off £15</div><div class="quick-sub">Full-value minimum-spend offers.</div></div>
+            <div><div class="quick-title">£15 off £15</div></div>
           </button>
           <button class="quick-card" data-intent="12off15" aria-pressed="false" aria-controls="homeAccounts">
             <div class="quick-top"><span class="quick-icon" data-icon="bag"></span><span id="twelveCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">£12 off £15</div><div class="quick-sub">£12 discount with a £15 minimum spend.</div></div>
+            <div><div class="quick-title">£12 off £15</div></div>
           </button>
           <button class="quick-card" data-intent="cash" aria-pressed="false" aria-controls="homeAccounts">
             <div class="quick-top"><span class="quick-icon" data-icon="wallet"></span><span id="cashCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">Uber Cash</div><div class="quick-sub">Current email offers. Confirm your wallet balance in Uber.</div></div>
+            <div><div class="quick-title">Uber Cash</div></div>
           </button>
           <button class="quick-card" data-intent="unfinished" aria-pressed="false" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon" aria-hidden="true" data-icon="history"></span><span id="unfinishedCount" class="quick-count">0 accounts</span></div>
-            <div><div class="quick-title">Not finished</div><div class="quick-sub">Started promos with at least one use remaining.</div></div>
+            <div class="quick-top"><span class="quick-icon" aria-hidden="true" data-icon="history"></span><span id="unfinishedCount" class="quick-count">0</span></div>
+            <div><div class="quick-title">Not finished</div></div>
           </button>
           <button class="quick-card" data-intent="cash-promo" aria-pressed="false" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon" aria-hidden="true" data-icon="wallet"></span><span id="cashPromoCount" class="quick-count">0 accounts</span></div>
-            <div><div class="quick-title">Uber Cash + promo</div><div class="quick-sub">Both offer types recorded on the same account. Combining them depends on Uber.</div></div>
+            <div class="quick-top"><span class="quick-icon" aria-hidden="true" data-icon="wallet"></span><span id="cashPromoCount" class="quick-count">0</span></div>
+            <div><div class="quick-title">Cash + promo</div></div>
           </button>
-        </div>
+        </div><details class="offer-filter-help"><summary>About offer filters</summary><dl><dt>Best deal</dt><dd>Strongest available account right now.</dd><dt>£15 off £15</dt><dd>Full-value minimum-spend offers.</dd><dt>£12 off £15</dt><dd>£12 discount with a £15 minimum spend.</dd><dt>Uber Cash</dt><dd>Current email offers. Confirm your wallet balance in Uber.</dd><dt>Not finished</dt><dd>Started promos with at least one use remaining.</dd><dt>Uber Cash + promo</dt><dd>Both offer types recorded on the same account. Combining them depends on Uber.</dd></dl></details></div>
 
         <section class="best-section" aria-labelledby="homeAccountsTitle">
         <div class="section-head">
@@ -2465,8 +2458,9 @@
           <div id="homeAccountMeta" class="section-meta" role="status" aria-live="polite" aria-atomic="true"></div>
         </div>
 
-        <div class="results-tools"><p id="homeResultsHelp"></p><button id="resetQuickFind" class="text-btn" data-reset-intent="true" hidden>All available offers <span aria-hidden="true">↗</span></button></div>
+        <div class="results-tools"><button id="resetQuickFind" class="text-btn" data-reset-intent="true" hidden>All available offers <span aria-hidden="true">↗</span></button></div>
         <div id="homeAccounts" class="account-list"></div>
+        <details class="offer-matching-help"><summary><span data-icon="info" aria-hidden="true"></span>Check offer eligibility in Uber</summary><p id="homeResultsHelp"></p></details>
         <div id="homeResultsFooter" class="results-footer"></div>
 
         <details id="weakWrap" class="weak-wrap">
@@ -2476,19 +2470,11 @@
         </section>
         </section>
 </section>
-<section id="view-planner" class="view home-detail" aria-labelledby="plannerTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true"><span aria-hidden="true">‹</span> Home</button><h1 id="plannerTitle" tabindex="-1">Order Planner</h1><button class="detail-switch" data-home-detail="offers">Find an offer <span aria-hidden="true">›</span></button></div>        <div class="planner-column">
+<section id="view-planner" class="view home-detail" aria-labelledby="plannerTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span></button><h1 id="plannerTitle" tabindex="-1">Order Planner</h1><button class="detail-switch" data-home-detail="offers">Find an offer <span aria-hidden="true">›</span></button></div>        <div class="planner-column">
         <section class="hero-card glass">
-          <div class="hero-heading">
-            <div>
-              <div class="eyebrow">Order planner</div>
-              <h1 class="hero-title">Plan your order</h1>
-            </div>
-            <span class="hero-spark" data-icon="bag"></span>
-          </div>
-
           <label class="basket-editor" for="basketInput">
             <span class="basket-editor-copy">
-              <strong>Basket subtotal</strong>
+              <strong><span data-icon="bag" aria-hidden="true"></span>Basket subtotal</strong>
               <small>Tap the amount to edit</small>
             </span>
             <span class="basket-value-wrap">
@@ -2498,16 +2484,17 @@
             </span>
           </label>
 
-          <div class="planner-mode"><label for="plannerFulfilment">Order type</label><select id="plannerFulfilment"><option value="delivery">Delivery</option><option value="pickup">Pickup</option></select></div>
-          <div id="recommendation" class="recommendation">
+          <div class="planner-mode"><label for="plannerFulfilment"><span data-icon="bag" aria-hidden="true"></span>Order type</label><select id="plannerFulfilment"><option value="delivery">Delivery</option><option value="pickup">Pickup</option></select></div>
+        </section>
+        <div class="planner-section-head"><h2>Suggested plan</h2></div>
+          <div id="recommendation" class="recommendation" aria-live="polite">
             <div class="empty">Preparing your recommendation…</div>
           </div>
 
           <div class="hero-footer">
-            <button class="advanced-btn" data-open-sheet="advanced">Split settings <span aria-hidden="true">›</span></button>
-            <div id="feeNote" class="fee-note"></div>
+            <button class="advanced-btn" data-open-sheet="advanced"><span data-icon="settings" aria-hidden="true"></span><span><strong>Fee settings</strong><small id="feeNote"></small></span><span aria-hidden="true">›</span></button>
+
           </div>
-        </section>
 
         </div>
 </section>
@@ -2683,8 +2670,7 @@
     import { classifyOfferTrackingState } from "./offer-state.js";
     import { isOfferExpired, expiryEndTime, applyOfferExpiryPolicy } from "./offer-time.js";
     import {
-      planBasketSplit,
-      rankCheckoutOptions,
+      rankBasketPlans,
       matchesFulfilment,
       rankPromosForSpend
     } from "./deal-intelligence.js";
@@ -3198,22 +3184,13 @@
     }
 
     function effectiveFee() {
-      const learned = Number(
-        payload?.summary?.feeModel?.averageExtraOrderFees ??
-        payload?.summary?.averageExtraOrderFees ??
-        0
-      );
-
-      if (!plannerSettings.feeTouched && plannerSettings.extraOrderFee == null) {
-        return Number.isFinite(learned) ? Math.max(0, learned) : 0;
-      }
-
-      return Math.max(0, Number(plannerSettings.extraOrderFee || 0));
+      if (plannerSettings.feeTouched && plannerSettings.extraOrderFee != null) return Math.max(0, Number(plannerSettings.extraOrderFee));
+      const model = payload?.summary?.feeModel;
+      const learned = Number(model?.averageExtraOrderFees);
+      return Number(model?.sampleSize || 0) > 0 && Number.isFinite(learned) ? Math.max(0, learned) : 1;
     }
 
-    function hasFeeEstimate() {
-      return plannerSettings.feeTouched || (Number(payload?.summary?.feeModel?.sampleSize || 0) > 0 && Number.isFinite(Number(payload?.summary?.feeModel?.averageExtraOrderFees)));
-    }
+    function hasFeeEstimate() { return Number.isFinite(effectiveFee()); }
 
     function motionReduced() {
       return reducedMotion.matches;
@@ -3317,79 +3294,79 @@
       const fee = effectiveFee();
       document.getElementById("feeNote").textContent =
         hasFeeEstimate()
-          ? "Includes about " + money(fee) + " per extra split order"
+          ? money(fee) + " estimated per extra order"
           : "No extra split-fee estimate yet";
     }
 
+    let selectedPlannerKey = null, otherOptionsOpen = false, plannerComparisonCache = null;
+    const plannerMoney = value => new Intl.NumberFormat('en-GB', {style:'currency', currency:'GBP', minimumFractionDigits:2}).format(value);
+    function plannerAccountRows(plan) {
+      return plan.orders.map((order, index) => {
+        const account = accounts.find(a => a.accountRef === order.accountRef) || order;
+        return '<div class="plan-row" data-plan-account="' + escapeHtml(order.accountRef) + '">' +
+          '<span class="plan-order-number">' + (index + 1) + '</span><div class="plan-body">' +
+          '<button class="plan-account" data-account-offers="' + escapeHtml(order.accountRef) + '">' + escapeHtml(accountDisplay(account)) + '</button>' +
+          '<div class="plan-promo">' + escapeHtml(order.promo ? offerTitle(order.promo) : 'Verified Uber Cash balance') + '</div>' +
+          '<div class="plan-subtotal">Basket ' + escapeHtml(plannerMoney(order.subtotal)) +
+          (order.extraFee > 0 ? ' · extra fee estimate ' + escapeHtml(plannerMoney(order.extraFee)) : '') +
+          (order.checkoutFees != null ? ' · recorded fees ' + escapeHtml(plannerMoney(order.checkoutFees)) : '') + '</div>' +
+          (order.cashRemaining != null ? '<div class="plan-subtotal">Uber Cash used ' + escapeHtml(plannerMoney(order.cashUsed)) + ' · remaining ' + escapeHtml(plannerMoney(order.cashRemaining)) + '</div>' : '') +
+          (order.promo?.restrictions?.merchantLimited ? '<div class="plan-subtotal">Selected merchants · check in Uber</div>' : '') +
+          '</div><div class="plan-payment"><strong>' + escapeHtml(plannerMoney(order.estimatedPay)) + '</strong><small>Estimated payment</small></div></div>';
+      }).join('');
+    }
+    function plannerCheckoutFees() {
+      const now = Date.now();
+      return Object.fromEntries(Object.entries(privateWallets).filter(([ref,w]) => w.basketSubtotal === currentBasket() && w.checkoutFees != null && Date.parse(w.at) <= now && now-Date.parse(w.at) < 2*3600000 && !accounts.some(a => a.accountRef === ref && Date.parse(a.lastOrderAt) > Date.parse(w.at))).map(([ref,w]) => [ref,w.checkoutFees]));
+    }
     function renderRecommendation() {
       document.getElementById("homePlannerSummary").textContent = "Basket " + money(currentBasket()) + " · " + (plannerSettings.fulfilment === "pickup" ? "Pickup" : "Delivery");
       document.getElementById('plannerFulfilment').value = plannerSettings.fulfilment || 'delivery';
       const target = document.getElementById("recommendation");
       if(privateMigrationPending){target.innerHTML='<div class="empty">Import your updated private login file to reconnect saved offer decisions after the security update. Your previous actions remain saved.<button class="advanced-btn" data-open-sheet="device">Import private login file</button></div>';return;}
-
-      if (!accounts.some(account => account.canLogin)) {
-        target.innerHTML =
-          accounts.length === 0
-            ? '<div class="empty">Recommendations will appear after your first successful data sync.</div>'
-            : '<div class="empty">No available accounts right now.</div>';
+      const basket = currentBasket();
+      const fees = plannerCheckoutFees();
+      ensureAccountProjection();
+      const key = JSON.stringify([basket, plannerSettings.fulfilment, plannerSettings.maxOrders, effectiveFee(), projectionClock, fees,
+        Object.values(privateWallets).map(w => Date.parse(w.at) <= Date.now())]);
+      if (plannerComparisonCache?.key !== key || plannerComparisonCache.wallets !== privateWallets || plannerComparisonCache.payload !== payload) {
+        plannerComparisonCache = {key, wallets:privateWallets, payload, value:rankBasketPlans(decisionPromos(), basket, {wallets:privateWallets, accounts, fees,
+          fulfilment:plannerSettings.fulfilment, maxOrders:plannerSettings.maxOrders, extraOrderFee:effectiveFee()})};
+      }
+      const comparison = plannerComparisonCache.value;
+      if (!comparison.suggested) {
+        selectedPlannerKey = null;
+        target.innerHTML = '<div class="empty">' + escapeHtml(comparison.reason || 'No available accounts right now.') + '</div>';
         return;
       }
-
-      const plan = planBasketSplit(
-        decisionPromos().filter(p=>p.discountType!=='uberCash' && matchesFulfilment(p,plannerSettings.fulfilment)),
-        currentBasket(),
-        {
-          service: "Uber Eats",
-          maxOrders: hasFeeEstimate() ? plannerSettings.maxOrders : 1,
-          extraOrderFee: effectiveFee(),
-          accessibleOnly: true
-        }
-      );
-
-      const checkout=rankCheckoutOptions(decisionPromos(),currentBasket(),{wallets:privateWallets,accounts,fulfilment:plannerSettings.fulfilment,fees:Object.fromEntries(Object.entries(privateWallets).filter(([ref,w])=>w.basketSubtotal===currentBasket()&&w.checkoutFees!=null&&Date.now()-Date.parse(w.at)<2*3600000&&!accounts.some(a=>a.accountRef===ref&&Date.parse(a.lastOrderAt)>Date.parse(w.at))).map(([ref,w])=>[ref,w.checkoutFees]))});
-      const optionRow=o=>'<div class="plan-row checkout-row"><div class="plan-body"><button class="plan-account" data-account-offers="'+escapeHtml(o.accountRef)+'">'+escapeHtml(accountDisplay(accounts.find(a=>a.accountRef===o.accountRef)||{accountRef:o.accountRef}))+'</button><div class="plan-promo">'+escapeHtml(o.promo?offerTitle(o.promo):'Verified Uber Cash balance')+'</div><div class="plan-subtotal">Basket '+escapeHtml(money(o.basket))+' · promo −'+escapeHtml(money(o.promotionDiscount))+' · Cash used '+escapeHtml(money(o.cashUsed))+(o.cashRemaining!=null?' · Cash remaining '+escapeHtml(money(o.cashRemaining)):'')+'</div><div class="plan-subtotal">'+escapeHtml(o.conditional?'Conditional · confirm Cash stacking.':o.estimated?'Before fees · confirm in Uber.':'Recorded fees included · confirm in Uber.')+(o.promo?'<div class="plan-subtotal">'+escapeHtml(serverPromoMeta(o.promo))+'</div>':'')+(o.promo?.restrictions?.merchantLimited?'<div class="plan-subtotal">Selected merchants · check in Uber</div>':'')+'</div></div><div class="plan-saving">Pay '+escapeHtml(money(o.outOfPocket))+'</div></div>';
-      if(checkout.length && Object.keys(privateWallets).length) {
-        const best=checkout[0];
-        target.innerHTML='<div class="recommendation-top"><div><div class="recommendation-title">Lowest out-of-pocket option</div><div class="recommendation-copy">Promos &amp; verified Cash · same-account comparison</div></div><div class="recommendation-save">'+escapeHtml(money(best.outOfPocket))+'<small>'+(best.estimated?'estimated before fees':'with recorded fees')+'</small></div></div><div class="plan-list">'+optionRow(best)+'</div><details class="disclosure-card"><summary>Compare other checkout options</summary><div class="disclosure-body plan-list">'+checkout.slice(1,9).map(optionRow).join('')+'</div></details><button class="advanced-btn" data-open-sheet="finance">Update private Cash balances</button>'+(plan.eligible&&plan.orderCount>1?'<p class="sheet-help">Split estimate: '+plan.orderCount+' orders could save '+escapeHtml(money(plan.netSaving))+' after estimated extra fees. Cash comparison above is for one basket.</p>':'');
-        return;
-      }
-
-      if (!plan.eligible) {
-        target.innerHTML =
-          '<div class="empty">' + escapeHtml(plan.reason || "No promo available fits this basket.") + '</div>';
-        return;
-      }
-
-      const comparison =
-        plan.benefitVsSingle > .009
-          ? money(plan.benefitVsSingle) + " better than one order"
-          : "One order keeps delivery fees down";
-
-      const rows = plan.orders.map((order, index) => (
-        '<div class="plan-row">' +
-          '<div class="plan-number">' + (index + 1) + '</div>' +
-          '<div class="plan-body">' +
-            '<button class="plan-account" data-account-offers="' + escapeHtml(order.accountRef) + '">' + escapeHtml(accountDisplay(order)) + '</button>' +
-            '<div class="plan-login">' + escapeHtml(loginRouteText(order)) + '</div>' +
-            '<div class="plan-promo">' + escapeHtml(offerTitle(order.promo)) + '</div>' +
-            '<div class="plan-subtotal">Order subtotal ' + escapeHtml(money(order.subtotal)) + '</div>' +
-          '</div>' +
-          '<div class="plan-saving">-' + escapeHtml(money(order.saving)) + '</div>' +
-        '</div>'
-      )).join("");
-
-      target.innerHTML =
-        '<div class="recommendation-top">' +
-          '<div>' +
-            '<div class="recommendation-title">Use ' + plan.orderCount +
-              (plan.orderCount === 1 ? ' account' : ' accounts') + '</div>' +
-            '<div class="recommendation-copy">' + escapeHtml(comparison) + '</div>' +
-          '</div>' +
-          '<div class="recommendation-save">Save ' + escapeHtml(money(plan.netSaving)) +
-            '<small>' + (hasFeeEstimate() ? 'after estimated split costs' : 'before delivery &amp; service fees') + '</small>' +
-          '</div>' +
-        '</div>' +
-        '<div class="plan-list">' + rows + '</div>'+(checkout.length>1?'<details class="disclosure-card"><summary>Compare other checkout options</summary><div class="disclosure-body plan-list">'+checkout.slice(1,9).map(optionRow).join('')+'</div></details>':'');
+      const suggested = comparison.suggested;
+      const selected = comparison.plans.find(p => p.key === selectedPlannerKey) || suggested;
+      if (selectedPlannerKey && selected.key !== selectedPlannerKey) selectedPlannerKey = null;
+      const lowest = selected.key === suggested.key;
+      const line = (icon,label,value,cls='') => '<div class="plan-cost-line ' + cls + '">' + financeIcon(icon) + '<span>' + label + '</span><strong>' + value + '</strong></div>';
+      const alternatives = comparison.plans.filter(p => p.key !== selected.key).sort((a,b) => a.estimatedPay-b.estimatedPay);
+      target.innerHTML = '<div class="recommendation-top"><div>' +
+        '<div class="plan-status">' + (selected.conditional ? 'Requires Cash verification' : lowest ? 'Lowest estimated cost' : 'Your selected option') + '</div>' +
+        '<h3 class="recommendation-title">Use ' + selected.accountCount + (selected.accountCount === 1 ? ' account' : ' accounts') + '</h3>' +
+        '<div class="recommendation-copy">' + selected.orderCount + (selected.orderCount === 1 ? ' order' : ' orders') + ' · ' + (plannerSettings.fulfilment === 'pickup' ? 'Pickup' : 'Delivery') + '</div></div>' +
+        '<div class="recommendation-save">' + escapeHtml(plannerMoney(selected.estimatedPay)) + '<small>Estimated total' + (selected.checkoutFees == null ? ' before base fees' : ' with recorded fees') + '</small></div></div>' +
+        '<div class="plan-costs">' + line('bag','Basket',escapeHtml(plannerMoney(selected.subtotal))) +
+        line('star','Promo discounts','−' + escapeHtml(plannerMoney(selected.grossSaving)), 'discount') +
+        (selected.cashUsed > 0 ? line('wallet','Uber Cash used','−' + escapeHtml(plannerMoney(selected.cashUsed))) : '') +
+        line('receipt',selected.checkoutFees != null ? 'Recorded checkout fees' : 'Extra order fee estimate','+' + escapeHtml(plannerMoney(selected.checkoutFees ?? selected.extraFees))) + '</div>' +
+        '<div class="plan-accounts"><h4>Accounts to use</h4>' + plannerAccountRows(selected) + '</div>' +
+        '<details id="plannerOtherOptions" class="planner-other-options"' + (otherOptionsOpen ? ' open' : '') + '><summary>' + financeIcon('chart') + '<span>Other options<small>Compare alternative plans.</small></span></summary><div class="planner-alternatives">' +
+        (alternatives.length ? alternatives.map(plan => '<article class="plan-alternative"><div class="plan-alternative-head"><div><strong>Use ' + plan.accountCount + (plan.accountCount === 1 ? ' account' : ' accounts') + '</strong><small>' + plan.orderCount + (plan.orderCount === 1 ? ' order' : ' orders') + (plan.cashUsed > 0 ? ' · uses verified Cash' : '') + (plan.conditional ? ' · Cash coverage unverified' : '') + '</small></div><strong>' + escapeHtml(plannerMoney(plan.estimatedPay)) + '</strong></div>' +
+          '<p>Basket ' + escapeHtml(plannerMoney(plan.subtotal)) + ' − discounts ' + escapeHtml(plannerMoney(plan.grossSaving)) +
+          (plan.cashUsed > 0 ? ' − Cash ' + escapeHtml(plannerMoney(plan.cashUsed)) : '') +
+          ' + ' + (plan.checkoutFees != null ? 'recorded fees ' : 'extra fee estimate ') + escapeHtml(plannerMoney(plan.checkoutFees ?? plan.extraFees)) + '</p>' +
+          '<button class="plan-select" data-select-plan="' + escapeHtml(plan.key) + '">View this plan <span aria-hidden="true">›</span></button></article>').join('') : '<p>No other eligible ordering strategy fits this basket.</p>') + '</div></details>' +
+        '<p class="plan-fee-explanation">' + financeIcon('info') + '<span>' +
+        (selected.checkoutFees != null ? 'Includes the recorded checkout fees for this basket once. Confirm the final amount in Uber.' : 'Basket minus promo discounts' + (selected.cashUsed > 0 ? ' and verified Uber Cash' : '') + ', plus ' + escapeHtml(plannerMoney(effectiveFee())) + ' estimated per extra order. Base delivery and service fees are not included; confirm them in Uber.') +
+        (selected.conditional ? ' Confirm Cash can cover the remainder after a promo before using this option.' : '') + '</span></p>' +
+        '<button class="planner-matching-action" data-planner-matches="true">Find more matching accounts <span aria-hidden="true">›</span></button>' +
+        (Object.keys(privateWallets).length ? '<button class="planner-matching-action" data-open-sheet="finance" data-finance-target="cash">Update private Cash balances <span aria-hidden="true">›</span></button>' : '');
+      target.querySelector('#plannerOtherOptions').addEventListener('toggle', event => { otherOptionsOpen = event.target.open; });
     }
 
     function offerUsePill(promo) {
@@ -3479,16 +3456,16 @@
       setAnimatedText("bestCount", list.length);
       setAnimatedText("fifteenCount", list.filter(account => account.has15off15).length);
       setAnimatedText("twelveCount", list.filter(account => account.has12off15).length);
-      setAnimatedText("cashCount", list.filter(account => account.hasCash).length + " current");
+      setAnimatedText("cashCount", list.filter(account => account.hasCash).length);
       const unfinished = list.filter(account => account.promos.some(promo => offerInProgress(promo))).length;
       const cashAndPromo = list.filter(account => account.hasCashAndPromo).length;
-      setAnimatedText("unfinishedCount", unfinished + (unfinished === 1 ? " account" : " accounts"));
-      setAnimatedText("cashPromoCount", cashAndPromo + (cashAndPromo === 1 ? " account" : " accounts"));
+      setAnimatedText("unfinishedCount", unfinished);
+      setAnimatedText("cashPromoCount", cashAndPromo);
     }
 
     function renderHomeAccounts() {
       if(privateMigrationPending){document.getElementById("homeAccounts").innerHTML='<div class="empty">Import the updated private login file to restore your saved promotion decisions. Recommendations are paused until then.<button class="advanced-btn" data-open-sheet="device">Import private file</button></div>';return;}
-      const previewLimit = document.documentElement.dataset.layout === 'mobile' ? 3 : window.innerWidth >= 1280 ? 3 : 2;
+      const previewLimit = document.documentElement.dataset.layout === 'mobile' ? 2 : window.innerWidth >= 1280 ? 3 : 2;
       renderQuickCounts();
       const all = homeAccountsByIntent();
       const strongest = all[0] || null;
@@ -3983,7 +3960,7 @@
         0
       );
 
-      setSheetHeading("Split settings", "Choose how many separate orders a recommendation can use.");
+      setSheetHeading("Fee settings", "Choose how many separate orders a recommendation can use.");
 
       document.getElementById("sheetBody").innerHTML =
         '<div class="settings-explainer">' +
@@ -4001,10 +3978,10 @@
             '<input id="sheetFeeInput" type="number" min="0" step="0.01" value="' +
               escapeHtml(hasFeeEstimate() ? effectiveFee().toFixed(2) : '') + '" placeholder="Not entered" inputmode="decimal">' +
             (learned > 0
-              ? '<em>Receipt estimate ' + escapeHtml(money(learned)) + '</em>'
-              : '<em>Manual estimate</em>') +
+              ? '<em>Receipt-based estimate ' + escapeHtml(money(learned)) + '</em>'
+              : '<em>Default £1 per extra order</em>') +
           '</label>' +
-          '<div class="setting-note">Leave blank if unknown. Missing fees are not treated as £0. Entered fees are subtracted from split savings.</div>' +
+          '<div class="setting-note">This is an estimate for each additional order, not a confirmed checkout fee. Leave blank to restore the default estimate. Base checkout fees are separate.</div>' +
         '</div>' +
         '<div class="setting-card">' +
           '<div class="setting-card-head">' +
@@ -4206,7 +4183,7 @@
       let icon = sheet.querySelector('.finance-heading-icon');
       if (!icon) { icon = document.createElement('span'); icon.className = 'finance-heading-icon'; sheet.querySelector('.sheet-head').prepend(icon); }
       icon.hidden = false;
-      const icons = {'Savings':'savings','Private finances':'shield','Settings':'settings','Account details':'user','Private account import':'shield','Review import':'receipt','Receipt insights':'insights','About this tracker':'info','Split settings':'settings','Ignore offer':'ignored','Mark promotion finished':'check','Archived accounts':'history','Promo history':'calendar','Sync & data':'history'};
+      const icons = {'Savings':'savings','Private finances':'shield','Settings':'settings','Account details':'user','Private account import':'shield','Review import':'receipt','Receipt insights':'insights','About this tracker':'info','Fee settings':'settings','Ignore offer':'ignored','Mark promotion finished':'check','Archived accounts':'history','Promo history':'calendar','Sync & data':'history'};
       icon.innerHTML = financeIcon(icons[title] || 'info');
       document.getElementById("sheetTitle").textContent = title;
       document.getElementById("sheetSub").textContent = sub || "";
@@ -4331,7 +4308,7 @@
       const now = Date.now();
       const countdowns = promos.filter(promo => expiryEndTime(promo) > now)
         .map(promo => offerCountdown(promo, now)).join('|');
-      return currentView + '|' + projectionClock + '|' + syncState(payload.sync).className + '|' + countdowns;
+      return currentView + '|' + projectionClock + '|' + syncState(payload.sync).className + '|' + countdowns + '|' + JSON.stringify(plannerCheckoutFees());
     }
 
     function updateNavGlider() {
@@ -4365,6 +4342,7 @@
     function switchView(view) {
       recordViewRoute(view);
       currentView = view;
+      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner'].includes(view));
       renderAll();
       let activeSection = null;
 
@@ -4548,8 +4526,9 @@
     });
 
     let basketTimer;
-    document.getElementById('plannerFulfilment').addEventListener('change', event=>{plannerSettings.fulfilment=event.target.value;savePlannerSettings();renderRecommendation();});
+    document.getElementById('plannerFulfilment').addEventListener('change', event=>{selectedPlannerKey=null;plannerSettings.fulfilment=event.target.value;savePlannerSettings();renderRecommendation();});
     document.getElementById("basketInput").addEventListener("input", () => {
+      selectedPlannerKey = null;
       clearTimeout(basketTimer);
       basketTimer = setTimeout(() => {
         renderAll();
@@ -4588,7 +4567,12 @@
     });
 
     document.getElementById("app").addEventListener("click", event => {
+      const chosenPlan = event.target.closest('[data-select-plan]');
+      if (chosenPlan) { selectedPlannerKey = chosenPlan.dataset.selectPlan; renderRecommendation(); document.querySelector('#recommendation .recommendation-title').setAttribute('tabindex','-1'); document.querySelector('#recommendation .recommendation-title').focus(); return; }
+      const filters = event.target.closest('[data-offer-filters]');
+      if (filters) { const panel = document.getElementById('offerFilterPanel'); panel.hidden = !panel.hidden; filters.setAttribute('aria-expanded', String(!panel.hidden)); return; }
       if (event.target.closest('[data-home-back]')) { returnHome(); return; }
+      if(event.target.closest('[data-planner-matches]')) { switchView('offers'); document.getElementById('offersTitle').focus({preventScroll:true}); return; }
       const homeDetail = event.target.closest('[data-home-detail]');
       if (homeDetail) { switchView(homeDetail.dataset.homeDetail); routeEntries.get(currentRouteEntry).opener = homeDetail; document.getElementById(homeDetail.dataset.homeDetail + 'Title').focus({preventScroll:true}); return; }
       if (event.target.closest('[data-jump-planner]')) { switchView('planner'); requestAnimationFrame(() => { document.getElementById('basketInput').focus({preventScroll:true}); document.querySelector('.hero-card').scrollIntoView({block:'start',behavior:motionReduced()?'instant':'smooth'}); }); return; }
@@ -4715,6 +4699,7 @@
 
       const maxOrdersButton = event.target.closest("[data-max-orders]");
       if (maxOrdersButton) {
+        selectedPlannerKey = null;
         plannerSettings.maxOrders = Number(maxOrdersButton.dataset.maxOrders || 3);
         savePlannerSettings();
         renderAdvancedSheet();
@@ -4770,10 +4755,12 @@
       if (event.target.closest('[data-cancel-offer-action]')) { pendingOfferAction=null; openSheetType='account'; renderAccountSheet(); return; }
 
       if (event.target.id === "resetPlannerSettings") {
+        selectedPlannerKey = null;
         plannerSettings = {
           maxOrders: 3,
           extraOrderFee: null,
-          feeTouched: false
+          feeTouched: false,
+          fulfilment: plannerSettings.fulfilment || 'delivery'
         };
         savePlannerSettings();
         renderAdvancedSheet();
@@ -4786,6 +4773,7 @@
       if (event.target.id === 'themeColour') chooseTheme(event.target.value);
       if (event.target.id === 'themeBrightness') { const hsl = colourHsl(themeColour); chooseTheme(hslColour(hsl.hue, hsl.saturation, Number(event.target.value))); }
       if (event.target.id === "sheetFeeInput") {
+        selectedPlannerKey = null;
         const amount = event.target.value.trim();
         plannerSettings.extraOrderFee = amount === '' ? null : Math.max(0, Number(amount));
         plannerSettings.feeTouched = amount !== '';

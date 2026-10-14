@@ -14,7 +14,7 @@ let snapshot={accounts:[account],promos:[offer],generatedAt:stamp,sync:{lastSucc
 let version=1;const requests=[];
 const files=new Set(fs.readdirSync('dist'));
 let html=fs.readFileSync('dist/index.html','utf8');
-const hook=`window.__runtime={renders:0,model:()=>enrichedAccounts(),reload:()=>load(),refresh:()=>refreshTimedViews()};const originalRender=renderAll;renderAll=(...args)=>{window.__runtime.renders++;return originalRender(...args);};`;
+const hook=`window.__runtime={renders:0,model:()=>enrichedAccounts(),reload:()=>load(),refresh:()=>refreshTimedViews(),planner:()=>plannerComparisonCache?.value};const originalRender=renderAll;renderAll=(...args)=>{window.__runtime.renders++;return originalRender(...args);};`;
 const at=html.lastIndexOf('load();');assert.ok(at>=0);html=html.slice(0,at)+hook+html.slice(at);
 const server=http.createServer((req,res)=>{
  const file=new URL(req.url,'http://localhost').pathname.slice(1)||'index.html';if(!files.has(file)){res.writeHead(404).end();return;}
@@ -35,6 +35,7 @@ try {
  assert.equal(await page.locator('#accountsList .account-card').count(),0,'Closed account screen is deferred');
  assert.equal(await page.locator('#fullyUsedList .activity-row').count(),0);
  assert.equal(await page.evaluate(()=>window.__runtime.model()===window.__runtime.model()),true,'Repeated projections reuse derived accounts');
+ await page.evaluate(()=>window.originalPlan=window.__runtime.planner());await openHomeDetail(page,'offers');await page.locator('#view-offers [data-home-detail="planner"]').click();assert.equal(await page.evaluate(()=>window.__runtime.planner()===window.originalPlan),true,'Opening detail views reuses unchanged planner calculations');await page.locator('[data-view="home"]').click();
  const renders=await page.evaluate(()=>window.__runtime.renders);await page.clock.fastForward(4*60000);
  assert.equal(await page.evaluate(()=>window.__runtime.renders),renders,'Unchanged minute checks do not reconstruct visible DOM');
  await page.evaluate(async()=>await Promise.all([window.__runtime.reload(),window.__runtime.reload()]));
