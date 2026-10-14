@@ -51,7 +51,8 @@ try{for(const [width,height,largeText] of [[390,844,false],[430,932,false],[1440
  assert.ok(overflow.fits,'Home overflow at '+width+' / larger text '+largeText+' '+JSON.stringify(overflow.items));
  const copy=await page.locator('#view-home .stats-row .stat-card').evaluateAll(cards=>cards.map(c=>{const box=c.getBoundingClientRect();return {width:box.width,height:box.height,offset:[...c.querySelectorAll('.stat-label,.stat-value,.stat-sub')].map(e=>e.getBoundingClientRect().left-box.left)};}));
  assert.ok(copy.every(c=>Math.max(...c.offset)-Math.min(...c.offset)<1),'Each metric caption, label and value share the reference inset');
- if(width===430&&!largeText)assert.ok(copy.every(c=>c.width>=187&&c.width<=192&&c.height>=114&&c.height<=132&&Math.abs(c.offset[0]-58)<2),'Home metrics retain the measured 851px reference proportions');
+ // Reserved scrollbars reduce the usable canvas; system fonts may wrap a caption.
+ if(width===430&&!largeText){const canvas=await page.evaluate(()=>document.documentElement.clientWidth);assert.ok(copy.every(c=>Math.abs(c.width-(canvas-50)/2)<2&&c.height>=114&&Math.abs(c.offset[0]-58)<2),'Home metrics retain the reference width and inset without clipping wrapped text: '+JSON.stringify({canvas,copy}));}
  if(output&&!largeText&&[430,1440].includes(width))await page.screenshot({path:output+'/'+name+'-'+width+'-home.png',fullPage:width>=980});
  if(width===390&&!largeText){assert.ok(await page.locator('#homeAnalytics').evaluate(e=>e.getBoundingClientRect().bottom<innerHeight+100),'Overview allows little natural scrolling on typical iPhone viewport');}
  const find=page.locator('[data-home-detail="offers"]').first();await find.focus();await page.keyboard.press('Enter');await page.locator('#view-offers.active').waitFor();
