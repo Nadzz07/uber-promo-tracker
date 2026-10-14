@@ -7,6 +7,8 @@ import { offerFingerprint } from "./identity.js";
 import { estimateReceiptSavings, combinedReceiptSavings } from "./savings-intelligence.js";
 import { hasForwardedReceiptClaims } from "./receipt-text.js";
 import { initFinancialLedger } from './financial-ledger.js';
+import {receiptReviewEvidence} from './receipt-review-evidence.js';
+import {receiptFinancials} from './receipt-financials.js';
 
 export const PRIVATE_DB_SCHEMA_VERSION = 13;
 export const DEFAULT_PRIVATE_DB = "./uber-tracker.local.db";
@@ -1009,7 +1011,18 @@ export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
   projectReceiptFinancialSources(db, 'receipts', receipt);
 }
 
+function receiptReviews(db,table,kind) {
+  const rows=prepare(db,`SELECT r.receipt_id,m.message_key,m.subject,m.body_text,m.received_at
+    FROM ${table} r JOIN messages m ON m.message_key=r.message_key WHERE m.accepted=1 AND m.kind=?
+    UNION SELECT r.receipt_id,m.message_key,m.subject,m.body_text,m.received_at
+    FROM ${table} r JOIN receipt_source_projections p ON p.receipt_id=r.receipt_id AND p.table_name=?
+    JOIN messages m ON m.message_key=p.message_key WHERE m.accepted=1 AND m.kind=?`).all(kind,table,kind);
+  const grouped=new Map();for(const row of rows){if(!grouped.has(row.receipt_id))grouped.set(row.receipt_id,[]);grouped.get(row.receipt_id).push(row);}
+  return new Map([...grouped].map(([id,sources])=>[id,receiptReviewEvidence(sources)]));
+}
+
 export function getReceipts(db) {
+  const reviews=receiptReviews(db,'receipts','receipt');
   return dedupeReceipts(prepare(db, `
     SELECT
       r.*,
@@ -1028,6 +1041,7 @@ export function getReceipts(db) {
     financialEvidence: row.financial_evidence_json ? JSON.parse(row.financial_evidence_json) : JSON.parse(row.source_evidence || '{}').financial || null,
     id: row.receipt_id,
     receiptId: row.receipt_id,
+    ...(reviews.get(row.receipt_id)?{financialReview:reviews.get(row.receipt_id)}:{}),
     accountRef: row.account_ref,
     accountMasked: row.account_masked,
     canLogin: row.login_access === "pending" ? null : Boolean(row.can_login),
@@ -1172,6 +1186,7 @@ export function reconcileTransportReceiptIdentities(db, processedMessageKeys, pa
 }
 
 export function getTransportReceipts(db) {
+  const reviews=receiptReviews(db,'transport_receipts','transport_receipt');
   return dedupeReceipts(prepare(db, `
     SELECT
       r.*,
@@ -1190,6 +1205,7 @@ export function getTransportReceipts(db) {
     financialEvidence: row.financial_evidence_json ? JSON.parse(row.financial_evidence_json) : JSON.parse(row.source_evidence || '{}').financial || null,
     id: row.receipt_id,
     receiptId: row.receipt_id,
+    ...(reviews.get(row.receipt_id)?{financialReview:reviews.get(row.receipt_id)}:{}),
     accountRef: row.account_ref,
     accountMasked: row.account_masked,
     canLogin: row.login_access === "pending" ? null : Boolean(row.can_login),
@@ -1302,6 +1318,7 @@ export function getPublicAccountInsights(db, {receipts=getReceipts(db),rides=get
       accessStatus: account.accessStatus || (account.canLogin ? "accessible" : "inaccessible"), loginMethod: account.loginMethod, accountStatus: account.accountStatus || (account.canLogin ? 'active' : 'archived'), deactivated: account.deactivated === true, lastSeenAt: account.lastSeenAt, lastPromoAt: account.lastPromoAt,
       lastOrderAt: last(orders), lastRideAt: last(transport), orderCount: orders.length, rideCount: transport.length,
       totalSaved: savings.get(account.accountRef)?.confirmedSaved || 0,sourceReviewCount:sourceReviews.get(account.accountRef)||0,
+      receiptReviewCount:[...orders,...transport].filter(r=>receiptFinancials(r).needsAdjustmentReview).length,
       activePromoCount: offerCounts.get(account.accountRef)||0 };
   });
 }

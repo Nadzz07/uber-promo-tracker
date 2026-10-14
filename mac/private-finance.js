@@ -20,7 +20,7 @@ try{
  }
  const receipts=[...getReceipts(db),...getTransportReceipts(db)],events=readFinancialEvents(db);
  if(operation==='export'){
-  const data={schemaVersion:1,kind:'uber-tracker-private-finance',exportedAt:new Date().toISOString(),
+  const data={schemaVersion:1,kind:'uber-tracker-private-finance',receiptReviewVersion:1,exportedAt:new Date().toISOString(),
     accounts:getAccounts(db).map(a=>({accountRef:a.accountRef,accountMasked:a.masked})),receipts,events};
   fs.writeFileSync(file,JSON.stringify(data),{mode:0o600,flag:'wx'});
  }

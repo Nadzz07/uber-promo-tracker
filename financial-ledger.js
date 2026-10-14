@@ -1,6 +1,8 @@
 // Canonical owner-only SQLite history. Receipt imports never update this table.
 import {randomUUID} from 'node:crypto';
-import {validateFinancialCorrection,validateCashEntry,currentFinancialEvents} from './receipt-financials.js';
+import {validateFinancialCorrection,validateCashEntry,currentFinancialEvents,financialHistoryMetadata} from './receipt-financials.js';
+
+function ledgerEvent(r){const {historyAction,historyTargetId,historyValueAt,...value}=JSON.parse(r.value_json);return {id:r.event_id,kind:r.kind,recordId:r.record_id,accountRef:r.account_ref,action:r.action,value,at:r.recorded_at,...financialHistoryMetadata({historyAction,historyTargetId,historyValueAt,at:r.recorded_at})};}
 
 export function initFinancialLedger(db) {
   db.exec(`CREATE TABLE IF NOT EXISTS financial_events (
@@ -12,7 +14,7 @@ export function initFinancialLedger(db) {
 }
 export function readFinancialEvents(db) {
   if(!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='financial_events'").get())return [];
-  return db.prepare('SELECT * FROM financial_events ORDER BY recorded_at,rowid').all().map(r=>({id:r.event_id,kind:r.kind,recordId:r.record_id,accountRef:r.account_ref,action:r.action,value:JSON.parse(r.value_json),at:r.recorded_at}));
+  return db.prepare('SELECT * FROM financial_events ORDER BY recorded_at,rowid').all().map(ledgerEvent);
 }
 export function appendFinancialEvent(db,input) {
   initFinancialLedger(db);
@@ -23,11 +25,12 @@ export function appendFinancialEvent(db,input) {
   if(input.kind==='cash'&&recordId!==accountRef)throw new Error('Cash balance must belong to the same account.');
   let value={};
   if(input.action==='set')value=input.kind==='receipt'?validateFinancialCorrection(input.value):validateCashBalance(input.value);
-  const event={id:input.id||randomUUID(),kind:input.kind,recordId,accountRef,action:input.action,value,at:input.at||new Date().toISOString()};
+  const metadata=financialHistoryMetadata(input);
+  const event={id:input.id||randomUUID(),kind:input.kind,recordId,accountRef,action:input.action,value,at:input.at||new Date().toISOString(),...metadata};
   if(!/^[a-z0-9-]{8,80}$/i.test(event.id)||!Number.isFinite(Date.parse(event.at))||Date.parse(event.at)>Date.now()+300000)throw new Error('Invalid financial history identity/date.');
   const existing=db.prepare('SELECT * FROM financial_events WHERE event_id=?').get(event.id);
-  if(existing){const same={id:existing.event_id,kind:existing.kind,recordId:existing.record_id,accountRef:existing.account_ref,action:existing.action,value:JSON.parse(existing.value_json),at:existing.recorded_at};if(JSON.stringify(same)!==JSON.stringify(event))throw new Error('Conflicting event with the same identity. History is preserved.');return same;}
-  db.prepare('INSERT INTO financial_events VALUES(?,?,?,?,?,?,?)').run(event.id,event.kind,event.recordId,event.accountRef,event.action,JSON.stringify(event.value),event.at);
+  if(existing){const same=ledgerEvent(existing);if(JSON.stringify(same)!==JSON.stringify(event))throw new Error('Conflicting event with the same identity. History is preserved.');return same;}
+  db.prepare('INSERT INTO financial_events VALUES(?,?,?,?,?,?,?)').run(event.id,event.kind,event.recordId,event.accountRef,event.action,JSON.stringify({...event.value,...metadata}),event.at);
   return event;
 }
 export const validateCashBalance=validateCashEntry;

@@ -21,7 +21,8 @@ export function validateFinancialCorrection(value) {
   const itemized=Object.values(breakdown).reduce((n,v)=>n+v,0);
   if(itemized>total+.011)throw new Error('The breakdown exceeds the total savings.');
   if(Object.keys(breakdown).length&&Math.abs(itemized-total)>.011)throw new Error('The itemized breakdown must equal the total. Leave it blank if unavailable.');
-  return {total,breakdown,...(value.outOfPocket!=null?{outOfPocket:moneyAmount(value.outOfPocket)}:{}),source:'manually_reported_from_uber',note:String(value.note||'').slice(0,500)};
+  if(value.reviewedReceiptRevision!=null&&!/^[a-f0-9]{64}$/.test(value.reviewedReceiptRevision))throw Error('Invalid receipt review revision.');
+  return {total,breakdown,...(value.outOfPocket!=null?{outOfPocket:moneyAmount(value.outOfPocket)}:{}),...(value.reviewedReceiptRevision?{reviewedReceiptRevision:value.reviewedReceiptRevision}:{}),source:'manually_reported_from_uber',note:String(value.note||'').slice(0,500)};
 }
 
 export function validateCashEntry(value={}) {
@@ -45,23 +46,24 @@ export function receiptFinancials(receipt={},correction=receipt.financialCorrect
   const cash=observed(receipt.uberCashUsed),paid=observed(receipt.total);
   const explicitPayment=observed(metadata.outOfPocket);
   const outOfPocket=explicitPayment??(paid!=null&&cash!=null&&paid>=cash?rounded(paid-cash):null);
-  const result={total:stated?total:null,categories,source:stated?'email_reported':'incomplete',incomplete:!stated,conflict,cashUsed:cash??0,outOfPocket};
+  const needsAdjustmentReview=Boolean(receipt.financialReview?.reasons?.length&&receipt.financialReview?.revision);
+  const result={total:stated?total:null,categories,source:stated?'email_reported':'incomplete',incomplete:!stated,needsAdjustmentReview,conflict,cashUsed:cash??0,outOfPocket};
   if(!correction)return result;
   const manual=validateFinancialCorrection(correction);
-  return {...result,total:manual.total,categories:Object.keys(manual.breakdown).length?{...Object.fromEntries(financialCategories.map(k=>[k,0])),...manual.breakdown}:{...Object.fromEntries(financialCategories.map(k=>[k,0])),other:manual.total},source:manual.source,outOfPocket:manual.outOfPocket??result.outOfPocket,incomplete:false,conflict:stated&&Math.abs(total-manual.total)>.011,emailTotal:result.total,manualUpdatedAt:correction.at||null};
+  return {...result,total:manual.total,categories:Object.keys(manual.breakdown).length?{...Object.fromEntries(financialCategories.map(k=>[k,0])),...manual.breakdown}:{...Object.fromEntries(financialCategories.map(k=>[k,0])),other:manual.total},source:manual.source,outOfPocket:manual.outOfPocket??result.outOfPocket,incomplete:false,needsAdjustmentReview:needsAdjustmentReview&&(manual.reviewedReceiptRevision!==receipt.financialReview.revision||manual.outOfPocket==null),conflict:stated&&Math.abs(total-manual.total)>.011,emailTotal:result.total,manualUpdatedAt:correction.at||null};
 }
 
 export function financialSummary(receipts=[],corrections={}) {
   const categories=Object.fromEntries(financialCategories.map(k=>[k,0]));
-  let total=0,missing=0,conflicting=0,cashUsed=0,outOfPocket=0,paymentKnown=0,manual=0;
+  let total=0,missing=0,missingSavings=0,adjustmentsNeedingReview=0,conflicting=0,cashUsed=0,outOfPocket=0,paymentKnown=0,manual=0;
   const seen=new Set();
   for(const receipt of receipts){const id=receipt.receiptId||receipt.id;if(!id||seen.has(id))continue;seen.add(id);
-    const f=receiptFinancials(receipt,corrections[id]);total+=f.total??0;missing+=f.incomplete?1:0;conflicting+=f.conflict?1:0;cashUsed+=f.cashUsed;
+    const f=receiptFinancials(receipt,corrections[id]);total+=f.total??0;missing+=f.incomplete||f.needsAdjustmentReview?1:0;missingSavings+=f.incomplete?1:0;adjustmentsNeedingReview+=f.needsAdjustmentReview?1:0;conflicting+=f.conflict?1:0;cashUsed+=f.cashUsed;
     if(f.outOfPocket!=null){outOfPocket+=f.outOfPocket;paymentKnown++;}if(f.source==='manually_reported_from_uber')manual++;
     for(const k of financialCategories)categories[k]+=f.categories[k];
   }
   for(const k of financialCategories)categories[k]=rounded(categories[k]);
-  return {total:rounded(total),categories,missing,conflicting,cashUsed:rounded(cashUsed),outOfPocket:rounded(outOfPocket),paymentKnown,receipts:seen.size,manual};
+  return {total:rounded(total),categories,missing,missingSavings,adjustmentsNeedingReview,conflicting,cashUsed:rounded(cashUsed),outOfPocket:rounded(outOfPocket),paymentKnown,receipts:seen.size,manual};
 }
 
 // Events are append-only. Undo removes the correction, never the email evidence.
@@ -72,7 +74,31 @@ export function currentFinancialEvents(events=[]) {
   const seen=new Set();
   for(const event of ordered){if(seen.has(event.id))continue;seen.add(event.id);
     const target=event.kind==='receipt'?corrections:wallets;
-    if(event.action==='undo')delete target[event.recordId];else target[event.recordId]={...event.value,at:event.at,eventId:event.id};
+    if(event.action==='undo')delete target[event.recordId];else target[event.recordId]={...event.value,at:event.historyValueAt||event.at,eventId:event.id};
   }
   return {corrections,wallets};
+}
+
+// Compensating events retain the audit trail. A new edit clears redo for that
+// record only; navigating, importing and reloading retain its undo history.
+export function financialEditHistory(events=[],kind,recordId) {
+  const undo=[],redo=[],seen=new Set();let value=null,valueAt=null;
+  for(const event of [...events].sort((a,b)=>String(a.at).localeCompare(String(b.at)))) {
+    if(event.kind!==kind||event.recordId!==recordId||seen.has(event.id))continue;
+    seen.add(event.id);
+    const after=event.action==='undo'?null:event.value;
+    const afterAt=after===null?null:event.historyValueAt||event.at;
+    if(event.historyAction==='undo'&&undo.at(-1)?.event.id===event.historyTargetId)redo.push(undo.pop());
+    else if(event.historyAction==='redo'&&redo.at(-1)?.event.id===event.historyTargetId)undo.push(redo.pop());
+    else {undo.push({event,before:value,beforeAt:valueAt,after,afterAt});redo.length=0;}
+    value=after;valueAt=afterAt;
+  }
+  return {undo:undo.at(-1)||null,redo:redo.at(-1)||null};
+}
+
+export function financialHistoryMetadata(event) {
+  if(event.historyAction==null&&event.historyTargetId==null&&event.historyValueAt==null)return {};
+  if(!['undo','redo'].includes(event.historyAction)||!/^[a-z0-9-]{8,80}$/i.test(event.historyTargetId||''))throw Error('Invalid financial undo/redo history.');
+  if(event.historyValueAt!=null&&(!Number.isFinite(Date.parse(event.historyValueAt))||Date.parse(event.historyValueAt)>Date.parse(event.at)))throw Error('Invalid restored financial evidence date.');
+  return {historyAction:event.historyAction,historyTargetId:event.historyTargetId,...(event.historyValueAt?{historyValueAt:event.historyValueAt}:{})};
 }
