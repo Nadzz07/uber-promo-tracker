@@ -1461,11 +1461,12 @@ body::before, body::after { display: none; }
 .receipt-final-summary strong { display:block; font-size:30px; line-height:1.4; margin-top:12px; letter-spacing:-.03em; }
 .receipt-final-summary small { display:block; font-size:12px; color:var(--muted); line-height:1.6; margin-top:8px; }
 .receipt-savings-card .finance-breakdown { margin-top:14px; background:var(--glass-soft); border:1px solid var(--line); border-radius:16px; }
-.receipt-savings-card .finance-breakdown > summary { font-size:14px; }
-.receipt-savings-card .finance-breakdown-row { grid-template-columns:minmax(0,1fr) 115px; gap:12px; padding:10px 0; border-bottom:1px solid var(--line-soft); }
-.receipt-savings-card .finance-breakdown-row label { font-size:14px; margin:0; }
-.receipt-savings-card .finance-breakdown-row input { text-align:right; min-height:44px; padding:8px 10px; font-size:16px; border-radius:12px; }
-.receipt-savings-card .finance-breakdown-row label small { font-size:11px; line-height:1.6; }
+.finance-receipt-panel .finance-breakdown > summary { font-size:14px; }
+.finance-receipt-panel .finance-breakdown-row { grid-template-columns:minmax(0,1fr) 115px; gap:12px; padding:10px 0; border-bottom:1px solid var(--line-soft); }
+.finance-receipt-panel .finance-breakdown-row label { font-size:14px; margin:0; }
+.finance-receipt-panel .finance-breakdown-row input { text-align:right; min-height:44px; padding:8px 10px; font-size:16px; border-radius:12px; }
+.finance-receipt-panel .finance-breakdown-row label small { font-size:11px; line-height:1.6; }
+.finance-receipt-panel[data-receipt-layout="refunded"] .finance-breakdown { margin:0; border:1px solid var(--line); border-radius:20px; background:var(--surface-gradient); }
 #financeRefundEvidence .sheet-row, .receipt-payment-card .sheet-row { padding:10px 0; margin:0; }
 #financeRefundEvidence .sheet-row-title, .receipt-payment-card .sheet-row-title { font-size:14px; }
 #financeRefundEvidence .sheet-row-value, .receipt-payment-card .sheet-row-value { font-size:16px; }
@@ -1485,7 +1486,7 @@ body::before, body::after { display: none; }
  .receipt-summary-columns { grid-template-columns:1fr; gap:14px; }
  .receipt-final-summary { border-left:0; padding-left:0; border-top:1px solid var(--line-soft); padding-top:12px; }
  .receipt-final-summary strong { margin-top:5px; }
- .receipt-savings-card .finance-breakdown-row { grid-template-columns:minmax(0,1fr) 95px; }
+ .finance-receipt-panel .finance-breakdown-row { grid-template-columns:minmax(0,1fr) 95px; }
 }
 .sheet-body:has(.finance-receipt-panel[open]) > .finance-hero,
 .sheet-body:has(.finance-receipt-panel[open]) > .savings-metrics { display:none; }

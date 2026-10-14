@@ -127,6 +127,9 @@ export function financeInterface({host,onUpdate=()=>{},accountLabel=ref=>ref,acc
   host.querySelector('#financeRideRefund').textContent=rideRefund==null?'Final amount from the receipt.':'After '+money(Math.abs(rideRefund))+' refund';
   if(ride)savings.parentElement.insertBefore(savings,host.querySelector('.receipt-note-card'));
   else savings.parentElement.insertBefore(savings,refundPanel);
+  const breakdown=host.querySelector('.finance-breakdown');
+  if(refund&&!ride)savings.parentElement.insertBefore(breakdown,refundPanel);
+  else savings.append(breakdown);
   host.querySelector('.receipt-final-summary').hidden=ride||!refund;
   if(!ride&&!refund)host.querySelector('.receipt-selected-card').insertAdjacentHTML('beforeend','<div class="receipt-selected-total">'+row('Receipt total',r.total==null?'Not shown':money(r.total))+'</div>');
 
