@@ -1535,6 +1535,9 @@ body::before, body::after { display: none; }
 .receipt-selected-total .sheet-row { margin:0; padding:0; }
 .receipt-selected-total .sheet-row-title { font-size:13px; }
 .receipt-selected-total .sheet-row-value { font-size:17px; }
+.finance-select-field { position:relative; }
+.finance-select-field select { appearance:none; -webkit-appearance:none; min-height:48px; padding:12px 36px 12px 12px; line-height:1.4; background:var(--surface-inset); }
+.finance-select-field::after { content:'⌄'; position:absolute; right:14px; top:13px; color:var(--muted); pointer-events:none; }
 #view-planner input[type="number"], [data-finance-form] input[type="number"] { appearance:textfield; -moz-appearance:textfield; }
 #view-planner input[type="number"]::-webkit-inner-spin-button,
 #view-planner input[type="number"]::-webkit-outer-spin-button,
