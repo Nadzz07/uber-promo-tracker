@@ -1,3 +1,4 @@
+import {openHomeDetail} from './test-browser-navigation.js';
 // Synthetic performance regressions; no owner account or Mail data is loaded.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
@@ -48,9 +49,9 @@ try {
  await page.locator('[data-view="accounts"]').click();assert.equal(await page.locator('#accountsList .account-card').count(),1);
  await page.locator('#accountSearch').fill('not-found');assert.equal(await page.locator('#accountsList .account-card').count(),0);
  await page.locator('#accountSearch').fill('');assert.equal(await page.locator('#accountsList .account-card').count(),1);
- await page.locator('[data-view="home"]').click();await page.locator('#basketInput').fill('40');await page.clock.fastForward(200);
+ await page.locator('[data-view="home"]').click();await openHomeDetail(page,'planner');await page.locator('#basketInput').fill('40');await page.clock.fastForward(200);
  assert.equal(await page.evaluate(()=>window.__runtime.model()[0].bestNow.calculation.saving),10,'Basket changes recompute offer savings');
- await page.locator('[data-account-offers="A901"]').first().click();await page.locator('[data-use-one="perf-offer"]').click();
+ if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('[data-account-offers="A901"]:visible').first().click();await page.locator('[data-use-one="perf-offer"]').click();
  assert.equal(await page.evaluate(()=>window.__runtime.model()[0].promos[0].usesRemaining),4,'Manual actions invalidate offer projections');await page.keyboard.press('Escape');
  await page.clock.fastForward(2*86400000+60000);await page.waitForFunction(()=>document.getElementById('activeStat').textContent==='0');
  assert.equal(await page.locator('#activeStat').innerText(),'0','Deadline invalidates cached availability without a Mail import');

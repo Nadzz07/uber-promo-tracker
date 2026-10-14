@@ -1,3 +1,4 @@
+import {openHomeDetail} from './test-browser-navigation.js';
 // Rendered regressions for narrow checkout cards and an uninitialised vault.
 import fs from 'node:fs';import assert from 'node:assert/strict';import http from 'node:http';import{once}from'node:events';import{execFileSync}from'node:child_process';import{chromium,webkit,firefox}from'playwright';
 execFileSync(process.execPath,['build-site.js']);
@@ -10,7 +11,7 @@ const name=process.env.TRACKER_BROWSER_ENGINE||'chromium',browser=await{chromium
   const page=await browser.newPage({viewport:{width,height:900},timezoneId:'Europe/London',reducedMotion:'reduce'}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
   await page.evaluate(a=>localStorage.setItem('uber-eats-promo-tracker:device-accounts:v1',JSON.stringify(Object.fromEntries(a.map((x,i)=>[x.accountRef,{accountMasked:x.accountMasked,email:'very-long-private-login-for-layout-testing-0'+(i+1)+'@example.invalid'}])))),accounts);await page.reload();await page.waitForFunction(()=>document.getElementById('recommendation').textContent.includes('Save £12'));
   assert.ok(await page.locator('.total-saved-card').evaluate(card=>{const a=card.querySelector('strong').getBoundingClientRect(),b=card.querySelector('.saved-support').getBoundingClientRect();return a.right<=b.left||a.bottom<=b.top||b.bottom<=a.top;}),'Large savings overlaps support text');
-  await page.locator('#recommendation details > summary').click();
+  await openHomeDetail(page,'planner');await page.locator('#recommendation details > summary').click();
   const geometry=await page.locator('.checkout-row').evaluateAll(rows=>rows.map(r=>{const b=r.querySelector('.plan-body').getBoundingClientRect(),account=r.querySelector('.plan-account');return{width:b.width,height:b.height,emailHeight:account.getBoundingClientRect().height,email:account.textContent};}));
   assert.ok(geometry.length);for(const r of geometry){assert.ok(r.width>120,'Checkout text collapsed at '+width+': '+JSON.stringify(r));assert.ok(r.height<220,'Checkout row is unreasonably tall');assert.ok(r.email.includes('very-long-private-login'),'Full private label must remain available in account details');assert.ok(r.emailHeight<48,'Email wraps one character per line');}
   assert.ok(await page.locator('.account-card, .quick-card, .hero-card, .more-card').evaluateAll(cards=>cards.every(c=>getComputedStyle(c).backdropFilter==='none')),'Ordinary content must not stack backdrop blurs');

@@ -92,3 +92,5 @@ exclude:
   - test-mobile-finance-browser.js
   - receipt-review-evidence.js
   - test-refund-review.js
+  - test-home-finance-browser.js
+  - test-browser-navigation.js

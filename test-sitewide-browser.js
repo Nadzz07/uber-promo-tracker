@@ -1,3 +1,4 @@
+import {openHomeDetail} from './test-browser-navigation.js';
 // Verify decision boundaries and local privacy through the refined sheets.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
@@ -24,7 +25,7 @@ try{
   const page=await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
   const saved=await page.locator('#savedStat').innerText();
-  await page.locator('[data-open-sheet="advanced"]').click();
+  await openHomeDetail(page,'planner');await page.locator('[data-open-sheet="advanced"]').click();
   assert.equal(await page.locator('#sheetFeeInput').inputValue(),'','Unknown fees stay blank');
   await page.locator('#sheetFeeInput').fill('0');
   let settings=await page.evaluate(()=>Object.keys(localStorage).filter(k=>k.includes('planner')).map(k=>JSON.parse(localStorage.getItem(k))).find(v=>'feeTouched' in v));
@@ -46,7 +47,7 @@ try{
   await page.locator('#deviceAccountsFile').setInputFiles(file);await page.locator('[data-apply-device-import]').click();
   assert.match(await page.locator('#deviceImportStatus').innerText(),/8 emails imported/);assert.equal(requests.length,0,'Review and apply stay entirely local');
   assert.equal(await page.evaluate(()=>Object.keys(JSON.parse(localStorage.getItem('uber-eats-promo-tracker:device-accounts:v1'))).length),8,'Apply includes entries beyond the visible preview');
-  await page.keyboard.press('Escape');await page.locator('[data-view="accounts"]').click();await page.locator('#accountsList [data-account-offers="A001"]').click();
+  await page.keyboard.press('Escape');await page.locator('[data-view="accounts"]').click();if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('#accountsList [data-account-offers="A001"]').click();
   await page.locator('[data-toggle-ignore][data-ignore="true"]').click();await page.locator('[data-cancel-offer-action]').click();
   assert.equal(await page.locator('[data-toggle-ignore][data-ignore="false"]').count(),0,'Cancel must not ignore');
   await page.locator('[data-toggle-ignore][data-ignore="true"]').click();await page.locator('[data-confirm-offer-action]').click();

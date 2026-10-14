@@ -1,3 +1,4 @@
+import {openHomeDetail} from './test-browser-navigation.js';
 import fs from 'node:fs';import assert from 'node:assert/strict';import http from 'node:http';import {once} from 'node:events';import {execFileSync} from 'node:child_process';import {chromium,webkit,firefox} from 'playwright';
 execFileSync(process.execPath,['build-site.js']);
 const files=new Set(fs.readdirSync('dist')),server=http.createServer((req,res)=>{const file=new URL(req.url,'http://localhost').pathname.slice(1)||'index.html';if(!files.has(file)){res.writeHead(404).end();return;}res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.json')?'application/json':file.endsWith('.css')?'text/css':'text/html');res.end(fs.readFileSync('dist/'+file));});
@@ -16,9 +17,9 @@ try{
  const page=await browser.newPage({viewport:{width:390,height:844},timezoneId:'America/Los_Angeles'});const errors=[];page.on('pageerror',error=>errors.push(error.message));
  await page.route('**/promos.json?*',r=>r.fulfill({json:{accounts,promos:offers,generatedAt:time,sync:{lastSuccessfulMailScanAt:time},summary:{totalSaved:12}}}));await page.route('**/history.json?*',r=>r.fulfill({json:{updatedAt:time,records:offers}}));
  await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
- assert.deepEqual(await page.locator('.home-overview .stats-row .stat-label').allTextContents(),['Total Accounts','Available Offers','Accessible','Archived']);
+ assert.deepEqual(await page.locator('.home-overview .stats-row .stat-label').allTextContents(),['Total accounts','Accounts available','Can log in','Archived']);
  for(const [id,count] of [['usableStat',8],['activeStat',3],['loginStat',5],['archivedStat',2]])assert.equal(await page.locator('#'+id).innerText(),String(count));
- const firstCard=page.locator('#homeAccounts [data-card-account="A901"]');
+ await openHomeDetail(page,'offers');const firstCard=page.locator('#homeAccounts [data-card-account="A901"]');
  assert.match(await firstCard.locator('.account-offer').innerText(),/£12 off on 5 orders/);
  assert.match(await firstCard.locator('.pill-row').innerText(),/0\/5 confirmed · up to 5 left/);
  assert.ok(!(await firstCard.locator('.pill-row').innerText()).includes('2 of 2'),'Uses must belong to the displayed offer');
