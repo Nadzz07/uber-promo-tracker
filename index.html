@@ -4699,6 +4699,7 @@
         selectedAccountRef = useThisAccount.dataset.useThisAccount;
         currentOfferScope = "ready";
         currentIntent = "best";
+        document.getElementById('homeOfferSearch').value = '';
         document.querySelectorAll("[data-intent]").forEach(item => {
           item.classList.toggle("active", item.dataset.intent === "best");
         });
