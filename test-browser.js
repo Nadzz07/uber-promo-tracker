@@ -110,12 +110,13 @@ try {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Overflow at ${width}px`);
     const brand = await page.locator('.brand-title').evaluate(el => ({
       text: el.textContent.trim(),
-      whiteSpace: getComputedStyle(el).whiteSpace,
+      height: el.getBoundingClientRect().height,
+      fontSize: parseFloat(getComputedStyle(el).fontSize),
       scrollWidth: el.scrollWidth,
       clientWidth: el.clientWidth
     }));
     assert.equal(brand.text, 'Promo Tracker', `Header should use the compact product title at ${width}px`);
-    assert.equal(brand.whiteSpace, 'nowrap', `Product title should stay on one line at ${width}px`);
+    assert.ok(brand.height <= brand.fontSize * 1.5, `Default product title stays compact at ${width}px; enlarged text can wrap`);
     assert.ok(brand.scrollWidth <= brand.clientWidth + 1, `Product title should fit without clipping at ${width}px`);
     const header = await page.evaluate(() => {
       const title = document.querySelector('.brand-title'), stamp = document.getElementById('scanTime');
