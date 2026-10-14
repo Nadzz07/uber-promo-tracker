@@ -7,6 +7,18 @@ export async function openHomeDetail(page,name) {
 }
 
 export async function leaveReceiptEditor(page) {
- const back=page.locator('[data-finance-action="receipt-overview"]');
+ const back=page.locator('[data-finance-action="receipt-overview"]:visible').first();
  if(await back.isVisible()) await back.click();
+}
+
+export async function openReceiptPayments(page) {
+ const panel=page.locator('.receipt-payment-card');
+ if(await panel.count()&&await panel.getAttribute('open')===null)await panel.locator('summary').click();
+}
+
+export async function openFinanceHistory(page) {
+ const panel=page.locator('[data-finance-panel="history"]');
+ if(await panel.getAttribute('open')===null)await panel.locator('summary').first().click();
+ const more=page.locator('[data-finance-action="history-more"]');
+ if(await more.isVisible())await more.click();
 }

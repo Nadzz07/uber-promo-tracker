@@ -1,4 +1,4 @@
-import {openHomeDetail,leaveReceiptEditor} from './test-browser-navigation.js';
+import {openHomeDetail,leaveReceiptEditor,openReceiptPayments,openFinanceHistory} from './test-browser-navigation.js';
 // Computed mobile sizes and real encrypted form flows; fixtures stay off disk.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
@@ -39,7 +39,7 @@ try{for(const width of [320,390,430,844,1024]){
  await page.locator('[data-finance-import]').setInputFiles({name:'finance.local.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(transfer))});await page.locator('#financeReceipt option').first().waitFor({state:'attached'});
  await page.locator('[data-finance-panel="receipt"] > summary').click();await page.locator('[data-finance-action="change-receipt"]').click();await page.locator('#financeReceipt').selectOption('rcp_adjusted');await fields(page);assert.equal(await page.locator('#financePaid').getAttribute('required'),'','Final payment required for refund review');await page.locator('#financeMissingOnly').check();assert.equal(await page.locator('#financeReceipt option').count(),2,'Known savings with an adjustment stay in Missing details');await page.locator('#financeMissingOnly').uncheck();
  await page.locator('[data-finance-disclosure="breakdown"] > summary').click();assert.equal(await page.locator('#finance-ridePromotions').isVisible(),false,'Only the receipt service is shown first');
- await page.locator('#financeTotal').fill('16.21');await page.locator('#financePaid').fill('0');await page.locator('#finance-eatsPromotions').fill('12');await page.locator('#finance-explicitUberOne').fill('4.21');
+ await page.locator('#financeTotal').fill('16.21');await openReceiptPayments(page);await page.locator('#financePaid').fill('0');await page.locator('#finance-eatsPromotions').fill('12');await page.locator('#finance-explicitUberOne').fill('4.21');
  assert.equal(await page.locator('[data-finance-breakdown-total]').innerText(),'£16.21');assert.equal(await page.locator('[data-finance-breakdown-check]').innerText(),'Matches total savings.');
  // Searching must retain the form, focus, draft and open sections when the
  // selected receipt still matches; it must not rebuild the sheet while typing.
@@ -60,7 +60,7 @@ try{for(const width of [320,390,430,844,1024]){
  await page.locator('[data-finance-action="redo-receipt"]').click();await page.waitForFunction(()=>document.querySelector('#financeTotal')?.value==='16.21');assert.equal((await decrypt()).events.at(-1).historyAction,'redo');
  // Cash and original data survive a receipt-only reset; cancel is harmless.
  await leaveReceiptEditor(page);await page.locator('[data-finance-panel="cash"] > summary').click();await page.locator('#financeBalance').fill('12');await page.locator('[data-finance-form="cash"] button[type="submit"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="cash"]')?.dataset.state==='saved');
- await page.locator('[data-finance-panel="history"] > summary').click();
+ await openFinanceHistory(page);
  assert.equal(await page.locator('[data-finance-action="reset-receipts"]').count(),1);
  assert.equal(await page.locator('[data-finance-panel="history"] .sheet-row').count(),4,'Saved history remains visible');
  const retained=await decrypt();assert.equal(retained.events.length,4);assert.deepEqual(retained.receipts,transfer.receipts);assert.deepEqual(retained.accounts,transfer.accounts);assert.equal(retained.events[0].value.total,16.21);assert.equal(retained.events[3].value.balance,12);assert.match(await page.locator('.savings-hero-value').innerText(),/41.10/);assert.equal(await page.locator('#savedStat').innerText(),'£24.89','Viewing private history cannot change published Mac totals');
@@ -70,7 +70,7 @@ try{for(const width of [320,390,430,844,1024]){
  await page.keyboard.press('Escape');await page.locator('[data-view="accounts"]').click();await page.locator('#accountsList [data-finance-account="A001"]').first().click();await page.locator('#financeReceipt').waitFor({state:'attached'});assert.equal(await page.locator('#financeReceipt option').count(),2,'Account Missing details includes both refunded/adjusted receipts');assert.match(await page.locator('#financeReceiptEvidence').innerText(),/needs checking/);
  // Saving from Missing details can move the row out of the filtered list.
  // Undo/Redo must still address that saved receipt, not the next auto-selected row.
- await page.locator('#financeTotal').fill('12');await page.locator('#financePaid').fill('0');await page.locator('[data-finance-form="receipt"] button[type="submit"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="receipt"]')?.dataset.state==='saved');assert.equal(await page.locator('#financeReceipt option').count(),1);assert.equal(await page.locator('[data-finance-action="undo-receipt"]').isEnabled(),true);
+ await page.locator('#financeTotal').fill('12');await openReceiptPayments(page);await page.locator('#financePaid').fill('0');await page.locator('[data-finance-form="receipt"] button[type="submit"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="receipt"]')?.dataset.state==='saved');assert.equal(await page.locator('#financeReceipt option').count(),1);assert.equal(await page.locator('[data-finance-action="undo-receipt"]').isEnabled(),true);
  await page.locator('[data-finance-action="undo-receipt"]').click();await page.waitForFunction(()=>document.querySelector('#financeReceipt')?.value==='rcp_adjusted');assert.equal(await page.locator('#financeReceipt option').count(),2);
  await page.locator('[data-finance-action="redo-receipt"]').click();await page.waitForFunction(()=>document.querySelector('#financeReceipt')?.value==='rcp_charged');assert.equal((await decrypt()).events.at(-1).recordId,'rcp_adjusted');assert.equal((await decrypt()).events.at(-1).historyAction,'redo');
  await fields(page);assert.deepEqual(errors,[]);assert.deepEqual(writes,[]);

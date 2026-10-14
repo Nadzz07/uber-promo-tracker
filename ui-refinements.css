@@ -1219,19 +1219,19 @@ body::before, body::after { display: none; }
 #view-home .home-title { font-size:23px; }
 #view-home .stats-row, html[data-layout="desktop"] #view-home .stats-row { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:12px; }
 #view-home .stat-card, html[data-layout="desktop"] #view-home .stat-card {
-  display:grid; grid-template-columns:22px minmax(0,1fr); gap:5px 12px;
-  min-height:110px; padding:14px; align-content:start; align-items:start; border-radius:20px;
+  display:grid; grid-template-columns:24px minmax(0,1fr); gap:4px 15px;
+  min-height:116px; padding:18px 14px 18px 19px; align-content:center; align-items:start; border-radius:15px;
 }
 #view-home .overview-icon { grid-row:1 / 3; color:var(--muted); padding-top:2px; }
-#view-home .overview-icon svg { width:22px; height:22px; }
+#view-home .overview-icon svg { width:24px; height:24px; }
 #view-home .available-stat-card .overview-icon { color:var(--green); }
-#view-home .stat-label, html[data-layout="desktop"] #view-home .stat-label { grid-column:2; font-size:12px; padding:0; line-height:1.4; white-space:normal; min-width:0; }
-#view-home .stat-value, html[data-layout="desktop"] #view-home .stat-value { grid-column:2; margin:0; font-size:29px; line-height:1.2; }
+#view-home .stat-label, html[data-layout="desktop"] #view-home .stat-label { grid-column:2; font-size:13px; font-weight:500; padding:0; line-height:1.4; white-space:normal; min-width:0; }
+#view-home .stat-value, html[data-layout="desktop"] #view-home .stat-value { grid-column:2; margin:0; font-size:32px; line-height:1.15; }
 #view-home .available-stat-card .stat-value { color:var(--green); }
-#view-home .stat-sub { grid-column:1 / -1; margin:0; font-size:11px; line-height:1.5; }
+#view-home .stat-sub { grid-column:2; margin:2px 0 0; font-size:11.5px; line-height:1.4; }
 #view-home .metric-help { inset:0; width:100%; height:100%; min-width:44px; border-radius:inherit; }
-#view-home .metric-help .finance-icon { position:absolute; right:8px; bottom:8px; width:15px; height:15px; }
-#view-home .stat-sub { padding-right:18px; }
+#view-home .metric-help .finance-icon { opacity:0; }
+#view-home .stat-sub { padding-right:0; }
 #view-home #savedStatSub { display:none; }
 #view-home .total-saved-card { grid-template-columns:28px minmax(0,1fr) auto; padding:18px 16px; gap:12px; border-radius:22px; }
 #view-home .total-saved-card > .app-icon-surface { width:28px; height:28px; background:none; border:0; box-shadow:none; }
@@ -1543,3 +1543,255 @@ body::before, body::after { display: none; }
 #view-planner input[type="number"]::-webkit-outer-spin-button,
 [data-finance-form] input[type="number"]::-webkit-inner-spin-button,
 [data-finance-form] input[type="number"]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+
+/* Reference geometry: Home crop 851px; receipt previews 920–922px. */
+body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+@media (max-width:979px) {
+ .app-shell:has(#view-home.active),.app-shell.detail-mode { padding-inline:20px; }
+ #view-home .stats-row { gap:10px; }
+ #view-home .home-title,.home-quick-actions h2 { font-size:25px; font-weight:650; }
+ #view-home .home-action-row { min-height:68px; border-radius:16px; }
+}
+#view-offers .quick-card { min-height:46px; padding:8px; border-radius:12px; grid-template-columns:20px minmax(0,1fr) auto; gap:7px; }
+#view-offers .quick-icon,#view-offers .quick-icon svg { width:20px; height:20px; }
+#view-offers .quick-title { font-size:11px; font-weight:600; }
+#view-offers .quick-count { font-size:11px; }
+#view-offers .quick-grid { gap:8px; }
+#view-offers .best-section { margin-top:22px; border:0; padding-top:0; }
+#view-offers .best-section .section-head { margin-bottom:12px; }
+#view-offers .offer-preview-card { position:relative; display:grid; grid-template-columns:54px minmax(0,1fr); gap:4px 0; padding:12px; border-radius:16px; min-height:136px; }
+.offer-preview-card .account-top { grid-column:1 / -1; display:grid; grid-template-columns:minmax(0,1fr) auto 20px; align-items:center; gap:8px; margin-bottom:4px; }
+.offer-preview-card .account-identity { min-width:0; gap:12px; }
+.offer-preview-card .account-provider { width:36px; height:36px; flex:0 0 36px; border-radius:12px; }
+.offer-preview-card .account-provider svg { width:25px; height:25px; }
+.offer-preview-card .account-identity-copy { min-width:0; }
+.offer-preview-card .account-email { font-size:14px; line-height:1.3; font-weight:600; }
+.offer-preview-card .account-login-route { font-size:11.5px; line-height:1.4; margin-top:3px; }
+.offer-preview-card .account-access-pill { padding:4px 8px; font-size:10.5px; line-height:1.4; }
+.offer-preview-card .account-access-pill.good { color:var(--status-success,#80df8e); border-color:rgba(107,211,128,.2); background:rgba(107,211,128,.07); }
+.offer-preview-open { display:grid; place-items:center; min-height:44px; width:24px; padding:0; color:var(--muted); background:none; border:0; font-size:26px; cursor:pointer; }
+.offer-preview-open::after { content:''; position:absolute; inset:0; border-radius:inherit; }
+.offer-preview-card .account-offer { grid-column:2; margin:0; padding:0; border:0; font-size:21px; line-height:1.25; font-weight:650; }
+.offer-preview-description,.offer-preview-meta,.offer-preview-restriction { grid-column:2; color:var(--muted); font-size:11.5px; line-height:1.4; }
+.offer-preview-meta { display:flex; gap:8px; align-items:center; margin-top:4px; }
+.offer-preview-meta svg { width:15px; height:15px; flex-basis:15px; }
+.offer-preview-meta .pill-row { display:inline; margin:0; }
+.offer-preview-meta .pill { display:inline; min-height:0; padding:0; border:0; background:none; font:inherit; color:inherit; }
+.offer-preview-best { position:absolute; left:10px; top:53px; border:1px solid var(--green); color:var(--green); border-radius:999px; padding:3px 6px; font-size:9px; line-height:1.4; }
+.offer-preview-card .receipt-review-action { grid-column:1 / -1; position:relative; z-index:1; }
+.offer-matching-help { padding:12px; border-radius:16px; }
+.offer-matching-help > summary { font-size:13px; }
+.offer-matching-help .offer-filter-help { margin:12px 0 0; }
+.offer-matching-help .offer-filter-help summary { min-height:32px; }
+
+/* Private editors use the preview's own navigation and measured card rhythm. */
+.sheet[data-finance-layout]:has(.finance-receipt-panel[open],.finance-cash-panel[open]) { width:min(100%,620px); max-height:var(--app-viewport-height,100dvh); border:0; border-radius:0; background:var(--bg); box-shadow:none; }
+.sheet[data-finance-layout]:has(.finance-receipt-panel[open],.finance-cash-panel[open]) .sheet-handle { display:none; }
+.sheet:has(.finance-cash-panel[open]) .sheet-head { position:absolute; inset:8px 20px auto auto; padding:0; min-height:0; border:0; background:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
+.sheet:has(.finance-cash-panel[open]) .sheet-head > :not(.sheet-close) { display:none; }
+.sheet:has(.finance-cash-panel[open]) .sheet-close { min-width:44px; min-height:44px; width:44px; height:44px; border:0; background:none; }
+.sheet-body:has(.finance-cash-panel[open]) > :not(.finance-cash-panel,[data-finance-panel="history"],[data-finance-panel="tools"],.finance-session-help) { display:none; }
+.sheet-body:has(.finance-cash-panel[open]) .finance-cash-panel > summary { display:none; }
+.sheet-body:has(.finance-receipt-panel[open],.finance-cash-panel[open]) { padding:8px 0 max(16px,env(safe-area-inset-bottom)); }
+.sheet-body:has(.finance-receipt-panel[open]) { padding-inline:8.65%; }
+.sheet-body:has(.finance-cash-panel[open]) { padding-inline:6.2%; }
+.sheet-body:has(.finance-receipt-panel[open]) > :not(.finance-receipt-panel) { display:none; }
+.sheet-body:has(.finance-receipt-panel[open],.finance-cash-panel[open]) .disclosure-body { animation:none; }
+.finance-cash-panel[open],.finance-receipt-panel[open] { margin:0!important; padding:0!important; }
+.finance-cash-panel[open] > .disclosure-body,.finance-receipt-panel[open] > .disclosure-body { padding:0; }
+.receipt-editor-back { min-height:36px; margin:0 0 4px; font-size:12px; gap:10px; }
+.receipt-editor-back > span { font-size:24px; }
+.receipt-editor-heading,.cash-editor-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 12px; }
+.receipt-editor-heading h2,.cash-editor-heading h2 { margin:0; font-size:24px; line-height:1.2; letter-spacing:-.025em; font-weight:700; min-width:0; }
+.receipt-editor-heading .receipt-private-lock,.cash-private-lock { display:flex; align-items:center; gap:6px; width:auto; flex:0 0 auto; min-height:32px; padding:0; background:none; border:0; font:inherit; font-size:11px; color:var(--muted); white-space:nowrap; cursor:pointer; }
+.cash-private-lock svg { width:16px; height:16px; flex-basis:16px; }
+.cash-editor-heading { margin-bottom:0; }
+.cash-editor-intro { font-size:11.5px; line-height:1.4; color:var(--muted); margin:-7px 0 4px; }
+[data-finance-form="receipt"],[data-finance-form="cash"] { gap:9px; }
+.finance-editor-card { padding:12px; border-radius:13px; }
+.finance-card-heading { gap:10px; margin-bottom:10px; font-size:14px; line-height:1.4; }
+.finance-card-heading .finance-icon { width:19px; height:19px; flex-basis:19px; }
+.cash-account-card { gap:10px; }
+.cash-account-card > .finance-icon { width:20px; height:20px; flex-basis:20px; }
+.cash-account-card > div { flex:1 1 135px; }
+.cash-account-card strong { font-size:12px; line-height:1.35; margin:2px 0; }
+.cash-account-card span,.cash-account-card small { font-size:10.5px; line-height:1.35; }
+.finance-change-account,.receipt-selected-card .finance-change-account { min-height:32px; font-size:11px; gap:5px; }
+.cash-balance-card .sheet-help,.cash-verification-card .sheet-help { font-size:11px; line-height:1.4; margin:8px 0 0; }
+[data-finance-form="cash"] .finance-amount-field input { min-height:40px; padding:8px 10px; --mobile-field-size:16px; font-size:16px; font-weight:400; }
+.finance-amount-field { border-radius:9px; }
+.finance-amount-field > span { font-size:16px; padding-inline:11px; }
+.finance-select-field select { min-height:40px; padding:8px 30px 8px 10px; }
+.finance-select-field::after { top:8px; right:12px; }
+.cash-fees-card { border-radius:13px; }
+.cash-fees-card > summary { min-height:40px; padding:10px 12px; font-size:12px; }
+.cash-editor-actions { gap:7px; }
+.cash-editor-actions .advanced-btn { min-height:36px; padding:7px 12px; font-size:12px; }
+.cash-editor-actions [data-finance-action="redo-cash"]:disabled { display:none; }
+.cash-private-note { font-size:10px; line-height:1.4; margin:0; }
+.cash-private-note svg { width:13px; height:13px; flex-basis:13px; }
+.sheet-body:has(.finance-cash-panel[open]) > [data-finance-panel="history"],.sheet-body:has(.finance-cash-panel[open]) > .finance-tools { margin-top:12px; border-radius:13px; padding:0; }
+.sheet-body:has(.finance-cash-panel[open]) > [data-finance-panel="history"] > summary,.sheet-body:has(.finance-cash-panel[open]) > .finance-tools > summary { padding:12px; min-height:44px; font-size:14px; }
+.sheet-body:has(.finance-cash-panel[open]) > [data-finance-panel="history"] .disclosure-body { padding:0 12px 6px; }
+.finance-history-row { gap:12px; padding:10px 0; }
+.finance-history-row .sheet-row-title { font-size:12px; line-height:1.35; font-weight:600; }
+.finance-history-row .sheet-row-meta,.finance-history-date { font-size:10.5px; line-height:1.4; }
+.finance-session-help { font-size:10px; line-height:1.4; margin:12px 0 0; }
+.receipt-selected-card { display:grid; grid-template-columns:26px minmax(0,1fr) auto; gap:6px 10px; align-items:center; }
+.receipt-selected-card > .finance-icon { width:24px; height:24px; flex-basis:24px; }
+.receipt-selected-card > div { min-width:0; }
+.receipt-selected-card strong { font-size:13px; line-height:1.35; font-weight:650; }
+.receipt-selected-card small { font-size:10px; line-height:1.35; margin-top:2px; }
+.receipt-selected-total { grid-column:1 / -1; padding-top:8px; margin-top:4px; }
+.receipt-selected-total .sheet-row-title,.receipt-selected-total .sheet-row-value { font-size:12px; }
+.receipt-summary-columns { gap:12px; }
+.receipt-summary-columns label,.receipt-final-summary > span { font-size:12px; gap:8px; margin-bottom:3px; line-height:1.4; }
+.receipt-summary-columns .finance-icon { width:18px; height:18px; flex-basis:18px; }
+.receipt-savings-card .finance-amount-field { padding:0; min-height:34px; border:0; border-radius:0; background:none; }
+.receipt-savings-card .finance-amount-field > span { padding:0; border:0; font-size:26px; color:var(--green); }
+.receipt-savings-card #financeTotal { padding:0 0 0 1px; min-height:34px; --mobile-field-size:27px; font-size:27px; line-height:1.2; color:var(--green); }
+.receipt-savings-card .sheet-help { font-size:10px; line-height:1.35; margin:3px 0 0; }
+.receipt-final-summary { padding-left:12px; }
+.receipt-final-summary strong { margin:3px 0 0; font-size:27px; line-height:1.25; }
+.receipt-final-summary small { font-size:10px; line-height:1.35; margin-top:3px; }
+.finance-receipt-panel .finance-breakdown { border-radius:13px!important; }
+.finance-receipt-panel .finance-breakdown > summary { min-height:36px; padding:10px 12px; font-size:12px; }
+.finance-receipt-panel .finance-breakdown .disclosure-body { padding:0 12px 10px; }
+.finance-receipt-panel .finance-breakdown .sheet-help { font-size:10px; line-height:1.35; margin:6px 0; }
+.finance-receipt-panel .finance-breakdown-row { grid-template-columns:minmax(0,1fr) 110px; gap:8px; padding:5px 0; }
+.finance-receipt-panel .finance-breakdown-row label { font-size:12px; line-height:1.35; }
+.finance-receipt-panel .finance-breakdown-row label small { font-size:9px; line-height:1.3; }
+.finance-receipt-panel .finance-breakdown-row input { min-height:32px; padding:5px 8px; border-radius:8px; font-weight:400; }
+.finance-receipt-panel .finance-breakdown-total { padding-top:8px; font-size:12px; }
+.finance-breakdown-check { font-size:10px; line-height:1.35; margin:5px 0 0; }
+#financeRefundEvidence h3,.receipt-payment-card > h3,.receipt-note-card > label { font-size:13px; line-height:1.35; margin-bottom:8px; gap:10px; }
+#financeRefundEvidence h3 svg,.receipt-payment-card > h3 svg,.receipt-note-card > label svg { width:18px; height:18px; flex-basis:18px; }
+#financeRefundEvidence .sheet-row,.receipt-payment-card .sheet-row { padding:5px 0; }
+#financeRefundEvidence .sheet-row-title,#financeRefundEvidence .sheet-row-value,.receipt-payment-card .sheet-row-title,.receipt-payment-card .sheet-row-value { font-size:12px; line-height:1.4; font-weight:400; }
+#financeRefundEvidence .sheet-row:last-of-type { margin-top:4px; padding-top:8px; }
+#financeRefundEvidence .sheet-help,.receipt-payment-card .sheet-help { font-size:10px; line-height:1.35; margin:5px 0 0; }
+.receipt-payment-card > label { font-size:11px; line-height:1.35; }
+.receipt-payment-card #financePaid { min-height:34px; padding:6px 10px; --mobile-field-size:16px; font-size:16px; font-weight:400; }
+#financeRideHero h3 { font-size:12px; margin:0 0 5px; }
+#financeRideTotal { font-size:34px; line-height:1.1; }
+#financeRideHero .sheet-help { font-size:11px; line-height:1.4; margin:4px 0 0; }
+.receipt-note-card input { min-height:34px; padding:7px 10px; font-weight:400; }
+.receipt-charges-card > summary { min-height:42px; padding:10px 12px; font-size:12px; }
+.receipt-charges-card > summary small { font-size:10px; }
+.receipt-editor-actions { gap:6px; }
+.receipt-editor-actions > button,.receipt-history-actions > button { min-height:36px!important; padding:7px 12px; border-radius:999px; font-size:12px; }
+.receipt-history-actions { gap:6px; }
+.receipt-history-actions:has(button:enabled) { display:grid; }
+.receipt-history-actions:not(:has(button:enabled)) { display:none; }
+.finance-feedback { margin:6px 0 0; padding:8px 10px; font-size:11px; line-height:1.4; }
+@media (max-width:370px) {
+ #view-home .stat-card { grid-template-columns:20px minmax(0,1fr); gap:4px 10px; padding:14px 10px; }
+ #view-home .stat-label { font-size:12px; }
+ #view-home .stat-sub { font-size:11px; }
+ .sheet-body:has(.finance-receipt-panel[open],.finance-cash-panel[open]) { padding-inline:16px; }
+ .receipt-selected-card { grid-template-columns:22px minmax(0,1fr); }
+ .receipt-selected-card .finance-change-account { grid-column:2; justify-content:flex-start; }
+ .receipt-summary-columns { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .receipt-final-summary { border-left:1px solid var(--line-soft); border-top:0; padding:0 0 0 10px; }
+}
+/* Override inherited dashboard row and disclosure sizes inside the editors. */
+[data-finance-form] .receipt-editor-back { min-height:28px; margin:0; }
+.receipt-editor-heading { margin-bottom:0; }
+.sheet[data-finance-layout] .finance-receipt-panel .sheet-row { min-height:0; }
+.sheet[data-finance-layout] .finance-receipt-panel .disclosure-card > summary { min-height:36px; padding:8px 12px; }
+.sheet[data-finance-layout] .finance-receipt-panel .finance-breakdown > summary { gap:10px; font-size:13px; }
+.finance-breakdown > summary > span { display:flex; align-items:baseline; gap:5px; }
+.finance-breakdown > summary small { display:inline; font-size:10px; font-weight:400; }
+.finance-breakdown > summary svg { width:18px; height:18px; flex-basis:18px; }
+.sheet[data-finance-layout] .finance-breakdown > summary::after { display:none; }
+.breakdown-info { display:grid; place-items:center; width:22px; min-height:22px!important; padding:0!important; font-size:11px; border:1px solid var(--muted); border-radius:50%; background:none; color:var(--muted); }
+.sheet[data-finance-layout] .finance-breakdown [data-finance-disclosure="breakdown-other"] { border:0; background:none; margin:0; border-radius:0; }
+.sheet[data-finance-layout] .finance-breakdown [data-finance-disclosure="breakdown-other"] > summary { min-height:28px; padding:5px 0; font-size:11px; }
+.finance-receipt-panel .finance-breakdown-row { margin:0; }
+.finance-breakdown-check[data-state="empty"],.finance-breakdown-check[data-state="match"] { display:none; }
+.receipt-savings-card .finance-breakdown { margin-top:9px; }
+.receipt-account-details { font-size:10px; line-height:1.4; margin-top:2px; }
+.receipt-account-details > summary { list-style:none; cursor:pointer; }
+.receipt-account-details > summary::-webkit-details-marker { display:none; }
+.receipt-account-details > small { font-size:12px; line-height:1.4; overflow-wrap:anywhere; }
+.receipt-selected-actions { display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+.receipt-refund-badge { display:flex; align-items:center; gap:5px; color:var(--green); border-radius:999px; background:rgba(var(--accent-rgb),.12); padding:5px 8px; font-size:10px; line-height:1.4; white-space:nowrap; }
+.receipt-refund-badge svg { width:14px; height:14px; flex-basis:14px; }
+.receipt-review-warning { font-size:10px; line-height:1.35; margin:4px 2px 0; color:var(--muted); }
+.receipt-review-warning summary { cursor:pointer; }
+.receipt-review-warning p { margin:5px 0; }
+.receipt-payment-card { padding:0; }
+.receipt-payment-card > summary { display:flex; align-items:center; gap:10px; min-height:40px; padding:10px 12px; font-size:13px; font-weight:650; cursor:pointer; list-style:none; }
+.receipt-payment-card > summary::-webkit-details-marker { display:none; }
+.receipt-payment-card > summary svg { width:18px; height:18px; flex-basis:18px; }
+.receipt-payment-card > summary::after { content:'›'; margin-left:auto; color:var(--muted); font-size:20px; }
+.receipt-payment-card[open] > summary::after { transform:rotate(90deg); }
+.receipt-payment-body { padding:0 12px 12px; }
+.receipt-payment-body > label { font-size:11px; color:var(--muted); }
+.receipt-paid-total .sheet-row { margin-top:8px; }
+.sheet:has(.finance-receipt-panel[open]) .sheet-head { inset:4px 20px auto auto; }
+#view-planner .hero-card { padding:15px; border-radius:16px; }
+#view-planner .basket-editor { padding-bottom:12px; }
+#view-planner .planner-mode { margin-top:12px; }
+#view-planner .recommendation { padding:15px; border-radius:16px; }
+#view-planner .plan-row { gap:8px; padding:8px 0; }
+#view-planner .plan-account { min-height:24px; font-size:12.5px; line-height:1.4; }
+#view-planner .plan-promo { font-size:11.5px; line-height:1.35; margin-top:1px; }
+#view-planner .plan-subtotal { font-size:11px; line-height:1.35; margin-top:2px; }
+.plan-payment strong { font-size:15px; }
+.plan-payment small { font-size:9.5px; }
+.plan-accounts { margin-top:12px; padding-top:10px; }
+.plan-accounts h4 { margin-bottom:4px; font-size:12px; }
+.plan-costs { gap:8px; margin-top:14px; padding-top:12px; }
+.plan-cost-line { font-size:13px; gap:9px; }
+.planner-other-options { margin-top:8px; padding-top:6px; }
+.planner-other-options > summary { min-height:48px; font-size:14px; gap:10px; }
+.planner-other-options small { font-size:11px; }
+.plan-fee-explanation { margin:12px 0; font-size:11px; line-height:1.4; }
+#view-planner .hero-footer .advanced-btn { min-height:62px; padding:12px 15px; border-radius:16px; }
+.finance-editor-navback { display:none; }
+.sheet[data-finance-layout]:has(.finance-receipt-panel[open],.finance-cash-panel[open]) { height:var(--app-viewport-height,100dvh); }
+.sheet[data-finance-layout]:has(.finance-receipt-panel[open],.finance-cash-panel[open]) .sheet-body { flex:1; scroll-padding-top:12px; }
+.sheet[data-finance-layout]:has(.finance-receipt-panel[open],.finance-cash-panel[open]) .sheet-head { position:static; min-height:40px; padding:0 8.65%; display:flex; align-items:center; justify-content:space-between; background:var(--bg); gap:10px; }
+.sheet[data-finance-layout]:has(.finance-receipt-panel[open],.finance-cash-panel[open]) .sheet-head > :not(.sheet-close,.finance-editor-navback) { display:none; }
+.sheet:has(.finance-receipt-panel[open]) .finance-editor-navback-receipt,
+.sheet:has(.finance-cash-panel[open]):not(:has(.finance-receipt-panel[open])) .finance-editor-navback-cash { display:flex; align-items:center; gap:10px; min-height:40px; color:var(--muted); font:inherit; font-size:12px; background:none; border:0; padding:0; cursor:pointer; }
+.finance-editor-navback > span { font-size:24px; }
+.sheet-body:has(.finance-receipt-panel[open],.finance-cash-panel[open]) .receipt-editor-back { display:none; }
+.sheet-body:has(.finance-receipt-panel[open],.finance-cash-panel[open]) { padding-top:0; }
+.receipt-editor-heading { margin-bottom:0; }
+.receipt-editor-heading h2 { font-size:23px; line-height:1.2; }
+.receipt-editor-heading .receipt-private-lock { min-height:28px; }
+.finance-history-more { display:flex; justify-content:space-between; align-items:center; width:100%; min-height:32px; padding:6px 0; font:inherit; font-size:11px; background:none; border:0; border-top:1px solid var(--line-soft); color:var(--muted); cursor:pointer; }
+.sheet[data-finance-layout]:has(.finance-receipt-panel[open]) .sheet-head > .finance-editor-navback-receipt,
+.sheet[data-finance-layout]:has(.finance-cash-panel[open]):not(:has(.finance-receipt-panel[open])) .sheet-head > .finance-editor-navback-cash { display:flex; align-items:center; gap:10px; min-height:40px; color:var(--muted); font:inherit; font-size:12px; background:none; border:0; padding:0; cursor:pointer; }
+#view-home .stat-sub { font-size:11px; letter-spacing:0; }
+#financeRefundEvidence .sheet-row { padding:1px 0; }
+#financeRefundEvidence .sheet-row:last-of-type { margin-top:3px; padding:5px 0 0; }
+#financeRefundEvidence .sheet-row:last-of-type .sheet-row-value { font-size:16px; font-weight:650; line-height:1.2; }
+#financeRefundEvidence .sheet-row:last-of-type .sheet-row-title { font-weight:650; }
+.receipt-note-card { padding:10px; }
+.receipt-note-card > label { font-size:12px; margin-bottom:5px; }
+.receipt-note-card input { min-height:32px; padding:6px 10px; }
+.finance-feedback[data-state="editing"] { display:none; }
+.sheet[data-finance-layout] .finance-receipt-panel .receipt-charges-card > summary { padding:7px 12px; }
+.sheet[data-finance-layout] .receipt-charges-card summary small { margin-top:1px; font-size:10px; line-height:1.25; }
+.receipt-selected-card .finance-change-account { min-height:20px; line-height:1.4; }
+.receipt-selected-card .finance-change-account span { font-size:18px; line-height:1; }
+.receipt-selected-actions { gap:2px; }
+.receipt-refund-badge { padding:4px 8px; }
+.sheet[data-finance-layout] .cash-fees-card > summary { min-height:42px; padding:10px 12px; font-size:12px; }
+#financeRefundEvidence { padding:10px 12px; }
+#financeRefundEvidence h3 { margin-bottom:6px; }
+#financeRefundEvidence h3 .finance-icon,.receipt-note-card > label .finance-icon { width:18px; height:18px; flex-basis:18px; }
+.receipt-note-card { padding:9px 10px; }
+.receipt-note-card > label { margin-bottom:3px; }
+.finance-receipt-panel[data-receipt-layout="ride"] .receipt-savings-card { padding:10px 12px; }
+.finance-receipt-panel[data-receipt-layout="ride"] .receipt-savings-card .finance-amount-field { min-height:34px; border:1px solid var(--line); border-radius:8px; background:var(--surface-inset); }
+.finance-receipt-panel[data-receipt-layout="ride"] .receipt-savings-card #financeTotal { --mobile-field-size:16px; font-size:16px; font-weight:400; padding:6px 10px; color:var(--text); }
+.finance-receipt-panel[data-receipt-layout="ride"] .receipt-savings-card .finance-amount-field > span { font-size:16px; padding-inline:10px; color:var(--muted); border-right:1px solid var(--line); }
+.finance-receipt-panel[data-receipt-layout="ride"] .receipt-savings-card .finance-breakdown { margin-top:6px; }
+
+.sheet[data-finance-layout] .receipt-payment-body .receipt-charges-card { margin:6px 0 0; border:0; border-top:1px solid var(--line-soft); background:none; border-radius:0; box-shadow:none; }
+.sheet[data-finance-layout] .receipt-payment-body .receipt-charges-card > summary { min-height:28px; padding:5px 0; font-size:11px; }
+.sheet[data-finance-layout] .receipt-payment-body .receipt-charges-card > summary small { display:none; }

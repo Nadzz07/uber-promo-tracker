@@ -1,5 +1,23 @@
 # Evidence-based tracker release
 
+## Reference proportions · 14 October
+
+Home overview labels, amounts and captions share the preview's inset text column.
+At 430px the two-column tiles are approximately 189px wide and 116px high, growing
+naturally for larger text. Offer previews use compact provider, identity, offer
+and expiry/usage rows; archived and pending readiness remain visible. The full
+account view retains every existing action.
+
+Private editors use their own back/title header and the reference content widths,
+smaller card radii and compact optional sections. Cash keeps its independent
+coverage verification, optional recorded fees, blank/zero distinction and history.
+Its history preview contains the latest real events with access to the full list.
+Receipt payment disclosures remember their state for each receipt, reveal required
+fields for native validation and retain all original fields and event meanings.
+Additional savings types remain available through the breakdown information
+control. Imported corrections using those fields reveal them automatically.
+Long private account labels and larger text wrap rather than being clipped.
+
 ## Planner and private receipt refinement · 14 October
 
 Find an offer and Order Planner use a single compact back/title bar, the selected
