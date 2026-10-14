@@ -120,6 +120,7 @@ html[data-layout="desktop"] .basket-editor {
 .basket-value-wrap .basket-currency { font-size: 23px; font-weight: 650; }
 .basket-value-wrap .basket-input,
 html[data-layout="desktop"] .basket-value-wrap .basket-input {
+  --mobile-field-size: 31px;
   font-size: 31px;
   font-weight: 650;
   letter-spacing: -.045em;
@@ -234,7 +235,7 @@ html[data-layout="desktop"] .bottom-nav {
   .hero-card, html[data-layout="desktop"] .hero-card { padding: 16px; }
   .hero-title, html[data-layout="desktop"] .hero-title { font-size: 21px; }
   .basket-editor, html[data-layout="desktop"] .basket-editor { grid-template-columns: minmax(0,1fr) 124px; gap: 8px; padding: 12px; }
-  .basket-value-wrap .basket-input, html[data-layout="desktop"] .basket-value-wrap .basket-input { font-size: 27px; }
+  .basket-value-wrap .basket-input, html[data-layout="desktop"] .basket-value-wrap .basket-input { --mobile-field-size:27px; font-size: 27px; }
   .basket-value-wrap .basket-currency { font-size: 20px; }
   .recommendation-top { gap: 10px; }
   .recommendation-save, html[data-layout="desktop"] .recommendation-save { font-size: 23px; }
@@ -1044,7 +1045,7 @@ body::before, body::after { display: none; }
 .icon-explainer span { margin-top:5px; color:var(--muted); }
 .setting-money { background:var(--surface-inset); border-color:var(--line); border-radius:14px; flex-wrap:wrap; gap:10px; }
 .setting-money > span, .setting-money input { color:var(--text); background:transparent; }
-.setting-money input { min-width:0; flex:1; width:100px; font-size:25px; }
+.setting-money input { --mobile-field-size:25px; min-width:0; flex:1; width:100px; font-size:25px; }
 .setting-money input::placeholder { color:var(--dim); font-size:16px; }
 .max-order-grid { gap:12px; margin-top:18px; }
 .max-order-btn { min-height:72px; border-radius:16px; }
@@ -1182,3 +1183,25 @@ body::before, body::after { display: none; }
 @media (prefers-reduced-motion:reduce) {
   *, *::before, *::after { scroll-behavior:auto !important; }
 }
+
+/* A font floor on actual small/touch screens, including dynamically opened sheets.
+   Larger amount fields retain their size. Do not restrict viewport scaling. */
+@media (max-width:979px), (hover:none) and (pointer:coarse) {
+  input, textarea, select { font-size:max(16px,var(--mobile-field-size,1em)) !important; }
+  .sheet { backdrop-filter:none; -webkit-backdrop-filter:none; }
+}
+.finance-breakdown-row { display:grid; grid-template-columns:minmax(0,1fr) minmax(90px,112px); gap:12px; align-items:center; margin:14px 0; }
+.finance-breakdown-row[hidden] { display:none; }
+.finance-breakdown-row label { margin:0; min-width:0; }
+.finance-breakdown-row label small { display:block; margin-top:4px; font-size:11px; line-height:1.5; color:var(--dim); }
+.finance-breakdown-row input { text-align:right; }
+.finance-breakdown-total { display:flex; justify-content:space-between; gap:12px; border-top:1px solid var(--line); padding-top:14px; font-size:13px; }
+.finance-breakdown-total strong { white-space:nowrap; }
+.finance-breakdown-check { font-size:12px; line-height:1.6; color:var(--muted); }
+.finance-feedback { margin:12px 0 0; padding:12px; border:1px solid var(--line); border-radius:12px; font-size:13px; line-height:1.5; }
+.finance-feedback:empty { display:none; }
+.finance-feedback[data-state="saved"] { border-color:rgba(var(--accent-rgb),.3); color:var(--green); }
+.finance-feedback[data-state="error"] { color:#ffcc80; }
+.finance-history-reset { margin-top:16px; padding-top:16px; border-top:1px solid var(--line); }
+.finance-history-reset .advanced-btn { min-height:44px; }
+.finance-breakdown .disclosure-body, [data-finance-panel] > .disclosure-body { animation:none; }

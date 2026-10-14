@@ -89,3 +89,4 @@ exclude:
   - test-order-dates.js
   - test-compact-browser.js
   - test-sitewide-browser.js
+  - test-mobile-finance-browser.js

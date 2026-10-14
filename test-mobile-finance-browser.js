@@ -1,0 +1,66 @@
+// Computed mobile sizes and real encrypted form flows; fixtures stay off disk.
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import http from 'node:http';
+import {once} from 'node:events';
+import {execFileSync} from 'node:child_process';
+import {chromium,webkit,firefox} from 'playwright';
+execFileSync(process.execPath,['build-site.js']);
+const stamp=new Date().toISOString(),account={accountRef:'A001',accountMasked:'te…01@example.invalid',canLogin:true,orderCount:2,rideCount:1};
+const offer={id:'mobile-offer',...account,service:'Uber Eats',discountType:'fixed',discount:12,minimumSpend:15,uses:5,usesRemaining:4,receiptConfirmedUses:1,usesVerified:true,firstEmailSentAt:stamp,emailSentAt:stamp,expiresAt:new Date(Date.now()+10*86400000).toISOString(),expiryStatus:'exact'};
+const snapshot={accounts:[account],promos:[offer],generatedAt:stamp,sync:{lastSuccessfulMailScanAt:stamp},summary:{totalSaved:24.89,trackedOrders:2,trackedRides:1}};
+const transfer={kind:'uber-tracker-private-finance',schemaVersion:1,accounts:[{accountRef:'A001'}],receipts:[
+ {receiptId:'rcp_adjusted',accountRef:'A001',service:'Uber Eats',merchant:'Adjusted receipt',sentAt:'2025-12-28T03:30:00Z',total:0,financialEvidence:{outOfPocket:0}},
+ {receiptId:'rcp_charged',accountRef:'A001',service:'Uber Eats',sentAt:'2025-12-27T03:30:00Z',promotionDiscount:12,total:5.62,financialEvidence:{outOfPocket:5.62}},
+ {receiptId:'rcp_ride',accountRef:'A001',service:'Uber',sentAt:'2025-12-26T03:30:00Z',reportedSavings:12.89,financialEvidence:{reportedKind:'combined'}}
+],events:[]};
+const files=new Set(fs.readdirSync('dist'));
+const server=http.createServer((req,res)=>{const file=new URL(req.url,'http://localhost').pathname.slice(1)||'index.html';if(!files.has(file)){res.writeHead(404).end();return;}res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.json')?'application/json':file.endsWith('.css')?'text/css':'text/html');res.end(file==='promos.json'?JSON.stringify(snapshot):file==='history.json'?JSON.stringify({updatedAt:stamp,records:[offer]}):fs.readFileSync('dist/'+file));});
+server.listen(0,'127.0.0.1');await once(server,'listening');
+const name=process.env.TRACKER_BROWSER_ENGINE||'chromium',browser=await{chromium,webkit,firefox}[name].launch();
+const url='http://127.0.0.1:'+server.address().port;
+async function fields(page){
+ const sizes=await page.locator('input,textarea,select').evaluateAll(items=>items.map(e=>({id:e.id||e.type,size:parseFloat(getComputedStyle(e).fontSize)})));
+ assert.ok(sizes.length);assert.ok(sizes.every(f=>f.size>=16),'Mobile font floor: '+JSON.stringify(sizes.filter(f=>f.size<16)));
+ assert.ok(!/user-scalable\s*=\s*(?:no|0)|maximum-scale\s*=/i.test(await page.locator('meta[name="viewport"]').getAttribute('content')),'Pinch zoom remains enabled');
+ assert.equal(await page.locator('body').evaluate(e=>getComputedStyle(e).touchAction),'auto');
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'No horizontal overflow');
+}
+try{for(const width of [320,390,430,844,1024]){
+ const context=await browser.newContext({viewport:{width,height:900},hasTouch:true,reducedMotion:'reduce',timezoneId:'Europe/London'}),page=await context.newPage(),errors=[],writes=[];
+ page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.method()!=='GET')writes.push(r.url());});
+ await page.goto(url);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');await fields(page);
+ assert.equal(await page.locator('#basketInput').evaluate(e=>parseFloat(getComputedStyle(e).fontSize)),width<=370?27:31,'Large basket amount keeps its size');
+ await page.locator('[data-open-sheet="advanced"]').click();await fields(page);assert.equal(await page.locator('.setting-money input').first().evaluate(e=>parseFloat(getComputedStyle(e).fontSize)),25,'Sheet amount keeps its larger size');await page.keyboard.press('Escape');
+ await page.locator('[data-view="accounts"]').click();await page.locator('#accountsList [data-account-offers]').first().click();await page.locator('[data-toggle-ignore][data-ignore="true"]').click();await page.locator('#sheetBody').evaluate(e=>{const field=document.createElement('textarea');field.id='futureSheetTextarea';field.className='sheet-input';e.append(field);});await fields(page);await page.keyboard.press('Escape');
+ await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="finance"]').click();await page.locator('#financePassword').waitFor();await fields(page);
+ await page.locator('#financePassword').fill('mobile test passphrase');await page.locator('[data-finance-form="unlock"] button').click();await page.locator('.finance-empty').waitFor();
+ await page.locator('[data-finance-import]').setInputFiles({name:'finance.local.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(transfer))});await page.locator('#financeReceipt option').first().waitFor({state:'attached'});
+ await page.locator('[data-finance-panel="receipt"] > summary').click();await page.locator('#financeReceipt').selectOption('rcp_adjusted');await fields(page);
+ await page.locator('[data-finance-disclosure="breakdown"] > summary').click();assert.equal(await page.locator('#finance-ridePromotions').isVisible(),false,'Only the receipt service is shown first');
+ await page.locator('#financeTotal').fill('16.21');await page.locator('#financePaid').fill('0');await page.locator('#finance-eatsPromotions').fill('12');await page.locator('#finance-explicitUberOne').fill('4.21');
+ assert.equal(await page.locator('[data-finance-breakdown-total]').innerText(),'£16.21');assert.equal(await page.locator('[data-finance-breakdown-check]').innerText(),'Matches total savings.');
+ // Searching must retain the form, focus, draft and open sections when the
+ // selected receipt still matches; it must not rebuild the sheet while typing.
+ await page.locator('#financeSearch').evaluate(e=>window.searchField=e);await page.locator('#financeSearch').fill('Adjusted');
+ assert.ok(await page.locator('#financeSearch').evaluate(e=>e===window.searchField&&e===document.activeElement));assert.equal(await page.locator('#financeTotal').inputValue(),'16.21');await page.locator('#financeSearch').fill('');
+ await page.locator('[data-finance-form="receipt"] button[type="submit"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="receipt"]')?.dataset.state==='saved');
+ assert.equal(await page.locator('[data-finance-disclosure="breakdown"]').getAttribute('open'),'','Saving keeps expanded breakdown');assert.match(await page.locator('[data-finance-feedback="receipt"]').innerText(),/Saved correction.*Adjusted receipt/);
+ assert.ok(await page.locator('[data-finance-feedback="receipt"]').evaluate(e=>{const r=e.getBoundingClientRect(),s=e.closest('.sheet-body').getBoundingClientRect();return r.top>=s.top-1&&r.bottom<=s.bottom+1;}),'Saved confirmation stays in view');
+ const decrypt=()=>page.evaluate(async()=>{const {decryptFinance}=await import('./private-finance-vault.js');return decryptFinance(JSON.parse(localStorage.getItem('uber-tracker-finance-encrypted-v1')),'mobile test passphrase');});
+ const saved=await decrypt();assert.equal(saved.events[0].value.total,16.21);assert.equal(saved.events[0].value.outOfPocket,0);assert.deepEqual(saved.events[0].value.breakdown,{eatsPromotions:12,explicitUberOne:4.21});
+ // A mismatch shows a nearby error and preserves typed values and ciphertext.
+ const ciphertext=await page.evaluate(()=>localStorage.getItem('uber-tracker-finance-encrypted-v1'));
+ await page.locator('#financeTotal').fill('12');await page.locator('[data-finance-form="receipt"] button[type="submit"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="receipt"]')?.dataset.state==='error');
+ assert.match(await page.locator('[data-finance-feedback="receipt"]').innerText(),/exceeds/);assert.equal(await page.locator('#financeTotal').inputValue(),'12');assert.equal(await page.evaluate(()=>localStorage.getItem('uber-tracker-finance-encrypted-v1')),ciphertext);
+ // Cash actions and receipt corrections share history, but original records
+ // and browser account identities are outside the reset's scope.
+ await page.locator('[data-finance-panel="cash"] > summary').click();await page.locator('#financeBalance').fill('12');await page.locator('[data-finance-form="cash"] button[type="submit"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="cash"]')?.dataset.state==='saved');
+ await page.locator('[data-finance-panel="history"] > summary').click();await page.locator('[data-finance-action="reset-history"]').click();await page.locator('[data-finance-action="cancel-reset-history"]').click();assert.equal((await decrypt()).events.length,2,'Cancelling keeps all history');
+ await page.locator('[data-finance-action="reset-history"]').click();await page.locator('[data-finance-action="confirm-reset-history"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="history"]')?.dataset.state==='saved');
+ const reset=await decrypt();assert.equal(reset.events.length,0);assert.deepEqual(reset.receipts,transfer.receipts);assert.deepEqual(reset.accounts,transfer.accounts);assert.equal(await page.locator('[data-finance-action="reset-history"]').isDisabled(),true);assert.match(await page.locator('.savings-hero-value').innerText(),/24.89/);assert.equal(await page.locator('#savedStat').innerText(),'£24.89','Device reset cannot change published Mac totals');
+ assert.equal(await page.locator('#financeBalance').inputValue(),'','A cleared wallet stays unknown');await fields(page);assert.deepEqual(errors,[]);assert.deepEqual(writes,[]);
+ await context.close();
+ }
+ console.log('✓ Mobile/touch fields ≥16px, large amounts preserved, pinch zoom enabled; receipt-style breakdown, visible save/error feedback, draft/search/scroll preservation and encrypted device-only reset ('+name+')');
+}finally{await browser.close();server.close();}
