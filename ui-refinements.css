@@ -1202,6 +1202,4 @@ body::before, body::after { display: none; }
 .finance-feedback:empty { display:none; }
 .finance-feedback[data-state="saved"] { border-color:rgba(var(--accent-rgb),.3); color:var(--green); }
 .finance-feedback[data-state="error"] { color:#ffcc80; }
-.finance-history-reset { margin-top:16px; padding-top:16px; border-top:1px solid var(--line); }
-.finance-history-reset .advanced-btn { min-height:44px; }
 .finance-breakdown .disclosure-body, [data-finance-panel] > .disclosure-body { animation:none; }

@@ -53,14 +53,14 @@ try{for(const width of [320,390,430,844,1024]){
  const ciphertext=await page.evaluate(()=>localStorage.getItem('uber-tracker-finance-encrypted-v1'));
  await page.locator('#financeTotal').fill('12');await page.locator('[data-finance-form="receipt"] button[type="submit"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="receipt"]')?.dataset.state==='error');
  assert.match(await page.locator('[data-finance-feedback="receipt"]').innerText(),/exceeds/);assert.equal(await page.locator('#financeTotal').inputValue(),'12');assert.equal(await page.evaluate(()=>localStorage.getItem('uber-tracker-finance-encrypted-v1')),ciphertext);
- // Cash actions and receipt corrections share history, but original records
- // and browser account identities are outside the reset's scope.
+ // Viewing history preserves saved corrections and balances without a bulk reset.
  await page.locator('[data-finance-panel="cash"] > summary').click();await page.locator('#financeBalance').fill('12');await page.locator('[data-finance-form="cash"] button[type="submit"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="cash"]')?.dataset.state==='saved');
- await page.locator('[data-finance-panel="history"] > summary').click();await page.locator('[data-finance-action="reset-history"]').click();await page.locator('[data-finance-action="cancel-reset-history"]').click();assert.equal((await decrypt()).events.length,2,'Cancelling keeps all history');
- await page.locator('[data-finance-action="reset-history"]').click();await page.locator('[data-finance-action="confirm-reset-history"]').click();await page.waitForFunction(()=>document.querySelector('[data-finance-feedback="history"]')?.dataset.state==='saved');
- const reset=await decrypt();assert.equal(reset.events.length,0);assert.deepEqual(reset.receipts,transfer.receipts);assert.deepEqual(reset.accounts,transfer.accounts);assert.equal(await page.locator('[data-finance-action="reset-history"]').isDisabled(),true);assert.match(await page.locator('.savings-hero-value').innerText(),/24.89/);assert.equal(await page.locator('#savedStat').innerText(),'£24.89','Device reset cannot change published Mac totals');
- assert.equal(await page.locator('#financeBalance').inputValue(),'','A cleared wallet stays unknown');await fields(page);assert.deepEqual(errors,[]);assert.deepEqual(writes,[]);
+ await page.locator('[data-finance-panel="history"] > summary').click();
+ assert.equal(await page.locator('[data-finance-action*="reset-history"]').count(),0,'No bulk history reset controls');
+ assert.equal(await page.locator('[data-finance-panel="history"] .sheet-row').count(),2,'Saved history remains visible');
+ const retained=await decrypt();assert.equal(retained.events.length,2);assert.deepEqual(retained.receipts,transfer.receipts);assert.deepEqual(retained.accounts,transfer.accounts);assert.equal(retained.events[0].value.total,16.21);assert.equal(retained.events[1].value.balance,12);assert.match(await page.locator('.savings-hero-value').innerText(),/41.10/);assert.equal(await page.locator('#savedStat').innerText(),'£24.89','Viewing private history cannot change published Mac totals');
+ assert.equal(await page.locator('#financeBalance').inputValue(),'12');await fields(page);assert.deepEqual(errors,[]);assert.deepEqual(writes,[]);
  await context.close();
  }
- console.log('✓ Mobile/touch fields ≥16px, large amounts preserved, pinch zoom enabled; receipt-style breakdown, visible save/error feedback, draft/search/scroll preservation and encrypted device-only reset ('+name+')');
+ console.log('✓ Mobile/touch fields ≥16px, large amounts preserved, pinch zoom enabled; receipt-style breakdown, visible save/error feedback, draft/search/scroll preservation and preserved encrypted history ('+name+')');
 }finally{await browser.close();server.close();}
