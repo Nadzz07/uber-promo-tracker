@@ -1545,7 +1545,6 @@ body::before, body::after { display: none; }
 [data-finance-form] input[type="number"]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
 
 /* Reference geometry: Home crop 851px; receipt previews 920–922px. */
-body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 @media (max-width:979px) {
  .app-shell:has(#view-home.active),.app-shell.detail-mode { padding-inline:20px; }
  #view-home .stats-row { gap:10px; }
@@ -1803,3 +1802,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .sheet[data-finance-layout] .finance-receipt-panel[data-receipt-layout="ride"] .finance-breakdown > summary { position:absolute; top:8px; right:10px; min-height:24px; width:24px; padding:0; }
 .finance-receipt-panel[data-receipt-layout="ride"] .finance-breakdown > summary > svg,.finance-receipt-panel[data-receipt-layout="ride"] .finance-breakdown > summary > span { display:none; }
 .sheet[data-finance-layout] .finance-receipt-panel[data-receipt-layout="ride"] .finance-breakdown .disclosure-body { padding:10px 0 0; }
+@media (max-width:350px) {
+ .topbar { flex-wrap:wrap; row-gap:8px; }
+ .topbar > div:first-child { flex-basis:100%; }
+ .topbar .scan-wrap { margin-left:auto; max-width:100%; }
+}
