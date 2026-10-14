@@ -1,5 +1,35 @@
 # Evidence-based tracker release
 
+## Planner and private receipt refinement · 14 October
+
+Find an offer and Order Planner use a single compact back/title bar, the selected
+theme and the existing detail navigation. Filters, category counts, searches,
+entered basket values and order type retain their existing meanings. Longer
+matching lists remain behind a separate action. Category explanations and
+eligibility guidance are expandable.
+
+Suggested plan compares the existing promo split calculation and same-account
+Cash calculation by estimated payment. A wallet does not override a cheaper
+split; fewer orders only break equal-cost ties. The no-sample default is £1 per
+extra order. Existing learned or explicitly entered estimates, including zero,
+remain supported. Recorded single-order checkout fees are included once; split
+surcharges are estimates and unknown base delivery/service fees are excluded
+and labelled. Conditional Cash coverage is not a verified suggested option.
+Each selected plan exposes its actual account labels, offers, assigned basket
+and estimated payment. Up to three distinct alternatives sit in Other options
+inside the same comparison panel. Unchanged ranking results are cached, with
+basket, settings, source/eligibility, wallet and fee-validity invalidation.
+
+Private receipt correction uses preview-style receipt, savings/final-total,
+refund, payment, optional charges and note cards. Missing receipt lines say Not
+shown. Existing combined Uber One benefits stay in their existing field; no
+split or refund amounts are invented from the mockups. Change receipt retains
+search/filter selection. Save, cancel, Undo/Redo, saved/error feedback, original
+receipt records, financial event meanings, encryption, transfers and the
+15-minute background/reload/manual locks remain intact. The editor's Private
+control can lock immediately. Mobile fields retain the 16px floor and pinch
+zoom remains enabled. Browser emulation is not physical iPhone testing.
+
 ## Approved preview refinement · 13 October
 
 Receipt insights follows the approved Mint Focus layout: a solid accent-tinted

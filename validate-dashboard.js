@@ -23,8 +23,8 @@ assert.ok(html.includes('data-view="accounts"'));
 assert.ok(html.includes('data-view="used"'));
 assert.ok(html.includes('data-view="more"'));
 
-assert.ok(html.includes("Split settings"));
-assert.ok(html.includes("Plan your order"));
+assert.ok(html.includes("Fee settings"));
+assert.ok(html.includes("Suggested plan"));
 assert.ok(html.includes("Tap the amount to edit"));
 assert.ok(html.includes('step="0.01"'));
 assert.ok(html.includes("Extra fee per extra order"));

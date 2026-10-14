@@ -93,4 +93,6 @@ exclude:
   - receipt-review-evidence.js
   - test-refund-review.js
   - test-home-finance-browser.js
+  - test-planner-cost.js
+  - test-planner-refinement-browser.js
   - test-browser-navigation.js

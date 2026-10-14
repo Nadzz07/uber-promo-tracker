@@ -26,13 +26,13 @@ try{
   await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
   const saved=await page.locator('#savedStat').innerText();
   await openHomeDetail(page,'planner');await page.locator('[data-open-sheet="advanced"]').click();
-  assert.equal(await page.locator('#sheetFeeInput').inputValue(),'','Unknown fees stay blank');
+  assert.equal(await page.locator('#sheetFeeInput').inputValue(),'1.00','Default extra-order estimate remains £1');
   await page.locator('#sheetFeeInput').fill('0');
   let settings=await page.evaluate(()=>Object.keys(localStorage).filter(k=>k.includes('planner')).map(k=>JSON.parse(localStorage.getItem(k))).find(v=>'feeTouched' in v));
   assert.equal(settings.feeTouched,true);assert.equal(settings.extraOrderFee,0,'Explicit zero is a known fee');
   await page.locator('#sheetFeeInput').fill('');
   settings=await page.evaluate(()=>Object.keys(localStorage).filter(k=>k.includes('planner')).map(k=>JSON.parse(localStorage.getItem(k))).find(v=>'feeTouched' in v));
-  assert.equal(settings.extraOrderFee,null);assert.equal(settings.feeTouched,false,'Clearing a fee restores unknown');
+  assert.equal(settings.extraOrderFee,null);assert.equal(settings.feeTouched,false,'Clearing a fee restores the default estimate');
   await page.keyboard.press('Escape');await page.locator('[data-view="more"]').click();
   await page.locator('#view-more [data-open-sheet="device"]').click();
   const file={name:'test.local.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({schemaVersion:1,kind:'uber-tracker-device-accounts',accounts:importAccounts.map((a,i)=>({...a,email:'testing-private-0'+(i+1)+'@example.invalid'}))}))};
