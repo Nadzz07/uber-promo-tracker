@@ -1440,7 +1440,7 @@ body::before, body::after { display: none; }
 .receipt-editor-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0 0 16px; }
 .receipt-editor-heading h2 { font-size:26px; letter-spacing:-.03em; margin:0; }
 .receipt-editor-heading > span { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:12px; }
-.receipt-editor-heading .finance-icon { width:18px; height:18px; }
+.receipt-editor-heading .finance-icon { width:18px; height:18px; flex:0 0 18px; }
 [data-finance-form="receipt"] { gap:14px; }
 .receipt-selected-card { display:flex; align-items:center; flex-wrap:wrap; gap:14px; }
 .receipt-selected-card > .finance-icon { width:25px; height:25px; flex:0 0 25px; color:var(--green); }
@@ -1519,3 +1519,23 @@ body::before, body::after { display: none; }
 .app-shell.detail-mode > .privacy .full-privacy { display:none; }
 .app-shell.detail-mode > .privacy .home-privacy { display:block; }
 .receipt-editor-heading .receipt-private-lock { display:flex; align-items:center; gap:8px; min-height:44px; padding:4px 0 4px 8px; background:none; border:0; font:inherit; font-size:12px; color:var(--muted); cursor:pointer; }
+#view-planner .planner-mode select { appearance:none; -webkit-appearance:none; border:1px solid var(--line); border-radius:14px; background:var(--glass-soft); color:var(--text); padding:12px 30px 12px 12px; min-height:48px; line-height:1.4; }
+#view-planner .planner-mode { position:relative; }
+#view-planner .planner-mode::after { content:'⌄'; position:absolute; right:12px; bottom:13px; color:var(--muted); pointer-events:none; }
+.receipt-editor-heading .receipt-private-lock { width:auto; flex:0 0 auto; white-space:nowrap; }
+.receipt-editor-heading h2 { min-width:0; }
+#financeRideHero[hidden],.receipt-final-summary[hidden] { display:none; }
+#financeRideHero h3 { display:flex; align-items:center; gap:10px; margin:0 0 10px; font-size:15px; font-weight:500; }
+#financeRideHero .finance-icon { width:22px; height:22px; }
+#financeRideTotal { display:block; font-size:34px; line-height:1.3; letter-spacing:-.035em; }
+.finance-receipt-panel[data-receipt-layout="ride"] .receipt-summary-columns,
+.finance-receipt-panel[data-receipt-layout="eats"] .receipt-summary-columns { grid-template-columns:1fr; }
+.receipt-selected-total { flex:1 0 100%; border-top:1px solid var(--line-soft); padding-top:10px; }
+.receipt-selected-total .sheet-row { margin:0; padding:0; }
+.receipt-selected-total .sheet-row-title { font-size:13px; }
+.receipt-selected-total .sheet-row-value { font-size:17px; }
+#view-planner input[type="number"], [data-finance-form] input[type="number"] { appearance:textfield; -moz-appearance:textfield; }
+#view-planner input[type="number"]::-webkit-inner-spin-button,
+#view-planner input[type="number"]::-webkit-outer-spin-button,
+[data-finance-form] input[type="number"]::-webkit-inner-spin-button,
+[data-finance-form] input[type="number"]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
