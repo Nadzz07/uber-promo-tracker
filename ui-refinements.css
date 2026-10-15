@@ -1868,7 +1868,7 @@ body::before, body::after { display: none; }
 #view-planner .hero-card { padding:16px; }
 #view-planner .basket-editor-copy strong,#view-planner .planner-mode label { font-size:15px; font-weight:650; }
 #view-planner .basket-value-wrap { flex-basis:148px; border-radius:10px; min-height:42px; }
-#view-planner .basket-value-wrap .basket-input,#view-planner .basket-currency { --mobile-field-size:19px; font-size:19px; }
+#view-planner .basket-value-wrap .basket-input,#view-planner .basket-currency { --mobile-field-size:20px; font-size:20px; }
 #view-planner .planner-mode select { flex-basis:148px; min-height:42px; border-radius:10px; }
 #view-planner .basket-editor { gap:10px; }
 #view-planner .planner-section-head h2 { font-size:23px; font-weight:650; }
