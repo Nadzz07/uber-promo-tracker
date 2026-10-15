@@ -238,7 +238,7 @@ try {
   assert.equal(await page.locator('html').getAttribute('data-layout'), 'mobile', 'Layout override must survive reload');
   await page.locator('[data-view="more"]').click();
   assert.equal(await page.locator('#view-more .screen-title').innerText(), 'More');
-  assert.equal(await page.locator('#view-more .more-group').count(), 3, 'Tools retain grouped destinations');
+  assert.equal(await page.locator('#view-more .more-group').count(), 4, 'Tools retain grouped destinations');
   await page.locator('[data-open-sheet="appearance"]').click();
   await page.locator('[name="layoutPreference"][value="desktop"]').check();
   assert.equal(await page.locator('html').getAttribute('data-layout'), 'desktop');

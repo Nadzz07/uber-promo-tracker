@@ -436,38 +436,44 @@ export function planBasketSplit(
 
 // Compare the existing split calculation with the existing same-account Cash
 // calculation. A saved wallet must never override a cheaper split. Unknown
-// checkout fees remain null; the split surcharge is an estimate, added once.
+// checkout fees remain null. A manual estimate applies to every order; the
+// automatic extra-order estimate remains the fallback. Recorded fees replace
+// estimates, and fees enter the calculation before verified Cash is deducted.
 export function rankBasketPlans(promos = [], subtotal, {
   wallets = {}, accounts = [], fees = {}, fulfilment = 'delivery',
-  maxOrders = 3, extraOrderFee = 1, now = new Date().toISOString()
+  maxOrders = 3, extraOrderFee = 1, orderFeeEstimate = null, now = new Date().toISOString()
 } = {}) {
+  const perOrder = number(orderFeeEstimate);
+  const manualFee = perOrder == null ? null : roundMoney(Math.max(0, perOrder));
   const split = planBasketSplit(promos.filter(p => p.discountType !== 'uberCash' && matchesFulfilment(p, fulfilment)), subtotal, {
-    service: 'Uber Eats', accessibleOnly: true, maxOrders, extraOrderFee
+    service: 'Uber Eats', accessibleOnly: true, maxOrders, extraOrderFee: manualFee == null ? extraOrderFee : 0
   });
   const candidates = [];
   if (split.eligible) {
     for (const plan of [split, ...(split.alternatives || [])].filter(p => p.orderCount > 1)) {
-      candidates.push({...plan, kind: 'split', conditional: false, cashUsed: 0, checkoutFees: null,
+      const estimatedFees = manualFee == null ? plan.extraFees : roundMoney(manualFee * plan.orderCount);
+      candidates.push({...plan, extraFees: estimatedFees, estimatedPay: roundMoney(plan.subtotal-plan.grossSaving+estimatedFees),
+        netSaving: roundMoney(plan.grossSaving-estimatedFees), kind: 'split', conditional: false, cashUsed: 0, checkoutFees: null,
         orders: plan.orders.map((order, i) => {
           const roundedFee = roundMoney(Math.max(0, number(extraOrderFee) || 0));
-          const extraFee = !i ? 0 : i === plan.orders.length - 1
+          const extraFee = manualFee != null ? manualFee : !i ? 0 : i === plan.orders.length - 1
             ? roundMoney(plan.extraFees - roundedFee * (i - 1)) : roundedFee;
           return {...order, cashUsed: 0, checkoutFees: null, extraFee,
             estimatedPay: roundMoney(order.pay + extraFee)};
         })});
     }
   }
-  for (const option of rankCheckoutOptions(promos, subtotal, {wallets, accounts, fees, fulfilment, now})) {
+  for (const option of rankCheckoutOptions(promos, subtotal, {wallets, accounts, fees, fulfilment, now, orderFeeEstimate:manualFee})) {
     candidates.push({eligible: true, kind: option.kind, conditional: option.conditional,
       subtotal: option.basket, grossSaving: option.promotionDiscount,
-      extraFees: 0, checkoutFees: option.fees, cashUsed: option.cashUsed,
+      extraFees: option.estimatedFee, checkoutFees: option.fees, cashUsed: option.cashUsed,
       estimatedPay: option.outOfPocket, orderCount: 1, accountCount: 1,
       netSaving: roundMoney(option.basket - option.outOfPocket),
       orders: [{accountRef: option.accountRef, accountMasked: option.promo?.accountMasked || null,
         promo: option.promo, subtotal: option.basket, saving: option.promotionDiscount,
         pay: roundMoney(option.basket - option.promotionDiscount),
         cashUsed: option.cashUsed, cashRemaining: option.cashRemaining,
-        checkoutFees: option.fees, extraFee: 0, estimatedPay: option.outOfPocket}]
+        checkoutFees: option.fees, extraFee: option.estimatedFee, estimatedPay: option.outOfPocket}]
     });
   }
   // Cost is primary. Fewer orders and conserving Cash break equal-cost ties.
@@ -487,7 +493,7 @@ export function rankBasketPlans(promos = [], subtotal, {
 
 // Cash email grants never supply wallet balances. Only separately verified,
 // same-account wallet records participate in checkout comparisons.
-export function rankCheckoutOptions(promos=[],subtotal,{wallets={},accounts=[],fees={},fulfilment='delivery',now=new Date().toISOString()}={}) {
+export function rankCheckoutOptions(promos=[],subtotal,{wallets={},accounts=[],fees={},fulfilment='delivery',orderFeeEstimate=null,now=new Date().toISOString()}={}) {
   const basket=number(subtotal);if(basket==null||basket<=0||basket>1000)return [];
   const result=[],byAccount=new Map(accounts.filter(a=>a.canLogin===true&&a.archived!==true&&a.accountStatus!=='archived'&&a.accountStatus!=='deactivated').map(a=>[a.accountRef,a]));
   const walletFor=ref=>{const w=wallets[ref],account=byAccount.get(ref);if(!w||!account||!Number.isFinite(Number(w.balance))||Number(w.balance)<0||!Number.isFinite(Date.parse(w.at))||Date.parse(w.at)>Date.parse(now))return null;
@@ -495,7 +501,7 @@ export function rankCheckoutOptions(promos=[],subtotal,{wallets={},accounts=[],f
     if(w.receiptCount!=null && w.receiptCount!==count)return null;
     if([account.lastOrderAt,account.lastRideAt].some(at=>at&&(Date.parse(at)>Date.parse(w.at)||w.receiptCount==null&&/^\d{4}-\d{2}-\d{2}$/.test(at)&&at>=ukDateKey(w.at))))return null;
     return w;};
-  const add=(promo,ref,discount,cashUsed,kind,conditional=false)=>{const w=walletFor(ref),knownFee=number(fees[ref]),fee=knownFee!=null&&knownFee>=0?knownFee:0;const beforeCash=roundMoney(Math.max(0,basket-discount)+fee);const spent=roundMoney(Math.min(cashUsed,beforeCash));result.push({promo,accountRef:ref,basket,promotionDiscount:discount,cashUsed:spent,fees:knownFee!=null?fee:null,outOfPocket:roundMoney(beforeCash-spent),cashRemaining:w?roundMoney(Number(w.balance)-spent):null,kind,conditional,estimated:knownFee==null,expires:promo?.expires||null,restriction:promo?.restrictions||null});};
+  const add=(promo,ref,discount,cashUsed,kind,conditional=false)=>{const w=walletFor(ref),knownFee=number(fees[ref]),estimatedFee=knownFee==null?roundMoney(Math.max(0,number(orderFeeEstimate)||0)):0,fee=knownFee!=null&&knownFee>=0?knownFee:estimatedFee;const beforeCash=roundMoney(Math.max(0,basket-discount)+fee);const spent=roundMoney(Math.min(cashUsed,beforeCash));result.push({promo,accountRef:ref,basket,promotionDiscount:discount,cashUsed:spent,fees:knownFee!=null?fee:null,estimatedFee,outOfPocket:roundMoney(beforeCash-spent),cashRemaining:w?roundMoney(Number(w.balance)-spent):null,kind,conditional,estimated:knownFee==null,expires:promo?.expires||null,restriction:promo?.restrictions||null});};
   for(const item of rankPromosForSpend(promos.filter(p=>p.discountType!=='uberCash'&&matchesFulfilment(p,fulfilment)),basket,{service:'Uber Eats',accessibleOnly:true})) {const p=item.promo,ref=p.accountRef;if(accounts.length&&!byAccount.has(ref))continue;add(p,ref,item.calculation.saving,0,'promo');const w=walletFor(ref);if(w&&Number(w.balance)>0&&w.stacking!=='unsupported')add(p,ref,item.calculation.saving,Number(w.balance),'promo_cash',w.stacking!=='supported');}
   for(const [ref]of byAccount){const w=walletFor(ref);if(w&&Number(w.balance)>0)add(null,ref,0,Number(w.balance),'cash');}
   return result.sort((a,b)=>Number(a.conditional)-Number(b.conditional)||a.outOfPocket-b.outOfPocket||a.cashUsed-b.cashUsed||((a.promo?.discountType==='fixed'&&b.promo?.discountType==='fixed')?Number(a.promo.discount)-Number(b.promo.discount):0)||b.cashRemaining-a.cashRemaining||b.promotionDiscount-a.promotionDiscount||String(a.expires||'9999').localeCompare(String(b.expires||'9999'))||a.accountRef.localeCompare(b.accountRef));

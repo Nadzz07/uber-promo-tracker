@@ -1,3 +1,13 @@
+## Reference layouts, grouped More and per-account fees — 15 October 2026
+
+More now groups its existing eleven destinations into Offers & history, Savings & finances, Accounts & data, and Settings & help. Each group uses one graphite panel with compact keyboard-accessible rows and aligned bare icons. Counts, destinations and private-data boundaries remain intact.
+
+The supplied detail layouts set the heading hierarchy, card proportions and payment arrangement, with extra top clearance for browser glass. Home places the receipt count below Total saved. Normal Eats payments align amounts beside their labels, refunded receipts show charges before payment details, and Ride keeps the final payment beneath its total. All financial fields, receipt evidence, transfers and undo/redo remain available; small screens and larger text scroll naturally.
+
+A manually entered planner fee now applies to every recommended account/order, including the first: £2 means £2/£4/£6 for one/two/three accounts. Account payments and the overall total include each estimate once. Matching recorded checkout fees replace the estimate, and verified Cash is applied after fees. Clearing the manual fee restores the existing automatic extra-order estimate. Cost remains the primary ranking criterion.
+
+Validation covers manual zero/fractional/per-account fees, recorded-fee replacement, Cash coverage, 11 More destinations, keyboard/focus, mobile/desktop/larger text, and existing private-finance and navigation regressions. Screenshots use browser emulation; physical iPhone testing is separate and has not been performed.
+
 # Evidence-based tracker release
 
 ## Reference proportions · 14 October

@@ -2369,8 +2369,8 @@
       <section id="view-home" class="view active">
         <section class="home-overview glass">
           <button class="total-saved-card" data-open-sheet="savings"><span class="app-icon-surface" data-icon="savings"></span>
-            <span><span class="stat-label">Total saved</span><strong id="savedStat">£0</strong><span id="savedStatSub" class="stat-sub">confirmed receipts</span></span>
-            <span class="saved-support"><span id="homeReceiptCount">0 receipts</span><span id="homeUberOne" hidden>Uber One estimate unavailable</span><span class="saved-link">View savings ›</span></span>
+            <span><span class="stat-label">Total saved</span><strong id="savedStat">£0</strong><span id="homeReceiptCount">0 receipts</span><span id="savedStatSub" class="stat-sub" hidden>confirmed receipts</span></span>
+            <span class="saved-support"><span id="homeUberOne" hidden>Uber One estimate unavailable</span><span class="saved-link">View savings ›</span></span>
           </button>
           <div class="home-intro">
             <div class="home-intro-main">
@@ -2418,10 +2418,10 @@
           <section id="homeAnalytics" class="home-analytics" aria-label="Receipt activity and savings"></section>
         </section>
       </section>
-<section id="view-offers" class="view home-detail" aria-labelledby="offersTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span></button><h1 id="offersTitle" tabindex="-1">Find an offer</h1><button class="detail-switch" data-home-detail="planner">Order Planner <span aria-hidden="true">›</span></button></div>        <section class="discovery-column glass offer-browser" aria-labelledby="offersTitle">
+<section id="view-offers" class="view home-detail" aria-labelledby="offersTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span>Home</button><h1 id="offersTitle" tabindex="-1">Find an offer</h1><button class="detail-switch" data-home-detail="planner">Order Planner <span aria-hidden="true">›</span></button></div><p class="offer-scope-summary"><span id="offerScopeSummary"></span><button class="metric-help inline-help" data-metric-help="accounts" data-metric-label="Ready to Use" aria-label="Explain offer readiness">i</button></p>        <section class="discovery-column glass offer-browser" aria-labelledby="offersTitle">
         <div class="search-wrap"><span class="search-icon" data-icon="search" aria-hidden="true"></span><input id="homeOfferSearch" class="search-input" type="search" aria-label="Search offers and accounts" placeholder="Search accounts or offers…" autocomplete="off"></div>
         <div class="offer-controls"><div class="offer-scope-row"><span data-icon="settings" aria-hidden="true"></span><label for="offerScope">Offer access</label><select id="offerScope" class="account-scope" aria-controls="homeAccounts"><option value="ready">Ready to use</option><option value="all">All eligible offers</option><option value="archived">Archived accounts with offers</option><option value="attention">Accounts requiring attention</option></select></div><button class="offer-filter-toggle" aria-controls="offerFilterPanel" aria-expanded="true" data-offer-filters="true"><span data-icon="filter" aria-hidden="true"></span> Filters</button></div>
-        <p class="offer-scope-summary"><span id="offerScopeSummary"></span><button class="metric-help inline-help" data-metric-help="accounts" data-metric-label="Ready to Use" aria-label="Explain offer readiness">i</button></p>
+
         <div id="offerFilterPanel"><div id="quickGrid" class="quick-grid">
           <button class="quick-card active" data-intent="best" aria-pressed="true" aria-controls="homeAccounts">
             <div class="quick-top"><span class="quick-icon" data-icon="star"></span><span id="bestCount" class="quick-count">0</span></div>
@@ -2470,7 +2470,7 @@
         </section>
         </section>
 </section>
-<section id="view-planner" class="view home-detail" aria-labelledby="plannerTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span></button><h1 id="plannerTitle" tabindex="-1">Order Planner</h1><button class="detail-switch" data-home-detail="offers">Find an offer <span aria-hidden="true">›</span></button></div>        <div class="planner-column">
+<section id="view-planner" class="view home-detail" aria-labelledby="plannerTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span>Home</button><h1 id="plannerTitle" tabindex="-1">Order Planner</h1><p class="detail-intro">Spend less on your basket.</p><button class="detail-switch" data-home-detail="offers">Find an offer <span aria-hidden="true">›</span></button></div>        <div class="planner-column">
         <section class="hero-card glass">
           <label class="basket-editor" for="basketInput">
             <span class="basket-editor-copy">
@@ -2612,7 +2612,7 @@
         </details>
       </section>
 
-      <section id="view-more" class="view"><div class="screen-head"><h1 class="screen-title">More</h1><div class="screen-copy">Tools, settings and help.</div></div><div class="tools-intro"><span class="app-icon-surface" data-icon="grid"></span><div><strong>Your tracker tools</strong><p>Everything in one place.</p></div></div><div class="more-grid"><section class="more-group"><h2 class="eyebrow">Savings & finances</h2><div class="more-group-list"><button class="more-card" data-open-sheet="savings"><span class="more-icon" data-icon="savings"></span><span class="more-content"><span class="more-title">Savings</span><span class="more-copy">Receipt savings and breakdowns</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="finance"><span class="more-icon" data-icon="lock"></span><span class="more-content"><span class="more-title">Private finances</span><span class="more-copy">Balances and private corrections</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="receipts"><span class="more-icon" data-icon="insights"></span><span class="more-content"><span class="more-title">Receipt insights</span><span class="more-copy">Monthly savings and recent activity</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section><section class="more-group"><h2 class="eyebrow">Tools</h2><div class="more-group-list"><button class="more-card" data-jump-planner="true"><span class="more-icon" data-icon="bag"></span><span class="more-content"><span class="more-title">Order Planner</span><span class="more-copy">Compare offers for your basket</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="device"><span class="more-icon" data-icon="shield"></span><span class="more-content"><span class="more-title">Private account import</span><span class="more-copy">Full login emails on your device</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="locked"><span class="more-icon" data-icon="history"></span><span class="more-content"><span class="more-title">Archived accounts</span><span class="more-copy" id="lockedCardCopy"></span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="history"><span class="more-icon" data-icon="calendar"></span><span class="more-content"><span class="more-title">Promo history</span><span class="more-copy">Review past offers and their status</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section><section class="more-group"><h2 class="eyebrow">Preferences & support</h2><div class="more-group-list"><button class="more-card" data-open-sheet="appearance"><span class="more-icon" data-icon="settings"></span><span class="more-content"><span class="more-title">Settings</span><span class="more-copy">Layout and your theme colour</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-guide="overview"><span class="more-icon" data-icon="help"></span><span class="more-content"><span class="more-title">Help & Guide</span><span class="more-copy">Understand offers, usage and savings</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="health"><span class="more-icon" data-icon="history"></span><span class="more-content"><span class="more-title">Sync & data</span><span class="more-copy">Scan freshness and receipt coverage</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="about"><span class="more-icon" data-icon="info"></span><span class="more-content"><span class="more-title">About this tracker</span><span class="more-copy">Privacy and how it works</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section></div></section>
+      <section id="view-more" class="view"><div class="screen-head"><h1 class="screen-title">More</h1></div><div class="more-grid"><section class="more-group" aria-labelledby="more-group-0"><h2 id="more-group-0" class="eyebrow">Offers & history</h2><div class="more-group-list"><button class="more-card" data-jump-planner="true"><span class="more-icon" data-icon="bag" aria-hidden="true"></span><span class="more-content"><span class="more-title">Order Planner</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="history"><span class="more-icon" data-icon="calendar" aria-hidden="true"></span><span class="more-content"><span class="more-title">Promo history</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="locked"><span class="more-icon" data-icon="history" aria-hidden="true"></span><span class="more-content"><span class="more-title">Archived accounts</span><span class="more-count" id="lockedCardCopy"></span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section><section class="more-group" aria-labelledby="more-group-1"><h2 id="more-group-1" class="eyebrow">Savings & finances</h2><div class="more-group-list"><button class="more-card" data-open-sheet="savings"><span class="more-icon" data-icon="savings" aria-hidden="true"></span><span class="more-content"><span class="more-title">Savings</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="receipts"><span class="more-icon" data-icon="insights" aria-hidden="true"></span><span class="more-content"><span class="more-title">Receipt insights</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="finance"><span class="more-icon" data-icon="lock" aria-hidden="true"></span><span class="more-content"><span class="more-title">Private finances</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section><section class="more-group" aria-labelledby="more-group-2"><h2 id="more-group-2" class="eyebrow">Accounts & data</h2><div class="more-group-list"><button class="more-card" data-open-sheet="device"><span class="more-icon" data-icon="shield" aria-hidden="true"></span><span class="more-content"><span class="more-title">Private account import</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="health"><span class="more-icon" data-icon="history" aria-hidden="true"></span><span class="more-content"><span class="more-title">Sync & data</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section><section class="more-group" aria-labelledby="more-group-3"><h2 id="more-group-3" class="eyebrow">Settings & help</h2><div class="more-group-list"><button class="more-card" data-open-sheet="appearance"><span class="more-icon" data-icon="settings" aria-hidden="true"></span><span class="more-content"><span class="more-title">Settings</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-guide="overview"><span class="more-icon" data-icon="help" aria-hidden="true"></span><span class="more-content"><span class="more-title">Help & Guide</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="about"><span class="more-icon" data-icon="info" aria-hidden="true"></span><span class="more-content"><span class="more-title">About this tracker</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section></div></section>
       <section id="view-help" class="view" aria-labelledby="guideTitle">
         <button class="advanced-btn" data-guide-back="true">‹ Back to More</button>
         <div class="screen-head"><div class="eyebrow">Help &amp; Guide</div><h1 id="guideTitle" class="screen-title" tabindex="-1">Understand your tracker</h1>
@@ -3294,7 +3294,7 @@
       const fee = effectiveFee();
       document.getElementById("feeNote").textContent =
         hasFeeEstimate()
-          ? money(fee) + " estimated per extra order"
+          ? money(fee) + (plannerSettings.feeTouched ? " estimated per account/order" : " estimated per extra order")
           : "No extra split-fee estimate yet";
     }
 
@@ -3308,7 +3308,7 @@
           '<button class="plan-account" data-account-offers="' + escapeHtml(order.accountRef) + '">' + escapeHtml(accountDisplay(account)) + '</button>' +
           '<div class="plan-promo">' + escapeHtml(order.promo ? offerTitle(order.promo) : 'Verified Uber Cash balance') + '</div>' +
           '<div class="plan-subtotal">Basket ' + escapeHtml(plannerMoney(order.subtotal)) +
-          (order.extraFee > 0 ? ' · extra fee estimate ' + escapeHtml(plannerMoney(order.extraFee)) : '') +
+          (order.extraFee > 0 ? ' · fee estimate ' + escapeHtml(plannerMoney(order.extraFee)) : '') +
           (order.checkoutFees != null ? ' · recorded fees ' + escapeHtml(plannerMoney(order.checkoutFees)) : '') + '</div>' +
           (order.cashRemaining != null ? '<div class="plan-subtotal">Uber Cash used ' + escapeHtml(plannerMoney(order.cashUsed)) + ' · remaining ' + escapeHtml(plannerMoney(order.cashRemaining)) + '</div>' : '') +
           (order.promo?.restrictions?.merchantLimited ? '<div class="plan-subtotal">Selected merchants · check in Uber</div>' : '') +
@@ -3327,11 +3327,11 @@
       const basket = currentBasket();
       const fees = plannerCheckoutFees();
       ensureAccountProjection();
-      const key = JSON.stringify([basket, plannerSettings.fulfilment, plannerSettings.maxOrders, effectiveFee(), projectionClock, fees,
+      const key = JSON.stringify([basket, plannerSettings.fulfilment, plannerSettings.maxOrders, effectiveFee(), plannerSettings.feeTouched, projectionClock, fees,
         Object.values(privateWallets).map(w => Date.parse(w.at) <= Date.now())]);
       if (plannerComparisonCache?.key !== key || plannerComparisonCache.wallets !== privateWallets || plannerComparisonCache.payload !== payload) {
         plannerComparisonCache = {key, wallets:privateWallets, payload, value:rankBasketPlans(decisionPromos(), basket, {wallets:privateWallets, accounts, fees,
-          fulfilment:plannerSettings.fulfilment, maxOrders:plannerSettings.maxOrders, extraOrderFee:effectiveFee()})};
+          fulfilment:plannerSettings.fulfilment, maxOrders:plannerSettings.maxOrders, extraOrderFee:effectiveFee(), orderFeeEstimate:plannerSettings.feeTouched ? effectiveFee() : null})};
       }
       const comparison = plannerComparisonCache.value;
       if (!comparison.suggested) {
@@ -3349,20 +3349,20 @@
         '<div class="plan-status">' + (selected.conditional ? 'Requires Cash verification' : lowest ? 'Lowest estimated cost' : 'Your selected option') + '</div>' +
         '<h3 class="recommendation-title">Use ' + selected.accountCount + (selected.accountCount === 1 ? ' account' : ' accounts') + '</h3>' +
         '<div class="recommendation-copy">' + selected.orderCount + (selected.orderCount === 1 ? ' order' : ' orders') + ' · ' + (plannerSettings.fulfilment === 'pickup' ? 'Pickup' : 'Delivery') + '</div></div>' +
-        '<div class="recommendation-save">' + escapeHtml(plannerMoney(selected.estimatedPay)) + '<small>Estimated total' + (selected.checkoutFees == null ? ' before base fees' : ' with recorded fees') + '</small></div></div>' +
+        '<div class="recommendation-save">' + escapeHtml(plannerMoney(selected.estimatedPay)) + '<small>Estimated total' + (selected.checkoutFees != null ? ' with recorded fees' : plannerSettings.feeTouched ? ' with estimated fees' : ' before base fees') + '</small></div></div>' +
         '<div class="plan-costs">' + line('bag','Basket',escapeHtml(plannerMoney(selected.subtotal))) +
         line('star','Promo discounts','−' + escapeHtml(plannerMoney(selected.grossSaving)), 'discount') +
         (selected.cashUsed > 0 ? line('wallet','Uber Cash used','−' + escapeHtml(plannerMoney(selected.cashUsed))) : '') +
-        line('receipt',selected.checkoutFees != null ? 'Recorded checkout fees' : 'Extra order fee estimate','+' + escapeHtml(plannerMoney(selected.checkoutFees ?? selected.extraFees))) + '</div>' +
+        line('receipt',selected.checkoutFees != null ? 'Recorded checkout fees' : plannerSettings.feeTouched ? 'Order fee estimate' : 'Extra order fee estimate','+' + escapeHtml(plannerMoney(selected.checkoutFees ?? selected.extraFees))) + '</div>' +
         '<div class="plan-accounts"><h4>Accounts to use</h4>' + plannerAccountRows(selected) + '</div>' +
         '<details id="plannerOtherOptions" class="planner-other-options"' + (otherOptionsOpen ? ' open' : '') + '><summary>' + financeIcon('chart') + '<span>Other options<small>Compare alternative plans.</small></span></summary><div class="planner-alternatives">' +
         (alternatives.length ? alternatives.map(plan => '<article class="plan-alternative"><div class="plan-alternative-head"><div><strong>Use ' + plan.accountCount + (plan.accountCount === 1 ? ' account' : ' accounts') + '</strong><small>' + plan.orderCount + (plan.orderCount === 1 ? ' order' : ' orders') + (plan.cashUsed > 0 ? ' · uses verified Cash' : '') + (plan.conditional ? ' · Cash coverage unverified' : '') + '</small></div><strong>' + escapeHtml(plannerMoney(plan.estimatedPay)) + '</strong></div>' +
           '<p>Basket ' + escapeHtml(plannerMoney(plan.subtotal)) + ' − discounts ' + escapeHtml(plannerMoney(plan.grossSaving)) +
           (plan.cashUsed > 0 ? ' − Cash ' + escapeHtml(plannerMoney(plan.cashUsed)) : '') +
-          ' + ' + (plan.checkoutFees != null ? 'recorded fees ' : 'extra fee estimate ') + escapeHtml(plannerMoney(plan.checkoutFees ?? plan.extraFees)) + '</p>' +
+          ' + ' + (plan.checkoutFees != null ? 'recorded fees ' : 'fee estimate ') + escapeHtml(plannerMoney(plan.checkoutFees ?? plan.extraFees)) + '</p>' +
           '<button class="plan-select" data-select-plan="' + escapeHtml(plan.key) + '">View this plan <span aria-hidden="true">›</span></button></article>').join('') : '<p>No other eligible ordering strategy fits this basket.</p>') + '</div></details>' +
         '<p class="plan-fee-explanation">' + financeIcon('info') + '<span>' +
-        (selected.checkoutFees != null ? 'Includes the recorded checkout fees for this basket once. Confirm the final amount in Uber.' : 'Basket minus promo discounts' + (selected.cashUsed > 0 ? ' and verified Uber Cash' : '') + ', plus ' + escapeHtml(plannerMoney(effectiveFee())) + ' estimated per extra order. Base delivery and service fees are not included; confirm them in Uber.') +
+        (selected.checkoutFees != null ? 'Includes the recorded checkout fees for this basket once. Confirm the final amount in Uber.' : 'Basket minus promo discounts' + (selected.cashUsed > 0 ? ' and verified Uber Cash' : '') + ', plus ' + escapeHtml(plannerMoney(effectiveFee())) + (plannerSettings.feeTouched ? ' estimated for each account/order, including the first. This estimates checkout fees; the final delivery and service fees are confirmed in Uber.' : ' estimated per extra order. Base delivery and service fees are not included; confirm them in Uber.')) +
         (selected.conditional ? ' Confirm Cash can cover the remainder after a promo before using this option.' : '') + '</span></p>' +
         '<button class="planner-matching-action" data-planner-matches="true">Find more matching accounts <span aria-hidden="true">›</span></button>' +
         (Object.keys(privateWallets).length ? '<button class="planner-matching-action" data-open-sheet="finance" data-finance-target="cash">Update private Cash balances <span aria-hidden="true">›</span></button>' : '');
@@ -3697,7 +3697,7 @@
       const locked = accounts.filter(accountArchived).length;
       document.getElementById("lockedCardCopy").textContent =
         locked.toLocaleString("en-GB") +
-        (locked === 1 ? " archived account kept for history." : " archived accounts kept for history.");
+        (locked === 1 ? " account" : " accounts");
     }
 
     function renderAppearanceSheet() {
@@ -3987,8 +3987,8 @@
         '<div class="setting-card">' +
           '<div class="setting-card-head">' +
             '<div class="setting-icon">' + financeIcon('wallet') + '</div>' +
-            '<div><div class="setting-title">Extra fee per extra order</div>' +
-            '<div class="setting-copy">What another split order is likely to add in delivery, service or small-order fees.</div></div>' +
+            '<div><div class="setting-title">Estimated fee per account/order</div>' +
+            '<div class="setting-copy">Enter the estimated delivery, service and small-order fees for each account, including the first.</div></div>' +
           '</div>' +
           '<label class="setting-money" for="sheetFeeInput">' +
             '<span>£</span>' +
@@ -3998,7 +3998,7 @@
               ? '<em>Receipt-based estimate ' + escapeHtml(money(learned)) + '</em>'
               : '<em>Default £1 per extra order</em>') +
           '</label>' +
-          '<div class="setting-note">This is an estimate for each additional order, not a confirmed checkout fee. Leave blank to restore the default estimate. Base checkout fees are separate.</div>' +
+          '<div class="setting-note">Your entered amount applies once per account/order: £2 means £2 for one, £4 for two and £6 for three. Matching recorded checkout fees replace this estimate. Leave blank to restore the automatic £1 per extra order estimate (or receipt-based estimate).</div>' +
         '</div>' +
         '<div class="setting-card">' +
           '<div class="setting-card-head">' +

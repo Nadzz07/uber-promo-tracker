@@ -27,7 +27,7 @@ assert.ok(html.includes("Fee settings"));
 assert.ok(html.includes("Suggested plan"));
 assert.ok(html.includes("Tap the amount to edit"));
 assert.ok(html.includes('step="0.01"'));
-assert.ok(html.includes("Extra fee per extra order"));
+assert.ok(html.includes("Estimated fee per account/order"));
 assert.ok(html.includes("Maximum split orders"));
 assert.ok(html.includes("data-max-orders"));
 assert.ok(html.includes("[1,2,3,4].map"));
