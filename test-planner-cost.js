@@ -28,3 +28,24 @@ for(const total of [15,30,45,60])for(const fee of [0,1,3,12]){
  for(const plan of options.plans){assert.equal(plan.orders.reduce((n,o)=>n+o.subtotal,0),total);assert.ok(plan.orders.every(o=>o.accountRef&&o.promo));}
 }
 console.log('✓ Lowest-cost ranking, distinct allocations, £1 default/zero/high fees, rounded account payments, verified/conditional Cash, recorded fees counted once and eligibility');
+
+for (const count of [1,2,3]) {
+ const result=ranked(15*count,{orderFeeEstimate:2,maxOrders:count});
+ assert.equal(result.suggested.orderCount,count);
+ assert.equal(result.suggested.extraFees,2*count,'£2 is charged once per recommended account, including the first');
+ assert.deepEqual(result.suggested.orders.map(o=>o.extraFee),Array(count).fill(2));
+ assert.deepEqual(result.suggested.orders.map(o=>o.estimatedPay),Array(count).fill(5));
+ assert.equal(result.suggested.estimatedPay,5*count);
+}
+for(const total of [15,30,45,60])for(const fee of [0,2,3.33,12,13]) {
+ const result=ranked(total,{orderFeeEstimate:fee,maxOrders:4});
+ const expected=Math.min(...Array.from({length:Math.min(4,total/15)},(_,i)=>total-12*(i+1)+fee*(i+1)));
+ assert.equal(result.suggested.estimatedPay,Math.round(expected*100)/100,'Manual fees participate in cheapest-plan ranking');
+ for(const plan of result.plans)assert.equal(Math.round(plan.orders.reduce((n,o)=>n+o.estimatedPay,0)*100)/100,plan.estimatedPay);
+}
+const manualWallet={A900:{balance:19,stacking:'supported',at:now}};
+r=ranked(30,{wallets:manualWallet,orderFeeEstimate:2,maxOrders:1});
+assert.equal(r.suggested.cashUsed,19);assert.equal(r.suggested.estimatedPay,1,'Cash pays the basket and estimated fees before the remainder is computed');
+r=ranked(30,{wallets:manualWallet,orderFeeEstimate:2,fees:{A900:3},maxOrders:1});
+assert.equal(r.suggested.checkoutFees,3);assert.equal(r.suggested.extraFees,0);assert.equal(r.suggested.estimatedPay,2,'Recorded matching fees replace the manual estimate');
+console.log('✓ Manual per-account fees: £2/£4/£6, zero and fractional fees, cheapest-plan ranking, reconciled payments and Cash, recorded-fee replacement');
