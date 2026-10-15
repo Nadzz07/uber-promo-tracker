@@ -1,11 +1,11 @@
 {
   "schemaVersion": 3,
-  "generatedAt": "2026-10-15T09:41:45.918Z",
+  "generatedAt": "2026-10-15T10:52:42.129Z",
   "source": "apple-mail-sqlite",
   "demo": false,
   "sync": {
     "state": "snapshot",
-    "lastSuccessfulMailScanAt": "2026-10-15T09:40:58.621Z"
+    "lastSuccessfulMailScanAt": "2026-10-15T10:52:19.337Z"
   },
   "receiptActivity": {
     "days": [
