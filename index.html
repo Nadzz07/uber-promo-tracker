@@ -3240,8 +3240,6 @@
     function renderStats() {
       const summary = payload.summary || {};
       const totalAccounts = accounts.length;
-      document.getElementById('accountsTotal').textContent = totalAccounts.toLocaleString('en-GB');
-      document.getElementById('accountsAccessible').textContent = accounts.filter(account => account.canLogin === true).length.toLocaleString('en-GB');
       const eligibility = eligibleAccountCounts(enrichedAccounts());
       const availableAccounts = eligibility.available;
 
@@ -3572,6 +3570,8 @@
       menu.style.maxHeight=Math.max(80,Math.min(340,limit()-trigger.getBoundingClientRect().bottom-12))+'px';
     }
     function renderAccounts() {
+      document.getElementById('accountsTotal').textContent=accounts.length.toLocaleString('en-GB');
+      document.getElementById('accountsAccessible').textContent=accounts.filter(a=>a.canLogin===true).length.toLocaleString('en-GB');
       const search=String(document.getElementById('accountSearch').value||'').trim().toLowerCase();
       const choices=accountTypeChoices();if(!choices.some(c=>c.key===accountTypeFilter))choices.push({key:accountTypeFilter,label:accountTypeLabel(accountTypeFilter)+' · no current offers'});
       document.getElementById('accountTypeValue').textContent=accountTypeLabel(accountTypeFilter);
