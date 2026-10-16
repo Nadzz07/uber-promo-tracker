@@ -3873,7 +3873,7 @@
             (effectiveDiscountPercent(promo, currentBasket()) != null ? '<dt>Calculated</dt><dd>' + effectiveDiscountPercent(promo, currentBasket()) + '% at ' + escapeHtml(money(currentBasket())) + ' before fees</dd>' : '') +
             '<dt>Activation</dt><dd>' + (promo.restrictions?.promoCodeRequired ? 'Apply promo code in Uber' : 'Confirm in Uber') + '</dd>' +
             '<dt>Use count</dt><dd>' + (promo.usesVerified ? total + ' stated in email' : 'Allowance needs checking') + '</dd>' +
-            (promo.restrictions?.fulfilment !== 'unknown' && promo.restrictions?.fulfilment ? '<dt>Order type</dt><dd>' + (promo.restrictions.fulfilment === 'delivery_only' ? 'Delivery · pickup excluded' : 'Pickup only') + '</dd>' : '') +
+            '<dt>Order type</dt><dd>' + (promo.discountType === 'uberCash' ? 'Delivery and Pickup' : promo.restrictions?.fulfilment === 'pickup_only' ? 'Pickup only' : 'Delivery only') + '</dd>' +
             (promo.restrictions?.stacking === 'no_other_promotions' ? '<dt>Combining</dt><dd>No other promotions</dd>' : '') +
             (promo.restrictions?.excludesFees ? '<dt>Minimum excludes</dt><dd>Delivery & other fees</dd>' : '') +
             (promo.restrictions?.excludesAlcoholTobacco ? '<dt>Excluded</dt><dd>Alcohol & tobacco baskets</dd>' : '') +

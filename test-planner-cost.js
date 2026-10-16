@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {rankBasketPlans} from './deal-intelligence.js';
+import {rankBasketPlans,matchesFulfilment} from './deal-intelligence.js';
 const now=new Date().toISOString(),end=new Date(Date.now()+7*86400000).toISOString();
 const accounts=Array.from({length:4},(_,i)=>({accountRef:'A90'+i,canLogin:true,accountStatus:'active'}));
 const offers=accounts.map(a=>({...a,id:'plan-'+a.accountRef,service:'Uber Eats',discountType:'fixed',discount:12,minimumSpend:15,uses:5,usesRemaining:5,expiresAt:end,expiryStatus:'exact',trackingState:'available'}));
@@ -19,7 +19,13 @@ wallets.A900.balance=25;r=ranked(30,{wallets});assert.equal(r.suggested.kind,'pr
 wallets.A900.stacking='unknown';r=ranked(30,{wallets});assert.equal(r.suggested.kind,'cash');assert.equal(r.suggested.estimatedPay,6);assert.equal(r.plans.find(p=>p.kind==='promo_cash').conditional,true,'Unknown coverage cannot be suggested as verified');
 wallets.A900.stacking='supported';r=ranked(30,{wallets,fees:{A900:2}});assert.equal(r.suggested.estimatedPay,0);assert.equal(r.suggested.checkoutFees,2);assert.equal(r.suggested.extraFees,0);assert.equal(r.suggested.cashUsed,20,'Recorded single-order fees included once');
 assert.equal(rankBasketPlans([{...offers[0],discountType:'uberCash'}],30,{accounts,now}).suggested,null,'An email grant supplies no current balance');
-assert.equal(ranked(30,{fulfilment:'pickup'}).suggested.orderCount,2);
+assert.equal(ranked(30,{fulfilment:'pickup'}).suggested,null,'Standard promos default to Delivery only');
+assert.equal(matchesFulfilment({...offers[0],discountType:'uberCash',restrictions:{fulfilment:'delivery_only'}},'pickup'),true,'Cash supports Pickup');
+assert.equal(matchesFulfilment({...offers[0],restrictions:{fulfilment:'pickup_only'}},'delivery'),false,'Explicit source restrictions still apply');
+assert.equal(matchesFulfilment({...offers[0],restrictions:{fulfilment:'pickup_only'}},'pickup'),true);
+const pickup=ranked(30,{fulfilment:'pickup',wallets:{A900:{balance:12,stacking:'supported',at:now}}});
+assert.equal(pickup.suggested.kind,'cash');assert.equal(pickup.suggested.estimatedPay,19);assert.equal(pickup.suggested.grossSaving,0,'Cash on an account cannot enable its Delivery coupon for Pickup');
+assert.ok(pickup.plans.every(p=>p.kind==='cash'));
 assert.equal(rankBasketPlans(offers.map(p=>({...p,restrictions:{fulfilment:'delivery_only'}})),30,{accounts,now,fulfilment:'pickup'}).suggested,null);
 assert.equal(rankBasketPlans(offers.map(p=>({...p,canLogin:false})),30,{accounts:accounts.map(a=>({...a,canLogin:false})),now}).suggested,null);
 for(const total of [15,30,45,60])for(const fee of [0,1,3,12]){

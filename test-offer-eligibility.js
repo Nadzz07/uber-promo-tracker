@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {classifyAccount, eligibleAccountCounts, matchesOfferScope, offerReadinessRank, offerEligible} from './account-state.js';
+import {classifyAccount, eligibleAccountCounts, matchesOfferScope, matchesAccountFilter, offerReadinessRank, offerEligible} from './account-state.js';
 import {applyOfferExpiryPolicy} from './offer-time.js';
 import {normaliseManualStore,setOfferDone,setOfferIgnored,promoForDecision,effectivePromoState} from './manual-state.js';
 const now='2026-10-10T18:00:00Z';
@@ -27,3 +27,13 @@ for(const action of [setOfferDone,setOfferIgnored]){
 }
 assert.equal(classifyAccount(records[0],[old,offer],now).hasEligibleOffers,true,'Another eligible offer survives expiry');
 console.log('✓ Offer eligibility separate from access, archive and receipt usage; deduped account counters, ready-first scopes, expired/reminder/manual/ignored/completed exclusions');
+const exhausted={canLogin:true,orderCount:1,rideCount:1,hasEligibleOffers:false};
+for(const filter of ['all','login'])assert.equal(matchesAccountFilter(exhausted,filter),false,'Used accounts without current offers leave the normal list');
+for(const filter of ['used','used-login'])assert.equal(matchesAccountFilter(exhausted,filter),true,'Explicit used-account history remains available');
+for(const discountType of ['fixed','uberCash','percent']){
+ const used={...exhausted,...classifyAccount(exhausted,[{...offer,discountType}],now)};
+ assert.equal(matchesAccountFilter(used,'all'),true,'A current offer keeps a receipt-used account visible');
+}
+assert.equal(matchesAccountFilter({...exhausted,rideCount:0},'all'),true,'Partial receipt usage is retained');
+assert.equal(matchesAccountFilter({...exhausted,archived:true},'archived'),true,'Archived records are preserved');
+console.log('✓ Hide fully used accounts without an available offer from normal lists; preserve current offers, partial accounts and explicit used/archive history');

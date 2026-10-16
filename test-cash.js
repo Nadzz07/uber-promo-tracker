@@ -94,4 +94,17 @@ test('Cash payment and an advertised amount do not increase confirmed receipt sa
   assert.equal(confirmedReceiptSaving({ uberCashUsed: 12, promotionDiscount: 5, reportedSavings: 5 }), 5);
   assert.equal(confirmedReceiptSaving({ uberCashUsed: 12, uberCashSavings: 3, promotionDiscount: 5, reportedSavings: 8 }), 8);
 });
+test('Cash does not borrow restaurant or membership minimums from a mixed email', () => {
+  for (const body of [
+    'Use your £12 in Uber Cash on Uber Eats. Your gateway to delicious meals. £15 off £25+ orders at Example Kitchen. Terms and conditions apply. Promotional Uber Cash is restricted to first Uber Eats order. Uber Cash is valid for 28 days. Benefits available only with Uber One. Minimum spend £15 for free delivery.',
+    'Use your £12 in Uber Cash on Uber Eats. £15 off £25+ orders at Example Kitchen. Try Uber One. Minimum spend £15.'
+  ]) {
+    const p=parseUberPromoV2({...base,subject:'You have £12 in Uber Cash',body});
+    assert.equal(p.discountType,'uberCash');assert.equal(p.discount,12);assert.equal(p.minimumSpend,0);assert.equal(p.evidence.minimumSpend,null);assert.equal(p.uses,1);
+  }
+});
+test('An actual Cash-specific minimum is preserved rather than globally erased', () => {
+  const p=parseUberPromoV2({...base,subject:'You have £12 in Uber Cash',body:'Use your £12 in Uber Cash on Uber Eats. £15 off £25+ at Example Kitchen. Terms and conditions apply. Promotional Uber Cash offer requires a minimum spend of £10 on your next order.'});
+  assert.equal(p.minimumSpend,10);assert.match(p.evidence.minimumSpend,/minimum spend of £10/);
+});
 console.log(`\n${passed} Cash regression groups passed.`);
