@@ -1,5 +1,8 @@
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const paths = {
+  tag: '<path d="M3 3h9l9 9-9 9-9-9V3Z"/><circle cx="8" cy="8" r="1"/>',
+  layers: '<path d="m12 2 10 6-10 6L2 8l10-6ZM2 12l10 6 10-6M2 16l10 6 10-6"/>',
+  sort: '<path d="M7 3v18m-4-4 4 4 4-4M17 21V3m-4 4 4-4 4 4"/>',
   delivery: '<circle cx="5" cy="18" r="3"/><circle cx="19" cy="18" r="3"/><path d="M5 18 9 9h5l5 9M8 12h7l-2-8h-3M3 9h4M15 4h3"/>',
   bolt: '<path d="m14 2-9 12h6l-1 8 9-12h-6l1-8Z"/>',
   ride: '<path d="m5 8 2-5h10l2 5M3 9h18v9H3V9ZM5 18v3M19 18v3M6 13h2M16 13h2M2 8h3M19 8h3"/>',

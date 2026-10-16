@@ -13,7 +13,7 @@
     "access:import": "node mac/import-account-access.js",
     "build": "node build-site.js",
     "validate": "npm test && node validate-public.js && node validate-syntax.js",
-    "test:browser": "node test-browser.js && node test-nav-gestures.js && node test-completion-browser.js && node test-discovery-browser.js && node test-offer-reference-browser.js && node test-performance-browser.js && node test-guide-browser.js && node test-finance-browser.js && node test-compact-browser.js && node test-sitewide-browser.js && node test-mobile-finance-browser.js && node test-home-finance-browser.js && node test-planner-refinement-browser.js && node test-planner-safe-area-browser.js && node test-more-browser.js",
+    "test:browser": "node test-browser.js && node test-nav-gestures.js && node test-completion-browser.js && node test-discovery-browser.js && node test-offer-reference-browser.js && node test-accounts-reference-browser.js && node test-performance-browser.js && node test-guide-browser.js && node test-finance-browser.js && node test-compact-browser.js && node test-sitewide-browser.js && node test-mobile-finance-browser.js && node test-home-finance-browser.js && node test-planner-refinement-browser.js && node test-planner-safe-area-browser.js && node test-more-browser.js",
     "mbox:import": "node mac/import-mbox.js",
     "accounts:remove-private": "node mac/remove-private-accounts.js",
     "finance:export": "node mac/private-finance.js export",

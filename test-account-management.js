@@ -79,3 +79,15 @@ const db=openPrivateDb(':memory:');try{
  assert.equal(accounts.find(a=>a.loginMethod==='Google').canLogin,true);
 }finally{db.close();}
 console.log('✓ All independent login/usage/archive combinations, original receipt-use rule, expired unfinished offers and reminder clocks');
+
+const {accountOfferKey,accountOfferChoices,accountMatchesOfferType,accountMatchesLogin,accountMatchesProvider}=await import('./account-state.js');
+const directoryOffers=[{discountType:'fixed',discount:12,minimumSpend:15},{discountType:'fixed',discount:12,minimumSpend:25},{discountType:'fixed',discount:12},{discountType:'uberCash',discount:12}];
+assert.equal(accountOfferKey(directoryOffers[2]),'fixed:12:unknown','Missing minimums must not become a zero-spend claim');
+assert.equal(accountOfferChoices([{promos:directoryOffers}]).length,3,'Different and unknown minimums remain distinct');
+assert.equal(accountMatchesOfferType({promos:[directoryOffers[0]]},'cash-promo'),false);
+assert.equal(accountMatchesOfferType({promos:[directoryOffers[0],directoryOffers[3]]},'cash-promo'),true);
+assert.equal(accountMatchesProvider({loginMethod:'Both'},'Google'),true);
+assert.equal(accountMatchesProvider({accountMasked:'a@icloud.com'},'iCloud'),false,'Domains cannot invent a login method');
+assert.equal(accountMatchesLogin({canLogin:false,accountStatus:'active'},'locked'),true);
+assert.equal(accountMatchesLogin({canLogin:true,accountStatus:'archived'},'login'),true);
+console.log('✓ Shared Accounts/finder filters preserve distinct minima, unknown terms, explicit provider membership and independent login/archive access');

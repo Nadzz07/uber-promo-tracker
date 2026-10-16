@@ -22,3 +22,17 @@ export async function openFinanceHistory(page) {
  const more=page.locator('[data-finance-action="history-more"]');
  if(await more.isVisible())await more.click();
 }
+
+export async function directoryStatus(page,value) {
+ const panel=page.locator('#accountSecondaryFilters');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await page.locator('#accountScope').selectOption(value);
+}
+export async function directoryType(page,value) {
+ await page.locator('#accountTypeTrigger').click();await page.locator('[data-offer-type="'+value+'"]').click();
+}
+export async function directoryReset(page) {
+ await page.locator('#accountSearch').fill('');await page.locator('[data-login-filter="all"]').click();await page.locator('#accountProvider').selectOption('all');
+ if(await page.locator('#clearAccountType').isEnabled())await page.locator('#clearAccountType').click();
+ const panel=page.locator('#accountSecondaryFilters');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await page.locator('[data-reset-secondary]').click();
+}
+
+export async function directoryAvailability(page,value) { const panel=page.locator('#accountSecondaryFilters');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await page.locator('#accountOfferScope').selectOption(value); }

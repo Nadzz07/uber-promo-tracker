@@ -102,7 +102,7 @@ assert.equal(
 const actionWiring = [
   ['data-view=', 'setupDraggableNavigation'],
   ['data-intent=', 'closest("[data-intent]")'],
-  ['data-account-filter=', 'closest("[data-account-filter]")'],
+  ['data-login-filter=', "closest('[data-login-filter]')"],
   ['data-open-sheet=', 'closest("[data-open-sheet]")'],
   ['data-account-offers=', 'closest("[data-account-offers]")'],
   ['data-unignore-offer=', 'closest("[data-unignore-offer]")'],

@@ -113,3 +113,29 @@ export function offerReadinessLabel(account) {
   return rank === 0 ? (account.hasEligibleOffers ?? Number(account.activePromoCount) > 0) ? 'Ready to use · accessible' : 'Accessible · active rotation' : rank === 1 ? 'Accessible · archived'
     : rank === 2 ? 'Login access pending verification' : 'Can’t log in' + (accountArchived(account) ? ' · archived' : '');
 }
+
+// The directory and finder filter the same eligible offer projection. Provider
+// membership is explicit metadata; an address domain never determines access.
+export function accountOfferKey(promo = {}) {
+  if (!['fixed', 'percent'].includes(promo.discountType) || !(Number(promo.discount) > 0)) return null;
+  const minimum=Number(promo.minimumSpend), known=promo.minimumSpend!=null&&Number.isFinite(minimum)&&(minimum>0||promo.minimumSpendVerified===true);
+  return [promo.discountType, Number(promo.discount), known?Math.max(0,minimum):'unknown'].join(':');
+}
+export function accountOfferChoices(accounts = []) {
+  const combinations = new Map();
+  for (const account of accounts) for (const promo of account.promos || []) {
+    const key = accountOfferKey(promo);
+    if (key) combinations.set(key, {key, type:promo.discountType, discount:Number(promo.discount), minimum:key.endsWith(':unknown')?null:Math.max(0,Number(promo.minimumSpend))});
+  }
+  return [...combinations.values()].sort((a,b) => (a.minimum??0)-(b.minimum??0) || a.discount-b.discount || a.type.localeCompare(b.type));
+}
+export function accountMatchesOfferType(account, type = 'all') {
+  const offers = account.promos || [], cash = offers.some(p => p.discountType === 'uberCash');
+  return type === 'all' || (type === 'cash' ? cash : type === 'cash-promo' ? cash && offers.some(p => accountOfferKey(p)) : offers.some(p => accountOfferKey(p) === type));
+}
+export function accountMatchesLogin(account, login = 'all') {
+  return login === 'all' || (login === 'login' ? account.canLogin === true && account.accessStatus !== 'pending' : account.canLogin === false);
+}
+export function accountMatchesProvider(account, provider = 'all') {
+  return provider === 'all' || account.loginMethod === provider || (account.loginMethod === 'Both' && ['iCloud','Google'].includes(provider));
+}

@@ -1,3 +1,13 @@
+## Accounts approved directory — 16 October 2026
+
+Accounts replaces its old branding, oversized heading, separate metric cards and competing filter stack with a compact header, one two-column summary, regular-weight search, independent login tabs, provider/sort controls and a data-driven Offer type picker. Management and offer-availability filters share one secondary disclosure, with visible resettable selections. Sorting uses offer readiness/value or the displayed email; no account creation date is invented.
+
+Compact account cards retain explicit login providers, public masking/private identities, separate promo and Cash components, unverified-balance and compatibility guidance, and access to existing account management/details. View offers opens the shared finder with a visible clearable account restriction and applicable offer filters. The general finder action clears stale account restrictions. Returning preserves directory filters, focus and scroll after the dock clearance is measured.
+
+The offer picker starts closed, supports selection/checkmarks, Escape/outside dismissal, keyboard navigation and focus return, and scrolls within the visible viewport above the dock. Unknown minimum-spend terms stay distinct from a verified zero minimum. The current theme and semantic green login status remain separate.
+
+Validation includes the existing regression/privacy/financial suites plus Accounts browser cases for combined filters, clear/reset, explicit multiple-provider metadata, details/finder/Back, long private/public emails, empty results, larger text, narrow/desktop layouts, safe-area simulation and final-action clearance. Captures use the iPhone 16 Pro Max browser profile at 440 CSS pixels and DPR 3, with full-height and Safari-sized viewports. Physical iPhone Safari/Home Screen status-bar and Dynamic Island testing remains unavailable.
+
 ## Reference layouts, grouped More and per-account fees — 15 October 2026
 
 More now groups its existing eleven destinations into Offers & history, Savings & finances, Accounts & data, and Settings & help. Each group uses one graphite panel with compact keyboard-accessible rows and aligned bare icons. Counts, destinations and private-data boundaries remain intact.
