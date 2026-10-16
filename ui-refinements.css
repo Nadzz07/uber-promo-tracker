@@ -2069,7 +2069,8 @@ html[data-layout="mobile"] #view-planner :is(button,input,select,summary) { scro
 #view-offers .offer-scope-row:has(select:focus-visible) { outline:2px solid var(--green); outline-offset:3px; }
 #view-offers .offer-filter-toggle { min-height:54px; padding:10px 12px; gap:10px; border-radius:13px; background:var(--offer-surface); font-size:14px; font-weight:500; }
 #view-offers .offer-filter-toggle svg,#view-offers .offer-scope-row > [data-icon] svg { width:20px; height:20px; }
-#view-offers .quick-grid { grid-template-columns:repeat(auto-fit,minmax(min(100%,max(10.25em,calc((100% - 16px)/3))),1fr)); gap:8px; font-size:12px; }
+#view-offers #offerFilterPanel { container:offer-categories / inline-size; font-size:12px; }
+#view-offers .quick-grid { grid-template-columns:repeat(auto-fit,minmax(min(100%,max(10.25em,calc((100% - 16px)/3))),1fr)); gap:8px; font-size:inherit; }
 #view-offers .quick-card { grid-template-columns:18px minmax(0,1fr) auto; gap:3px; min-height:46px; padding:10px 4px; border-radius:13px; border-color:var(--line); background:var(--offer-surface); box-shadow:none; }
 #view-offers .quick-icon,#view-offers .quick-icon svg { width:18px; height:18px; }
 #view-offers .quick-title { font-size:inherit; font-weight:550; line-height:1.45; overflow-wrap:anywhere; }
@@ -2135,4 +2136,9 @@ html[data-layout="mobile"] #view-offers :is(button,input,select,summary) { scrol
  html[data-layout="desktop"] #view-offers .offer-browser .quick-grid { grid-template-columns:repeat(auto-fit,minmax(min(100%,max(10.25em,calc((100% - 16px)/3))),1fr)); }
  html[data-layout="desktop"] #view-offers .quick-card:last-child { grid-column:auto; }
  html[data-layout="desktop"] #view-offers .detail-view-head { max-width:1000px; }
+}
+/* Wider fallback fonts need more than 128px for Cash + promo. Allocate space
+   to that column; the font-relative query drops back to wrapping with large text. */
+@container offer-categories (min-width:32.5em) {
+ #view-offers .quick-grid,html[data-layout="desktop"] #view-offers .offer-browser .quick-grid { grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr); }
 }
