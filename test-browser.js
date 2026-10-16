@@ -1,4 +1,4 @@
-import {openHomeDetail} from './test-browser-navigation.js';
+import {openHomeDetail,directoryStatus,directoryType,directoryReset} from './test-browser-navigation.js';
 // Synthetic data is intercepted in the test browser only, never written to public JSON.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -55,13 +55,13 @@ try {
   assert.equal(await page.locator('#savedStat').innerText(), '£10');
   assert.match(await page.locator('#savedStatSub').innerText(), /£5 estimated/);
   await page.locator('[data-view="accounts"]').click();
-  await page.locator('#accountScope').selectOption('used');
+  await directoryStatus(page,'used');
   assert.equal(await page.locator('#accountsList .account-card').count(), 1);
   assert.match(await page.locator('#accountsList').innerText(), /us…ed/);
   await page.locator('#accountSearch').fill('missing');
   assert.equal(await page.locator('#accountsList .account-card').count(), 0);
   await page.locator('#accountSearch').fill('');
-  await page.locator('[data-account-filter="all"]').click();
+  await directoryReset(page);
   await page.locator('[data-view="home"]').click();
   for (const hidden of ['lo…ed', 're…ew', 'ex…ed', 'us…ed', 'ba…nt']) assert.equal(recommendation.includes(hidden), false);
   if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('[data-account-offers="A001"]:visible').first().click();
@@ -349,13 +349,13 @@ try {
   await filterPage.locator('[data-jump-accounts][data-target-filter="unfinished"]').click();
   assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts');
   for (const ref of ['A102','A104','A109','A107','A110']) assert.equal(await filterPage.locator('#accountsList [data-card-account="'+ref+'"]').count(), 1, 'The full list retains unused, expired and one-left accounts');
-  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4\/5 confirmed · up to 1 left/);
+  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4\/5 confirmed · 1 remaining/);
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A108"]').count(),0,'Untouched accounts do not count as started promos');
   await filterPage.locator('[data-view="home"]').click();
   await openHomeDetail(filterPage,'offers');await filterPage.locator('[data-intent="cash"]').click();
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A107"]').count(), 1, 'Receipt completion cannot hide a current Cash offer');
   await filterPage.locator('[data-view="accounts"]').click();
-  await filterPage.locator('[data-account-filter="cash"]').click();
+  await directoryType(filterPage,'cash');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A111"]').count(),0,'Past Cash stays in history and does not qualify as a current Cash opportunity');
   await filterPage.locator('[data-view="home"]').click();
   assert.equal(await filterPage.locator('#cashPromoCount').innerText(), '2', 'Cash remains visible on a receipt-complete account; multiple offers count one account');
@@ -366,7 +366,7 @@ try {
   assert.equal(await filterPage.locator('#savedStat').innerText(), '£40');
   assert.match(await filterPage.locator('#recommendation').innerText(), /Promo discounts\s*−£12\.00/, 'Finding both offers must not add £7 cash to £12 discount');
   await filterPage.locator('[data-view="accounts"]').click();
-  await filterPage.locator('[data-account-filter="cash-promo"]').click();
+  await directoryType(filterPage,'cash-promo');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A101"]').count(), 1);
   for (const accountRef of ['A102', 'A103', 'A104', 'A105']) assert.equal(await filterPage.locator(`#accountsList [data-card-account="${accountRef}"]`).count(), 0);
   // A single remaining order is still available, but is no longer a repeat-order option.
@@ -410,8 +410,8 @@ try {
   repeatOffer.expiresAt=new Date(clockNow+2*86400000).toISOString();repeatOffer.expiryStatus='exact';
   await filterPage.clock.install({time:clockNow});
   await filterPage.reload();await filterPage.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Snapshot');
-  await filterPage.locator('[data-view="accounts"]').click();await filterPage.locator('[data-account-filter="expiring"]').click();
-  assert.match(await filterPage.locator('#accountsList [data-card-account="A101"]').innerText(),/2 days left/);
+  await filterPage.locator('[data-view="accounts"]').click();await directoryStatus(filterPage,'expiring');
+  assert.equal(await filterPage.locator('#accountsList [data-card-account="A101"]').count(),1);
   const activeBefore=Number(await filterPage.locator('#activeStat').innerText());
   if(await filterPage.locator("#view-home.active").count())await openHomeDetail(filterPage,'offers');await filterPage.locator('#accountsList [data-account-offers="A101"]').click();
   await filterPage.clock.fastForward(2*86400000+60000);
@@ -421,7 +421,7 @@ try {
   await filterPage.locator('[data-view="home"]').click();
   assert.equal(Number(await filterPage.locator('#activeStat').innerText()),activeBefore-1,'Home availability follows the same current expiry checks');
   await filterPage.locator('[data-view="accounts"]').click();
-  await filterPage.locator('[data-account-filter="all"]').click();if(await filterPage.locator("#view-home.active").count())await openHomeDetail(filterPage,'offers');await filterPage.locator('#accountsList [data-account-offers="A101"]').click();
+  await directoryReset(filterPage);if(await filterPage.locator("#view-home.active").count())await openHomeDetail(filterPage,'offers');await filterPage.locator('#accountsList [data-account-offers="A101"]').click();
   assert.equal(await filterPage.locator('#accountOfferHistory').getAttribute('open'),null,'Past offers stay collapsed by default');
   assert.equal(await filterPage.locator('.offers-section > .offer-card').count(),0,'Expired offers do not appear among current offers');
   await filterPage.locator('#accountOfferHistory > summary').click();assert.ok(await filterPage.locator('.past-offer').count()>0,'Expiry preserves account history');

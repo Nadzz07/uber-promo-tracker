@@ -1118,13 +1118,7 @@ body::before, body::after { display: none; }
 .sheet[data-screen="Receipt insights"] .finance-heading-icon .finance-icon { width:34px; height:34px; }
 .more-icon, .tools-intro > .app-icon-surface, .import-entry-head > .app-icon-surface, .setting-icon, .icon-explainer > .finance-icon { border-radius:50%; }
 .tools-intro > .app-icon-surface { width:42px; height:42px; }
-.accounts-summary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:24px 0 20px; }
-.accounts-stat { position:relative; display:flex; align-items:center; gap:12px; min-width:0; padding:16px; border:1px solid var(--line); border-radius:20px; background:var(--surface-gradient); }
-.accounts-stat .app-icon-surface { flex:0 0 34px; width:34px; height:34px; border-color:rgba(var(--accent-rgb),.28); color:var(--green); background:rgba(var(--accent-rgb),.08); }
-.accounts-stat > div { min-width:0; flex:1; }
-.accounts-stat > div > span { display:block; font-size:11px; line-height:1.5; color:var(--muted); padding-right:12px; }
-.accounts-stat strong { display:block; font-size:26px; margin-top:5px; line-height:1.2; }
-.accounts-stat .metric-help { top:7px; right:7px; }
+
 .account-top { flex-wrap:wrap; align-items:center; gap:12px; }
 .account-top > .account-identity { flex:1 1 190px; }
 .account-access-pill { flex:0 0 auto; }
@@ -2141,4 +2135,124 @@ html[data-layout="mobile"] #view-offers :is(button,input,select,summary) { scrol
    to that column; the font-relative query drops back to wrapping with large text. */
 @container offer-categories (min-width:32.5em) {
  #view-offers .quick-grid,html[data-layout="desktop"] #view-offers .offer-browser .quick-grid { grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr); }
+}
+
+/* Accounts replaces the former heading/metric/filter stack. Its compact
+   directory uses the same eligible offer records as Find an offer. */
+#view-accounts { --directory-surface:linear-gradient(145deg,rgba(255,255,255,.025),transparent),#171b20; --directory-edge:rgba(220,225,235,.16); max-width:1000px; margin-inline:auto; }
+#view-accounts :is(button,input,select,summary) { font:inherit; }
+#view-accounts button { cursor:pointer; }
+#view-accounts :is(button,input,select,summary):focus-visible { outline:2px solid var(--green); outline-offset:3px; }
+#view-accounts .accounts-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:4px 12px; min-height:44px; margin:0 0 16px; }
+#view-accounts .accounts-head h1 { font-size:24px; line-height:1.2; letter-spacing:-.035em; margin:0; }
+#view-accounts .accounts-find { display:flex; align-items:center; gap:8px; min-height:44px; padding:0; border:0; background:none; color:var(--green); font-size:15px; font-weight:500; }
+#view-accounts .accounts-find svg { width:22px; height:22px; }
+#view-accounts .accounts-find > span:last-child { font-size:23px; }
+#view-accounts .accounts-summary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0; margin:0 0 12px; padding:10px 0; border:1px solid var(--directory-edge); border-radius:15px; background:var(--directory-surface); }
+#view-accounts .accounts-stat { position:relative; display:flex; align-items:center; min-width:0; border:0; border-radius:0; background:none; padding:0 16px; gap:12px; box-shadow:none; min-width:0; }
+#view-accounts .accounts-stat + .accounts-stat { border-left:1px solid var(--directory-edge); }
+#view-accounts .accounts-stat > [data-icon] { width:26px; height:26px; flex:0 0 26px; }
+#view-accounts .accounts-stat svg { width:26px; height:26px; }
+#view-accounts .accounts-stat > div { min-width:0; flex:1; }
+#view-accounts .accounts-stat > div > span { display:block; color:var(--muted); font-size:12px; font-weight:400; padding-right:16px; }
+#view-accounts .accounts-stat strong { display:block; margin-top:3px; font-size:24px; line-height:1.2; font-variant-numeric:tabular-nums; }
+#view-accounts .accounts-stat .metric-help { top:0; right:0; width:32px; height:44px; min-width:32px; min-height:44px; opacity:.8; font-size:0; }
+#view-accounts .accounts-login-dot { width:8px; height:8px; flex:0 0 8px; border-radius:50%; background:var(--status-success,#80df8e); }
+#view-accounts .search-wrap { margin:0 0 12px; }
+#view-accounts .search-input { --mobile-field-size:16px; font-size:16px; font-weight:400; min-height:44px; height:44px; padding:10px 14px 10px 44px; line-height:1.4; background:var(--directory-surface); border:1px solid var(--directory-edge); border-radius:14px; box-shadow:none; }
+#view-accounts .search-input::placeholder { font-size:inherit; font-weight:400; color:var(--muted); opacity:1; }
+#view-accounts .search-icon { inset:0 auto 0 14px; width:19px; height:auto; }
+#view-accounts .search-icon svg { width:19px; height:19px; }
+#view-accounts .account-login-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-bottom:12px; }
+#view-accounts .account-login-tabs button { min-height:44px; padding:8px 6px; font-size:14px; line-height:1.3; border:1px solid var(--directory-edge); border-radius:10px; background:var(--directory-surface); color:var(--text); }
+#view-accounts .account-login-tabs button[aria-pressed="true"] { border-color:var(--green); background:linear-gradient(120deg,rgba(var(--accent-rgb),.18),rgba(var(--accent-rgb),.07)),#171b20; box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.32); font-weight:600; }
+#view-accounts .account-control-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,11.5em),1fr)); gap:10px; margin:0 0 14px; }
+#view-accounts .directory-select { position:relative; display:flex; align-items:center; min-height:44px; padding:0 12px; gap:8px; border:1px solid var(--directory-edge); border-radius:10px; background:var(--directory-surface); }
+#view-accounts .directory-select > span:first-child { width:20px; flex:0 0 20px; font-size:20px; }
+#view-accounts .directory-select svg { width:20px; height:20px; }
+#view-accounts .directory-select select { width:100%; min-width:0; min-height:44px; padding:6px 0; border:0; border-radius:0; appearance:none; -webkit-appearance:none; background:none; color:var(--text); font-size:16px; }
+#view-accounts .directory-select > span:last-child { pointer-events:none; }
+#view-accounts .account-picker-label { display:flex; align-items:center; justify-content:space-between; min-height:30px; margin-bottom:3px; color:var(--muted); font-size:13px; }
+#view-accounts #clearAccountType { border:0; padding:4px 0 4px 12px; min-height:30px; color:var(--green); background:none; font-size:13px; }
+#view-accounts #clearAccountType:disabled { color:var(--dim); cursor:default; }
+#view-accounts #accountTypeTrigger { display:flex; align-items:center; gap:14px; width:100%; min-height:44px; padding:10px 14px; border:1px solid var(--directory-edge); border-radius:10px; color:var(--text); background:var(--directory-surface); font-size:15px; text-align:left; }
+#view-accounts #accountTypeTrigger > span:first-child,#view-accounts #accountTypeTrigger svg { width:21px; height:21px; flex:0 0 21px; }
+#view-accounts #accountTypeValue { flex:1; min-width:0; overflow-wrap:anywhere; }
+#view-accounts #accountTypeTrigger[aria-expanded="true"] { border-color:var(--green); box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.4); }
+#view-accounts #accountTypeTrigger[aria-expanded="true"] .account-picker-chevron { transform:rotate(180deg); }
+#view-accounts #accountTypeOptions { margin-top:5px; padding:4px 14px; max-height:min(340px,45dvh); overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--directory-edge); border-radius:11px; background:var(--directory-surface); }
+#view-accounts #accountTypeOptions[hidden] { display:none; }
+#view-accounts #accountTypeOptions button { display:flex; align-items:center; gap:16px; width:100%; padding:10px 2px; min-height:44px; border:0; border-bottom:1px solid var(--directory-edge); border-radius:0; color:var(--text); background:none; font-size:15px; line-height:1.4; text-align:left; }
+#view-accounts #accountTypeOptions button:last-child { border-bottom:0; }
+#view-accounts #accountTypeOptions svg { flex:0 0 23px; width:23px; height:23px; }
+#view-accounts #accountTypeOptions button > span:first-of-type { flex:1; min-width:0; }
+#view-accounts #accountTypeOptions button > span:last-child { font-size:22px; color:var(--green); }
+#view-accounts #accountTypeOptions button:focus-visible { outline-offset:-2px; border-radius:5px; }
+#view-accounts .account-secondary { margin:8px 0; border:0; background:none; }
+#view-accounts .account-secondary > summary { display:flex; align-items:center; gap:7px; min-height:44px; list-style:none; color:var(--muted); font-size:13px; cursor:pointer; }
+#view-accounts .account-secondary > summary::-webkit-details-marker { display:none; }
+#view-accounts .account-secondary > summary > span:last-child { margin-left:auto; }
+#view-accounts .account-secondary > summary svg { width:17px; height:17px; }
+#view-accounts .account-secondary[open] > summary > span:last-child { transform:rotate(180deg); }
+#view-accounts .account-secondary-body { padding:12px; border:1px solid var(--directory-edge); border-radius:12px; background:var(--directory-surface); }
+#view-accounts .account-secondary-body label { display:block; margin:6px 0; color:var(--muted); font-size:13px; }
+#view-accounts .account-secondary-body select { width:100%; min-height:44px; font-size:16px; background:var(--surface-inset); border:1px solid var(--line); border-radius:8px; color:var(--text); padding:8px; }
+#view-accounts .account-secondary-body p { color:var(--muted); font-size:12px; line-height:1.5; }
+#view-accounts .account-secondary-body button { min-height:44px; padding:8px; border:0; background:none; color:var(--green); }
+#view-accounts .account-active-filters { display:flex; flex-wrap:wrap; gap:6px; }
+#view-accounts .account-active-filters button { border:1px solid var(--directory-edge); border-radius:8px; min-height:36px; padding:6px 9px; color:var(--text); background:var(--directory-surface); font-size:12px; }
+#view-accounts .accounts-results-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin:10px 0 12px; }
+#view-accounts .accounts-results-head h2 { font-size:21px; line-height:1.25; letter-spacing:-.025em; margin:0; }
+#view-accounts #accountsMeta { margin:0; font-size:12px; color:var(--muted); white-space:normal; }
+#view-accounts .account-list { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; }
+#view-accounts .directory-card { padding:12px 15px 0; border:1px solid var(--directory-edge); border-radius:15px; background:var(--directory-surface); box-shadow:none; overflow:visible; animation:none; }
+#view-accounts .directory-account-head { display:grid; grid-template-columns:32px minmax(0,1fr) auto 16px; align-items:center; gap:10px; width:100%; min-height:48px; padding:0 0 10px; text-align:left; background:none; border:0; border-bottom:1px solid var(--directory-edge); border-radius:0; color:var(--text); }
+#view-accounts .directory-provider,#view-accounts .directory-provider svg { width:28px; height:28px; }
+#view-accounts .directory-identity { min-width:0; }
+#view-accounts .account-email { display:block; font-size:15px; line-height:1.4; font-weight:600; overflow-wrap:anywhere; white-space:normal; }
+#view-accounts .account-login-route { display:block; margin-top:3px; font-size:12px; color:var(--muted); line-height:1.4; overflow-wrap:anywhere; }
+#view-accounts .account-access-pill { display:inline-flex; align-items:center; gap:6px; padding:5px 8px; border:1px solid var(--directory-edge); border-radius:999px; font-size:11px; line-height:1.3; color:var(--muted); white-space:normal; }
+#view-accounts .account-access-pill.positive { color:var(--status-success,#80df8e); border-color:rgba(106,220,139,.2); background:rgba(106,220,139,.045); }
+#view-accounts .account-access-pill.positive::before { content:''; width:6px; height:6px; flex:0 0 6px; border-radius:50%; background:currentColor; }
+#view-accounts .directory-chevron { font-size:25px; color:var(--muted); }
+#view-accounts .directory-offer-row { display:flex; align-items:flex-start; gap:14px; min-height:42px; padding:10px 0; border:0; font-size:15px; line-height:1.5; }
+#view-accounts .directory-offer-row + .directory-offer-row { border-top:1px solid var(--directory-edge); }
+#view-accounts .directory-offer-row > svg { color:var(--green); width:21px; height:21px; flex:0 0 21px; margin-top:1px; }
+#view-accounts .directory-offer-row > div { flex:1; min-width:0; }
+#view-accounts .directory-offer-row strong { font-weight:550; }
+#view-accounts .directory-offer-row small { display:block; font-size:12px; color:var(--muted); margin-top:2px; }
+#view-accounts .directory-cash { border:0; padding-bottom:4px; }
+#view-accounts .directory-cash > svg { color:var(--text); }
+#view-accounts .directory-cash > div { display:flex; align-items:center; flex-wrap:wrap; gap:4px 12px; }
+#view-accounts .directory-wallet-status { display:inline-flex; align-items:center; gap:6px; color:var(--status-warning,#f1c66d); font-size:12px; }
+#view-accounts .directory-wallet-status svg { width:17px; height:17px; }
+#view-accounts .directory-cash-help,#view-accounts .directory-no-offer { margin:4px 0 10px; font-size:12px; line-height:1.5; color:var(--muted); }
+#view-accounts .directory-account-status { display:block; color:var(--muted); font-size:12px; margin-bottom:8px; }
+#view-accounts .directory-view-offers { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; min-height:44px; padding:8px 0; color:var(--green); font-size:15px; font-weight:550; border:0; border-top:1px solid var(--directory-edge); background:none; border-radius:0; text-align:left; }
+#view-accounts .directory-view-offers > span { font-size:24px; }
+#view-accounts .empty .advanced-btn { display:block; min-height:44px; margin:8px auto 0; }
+.app-shell:has(#view-accounts.active) { padding-bottom:0; }
+.app-shell:has(#view-accounts.active) > .privacy { display:none; }
+html:has(#view-accounts.active) { --accounts-safe-top:env(safe-area-inset-top,0px); --accounts-safe-bottom:env(safe-area-inset-bottom,0px); --accounts-nav-gap:16px; --accounts-nav-clearance:calc(68px + 8px + var(--accounts-safe-bottom) + 16px); background:var(--bg-deep); }
+html[data-layout="mobile"] .app-shell:has(#view-accounts.active) { padding-top:calc(var(--accounts-safe-top) + 20px); }
+html[data-layout="mobile"] body:has(#view-accounts.active) { padding-bottom:var(--accounts-nav-clearance); }
+html[data-layout="mobile"]:has(#view-accounts.active) { scroll-padding-bottom:var(--accounts-nav-clearance); scroll-padding-top:calc(var(--accounts-safe-top) + 12px); }
+html[data-layout="mobile"]:has(#view-accounts.active) .bottom-nav { bottom:calc(8px + var(--accounts-safe-bottom)); }
+body:has(#view-accounts.active)::before { display:block; position:fixed; inset:0 0 auto; width:auto; height:var(--accounts-safe-top); border-radius:0; background:var(--bg-deep); opacity:1; filter:none; z-index:29; pointer-events:none; }
+html[data-layout="mobile"] #view-accounts :is(button,input,select,summary) { scroll-margin-bottom:16px; }
+#view-accounts.motion-enter > .accounts-head { animation:none; }
+.finder-context { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:10px 0; color:var(--muted); font-size:13px; }
+.finder-context[hidden] { display:none; }
+.finder-context > span { display:inline-flex; align-items:center; gap:8px; max-width:100%; overflow-wrap:anywhere; }
+.finder-context button { color:var(--green); background:var(--surface); border:1px solid var(--line); border-radius:8px; min-height:36px; padding:6px 10px; }
+@media (max-width:370px) {
+ #view-accounts .directory-account-head { grid-template-columns:28px minmax(0,1fr) 16px; }
+ #view-accounts .account-access-pill { grid-column:2; grid-row:2; justify-self:start; }
+ #view-accounts .directory-chevron { grid-column:3; grid-row:1; }
+ #view-accounts .account-control-row { grid-template-columns:minmax(0,1fr); gap:8px; }
+}
+@media (min-width:980px) {
+ html[data-layout="desktop"] #view-accounts { margin:0 auto; }
+ html[data-layout="desktop"] #view-accounts .account-list { grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
+ html[data-layout="desktop"] .app-shell:has(#view-accounts.active) main { margin-top:12px; }
 }

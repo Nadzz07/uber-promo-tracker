@@ -2418,7 +2418,7 @@
           <section id="homeAnalytics" class="home-analytics" aria-label="Receipt activity and savings"></section>
         </section>
       </section>
-<section id="view-offers" class="view home-detail" aria-labelledby="offersTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span></button><h1 id="offersTitle" tabindex="-1">Find an offer</h1><button class="detail-switch" data-home-detail="planner">Order Planner <span aria-hidden="true">›</span></button></div><p class="offer-scope-summary"><span id="offerScopeSummary"></span><button class="metric-help inline-help" data-metric-help="accounts" data-metric-label="Ready to Use" aria-label="Explain offer readiness">i</button></p>        <section class="discovery-column glass offer-browser" aria-labelledby="offersTitle">
+<section id="view-offers" class="view home-detail" aria-labelledby="offersTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span></button><h1 id="offersTitle" tabindex="-1">Find an offer</h1><button class="detail-switch" data-home-detail="planner">Order Planner <span aria-hidden="true">›</span></button></div><div id="finderContext" class="finder-context" hidden></div><p class="offer-scope-summary"><span id="offerScopeSummary"></span><button class="metric-help inline-help" data-metric-help="accounts" data-metric-label="Ready to Use" aria-label="Explain offer readiness">i</button></p>        <section class="discovery-column glass offer-browser" aria-labelledby="offersTitle">
         <div class="search-wrap"><span class="search-icon" data-icon="search" aria-hidden="true"></span><input id="homeOfferSearch" class="search-input" type="search" aria-label="Search offers and accounts" placeholder="Search accounts or offers…" autocomplete="off"></div>
         <div class="offer-controls"><div class="offer-scope-row"><span data-icon="settings" aria-hidden="true"></span><label for="offerScope">Offer access</label><span id="offerScopeValue" aria-hidden="true">Ready to use</span><svg class="offer-scope-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg><select id="offerScope" class="account-scope" aria-controls="homeAccounts"><option value="ready">Ready to use</option><option value="all">All eligible offers</option><option value="archived">Archived accounts with offers</option><option value="attention">Accounts requiring attention</option></select></div><button class="offer-filter-toggle" aria-controls="offerFilterPanel" aria-expanded="true" data-offer-filters="true"><span data-icon="filter" aria-hidden="true"></span> Filters</button></div>
 
@@ -2502,56 +2502,18 @@
         </div>
 </section>
       <section id="view-accounts" class="view">
-        <div class="screen-head">
-          <div class="eyebrow">Your accounts</div>
-          <h1 class="screen-title">Accounts</h1>
-          <div class="screen-copy">Find an account and check its offers.</div>
-        </div>
+        <header class="accounts-head"><h1 id="accountsTitle" tabindex="-1">Accounts</h1><button class="accounts-find" data-directory-find="true"><span data-icon="search" aria-hidden="true"></span>Find an offer <span aria-hidden="true">›</span></button></header>
         <div class="accounts-summary" aria-label="Account totals">
-          <div class="accounts-stat"><span class="app-icon-surface" data-icon="savings"></span><div><span>Total accounts</span><strong id="accountsTotal">0</strong></div><button class="metric-help" data-metric-help="Total Accounts" data-metric-label="Total accounts" aria-label="Explain Total accounts">i</button></div>
-          <div class="accounts-stat"><span class="app-icon-surface" data-icon="key"></span><div><span>Can log in</span><strong id="accountsAccessible">0</strong></div><button class="metric-help" data-metric-help="Accessible" data-metric-label="Can log in" aria-label="Explain Can log in">i</button></div>
+          <div class="accounts-stat"><span data-icon="user" aria-hidden="true"></span><div><span>Total accounts</span><strong id="accountsTotal">0</strong></div><button class="metric-help" data-metric-help="Total Accounts" data-metric-label="Total accounts" aria-label="Explain Total accounts">i</button></div>
+          <div class="accounts-stat"><span class="accounts-login-dot" aria-hidden="true"></span><div><span>Can log in</span><strong id="accountsAccessible">0</strong></div><button class="metric-help" data-metric-help="Accessible" data-metric-label="Can log in" aria-label="Explain Can log in">i</button></div>
         </div>
-        <div class="search-wrap">
-          <span class="search-icon" data-icon="search" aria-hidden="true"></span>
-          <input id="accountSearch" class="search-input" type="search" aria-label="Search accounts" placeholder="Search email…" autocomplete="off">
-        </div>
-
-        <label class="account-scope-label" for="accountScope">Account management</label>
-        <select id="accountScope" class="account-scope" aria-label="Account management filter">
-          <option value="all">All tracked accounts</option>
-          <option value="login">Can log in</option>
-          <option value="locked">Can't log in</option>
-          <option value="pending">Access pending verification</option>
-          <optgroup label="Receipt usage">
-            <option value="used">Fully used accounts</option>
-            <option value="used-login">Used · Can log in</option>
-            <option value="used-locked">Used · Can't log in</option>
-          </optgroup>
-          <optgroup label="Rotation">
-            <option value="archived">All archived accounts</option>
-            <option value="archived-login">Archived · Can log in</option>
-            <option value="archived-locked">Archived · Can't log in</option>
-          </optgroup>
-          <optgroup label="Offer history">
-            <option value="finished">Has finished promotions</option>
-            <option value="expired-unused">Expired · Unused offers</option>
-          </optgroup>
-        </select>
-        <div id="accountFilters" class="filter-row" aria-label="Offer filters">
-          <button class="filter-btn active" data-account-filter="all">All accounts</button>
-          <button class="filter-btn" data-account-filter="review">Offers need checking</button>
-          <button class="filter-btn" data-account-filter="expired">Expired offers</button>
-          <button class="filter-btn" data-account-filter="offers">Available offers</button>
-          <button class="filter-btn" data-account-filter="15off15">£15 off £15</button>
-          <button class="filter-btn" data-account-filter="12off15">£12 off £15</button>
-          <button class="filter-btn" data-account-filter="cash">Uber Cash</button>
-          <button class="filter-btn" data-account-filter="unfinished">Not finished</button>
-          <button class="filter-btn" data-account-filter="cash-promo">Uber Cash + promo</button>
-          <button class="filter-btn" data-account-filter="expiring">Expiring soon</button>
-        </div>
-
-        <div id="accountOfferScopeWrap" class="offer-scope-row" hidden><label for="accountOfferScope">Offer access</label><select id="accountOfferScope" class="account-scope" aria-controls="accountsList"><option value="ready">Ready to use</option><option value="all">All eligible offers</option><option value="archived">Archived accounts with offers</option><option value="attention">Accounts requiring attention</option></select></div>
-        <div id="accountsMeta" class="section-meta" style="text-align:left;margin:0 2px 10px;"></div>
+        <div class="search-wrap"><span class="search-icon" data-icon="search" aria-hidden="true"></span><input id="accountSearch" class="search-input" type="search" aria-label="Search accounts" placeholder="Search accounts" autocomplete="off"></div>
+        <div id="accountLoginTabs" class="account-login-tabs" role="group" aria-label="Login access"><button data-login-filter="all" aria-pressed="true">All</button><button data-login-filter="login" aria-pressed="false">Can log in</button><button data-login-filter="locked" aria-pressed="false">Can’t log in</button></div>
+        <div class="account-control-row"><label class="directory-select"><span data-icon="layers" aria-hidden="true"></span><select id="accountProvider" aria-label="Login provider"><option value="all">All providers</option></select><span aria-hidden="true">⌄</span></label><label class="directory-select"><span data-icon="sort" aria-hidden="true"></span><select id="accountSort" aria-label="Sort accounts"><option value="best">Sort: Best offer</option><option value="email">Sort: Email</option></select><span aria-hidden="true">⌄</span></label></div>
+        <div class="account-type-picker"><div class="account-picker-label"><label id="accountTypeLabel">Offer type</label><button id="clearAccountType" type="button">Clear</button></div><button id="accountTypeTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="accountTypeOptions" aria-labelledby="accountTypeLabel accountTypeValue"><span data-icon="tag" aria-hidden="true"></span><span id="accountTypeValue">All offers</span><span class="account-picker-chevron" aria-hidden="true">⌄</span></button><div id="accountTypeOptions" role="listbox" aria-labelledby="accountTypeLabel" hidden></div></div>
+        <details id="accountSecondaryFilters" class="account-secondary"><summary><span data-icon="filter" aria-hidden="true"></span>Filters<span id="accountSecondaryCount"></span><span aria-hidden="true">⌄</span></summary><div class="account-secondary-body"><label for="accountScope">Management &amp; status</label><select id="accountScope"><option value="all">Current directory</option><option value="tracked">All tracked accounts</option><option value="pending">Access pending verification</option><option value="used">Fully used accounts</option><option value="archived">Archived accounts</option><option value="finished">Has finished promotions</option><option value="expired-unused">Expired · Unused offers</option><option value="review">Offers need checking</option><option value="expired">Expired offers</option><option value="offers">Available offers</option><option value="unfinished">Not finished</option><option value="expiring">Expiring soon</option></select><label for="accountOfferScope">Offer availability</label><select id="accountOfferScope"><option value="any">Any availability</option><option value="ready">Ready to use</option><option value="all">All eligible offers</option><option value="archived">Archived accounts with offers</option><option value="attention">Accounts requiring attention</option></select><p>Current directory hides fully used accounts without a current offer. All tracked accounts includes their history. Login access and archive status are separate.</p><button data-reset-secondary="true">Reset secondary filters</button></div></details>
+        <div id="accountActiveFilters" class="account-active-filters"></div>
+        <div class="accounts-results-head"><h2>Matching accounts</h2><span id="accountsMeta" role="status" aria-live="polite"></span></div>
         <div id="accountsList" class="account-list"></div>
       </section>
 
@@ -2668,7 +2630,7 @@
     import { createLiquidNavigation } from "./liquid-glass.js";
     import { setupDraggableNavigation } from "./nav-gestures.js";
     import { DEVICE_ACCOUNTS_KEY, parseDeviceAccounts, deviceEmail } from "./device-accounts.js";
-    import { classifyAccount, accountStatusLabel, accountUsageDescription, accountUnfinished, accountProgressDescription, offerInProgress, accountArchived, matchesAccountFilter, eligibleAccountCounts, matchesOfferScope, offerReadinessRank, offerReadinessLabel } from "./account-state.js";
+    import { classifyAccount, accountStatusLabel, accountUsageDescription, accountUnfinished, accountProgressDescription, offerInProgress, accountArchived, matchesAccountFilter, eligibleAccountCounts, matchesOfferScope, offerReadinessRank, offerReadinessLabel, accountOfferKey, accountOfferChoices, accountMatchesOfferType, accountMatchesLogin, accountMatchesProvider } from "./account-state.js";
     import { syncState, offerCountdown } from "./dashboard-data.js";
     import { classifyOfferTrackingState } from "./offer-state.js";
     import { isOfferExpired, expiryEndTime, applyOfferExpiryPolicy } from "./offer-time.js";
@@ -2732,7 +2694,9 @@
     let currentView = "home";
     let currentIntent = "best";
     let currentOfferScope = "ready";
-    let accountOfferScope = "ready";
+    let accountOfferScope = "any";
+    let accountLoginFilter = "all", accountProviderFilter = "all", accountSort = "best", accountTypeFilter = "all";
+    let finderFilters = {accountRef:null, type:"all", login:"all", provider:"all"};
     let accountFilter = "all";
     let accountDisplayLimit = 48;
     let archivedDisplayLimit = 80;
@@ -3144,9 +3108,9 @@
     }
 
     function homeAccountsByIntent() {
-      let list = enrichedAccounts().filter(account => matchesOfferScope(account, currentOfferScope));
+      let list = finderAccounts().filter(account => matchesOfferScope(account, currentOfferScope));
       const search = document.getElementById("homeOfferSearch").value.trim().toLowerCase();
-      if (search) list = list.filter(account => [accountDisplay(account), account.accountRef, ...account.promos.map(offerTitle)].join(" ").toLowerCase().includes(search));
+      if (search) list = list.filter(account => [accountDisplay(account), account.accountRef, loginMethodLabel(account), ...account.promos.map(offerTitle)].join(" ").toLowerCase().includes(search));
 
       if (currentIntent === "15off15") {
         list = list.filter(account => account.has15off15);
@@ -3512,6 +3476,7 @@
       if(privateMigrationPending){document.getElementById("homeAccounts").innerHTML='<div class="empty">Import the updated private login file to restore your saved promotion decisions. Recommendations are paused until then.<button class="advanced-btn" data-open-sheet="device">Import private file</button></div>';return;}
       const previewLimit = document.documentElement.dataset.layout === 'mobile' ? 2 : window.innerWidth >= 1280 ? 3 : 2;
       renderQuickCounts();
+      renderFinderContext();
       const all = homeAccountsByIntent();
       const strongest = all[0] || null;
       const weak = [];
@@ -3557,59 +3522,85 @@
           : "");
     }
 
+    function accountTypeChoices() {
+      return [{key:'all',label:'All offers'}, ...accountOfferChoices(enrichedAccounts()).map(c => ({key:c.key,label:(c.type==='percent'?c.discount+'%':money(c.discount))+' off'+(c.minimum==null?' · minimum not shown':c.minimum?' '+money(c.minimum):' · no minimum')})), {key:'cash',label:'Uber Cash'},{key:'cash-promo',label:'Uber Cash + promo'}];
+    }
+    function accountTypeLabel(key) { const found=accountTypeChoices().find(c=>c.key===key);if(found)return found.label;const [type,discount,minimum]=String(key).split(':');return ['fixed','percent'].includes(type)&&Number(discount)>0?(type==='percent'?Number(discount)+'%':money(Number(discount)))+' off'+(minimum==='unknown'?' · minimum not shown':Number(minimum)>0?' '+money(Number(minimum)):' · no minimum'):'All offers'; }
+    function finderAccounts() {
+      return enrichedAccounts().filter(a=>(!finderFilters.accountRef || a.accountRef===finderFilters.accountRef) && accountMatchesOfferType(a,finderFilters.type) && accountMatchesLogin(a,finderFilters.login) && accountMatchesProvider(a,finderFilters.provider));
+    }
+    function renderFinderContext() {
+      const account=enrichedAccounts().find(a=>a.accountRef===finderFilters.accountRef), bits=[];
+      if(account)bits.push('<span>Account: '+escapeHtml(accountDisplay(account))+'<button data-clear-finder-account="true" aria-label="Clear account filter">×</button></span>');
+      if(finderFilters.type!=='all')bits.push('<span>'+escapeHtml(accountTypeLabel(finderFilters.type))+'</span>');
+      if(finderFilters.login!=='all')bits.push('<span>'+ (finderFilters.login==='login'?'Can log in':'Can’t log in')+'</span>');
+      if(finderFilters.provider!=='all')bits.push('<span>'+escapeHtml(finderFilters.provider)+'</span>');
+      if(bits.length)bits.push('<button data-clear-finder-filters="true">Clear filters</button>');
+      const node=document.getElementById('finderContext');node.hidden=!bits.length;node.innerHTML=bits.join('');
+    }
+    function directoryOffer(promo) {
+      if(!promo)return 'No current offers';
+      return promoLabel(promo)+(Number(promo.minimumSpend)>0?' · '+money(promo.minimumSpend)+' minimum':accountOfferKey(promo)?.endsWith(':unknown')?' · minimum not shown':'');
+    }
+    function directoryCard(account) {
+      const offers=account.promos || [], discount=offers.find(p=>accountOfferKey(p)===accountTypeFilter) || account.bestNow?.promo?.discountType!=='uberCash'&&account.bestNow?.promo || offers.find(p=>p.discountType!=='uberCash'),cash=offers.find(p=>p.discountType==='uberCash');
+      const selected=accountTypeFilter==='cash'?null:discount;
+      const recorded=privateWallets[account.accountRef];
+      const wallet=recorded&&Number.isFinite(recorded.balance)&&Date.parse(recorded.at)<=Date.now()?recorded:null;
+      const walletLabel=wallet?'Recorded privately':'Balance unverified';
+      const status=account.canLogin===true&&account.accessStatus!=='pending'?'Can log in':account.canLogin===false?'Can’t log in':'Access pending';
+      const extra=selected&&Number(selected.uses)>1?'<small class="directory-use-limit">'+confirmedUses(selected)+'/'+Number(selected.uses)+' confirmed · '+Number(selected.usesRemaining??selected.uses)+' remaining</small>':'';
+      return '<article class="account-card directory-card" data-card-account="'+escapeHtml(account.accountRef)+'"><button class="directory-account-head" data-account-offers="'+escapeHtml(account.accountRef)+'" aria-label="View account '+escapeHtml(accountDisplay(account))+'"><span class="directory-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="directory-identity"><span class="account-email">'+escapeHtml(accountDisplay(account))+'</span><span class="account-login-route">'+escapeHtml(loginRouteText(account))+'</span></span><span class="account-access-pill '+(status==='Can log in'?'positive':'')+'">'+escapeHtml(status)+'</span><span class="directory-chevron" aria-hidden="true">›</span></button>'+
+        (selected?'<div class="directory-offer-row">'+financeIcon('tag')+'<div><strong>'+escapeHtml(directoryOffer(selected))+'</strong>'+extra+(selected.discountType==='percent'&&(selected.perUseCap??selected.maxSaving)!=null?'<small>Up to '+escapeHtml(money(selected.perUseCap??selected.maxSaving))+' per order</small>':'')+'</div></div>':'')+
+        (cash?'<div class="directory-offer-row directory-cash">'+financeIcon('wallet')+'<div><span>Uber Cash '+escapeHtml(money(wallet?.balance??cash.discount))+'</span><span class="directory-wallet-status">'+financeIcon('info')+escapeHtml(walletLabel)+'</span></div></div><p class="directory-cash-help">'+(selected?'Confirm balance and promo compatibility in Uber.':'Confirm the current balance in Uber.')+'</p>':'')+
+        (!selected&&!cash?'<p class="directory-no-offer">No current offers · history in account details</p>':'')+
+        (account.archived?'<small class="directory-account-status">Archived · outside active rotation</small>':'')+
+        receiptReviewAction(account)+'<button class="directory-view-offers" data-directory-offers="'+escapeHtml(account.accountRef)+'">View offers <span aria-hidden="true">›</span></button></article>';
+    }
+    function closeAccountPicker(restore=false) {
+      document.getElementById('accountTypeOptions').hidden=true;
+      document.getElementById('accountTypeTrigger').setAttribute('aria-expanded','false');
+      if(restore)document.getElementById('accountTypeTrigger').focus({preventScroll:true});
+    }
+    function openAccountPicker(last=false) {
+      const trigger=document.getElementById('accountTypeTrigger'),menu=document.getElementById('accountTypeOptions');
+      menu.hidden=false;trigger.setAttribute('aria-expanded','true');
+      (last?menu.lastElementChild:menu.querySelector('[aria-selected="true"]')||menu.firstElementChild)?.focus({preventScroll:true});
+      const dock=document.getElementById('mainNav');
+      const limit=()=>Math.min(innerHeight,document.documentElement.dataset.layout==='mobile'?dock.getBoundingClientRect().top:innerHeight);
+      if(limit()-trigger.getBoundingClientRect().bottom<180)trigger.scrollIntoView({block:'start',behavior:'instant'});
+      menu.style.maxHeight=Math.max(80,Math.min(340,limit()-trigger.getBoundingClientRect().bottom-12))+'px';
+    }
     function renderAccounts() {
-      const search = String(document.getElementById("accountSearch").value || "").trim().toLowerCase();
-      let list = enrichedAccounts().filter(account => matchesAccountFilter(account, accountFilter));
-      if (accountFilter === "finished") list = list.filter(account => account.fullyUsedOfferCount > 0);
-      if (accountFilter === "expired-unused") list = list.filter(account => account.expiredUnusedOfferCount > 0);
-      if (accountFilter === "review") list = list.filter(account => account.accountState === "needs_checking" || Number(account.sourceReviewCount||0)>0 || receiptReviewCount(account)>0);
-      if (accountFilter === "expired") list = list.filter(account => account.accountState === "expired");
-      const offerFilter = ['offers','15off15','12off15','cash','unfinished','cash-promo','expiring'].includes(accountFilter);
-      if(offerFilter&&privateMigrationPending){document.getElementById('accountsList').innerHTML='<div class="empty">Import the updated private login file to apply your saved promotion decisions before browsing recommendations.<button class="advanced-btn" data-open-sheet="device">Import private file</button></div>';return;}
-      document.getElementById('accountOfferScopeWrap').hidden = !offerFilter;
-      document.getElementById('accountOfferScope').value = accountOfferScope;
-      if (offerFilter) list = list.filter(account => matchesOfferScope(account, accountOfferScope));
-      if (accountFilter === "offers") list = list.filter(account => account.promoCount > 0);
-      if (accountFilter === "15off15") list = list.filter(account => account.has15off15);
-      if (accountFilter === "12off15") list = list.filter(account => account.has12off15);
-      if (accountFilter === "cash") list = list.filter(account => account.hasCash);
-      if (accountFilter === "unfinished") list = list.filter(account => account.promos.some(promo => offerInProgress(promo)));
-      if (accountFilter === "cash-promo") list = list.filter(account => account.hasCashAndPromo);
-      if (accountFilter === "expiring") {
-        list = list.filter(account =>
-          account.promos.some(promo => isExpiringSoon(promo))
-        );
-      }
-
-      if (search) {
-        list = list.filter(account =>
-          String(accountDisplay(account)).toLowerCase().includes(search) ||
-          String(account.accountMasked || "").toLowerCase().includes(search) ||
-          String(account.loginMethod || "").toLowerCase().includes(search)
-        );
-      }
-
-      list.sort((a, b) => {
-        if (offerFilter) { const readiness = offerReadinessRank(a) - offerReadinessRank(b); if (readiness) return readiness; }
-        const saveA = a.bestNow?.calculation?.saving || 0;
-        const saveB = b.bestNow?.calculation?.saving || 0;
-        if (saveB !== saveA) return saveB - saveA;
-        return String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || ""));
-      });
-
-      document.getElementById("accountsMeta").textContent =
-        list.length + (list.length === 1 ? " account" : " accounts");
-
-      const shown = list.slice(0, accountDisplayLimit);
-
-      document.getElementById("accountsList").innerHTML =
-        shown.length
-          ? shown.map(account => accountCard(account, 0, accountFilter)).join("") +
-            (list.length > shown.length
-              ? '<button class="ghost-btn" style="width:100%;min-height:44px;text-align:center" data-show-more-accounts="true">Show ' +
-                Math.min(48, list.length - shown.length) + ' more</button>'
-              : "")
-          : '<div class="empty">No account matches this filter.</div>';
+      const search=String(document.getElementById('accountSearch').value||'').trim().toLowerCase();
+      const choices=accountTypeChoices();if(!choices.some(c=>c.key===accountTypeFilter))choices.push({key:accountTypeFilter,label:accountTypeLabel(accountTypeFilter)+' · no current offers'});
+      document.getElementById('accountTypeValue').textContent=accountTypeLabel(accountTypeFilter);
+      document.getElementById('clearAccountType').disabled=accountTypeFilter==='all';
+      if(document.getElementById('accountTypeOptions').hidden)document.getElementById('accountTypeOptions').innerHTML=choices.map(c=>'<button role="option" aria-selected="'+(c.key===accountTypeFilter)+'" data-offer-type="'+escapeHtml(c.key)+'" tabindex="-1">'+financeIcon(c.key.startsWith('cash')?'wallet':'tag')+'<span>'+escapeHtml(c.label)+'</span><span aria-hidden="true">'+(c.key===accountTypeFilter?'✓':'')+'</span></button>').join('');
+      const methods=enrichedAccounts().map(a=>a.loginMethod).filter(Boolean);
+      const providers=[...new Set([...methods,...(methods.includes('Both')?['iCloud','Google']:[])])].sort();
+      document.getElementById('accountProvider').innerHTML='<option value="all">All providers</option>'+providers.map(p=>'<option value="'+escapeHtml(p)+'">'+escapeHtml(p==='Both'?'iCloud or Google':p)+'</option>').join('');document.getElementById('accountProvider').value=accountProviderFilter;
+      document.getElementById('accountScope').value=accountFilter;document.getElementById('accountOfferScope').value=accountOfferScope;
+      document.querySelectorAll('[data-login-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.loginFilter===accountLoginFilter)));
+      const active=[];
+      if(accountFilter!=='all')active.push('<button data-clear-secondary="management">'+escapeHtml(document.getElementById('accountScope').selectedOptions[0].textContent)+' ×</button>');
+      if(accountOfferScope!=='any')active.push('<button data-clear-secondary="availability">'+escapeHtml(document.getElementById('accountOfferScope').selectedOptions[0].textContent)+' ×</button>');
+      document.getElementById('accountActiveFilters').innerHTML=active.join('');document.getElementById('accountSecondaryCount').textContent=active.length?' · '+active.length+' active':'';
+      let list=enrichedAccounts().filter(a=>accountFilter==='tracked'||matchesAccountFilter(a,accountFilter)).filter(a=>accountMatchesLogin(a,accountLoginFilter)&&accountMatchesProvider(a,accountProviderFilter)&&accountMatchesOfferType(a,accountTypeFilter));
+      if(accountFilter==='finished')list=list.filter(a=>a.fullyUsedOfferCount>0);
+      if(accountFilter==='expired-unused')list=list.filter(a=>a.expiredUnusedOfferCount>0);
+      if(accountFilter==='review')list=list.filter(a=>a.accountState==='needs_checking'||Number(a.sourceReviewCount||0)>0||receiptReviewCount(a)>0);
+      if(accountFilter==='expired')list=list.filter(a=>a.accountState==='expired');
+      if(accountFilter==='offers')list=list.filter(a=>a.promoCount>0);
+      if(accountFilter==='unfinished')list=list.filter(a=>a.promos.some(p=>offerInProgress(p)));
+      if(accountFilter==='expiring')list=list.filter(a=>a.promos.some(p=>isExpiringSoon(p)));
+      if(accountOfferScope!=='any')list=list.filter(a=>matchesOfferScope(a,accountOfferScope));
+      if(search)list=list.filter(a=>[accountDisplay(a),a.accountMasked,a.loginMethod].some(v=>String(v||'').toLowerCase().includes(search)));
+      list.sort((a,b)=>{if(accountSort==='email')return String(accountDisplay(a)).localeCompare(String(accountDisplay(b)));if(accountTypeFilter!=='all'||accountOfferScope!=='any'||['offers','unfinished','expiring'].includes(accountFilter)){const readiness=offerReadinessRank(a)-offerReadinessRank(b);if(readiness)return readiness;}return (b.bestNow?.calculation?.saving||0)-(a.bestNow?.calculation?.saving||0)||String(accountDisplay(a)).localeCompare(String(accountDisplay(b)));});
+      document.getElementById('accountsMeta').textContent=list.length+(list.length===1?' account':' accounts');
+      if(privateMigrationPending&&(accountTypeFilter!=='all'||accountOfferScope!=='any'||accountFilter==='offers')){document.getElementById('accountsList').innerHTML='<div class="empty">Import the updated private login file to restore saved promotion decisions.<button class="advanced-btn" data-open-sheet="device">Import private file</button></div>';return;}
+      const shown=list.slice(0,accountDisplayLimit);
+      document.getElementById('accountsList').innerHTML=shown.length?shown.map(directoryCard).join('')+(list.length>shown.length?'<button class="ghost-btn" data-show-more-accounts="true">Show '+Math.min(48,list.length-shown.length)+' more</button>':''):'<div class="empty">No matching accounts.<button class="advanced-btn" data-reset-directory="true">Reset filters</button></div>';
     }
 
     function activityRow(promo, meta, actionHtml = "") {
@@ -4377,7 +4368,7 @@
     function switchView(view) {
       recordViewRoute(view);
       currentView = view;
-      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner'].includes(view));
+      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts'].includes(view));
       renderAll();
       let activeSection = null;
 
@@ -4421,6 +4412,16 @@
       const opener = leaving?.opener;
       if (!state.trackerSheet && opener?.isConnected && opener.getClientRects().length) opener.focus({preventScroll:true});
       else if (!state.trackerSheet) document.querySelector('#view-' + state.trackerView + ' h1')?.focus({preventScroll:true});
+      // Returning to the directory can change the dock height (especially with
+      // larger text). Restore after its measured clearance has been applied so
+      // the browser does not clamp the saved position to the shorter fallback.
+      if(state.trackerView==='accounts'&&!state.trackerSheet) {
+        const scroll=routeEntries.get(state.trackerEntry)?.scroll||0;
+        requestAnimationFrame(()=>{if(currentRouteEntry!==state.trackerEntry||currentView!=='accounts')return;
+          if(leaving?.fromDirectory){const action=leaving.directoryAccount?document.querySelector('#accountsList [data-directory-offers="'+CSS.escape(leaving.directoryAccount)+'"]'):document.querySelector('[data-directory-find]');action?.focus({preventScroll:true});}
+          window.scrollTo({top:scroll,behavior:'instant'});
+        });
+      }
     });
 
     function queueDetailViewport() {
@@ -4428,10 +4429,10 @@
       detailViewportFrame = requestAnimationFrame(() => {
         detailViewportFrame = 0;
         const root = document.documentElement;
-        const view = document.querySelector('#view-planner.active, #view-offers.active');
+        const view = document.querySelector('#view-planner.active, #view-offers.active, #view-accounts.active');
         const active = Boolean(view);
-        const prefix = view?.id === 'view-offers' ? 'offers' : 'planner';
-        root.style.removeProperty('--' + (prefix === 'offers' ? 'planner' : 'offers') + '-nav-clearance');
+        const prefix = view?.id?.slice(5) || 'planner';
+        for(const name of ['planner','offers','accounts'])if(name!==prefix)root.style.removeProperty('--'+name+'-nav-clearance');
         const rootStyle = active ? getComputedStyle(root) : null;
         const themeMeta = document.querySelector('meta[name="theme-color"]');
         if (active && themeMeta) {
@@ -4614,30 +4615,28 @@
       renderAccounts();
     });
 
-    document.getElementById('accountScope').addEventListener('change', event => {
-      accountFilter = event.target.value;
-      accountDisplayLimit = 48;
-      document.querySelectorAll('[data-account-filter]').forEach(button => button.classList.toggle('active', accountFilter === 'all' && button.dataset.accountFilter === 'all'));
-      renderAccounts();
-    });
-
-    document.getElementById("accountFilters").addEventListener("click", event => {
-      const button = event.target.closest("[data-account-filter]");
-      if (!button) return;
-
-      accountFilter = button.dataset.accountFilter;
-      document.getElementById("accountScope").value = "all";
-      accountDisplayLimit = 48;
-
-      document.querySelectorAll("[data-account-filter]").forEach(item => {
-        item.classList.toggle("active", item === button);
-      });
-
-      renderAccounts();
-      animateRegion("accountsList");
-    });
+    document.getElementById('accountScope').addEventListener('change',e=>{accountFilter=e.target.value;accountDisplayLimit=48;renderAccounts();});
+    document.getElementById('accountProvider').addEventListener('change',e=>{accountProviderFilter=e.target.value;accountDisplayLimit=48;renderAccounts();});
+    document.getElementById('accountSort').addEventListener('change',e=>{accountSort=e.target.value;accountDisplayLimit=48;renderAccounts();});
+    document.getElementById('accountLoginTabs').addEventListener('click',e=>{const b=e.target.closest('[data-login-filter]');if(b){accountLoginFilter=b.dataset.loginFilter;accountDisplayLimit=48;renderAccounts();}});
+    document.getElementById('clearAccountType').addEventListener('click',()=>{accountTypeFilter='all';closeAccountPicker();renderAccounts();});
+    document.getElementById('accountTypeTrigger').addEventListener('click',()=>{if(document.getElementById('accountTypeOptions').hidden)openAccountPicker();else closeAccountPicker(true);});
+    document.getElementById('accountTypeTrigger').addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();openAccountPicker(e.key==='ArrowUp');}});
+    document.getElementById('accountTypeOptions').addEventListener('click',e=>{const option=e.target.closest('[data-offer-type]');if(option){accountTypeFilter=option.dataset.offerType;accountDisplayLimit=48;closeAccountPicker(true);renderAccounts();}});
+    document.getElementById('accountTypeOptions').addEventListener('keydown',e=>{const menu=e.currentTarget,options=[...menu.children],i=options.indexOf(document.activeElement);if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeAccountPicker(true);}else if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){e.preventDefault();const next=e.key==='Home'?0:e.key==='End'?options.length-1:(i+(e.key==='ArrowDown'?1:-1)+options.length)%options.length;options[next].focus({preventScroll:true});options[next].scrollIntoView({block:'nearest'});}else if(e.key==='Tab'){e.preventDefault();closeAccountPicker();(e.shiftKey?document.getElementById('accountTypeTrigger'):document.querySelector('#accountSecondaryFilters > summary')).focus();}else if(e.key.length===1&&!e.ctrlKey&&!e.metaKey){const found=options.slice(i+1).concat(options.slice(0,i+1)).find(b=>b.textContent.trim().toLowerCase().startsWith(e.key.toLowerCase()));found?.focus();}});
+    document.addEventListener('pointerdown',e=>{if(!e.target.closest('.account-type-picker'))closeAccountPicker();});
+    document.addEventListener('focusin',e=>{if(!e.target.closest('.account-type-picker'))closeAccountPicker();});
+    function resetDirectory() {accountFilter='all';accountOfferScope='any';accountTypeFilter='all';accountProviderFilter='all';accountLoginFilter='all';document.getElementById('accountSearch').value='';accountDisplayLimit=48;renderAccounts();}
+    function openDirectoryFinder(accountRef=null) {finderFilters={accountRef,type:accountTypeFilter,login:accountLoginFilter,provider:accountProviderFilter};currentIntent='best';currentOfferScope=accountOfferScope==='any'?'all':accountOfferScope;document.getElementById('homeOfferSearch').value=accountRef?'':document.getElementById('accountSearch').value;switchView('offers');Object.assign(routeEntries.get(currentRouteEntry),{fromDirectory:true,directoryAccount:accountRef});document.getElementById('offersTitle').focus({preventScroll:true});}
 
     document.getElementById("app").addEventListener("click", event => {
+      if(event.target.closest('[data-directory-find]')){openDirectoryFinder();return;}
+      const directoryOffers=event.target.closest('[data-directory-offers]');if(directoryOffers){openDirectoryFinder(directoryOffers.dataset.directoryOffers);return;}
+      if(event.target.closest('[data-clear-finder-account]')){finderFilters.accountRef=null;renderHomeAccounts();document.getElementById('offersTitle').focus({preventScroll:true});return;}
+      if(event.target.closest('[data-clear-finder-filters]')){finderFilters={accountRef:null,type:'all',login:'all',provider:'all'};renderHomeAccounts();document.getElementById('offersTitle').focus({preventScroll:true});return;}
+      if(event.target.closest('[data-reset-directory]')){resetDirectory();document.getElementById('accountSearch').focus();return;}
+      if(event.target.closest('[data-reset-secondary]')){accountFilter='all';accountOfferScope='any';renderAccounts();return;}
+      const clearSecondary=event.target.closest('[data-clear-secondary]');if(clearSecondary){if(clearSecondary.dataset.clearSecondary==='management')accountFilter='all';else accountOfferScope='any';renderAccounts();document.getElementById('accountSecondaryFilters').querySelector('summary').focus();return;}
       const chosenPlan = event.target.closest('[data-select-plan]');
       if (chosenPlan) { selectedPlannerKey = chosenPlan.dataset.selectPlan; renderRecommendation(); document.querySelector('#recommendation .recommendation-title').setAttribute('tabindex','-1'); document.querySelector('#recommendation .recommendation-title').focus(); return; }
       const filters = event.target.closest('[data-offer-filters]');
@@ -4645,7 +4644,7 @@
       if (event.target.closest('[data-home-back]')) { returnHome(); return; }
       if(event.target.closest('[data-planner-matches]')) { switchView('offers'); document.getElementById('offersTitle').focus({preventScroll:true}); return; }
       const homeDetail = event.target.closest('[data-home-detail]');
-      if (homeDetail) { switchView(homeDetail.dataset.homeDetail); routeEntries.get(currentRouteEntry).opener = homeDetail; document.getElementById(homeDetail.dataset.homeDetail + 'Title').focus({preventScroll:true}); return; }
+      if (homeDetail) { if(homeDetail.dataset.homeDetail==='offers'&&!homeDetail.closest('#view-planner'))finderFilters={accountRef:null,type:'all',login:'all',provider:'all'}; switchView(homeDetail.dataset.homeDetail); routeEntries.get(currentRouteEntry).opener = homeDetail; document.getElementById(homeDetail.dataset.homeDetail + 'Title').focus({preventScroll:true}); return; }
       if (event.target.closest('[data-jump-planner]')) { switchView('planner'); requestAnimationFrame(() => { document.getElementById('basketInput').focus({preventScroll:true}); document.querySelector('.hero-card').scrollIntoView({block:'start',behavior:motionReduced()?'instant':'smooth'}); }); return; }
       if (event.target.closest("[data-retry-load]")) { load(); return; }
       const showMore = event.target.closest("[data-show-more-accounts]");
@@ -4658,11 +4657,12 @@
       if (event.target.closest("[data-reset-intent]")) { currentIntent = "best"; renderHomeAccounts(); return; }
       const jumpAccounts = event.target.closest("[data-jump-accounts]");
       if (jumpAccounts) {
-        accountFilter = jumpAccounts.dataset.targetFilter || 'offers';
-        accountOfferScope = jumpAccounts.dataset.targetScope || 'ready';
-        document.getElementById('accountScope').value = ['all','login','locked','used','archived','used-login','used-locked','archived-login','archived-locked','pending'].includes(accountFilter) ? accountFilter : 'all';
-        accountDisplayLimit = 48;
-        document.querySelectorAll('[data-account-filter]').forEach(button => button.classList.toggle('active', button.dataset.accountFilter === accountFilter));
+        const target=jumpAccounts.dataset.targetFilter || 'offers';
+        accountFilter=['15off15','12off15','cash','cash-promo'].includes(target)?'all':['used-login','used-locked'].includes(target)?'used':['archived-login','archived-locked'].includes(target)?'archived':['login','locked'].includes(target)?'all':target;
+        accountLoginFilter=target.endsWith('-login')||target==='login'?'login':target.endsWith('-locked')||target==='locked'?'locked':'all';
+        accountTypeFilter=target==='15off15'?'fixed:15:15':target==='12off15'?'fixed:12:15':['cash','cash-promo'].includes(target)?target:'all';
+        accountProviderFilter=jumpAccounts.closest('#view-offers')?finderFilters.provider:'all';if(jumpAccounts.closest('#view-offers')){accountLoginFilter=finderFilters.login;if(finderFilters.type!=='all')accountTypeFilter=finderFilters.type;}accountOfferScope=jumpAccounts.dataset.targetScope || 'any';
+        document.getElementById('accountSearch').value='';accountDisplayLimit=48;
         switchView("accounts");
         return;
       }
