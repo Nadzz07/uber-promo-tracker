@@ -96,5 +96,6 @@ exclude:
   - test-planner-cost.js
   - test-planner-refinement-browser.js
   - test-planner-safe-area-browser.js
+  - test-offer-reference-browser.js
   - test-browser-navigation.js
   - test-more-browser.js

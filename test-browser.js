@@ -343,7 +343,7 @@ try {
   await filterPage.goto(url); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   assert.equal(await filterPage.locator('#unfinishedCount').innerText(), '7');
   await openHomeDetail(filterPage,'offers');await filterPage.locator('[data-intent="unfinished"]').click();
-  assert.match(await filterPage.locator('#homeAccounts [data-card-account="A101"]').innerText(), /1\/5 confirmed · up to 4 left/);
+  assert.match(await filterPage.locator('#homeAccounts [data-card-account="A101"] .pill-row .pill').getAttribute('aria-label'), /1\/5 confirmed · up to 4 left/);
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A102"]').count(), 1, 'An unfinished account with one remaining use stays in the section');
   for (const ref of ['A106','A111','A108','A103']) assert.equal(await filterPage.locator('#homeAccounts [data-card-account="'+ref+'"]').count(), 0, 'Archived and completed accounts without live offers stay out');
   await filterPage.locator('[data-jump-accounts][data-target-filter="unfinished"]').click();

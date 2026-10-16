@@ -2418,9 +2418,9 @@
           <section id="homeAnalytics" class="home-analytics" aria-label="Receipt activity and savings"></section>
         </section>
       </section>
-<section id="view-offers" class="view home-detail" aria-labelledby="offersTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span>Home</button><h1 id="offersTitle" tabindex="-1">Find an offer</h1><button class="detail-switch" data-home-detail="planner">Order Planner <span aria-hidden="true">›</span></button></div><p class="offer-scope-summary"><span id="offerScopeSummary"></span><button class="metric-help inline-help" data-metric-help="accounts" data-metric-label="Ready to Use" aria-label="Explain offer readiness">i</button></p>        <section class="discovery-column glass offer-browser" aria-labelledby="offersTitle">
+<section id="view-offers" class="view home-detail" aria-labelledby="offersTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span></button><h1 id="offersTitle" tabindex="-1">Find an offer</h1><button class="detail-switch" data-home-detail="planner">Order Planner <span aria-hidden="true">›</span></button></div><p class="offer-scope-summary"><span id="offerScopeSummary"></span><button class="metric-help inline-help" data-metric-help="accounts" data-metric-label="Ready to Use" aria-label="Explain offer readiness">i</button></p>        <section class="discovery-column glass offer-browser" aria-labelledby="offersTitle">
         <div class="search-wrap"><span class="search-icon" data-icon="search" aria-hidden="true"></span><input id="homeOfferSearch" class="search-input" type="search" aria-label="Search offers and accounts" placeholder="Search accounts or offers…" autocomplete="off"></div>
-        <div class="offer-controls"><div class="offer-scope-row"><span data-icon="settings" aria-hidden="true"></span><label for="offerScope">Offer access</label><select id="offerScope" class="account-scope" aria-controls="homeAccounts"><option value="ready">Ready to use</option><option value="all">All eligible offers</option><option value="archived">Archived accounts with offers</option><option value="attention">Accounts requiring attention</option></select></div><button class="offer-filter-toggle" aria-controls="offerFilterPanel" aria-expanded="true" data-offer-filters="true"><span data-icon="filter" aria-hidden="true"></span> Filters</button></div>
+        <div class="offer-controls"><div class="offer-scope-row"><span data-icon="settings" aria-hidden="true"></span><label for="offerScope">Offer access</label><span id="offerScopeValue" aria-hidden="true">Ready to use</span><svg class="offer-scope-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg><select id="offerScope" class="account-scope" aria-controls="homeAccounts"><option value="ready">Ready to use</option><option value="all">All eligible offers</option><option value="archived">Archived accounts with offers</option><option value="attention">Accounts requiring attention</option></select></div><button class="offer-filter-toggle" aria-controls="offerFilterPanel" aria-expanded="true" data-offer-filters="true"><span data-icon="filter" aria-hidden="true"></span> Filters</button></div>
 
         <div id="offerFilterPanel"><div id="quickGrid" class="quick-grid">
           <button class="quick-card active" data-intent="best" aria-pressed="true" aria-controls="homeAccounts">
@@ -2453,14 +2453,14 @@
         <div class="section-head">
           <div>
             <div id="accountsKicker" class="eyebrow">Best deal</div>
-            <h2 id="homeAccountsTitle" class="section-title">Best deals available</h2>
+            <h2 id="homeAccountsTitle" class="section-title">Best matches</h2>
           </div>
           <div id="homeAccountMeta" class="section-meta" role="status" aria-live="polite" aria-atomic="true"></div>
         </div>
 
-        <div class="results-tools"><button id="resetQuickFind" class="text-btn" data-reset-intent="true" hidden>All available offers <span aria-hidden="true">↗</span></button></div>
         <div id="homeAccounts" class="account-list"></div>
-        <details class="offer-matching-help"><summary><span data-icon="info" aria-hidden="true"></span>Check offer eligibility in Uber</summary><p id="homeResultsHelp"></p><details class="offer-filter-help"><summary>About offer filters</summary><dl><dt>Best deal</dt><dd>Strongest available account right now.</dd><dt>£15 off £15</dt><dd>Full-value minimum-spend offers.</dd><dt>£12 off £15</dt><dd>£12 discount with a £15 minimum spend.</dd><dt>Uber Cash</dt><dd>Current email offers. Confirm your wallet balance in Uber.</dd><dt>Not finished</dt><dd>Started promos with at least one use remaining.</dd><dt>Uber Cash + promo</dt><dd>Both offer types recorded on the same account. Combining them depends on Uber.</dd></dl></details></details>
+        <div class="results-tools"><button id="resetQuickFind" class="text-btn" data-reset-intent="true" hidden>All available offers <span aria-hidden="true">↗</span></button></div>
+        <details class="offer-matching-help"><summary><span data-icon="info" aria-hidden="true"></span><span><strong>Check offer eligibility in Uber</strong><small>Confirm offers and remaining uses in Uber.</small></span></summary><p id="homeResultsHelp"></p><details class="offer-filter-help"><summary>About offer filters</summary><dl><dt>Best deal</dt><dd>Strongest available account right now.</dd><dt>£15 off £15</dt><dd>Full-value minimum-spend offers.</dd><dt>£12 off £15</dt><dd>£12 discount with a £15 minimum spend.</dd><dt>Uber Cash</dt><dd>Current email offers. Confirm your wallet balance in Uber.</dd><dt>Not finished</dt><dd>Started promos with at least one use remaining.</dd><dt>Uber Cash + promo</dt><dd>Both offer types recorded on the same account. Combining them depends on Uber.</dd></dl></details></details>
         <div id="homeResultsFooter" class="results-footer"></div>
 
         <details id="weakWrap" class="weak-wrap">
@@ -2753,7 +2753,7 @@
     let deviceAccounts = readDeviceAccounts();
     let themeColour = readThemeColour();
     let layoutPreference = readLayoutPreference();
-    let plannerViewportFrame = 0;
+    let detailViewportFrame = 0;
     applyLayoutPreference();
     applyTheme(themeColour);
 
@@ -2768,7 +2768,7 @@
       root.dataset.layoutPreference = layoutPreference;
       root.dataset.layout = resolveLayout(layoutPreference, window.innerWidth);
       requestAnimationFrame(updateNavGlider);
-      queuePlannerViewport();
+      queueDetailViewport();
       if (previous !== root.dataset.layout) requestAnimationFrame(() => {
         if (accounts.length) renderHomeAccounts();
       });
@@ -3446,18 +3446,26 @@
       if (preview) {
         const offer = displayedOffer;
         const isCash = offer?.discountType === 'uberCash';
-        const primary = !offer ? 'No promos available' : isCash ? money(offer.discount) + ' Uber Cash' : offer.discountType === 'fixed'
-          ? money(offer.discount) + ' off' + (offer.minimumSpend ? ' ' + money(offer.minimumSpend) : '') : offer.discount + '% off';
+        const primary = !offer ? 'No promos available' : promoLabel(offer) +
+          (!isCash && Number(offer.minimumSpend) > 0 ? ' ' + money(offer.minimumSpend) : '');
         const chosen = account.accountRef === selectedAccountRef;
         const bestNow = !chosen && context === 'best' && index === 0 && best && currentAccountState(account).recommendationEligible;
-        const meta = [ending ? '<span class="expiry-pill">' + escapeHtml(offerCountdown(ending) + ' · ' + new Intl.DateTimeFormat('en-GB', {timeZone:'Europe/London',day:'numeric',month:'short'}).format(expiryEndTime(ending))) + '</span>' : '', multi ? '<span class="pill-row">' + offerUsePill(multi) + '</span>' : ''].filter(Boolean).join(' · ');
+        const description = isCash ? 'Wallet unverified · confirm in Uber' : offer &&
+          (Number(offer.uses || 1) > 1 || useCountNeedsReview(offer)) ? offerTitle(offer) : '';
+        const cap = offer?.discountType === 'percent' ? offer.perUseCap ?? offer.maxSaving : null;
+        const expiry = ending ? offerCountdown(ending) + ' · ' + new Intl.DateTimeFormat('en-GB', {timeZone:'Europe/London',day:'numeric',month:'short'}).format(expiryEndTime(ending)) : '';
+        const uses = multi ? confirmedUses(multi) + '/' + Math.max(1, Number(multi.uses || 1)) + ' confirmed' : '';
+        const allowance = multi ? uses + ' · up to ' + Number(multi.usesRemaining ?? multi.uses ?? 1) + ' left' : '';
+        const meta = [ending ? '<time class="expiry-pill" datetime="' + escapeHtml(new Date(expiryEndTime(ending)).toISOString()) + '" title="' + escapeHtml(expiry) + '" aria-label="' + escapeHtml(expiry) + '">' + escapeHtml(offerCountdown(ending)) + '</time>' : '', multi ? '<span class="pill-row"><span class="pill" title="' + escapeHtml(allowance) + '" aria-label="' + escapeHtml(allowance) + '">' + escapeHtml(uses) + '</span></span>' : ''].filter(Boolean).join('<span aria-hidden="true">·</span>');
         return '<article class="account-card offer-preview-card' + (chosen ? ' picked' : '') + '" data-card-account="' + escapeHtml(account.accountRef) + '">' +
           '<div class="account-top"><div class="account-identity"><span class="app-icon-surface account-provider" aria-hidden="true">' + accountProviderIcon(account) + '</span><div class="account-identity-copy"><div class="account-email">' + escapeHtml(accountDisplay(account)) + '</div><div class="account-login-route">' + escapeHtml(loginRouteText(account)) + '</div></div></div><span class="pill account-access-pill' + (account.canLogin === true ? ' good' : '') + '">' + (account.canLogin === true ? 'Can log in' : account.canLogin === false ? 'Can’t log in' : 'Access pending') + '</span><button class="offer-preview-open" data-account-offers="' + escapeHtml(account.accountRef) + '" aria-label="View account ' + escapeHtml(accountDisplay(account)) + '"><span aria-hidden="true">›</span></button></div>' +
-          (chosen || bestNow ? '<span class="offer-preview-best">' + (chosen ? 'Chosen' : 'Best now') + '</span>' : '') +
-          '<div class="account-offer">' + escapeHtml(primary) + '</div><div class="offer-preview-description">' + escapeHtml(isCash ? 'Wallet unverified · confirm in Uber' : headline) + '</div>' +
-          (meta ? '<div class="offer-preview-meta">' + financeIcon('calendar') + '<span>' + meta + '</span></div>' : '') +
+          '<div class="offer-preview-content"><div class="offer-preview-primary"><div class="account-offer">' + escapeHtml(primary) + '</div>' +
+          (chosen || bestNow ? '<span class="offer-preview-best">' + (chosen ? 'Chosen' : 'Best now') + '</span>' : '') + '</div>' +
+          (description ? '<div class="offer-preview-description">' + escapeHtml(description) + '</div>' : '') +
+          (cap != null ? '<div class="offer-preview-description">Up to ' + escapeHtml(money(cap)) + ' per order</div>' : '') +
+          (meta ? '<div class="offer-preview-meta">' + financeIcon('calendar') + '<span class="offer-preview-meta-items">' + meta + '</span></div>' : '') +
           (!currentAccountState(account).recommendationEligible ? '<div class="offer-preview-restriction account-readiness needs-attention">' + escapeHtml(readiness) + '</div>' : '') +
-          (offer?.restrictions?.merchantLimited ? '<div class="offer-preview-restriction">Selected merchants · check in Uber</div>' : '') + receiptReviewAction(account) + '</article>';
+          '</div>' + receiptReviewAction(account) + '</article>';
       }
 
       return (
@@ -3487,8 +3495,9 @@
       const list = enrichedAccounts().filter(account => matchesOfferScope(account, currentOfferScope));
       const counts = eligibleAccountCounts(enrichedAccounts());
       document.getElementById('homeReadyCount').textContent = counts.ready.toLocaleString('en-GB') + ' ready to use';
-      document.getElementById('offerScopeSummary').textContent = counts.ready + ' ready to use · ' + counts.attention + ' need attention';
+      document.getElementById('offerScopeSummary').textContent = counts.ready + ' ready · ' + counts.attention + ' need attention';
       document.getElementById('offerScope').value = currentOfferScope;
+      document.getElementById('offerScopeValue').textContent = document.getElementById('offerScope').selectedOptions[0].textContent;
       setAnimatedText("bestCount", list.length);
       setAnimatedText("fifteenCount", list.filter(account => account.has15off15).length);
       setAnimatedText("twelveCount", list.filter(account => account.has12off15).length);
@@ -3519,11 +3528,9 @@
       };
 
       document.getElementById("accountsKicker").textContent = names[currentIntent];
-      document.getElementById("homeAccountMeta").textContent =
-        all.length + (currentIntent === "unfinished" ? (all.length === 1 ? " unfinished account" : " unfinished accounts") : ["cash", "cash-promo"].includes(currentIntent) ? (all.length === 1 ? " account with offers" : " accounts with offers") : (all.length === 1 ? " available account" : " available accounts"));
-      const headings = { best: 'Best deals available', '15off15': '£15 off £15 offers', '12off15': '£12 off £15 offers', cash: 'Accounts with Uber Cash', unfinished: 'Offers with uses remaining', 'cash-promo': 'Accounts with both offer types' };
+      document.getElementById("homeAccountMeta").textContent = all.length + (all.length === 1 ? ' account' : ' accounts');
       const help = { best: 'Best for your basket · confirm eligibility in Uber.', '15off15': 'Full-value offers with a £15 minimum spend.', '12off15': '£12 off £15 · before fees.', cash: 'Cash offers · wallet balance unverified.', unfinished: 'Started promotions with uses remaining.', 'cash-promo': 'Current Cash and discount offers on the same account. Combining them depends on Uber.' };
-      document.getElementById('homeAccountsTitle').textContent = headings[currentIntent];
+      document.getElementById('homeAccountsTitle').textContent = 'Best matches';
       document.getElementById('homeResultsHelp').textContent = help[currentIntent] + (currentOfferScope === 'ready' ? ' Ready to use only.' : ' Eligibility is separate from login and archive status. Check the access label before using an account.') + ' Remaining uses are not confirmed redeemed; confirm availability in Uber.';
       document.getElementById('resetQuickFind').hidden = currentIntent === 'best';
       document.querySelectorAll('[data-intent]').forEach(button => {
@@ -3536,7 +3543,7 @@
         : '<div class="empty">' + (currentIntent === 'unfinished' ? 'No confirmed started promos in this group. Offers with no confirmed usage are in Best deal; expired offers stay in Activity.' : 'No account matches this category right now.') + '</div>';
       const targetFilter = currentIntent === 'best' ? 'offers' : currentIntent;
       document.getElementById('homeResultsFooter').innerHTML = strong.length > previewLimit
-        ? '<span>Showing ' + previewLimit + ' of ' + strong.length + ' matching accounts</span><button class="advanced-btn" data-jump-accounts="true" data-target-filter="' + targetFilter + '" data-target-scope="' + currentOfferScope + '">View all ' + strong.length + ' accounts <span aria-hidden="true">›</span></button>'
+        ? '<button class="advanced-btn" aria-label="View all ' + strong.length + ' matching accounts; showing ' + previewLimit + '" data-jump-accounts="true" data-target-filter="' + targetFilter + '" data-target-scope="' + currentOfferScope + '">View all ' + strong.length + ' accounts <span aria-hidden="true">›</span></button>'
         : '';
 
       const wrap = document.getElementById("weakWrap");
@@ -4387,7 +4394,7 @@
       });
 
       updateNavGlider();
-      queuePlannerViewport();
+      queueDetailViewport();
       if (activeSection && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         activeSection.classList.remove("motion-enter");
         activeSection.classList.add("motion-enter");
@@ -4416,12 +4423,15 @@
       else if (!state.trackerSheet) document.querySelector('#view-' + state.trackerView + ' h1')?.focus({preventScroll:true});
     });
 
-    function queuePlannerViewport() {
-      if (plannerViewportFrame) return;
-      plannerViewportFrame = requestAnimationFrame(() => {
-        plannerViewportFrame = 0;
+    function queueDetailViewport() {
+      if (detailViewportFrame) return;
+      detailViewportFrame = requestAnimationFrame(() => {
+        detailViewportFrame = 0;
         const root = document.documentElement;
-        const active = document.getElementById('view-planner').classList.contains('active');
+        const view = document.querySelector('#view-planner.active, #view-offers.active');
+        const active = Boolean(view);
+        const prefix = view?.id === 'view-offers' ? 'offers' : 'planner';
+        root.style.removeProperty('--' + (prefix === 'offers' ? 'planner' : 'offers') + '-nav-clearance');
         const rootStyle = active ? getComputedStyle(root) : null;
         const themeMeta = document.querySelector('meta[name="theme-color"]');
         if (active && themeMeta) {
@@ -4434,20 +4444,20 @@
         }
         const nav = document.getElementById('mainNav');
         if (!active || root.dataset.layout !== 'mobile' || !nav) {
-          root.style.removeProperty('--planner-nav-clearance');
+          root.style.removeProperty('--' + prefix + '-nav-clearance');
           return;
         }
         const style = getComputedStyle(nav);
         // The computed bottom already includes the device inset. Count it once.
         const bottom = parseFloat(style.bottom);
-        const gap = parseFloat(rootStyle.getPropertyValue('--planner-nav-gap')) || 16;
+        const gap = parseFloat(rootStyle.getPropertyValue('--' + prefix + '-nav-gap')) || 16;
         const clearance = Math.ceil(nav.getBoundingClientRect().height + (Number.isFinite(bottom) ? bottom : 0) + gap) + 'px';
-        if (root.style.getPropertyValue('--planner-nav-clearance') !== clearance) root.style.setProperty('--planner-nav-clearance', clearance);
+        if (root.style.getPropertyValue('--' + prefix + '-nav-clearance') !== clearance) root.style.setProperty('--' + prefix + '-nav-clearance', clearance);
       });
     }
 
     function updateVisibleViewport() {
-      queuePlannerViewport();
+      queueDetailViewport();
       const viewport = window.visualViewport;
       if (!viewport) return;
       document.documentElement.style.setProperty('--app-viewport-height', viewport.height + 'px');
@@ -4459,7 +4469,7 @@
     window.visualViewport?.addEventListener('scroll', updateVisibleViewport);
     document.addEventListener('focusin', updateVisibleViewport);
     document.addEventListener('focusout', () => requestAnimationFrame(updateVisibleViewport));
-    if ('ResizeObserver' in window) new ResizeObserver(queuePlannerViewport).observe(document.getElementById('mainNav'));
+    if ('ResizeObserver' in window) new ResizeObserver(queueDetailViewport).observe(document.getElementById('mainNav'));
     updateVisibleViewport();
     window.addEventListener("resize", applyLayoutPreference);
     requestAnimationFrame(updateNavGlider);
