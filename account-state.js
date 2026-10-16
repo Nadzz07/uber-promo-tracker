@@ -12,7 +12,9 @@ export function accountArchived(account = {}) {
 
 export function matchesAccountFilter(account, filter) {
   const used = accountUsage(account).accountUsed, archived = accountArchived(account);
-  return ({ all: true, login: account.canLogin === true, locked: account.canLogin === false,
+  const current = account.hasEligibleOffers ?? Number(account.activePromoCount) > 0;
+  const visible = !used || current;
+  return ({ all: visible, login: visible && account.canLogin === true, locked: visible && account.canLogin === false,
     pending: account.canLogin == null || account.accessStatus === 'pending',
     used, 'used-login': used && account.canLogin === true, 'used-locked': used && account.canLogin === false,
     archived, 'archived-login': archived && account.canLogin === true,

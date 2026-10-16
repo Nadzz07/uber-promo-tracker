@@ -107,10 +107,16 @@ export function extractOfferDetails(text, { subject = '' } = {}) {
   const boundaries=[...text.matchAll(/(?:\*?terms and conditions apply\.?|offer available until)/gi)].map(m=>m.index);
   const legalBlocks=boundaries.map((start,i)=>text.slice(start,boundaries[i+1]??text.length).split(/benefits available only|view the renewable membership/i)[0]);
   const primaryPattern=discountType==='percent'?/(\d{1,3})\s*%\s*(?:off|discount)/i:discountType==='fixed'?/£\s*(\d+(?:\.\d{1,2})?)\s*(?:off|discount)\b/i:null;
-  const legal=primaryPattern?legalBlocks.filter(block=>allInText(block,[primaryPattern]).some(m=>number(m[1])===discount)):[];
-  const terms=legal.at(-1)||text;
+  const legal=primaryPattern?legalBlocks.filter(block=>allInText(block,[primaryPattern]).some(m=>number(m[1])===discount)):discountType==='uberCash'?legalBlocks.filter(block=>/\b(?:promotional uber cash|uber cash is valid|uber cash (?:promotion|offer))\b/i.test(block)||allInText(block,[/£\s*(\d+(?:\.\d{1,2})?)\s+(?:in\s+)?uber\s+cash\b/i]).some(m=>number(m[1])===discount)):[];
+  // Cash emails contain separate restaurant coupons and Uber One minimums.
+  // Those amounts are not a minimum on the credited wallet funds. Prefer
+  // the Cash legal block; without one, stop at the next unrelated offer/upsell.
+  const cashBoundary=discountType==='uberCash'?Math.min(
+    ...scoped.filter(c=>c.type!=='uberCash'&&c.match.index>discountMatch.index).map(c=>c.match.index),
+    ...[...text.matchAll(/\b(?:try|join|with) uber one\b|benefits available only|your gateway to/gi)].filter(m=>m.index>discountMatch.index).map(m=>m.index),text.length):text.length;
+  const terms=legal.at(-1)||(discountType==='uberCash'?text.slice(0,cashBoundary):text);
   const minimumPatterns=[/(?:minimum|min\.?)(?:\s+(?:spend|order|basket))?\s*(?:of\s*)?£\s*(\d+(?:\.\d{1,2})?)/i,/£\s*(\d+(?:\.\d{1,2})?)\s+(?:minimum|min\.?)\s+(?:spend|order|basket)/i,/(?:when\s+you\s+spend|orders?\s+(?:over|of)|spend\s+at\s+least)\s*£\s*(\d+(?:\.\d{1,2})?)/i];
-  if(legal.length){
+  if(legal.length||discountType==='uberCash'){
     minimumSpendMatch=firstMatch(terms,minimumPatterns);
     usesMatch=firstMatch(terms,[/\b(?:your\s+)?(?:next|first)\s+(\d+)\s+(?:eligible\s+)?(?:uber\s+)?(?:trips?|rides?|orders?)\b/i,/\b(?:valid\s+on|on|off)\s+(\d+)\s+(?:eligible\s+)?(?:uber\s+)?(?:trips?|rides?|orders?)\b/i]);
     singleUseMatch=terms.match(/\b(?:your\s+)?(?:next|first)\s+(?:eligible\s+)?(?:order|ride|trip)\b/i);

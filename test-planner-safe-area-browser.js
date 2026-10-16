@@ -49,7 +49,7 @@ try{
   await rows.first().locator('[data-account-offers]').click();
   await page.locator('.offer-terms > summary').first().click();
   const details=await page.locator('.offer-terms').first().innerText();
-  assert.match(details,/Selected merchants · confirm in Uber/);assert.match(details,/Delivery · pickup excluded/);assert.match(details,/Apply promo code in Uber/);
+  assert.match(details,/Selected merchants · confirm in Uber/);assert.match(details,/Delivery only/);assert.match(details,/Apply promo code in Uber/);
   await page.keyboard.press('Escape');await page.waitForFunction(()=>!history.state?.trackerSheet);
   await page.evaluate(async()=>{await Promise.all(document.getAnimations().filter(a=>a.effect?.getComputedTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{})));});
 

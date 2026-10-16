@@ -113,8 +113,12 @@ export function savingForSpend(promo, spend) {
 }
 
 export function matchesFulfilment(promo, mode='delivery') {
+  if (promo?.discountType === 'uberCash') return true;
   const restriction=promo?.restrictions?.fulfilment;
-  return !(mode==='delivery' && restriction==='pickup_only' || mode==='pickup' && restriction==='delivery_only');
+  // Standard Eats discounts are Delivery only. An explicitly advertised
+  // Pickup offer remains an exception; wallet funds do not broaden a coupon.
+  if (restriction === 'pickup_only') return mode === 'pickup';
+  return mode !== 'pickup';
 }
 
 export function rankPromosForSpend(
