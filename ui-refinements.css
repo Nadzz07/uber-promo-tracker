@@ -2015,7 +2015,25 @@ html[data-layout="desktop"] #view-planner .basket-editor,
 .app-shell:has(#view-planner.active) { padding-bottom:0; }
 .app-shell:has(#view-planner.active) > .privacy { display:none; }
 body:has(#view-planner.active) { box-sizing:border-box; min-height:100dvh; }
-html[data-layout="mobile"] body:has(#view-planner.active) { padding-bottom:calc(96px + env(safe-area-inset-bottom,0px)); }
+/* The shell owns the top inset; the dock's measured height owns bottom clearance. */
+html:has(#view-planner.active) {
+  --planner-safe-top:env(safe-area-inset-top,0px);
+  --planner-safe-bottom:env(safe-area-inset-bottom,0px);
+  --planner-nav-gap:16px;
+  --planner-nav-clearance:calc(68px + 8px + var(--planner-safe-bottom) + var(--planner-nav-gap));
+  background:var(--bg-deep);
+}
+html[data-layout="mobile"]:has(#view-planner.active) { scroll-padding-bottom:var(--planner-nav-clearance); }
+html[data-layout="mobile"] body:has(#view-planner.active) { padding-bottom:var(--planner-nav-clearance); }
+html[data-layout="mobile"] .app-shell:has(#view-planner.active) { padding-top:calc(var(--planner-safe-top) + 24px); }
+html[data-layout="mobile"]:has(#view-planner.active) .bottom-nav { bottom:calc(8px + var(--planner-safe-bottom)); }
+/* An opaque background strip covers only the system inset, never foreground controls. */
+body:has(#view-planner.active)::before {
+  display:block; position:fixed; inset:0 0 auto; width:auto; height:var(--planner-safe-top);
+  border-radius:0; background:var(--bg-deep); opacity:1; filter:none; z-index:29; pointer-events:none;
+}
+#view-planner.motion-enter > .detail-view-head { animation:none; }
+html[data-layout="mobile"] #view-planner :is(button,input,select,summary) { scroll-margin-bottom:16px; }
 @media (max-width:370px) {
   #view-planner .detail-view-head { grid-template-columns:24px minmax(0,1fr); gap:4px; }
   #view-planner .detail-switch { grid-column:2; grid-row:2; justify-self:start; min-height:36px; }

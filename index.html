@@ -2753,6 +2753,7 @@
     let deviceAccounts = readDeviceAccounts();
     let themeColour = readThemeColour();
     let layoutPreference = readLayoutPreference();
+    let plannerViewportFrame = 0;
     applyLayoutPreference();
     applyTheme(themeColour);
 
@@ -2767,6 +2768,7 @@
       root.dataset.layoutPreference = layoutPreference;
       root.dataset.layout = resolveLayout(layoutPreference, window.innerWidth);
       requestAnimationFrame(updateNavGlider);
+      queuePlannerViewport();
       if (previous !== root.dataset.layout) requestAnimationFrame(() => {
         if (accounts.length) renderHomeAccounts();
       });
@@ -3307,6 +3309,11 @@
 
     let selectedPlannerKey = null, otherOptionsOpen = false, plannerComparisonCache = null;
     const plannerMoney = value => new Intl.NumberFormat('en-GB', {style:'currency', currency:'GBP', minimumFractionDigits:2}).format(value);
+    function plannerOfferSummary(promo) {
+      if (!promo) return 'Verified Uber Cash balance';
+      const minimum = promo.minimumSpend;
+      return promoLabel(promo) + (minimum != null && Number.isFinite(Number(minimum)) ? ' · ' + money(minimum) + ' minimum' : ' · Minimum unconfirmed');
+    }
     function plannerAccountRows(plan) {
       return plan.orders.map((order, index) => {
         const account = accounts.find(a => a.accountRef === order.accountRef) || order;
@@ -3314,25 +3321,13 @@
           '<span class="plan-order-number">' + (index + 1) + '</span><div class="plan-body">' +
           '<button class="plan-account" data-account-offers="' + escapeHtml(order.accountRef) + '">' + escapeHtml(accountDisplay(account)) + '</button>' +
           '<div class="plan-login">' + escapeHtml(loginRouteText(account)) + '</div>' +
-          '<div class="plan-promo">' + escapeHtml(order.promo ? offerTitle(order.promo) + (Number(order.promo.minimumSpend) > 0 ? ' · ' + plannerMoney(order.promo.minimumSpend) + ' minimum' : '') : 'Verified Uber Cash balance') + '</div>' +
-          '<div class="plan-subtotal">Basket ' + escapeHtml(plannerMoney(order.subtotal)) +
-          (order.checkoutFees == null ? ' · fee estimate ' + escapeHtml(plannerMoney(order.extraFee)) : '') +
-          (order.checkoutFees != null ? ' · recorded fees ' + escapeHtml(plannerMoney(order.checkoutFees)) : '') + '</div>' +
+          '<div class="plan-promo">' + escapeHtml(plannerOfferSummary(order.promo)) + '</div>' +
+          '<div class="plan-subtotal">Basket ' + escapeHtml(money(order.subtotal)) +
+          (order.checkoutFees == null ? ' · Fee ' + escapeHtml(money(order.extraFee)) : '') +
+          (order.checkoutFees != null ? ' · Recorded fees ' + escapeHtml(money(order.checkoutFees)) : '') + '</div>' +
           (order.cashRemaining != null ? '<div class="plan-subtotal">Uber Cash used ' + escapeHtml(plannerMoney(order.cashUsed)) + ' · remaining ' + escapeHtml(plannerMoney(order.cashRemaining)) + '</div>' : '') +
-          plannerRestrictions(order.promo) +
           '</div><div class="plan-payment"><strong>' + escapeHtml(plannerMoney(order.estimatedPay)) + '</strong><small>Estimated payment</small></div></div>';
       }).join('');
-    }
-    function plannerRestrictions(promo) {
-      const r = promo?.restrictions || {}, bits = [];
-      if (r.merchantLimited) bits.push('Selected merchants · check in Uber');
-      if (r.fulfilment === 'delivery_only') bits.push('Delivery only');
-      if (r.fulfilment === 'pickup_only') bits.push('Pickup only');
-      if (r.promoCodeRequired) bits.push('Apply promo code in Uber');
-      if (r.stacking === 'no_other_promotions') bits.push('No other promotions');
-      if (r.excludesFees) bits.push('Minimum excludes fees');
-      if (r.excludesAlcoholTobacco) bits.push('Alcohol & tobacco excluded');
-      return bits.length ? '<div class="plan-subtotal plan-restrictions">' + escapeHtml(bits.join(' · ')) + '</div>' : '';
     }
     function plannerAllocation(plan) {
       const amounts = plan.orders.map(o => plannerMoney(o.subtotal));
@@ -4392,6 +4387,7 @@
       });
 
       updateNavGlider();
+      queuePlannerViewport();
       if (activeSection && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         activeSection.classList.remove("motion-enter");
         activeSection.classList.add("motion-enter");
@@ -4420,7 +4416,38 @@
       else if (!state.trackerSheet) document.querySelector('#view-' + state.trackerView + ' h1')?.focus({preventScroll:true});
     });
 
+    function queuePlannerViewport() {
+      if (plannerViewportFrame) return;
+      plannerViewportFrame = requestAnimationFrame(() => {
+        plannerViewportFrame = 0;
+        const root = document.documentElement;
+        const active = document.getElementById('view-planner').classList.contains('active');
+        const rootStyle = active ? getComputedStyle(root) : null;
+        const themeMeta = document.querySelector('meta[name="theme-color"]');
+        if (active && themeMeta) {
+          themeMeta.dataset.beforePlanner ??= themeMeta.content;
+          const background = rootStyle.getPropertyValue('--bg-deep').trim();
+          if (themeMeta.content !== background) themeMeta.content = background;
+        } else if (themeMeta?.dataset.beforePlanner != null) {
+          themeMeta.content = themeMeta.dataset.beforePlanner;
+          delete themeMeta.dataset.beforePlanner;
+        }
+        const nav = document.getElementById('mainNav');
+        if (!active || root.dataset.layout !== 'mobile' || !nav) {
+          root.style.removeProperty('--planner-nav-clearance');
+          return;
+        }
+        const style = getComputedStyle(nav);
+        // The computed bottom already includes the device inset. Count it once.
+        const bottom = parseFloat(style.bottom);
+        const gap = parseFloat(rootStyle.getPropertyValue('--planner-nav-gap')) || 16;
+        const clearance = Math.ceil(nav.getBoundingClientRect().height + (Number.isFinite(bottom) ? bottom : 0) + gap) + 'px';
+        if (root.style.getPropertyValue('--planner-nav-clearance') !== clearance) root.style.setProperty('--planner-nav-clearance', clearance);
+      });
+    }
+
     function updateVisibleViewport() {
+      queuePlannerViewport();
       const viewport = window.visualViewport;
       if (!viewport) return;
       document.documentElement.style.setProperty('--app-viewport-height', viewport.height + 'px');
@@ -4432,6 +4459,7 @@
     window.visualViewport?.addEventListener('scroll', updateVisibleViewport);
     document.addEventListener('focusin', updateVisibleViewport);
     document.addEventListener('focusout', () => requestAnimationFrame(updateVisibleViewport));
+    if ('ResizeObserver' in window) new ResizeObserver(queuePlannerViewport).observe(document.getElementById('mainNav'));
     updateVisibleViewport();
     window.addEventListener("resize", applyLayoutPreference);
     requestAnimationFrame(updateNavGlider);
