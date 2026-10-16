@@ -1,5 +1,7 @@
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const paths = {
+  delivery: '<circle cx="5" cy="18" r="3"/><circle cx="19" cy="18" r="3"/><path d="M5 18 9 9h5l5 9M8 12h7l-2-8h-3M3 9h4M15 4h3"/>',
+  bolt: '<path d="m14 2-9 12h6l-1 8 9-12h-6l1-8Z"/>',
   ride: '<path d="m5 8 2-5h10l2 5M3 9h18v9H3V9ZM5 18v3M19 18v3M6 13h2M16 13h2M2 8h3M19 8h3"/>',
   utensils: '<path d="M4 2v7a3 3 0 0 0 6 0V2M7 2v20M20 2c-4 2-6 8-6 12h6M20 2v20"/>',
   filter: '<path d="M3 4h18l-7 8v8l-4-2v-6L3 4Z"/>',

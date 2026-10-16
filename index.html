@@ -2470,32 +2470,35 @@
         </section>
         </section>
 </section>
-<section id="view-planner" class="view home-detail" aria-labelledby="plannerTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span>Home</button><h1 id="plannerTitle" tabindex="-1">Order Planner</h1><p class="detail-intro">Spend less on your basket.</p><button class="detail-switch" data-home-detail="offers">Find an offer <span aria-hidden="true">›</span></button></div>        <div class="planner-column">
+<section id="view-planner" class="view home-detail" aria-labelledby="plannerTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span></button><h1 id="plannerTitle" tabindex="-1">Order Planner</h1><button class="detail-switch" data-home-detail="offers">Find an offer <span aria-hidden="true">›</span></button></div>        <div class="planner-column">
         <section class="hero-card glass">
-          <label class="basket-editor" for="basketInput">
+          <div class="basket-editor">
             <span class="basket-editor-copy">
-              <strong><span data-icon="bag" aria-hidden="true"></span>Basket subtotal</strong>
-              <small>Tap the amount to edit</small>
+              <label for="basketInput"><span data-icon="bag" aria-hidden="true"></span>Basket subtotal</label>
+              <small id="basketHelp">Enter your order amount</small>
             </span>
             <span class="basket-value-wrap">
               <span class="basket-currency">£</span>
-              <input id="basketInput" class="basket-input" type="number" max="1000" min="0" step="0.01" value="15.00" inputmode="decimal" aria-label="Basket subtotal">
-              <span class="basket-edit-icon" aria-hidden="true" data-icon="edit"></span>
+              <input id="basketInput" class="basket-input" type="number" max="1000" min="0" step="0.01" value="15.00" inputmode="decimal" aria-label="Basket subtotal" aria-describedby="basketHelp">
+              <button id="editBasket" class="basket-edit-icon" type="button" aria-label="Edit basket subtotal"><span data-icon="edit" aria-hidden="true"></span></button>
             </span>
-          </label>
+          </div>
 
-          <div class="planner-mode"><label for="plannerFulfilment"><span data-icon="bag" aria-hidden="true"></span>Order type</label><select id="plannerFulfilment"><option value="delivery">Delivery</option><option value="pickup">Pickup</option></select></div>
+          <div class="planner-mode"><div class="planner-mode-copy"><label for="plannerFulfilment"><span data-icon="delivery" aria-hidden="true"></span>Order type</label><small>Choose how you’ll order</small></div><span class="planner-select-wrap"><select id="plannerFulfilment"><option value="delivery">Delivery</option><option value="pickup">Pickup</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></div>
         </section>
-        <div class="planner-section-head"><h2>Suggested plan</h2></div>
+        <div class="planner-section-head"><h2>Suggested plan</h2><span id="plannerStatus" class="plan-status" hidden></span></div>
           <div id="recommendation" class="recommendation" aria-live="polite">
             <div class="empty">Preparing your recommendation…</div>
           </div>
 
+          <p class="planner-final-fees"><span data-icon="info" aria-hidden="true"></span>Final delivery and service fees are confirmed in Uber.</p>
+          <button class="planner-matching-action" data-planner-matches="true">Find more matching accounts <span aria-hidden="true">›</span></button>
           <div class="hero-footer">
             <button class="advanced-btn" data-open-sheet="advanced"><span data-icon="settings" aria-hidden="true"></span><span><strong>Fee settings</strong><small id="feeNote"></small></span><span aria-hidden="true">›</span></button>
 
           </div>
 
+          <p class="planner-privacy">Private account details stay on your device.</p>
         </div>
 </section>
       <section id="view-accounts" class="view">
@@ -3183,11 +3186,15 @@
       return best <= 4 || (strongestSaving > 0 && best < strongestSaving * .45);
     }
 
+    document.getElementById('editBasket').addEventListener('click', () => {
+      const input = document.getElementById('basketInput');
+      input.focus();
+      input.select();
+    });
+
     function effectiveFee() {
       if (plannerSettings.feeTouched && plannerSettings.extraOrderFee != null) return Math.max(0, Number(plannerSettings.extraOrderFee));
-      const model = payload?.summary?.feeModel;
-      const learned = Number(model?.averageExtraOrderFees);
-      return Number(model?.sampleSize || 0) > 0 && Number.isFinite(learned) ? Math.max(0, learned) : 1;
+      return 1;
     }
 
     function hasFeeEstimate() { return Number.isFinite(effectiveFee()); }
@@ -3294,8 +3301,8 @@
       const fee = effectiveFee();
       document.getElementById("feeNote").textContent =
         hasFeeEstimate()
-          ? money(fee) + (plannerSettings.feeTouched ? " estimated per account/order" : " estimated per extra order")
-          : "No extra split-fee estimate yet";
+          ? money(fee) + " estimated per order"
+          : "£1 estimated per order";
     }
 
     let selectedPlannerKey = null, otherOptionsOpen = false, plannerComparisonCache = null;
@@ -3306,14 +3313,31 @@
         return '<div class="plan-row" data-plan-account="' + escapeHtml(order.accountRef) + '">' +
           '<span class="plan-order-number">' + (index + 1) + '</span><div class="plan-body">' +
           '<button class="plan-account" data-account-offers="' + escapeHtml(order.accountRef) + '">' + escapeHtml(accountDisplay(account)) + '</button>' +
-          '<div class="plan-promo">' + escapeHtml(order.promo ? offerTitle(order.promo) : 'Verified Uber Cash balance') + '</div>' +
+          '<div class="plan-login">' + escapeHtml(loginRouteText(account)) + '</div>' +
+          '<div class="plan-promo">' + escapeHtml(order.promo ? offerTitle(order.promo) + (Number(order.promo.minimumSpend) > 0 ? ' · ' + plannerMoney(order.promo.minimumSpend) + ' minimum' : '') : 'Verified Uber Cash balance') + '</div>' +
           '<div class="plan-subtotal">Basket ' + escapeHtml(plannerMoney(order.subtotal)) +
-          (order.extraFee > 0 ? ' · fee estimate ' + escapeHtml(plannerMoney(order.extraFee)) : '') +
+          (order.checkoutFees == null ? ' · fee estimate ' + escapeHtml(plannerMoney(order.extraFee)) : '') +
           (order.checkoutFees != null ? ' · recorded fees ' + escapeHtml(plannerMoney(order.checkoutFees)) : '') + '</div>' +
           (order.cashRemaining != null ? '<div class="plan-subtotal">Uber Cash used ' + escapeHtml(plannerMoney(order.cashUsed)) + ' · remaining ' + escapeHtml(plannerMoney(order.cashRemaining)) + '</div>' : '') +
-          (order.promo?.restrictions?.merchantLimited ? '<div class="plan-subtotal">Selected merchants · check in Uber</div>' : '') +
+          plannerRestrictions(order.promo) +
           '</div><div class="plan-payment"><strong>' + escapeHtml(plannerMoney(order.estimatedPay)) + '</strong><small>Estimated payment</small></div></div>';
       }).join('');
+    }
+    function plannerRestrictions(promo) {
+      const r = promo?.restrictions || {}, bits = [];
+      if (r.merchantLimited) bits.push('Selected merchants · check in Uber');
+      if (r.fulfilment === 'delivery_only') bits.push('Delivery only');
+      if (r.fulfilment === 'pickup_only') bits.push('Pickup only');
+      if (r.promoCodeRequired) bits.push('Apply promo code in Uber');
+      if (r.stacking === 'no_other_promotions') bits.push('No other promotions');
+      if (r.excludesFees) bits.push('Minimum excludes fees');
+      if (r.excludesAlcoholTobacco) bits.push('Alcohol & tobacco excluded');
+      return bits.length ? '<div class="plan-subtotal plan-restrictions">' + escapeHtml(bits.join(' · ')) + '</div>' : '';
+    }
+    function plannerAllocation(plan) {
+      const amounts = plan.orders.map(o => plannerMoney(o.subtotal));
+      return plan.orderCount + (plan.orderCount === 1 ? ' order · ' : ' orders · ') +
+        (new Set(amounts).size === 1 ? amounts[0] + (plan.orderCount > 1 ? ' each' : '') : amounts.join(' + '));
     }
     function plannerCheckoutFees() {
       const now = Date.now();
@@ -3323,6 +3347,8 @@
       document.getElementById("homePlannerSummary").textContent = "Basket " + money(currentBasket()) + " · " + (plannerSettings.fulfilment === "pickup" ? "Pickup" : "Delivery");
       document.getElementById('plannerFulfilment').value = plannerSettings.fulfilment || 'delivery';
       const target = document.getElementById("recommendation");
+      const status = document.getElementById('plannerStatus');
+      status.hidden = true;
       if(privateMigrationPending){target.innerHTML='<div class="empty">Import your updated private login file to reconnect saved offer decisions after the security update. Your previous actions remain saved.<button class="advanced-btn" data-open-sheet="device">Import private login file</button></div>';return;}
       const basket = currentBasket();
       const fees = plannerCheckoutFees();
@@ -3331,7 +3357,7 @@
         Object.values(privateWallets).map(w => Date.parse(w.at) <= Date.now())]);
       if (plannerComparisonCache?.key !== key || plannerComparisonCache.wallets !== privateWallets || plannerComparisonCache.payload !== payload) {
         plannerComparisonCache = {key, wallets:privateWallets, payload, value:rankBasketPlans(decisionPromos(), basket, {wallets:privateWallets, accounts, fees,
-          fulfilment:plannerSettings.fulfilment, maxOrders:plannerSettings.maxOrders, extraOrderFee:effectiveFee(), orderFeeEstimate:plannerSettings.feeTouched ? effectiveFee() : null})};
+          fulfilment:plannerSettings.fulfilment, maxOrders:plannerSettings.maxOrders, orderFeeEstimate:effectiveFee()})};
       }
       const comparison = plannerComparisonCache.value;
       if (!comparison.suggested) {
@@ -3345,26 +3371,24 @@
       const lowest = selected.key === suggested.key;
       const line = (icon,label,value,cls='') => '<div class="plan-cost-line ' + cls + '">' + financeIcon(icon) + '<span>' + label + '</span><strong>' + value + '</strong></div>';
       const alternatives = comparison.plans.filter(p => p.key !== selected.key).sort((a,b) => a.estimatedPay-b.estimatedPay);
-      target.innerHTML = '<div class="recommendation-top"><div>' +
-        '<div class="plan-status">' + (selected.conditional ? 'Requires Cash verification' : lowest ? 'Lowest estimated cost' : 'Your selected option') + '</div>' +
+      status.innerHTML = financeIcon('bolt') + '<span>' + (selected.conditional ? 'Requires Cash verification' : lowest ? 'Lowest estimated cost' : 'Your selected option') + '</span>';
+      status.hidden = false;
+      target.innerHTML = '<div class="recommendation-top"><div class="recommendation-choice">' + financeIcon('star') + '<div>' +
         '<h3 class="recommendation-title">Use ' + selected.accountCount + (selected.accountCount === 1 ? ' account' : ' accounts') + '</h3>' +
-        '<div class="recommendation-copy">' + selected.orderCount + (selected.orderCount === 1 ? ' order' : ' orders') + ' · ' + (plannerSettings.fulfilment === 'pickup' ? 'Pickup' : 'Delivery') + '</div></div>' +
-        '<div class="recommendation-save">' + escapeHtml(plannerMoney(selected.estimatedPay)) + '<small>Estimated total' + (selected.checkoutFees != null ? ' with recorded fees' : plannerSettings.feeTouched ? ' with estimated fees' : ' before base fees') + '</small></div></div>' +
+        '<div class="recommendation-copy">' + escapeHtml(plannerAllocation(selected)) + '</div></div></div>' +
+        '<div class="recommendation-save">' + escapeHtml(plannerMoney(selected.estimatedPay)) + '<small>Including estimated fees</small></div></div>' +
         '<div class="plan-costs">' + line('bag','Basket',escapeHtml(plannerMoney(selected.subtotal))) +
         line('star','Promo discounts','−' + escapeHtml(plannerMoney(selected.grossSaving)), 'discount') +
         (selected.cashUsed > 0 ? line('wallet','Uber Cash used','−' + escapeHtml(plannerMoney(selected.cashUsed))) : '') +
-        line('receipt',selected.checkoutFees != null ? 'Recorded checkout fees' : plannerSettings.feeTouched ? 'Order fee estimate' : 'Extra order fee estimate','+' + escapeHtml(plannerMoney(selected.checkoutFees ?? selected.extraFees))) + '</div>' +
+        line('receipt',selected.checkoutFees != null ? 'Recorded checkout fees' : 'Order fee estimate','+' + escapeHtml(plannerMoney(selected.checkoutFees ?? selected.extraFees))) + '</div>' +
         '<div class="plan-accounts"><h4>Accounts to use</h4>' + plannerAccountRows(selected) + '</div>' +
-        '<details id="plannerOtherOptions" class="planner-other-options"' + (otherOptionsOpen ? ' open' : '') + '><summary>' + financeIcon('chart') + '<span>Other options<small>Compare alternative plans.</small></span></summary><div class="planner-alternatives">' +
-        (alternatives.length ? alternatives.map(plan => '<article class="plan-alternative"><div class="plan-alternative-head"><div><strong>Use ' + plan.accountCount + (plan.accountCount === 1 ? ' account' : ' accounts') + '</strong><small>' + plan.orderCount + (plan.orderCount === 1 ? ' order' : ' orders') + (plan.cashUsed > 0 ? ' · uses verified Cash' : '') + (plan.conditional ? ' · Cash coverage unverified' : '') + '</small></div><strong>' + escapeHtml(plannerMoney(plan.estimatedPay)) + '</strong></div>' +
+        '<details id="plannerOtherOptions" class="planner-other-options"' + (otherOptionsOpen ? ' open' : '') + '><summary>' + financeIcon('chart') + '<span>Other options<small>Compare alternative ways to order.</small></span></summary><div class="planner-alternatives">' +
+        (alternatives.length ? alternatives.map(plan => '<article class="plan-alternative"><div class="plan-alternative-head"><div><strong>Use ' + plan.accountCount + (plan.accountCount === 1 ? ' account' : ' accounts') + '</strong><small>' + escapeHtml(plannerAllocation(plan)) + (plan.cashUsed > 0 ? ' · uses verified Cash' : '') + (plan.conditional ? ' · Cash coverage unverified' : '') + '</small></div><div class="plan-alternative-price"><strong>' + escapeHtml(plannerMoney(plan.estimatedPay)) + '</strong><small>' + (plan.estimatedPay === suggested.estimatedPay ? 'Same as suggested' : (plan.estimatedPay > suggested.estimatedPay ? '+' : '−') + escapeHtml(plannerMoney(Math.abs(plan.estimatedPay-suggested.estimatedPay))) + ' vs suggested') + '</small></div></div>' +
           '<p>Basket ' + escapeHtml(plannerMoney(plan.subtotal)) + ' − discounts ' + escapeHtml(plannerMoney(plan.grossSaving)) +
           (plan.cashUsed > 0 ? ' − Cash ' + escapeHtml(plannerMoney(plan.cashUsed)) : '') +
           ' + ' + (plan.checkoutFees != null ? 'recorded fees ' : 'fee estimate ') + escapeHtml(plannerMoney(plan.checkoutFees ?? plan.extraFees)) + '</p>' +
-          '<button class="plan-select" data-select-plan="' + escapeHtml(plan.key) + '">View this plan <span aria-hidden="true">›</span></button></article>').join('') : '<p>No other eligible ordering strategy fits this basket.</p>') + '</div></details>' +
-        '<p class="plan-fee-explanation">' + financeIcon('info') + '<span>' +
-        (selected.checkoutFees != null ? 'Includes the recorded checkout fees for this basket once. Confirm the final amount in Uber.' : 'Basket minus promo discounts' + (selected.cashUsed > 0 ? ' and verified Uber Cash' : '') + ', plus ' + escapeHtml(plannerMoney(effectiveFee())) + (plannerSettings.feeTouched ? ' estimated for each account/order, including the first. This estimates checkout fees; the final delivery and service fees are confirmed in Uber.' : ' estimated per extra order. Base delivery and service fees are not included; confirm them in Uber.')) +
-        (selected.conditional ? ' Confirm Cash can cover the remainder after a promo before using this option.' : '') + '</span></p>' +
-        '<button class="planner-matching-action" data-planner-matches="true">Find more matching accounts <span aria-hidden="true">›</span></button>' +
+          '<button class="plan-select" data-select-plan="' + escapeHtml(plan.key) + '">View accounts for this plan <span aria-hidden="true">›</span></button></article>').join('') : '<p>No other eligible ordering strategy fits this basket.</p>') + '</div></details>' +
+        (selected.conditional ? '<p class="plan-conditional-note">Confirm Cash can cover the remainder after a promo before using this option.</p>' : '') +
         (Object.keys(privateWallets).length ? '<button class="planner-matching-action" data-open-sheet="finance" data-finance-target="cash">Update private Cash balances <span aria-hidden="true">›</span></button>' : '');
       target.querySelector('#plannerOtherOptions').addEventListener('toggle', event => { otherOptionsOpen = event.target.open; });
     }
@@ -3971,12 +3995,6 @@
     }
 
     function renderAdvancedSheet() {
-      const learned = Number(
-        payload?.summary?.feeModel?.averageExtraOrderFees ??
-        payload?.summary?.averageExtraOrderFees ??
-        0
-      );
-
       setSheetHeading("Fee settings", "Choose how many separate orders a recommendation can use.");
 
       document.getElementById("sheetBody").innerHTML =
@@ -3987,18 +4005,16 @@
         '<div class="setting-card">' +
           '<div class="setting-card-head">' +
             '<div class="setting-icon">' + financeIcon('wallet') + '</div>' +
-            '<div><div class="setting-title">Estimated fee per account/order</div>' +
+            '<div><div class="setting-title">Estimated fee per order</div>' +
             '<div class="setting-copy">Enter the estimated delivery, service and small-order fees for each account, including the first.</div></div>' +
           '</div>' +
           '<label class="setting-money" for="sheetFeeInput">' +
             '<span>£</span>' +
             '<input id="sheetFeeInput" type="number" min="0" step="0.01" value="' +
               escapeHtml(hasFeeEstimate() ? effectiveFee().toFixed(2) : '') + '" placeholder="Not entered" inputmode="decimal">' +
-            (learned > 0
-              ? '<em>Receipt-based estimate ' + escapeHtml(money(learned)) + '</em>'
-              : '<em>Default £1 per extra order</em>') +
+            '<em>Default £1 per order</em>' +
           '</label>' +
-          '<div class="setting-note">Your entered amount applies once per account/order: £2 means £2 for one, £4 for two and £6 for three. Matching recorded checkout fees replace this estimate. Leave blank to restore the automatic £1 per extra order estimate (or receipt-based estimate).</div>' +
+          '<div class="setting-note plan-fee-explanation">Basket minus promo discounts and any verified Uber Cash, plus your estimated fee for every order, including the first. £2 means £2 for one order, £4 for two and £6 for three. Matching recorded checkout fees replace this estimate; they are never added twice. Estimates are not confirmed checkout costs. Leave blank to restore £1 per order.</div>' +
         '</div>' +
         '<div class="setting-card">' +
           '<div class="setting-card-head">' +

@@ -436,34 +436,32 @@ export function planBasketSplit(
 
 // Compare the existing split calculation with the existing same-account Cash
 // calculation. A saved wallet must never override a cheaper split. Unknown
-// checkout fees remain null. A manual estimate applies to every order; the
-// automatic extra-order estimate remains the fallback. Recorded fees replace
+// checkout fees remain null. The estimate applies to every order, including
+// the first, and defaults to £1. Recorded fees replace
 // estimates, and fees enter the calculation before verified Cash is deducted.
 export function rankBasketPlans(promos = [], subtotal, {
   wallets = {}, accounts = [], fees = {}, fulfilment = 'delivery',
-  maxOrders = 3, extraOrderFee = 1, orderFeeEstimate = null, now = new Date().toISOString()
+  maxOrders = 3, orderFeeEstimate = 1, now = new Date().toISOString()
 } = {}) {
   const perOrder = number(orderFeeEstimate);
-  const manualFee = perOrder == null ? null : roundMoney(Math.max(0, perOrder));
+  const perOrderFee = perOrder == null ? 1 : roundMoney(Math.max(0, perOrder));
   const split = planBasketSplit(promos.filter(p => p.discountType !== 'uberCash' && matchesFulfilment(p, fulfilment)), subtotal, {
-    service: 'Uber Eats', accessibleOnly: true, maxOrders, extraOrderFee: manualFee == null ? extraOrderFee : 0
+    service: 'Uber Eats', accessibleOnly: true, maxOrders, extraOrderFee: 0
   });
   const candidates = [];
   if (split.eligible) {
     for (const plan of [split, ...(split.alternatives || [])].filter(p => p.orderCount > 1)) {
-      const estimatedFees = manualFee == null ? plan.extraFees : roundMoney(manualFee * plan.orderCount);
+      const estimatedFees = roundMoney(perOrderFee * plan.orderCount);
       candidates.push({...plan, extraFees: estimatedFees, estimatedPay: roundMoney(plan.subtotal-plan.grossSaving+estimatedFees),
         netSaving: roundMoney(plan.grossSaving-estimatedFees), kind: 'split', conditional: false, cashUsed: 0, checkoutFees: null,
-        orders: plan.orders.map((order, i) => {
-          const roundedFee = roundMoney(Math.max(0, number(extraOrderFee) || 0));
-          const extraFee = manualFee != null ? manualFee : !i ? 0 : i === plan.orders.length - 1
-            ? roundMoney(plan.extraFees - roundedFee * (i - 1)) : roundedFee;
+        orders: plan.orders.map(order => {
+          const extraFee = perOrderFee;
           return {...order, cashUsed: 0, checkoutFees: null, extraFee,
             estimatedPay: roundMoney(order.pay + extraFee)};
         })});
     }
   }
-  for (const option of rankCheckoutOptions(promos, subtotal, {wallets, accounts, fees, fulfilment, now, orderFeeEstimate:manualFee})) {
+  for (const option of rankCheckoutOptions(promos, subtotal, {wallets, accounts, fees, fulfilment, now, orderFeeEstimate:perOrderFee})) {
     candidates.push({eligible: true, kind: option.kind, conditional: option.conditional,
       subtotal: option.basket, grossSaving: option.promotionDiscount,
       extraFees: option.estimatedFee, checkoutFees: option.fees, cashUsed: option.cashUsed,
