@@ -36,7 +36,7 @@ try{for(const [width,height,large]of [[440,956,false],[440,763,false],[430,932,f
  if(!large&&width===440){
   assert.ok(filters.width>=125&&scope.width/filters.width<=2.1,'Filters gets the reference proportion');
   assert.equal(await page.locator('#quickGrid').evaluate(e=>getComputedStyle(e).gridTemplateColumns.split(' ').length),3);
-  assert.ok(await page.locator('[data-intent="cash-promo"] .quick-title').evaluate(e=>e.getBoundingClientRect().height<=parseFloat(getComputedStyle(e).lineHeight)+1),'Cash + promo stays on one line at the target phone width');
+  const cashChip=await page.locator('[data-intent="cash-promo"] .quick-title').evaluate(e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect(),c=document.createElement('canvas').getContext('2d');c.font=s.font;return{height:r.height,width:r.width,lineHeight:parseFloat(s.lineHeight),font:s.font,textWidth:c.measureText(e.textContent).width,viewport:innerWidth,buttonWidth:e.closest('button').getBoundingClientRect().width,padding:getComputedStyle(e.closest('button')).padding};});assert.ok(cashChip.height<=cashChip.lineHeight+1,'Cash + promo stays on one line at the target phone width '+JSON.stringify(cashChip));
  }
  if(large||width<390)assert.ok(await page.locator('#quickGrid').evaluate(e=>getComputedStyle(e).gridTemplateColumns.split(' ').length)<3,'Chips reflow for narrower screens/enlarged text');
  assert.equal(await page.locator('#homeAccountsTitle').innerText(),'Best matches');assert.equal(await page.locator('#homeAccountMeta').innerText(),'5 accounts');
