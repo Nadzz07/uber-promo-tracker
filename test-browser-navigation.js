@@ -36,3 +36,17 @@ export async function directoryReset(page) {
 }
 
 export async function directoryAvailability(page,value) { const panel=page.locator('#accountSecondaryFilters');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await page.locator('#accountOfferScope').selectOption(value); }
+
+// Back/Forward and ResizeObserver updates can finish after goBack resolves.
+// Wait for stable scroll and dock geometry before the next pointer action.
+export async function settlePageLayout(page) {
+ await page.evaluate(()=>new Promise(resolve=>{let previous='',stable=0;function frame(){const nav=document.getElementById('mainNav'),r=nav.getBoundingClientRect(),signature=[scrollY,document.documentElement.scrollHeight,innerHeight,r.top,r.height,getComputedStyle(document.body).paddingBottom].join('|');stable=signature===previous?stable+1:0;previous=signature;if(stable>=6)resolve();else requestAnimationFrame(frame);}requestAnimationFrame(frame);}));
+}
+export async function backToDirectory(page) {
+ await page.goBack();await page.locator('#view-accounts.active').waitFor();await page.waitForFunction(()=>history.state?.trackerView==='accounts');await settlePageLayout(page);
+}
+export async function scrollAboveDock(page,selector) {
+ await page.locator(selector).focus();await settlePageLayout(page);
+ await page.waitForFunction(()=>{const n=document.getElementById('mainNav'),s=getComputedStyle(n);return Math.abs(parseFloat(getComputedStyle(document.body).paddingBottom)-(n.getBoundingClientRect().height+parseFloat(s.bottom)+16))<1.1;});
+ await page.locator(selector).evaluate(e=>e.scrollIntoView({block:'end',behavior:'instant'}));await settlePageLayout(page);
+}

@@ -1,4 +1,4 @@
-import {directoryStatus,directoryReset} from './test-browser-navigation.js';
+import {directoryStatus,directoryReset,scrollAboveDock} from './test-browser-navigation.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -70,7 +70,7 @@ try{for(const [width,height,large]of [[440,956,false],[440,763,false],[430,932,f
   await page.evaluate(()=>{document.documentElement.style.setProperty('--offers-safe-top','62px');document.documentElement.style.setProperty('--offers-safe-bottom','34px');dispatchEvent(new Event('resize'));scrollTo(0,0);});
   await page.waitForFunction(()=>{const nav=document.querySelector('.bottom-nav');return parseFloat(getComputedStyle(nav).bottom)===42&&Math.abs(parseFloat(getComputedStyle(document.body).paddingBottom)-(nav.getBoundingClientRect().height+42+16))<1.1;});
   assert.equal((await rect('#view-offers .detail-view-head')).y,86,'Top inset applies exactly once');
-  for(const selector of ['.offer-matching-help > summary','#homeResultsFooter button']){const control=page.locator(selector);await control.evaluate(e=>{e.focus({preventScroll:true});e.scrollIntoView({block:'end',behavior:'instant'});});await page.waitForFunction(selector=>document.querySelector(selector).getBoundingClientRect().bottom<=document.querySelector('.bottom-nav').getBoundingClientRect().top-15,selector);assert.ok(await control.evaluate(e=>e.getBoundingClientRect().bottom<=document.querySelector('.bottom-nav').getBoundingClientRect().top-15),'Final control clears measured navigation '+selector+' '+JSON.stringify({width,height,large}));}
+  for(const selector of ['.offer-matching-help > summary','#homeResultsFooter button']){const control=page.locator(selector);await scrollAboveDock(page,selector);assert.ok(await control.evaluate(e=>e.getBoundingClientRect().bottom<=document.querySelector('.bottom-nav').getBoundingClientRect().top-15),'Final control clears measured navigation '+selector+' '+JSON.stringify({width,height,large}));}
   await page.setViewportSize({width,height:360});await page.locator('#homeOfferSearch').focus();await page.locator('#homeOfferSearch').scrollIntoViewIfNeeded();assert.ok(await page.locator('#homeOfferSearch').evaluate(e=>e.getBoundingClientRect().top>=0&&e.getBoundingClientRect().bottom<=innerHeight),'Keyboard-sized viewport exposes search');await page.setViewportSize({width,height});
  }
  await page.locator('#homeResultsFooter button').click();assert.equal(await page.locator('#accountOfferScope').inputValue(),'ready');assert.equal(await page.locator('#accountsMeta').innerText(),'5 accounts');await page.goBack();await page.locator('#view-offers.active').waitFor();assert.equal(await page.locator('#offerScope').inputValue(),'ready');
