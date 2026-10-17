@@ -51,3 +51,19 @@ assert.ok(model([grant(),second],[receipt({cashUsageAmbiguous:true,uberCashUsed:
 assert.equal(model([grant()],[receipt({orderAt:null,orderDate:'2026-10-01'})]).grants[0].status,'needs_checking','Date-only usage on an issue boundary is not invented as before or after the grant');
 
 const summary=summariseCash(model([grant()]).grants);assert.equal(currentCashPosition({cashSummary:summary},[],null,[],{now,ignoredEstimates:summary.grants}).remaining,0,'Ignoring a grant removes its estimate from discovery without deleting it');
+
+// A newer receipt can make a manual verification uncertain, but must never
+// resurrect an email estimate from before that verification.
+const priorGrant={status:'estimated',remaining:10,issued:10,issuedAt:'2026-10-01T12:00:00Z',expiresAt:'2026-10-31T12:00:00Z'};
+const checkedAccount={accountRef:'A1',orderCount:1,rideCount:0,lastOrderAt:'2026-10-16T12:00:00Z',cashSummary:{grants:[priorGrant]}};
+const checkedZero={balance:0,at:'2026-10-15T12:00:00Z',receiptCount:0},savedCheck=JSON.stringify(checkedZero);
+for(const balance of [0,3]){
+ const position=currentCashPosition(checkedAccount,[],{...checkedZero,balance},[],{now});
+ assert.equal(position.status,'needs_checking');assert.equal(position.remaining,null);assert.equal(position.verificationNeedsChecking,true);
+}
+assert.equal(JSON.stringify(checkedZero),savedCheck,'Reconciliation cannot overwrite the saved verification');
+const laterReceipt=receipt({orderAt:'2026-10-16T12:00:00Z',uberCashUsed:0});
+assert.equal(currentCashPosition(checkedAccount,[],checkedZero,[laterReceipt],{now,completeEvidence:true}).remaining,0,'Complete newer evidence preserves a checked zero instead of resurrecting the prior grant');
+const laterGrant={...priorGrant,issued:6,remaining:6,issuedAt:'2026-10-16T14:00:00Z'};
+assert.equal(currentCashPosition({...checkedAccount,cashSummary:{grants:[priorGrant,laterGrant]}},[],checkedZero,[laterReceipt],{now,completeEvidence:true}).remaining,6,'A supported new grant after verification still participates');
+console.log('✓ Manual Cash verification stays authoritative when newer receipt evidence is incomplete; prior grants cannot resurrect spent balances');
