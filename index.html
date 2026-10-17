@@ -4248,7 +4248,11 @@
         const entry = ++routeSerial;
         currentRouteEntry = entry;
         routeEntries.set(entry, {opener: document.activeElement, scroll: window.scrollY});
-        window.history[state?.trackerSheet ? 'replaceState' : 'pushState']({trackerView: currentView, trackerEntry: entry, trackerSheet: openSheetType, trackerAccount: openAccountRef}, '', '#' + currentView);
+        const method=state?.trackerSheet?'replaceState':'pushState';
+        window.history[method]({trackerView: currentView, trackerEntry: entry, trackerSheet: openSheetType, trackerAccount: openAccountRef}, '', '#' + currentView);
+        const position=method==='pushState'?window.history.length-1:routeEntries.get(state?.trackerEntry)?.position;
+        routeEntries.get(entry).position=position??window.history.length-1;
+        if(method==='pushState'&&routeEntries.has(state?.trackerEntry))routeEntries.get(state.trackerEntry).position=position-1;
       }
       if (!document.getElementById("sheetBackdrop").classList.contains("open")) sheetOpener = document.activeElement;
       document.getElementById("app").inert = true;

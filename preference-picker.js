@@ -58,10 +58,11 @@ export function createPreferredPromosEditor({page,catalogue,getChoices,getPrefer
  for(const host of [page,catalogue]){
   host.addEventListener('change',changed);
   host.querySelector('input[type=search]').addEventListener('input',render);
+  host.querySelector('input[type=search]').addEventListener('search',render);
   host.addEventListener('click',e=>{if(e.target.closest('[data-preferred-back]'))onBack();});
-  host.addEventListener('keydown',e=>{if(e.key==='Escape'&&!e.target.matches('input[type=search]')){e.preventDefault();e.stopPropagation();onBack();}if(e.key==='ArrowDown'&&e.target.matches('input[type=search]')){e.preventDefault();host.querySelector('input[type=checkbox]')?.focus();}});
+  host.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();if(e.target.matches('input[type=search]')&&e.target.value){e.target.value='';render();}else onBack();}if(e.key==='ArrowDown'&&e.target.matches('input[type=search]')){e.preventDefault();host.querySelector('input[type=checkbox]')?.focus();}});
  }
- page.querySelector('#browsePreferredPromos').addEventListener('click',()=>onNavigate('preferred-catalogue'));
+ page.querySelector('#browsePreferredPromos').addEventListener('click',()=>{page.querySelector('#browsePreferredPromos').focus({preventScroll:true});onNavigate('preferred-catalogue');});
  page.querySelector('#restorePreferred').addEventListener('click',()=>{draft=new Set(DEFAULT_PREFERRED_PROMOS);page.querySelector('#preferredSearch').value='';render();});
  page.querySelector('#savePreferred').addEventListener('click',()=>{if(onSave([...draft])===false){const error=page.querySelector('#preferredSaveError');error.hidden=false;error.textContent='Preferences could not be saved. Please try again.';return;}baseline=signature(draft);onBack();});
  return {
