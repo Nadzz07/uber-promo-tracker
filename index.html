@@ -3743,7 +3743,6 @@
       if(!saveOfferState(next))return;
       accountTypeFilter=selectedOfferScope(offerPreferences);finderFilters.type=accountTypeFilter;
       invalidateAccountProjection();plannerComparisonCache=null;selectedPlannerKey=null;renderAll();
-      if(currentView==='settings')renderSettingsPage();
     }
     function themeColourLabel(){
       const named={'#9bea72':'Lime','#80d4ff':'Ocean','#c5a0ff':'Violet','#c989f5':'Purple','#ff9bb8':'Rose','#ffc778':'Amber'};
