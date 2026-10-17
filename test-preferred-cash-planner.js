@@ -9,6 +9,11 @@ const account=ref=>({accountRef:ref,canLogin:true,accountStatus:'active',orderCo
 const preferences=normaliseOfferPreferences();
 assert.equal(mainOfferChoices().length,7);
 assert.equal(mainOfferChoices().at(-1).key,'other');
+const customised=normaliseOfferPreferences({...preferences,preferredPromos:['fixed:15:25','percent:15:15','fixed:12:unknown','fixed:15:25']});
+assert.deepEqual(mainOfferChoices(customised).map(c=>c.key),['preferred','fixed:15:25','percent:15:15','fixed:12:unknown','cash','cash-promo','other'],'Only saved standalone favourites appear in the short browsing picker, without duplicate types');
+assert.deepEqual(mainOfferChoices({...preferences,preferredPromos:[]}).map(c=>c.key),['preferred','cash','cash-promo','other']);
+assert.equal(matchesDiscoveryScope({promos:[promo('a')]},'preferred',{...preferences,preferredPromos:[],includeCash:false}),false,'An empty preferred scope must not mean all offers');
+assert.equal(matchesDiscoveryScope({cashPosition:{remaining:6,status:'estimated'},promos:[]},'preferred',{...preferences,preferredPromos:[]}),true,'Cash preferences remain independent of standalone favourites');
 for(const discount of [10,12,15])assert.equal(matchesDiscoveryScope({promos:[promo('a',{discount})]},'preferred',preferences),true);
 for(const p of [promo('a',{discount:15,minimumSpend:25}),promo('a',{discountType:'percent',discount:15}),promo('a',{minimumSpend:15,minimumSpendVerified:false}),promo('a',{minimumSpend:null})])assert.equal(matchesDiscoveryScope({promos:[p]},'preferred',preferences),false);
 const cashAccount={...account('a'),cashPosition:{status:'estimated',remaining:10},promos:[promo('a',{discount:5})]};

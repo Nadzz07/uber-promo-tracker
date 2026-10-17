@@ -1,5 +1,12 @@
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const paths = {
+  'menu-coins': '<ellipse cx="15" cy="5" rx="6" ry="3"/><path d="M9 5v5c0 4 12 4 12 0V5M15 13v4c3 0 6-1 6-3v-4"/><ellipse cx="8" cy="13" rx="6" ry="3"/><path d="M2 13v5c0 4 12 4 12 0v-5M2 17v3c0 4 12 4 12 0v-3"/>',
+  'menu-calendar': '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18"/>',
+  'menu-sync': '<path d="M20 8a8 8 0 0 0-14-4L3 7M3 2v5h5M4 16a8 8 0 0 0 14 4l3-3M21 22v-5h-5"/>',
+  'menu-sliders': '<path d="M3 5h18M3 12h18M3 19h18"/><circle cx="8" cy="5" r="2.5" fill="var(--surface)"/><circle cx="16" cy="12" r="2.5" fill="var(--surface)"/><circle cx="10" cy="19" r="2.5" fill="var(--surface)"/>',
+  'promo-tag': '<path d="M14 3h7v7L10 21 3 14 14 3Z"/><circle cx="17" cy="7" r="1"/>',
+  'chevron-left': '<path d="m15 4-8 8 8 8"/>',
+  'chevron-right': '<path d="m9 4 8 8-8 8"/>',
   palette: '<path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1-4c-1-1 0-3 2-3h2a3 3 0 0 0 3-3 9 9 0 0 0-9-8Z"/><circle cx="7" cy="11" r=".7"/><circle cx="9" cy="7" r=".7"/><circle cx="14" cy="6.5" r=".7"/><circle cx="17.5" cy="10" r=".7"/>',
   motion: '<path d="m9 2 2 6 6 2-6 2-2 6-2-6-6-2 6-2 2-6ZM18 14l1.5 4.5L24 20l-4.5 1.5L18 26l-1.5-4.5L12 20l4.5-1.5L18 14Z" transform="scale(.88)"/>',
   list: '<circle cx="4" cy="5" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="19" r="1"/><path d="M10 5h11M10 12h11M10 19h7"/>',
