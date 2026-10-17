@@ -164,3 +164,11 @@ checks the original message and matching destination copy before counting it.
 Advertised order discounts are separate from calculated effective percentages. Product-specific catalogue deals are excluded; grocery and supermarket order coupons remain eligible. Mixed emails preserve the genuine order offer. Uncertain scope or missing original evidence is reviewable. Private original messages and superseded derived records remain retained.
 
 Private financial corrections use an encrypted device ledger and an owner-only Mac transfer. Routine Mail sync remains read-only; Archive/Bin cleanup requires an approved dry-run. See RELEASE.md for the supported workflow.
+
+### Offer preferences and activity
+
+Used accounts is an activity view with search, eight status categories and paged records. Fully used still means at least one Eats plus one Ride receipt, or five Eats receipts. Promotion completion, expiry, manual finish, ignore state, login and archive status remain separate. Summary categories count different entities and must not be added together.
+
+Discovery defaults to exact £10, £12 and £15 off £15 offers, plus eligible Cash. Settings saves preferred promos and Cash inclusion on this device; explicit selections are preserved when defaults change. Accounts and Find an offer share the scope. Other offers remain in a separate searchable picker. Planner uses the same preferences, with an All offers override, and charges the saved fee to every order including the first (£1 by default). It compares estimated out-of-pocket payments, applying Cash after discounts and fees. Unknown Cash/promo compatibility is conditional.
+
+Cash grant reconstruction deduplicates original emails/reminders and receipt payments, allocates payments chronologically once, follows source expiry terms and keeps uncertain credit evidence unresolved. Generic 35-day offer expiry is not a Cash expiry rule. Sanitised issued/remaining estimates and dates can appear in the masked public snapshot. Original source identifiers, allocation traces, receipts, verified wallet balances and financial corrections stay private. Cash payments never increase promotional savings. Manual balances reconcile only against complete newer receipt evidence; an outdated private export, unknown credit allocation or later grant expiry requires checking.

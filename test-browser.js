@@ -1,4 +1,4 @@
-import {openHomeDetail,directoryStatus,directoryType,directoryReset} from './test-browser-navigation.js';
+import {openHomeDetail,directoryStatus,directoryType,directoryReset,usedStatus} from './test-browser-navigation.js';
 // Synthetic data is intercepted in the test browser only, never written to public JSON.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -26,7 +26,7 @@ try {
   // First-sync behaviour must not depend on the user's checked-in live data.
   await page.route('**/promos.json?*', route => route.fulfill({ json: { schemaVersion: 3, configured: false, generatedAt: null, accounts: [], promos: [], summary: {} } }));
   await page.route('**/history.json?*', route => route.fulfill({ json: { updatedAt: null, records: [] } }));
-  await page.goto(url); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'READY');
+  await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto(url); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'READY');
   assert.equal(await page.locator('#usableStat').innerText(), '0');
   assert.equal(await page.locator('.account-card').count(), 0);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
@@ -55,7 +55,7 @@ try {
   assert.equal(await page.locator('#savedStat').innerText(), '£10');
   assert.match(await page.locator('#savedStatSub').innerText(), /£5 estimated/);
   await page.locator('[data-view="accounts"]').click();
-  await directoryStatus(page,'used');
+  await directoryType(page,'all');await directoryStatus(page,'used');
   assert.equal(await page.locator('#accountsList .account-card').count(), 1);
   assert.match(await page.locator('#accountsList').innerText(), /us…ed/);
   await page.locator('#accountSearch').fill('missing');
@@ -84,14 +84,10 @@ try {
   assert.match(await page.locator('#sheetBody').innerText(), /3 not confirmed redeemed/);
   await page.keyboard.press('Escape');
   await page.locator('[data-view="used"]').click();
-  assert.equal(await page.locator('#expiredList').isVisible(),false,'Expired history is collapsed by default');
-  await page.locator('#finishedExpiredSection > summary').click();
-  assert.match(await page.locator('#finishedExpiredList').innerText(), /ex…ed/);
-  await page.locator('#needsCheckingSection > summary').click();
-  assert.match(await page.locator('#needsCheckingList').innerText(), /re…ew/);
-  assert.match(await page.locator('#needsCheckingList').innerText(), /order count needs verification/);
-  assert.doesNotMatch(await page.locator('#needsCheckingList').innerText(), /96 orders/);
-  if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('#needsCheckingList [data-account-offers="A007"]').click();
+  assert.equal(await page.locator('#usedStatusOptions').isVisible(),false,'Status picker is closed by default');
+  await usedStatus(page,'finished_expired');assert.match(await page.locator('#usedRecords').innerText(),/ex…ed/);
+  await usedStatus(page,'needs_checking');assert.match(await page.locator('#usedRecords').innerText(),/re…ew/);assert.match(await page.locator('#usedRecords').innerText(),/allowance needs verification|Offer evidence needs checking/);assert.doesNotMatch(await page.locator('#usedRecords').innerText(),/96 orders/);
+  await page.locator('#usedRecords [data-activity-record="review:A007"]').click();
   assert.equal(await page.locator('[data-use-one="test-bad-count"]').isDisabled(), true);
   assert.doesNotMatch(await page.locator('#sheetBody').innerText(), /96 left|of 96/);
   await page.keyboard.press('Escape');
@@ -267,7 +263,7 @@ try {
   await page.locator('[data-theme-colour="#c5a0ff"]').click();
   const chosen = await page.evaluate(() => ({ stored: localStorage.getItem('uber-eats-promo-tracker:theme:v1'), colour: getComputedStyle(document.documentElement).getPropertyValue('--green') }));
   assert.equal(chosen.stored, '#c5a0ff'); assert.notEqual(chosen.colour.trim(), '#9bea72');
-  await page.locator('#colourWheel').scrollIntoViewIfNeeded();
+  await page.locator('.settings-theme-advanced > summary').click();await page.locator('#colourWheel').scrollIntoViewIfNeeded();
   const wheel = await page.locator('#colourWheel').boundingBox();
   await page.mouse.click(wheel.x+wheel.width*.8, wheel.y+wheel.height*.5);
   assert.notEqual(await page.locator('#themeColour').inputValue(), '#c5a0ff');
@@ -317,7 +313,7 @@ try {
   const filterPage = await filterContext.newPage();
   filterPage.on('pageerror', error => errors.push(error.message));
   const repeatOffer = { ...offer, id: 'repeat-101', accountRef: 'A101', accountMasked: 're…at@example.invalid', discount: 12, minimumSpend: 15, uses: 5, usesRemaining: 4, receiptConfirmedUses: 1 };
-  const cashOffer = { ...repeatOffer, id: 'cash-101', discountType: 'uberCash', discount: 7, minimumSpend: 0, uses: 1, usesRemaining: 1, receiptConfirmedUses: 0, receiptState: null };
+  const cashOffer = { cashEstimate:{status:'estimated',remaining:7,issued:7,expiresAt:offer.expiresAt,allocation:'no_recorded_usage'},...repeatOffer, id: 'cash-101', discountType: 'uberCash', discount: 7, minimumSpend: 0, uses: 1, usesRemaining: 1, receiptConfirmedUses: 0, receiptState: null };
   const filterOffers = [repeatOffer, cashOffer, { ...cashOffer, id: 'another-cash-101' },
     { ...repeatOffer, id: 'single-102', accountRef: 'A102', accountMasked: 'si…le@example.invalid', discountType: 'percent', discount: 20, usesRemaining: 1, receiptConfirmedUses: 4 },
     { ...repeatOffer, id: 'another-single-102', accountRef: 'A102', accountMasked: 'si…le@example.invalid', uses: 1, usesRemaining: 1, receiptConfirmedUses: 0 },
@@ -337,12 +333,13 @@ try {
   ];
   const filterAccounts = [...new Map(filterOffers.map(p => [p.accountRef, { accountRef: p.accountRef, accountMasked: p.accountMasked, canLogin: p.canLogin, orderCount: p.accountRef === 'A107' ? 5 : p.accountRef === 'A109' ? 4 : ['A101','A110','A111'].includes(p.accountRef) ? 1 : 0, rideCount: ['A110','A111'].includes(p.accountRef) ? 1 : 0 }])).values()];
   filterAccounts.push({accountRef:'A108',accountMasked:'no…rs@example.invalid',canLogin:true,orderCount:0,rideCount:0});
+  for(const p of filterOffers)if(p.discountType==='uberCash')p.cashEstimate={status:p.expiryStatus==='unknown'?'needs_checking':p.usesRemaining===0?'exhausted':Date.parse(p.expiresAt)<Date.now()?'expired':'estimated',remaining:p.expiryStatus==='unknown'?null:p.usesRemaining===0||Date.parse(p.expiresAt)<Date.now()?0:p.discount,issued:p.discount,expiresAt:p.expiresAt,allocation:'no_recorded_usage'};
   const filterPayload = { schemaVersion: 3, generatedAt: time, accounts: filterAccounts, promos: filterOffers, summary: { totalSaved: 40 }, receiptActivity:{months:[{period:'2026-06',eats:1,rides:0,saved:1},{period:'2026-07',eats:0,rides:1,saved:39},{period:'2026-10',eats:1,rides:0,saved:0}],days:[{period:'2026-10-09',eats:1,rides:0,saved:0}]} };
   await filterPage.route('**/promos.json?*', route => route.fulfill({ json: filterPayload }));
   await filterPage.route('**/history.json?*', route => route.fulfill({ json: { updatedAt: time, records: [] } }));
-  await filterPage.goto(url); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
-  assert.equal(await filterPage.locator('#unfinishedCount').innerText(), '7');
-  await openHomeDetail(filterPage,'offers');await filterPage.locator('[data-intent="unfinished"]').click();
+  await filterPage.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await filterPage.goto(url); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');await openHomeDetail(filterPage,'offers');
+  assert.equal(await filterPage.locator('#unfinishedCount').textContent(), '7');
+  await openHomeDetail(filterPage,'offers');if(await filterPage.locator('.finder-progress-filter').getAttribute('open')===null)await filterPage.locator('.finder-progress-filter > summary').click();await filterPage.locator('[data-intent="unfinished"]').click();
   assert.match(await filterPage.locator('#homeAccounts [data-card-account="A101"] .pill-row .pill').getAttribute('aria-label'), /1\/5 confirmed · up to 4 left/);
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A102"]').count(), 1, 'An unfinished account with one remaining use stays in the section');
   for (const ref of ['A106','A111','A108','A103']) assert.equal(await filterPage.locator('#homeAccounts [data-card-account="'+ref+'"]').count(), 0, 'Archived and completed accounts without live offers stay out');
@@ -362,7 +359,7 @@ try {
   await openHomeDetail(filterPage,'offers');await filterPage.locator('[data-intent="cash-promo"]').click();
   assert.equal(await filterPage.locator('#homeAccounts .account-card').count(), 2);
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A101"]').count(), 1, 'Same-account cash and discount are required; expired, consumed, review and archived offers must not qualify');
-  await filterPage.locator('.offer-matching-help > summary').click();assert.match(await filterPage.locator('#homeResultsHelp').innerText(), /Combining them depends on Uber/);
+  await filterPage.locator('.offer-matching-help > summary').click();assert.match(await filterPage.locator('#homeResultsHelp').innerText(), /Compatibility needs confirmation/);
   assert.equal(await filterPage.locator('#savedStat').innerText(), '£40');
   assert.match(await filterPage.locator('#recommendation').innerText(), /Promo discounts\s*−£12\.00/, 'Finding both offers must not add £7 cash to £12 discount');
   await filterPage.locator('[data-view="accounts"]').click();
@@ -371,26 +368,26 @@ try {
   for (const accountRef of ['A102', 'A103', 'A104', 'A105']) assert.equal(await filterPage.locator(`#accountsList [data-card-account="${accountRef}"]`).count(), 0);
   // A single remaining order is still available, but is no longer a repeat-order option.
   repeatOffer.usesRemaining = 1; repeatOffer.receiptConfirmedUses = 4;
-  for (const promo of filterOffers.filter(p => p.accountRef === 'A101' && p.discountType === 'uberCash')) promo.usesRemaining = 0;
-  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
-  assert.equal(await filterPage.locator('#unfinishedCount').innerText(), '7', 'One remaining use and partial receipts do not finish an account');
+  for (const promo of filterOffers.filter(p => p.accountRef === 'A101' && p.discountType === 'uberCash')) {promo.usesRemaining=0;promo.cashEstimate={...promo.cashEstimate,status:'exhausted',remaining:0};}
+  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');await openHomeDetail(filterPage,'offers');
+  assert.equal(await filterPage.locator('#unfinishedCount').textContent(), '7', 'One remaining use and partial receipts do not finish an account');
   assert.equal(await filterPage.locator('#cashPromoCount').innerText(), '1');
   assert.equal(await filterPage.locator('#activeStat').innerText(), '9', 'One use left preserves eligibility, including an inaccessible account');
   assert.match(await filterPage.locator('#offerScopeSummary').innerText(), /8 ready.*1 need attention/);
   filterOffers.splice(filterOffers.findIndex(p => p.id === 'another-single-102'), 1);
-  filterOffers.push({ ...cashOffer, id: 'cash-102', accountRef: 'A102', accountMasked: 'si…le@example.invalid', usesRemaining: 1 });
-  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
+  filterOffers.push({ ...cashOffer, cashEstimate:{...cashOffer.cashEstimate,status:'estimated',remaining:7},id: 'cash-102', accountRef: 'A102', accountMasked: 'si…le@example.invalid', usesRemaining: 1 });
+  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');await openHomeDetail(filterPage,'offers');
   assert.equal(await filterPage.locator('#cashPromoCount').innerText(), '2', 'Percentage discounts also match with active cash');
   await openHomeDetail(filterPage,'offers');await filterPage.locator('[data-intent="cash-promo"]').click();
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A102"]').count(), 1);
   filterAccounts.find(a => a.accountRef === 'A109').orderCount = 5;
-  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
-  assert.equal(await filterPage.locator('#unfinishedCount').innerText(), '7', 'Receipt completion cannot hide a remaining offer');
+  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');await openHomeDetail(filterPage,'offers');
+  assert.equal(await filterPage.locator('#unfinishedCount').textContent(), '7', 'Receipt completion cannot hide a remaining offer');
   filterOffers.find(p => p.accountRef === 'A109').usesRemaining = 0;
   filterOffers.find(p => p.accountRef === 'A109').receiptConfirmedUses = 5;
-  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
-  assert.equal(await filterPage.locator('#unfinishedCount').innerText(), '6', 'The account leaves when receipt usage is complete and no live uses remain');
-  await openHomeDetail(filterPage,'offers');await filterPage.locator('[data-intent="unfinished"]').click();
+  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');await openHomeDetail(filterPage,'offers');
+  assert.equal(await filterPage.locator('#unfinishedCount').textContent(), '6', 'The account leaves when receipt usage is complete and no live uses remain');
+  await openHomeDetail(filterPage,'offers');if(await filterPage.locator('.finder-progress-filter').getAttribute('open')===null)await filterPage.locator('.finder-progress-filter > summary').click();await filterPage.locator('[data-intent="unfinished"]').click();
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A109"]').count(), 0);
   for (const width of [320, 390, 1440]) {
     await filterPage.setViewportSize({ width, height: 900 });

@@ -31,6 +31,7 @@ export function materialPalette(background = [14,16,21], accent = [197,160,255])
 export function createLiquidNavigation(nav) {
   const doc=nav.ownerDocument, win=doc.defaultView, glider=nav.querySelector('.nav-glider');
   const motion=win.matchMedia('(prefers-reduced-motion: reduce)');
+  const isReduced=()=>motion.matches||nav.dataset?.motion==='reduced';
   const states={x:{value:0,velocity:0},y:{value:0,velocity:0},width:{value:0,velocity:0},height:{value:0,velocity:0},flex:{value:0,velocity:0}};
   const targets={x:0,y:0,width:0,height:0,flex:0};
   let frame=0, last=0, initialized=false, hapticPending=false, disposed=false, lensSize='', paletteKey='';
@@ -105,25 +106,25 @@ export function createLiquidNavigation(nav) {
     }
     paint();if(moving)frame=win.requestAnimationFrame(tick);else last=0;
   }
-  function wake(){if(!disposed&&!frame&&!motion.matches&&!doc.hidden)frame=win.requestAnimationFrame(tick);}
+  function wake(){if(!disposed&&!frame&&!isReduced()&&!doc.hidden)frame=win.requestAnimationFrame(tick);}
   function setTarget(next,{immediate=false}={}){
     Object.assign(targets,next);
-    if(!initialized||immediate||motion.matches){for(const key of Object.keys(next))states[key]={value:next[key],velocity:0};initialized=true;paint();}
+    if(!initialized||immediate||isReduced()){for(const key of Object.keys(next))states[key]={value:next[key],velocity:0};initialized=true;paint();}
     else wake();
   }
   function pointerDown(event){
-    if(event.isPrimary===false||(event.pointerType==='mouse'&&event.button!==0)||motion.matches)return;
+    if(event.isPrimary===false||(event.pointerType==='mouse'&&event.button!==0)||isReduced())return;
     const rect=nav.getBoundingClientRect();nav.style.setProperty('--liquid-light-x',Math.max(0,Math.min(100,(event.clientX-rect.left)/rect.width*100))+'%');
     states.flex.velocity=-.72;hapticPending=event.pointerType==='touch'&&typeof win.navigator.vibrate==='function';adaptiveMaterial();wake();
   }
   let sampleFrame=0;
   function scheduleMaterial(){if(!disposed&&!doc.hidden&&!sampleFrame)sampleFrame=win.requestAnimationFrame(()=>{sampleFrame=0;adaptiveMaterial();});}
   function visibilityChange(){if(doc.hidden){win.cancelAnimationFrame(frame);win.cancelAnimationFrame(sampleFrame);frame=sampleFrame=last=0;}else{scheduleMaterial();wake();}}
-  function motionChange(){hapticPending=false;if(motion.matches){win.cancelAnimationFrame(frame);frame=0;states.flex={value:0,velocity:0};for(const key of ['x','y','width','height'])states[key]={value:targets[key],velocity:0};paint();}}
+  function motionChange(){hapticPending=false;if(isReduced()){win.cancelAnimationFrame(frame);frame=0;states.flex={value:0,velocity:0};for(const key of ['x','y','width','height'])states[key]={value:targets[key],velocity:0};paint();}}
   const resize=new win.ResizeObserver(()=>{lens();scheduleMaterial();});resize.observe(nav);
   const theme=new win.MutationObserver(scheduleMaterial);theme.observe(doc.documentElement,{attributes:true,attributeFilter:['style','data-layout']});
   nav.addEventListener('pointerdown',pointerDown);win.addEventListener('scroll',scheduleMaterial,{passive:true});motion.addEventListener('change',motionChange);
   doc.addEventListener('visibilitychange',visibilityChange);
   lens();adaptiveMaterial();
-  return {setTarget,dragTo:next=>setTarget(next,{immediate:true}),refreshMaterial:scheduleMaterial,destroy(){disposed=true;win.cancelAnimationFrame(frame);win.cancelAnimationFrame(sampleFrame);resize.disconnect();theme.disconnect();svg.remove();nav.removeEventListener('pointerdown',pointerDown);win.removeEventListener('scroll',scheduleMaterial);motion.removeEventListener('change',motionChange);doc.removeEventListener('visibilitychange',visibilityChange);}};
+  return {setTarget,dragTo:next=>setTarget(next,{immediate:true}),refreshMaterial:scheduleMaterial,refreshMotion:motionChange,destroy(){disposed=true;win.cancelAnimationFrame(frame);win.cancelAnimationFrame(sampleFrame);resize.disconnect();theme.disconnect();svg.remove();nav.removeEventListener('pointerdown',pointerDown);win.removeEventListener('scroll',scheduleMaterial);motion.removeEventListener('change',motionChange);doc.removeEventListener('visibilitychange',visibilityChange);}};
 }

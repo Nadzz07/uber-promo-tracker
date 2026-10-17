@@ -22,6 +22,11 @@ export function offerClosureLabel(promo, now = new Date()) {
 }
 
 export function classifyOfferCompletion(promo = {}, now = new Date()) {
+  if(promo.discountType==='uberCash'&&promo.cashEstimate){
+    const cash=classifyOfferTrackingState(promo,{now}),expired=cash.trackingState==='expired';
+    return {fullyUsed:false,consumed:false,finishedExpired:false,expiredUnused:expired,partiallyUsed:false,confirmedUses:0,totalUses:1,
+      displayStatus:expired?'Expired · Unused':cash.closedReason==='cash_exhausted'?'Cash exhausted':cash.trackingState==='needs_checking'?'Needs checking':'Available'};
+  }
   const normalized = applyOfferExpiryPolicy(promo);
   const total = Math.max(1, Number(normalized.uses) || 1);
   const confirmed = Math.max(0, Number(normalized.receiptConfirmedUses) || 0);
@@ -48,6 +53,13 @@ export function classifyOfferTrackingState(
   } = {}
 ) {
   promo = applyOfferExpiryPolicy(promo);
+  if(promo.discountType==='uberCash'&&promo.cashEstimate){
+    const cash=promo.cashEstimate,expired=expiryEndTime(promo)!=null&&(timeOf(now)??Date.now())>=expiryEndTime(promo);
+    if(expired||cash.status==='expired')return {trackingState:'expired',needsReview:false,reviewReasons:[],closedReason:'expired'};
+    if(cash.status==='exhausted'||cash.status==='duplicate')return {trackingState:'used',needsReview:false,reviewReasons:[],closedReason:cash.status==='duplicate'?'duplicate_cash_grant':'cash_exhausted'};
+    if(cash.status==='estimated'&&Number(cash.remaining)>0&&expiryEndTime(promo)!=null&&promo.sourceEvidenceStatus!=='missing'&&promo.termsVerification!=='needs_verification')return {trackingState:'available',needsReview:false,reviewReasons:[],closedReason:null};
+    return {trackingState:'needs_checking',needsReview:true,reviewReasons:[cash.status==='needs_checking'?'cash_balance_or_expiry_uncertain':'missing_offer_source'],closedReason:null};
+  }
   const total = Math.max(1, Number(promo.uses || 1));
   const remaining = Math.max(
     0,

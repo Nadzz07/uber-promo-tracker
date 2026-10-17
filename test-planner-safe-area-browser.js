@@ -31,7 +31,7 @@ try{
    localStorage.setItem('uber-eats-promo-tracker:theme:v1','#c989f5');
    localStorage.setItem('uber-eats-promo-tracker:device-accounts:v1',JSON.stringify(Object.fromEntries(accounts.map((a,i)=>[a.accountRef,{email:emails[i],accountMasked:a.accountMasked}]))));
   },{accounts,emails});
-  await page.goto('http://127.0.0.1:'+server.address().port);
+  await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto('http://127.0.0.1:'+server.address().port);
   const originalTheme=await page.locator('meta[name="theme-color"]').getAttribute('content');
   await page.locator('[data-home-detail="planner"]').first().click();await page.locator('.recommendation-title').waitFor();
   await page.locator('#basketInput').fill('30');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='Use 2 accounts');await page.locator('#basketInput').blur();

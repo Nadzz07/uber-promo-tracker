@@ -1,3 +1,4 @@
+import {cashAllocationEvidence} from './parser-v2/cash.js';
 import { dedupeReceipts } from "./receipt-identity.js";
 import { createHash } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
@@ -1027,6 +1028,7 @@ export function getReceipts(db) {
     SELECT
       r.*,
       m.evidence_json AS source_evidence,
+      m.body_text AS cash_source_text,
       a.login_access,
       a.masked AS account_masked,
       a.can_login AS can_login
@@ -1038,6 +1040,8 @@ export function getReceipts(db) {
   `).all().map(row => ({
     messageKey: row.message_key,
     service: "Uber Eats",
+    ...cashAllocationEvidence(row.cash_source_text||''),
+    cashUsageAmbiguous:cashAllocationEvidence(row.cash_source_text||'').cashUsageAmbiguous||/uber credits?/i.test(JSON.parse(row.source_evidence||'{}').uberCash||''),
     financialEvidence: row.financial_evidence_json ? JSON.parse(row.financial_evidence_json) : JSON.parse(row.source_evidence || '{}').financial || null,
     id: row.receipt_id,
     receiptId: row.receipt_id,
@@ -1191,6 +1195,7 @@ export function getTransportReceipts(db) {
     SELECT
       r.*,
       m.evidence_json AS source_evidence,
+      m.body_text AS cash_source_text,
       a.login_access,
       a.masked AS account_masked,
       a.can_login AS can_login
@@ -1202,6 +1207,8 @@ export function getTransportReceipts(db) {
   `).all().map(row => ({
     messageKey: row.message_key,
     service: "Uber",
+    ...cashAllocationEvidence(row.cash_source_text||''),
+    cashUsageAmbiguous:cashAllocationEvidence(row.cash_source_text||'').cashUsageAmbiguous||/uber credits?/i.test(JSON.parse(row.source_evidence||'{}').uberCash||''),
     financialEvidence: row.financial_evidence_json ? JSON.parse(row.financial_evidence_json) : JSON.parse(row.source_evidence || '{}').financial || null,
     id: row.receipt_id,
     receiptId: row.receipt_id,

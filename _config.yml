@@ -100,3 +100,9 @@ exclude:
   - test-browser-navigation.js
   - test-more-browser.js
   - test-accounts-reference-browser.js
+  - cash-reconstruction.js
+  - test-cash-ledger.js
+  - test-preferred-cash-planner.js
+  - test-used-activity.js
+  - test-used-preferences-browser.js
+  - test-cash-pipeline.js

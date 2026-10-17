@@ -62,7 +62,8 @@ assert.ok(html.includes("grid-template-columns: auto minmax(0,1fr) 36px"));
 assert.ok(html.includes("Archived accounts"));
 assert.ok(html.includes("Needs checking"));
 assert.ok(html.includes('id="needsCheckCount"'));
-assert.ok(html.includes('id="needsCheckingList"'));
+assert.ok(html.includes('id="usedRecords"')&&html.includes('id="usedSearch"')&&html.includes('id="usedStatusOptions"'));
+assert.equal(/id="(?:needsCheckingList|fullyUsedList|expiredList)"/.test(html),false,'Old category-menu presentation is removed');
 
 assert.ok(
   html.includes("backdrop-filter: blur"),
@@ -105,7 +106,6 @@ const actionWiring = [
   ['data-login-filter=', "closest('[data-login-filter]')"],
   ['data-open-sheet=', 'closest("[data-open-sheet]")'],
   ['data-account-offers=', 'closest("[data-account-offers]")'],
-  ['data-unignore-offer=', 'closest("[data-unignore-offer]")'],
   ['data-use-this-account=', 'closest("[data-use-this-account]")'],
   ['data-max-orders=', 'closest("[data-max-orders]")'],
   ['data-use-one=', 'closest("[data-use-one]")'],

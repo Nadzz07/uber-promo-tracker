@@ -59,6 +59,22 @@ export function isOfferExpired(promo, now = Date.now()) {
 export function applyOfferExpiryPolicy(promo = {}) {
   const explicit = expiryEndTime(promo);
   if (explicit != null && promo.expiryStatus === 'exact') return promo;
+  if(promo.discountType==='uberCash'){
+    const terms=promo.cashTerms||promo.evidence?.cashTerms||{};
+    const anchor=offerTime(terms.anchorAt||promo.firstEmailSentAt||promo.emailSentAt);
+    if(terms.duration>0&&terms.anchor==='original_email'&&anchor!=null){
+      const date=new Date(anchor);
+      if(terms.unit==='months'){
+        const day=date.getUTCDate();date.setUTCDate(1);date.setUTCMonth(date.getUTCMonth()+terms.duration);
+        date.setUTCDate(Math.min(day,new Date(Date.UTC(date.getUTCFullYear(),date.getUTCMonth()+1,0)).getUTCDate()));
+      }else date.setTime(anchor+terms.duration*(terms.unit==='weeks'?7:1)*86400000);
+      return {...promo,expiresAt:date.toISOString(),expires:londonDate.format(date),expiryStatus:'estimated',expiryBasis:'cash_original_email_duration',expiryConfidence:'terms'};
+    }
+    // Relative deadlines printed in a source email remain evidence. A generic
+    // tracker fallback is never a Cash grant's contractual deadline.
+    if(explicit!=null&&['weekday_from_email_date','relative_to_email_date','cash_original_email_duration'].includes(promo.expiryBasis))return promo;
+    return {...promo,expires:null,expiresAt:null,expiryStatus:'unknown',expiryBasis:terms.anchor==='activation'?'cash_activation_unknown':null,expiryConfidence:null};
+  }
   const anchor = offerTime(promo.firstEmailSentAt || promo.emailSentAt);
   if (anchor == null) return promo;
   const deadline = anchor + 35 * 86400000;

@@ -2352,7 +2352,7 @@
         Home
       </button>
       <button class="nav-btn" data-view="accounts">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c.5-4.2 2.8-6.3 7-6.3s6.5 2.1 7 6.3"/></svg>
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M2 21v-2a7 7 0 0 1 14 0v2M16 5a3 3 0 0 1 0 6M19 21v-2a7 7 0 0 0-3-6"/></svg>
         Accounts
       </button>
       <button class="nav-btn" data-view="used">
@@ -2425,7 +2425,7 @@
         <div id="offerFilterPanel"><div id="quickGrid" class="quick-grid">
           <button class="quick-card active" data-intent="best" aria-pressed="true" aria-controls="homeAccounts">
             <div class="quick-top"><span class="quick-icon" data-icon="star"></span><span id="bestCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">Best deal</div></div>
+            <div><div class="quick-title">Preferred</div></div>
           </button>
           <button class="quick-card" data-intent="15off15" aria-pressed="false" aria-controls="homeAccounts">
             <div class="quick-top"><span class="quick-icon" data-icon="bag"></span><span id="fifteenCount" class="quick-count">0</span></div>
@@ -2439,16 +2439,17 @@
             <div class="quick-top"><span class="quick-icon" data-icon="wallet"></span><span id="cashCount" class="quick-count">0</span></div>
             <div><div class="quick-title">Uber Cash</div></div>
           </button>
-          <button class="quick-card" data-intent="unfinished" aria-pressed="false" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon" aria-hidden="true" data-icon="history"></span><span id="unfinishedCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">Not finished</div></div>
+          <button class="quick-card" data-intent="10off15" aria-pressed="false" aria-controls="homeAccounts">
+            <div class="quick-top"><span class="quick-icon" aria-hidden="true" data-icon="history"></span><span id="tenCount" class="quick-count">0</span></div>
+            <div><div class="quick-title">£10 off £15</div></div>
           </button>
           <button class="quick-card" data-intent="cash-promo" aria-pressed="false" aria-controls="homeAccounts">
             <div class="quick-top"><span class="quick-icon" aria-hidden="true" data-icon="wallet"></span><span id="cashPromoCount" class="quick-count">0</span></div>
             <div><div class="quick-title">Cash + promo</div></div>
           </button>
-        </div></div>
+        </div><details class="finder-progress-filter"><summary>Promotion progress</summary><button data-intent="unfinished" aria-pressed="false">Not finished <span id="unfinishedCount">0</span></button></details></div>
 
+        <div class="finder-offer-type"><label for="finderOfferType">Offer type</label><select id="finderOfferType" aria-label="Offer type"></select><button data-preferred-default="true">Use preferred defaults</button></div>
         <section class="best-section" aria-labelledby="homeAccountsTitle">
         <div class="section-head">
           <div>
@@ -2486,7 +2487,7 @@
 
           <div class="planner-mode"><div class="planner-mode-copy"><label for="plannerFulfilment"><span data-icon="delivery" aria-hidden="true"></span>Order type</label><small>Choose how you’ll order</small></div><span class="planner-select-wrap"><select id="plannerFulfilment"><option value="delivery">Delivery</option><option value="pickup">Pickup</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></div>
         </section>
-        <div class="planner-section-head"><h2>Suggested plan</h2><span id="plannerStatus" class="plan-status" hidden></span></div>
+        <div class="planner-offer-scope"><label for="plannerOfferScope">Offer view</label><select id="plannerOfferScope"><option value="preferred">All preferred offers</option><option value="all">All offers</option></select></div><p id="plannerScopeLabel" class="planner-scope-label"></p><div class="planner-section-head"><h2>Suggested plan</h2><span id="plannerStatus" class="plan-status" hidden></span></div>
           <div id="recommendation" class="recommendation" aria-live="polite">
             <div class="empty">Preparing your recommendation…</div>
           </div>
@@ -2517,64 +2518,14 @@
         <div id="accountsList" class="account-list"></div>
       </section>
 
-      <section id="view-used" class="view">
-        <div class="screen-head">
-          <div class="eyebrow">Activity & state</div>
-          <h1 class="screen-title">Used / Finished</h1>
-          <div class="screen-copy">Fully used: Eats + Ride, or five Eats receipts. Completed promotions: every use verified. Expiry, manual completion and login access stay separate.</div>
-        </div>
-
-        <div class="activity-summary">
-          <div class="activity-card"><span>Fully used accounts</span><button class="metric-help" data-metric-help="usage" aria-label="Explain Fully used accounts">i</button><strong id="usedAccountCount">0</strong></div>
-          <div class="activity-card"><span>Completed promotions</span><button class="metric-help" data-metric-help="completion" aria-label="Explain Completed promotions">i</button><strong id="fullyUsedCount">0</strong></div>
-          <div class="activity-card"><span>Partially used promotions</span><button class="metric-help" data-metric-help="partial" aria-label="Explain Partially used promotions">i</button><strong id="recentUseCount">0</strong></div>
-          <div class="activity-card"><span>Expired offers</span><button class="metric-help" data-metric-help="expiry" aria-label="Explain Expired offers">i</button><strong id="expiredCount">0</strong></div>
-        </div>
-
-        <details class="activity-section used-accounts-panel disclosure-card" open>
-          <summary><span><strong>Fully used accounts</strong><small>Receipt rule met · access stays independent</small></span><span id="usedAccountsDisclosureCount" class="disclosure-count"></span></summary>
-          <div class="disclosure-body">
-          <p id="usedAccountExplanation" class="activity-explanation"></p>
-          <div id="usedAccountsList" class="activity-list"></div>
-          <button class="advanced-btn" data-jump-accounts="true" data-target-filter="used">Manage fully used accounts ›</button>
-          </div>
-        </details>
-        <details id="needsCheckingSection" class="activity-section disclosure-card">
-          <summary><span><strong>Needs checking</strong></span><span id="needsCheckCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
-          <div id="needsCheckingList" class="activity-list"></div>
-          </div>
-        </details>
-
-        <details id="recentActivitySection" class="activity-section disclosure-card">
-          <summary><span><strong>Partially used promotions</strong></span><span id="recentDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
-          <div id="recentActivity" class="activity-list"></div>
-          </div>
-        </details>
-
-        <details id="fullyUsedSection" class="activity-section disclosure-card" open>
-          <summary><span><strong>Completed promotions</strong></span><span id="finishedDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
-          <p class="activity-explanation">Every permitted use is receipt-confirmed. A fully used account or an expired promotion alone does not prove full redemption.</p>
-          <div id="fullyUsedList" class="activity-list"></div>
-          </div>
-        </details>
-
-        <details id="finishedExpiredSection" class="activity-section disclosure-card">
-          <summary><span><strong>Finished · Expired</strong><small>Some uses confirmed before expiry</small></span><span id="finishedExpiredCount" class="disclosure-count">0</span></summary>
-          <div class="disclosure-body"><div id="finishedExpiredList" class="activity-list"></div></div>
-        </details>
-
-        <details id="expiredSection" class="activity-section activity-history disclosure-card">
-          <summary><span><strong>Expired · Unused</strong><small>No confirmed promotional redemptions</small></span><span id="expiredDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
-          <p class="activity-explanation">Unused orders remain recorded. Expiry does not mean they were redeemed.</p>
-          <div id="expiredList" class="activity-list"></div></div>
-        </details>
-
-        <details class="activity-section activity-history disclosure-card"><summary><span><strong>Manually finished</strong><small>Unverified · excluded from recommendations</small></span><span id="manualDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body"><div id="manualFinishedList" class="activity-list"></div></div></details>
-        <details id="ignoredSection" class="activity-section disclosure-card">
-          <summary><span><strong>Ignored offers</strong></span><span id="ignoredDisclosureCount" class="disclosure-count">0</span></summary><div class="disclosure-body">
-          <div id="ignoredList" class="activity-list"></div>
-          </div>
-        </details>
+      <section id="view-used" class="view" aria-labelledby="usedTitle">
+        <header class="used-head"><h1 id="usedTitle" tabindex="-1">Used accounts</h1><button class="icon-control" data-used-info="true" aria-label="How statuses are decided"><span data-icon="info" aria-hidden="true"></span></button></header>
+        <div class="used-summary" aria-label="Activity summaries"><button data-used-status="used"><strong id="usedAccountCount">0</strong><span>Fully used</span></button><button data-used-status="needs_checking"><strong id="needsCheckCount">0</strong><span>Needs checking</span></button><button data-used-status="expired"><strong id="expiredCount">0</strong><span>Expired offers</span></button></div>
+        <div class="used-search"><span data-icon="search" aria-hidden="true"></span><input id="usedSearch" type="search" placeholder="Search accounts or offers" aria-label="Search accounts or offers" autocomplete="off"></div>
+        <div class="used-filters"><button data-used-status="used" aria-pressed="true">Fully used <span id="usedQuickCount">0</span></button><button data-used-status="needs_checking" aria-pressed="false">Needs checking <span id="usedReviewQuickCount">0</span></button><div class="used-status-control"><button id="usedStatus" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="usedStatusOptions" aria-label="Activity status"><span data-icon="filter" aria-hidden="true"></span><span id="usedStatusLabel">Status</span><span aria-hidden="true">⌄</span></button><div id="usedStatusOptions" role="listbox" aria-label="Activity status" hidden></div></div></div>
+        <div class="used-results-head"><div><h2 id="usedResultsTitle">Fully used</h2><label class="used-sort"><span class="sr-only">Sort results</span><select id="usedSort"><option value="latest">Latest activity</option><option value="email">Account email</option></select></label></div><span id="usedResultsCount" role="status" aria-live="polite"></span></div>
+        <div id="usedRecords" class="used-records"></div><div id="usedPagination"></div>
+        <button class="used-info-link" data-used-info="true"><span data-icon="info" aria-hidden="true"></span><span>How statuses are decided</span><span aria-hidden="true">›</span></button>
       </section>
 
       <section id="view-more" class="view"><div class="screen-head"><h1 class="screen-title">More</h1></div><div class="more-grid"><section class="more-group" aria-labelledby="more-group-0"><h2 id="more-group-0" class="eyebrow">Offers & history</h2><div class="more-group-list"><button class="more-card" data-jump-planner="true"><span class="more-icon" data-icon="bag" aria-hidden="true"></span><span class="more-content"><span class="more-title">Order Planner</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="history"><span class="more-icon" data-icon="calendar" aria-hidden="true"></span><span class="more-content"><span class="more-title">Promo history</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="locked"><span class="more-icon" data-icon="history" aria-hidden="true"></span><span class="more-content"><span class="more-title">Archived accounts</span><span class="more-count" id="lockedCardCopy"></span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section><section class="more-group" aria-labelledby="more-group-1"><h2 id="more-group-1" class="eyebrow">Savings & finances</h2><div class="more-group-list"><button class="more-card" data-open-sheet="savings"><span class="more-icon" data-icon="savings" aria-hidden="true"></span><span class="more-content"><span class="more-title">Savings</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="receipts"><span class="more-icon" data-icon="insights" aria-hidden="true"></span><span class="more-content"><span class="more-title">Receipt insights</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="finance"><span class="more-icon" data-icon="lock" aria-hidden="true"></span><span class="more-content"><span class="more-title">Private finances</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section><section class="more-group" aria-labelledby="more-group-2"><h2 id="more-group-2" class="eyebrow">Accounts & data</h2><div class="more-group-list"><button class="more-card" data-open-sheet="device"><span class="more-icon" data-icon="shield" aria-hidden="true"></span><span class="more-content"><span class="more-title">Private account import</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="health"><span class="more-icon" data-icon="history" aria-hidden="true"></span><span class="more-content"><span class="more-title">Sync & data</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section><section class="more-group" aria-labelledby="more-group-3"><h2 id="more-group-3" class="eyebrow">Settings & help</h2><div class="more-group-list"><button class="more-card" data-open-sheet="appearance"><span class="more-icon" data-icon="settings" aria-hidden="true"></span><span class="more-content"><span class="more-title">Settings</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-guide="overview"><span class="more-icon" data-icon="help" aria-hidden="true"></span><span class="more-content"><span class="more-title">Help & Guide</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="about"><span class="more-icon" data-icon="info" aria-hidden="true"></span><span class="more-content"><span class="more-title">About this tracker</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section></div></section>
@@ -2614,16 +2565,11 @@
     import { financeIcon, financeHero, financeMetric } from "./finance-layout.js";
     import { financialSummary, receiptFinancials } from "./receipt-financials.js";
     document.querySelectorAll('[data-icon]').forEach(element => { element.innerHTML = financeIcon(element.dataset.icon); element.setAttribute('aria-hidden','true'); });
-    const statusIcons = ['check','receipt','partial','clock'];
-    document.querySelectorAll('.activity-card').forEach((card,index) => {
-      const label = card.querySelector('span');
-      const text = label.textContent;
-      label.className = 'activity-card-label';
-      label.innerHTML = '<span class="metric-icon">' + financeIcon(statusIcons[index]) + '</span><span>' + escapeHtml(text) + '</span>';
-    });
     document.querySelectorAll('.metric-help').forEach(button => { button.innerHTML = financeIcon('info'); });
-    const groupIcons = ['check','alert','partial','receipt','clock','calendar','check','ignored'];
-    document.querySelectorAll('#view-used .activity-section > summary').forEach((summary,index) => summary.insertAdjacentHTML('afterbegin','<span class="app-icon-surface">'+financeIcon(groupIcons[index])+'</span>'));
+    import {OFFER_PREFERENCES_KEY,readOfferPreferences,saveOfferPreferences,selectedOfferScope,offerScopeLabel,mainOfferChoices,matchesDiscoveryScope,plannerOffersForScope,hasCurrentCash,isPreferredPromo} from "./offer-preferences.js";
+    import {currentCashPosition} from "./cash-ledger.js";
+    import {openOfferCatalogue} from "./preference-picker.js";
+    import {ACTIVITY_STATUSES,buildUsedActivity,activityResults} from "./used-activity.js";
     import { offerTitle, useCountNeedsReview, effectiveDiscountPercent } from "./offer-details.js";
     import { THEME_KEY, DEFAULT_COLOUR, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
     import { offerFinishedReason, offerClosureLabel, classifyOfferCompletion } from "./offer-state.js";
@@ -2662,7 +2608,11 @@
 
     const STATE_KEY = "uber-eats-promo-tracker:manual-state:v3";
     const LEGACY_STATE_KEY = "uber-eats-promo-finder:promo-state:v2";
+    const MOTION_KEY="uber-eats-promo-tracker:motion:v1";
+    let motionSetting="system";try{motionSetting=localStorage.getItem(MOTION_KEY)==="reduced"?"reduced":"system";}catch{}
+    document.documentElement.dataset.motion=motionSetting;
     const SETTINGS_KEY = "uber-eats-promo-tracker:planner-settings:v1";
+    let offerPreferences=readOfferPreferences(localStorage);
     const decimalMoney = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
     const fractionalMoney = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const shortDate = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Europe/London' });
@@ -2695,8 +2645,10 @@
     let currentIntent = "best";
     let currentOfferScope = "ready";
     let accountOfferScope = "any";
-    let accountLoginFilter = "all", accountProviderFilter = "all", accountSort = "best", accountTypeFilter = "all";
-    let finderFilters = {accountRef:null, type:"all", login:"all", provider:"all"};
+    let accountLoginFilter = "all", accountProviderFilter = "all", accountSort = "best", accountTypeFilter = selectedOfferScope(offerPreferences);
+    let finderFilters = {accountRef:null, type:selectedOfferScope(offerPreferences), login:"all", provider:"all"};
+    let usedState={status:"used",query:"",sort:"latest",full:false,limit:24};
+    let usedRecordIndex=new Map();
     let accountFilter = "all";
     let accountDisplayLimit = 48;
     let archivedDisplayLimit = 80;
@@ -2991,6 +2943,16 @@
       return { ...account, ...classification };
     }
 
+    function discoveryAccess(account,scope){return matchesOfferScope({...account,hasEligibleOffers:account.hasEligibleOffers||hasCurrentCash(account),recommendationEligible:account.recommendationEligible||hasCurrentCash(account)&&account.canLogin===true&&!account.archived},scope);}
+    function saveOfferState(next){try{offerPreferences=saveOfferPreferences(localStorage,next);return true;}catch{document.getElementById('localNotice').hidden=false;document.getElementById('localNotice').textContent='Offer preferences could not be saved. Browser storage is unavailable.';return false;}}
+    function applyOfferScope(value,explicit=true){
+      const next={...offerPreferences,selection:explicit?value:null};if(!saveOfferState(next))return;
+      accountTypeFilter=selectedOfferScope(offerPreferences);finderFilters.type=accountTypeFilter;accountDisplayLimit=48;invalidateAccountProjection();
+      const intents={'preferred':'best','fixed:10:15':'10off15','fixed:12:15':'12off15','fixed:15:15':'15off15','cash':'cash','cash-promo':'cash-promo'};currentIntent=intents[accountTypeFilter]||'best';
+      selectedPlannerKey=null;plannerComparisonCache=null;renderAll();
+    }
+    function offerCatalogueChoices(){return [...new Map([...mainOfferChoices().filter(c=>c.key.startsWith('fixed:')), ...accountOfferChoices([{promos}]).map(c=>({key:c.key,label:offerScopeLabel(c.key)}))].map(c=>[c.key,c])).values()];}
+    function chooseOtherOffers(opener){closeAccountPicker();openOfferCatalogue({choices:offerCatalogueChoices().filter(c=>!mainOfferChoices().some(m=>m.key===c.key)),selected:[accountTypeFilter],opener,onApply:value=>applyOfferScope(value)});}
     function decisionPromos() {
       if(privateMigrationPending)return [];
       const eligible = new Set(accounts.map(currentAccountState).filter(a => a.recommendationEligible).map(a => a.accountRef));
@@ -3040,6 +3002,7 @@
       enrichedMemo = null;
       projectionClock = Date.now();
       nextOfferExpiry = Infinity;
+      for(const grant of accounts.flatMap(a=>a.cashSummary?.grants||[])){const end=Date.parse(grant.expiresAt);if(end>projectionClock)nextOfferExpiry=Math.min(nextOfferExpiry,end);}
       for (const promo of promos) {
         const expiry = expiryEndTime(promo);
         if (expiry != null && expiry > projectionClock) nextOfferExpiry = Math.min(nextOfferExpiry, expiry);
@@ -3068,28 +3031,31 @@
     function is15off15(promo) {
       return (
         promo.discountType === "fixed" &&
-        Number(promo.discount || 0) >= 15 &&
-        Number(promo.minimumSpend || 0) <= 15
+        Number(promo.discount) === 15 && promo.minimumSpendVerified !== false &&
+        Number(promo.minimumSpend) === 15
       );
     }
 
-    function is12off15(promo) { return promo.discountType === "fixed" && Number(promo.discount) === 12 && Number(promo.minimumSpend) === 15; }
+    function is12off15(promo) { return promo.discountType === "fixed" && Number(promo.discount) === 12 && promo.minimumSpendVerified!==false && Number(promo.minimumSpend) === 15; }
 
     function enrichedAccounts() {
       ensureAccountProjection();
       const basket = currentBasket();
       if (enrichedMemo && enrichedBasket === basket) return enrichedMemo;
       enrichedBasket = basket;
-      enrichedMemo = accounts
-        .map(account => {
-          const current = activePromosForAccount(account.accountRef);
+      const privateData=financeSession?.vault?.data,corrections=privateData?financeSession.vault.current().corrections:{};
+      const privateReceipts=privateData?privateData.receipts.map(r=>({...r,financialCorrection:corrections[r.receiptId]})):[];
+      enrichedMemo = accounts.map(account=>{
+          const current=activePromosForAccount(account.accountRef);
+          const cashPosition=currentCashPosition(account,allPromosForAccount(account.accountRef),privateWallets[account.accountRef],privateReceipts,{completeEvidence:Boolean(privateData),ignoredEstimates:allPromosForAccount(account.accountRef).filter(p=>p.discountType==='uberCash'&&(effectivePromoState(manualStore,p)==='ignored'||manualStore.offers?.[promoStateKey(p)]?.forceDone)).map(p=>p.cashEstimate).filter(Boolean)});
           return {
             ...currentAccountState(account),
             promos: current,
             promoCount: current.length,
-            hasCash: current.some(promo => promo.discountType === "uberCash"),
+            cashPosition,
+            hasCash: Number(cashPosition.remaining)>0,
             cashHistory: allPromosForAccount(account.accountRef).filter(promo => promo.discountType === "uberCash").sort((a,b) => String(b.emailSentAt || "").localeCompare(String(a.emailSentAt || ""))),
-            hasCashAndPromo: current.some(promo => promo.discountType === "uberCash") && current.some(promo => promo.discountType === "fixed" || promo.discountType === "percent"),
+            hasCashAndPromo: Number(cashPosition.remaining)>0 && current.some(promo => ["fixed","percent"].includes(promo.discountType)&&promo.restrictions?.stacking!=="no_other_promotions"),
             has15off15: current.some(is15off15),
             has12off15: current.some(is12off15),
             hasMultiUse: current.some(promo => Number(promo.usesRemaining || 0) > 1),
@@ -3108,11 +3074,12 @@
     }
 
     function homeAccountsByIntent() {
-      let list = finderAccounts().filter(account => matchesOfferScope(account, currentOfferScope));
+      let list = finderAccounts().filter(account => discoveryAccess(account, currentOfferScope));
       const search = document.getElementById("homeOfferSearch").value.trim().toLowerCase();
       if (search) list = list.filter(account => [accountDisplay(account), account.accountRef, loginMethodLabel(account), ...account.promos.map(offerTitle)].join(" ").toLowerCase().includes(search));
 
-      if (currentIntent === "15off15") {
+      if (currentIntent === "10off15") {list=list.filter(a=>a.promos.some(p=>accountOfferKey(p)==='fixed:10:15'&&p.minimumSpendVerified!==false));
+      } else if (currentIntent === "15off15") {
         list = list.filter(account => account.has15off15);
       } else if (currentIntent === "12off15") {
         list = list.filter(account => account.has12off15);
@@ -3166,6 +3133,7 @@
     function hasFeeEstimate() { return Number.isFinite(effectiveFee()); }
 
     function motionReduced() {
+      if(motionSetting==='reduced')return true;
       return reducedMotion.matches;
     }
 
@@ -3272,7 +3240,7 @@
     let selectedPlannerKey = null, otherOptionsOpen = false, plannerComparisonCache = null;
     const plannerMoney = value => new Intl.NumberFormat('en-GB', {style:'currency', currency:'GBP', minimumFractionDigits:2}).format(value);
     function plannerOfferSummary(promo) {
-      if (!promo) return 'Verified Uber Cash balance';
+      if (!promo) return 'Uber Cash payment';
       const minimum = promo.minimumSpend;
       return promoLabel(promo) + (minimum != null && Number.isFinite(Number(minimum)) ? ' · ' + money(minimum) + ' minimum' : ' · Minimum unconfirmed');
     }
@@ -3287,7 +3255,7 @@
           '<div class="plan-subtotal">Basket ' + escapeHtml(money(order.subtotal)) +
           (order.checkoutFees == null ? ' · Fee ' + escapeHtml(money(order.extraFee)) : '') +
           (order.checkoutFees != null ? ' · Recorded fees ' + escapeHtml(money(order.checkoutFees)) : '') + '</div>' +
-          (order.cashRemaining != null ? '<div class="plan-subtotal">Uber Cash used ' + escapeHtml(plannerMoney(order.cashUsed)) + ' · remaining ' + escapeHtml(plannerMoney(order.cashRemaining)) + '</div>' : '') +
+          (order.cashUsed>0 ? '<div class="plan-subtotal">'+(order.cashBasis==='verified'?'Verified Cash ':'Estimated Cash ') + escapeHtml(plannerMoney(order.cashUsed)) + ' · remaining ' + escapeHtml(plannerMoney(order.cashRemaining)) + '</div>' : '') +
           '</div><div class="plan-payment"><strong>' + escapeHtml(plannerMoney(order.estimatedPay)) + '</strong><small>Estimated payment</small></div></div>';
       }).join('');
     }
@@ -3295,6 +3263,10 @@
       const amounts = plan.orders.map(o => plannerMoney(o.subtotal));
       return plan.orderCount + (plan.orderCount === 1 ? ' order · ' : ' orders · ') +
         (new Set(amounts).size === 1 ? amounts[0] + (plan.orderCount > 1 ? ' each' : '') : amounts.join(' + '));
+    }
+    function plannerCashWallets(scope){
+      const allow=offerPreferences.includeCash||['all','cash','cash-promo'].includes(scope);if(!allow)return {};
+      return Object.fromEntries(enrichedAccounts().filter(a=>hasCurrentCash(a)&&matchesDiscoveryScope(a,scope,offerPreferences)).map(a=>[a.accountRef,a.cashPosition]));
     }
     function plannerCheckoutFees() {
       const now = Date.now();
@@ -3308,12 +3280,16 @@
       status.hidden = true;
       if(privateMigrationPending){target.innerHTML='<div class="empty">Import your updated private login file to reconnect saved offer decisions after the security update. Your previous actions remain saved.<button class="advanced-btn" data-open-sheet="device">Import private login file</button></div>';return;}
       const basket = currentBasket();
-      const fees = plannerCheckoutFees();
+      const fees = plannerCheckoutFees(),scope=selectedOfferScope(offerPreferences,'planner'),wallets=plannerCashWallets(scope);
+      const scopeControl=document.getElementById('plannerOfferScope');
+      scopeControl.innerHTML='<option value="preferred">All preferred offers</option><option value="all">All offers</option>'+(!['preferred','all'].includes(scope)?'<option value="'+escapeHtml(scope)+'">'+escapeHtml(offerScopeLabel(scope))+'</option>':'');scopeControl.value=scope;
+      document.getElementById('plannerScopeLabel').textContent='Scope: '+offerScopeLabel(scope);
+
       ensureAccountProjection();
       const key = JSON.stringify([basket, plannerSettings.fulfilment, plannerSettings.maxOrders, effectiveFee(), plannerSettings.feeTouched, projectionClock, fees,
-        Object.values(privateWallets).map(w => Date.parse(w.at) <= Date.now())]);
+        scope,offerPreferences.preferredPromos,offerPreferences.includeCash,offerPreferences.anyPromoWithCash,Object.values(wallets).map(w=>[w.balance,w.status,w.stacking,w.grants])]);
       if (plannerComparisonCache?.key !== key || plannerComparisonCache.wallets !== privateWallets || plannerComparisonCache.payload !== payload) {
-        plannerComparisonCache = {key, wallets:privateWallets, payload, value:rankBasketPlans(decisionPromos(), basket, {wallets:privateWallets, accounts, fees,
+        plannerComparisonCache = {key, wallets:privateWallets, payload, value:rankBasketPlans(plannerOffersForScope(decisionPromos(),enrichedAccounts(),scope,offerPreferences), basket, {wallets, accounts, fees,
           fulfilment:plannerSettings.fulfilment, maxOrders:plannerSettings.maxOrders, orderFeeEstimate:effectiveFee()})};
       }
       const comparison = plannerComparisonCache.value;
@@ -3328,24 +3304,24 @@
       const lowest = selected.key === suggested.key;
       const line = (icon,label,value,cls='') => '<div class="plan-cost-line ' + cls + '">' + financeIcon(icon) + '<span>' + label + '</span><strong>' + value + '</strong></div>';
       const alternatives = comparison.plans.filter(p => p.key !== selected.key).sort((a,b) => a.estimatedPay-b.estimatedPay);
-      status.innerHTML = financeIcon('bolt') + '<span>' + (selected.conditional ? 'Requires Cash verification' : lowest ? 'Lowest estimated cost' : 'Your selected option') + '</span>';
+      status.innerHTML = financeIcon('bolt') + '<span>' + (selected.conditional ? 'Confirm Cash + promo compatibility' : lowest ? 'Lowest estimated cost' : 'Your selected option') + '</span>';
       status.hidden = false;
       target.innerHTML = '<div class="recommendation-top"><div class="recommendation-choice">' + financeIcon('star') + '<div>' +
         '<h3 class="recommendation-title">Use ' + selected.accountCount + (selected.accountCount === 1 ? ' account' : ' accounts') + '</h3>' +
         '<div class="recommendation-copy">' + escapeHtml(plannerAllocation(selected)) + '</div></div></div>' +
-        '<div class="recommendation-save">' + escapeHtml(plannerMoney(selected.estimatedPay)) + '<small>Including estimated fees</small></div></div>' +
+        '<div class="recommendation-save"><span class="plan-payment-label">Out of pocket</span>' + escapeHtml(plannerMoney(selected.estimatedPay)) + '<small>Including estimated fees</small></div></div>' +
         '<div class="plan-costs">' + line('bag','Basket',escapeHtml(plannerMoney(selected.subtotal))) +
         line('star','Promo discounts','−' + escapeHtml(plannerMoney(selected.grossSaving)), 'discount') +
-        (selected.cashUsed > 0 ? line('wallet','Uber Cash used','−' + escapeHtml(plannerMoney(selected.cashUsed))) : '') +
-        line('receipt',selected.checkoutFees != null ? 'Recorded checkout fees' : 'Order fee estimate','+' + escapeHtml(plannerMoney(selected.checkoutFees ?? selected.extraFees))) + '</div>' +
+        line('receipt',selected.checkoutFees != null ? 'Recorded checkout fees' : 'Order fee estimate','+' + escapeHtml(plannerMoney(selected.checkoutFees ?? selected.extraFees))) +
+        (selected.cashUsed>0?line('receipt','Total after promos and fees',escapeHtml(plannerMoney(selected.totalAfterPromosAndFees??(selected.subtotal-selected.grossSaving+(selected.checkoutFees??selected.extraFees)))))+line('wallet',selected.cashEstimated?'Cash applied · estimated':'Cash applied · verified','−'+escapeHtml(plannerMoney(selected.cashUsed))):'')+'</div>' +
         '<div class="plan-accounts"><h4>Accounts to use</h4>' + plannerAccountRows(selected) + '</div>' +
         '<details id="plannerOtherOptions" class="planner-other-options"' + (otherOptionsOpen ? ' open' : '') + '><summary>' + financeIcon('chart') + '<span>Other options<small>Compare alternative ways to order.</small></span></summary><div class="planner-alternatives">' +
-        (alternatives.length ? alternatives.map(plan => '<article class="plan-alternative"><div class="plan-alternative-head"><div><strong>Use ' + plan.accountCount + (plan.accountCount === 1 ? ' account' : ' accounts') + '</strong><small>' + escapeHtml(plannerAllocation(plan)) + (plan.cashUsed > 0 ? ' · uses verified Cash' : '') + (plan.conditional ? ' · Cash coverage unverified' : '') + '</small></div><div class="plan-alternative-price"><strong>' + escapeHtml(plannerMoney(plan.estimatedPay)) + '</strong><small>' + (plan.estimatedPay === suggested.estimatedPay ? 'Same as suggested' : (plan.estimatedPay > suggested.estimatedPay ? '+' : '−') + escapeHtml(plannerMoney(Math.abs(plan.estimatedPay-suggested.estimatedPay))) + ' vs suggested') + '</small></div></div>' +
+        (alternatives.length ? alternatives.map(plan => '<article class="plan-alternative"><div class="plan-alternative-head"><div><strong>Use ' + plan.accountCount + (plan.accountCount === 1 ? ' account' : ' accounts') + '</strong><small>' + escapeHtml(plannerAllocation(plan)) + (plan.cashUsed > 0 ? (plan.cashEstimated?' · estimated Cash':' · verified Cash') : '') + (plan.conditional ? ' · confirm compatibility' : '') + '</small></div><div class="plan-alternative-price"><strong>' + escapeHtml(plannerMoney(plan.estimatedPay)) + '</strong><small>' + (plan.estimatedPay === suggested.estimatedPay ? 'Same as suggested' : (plan.estimatedPay > suggested.estimatedPay ? '+' : '−') + escapeHtml(plannerMoney(Math.abs(plan.estimatedPay-suggested.estimatedPay))) + ' vs suggested') + '</small></div></div>' +
           '<p>Basket ' + escapeHtml(plannerMoney(plan.subtotal)) + ' − discounts ' + escapeHtml(plannerMoney(plan.grossSaving)) +
           (plan.cashUsed > 0 ? ' − Cash ' + escapeHtml(plannerMoney(plan.cashUsed)) : '') +
           ' + ' + (plan.checkoutFees != null ? 'recorded fees ' : 'fee estimate ') + escapeHtml(plannerMoney(plan.checkoutFees ?? plan.extraFees)) + '</p>' +
           '<button class="plan-select" data-select-plan="' + escapeHtml(plan.key) + '">View accounts for this plan <span aria-hidden="true">›</span></button></article>').join('') : '<p>No other eligible ordering strategy fits this basket.</p>') + '</div></details>' +
-        (selected.conditional ? '<p class="plan-conditional-note">Confirm Cash can cover the remainder after a promo before using this option.</p>' : '') +
+        (selected.conditional ? '<p class="plan-conditional-note">Cash + promo compatibility needs confirmation in Uber. The estimated payment depends on that combination being accepted.</p>' : '') +
         (Object.keys(privateWallets).length ? '<button class="planner-matching-action" data-open-sheet="finance" data-finance-target="cash">Update private Cash balances <span aria-hidden="true">›</span></button>' : '');
       target.querySelector('#plannerOtherOptions').addEventListener('toggle', event => { otherOptionsOpen = event.target.open; });
     }
@@ -3373,11 +3349,13 @@
     function receiptReviewAction(account) {const count=receiptReviewCount(account);return count?'<button class="sheet-action-row receipt-review-action" data-open-sheet="finance" data-finance-target="receipt" data-finance-missing="true" data-finance-account="'+escapeHtml(account.accountRef)+'">'+financeIcon('receipt')+'<span>Missing details · '+count+' receipt'+(count===1?'':'s')+'<small>Refund or adjustment · check final amounts</small></span></button>':'';}
 
     function accountCard(account, index = 0, context = "accounts", preview = false) {
-      const selectedTerms = context === "12off15" ? is12off15 : context === "15off15" ? is15off15 : null;
-      const best = selectedTerms ? rankPromosForSpend((account.promos || activePromosForAccount(account.accountRef)).filter(selectedTerms), currentBasket(), {service:"Uber Eats",accountRef:account.accountRef,accessibleOnly:false})[0] || null : account.bestNow || bestForAccount(account);
       const current = account.promos || activePromosForAccount(account.accountRef);
-      const cashOffer = context === "cash" ? current.find(promo => promo.discountType === "uberCash") || account.cashHistory?.[0] : best?.promo?.discountType === "uberCash" ? best.promo : null;
-      const displayedOffer = cashOffer || (context === "unfinished" ? current.find(promo => offerInProgress(promo)) : null) || best?.promo || (selectedTerms ? current.find(selectedTerms) : null) || current[0];
+      const scoped = plannerOffersForScope(current,[account],finderFilters.type,offerPreferences);
+      const eligibleOffers = scoped.filter(p=>p.discountType!=='uberCash');
+      const best = rankPromosForSpend(eligibleOffers,currentBasket(),{service:"Uber Eats",accountRef:account.accountRef,accessibleOnly:false})[0] || null;
+      const cashOnly = finderFilters.type==='cash'||!eligibleOffers.length&&hasCurrentCash(account);
+      const cashOffer = cashOnly ? current.find(p=>p.discountType==='uberCash')||account.cashHistory?.[0] : null;
+      const displayedOffer = cashOffer || (context==='unfinished'?current.find(p=>offerInProgress(p)):null) || best?.promo || eligibleOffers[0];
       const pills = [];
       const readiness = offerReadinessLabel(account);
       /* Cash activation is explained once as text below the offer. */
@@ -3408,11 +3386,11 @@
       if (preview) {
         const offer = displayedOffer;
         const isCash = offer?.discountType === 'uberCash';
-        const primary = !offer ? 'No promos available' : promoLabel(offer) +
-          (!isCash && Number(offer.minimumSpend) > 0 ? ' ' + money(offer.minimumSpend) : '');
+        const primary = isCash?money(account.cashPosition?.remaining??offer.discount)+' Uber Cash':!offer ? 'No promos available' : promoLabel(offer) +
+          (!isCash&&accountOfferKey(offer)?.endsWith(':unknown')?' · minimum not shown':!isCash && Number(offer.minimumSpend) > 0 ? ' ' + money(offer.minimumSpend) : '');
         const chosen = account.accountRef === selectedAccountRef;
         const bestNow = !chosen && context === 'best' && index === 0 && best && currentAccountState(account).recommendationEligible;
-        const description = isCash ? 'Wallet unverified · confirm in Uber' : offer &&
+        const description = isCash ? (account.cashPosition?.status==='verified'?'Manually verified balance':'Estimated remaining · based on recorded usage') : offer &&
           (Number(offer.uses || 1) > 1 || useCountNeedsReview(offer)) ? offerTitle(offer) : '';
         const cap = offer?.discountType === 'percent' ? offer.perUseCap ?? offer.maxSaving : null;
         const expiry = ending ? offerCountdown(ending) + ' · ' + new Intl.DateTimeFormat('en-GB', {timeZone:'Europe/London',day:'numeric',month:'short'}).format(expiryEndTime(ending)) : '';
@@ -3454,27 +3432,31 @@
     }
 
     function renderQuickCounts() {
-      const list = enrichedAccounts().filter(account => matchesOfferScope(account, currentOfferScope));
+      const list = enrichedAccounts().filter(account => discoveryAccess(account, currentOfferScope));
       const counts = eligibleAccountCounts(enrichedAccounts());
       document.getElementById('homeReadyCount').textContent = counts.ready.toLocaleString('en-GB') + ' ready to use';
-      document.getElementById('offerScopeSummary').textContent = counts.ready + ' ready · ' + counts.attention + ' need attention';
+      document.getElementById('offerScopeSummary').textContent = 'All offers · ' + counts.ready + ' ready · ' + counts.attention + ' need attention';
       document.getElementById('offerScope').value = currentOfferScope;
       document.getElementById('offerScopeValue').textContent = document.getElementById('offerScope').selectedOptions[0].textContent;
-      setAnimatedText("bestCount", list.length);
+      setAnimatedText("bestCount", list.filter(a=>matchesDiscoveryScope(a,'preferred',offerPreferences)).length);
       setAnimatedText("fifteenCount", list.filter(account => account.has15off15).length);
       setAnimatedText("twelveCount", list.filter(account => account.has12off15).length);
       setAnimatedText("cashCount", list.filter(account => account.hasCash).length);
       const unfinished = list.filter(account => account.promos.some(promo => offerInProgress(promo))).length;
+      setAnimatedText("unfinishedCount",unfinished);
       const cashAndPromo = list.filter(account => account.hasCashAndPromo).length;
-      setAnimatedText("unfinishedCount", unfinished);
+      setAnimatedText("tenCount", list.filter(a=>a.promos.some(p=>accountOfferKey(p)==='fixed:10:15'&&p.minimumSpendVerified!==false)).length);
       setAnimatedText("cashPromoCount", cashAndPromo);
     }
 
     function renderHomeAccounts() {
+      if(currentIntent!=='unfinished')currentIntent=({preferred:'best','fixed:10:15':'10off15','fixed:12:15':'12off15','fixed:15:15':'15off15',cash:'cash','cash-promo':'cash-promo'})[accountTypeFilter]||'best';
       if(privateMigrationPending){document.getElementById("homeAccounts").innerHTML='<div class="empty">Import the updated private login file to restore your saved promotion decisions. Recommendations are paused until then.<button class="advanced-btn" data-open-sheet="device">Import private file</button></div>';return;}
       const previewLimit = document.documentElement.dataset.layout === 'mobile' ? 2 : window.innerWidth >= 1280 ? 3 : 2;
       renderQuickCounts();
       renderFinderContext();
+      const shortChoices=mainOfferChoices();document.getElementById('finderOfferType').innerHTML=shortChoices.map(c=>'<option value="'+c.key+'">'+escapeHtml(c.label)+'</option>').join('');document.getElementById('finderOfferType').value=shortChoices.some(c=>c.key===accountTypeFilter)?accountTypeFilter:'other';
+
       const all = homeAccountsByIntent();
       const strongest = all[0] || null;
       const weak = [];
@@ -3482,7 +3464,8 @@
       document.getElementById("homeAccounts").dataset.count = Math.min(strong.length, previewLimit);
 
       const names = {
-        best: "Best deal",
+        best: offerScopeLabel(accountTypeFilter),
+        "10off15":"£10 off £15",
         "15off15": "£15 off £15",
         "12off15": "£12 off £15",
         cash: "Uber Cash",
@@ -3492,12 +3475,12 @@
 
       document.getElementById("accountsKicker").textContent = names[currentIntent];
       document.getElementById("homeAccountMeta").textContent = all.length + (all.length === 1 ? ' account' : ' accounts');
-      const help = { best: 'Best for your basket · confirm eligibility in Uber.', '15off15': 'Full-value offers with a £15 minimum spend.', '12off15': '£12 off £15 · before fees.', cash: 'Cash offers · wallet balance unverified.', unfinished: 'Started promotions with uses remaining.', 'cash-promo': 'Current Cash and discount offers on the same account. Combining them depends on Uber.' };
+      const help = { best: 'Best for your basket · confirm eligibility in Uber.', '15off15': 'Full-value offers with a £15 minimum spend.', '12off15': '£12 off £15 · before fees.', cash: 'Estimated or privately verified remaining Cash.', unfinished: 'Started promotions with uses remaining.', 'cash-promo': 'Positive remaining Cash and an available promo on the same account. Compatibility needs confirmation.' };
       document.getElementById('homeAccountsTitle').textContent = 'Best matches';
-      document.getElementById('homeResultsHelp').textContent = help[currentIntent] + (currentOfferScope === 'ready' ? ' Ready to use only.' : ' Eligibility is separate from login and archive status. Check the access label before using an account.') + ' Remaining uses are not confirmed redeemed; confirm availability in Uber.';
-      document.getElementById('resetQuickFind').hidden = currentIntent === 'best';
+      document.getElementById('homeResultsHelp').textContent = (help[currentIntent]||'Match actual discount and minimum-spend terms.') + (currentOfferScope === 'ready' ? ' Ready to use only.' : ' Eligibility is separate from login and archive status. Check the access label before using an account.') + ' Remaining uses are not confirmed redeemed; confirm availability in Uber.';
+      document.getElementById('resetQuickFind').hidden = accountTypeFilter==='all'&&currentIntent!=='unfinished';
       document.querySelectorAll('[data-intent]').forEach(button => {
-        const selected = button.dataset.intent === currentIntent;
+        const selected = button.dataset.intent === currentIntent && (currentIntent!=='best'||accountTypeFilter==='preferred');
         button.classList.toggle('active', selected);
         button.setAttribute('aria-pressed', String(selected));
       });
@@ -3520,12 +3503,10 @@
           : "");
     }
 
-    function accountTypeChoices() {
-      return [{key:'all',label:'All offers'}, ...accountOfferChoices(enrichedAccounts()).map(c => ({key:c.key,label:(c.type==='percent'?c.discount+'%':money(c.discount))+' off'+(c.minimum==null?' · minimum not shown':c.minimum?' '+money(c.minimum):' · no minimum')})), {key:'cash',label:'Uber Cash'},{key:'cash-promo',label:'Uber Cash + promo'}];
-    }
-    function accountTypeLabel(key) { const found=accountTypeChoices().find(c=>c.key===key);if(found)return found.label;const [type,discount,minimum]=String(key).split(':');return ['fixed','percent'].includes(type)&&Number(discount)>0?(type==='percent'?Number(discount)+'%':money(Number(discount)))+' off'+(minimum==='unknown'?' · minimum not shown':Number(minimum)>0?' '+money(Number(minimum)):' · no minimum'):'All offers'; }
+    function accountTypeChoices(){return mainOfferChoices();}
+    function accountTypeLabel(key){return offerScopeLabel(key);}
     function finderAccounts() {
-      return enrichedAccounts().filter(a=>(!finderFilters.accountRef || a.accountRef===finderFilters.accountRef) && accountMatchesOfferType(a,finderFilters.type) && accountMatchesLogin(a,finderFilters.login) && accountMatchesProvider(a,finderFilters.provider));
+      return enrichedAccounts().filter(a=>(!finderFilters.accountRef || a.accountRef===finderFilters.accountRef) && matchesDiscoveryScope(a,finderFilters.type,offerPreferences) && accountMatchesLogin(a,finderFilters.login) && accountMatchesProvider(a,finderFilters.provider));
     }
     function renderFinderContext() {
       const account=enrichedAccounts().find(a=>a.accountRef===finderFilters.accountRef), bits=[];
@@ -3538,20 +3519,19 @@
     }
     function directoryOffer(promo) {
       if(!promo)return 'No current offers';
-      return promoLabel(promo)+(Number(promo.minimumSpend)>0?' · '+money(promo.minimumSpend)+' minimum':accountOfferKey(promo)?.endsWith(':unknown')?' · minimum not shown':'');
+      return promoLabel(promo)+(accountOfferKey(promo)?.endsWith(':unknown')?' · minimum not shown':Number(promo.minimumSpend)>0?' · '+money(promo.minimumSpend)+' minimum':'');
     }
     function directoryCard(account) {
-      const offers=account.promos || [], discount=offers.find(p=>accountOfferKey(p)===accountTypeFilter) || account.bestNow?.promo?.discountType!=='uberCash'&&account.bestNow?.promo || offers.find(p=>p.discountType!=='uberCash'),cash=offers.find(p=>p.discountType==='uberCash');
+      const offers=account.promos || [], scoped=plannerOffersForScope(offers,[account],accountTypeFilter,offerPreferences),discount=scoped.find(p=>p.discountType!=='uberCash');
       const selected=accountTypeFilter==='cash'?null:discount;
-      const recorded=privateWallets[account.accountRef];
-      const wallet=recorded&&Number.isFinite(recorded.balance)&&Date.parse(recorded.at)<=Date.now()?recorded:null;
-      const walletLabel=wallet?'Recorded privately':'Balance unverified';
+      const wallet=account.cashPosition;
+      const walletLabel=wallet?.status==='verified'?'Manually verified':wallet?.status==='verified_reconciled'?'Estimated since verification':'Estimated remaining';
       const status=account.canLogin===true&&account.accessStatus!=='pending'?'Can log in':account.canLogin===false?'Can’t log in':'Access pending';
       const extra=selected&&Number(selected.uses)>1?'<small class="directory-use-limit">'+confirmedUses(selected)+'/'+Number(selected.uses)+' confirmed · '+Number(selected.usesRemaining??selected.uses)+' remaining</small>':'';
       return '<article class="account-card directory-card" data-card-account="'+escapeHtml(account.accountRef)+'"><button class="directory-account-head" data-account-offers="'+escapeHtml(account.accountRef)+'" aria-label="View account '+escapeHtml(accountDisplay(account))+'"><span class="directory-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="directory-identity"><span class="account-email">'+escapeHtml(accountDisplay(account))+'</span><span class="account-login-route">'+escapeHtml(loginRouteText(account))+'</span></span><span class="account-access-pill '+(status==='Can log in'?'positive':'')+'">'+escapeHtml(status)+'</span><span class="directory-chevron" aria-hidden="true">›</span></button>'+
         (selected?'<div class="directory-offer-row">'+financeIcon('tag')+'<div><strong>'+escapeHtml(directoryOffer(selected))+'</strong>'+extra+(selected.discountType==='percent'&&(selected.perUseCap??selected.maxSaving)!=null?'<small>Up to '+escapeHtml(money(selected.perUseCap??selected.maxSaving))+' per order</small>':'')+'</div></div>':'')+
-        (cash?'<div class="directory-offer-row directory-cash">'+financeIcon('wallet')+'<div><span>Uber Cash '+escapeHtml(money(wallet?.balance??cash.discount))+'</span><span class="directory-wallet-status">'+financeIcon('info')+escapeHtml(walletLabel)+'</span></div></div><p class="directory-cash-help">'+(selected?'Confirm balance and promo compatibility in Uber.':'Confirm the current balance in Uber.')+'</p>':'')+
-        (!selected&&!cash?'<p class="directory-no-offer">No current offers · history in account details</p>':'')+
+        (hasCurrentCash(account)?'<div class="directory-offer-row directory-cash">'+financeIcon('wallet')+'<div><span>Uber Cash '+escapeHtml(money(wallet.remaining))+'</span><span class="directory-wallet-status">'+financeIcon('info')+escapeHtml(walletLabel)+'</span></div></div><p class="directory-cash-help">'+(selected?'Check Cash and promo compatibility in Uber.':wallet?.status==='verified'?'Balance checked privately in Uber.':'Estimate from issued Cash and recorded usage.')+'</p>':'')+
+        (!selected&&!hasCurrentCash(account)?'<p class="directory-no-offer">No current offers · history in account details</p>':'')+
         (account.archived?'<small class="directory-account-status">Archived · outside active rotation</small>':'')+
         receiptReviewAction(account)+'<button class="directory-view-offers" data-directory-offers="'+escapeHtml(account.accountRef)+'">View offers <span aria-hidden="true">›</span></button></article>';
     }
@@ -3573,10 +3553,10 @@
       document.getElementById('accountsTotal').textContent=accounts.length.toLocaleString('en-GB');
       document.getElementById('accountsAccessible').textContent=accounts.filter(a=>a.canLogin===true).length.toLocaleString('en-GB');
       const search=String(document.getElementById('accountSearch').value||'').trim().toLowerCase();
-      const choices=accountTypeChoices();if(!choices.some(c=>c.key===accountTypeFilter))choices.push({key:accountTypeFilter,label:accountTypeLabel(accountTypeFilter)+' · no current offers'});
+      const choices=accountTypeChoices();
       document.getElementById('accountTypeValue').textContent=accountTypeLabel(accountTypeFilter);
-      document.getElementById('clearAccountType').disabled=accountTypeFilter==='all';
-      if(document.getElementById('accountTypeOptions').hidden)document.getElementById('accountTypeOptions').innerHTML=choices.map(c=>'<button role="option" aria-selected="'+(c.key===accountTypeFilter)+'" data-offer-type="'+escapeHtml(c.key)+'" tabindex="-1">'+financeIcon(c.key.startsWith('cash')?'wallet':'tag')+'<span>'+escapeHtml(c.label)+'</span><span aria-hidden="true">'+(c.key===accountTypeFilter?'✓':'')+'</span></button>').join('');
+      document.getElementById('clearAccountType').disabled=accountTypeFilter===offerPreferences.defaultView&&offerPreferences.selection===null;
+      if(document.getElementById('accountTypeOptions').hidden)document.getElementById('accountTypeOptions').innerHTML=choices.map(c=>'<button data-offer-type="'+escapeHtml(c.key)+'" role="option" aria-selected="'+(c.key===accountTypeFilter||c.key==='other'&&!choices.some(v=>v.key===accountTypeFilter))+'" tabindex="-1">'+financeIcon(c.key.startsWith('cash')?'wallet':'tag')+'<span>'+escapeHtml(c.label)+'</span><span aria-hidden="true">'+(c.key===accountTypeFilter||c.key==='other'&&!choices.some(v=>v.key===accountTypeFilter)?'✓':'')+'</span></button>').join('');
       const methods=enrichedAccounts().map(a=>a.loginMethod).filter(Boolean);
       const providers=[...new Set([...methods,...(methods.includes('Both')?['iCloud','Google']:[])])].sort();
       document.getElementById('accountProvider').innerHTML='<option value="all">All providers</option>'+providers.map(p=>'<option value="'+escapeHtml(p)+'">'+escapeHtml(p==='Both'?'iCloud or Google':p)+'</option>').join('');document.getElementById('accountProvider').value=accountProviderFilter;
@@ -3586,7 +3566,7 @@
       if(accountFilter!=='all')active.push('<button data-clear-secondary="management">'+escapeHtml(document.getElementById('accountScope').selectedOptions[0].textContent)+' ×</button>');
       if(accountOfferScope!=='any')active.push('<button data-clear-secondary="availability">'+escapeHtml(document.getElementById('accountOfferScope').selectedOptions[0].textContent)+' ×</button>');
       document.getElementById('accountActiveFilters').innerHTML=active.join('');document.getElementById('accountSecondaryCount').textContent=active.length?' · '+active.length+' active':'';
-      let list=enrichedAccounts().filter(a=>accountFilter==='tracked'||matchesAccountFilter(a,accountFilter)).filter(a=>accountMatchesLogin(a,accountLoginFilter)&&accountMatchesProvider(a,accountProviderFilter)&&accountMatchesOfferType(a,accountTypeFilter));
+      let list=enrichedAccounts().filter(a=>accountFilter==='tracked'||matchesAccountFilter({...a,hasEligibleOffers:a.hasEligibleOffers||hasCurrentCash(a)},accountFilter)).filter(a=>accountMatchesLogin(a,accountLoginFilter)&&accountMatchesProvider(a,accountProviderFilter)&&matchesDiscoveryScope(a,accountTypeFilter,offerPreferences));
       if(accountFilter==='finished')list=list.filter(a=>a.fullyUsedOfferCount>0);
       if(accountFilter==='expired-unused')list=list.filter(a=>a.expiredUnusedOfferCount>0);
       if(accountFilter==='review')list=list.filter(a=>a.accountState==='needs_checking'||Number(a.sourceReviewCount||0)>0||receiptReviewCount(a)>0);
@@ -3594,7 +3574,7 @@
       if(accountFilter==='offers')list=list.filter(a=>a.promoCount>0);
       if(accountFilter==='unfinished')list=list.filter(a=>a.promos.some(p=>offerInProgress(p)));
       if(accountFilter==='expiring')list=list.filter(a=>a.promos.some(p=>isExpiringSoon(p)));
-      if(accountOfferScope!=='any')list=list.filter(a=>matchesOfferScope(a,accountOfferScope));
+      if(accountOfferScope!=='any')list=list.filter(a=>discoveryAccess(a,accountOfferScope));
       if(search)list=list.filter(a=>[accountDisplay(a),a.accountMasked,a.loginMethod].some(v=>String(v||'').toLowerCase().includes(search)));
       list.sort((a,b)=>{if(accountSort==='email')return String(accountDisplay(a)).localeCompare(String(accountDisplay(b)));if(accountTypeFilter!=='all'||accountOfferScope!=='any'||['offers','unfinished','expiring'].includes(accountFilter)){const readiness=offerReadinessRank(a)-offerReadinessRank(b);if(readiness)return readiness;}return (b.bestNow?.calculation?.saving||0)-(a.bestNow?.calculation?.saving||0)||String(accountDisplay(a)).localeCompare(String(accountDisplay(b)));});
       document.getElementById('accountsMeta').textContent=list.length+(list.length===1?' account':' accounts');
@@ -3615,32 +3595,28 @@
       );
     }
 
+    let usedActivityCache=null;
     function renderUsed() {
-      const usedAccounts = enrichedAccounts().filter(account => account.accountUsed).sort((a,b) => String(b.lastOrderAt || b.lastRideAt || '').localeCompare(String(a.lastOrderAt || a.lastRideAt || '')));
-      document.getElementById('usedAccountCount').textContent = usedAccounts.length;
-      document.getElementById('usedAccountExplanation').textContent = usedAccounts.length + ' fully used accounts meet the receipt rule; ' + usedAccounts.filter(a=>a.canLogin).length + ' can still log in. Account use does not archive an account or complete its promotions.';
-      document.getElementById('usedAccountsList').innerHTML = usedAccounts.length ? usedAccounts.slice(0,6).map(account => activityRow(account, receiptHistoryText(account) + ' · ' + (account.canLogin ? 'Can log in' : 'Can’t log in') + (account.archived ? ' · Archived' : ''), '<button class="restore-btn" data-account-offers="' + escapeHtml(account.accountRef) + '">View</button>')).join('') : '<div class="empty">No fully used accounts yet.</div>';
-      const sourceReviews=enrichedAccounts().filter(a=>Number(a.sourceReviewCount||0)>0);
-      const financialReviews=enrichedAccounts().filter(a=>receiptReviewCount(a)>0);
-      const reviewAccountCount=new Set([...sourceReviews,...financialReviews].map(a=>a.accountRef)).size;
-      const buckets = {completed:[], partial:[], finished_expired:[], expired_unused:[], manual:[], needs_checking:[], ignored:[], available:[]};
-      for (const promo of promos) buckets[promotionActivity(manualStore, promo).bucket].push(promo);
-      document.getElementById('fullyUsedCount').textContent = buckets.completed.length;
-      document.getElementById('recentUseCount').textContent = buckets.partial.length;
-      document.getElementById('expiredCount').textContent = buckets.finished_expired.length + buckets.expired_unused.length;
-      for (const [id,count] of Object.entries({usedAccountsDisclosureCount:usedAccounts.length, recentDisclosureCount:buckets.partial.length, finishedDisclosureCount:buckets.completed.length, finishedExpiredCount:buckets.finished_expired.length, expiredDisclosureCount:buckets.expired_unused.length, manualDisclosureCount:buckets.manual.length, needsCheckCount:buckets.needs_checking.length+reviewAccountCount, ignoredDisclosureCount:buckets.ignored.length})) document.getElementById(id).textContent = count.toLocaleString('en-GB');
-      const definitions = [['completed','fullyUsedList','No promotions have every use verified yet. Receipts can confirm account use and savings without identifying a specific promotion.'], ['partial','recentActivity','No partially used promotions.'], ['finished_expired','finishedExpiredList','No promotions have expired after confirmed use.'], ['expired_unused','expiredList','No unused expired offers.'], ['manual','manualFinishedList','No manually finished promotions awaiting verification.'], ['needs_checking','needsCheckingList','Nothing needs checking.'], ['ignored','ignoredList','No ignored offers.']];
-      for (const [bucket,id,empty] of definitions) {
-        const list = buckets[bucket];
-        document.getElementById(id).innerHTML = list.length ? list.slice(0, expiredDisplayLimit).map(promo => {
-          const activity = promotionActivity(manualStore, promo);
-          const reviewText = activity.verificationConflict || (promo.reviewReasons?.includes('ambiguous_receipt_match') ? 'receipt match is ambiguous' : promo.reviewReasons?.includes('unverified_use_count') ? 'order count needs verification from the original offer' : promo.reviewReasons?.includes('unconfirmed_discount_scope') ? 'order or product scope needs verification' : promo.reviewReasons?.includes('missing_offer_source') ? 'original offer evidence needs verification' : promo.reviewReasons?.includes('missing_discount_terms') ? 'discount terms need checking' : promo.trackingState === 'needs_checking' ? 'expiry is unknown' : '');
-          const detail = (promo.title || promoLabel(promo)) + ' · ' + activity.status + ' · ' + activity.confirmedUses + '/' + activity.totalUses + ' confirmed used' + (reviewText ? ' · ' + reviewText : '');
-          return activityRow(promo, detail, (bucket === 'ignored' ? '<button class="restore-btn" data-unignore-offer="' + escapeHtml(promoStateKey(promo)) + '">Restore</button>' : '') + '<button class="restore-btn" data-account-offers="' + escapeHtml(promo.accountRef) + '">View</button>');
-        }).join('') + (list.length > expiredDisplayLimit ? '<button class="ghost-btn" data-more-expired="true">Show 50 more</button>' : '') : '<div class="empty">' + empty + '</div>';
-      }
-      if(sourceReviews.length){const list=document.getElementById('needsCheckingList');if(!buckets.needs_checking.length)list.innerHTML='';list.insertAdjacentHTML('beforeend','<div class="sheet-help">Receipt sources · '+sourceReviews.length+' accounts. These preserved records do not count as confirmed usage or savings.</div>'+sourceReviews.slice(0,expiredDisplayLimit).map(a=>activityRow(a,a.sourceReviewCount+' receipt sources need independent original verification','<button class="restore-btn" data-account-offers="'+escapeHtml(a.accountRef)+'">Review</button>')).join(''));}
-      if(financialReviews.length){const list=document.getElementById('needsCheckingList');if(!buckets.needs_checking.length&&!sourceReviews.length)list.innerHTML='';list.insertAdjacentHTML('beforeend','<p class="sheet-help">Refunds &amp; adjustments · financial review. Usage, promotions and login access stay independent.</p>'+financialReviews.slice(0,expiredDisplayLimit).map(a=>activityRow(a,receiptReviewCount(a)+' refunded or adjusted receipts need final amounts checked','<button class="restore-btn" data-open-sheet="finance" data-finance-target="receipt" data-finance-missing="true" data-finance-account="'+escapeHtml(a.accountRef)+'">Review</button>')).join(''));}
+      const rows=enrichedAccounts();
+      if(!usedActivityCache||usedActivityCache.clock!==projectionClock||usedActivityCache.manual!==manualStore||usedActivityCache.data!==payload||usedActivityCache.privateData!==financeSession?.vault?.data)usedActivityCache={clock:projectionClock,manual:manualStore,data:payload,privateData:financeSession?.vault?.data,model:buildUsedActivity(rows,promos,manualStore,receiptReviewCount)};
+      const model=usedActivityCache.model;
+      for(const [id,value]of Object.entries({usedAccountCount:model.summary.used,needsCheckCount:model.summary.needs_checking,expiredCount:model.summary.expired,usedQuickCount:model.summary.used,usedReviewQuickCount:model.summary.needs_checking}))document.getElementById(id).textContent=value.toLocaleString('en-GB');
+      const categories=[...ACTIVITY_STATUSES,{key:'expired',label:'Expired offers · all',entity:'promotions'}];
+      const category=categories.find(s=>s.key===usedState.status)||categories[0];
+      document.getElementById('usedStatusOptions').innerHTML=ACTIVITY_STATUSES.map(s=>'<button type="button" role="option" tabindex="-1" aria-selected="'+(s.key===usedState.status)+'" data-status-option="'+s.key+'"><span>'+escapeHtml(s.label)+'</span><span aria-hidden="true">'+(s.key===usedState.status?'✓':'')+'</span></button>').join('');
+      document.getElementById('usedStatusLabel').textContent=['used','needs_checking'].includes(usedState.status)?'Status':category.label;
+      document.querySelectorAll('.used-filters [data-used-status]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.usedStatus===usedState.status)));
+      document.querySelector('.used-filters').classList.toggle('large-text',parseFloat(getComputedStyle(document.querySelector('.used-filters > button')).fontSize)>16);
+      const list=activityResults(model,usedState,accountDisplay),shown=list.slice(0,usedState.full?usedState.limit:2);
+      usedRecordIndex=new Map(list.map(r=>[r.key,r]));
+      document.getElementById('usedResultsTitle').textContent=usedState.status==='used'?'Fully used':category.label;
+      document.getElementById('usedResultsCount').textContent=list.length.toLocaleString('en-GB')+' '+(list.length===1?category.entity.slice(0,-1):category.entity);
+      document.getElementById('usedRecords').innerHTML=shown.length?shown.map(r=>{
+        const account=r.account,access=account.canLogin===true?'Can log in':account.canLogin===false?'Can’t log in':'Access pending';
+        const when=r.expiry?'Expired '+(formatDate(r.expiry)||'date unknown'):r.at?(r.entity==='account'&&usedState.status==='used'?'Last used ':'Activity ')+(formatDate(r.at)||''):'';
+        return '<article class="used-record" data-used-record="'+escapeHtml(r.key)+'"><button class="used-record-head" data-activity-record="'+escapeHtml(r.key)+'" aria-label="View '+escapeHtml(accountDisplay(account))+'"><span class="used-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="used-identity"><strong>'+escapeHtml(accountDisplay(account))+'</strong><span>'+escapeHtml(loginRouteText(account))+'</span></span><span class="used-access '+(account.canLogin===true?'positive':'')+'"><i aria-hidden="true"></i>'+access+'</span><span class="used-chevron" aria-hidden="true">›</span></button><div class="used-evidence"><span class="used-evidence-icon">'+financeIcon(r.receiptRuleMet?'check':usedState.status==='needs_checking'?'alert':'receipt')+'</span><div><p>'+escapeHtml(r.promo?promoLabel(r.promo)+' · '+r.evidence:r.evidence)+'</p>'+(when?'<small>'+financeIcon('calendar')+escapeHtml(when)+'</small>':'')+'</div>'+(r.receiptRuleMet?'<span class="receipt-rule-badge">Receipt rule met</span>':'')+'</div></article>';
+      }).join(''):'<div class="used-empty"><p>No matching '+category.entity+'.</p><button data-reset-used="true">Clear search and show fully used</button></div>';
+      document.getElementById('usedPagination').innerHTML=list.length>shown.length?'<button class="used-more" data-used-more="true">'+(usedState.full?'Show '+Math.min(24,list.length-shown.length)+' more · '+shown.length+' of '+list.length:'View all '+list.length.toLocaleString('en-GB')+' '+category.entity)+'<span aria-hidden="true">›</span></button>':'';
     }
 
     let guideModule, guideLoading;
@@ -3717,7 +3693,7 @@
         (locked === 1 ? " account" : " accounts");
     }
 
-    function renderAppearanceSheet() {
+    function renderLegacyAppearanceControls() {
       setSheetHeading('Settings', 'Your layout and colour.');
       document.getElementById('sheetBody').innerHTML =
         '<fieldset class="layout-settings"><legend>Layout</legend><div class="layout-control">' +
@@ -3756,6 +3732,35 @@
         chooseTheme(hslColour(hue, Math.max(0, Math.min(100, hsl.saturation + (event.key === 'ArrowUp' ? 5 : event.key === 'ArrowDown' ? -5 : 0))), hsl.lightness));
         wheel.setAttribute('aria-valuenow', Math.round((hue + 360) % 360));
       });
+    }
+
+    function refreshOfferPreferences(next){
+      if(!saveOfferState(next))return;
+      accountTypeFilter=selectedOfferScope(offerPreferences);finderFilters.type=accountTypeFilter;
+      invalidateAccountProjection();plannerComparisonCache=null;selectedPlannerKey=null;renderAll();
+      if(openSheetType==='appearance')renderAppearanceSheet();
+    }
+    function renderAppearanceSheet(){
+      renderLegacyAppearanceControls();setSheetHeading('Settings','');
+      const host=document.getElementById('sheetBody'),layout=host.querySelector('.layout-settings'),oldTheme=host.querySelector('.setting-card');
+      const presets=oldTheme.querySelector('.theme-presets'),colours=oldTheme.querySelector('.colour-controls'),reset=oldTheme.querySelector('#resetTheme'),feedback=oldTheme.querySelector('#themeStatus');
+      const wrapper=document.createElement('div');wrapper.className='compact-settings';
+      wrapper.innerHTML='<section class="settings-group"><h3>Offer preferences</h3><div class="settings-group-panel">'+
+        '<label class="compact-setting-row">'+financeIcon('filter')+'<span>Default offer view</span><select id="defaultOfferView"><option value="preferred">Preferred offers</option><option value="all">All offers</option></select></label>'+
+        '<button id="preferredPromosButton" class="compact-setting-row">'+financeIcon('tag')+'<span>Preferred promos<small>'+offerPreferences.preferredPromos.length+' selected</small></span><span aria-hidden="true">›</span></button>'+
+        '<label class="compact-setting-row">'+financeIcon('wallet')+'<span>Include Uber Cash</span><input id="includeCashPreference" type="checkbox" role="switch"'+(offerPreferences.includeCash?' checked':'')+'></label>'+
+        '<label class="compact-setting-row">'+financeIcon('bag')+'<span>Any promo with Uber Cash'+(!offerPreferences.includeCash?'<small>Enable Include Uber Cash to use this saved preference.</small>':'')+'</span><input id="anyCashPromoPreference" type="checkbox" role="switch"'+(offerPreferences.anyPromoWithCash?' checked':'')+(!offerPreferences.includeCash?' disabled':'')+'></label></div><button class="settings-default-action" id="returnPreferredDefaults">Return to preferred offers</button></section>'+
+        '<section class="settings-group"><h3>Appearance</h3><div class="settings-group-panel"><div class="compact-setting-row settings-layout-row">'+financeIcon('grid')+'<span>Layout</span><div id="settingsLayoutSlot"></div></div><div class="compact-setting-row theme-preset-row">'+financeIcon('settings')+'<span>Theme colour</span><div id="settingsThemePresets"></div></div><details class="settings-theme-advanced"><summary>Custom colour <span aria-hidden="true">⌄</span></summary><div id="settingsThemeAdvanced"></div></details><label class="compact-setting-row">'+financeIcon('partial')+'<span>Motion</span><select id="motionPreference"><option value="system">System</option><option value="reduced">Reduced</option></select></label></div></section>'+
+        '<section class="settings-group"><h3>Planning</h3><div class="settings-group-panel"><button class="compact-setting-row" data-open-sheet="advanced">'+financeIcon('settings')+'<span>Fee settings<small>'+escapeHtml(money(effectiveFee()))+' estimated per order</small></span><span aria-hidden="true">›</span></button></div></section>'+
+        '<section class="settings-group"><h3>Private records</h3><div class="settings-group-panel"><button class="compact-setting-row" data-open-sheet="finance">'+financeIcon('lock')+'<span>Private finances<small>Cash balances, receipt corrections and history</small></span><span aria-hidden="true">›</span></button></div></section>';
+      host.replaceChildren(wrapper);host.querySelector('#settingsLayoutSlot').append(layout);host.querySelector('#settingsThemePresets').append(presets);host.querySelector('#settingsThemeAdvanced').append(colours,reset,feedback);
+      const defaults=host.querySelector('#defaultOfferView');defaults.value=offerPreferences.defaultView;
+      defaults.addEventListener('change',e=>{refreshOfferPreferences({...offerPreferences,defaultView:e.target.value});document.getElementById('defaultOfferView').focus();});
+      for(const [id,key]of [['includeCashPreference','includeCash'],['anyCashPromoPreference','anyPromoWithCash']])host.querySelector('#'+id).addEventListener('change',e=>{refreshOfferPreferences({...offerPreferences,[key]:e.target.checked});document.getElementById(id).focus();});
+      host.querySelector('#preferredPromosButton').addEventListener('click',()=>openOfferCatalogue({choices:offerCatalogueChoices(),selected:offerPreferences.preferredPromos,multiple:true,opener:document.getElementById('preferredPromosButton'),onApply:values=>{refreshOfferPreferences({...offerPreferences,preferredPromos:values});requestAnimationFrame(()=>document.getElementById('preferredPromosButton')?.focus());}}));
+      host.querySelector('#returnPreferredDefaults').addEventListener('click',()=>{refreshOfferPreferences({...offerPreferences,selection:'preferred',plannerSelection:'preferred'});document.getElementById('returnPreferredDefaults').focus();});
+      const motion=host.querySelector('#motionPreference');motion.value=motionSetting;
+      motion.addEventListener('change',()=>{try{localStorage.setItem(MOTION_KEY,motion.value);motionSetting=motion.value;document.documentElement.dataset.motion=motionSetting;mainNav.dataset.motion=motionSetting;liquidNavigation?.refreshMotion();}catch{motion.value=motionSetting;}});
     }
 
     let pendingDeviceImport = null;
@@ -3892,7 +3897,7 @@
             '<button class="action-btn" data-undo-use="' + escapeHtml(promoStateKey(promo)) + '"' +
               (undoDisabled ? ' disabled' : '') + '>Undo manual use</button>' +
           '</div>' +
-          (promo.discountType === 'uberCash' ? '<div class="setting-note">This email records a Cash offer, not your current wallet balance. Check its activation and balance in Uber. Receipt savings remain separate.</div>' : '') +
+          (promo.discountType === 'uberCash' ? '<div class="setting-note">Issued Cash is reconciled against recorded receipt usage. Estimates are not confirmed wallet balances. Unknown expiry or ambiguous credit usage needs checking. Cash payments are separate from promotional savings.</div>' : '') +
           '<div class="offer-more">' +
             (activity.ignored
               ? '<button class="action-btn warning" data-toggle-ignore="' + escapeHtml(promoStateKey(promo)) + '" data-ignore="false">Restore offer</button>'
@@ -4007,7 +4012,7 @@
               escapeHtml(hasFeeEstimate() ? effectiveFee().toFixed(2) : '') + '" placeholder="Not entered" inputmode="decimal">' +
             '<em>Default £1 per order</em>' +
           '</label>' +
-          '<div class="setting-note plan-fee-explanation">Basket minus promo discounts and any verified Uber Cash, plus your estimated fee for every order, including the first. £2 means £2 for one order, £4 for two and £6 for three. Matching recorded checkout fees replace this estimate; they are never added twice. Estimates are not confirmed checkout costs. Leave blank to restore £1 per order.</div>' +
+          '<div class="setting-note plan-fee-explanation">Applied to every order, including the first. Basket minus promo discounts, plus estimated fees, then eligible Cash payments. £2 means £2 for one order, £4 for two and £6 for three. Matching recorded checkout fees replace this estimate; they are never added twice. Estimates are not confirmed checkout costs. Leave blank to restore £1 per order.</div>' +
         '</div>' +
         '<div class="setting-card">' +
           '<div class="setting-card-head">' +
@@ -4216,7 +4221,7 @@
     }
 
     function showSheet() {
-      if (!routeRestoring && ['offers','planner'].includes(currentView)) {
+      if (!routeRestoring && ['offers','planner','used'].includes(currentView)) {
         const state = window.history.state;
         if (routeEntries.has(state?.trackerEntry)) routeEntries.get(state.trackerEntry).scroll = window.scrollY;
         const entry = ++routeSerial;
@@ -4248,12 +4253,15 @@
       openAccountRef = null;
     }
 
+    function renderUsedInformation(){setSheetHeading('How statuses are decided','Accounts and promotions are counted separately.');document.getElementById('sheetBody').innerHTML='<div class="setting-card"><p>Fully used accounts have at least one Eats and one Ride receipt, or five Eats receipts. Login and archive status stay independent.</p><p>Needs checking counts accounts with uncertain offer or receipt evidence. The record explains the uncertainty.</p><p>Expired offers counts promotions in Finished · Expired and Expired · Unused. Summary values count different categories; they are not a partition and must not be added together.</p><p>Completed promotions require every permitted use to be verified. Partial use, manual finish and ignore states stay separate.</p></div><button class="advanced-btn" data-open-guide="verification">Read the full status guide ›</button>';}
+
     function openUtilitySheet(type, financeTarget = null, financeMissing = false, financeAccount = null) {
       if (financeView) financeView.destroy();
       openSheetType = type;
       const financeRevision = ++financeOpenRevision;
       openAccountRef = null;
 
+      if(type==='used-info')renderUsedInformation();
       if (type === 'about') renderAboutSheet();
       if (type === "advanced") renderAdvancedSheet();
       if (type === "locked") renderLockedSheet();
@@ -4270,12 +4278,12 @@
         financeModule ||= import('./private-finance-ui.js');
         financeModule.then(module=>{
           if(openSheetType!=='finance'||financeRevision!==financeOpenRevision)return;
-          financeSession ||= new module.PrivateFinanceSession({onLock:()=>{privateWallets={};reviewData=reviewView=null;renderAccounts();renderHomeAccounts();renderUsed();if(openSheetType==='finance')financeView?.render();else if(document.getElementById('sheetTitle').textContent==='Private finances')document.getElementById('sheetBody').replaceChildren();renderRecommendation();}});
+          financeSession ||= new module.PrivateFinanceSession({onLock:()=>{privateWallets={};invalidateAccountProjection();reviewData=reviewView=null;renderAccounts();renderHomeAccounts();renderUsed();if(openSheetType==='finance')financeView?.render();else if(document.getElementById('sheetTitle').textContent==='Private finances')document.getElementById('sheetBody').replaceChildren();renderRecommendation();}});
           financeSession.visibility(document.hidden);
           financeView=module.financeInterface({host,vault:financeSession.vault,initialPanel:financeTarget,missingOnly:financeMissing,initialAccountRef:financeAccount,publishedReviewCount:accounts.reduce((n,a)=>n+Number(a.receiptReviewCount||0),0),
             accountLabel:ref=>accountDisplay(accounts.find(a=>a.accountRef===ref)||{accountRef:ref}),
             accountUsage:ref=>{const a=accounts.find(a=>a.accountRef===ref);return a?Number(a.orderCount||0)+Number(a.rideCount||0):null;},
-            onUpdate:vault=>{financeSession.visibility(document.hidden);privateWallets=vault.current().wallets;reviewData=reviewView=null;renderAccounts();renderHomeAccounts();renderUsed();renderRecommendation();}});
+            onUpdate:vault=>{financeSession.visibility(document.hidden);privateWallets=vault.current().wallets;invalidateAccountProjection();reviewData=reviewView=null;renderAccounts();renderHomeAccounts();renderUsed();renderRecommendation();}});
         }).catch(()=>{if(openSheetType==='finance'&&financeRevision===financeOpenRevision)host.innerHTML='<p role="alert">Private finances could not load. Please refresh and try again.</p>';});
       }
 
@@ -4368,7 +4376,7 @@
     function switchView(view) {
       recordViewRoute(view);
       currentView = view;
-      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts'].includes(view));
+      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used'].includes(view));
       renderAll();
       let activeSection = null;
 
@@ -4386,7 +4394,7 @@
 
       updateNavGlider();
       queueDetailViewport();
-      if (activeSection && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      if (activeSection && !motionReduced()) {
         activeSection.classList.remove("motion-enter");
         activeSection.classList.add("motion-enter");
         window.setTimeout(() => activeSection.classList.remove("motion-enter"), 560);
@@ -4407,6 +4415,7 @@
       switchView(state.trackerView);
       if (state.trackerSheet === 'advanced') openUtilitySheet('advanced');
       else if (state.trackerSheet === 'account') openAccountSheet(state.trackerAccount);
+      else if(state.trackerSheet==='used-info')openUtilitySheet('used-info');
       routeRestoring = false;
       window.scrollTo({top:routeEntries.get(state.trackerEntry)?.scroll || 0,behavior:'instant'});
       const opener = leaving?.opener;
@@ -4415,9 +4424,10 @@
       // Returning to the directory can change the dock height (especially with
       // larger text). Restore after its measured clearance has been applied so
       // the browser does not clamp the saved position to the shorter fallback.
-      if(state.trackerView==='accounts'&&!state.trackerSheet) {
+      if(['accounts','used'].includes(state.trackerView)&&!state.trackerSheet) {
         const scroll=routeEntries.get(state.trackerEntry)?.scroll||0;
-        requestAnimationFrame(()=>{if(currentRouteEntry!==state.trackerEntry||currentView!=='accounts')return;
+        requestAnimationFrame(()=>{if(currentRouteEntry!==state.trackerEntry||!['accounts','used'].includes(currentView))return;
+          if(state.trackerView==='used'&&leaving?.opener?.dataset.activityRecord)document.querySelector('[data-activity-record="'+CSS.escape(leaving.opener.dataset.activityRecord)+'"]')?.focus({preventScroll:true});
           if(leaving?.fromDirectory){const action=leaving.directoryAccount?document.querySelector('#accountsList [data-directory-offers="'+CSS.escape(leaving.directoryAccount)+'"]'):document.querySelector('[data-directory-find]');action?.focus({preventScroll:true});}
           window.scrollTo({top:scroll,behavior:'instant'});
         });
@@ -4429,10 +4439,10 @@
       detailViewportFrame = requestAnimationFrame(() => {
         detailViewportFrame = 0;
         const root = document.documentElement;
-        const view = document.querySelector('#view-planner.active, #view-offers.active, #view-accounts.active');
+        const view = document.querySelector('#view-planner.active, #view-offers.active, #view-accounts.active, #view-used.active');
         const active = Boolean(view);
         const prefix = view?.id?.slice(5) || 'planner';
-        for(const name of ['planner','offers','accounts'])if(name!==prefix)root.style.removeProperty('--'+name+'-nav-clearance');
+        for(const name of ['planner','offers','accounts','used'])if(name!==prefix)root.style.removeProperty('--'+name+'-nav-clearance');
         const rootStyle = active ? getComputedStyle(root) : null;
         const themeMeta = document.querySelector('meta[name="theme-color"]');
         if (active && themeMeta) {
@@ -4470,7 +4480,7 @@
     window.visualViewport?.addEventListener('scroll', updateVisibleViewport);
     document.addEventListener('focusin', updateVisibleViewport);
     document.addEventListener('focusout', () => requestAnimationFrame(updateVisibleViewport));
-    if ('ResizeObserver' in window) new ResizeObserver(queueDetailViewport).observe(document.getElementById('mainNav'));
+    if ('ResizeObserver' in window) {new ResizeObserver(queueDetailViewport).observe(document.getElementById('mainNav'));const filters=document.querySelector('.used-filters');new ResizeObserver(()=>filters.classList.toggle('large-text',parseFloat(getComputedStyle(filters.firstElementChild).fontSize)>16)).observe(filters.firstElementChild);}
     updateVisibleViewport();
     window.addEventListener("resize", applyLayoutPreference);
     requestAnimationFrame(updateNavGlider);
@@ -4566,11 +4576,14 @@
     }
 
     const mainNav = document.getElementById('mainNav');
+    mainNav.dataset.motion=motionSetting;
     liquidNavigation = createLiquidNavigation(mainNav);
     updateNavGlider();
     setupDraggableNavigation({ nav: mainNav, onSelect: switchView, onRestore: updateNavGlider, onGliderMove: next => liquidNavigation.dragTo(next) });
 
     if (initialView !== 'home') { routeRestoring = true; switchView(initialView); routeRestoring = false; }
+    document.getElementById('finderOfferType').addEventListener('change',e=>{if(e.target.value==='other')chooseOtherOffers(e.target);else applyOfferScope(e.target.value);});
+    document.querySelector('[data-preferred-default]').addEventListener('click',()=>applyOfferScope('preferred'));
     document.getElementById('homeOfferSearch').addEventListener('input', renderHomeAccounts);
     document.getElementById('offerScope').addEventListener('change', event => {
       currentOfferScope = event.target.value;
@@ -4581,11 +4594,12 @@
       accountDisplayLimit = 48;
       renderAccounts();
     });
-    document.getElementById("quickGrid").addEventListener("click", event => {
+    document.getElementById("offerFilterPanel").addEventListener("click", event => {
       const button = event.target.closest("[data-intent]");
       if (!button) return;
 
-      currentIntent = button.dataset.intent;
+      const wantedIntent=button.dataset.intent;currentIntent = wantedIntent;
+      applyOfferScope(({best:'preferred','10off15':'fixed:10:15','12off15':'fixed:12:15','15off15':'fixed:15:15',cash:'cash','cash-promo':'cash-promo'})[currentIntent]||(wantedIntent==='unfinished'?accountTypeFilter:'preferred'));if(wantedIntent==='unfinished')currentIntent='unfinished';
 
       document.querySelectorAll("[data-intent]").forEach(item => {
         item.classList.toggle("active", item === button);
@@ -4598,6 +4612,7 @@
     });
 
     let basketTimer;
+    document.getElementById('plannerOfferScope').addEventListener('change',e=>{saveOfferState({...offerPreferences,plannerSelection:e.target.value});selectedPlannerKey=null;plannerComparisonCache=null;renderRecommendation();});
     document.getElementById('plannerFulfilment').addEventListener('change', event=>{selectedPlannerKey=null;plannerSettings.fulfilment=event.target.value;savePlannerSettings();renderRecommendation();});
     document.getElementById("basketInput").addEventListener("input", () => {
       selectedPlannerKey = null;
@@ -4619,21 +4634,38 @@
     document.getElementById('accountProvider').addEventListener('change',e=>{accountProviderFilter=e.target.value;accountDisplayLimit=48;renderAccounts();});
     document.getElementById('accountSort').addEventListener('change',e=>{accountSort=e.target.value;accountDisplayLimit=48;renderAccounts();});
     document.getElementById('accountLoginTabs').addEventListener('click',e=>{const b=e.target.closest('[data-login-filter]');if(b){accountLoginFilter=b.dataset.loginFilter;accountDisplayLimit=48;renderAccounts();}});
-    document.getElementById('clearAccountType').addEventListener('click',()=>{accountTypeFilter='all';closeAccountPicker();renderAccounts();});
+    function chooseUsedStatus(status){closeUsedPicker();usedState={...usedState,status,full:false,limit:24};renderUsed();}
+    document.getElementById('usedSearch').addEventListener('input',e=>{usedState.query=e.target.value;usedState.full=false;renderUsed();});
+    function closeUsedPicker(restore=false){document.getElementById('usedStatusOptions').hidden=true;document.getElementById('usedStatus').setAttribute('aria-expanded','false');if(restore)document.getElementById('usedStatus').focus({preventScroll:true});}
+    function openUsedPicker(last=false){const menu=document.getElementById('usedStatusOptions'),trigger=document.getElementById('usedStatus');menu.hidden=false;trigger.setAttribute('aria-expanded','true');if(innerHeight-trigger.getBoundingClientRect().bottom<240)trigger.scrollIntoView({block:'start',behavior:'instant'});menu.style.maxHeight=Math.max(100,Math.min(360,innerHeight-trigger.getBoundingClientRect().bottom-16))+'px';(last?menu.lastElementChild:menu.querySelector('[aria-selected="true"]')||menu.firstElementChild)?.focus({preventScroll:true});}
+    document.getElementById('usedStatus').addEventListener('click',()=>document.getElementById('usedStatusOptions').hidden?openUsedPicker():closeUsedPicker(true));
+    document.getElementById('usedStatus').addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();openUsedPicker(e.key==='ArrowUp');}});
+    document.getElementById('usedStatusOptions').addEventListener('click',e=>{const b=e.target.closest('[data-status-option]');if(b){closeUsedPicker(true);chooseUsedStatus(b.dataset.statusOption);}});
+    document.getElementById('usedStatusOptions').addEventListener('keydown',e=>{const options=[...e.currentTarget.children],i=options.indexOf(document.activeElement);if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeUsedPicker(true);}else if(e.key==='Tab'){closeUsedPicker();}else if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){e.preventDefault();options[e.key==='Home'?0:e.key==='End'?options.length-1:(i+(e.key==='ArrowDown'?1:-1)+options.length)%options.length].focus();}});
+    document.addEventListener('click',e=>{if(!e.target.closest('.used-status-control'))closeUsedPicker();});
+    document.getElementById('usedSort').addEventListener('change',e=>{usedState.sort=e.target.value;renderUsed();});
+    document.getElementById('view-used').addEventListener('click',e=>{
+      const status=e.target.closest('[data-used-status]');if(status){chooseUsedStatus(status.dataset.usedStatus);return;}
+      if(e.target.closest('[data-used-more]')){if(usedState.full)usedState.limit+=24;else{usedState.full=true;usedState.limit=24;}renderUsed();(document.querySelector('[data-used-more]')||document.querySelector('.used-info-link'))?.focus({preventScroll:true});return;}
+      if(e.target.closest('[data-reset-used]')){usedState={status:'used',query:'',sort:'latest',full:false,limit:24};document.getElementById('usedSearch').value='';document.getElementById('usedSort').value='latest';renderUsed();return;}
+      if(e.target.closest('[data-used-info]')){e.target.closest('button').focus({preventScroll:true});openUtilitySheet('used-info');return;}
+      const target=e.target.closest('[data-activity-record]');if(target){const r=usedRecordIndex.get(target.dataset.activityRecord);if(r){target.focus({preventScroll:true});openAccountSheet(r.account.accountRef);if(r.promo)revealOfferHistory(r.promo);}}
+    });
+    document.getElementById('clearAccountType').addEventListener('click',()=>{closeAccountPicker();applyOfferScope(offerPreferences.defaultView,false);});
     document.getElementById('accountTypeTrigger').addEventListener('click',()=>{if(document.getElementById('accountTypeOptions').hidden)openAccountPicker();else closeAccountPicker(true);});
     document.getElementById('accountTypeTrigger').addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();openAccountPicker(e.key==='ArrowUp');}});
-    document.getElementById('accountTypeOptions').addEventListener('click',e=>{const option=e.target.closest('[data-offer-type]');if(option){accountTypeFilter=option.dataset.offerType;accountDisplayLimit=48;closeAccountPicker(true);renderAccounts();}});
+    document.getElementById('accountTypeOptions').addEventListener('click',e=>{const option=e.target.closest('[data-offer-type]');if(option){if(option.dataset.offerType==='other'){chooseOtherOffers(document.getElementById('accountTypeTrigger'));return;}closeAccountPicker(true);applyOfferScope(option.dataset.offerType);}});
     document.getElementById('accountTypeOptions').addEventListener('keydown',e=>{const menu=e.currentTarget,options=[...menu.children],i=options.indexOf(document.activeElement);if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeAccountPicker(true);}else if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){e.preventDefault();const next=e.key==='Home'?0:e.key==='End'?options.length-1:(i+(e.key==='ArrowDown'?1:-1)+options.length)%options.length;options[next].focus({preventScroll:true});options[next].scrollIntoView({block:'nearest'});}else if(e.key==='Tab'){e.preventDefault();closeAccountPicker();(e.shiftKey?document.getElementById('accountTypeTrigger'):document.querySelector('#accountSecondaryFilters > summary')).focus();}else if(e.key.length===1&&!e.ctrlKey&&!e.metaKey){const found=options.slice(i+1).concat(options.slice(0,i+1)).find(b=>b.textContent.trim().toLowerCase().startsWith(e.key.toLowerCase()));found?.focus();}});
     document.addEventListener('pointerdown',e=>{if(!e.target.closest('.account-type-picker'))closeAccountPicker();});
     document.addEventListener('focusin',e=>{if(!e.target.closest('.account-type-picker'))closeAccountPicker();});
-    function resetDirectory() {accountFilter='all';accountOfferScope='any';accountTypeFilter='all';accountProviderFilter='all';accountLoginFilter='all';document.getElementById('accountSearch').value='';accountDisplayLimit=48;renderAccounts();}
+    function resetDirectory() {accountFilter='all';accountOfferScope='any';accountTypeFilter=offerPreferences.defaultView;saveOfferState({...offerPreferences,selection:null});finderFilters.type=accountTypeFilter;accountProviderFilter='all';accountLoginFilter='all';document.getElementById('accountSearch').value='';accountDisplayLimit=48;renderAccounts();}
     function openDirectoryFinder(accountRef=null) {finderFilters={accountRef,type:accountTypeFilter,login:accountLoginFilter,provider:accountProviderFilter};currentIntent='best';currentOfferScope=accountOfferScope==='any'?'all':accountOfferScope;document.getElementById('homeOfferSearch').value=accountRef?'':document.getElementById('accountSearch').value;switchView('offers');Object.assign(routeEntries.get(currentRouteEntry),{fromDirectory:true,directoryAccount:accountRef});document.getElementById('offersTitle').focus({preventScroll:true});}
 
     document.getElementById("app").addEventListener("click", event => {
       if(event.target.closest('[data-directory-find]')){openDirectoryFinder();return;}
       const directoryOffers=event.target.closest('[data-directory-offers]');if(directoryOffers){openDirectoryFinder(directoryOffers.dataset.directoryOffers);return;}
       if(event.target.closest('[data-clear-finder-account]')){finderFilters.accountRef=null;renderHomeAccounts();document.getElementById('offersTitle').focus({preventScroll:true});return;}
-      if(event.target.closest('[data-clear-finder-filters]')){finderFilters={accountRef:null,type:'all',login:'all',provider:'all'};renderHomeAccounts();document.getElementById('offersTitle').focus({preventScroll:true});return;}
+      if(event.target.closest('[data-clear-finder-filters]')){finderFilters={accountRef:null,type:offerPreferences.defaultView,login:'all',provider:'all'};applyOfferScope(offerPreferences.defaultView,false);renderHomeAccounts();document.getElementById('offersTitle').focus({preventScroll:true});return;}
       if(event.target.closest('[data-reset-directory]')){resetDirectory();document.getElementById('accountSearch').focus();return;}
       if(event.target.closest('[data-reset-secondary]')){accountFilter='all';accountOfferScope='any';renderAccounts();return;}
       const clearSecondary=event.target.closest('[data-clear-secondary]');if(clearSecondary){if(clearSecondary.dataset.clearSecondary==='management')accountFilter='all';else accountOfferScope='any';renderAccounts();document.getElementById('accountSecondaryFilters').querySelector('summary').focus();return;}
@@ -4654,14 +4686,14 @@
         return;
       }
 
-      if (event.target.closest("[data-reset-intent]")) { currentIntent = "best"; renderHomeAccounts(); return; }
+      if (event.target.closest("[data-reset-intent]")) { applyOfferScope("all"); return; }
       const jumpAccounts = event.target.closest("[data-jump-accounts]");
       if (jumpAccounts) {
         const target=jumpAccounts.dataset.targetFilter || 'offers';
         accountFilter=['15off15','12off15','cash','cash-promo'].includes(target)?'all':['used-login','used-locked'].includes(target)?'used':['archived-login','archived-locked'].includes(target)?'archived':['login','locked'].includes(target)?'all':target;
         accountLoginFilter=target.endsWith('-login')||target==='login'?'login':target.endsWith('-locked')||target==='locked'?'locked':'all';
         accountTypeFilter=target==='15off15'?'fixed:15:15':target==='12off15'?'fixed:12:15':['cash','cash-promo'].includes(target)?target:'all';
-        accountProviderFilter=jumpAccounts.closest('#view-offers')?finderFilters.provider:'all';if(jumpAccounts.closest('#view-offers')){accountLoginFilter=finderFilters.login;if(finderFilters.type!=='all')accountTypeFilter=finderFilters.type;}accountOfferScope=jumpAccounts.dataset.targetScope || 'any';
+        accountProviderFilter=jumpAccounts.closest('#view-offers')?finderFilters.provider:'all';if(jumpAccounts.closest('#view-offers')){accountLoginFilter=finderFilters.login;if(finderFilters.type!=='all')accountTypeFilter=finderFilters.type;}accountOfferScope=jumpAccounts.dataset.targetScope || 'any';saveOfferState({...offerPreferences,selection:accountTypeFilter});finderFilters.type=accountTypeFilter;
         document.getElementById('accountSearch').value='';accountDisplayLimit=48;
         switchView("accounts");
         return;
@@ -4681,14 +4713,6 @@
         return;
       }
 
-      const unignore = event.target.closest("[data-unignore-offer]");
-      if (unignore) {
-        const promo = promoByKey(unignore.dataset.unignoreOffer);
-        if (promo) {
-          manualStore = setOfferIgnored(manualStore, promo, false);
-          refreshAfterStateChange();
-        }
-      }
     });
 
     document.getElementById("sheetClose").addEventListener("click", () => closeSheet());
@@ -4864,6 +4888,7 @@
     });
 
     window.addEventListener("storage", event => {
+      if(event.key===OFFER_PREFERENCES_KEY||event.key===null){offerPreferences=readOfferPreferences(localStorage);accountTypeFilter=selectedOfferScope(offerPreferences);finderFilters.type=accountTypeFilter;renderAll();}
       if(event.key==='uber-tracker-finance-encrypted-v1'||event.key===null){financeSession?.lock();privateWallets={};renderRecommendation();}
       if (event.key === LAYOUT_KEY || event.key === null) { layoutPreference = readLayoutPreference(); applyLayoutPreference(); if (openSheetType === 'appearance') renderAppearanceSheet(); }
       if (event.key === STATE_KEY || event.key === null) { manualStore = readManualStore(); reconcileLocalEvidence(); invalidateAccountProjection(); renderAll(); if (openSheetType === "account") renderAccountSheet(); }

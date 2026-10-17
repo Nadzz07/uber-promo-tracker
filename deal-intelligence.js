@@ -1,4 +1,5 @@
 import { isOfferExpired, ukDateKey } from "./offer-time.js";
+import {cashAwarePlans,cashForOrder} from './cash-planner.js';
 
 function number(value) {
   if (value == null || value === "") return null;
@@ -447,42 +448,30 @@ export function rankBasketPlans(promos = [], subtotal, {
   wallets = {}, accounts = [], fees = {}, fulfilment = 'delivery',
   maxOrders = 3, orderFeeEstimate = 1, now = new Date().toISOString()
 } = {}) {
+  if(number(subtotal)==null||Number(subtotal)<=0||Number(subtotal)>1000)return {suggested:null,plans:[],reason:'Enter a basket between £0.01 and £1,000.'};
   const perOrder = number(orderFeeEstimate);
   const perOrderFee = perOrder == null ? 1 : roundMoney(Math.max(0, perOrder));
-  const split = planBasketSplit(promos.filter(p => p.discountType !== 'uberCash' && matchesFulfilment(p, fulfilment)), subtotal, {
-    service: 'Uber Eats', accessibleOnly: true, maxOrders, extraOrderFee: 0
-  });
-  const candidates = [];
-  if (split.eligible) {
-    for (const plan of [split, ...(split.alternatives || [])].filter(p => p.orderCount > 1)) {
-      const estimatedFees = roundMoney(perOrderFee * plan.orderCount);
-      candidates.push({...plan, extraFees: estimatedFees, estimatedPay: roundMoney(plan.subtotal-plan.grossSaving+estimatedFees),
-        netSaving: roundMoney(plan.grossSaving-estimatedFees), kind: 'split', conditional: false, cashUsed: 0, checkoutFees: null,
-        orders: plan.orders.map(order => {
-          const extraFee = perOrderFee;
-          return {...order, cashUsed: 0, checkoutFees: null, extraFee,
-            estimatedPay: roundMoney(order.pay + extraFee)};
-        })});
-    }
-  }
+  const usable=promos.filter(p=>isAvailable(p)&&matchesFulfilment(p,fulfilment));
+  const candidates=cashAwarePlans(usable,subtotal,{accounts,wallets,fees,maxOrders,orderFeeEstimate:perOrderFee,now},savingForSpend);
   for (const option of rankCheckoutOptions(promos, subtotal, {wallets, accounts, fees, fulfilment, now, orderFeeEstimate:perOrderFee})) {
     candidates.push({eligible: true, kind: option.kind, conditional: option.conditional,
       subtotal: option.basket, grossSaving: option.promotionDiscount,
       extraFees: option.estimatedFee, checkoutFees: option.fees, cashUsed: option.cashUsed,
       estimatedPay: option.outOfPocket, orderCount: 1, accountCount: 1,
-      netSaving: roundMoney(option.basket - option.outOfPocket),
+      netSaving: roundMoney(option.promotionDiscount-(option.fees??option.estimatedFee)),
+      totalAfterPromosAndFees:roundMoney(option.basket-option.promotionDiscount+(option.fees??option.estimatedFee)),cashEstimated:option.cashBasis==='estimated',
       orders: [{accountRef: option.accountRef, accountMasked: option.promo?.accountMasked || null,
         promo: option.promo, subtotal: option.basket, saving: option.promotionDiscount,
         pay: roundMoney(option.basket - option.promotionDiscount),
-        cashUsed: option.cashUsed, cashRemaining: option.cashRemaining,
+        cashUsed: option.cashUsed, cashRemaining: option.cashRemaining,cashBasis:option.cashBasis,
         checkoutFees: option.fees, extraFee: option.estimatedFee, estimatedPay: option.outOfPocket}]
     });
   }
   // Cost is primary. Fewer orders and conserving Cash break equal-cost ties.
   candidates.sort((a, b) => a.estimatedPay - b.estimatedPay || a.cashUsed - b.cashUsed || a.orderCount - b.orderCount);
   for (const plan of candidates) plan.key = plan.kind + ':' + plan.orders.map(o => [o.accountRef, o.promo?.id || 'wallet', o.subtotal].join('/')).join('|');
-  const suggested = candidates.find(p => !p.conditional);
-  if (!suggested) return {suggested: null, plans: [], reason: split.reason || 'No verified checkout option fits this basket.'};
+  const suggested = candidates[0];
+  if (!suggested) return {suggested: null, plans: [], reason:'No eligible checkout option fits this basket and offer scope.'};
   // A few ordering strategies, rather than repeated accounts with the same
   // deal. Preserve conditional Cash comparisons, clearly labelled for review.
   const seen = new Set(), distinct = candidates.filter(plan => {
@@ -493,17 +482,18 @@ export function rankBasketPlans(promos = [], subtotal, {
   return {suggested, plans: [suggested, ...distinct.filter(p => p.key !== suggested.key).slice(0, 3)]};
 }
 
-// Cash email grants never supply wallet balances. Only separately verified,
-// same-account wallet records participate in checkout comparisons.
+// Checkout compares sanitised grant estimates and private verified positions.
+// Cash is a payment source, separate from promotional savings.
 export function rankCheckoutOptions(promos=[],subtotal,{wallets={},accounts=[],fees={},fulfilment='delivery',orderFeeEstimate=null,now=new Date().toISOString()}={}) {
   const basket=number(subtotal);if(basket==null||basket<=0||basket>1000)return [];
   const result=[],byAccount=new Map(accounts.filter(a=>a.canLogin===true&&a.archived!==true&&a.accountStatus!=='archived'&&a.accountStatus!=='deactivated').map(a=>[a.accountRef,a]));
   const walletFor=ref=>{const w=wallets[ref],account=byAccount.get(ref);if(!w||!account||!Number.isFinite(Number(w.balance))||Number(w.balance)<0||!Number.isFinite(Date.parse(w.at))||Date.parse(w.at)>Date.parse(now))return null;
+    if(w.status)return ['estimated','verified','verified_reconciled'].includes(w.status)?w:null;
     const count=Number(account.orderCount||0)+Number(account.rideCount||0);
     if(w.receiptCount!=null && w.receiptCount!==count)return null;
     if([account.lastOrderAt,account.lastRideAt].some(at=>at&&(Date.parse(at)>Date.parse(w.at)||w.receiptCount==null&&/^\d{4}-\d{2}-\d{2}$/.test(at)&&at>=ukDateKey(w.at))))return null;
     return w;};
-  const add=(promo,ref,discount,cashUsed,kind,conditional=false)=>{const w=walletFor(ref),knownFee=number(fees[ref]),estimatedFee=knownFee==null?roundMoney(Math.max(0,number(orderFeeEstimate)||0)):0,fee=knownFee!=null&&knownFee>=0?knownFee:estimatedFee;const beforeCash=roundMoney(Math.max(0,basket-discount)+fee);const spent=roundMoney(Math.min(cashUsed,beforeCash));result.push({promo,accountRef:ref,basket,promotionDiscount:discount,cashUsed:spent,fees:knownFee!=null?fee:null,estimatedFee,outOfPocket:roundMoney(beforeCash-spent),cashRemaining:w?roundMoney(Number(w.balance)-spent):null,kind,conditional,estimated:knownFee==null,expires:promo?.expires||null,restriction:promo?.restrictions||null});};
+  const add=(promo,ref,discount,cashUsed,kind,conditional=false)=>{const w=walletFor(ref),knownFee=number(fees[ref]),estimatedFee=knownFee==null?roundMoney(Math.max(0,number(orderFeeEstimate)||0)):0,fee=knownFee!=null&&knownFee>=0?knownFee:estimatedFee;const beforeCash=roundMoney(Math.max(0,basket-discount)+fee),cash=cashUsed>0?cashForOrder(w,promo,basket,discount,fee):{used:0,basis:null,conditional:false};const spent=cash.used;if(kind==='promo_cash'&&spent<=0)return;result.push({promo,accountRef:ref,basket,promotionDiscount:discount,cashUsed:spent,cashBasis:cash.basis,fees:knownFee!=null?fee:null,estimatedFee,outOfPocket:roundMoney(beforeCash-spent),cashRemaining:w?roundMoney(Number(w.balance)-spent):null,kind,conditional:spent>0&&(conditional||cash.conditional),estimated:knownFee==null,expires:promo?.expires||null,restriction:promo?.restrictions||null});};
   for(const item of rankPromosForSpend(promos.filter(p=>p.discountType!=='uberCash'&&matchesFulfilment(p,fulfilment)),basket,{service:'Uber Eats',accessibleOnly:true})) {const p=item.promo,ref=p.accountRef;if(accounts.length&&!byAccount.has(ref))continue;add(p,ref,item.calculation.saving,0,'promo');const w=walletFor(ref);if(w&&Number(w.balance)>0&&w.stacking!=='unsupported')add(p,ref,item.calculation.saving,Number(w.balance),'promo_cash',w.stacking!=='supported');}
   for(const [ref]of byAccount){const w=walletFor(ref);if(w&&Number(w.balance)>0)add(null,ref,0,Number(w.balance),'cash');}
   return result.sort((a,b)=>Number(a.conditional)-Number(b.conditional)||a.outOfPocket-b.outOfPocket||a.cashUsed-b.cashUsed||((a.promo?.discountType==='fixed'&&b.promo?.discountType==='fixed')?Number(a.promo.discount)-Number(b.promo.discount):0)||b.cashRemaining-a.cashRemaining||b.promotionDiscount-a.promotionDiscount||String(a.expires||'9999').localeCompare(String(b.expires||'9999'))||a.accountRef.localeCompare(b.accountRef));
