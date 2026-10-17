@@ -3675,9 +3675,10 @@
       document.getElementById('guideSearchStatus').textContent = terms.length ? visible + (visible === 1 ? ' section found' : ' sections found') : 'Browse ' + visible + ' guide sections.';
     }
     document.getElementById('guideSearch').addEventListener('input', event => searchGuide(event.target.value));
+    document.getElementById('view-more').addEventListener('click',event=>{event.target.closest('.more-card')?.focus({preventScroll:true});},{capture:true});
     document.addEventListener('click', event => {
       if(event.target.closest('[data-settings-back]')){if(routeEntries.get(window.history.state?.trackerEntry)?.opener?.closest('#view-more'))window.history.back();else switchView('more');return;}
-      if (event.target.closest('[data-guide-back]')) { switchView('more'); return; }
+      if (event.target.closest('[data-guide-back]')) { switchView('more');document.querySelector('#view-more [data-open-guide]')?.focus({preventScroll:true});return; }
       const guide = event.target.closest('[data-open-guide]');
       if (guide) { openGuide(guide.dataset.openGuide); return; }
       const info = event.target.closest('[data-metric-help]');
