@@ -108,7 +108,9 @@ export function reconcileVerifiedCash(wallet,receipts=[],{account={},now=Date.no
 
 export function currentCashPosition(account,offers=[],wallet=null,receipts=[],{now=Date.now(),completeEvidence=false,ignoredEstimates=[]}={}){
  const verified=reconcileVerifiedCash(wallet,receipts,{account,now,completeEvidence});
- if(verified&&verified.status!=='needs_checking')return verified;
+ // A manual verification remains the reconciliation baseline. If later
+ // evidence is incomplete, an older email estimate cannot replace it.
+ if(verified)return {...verified,verificationNeedsChecking:Boolean(verified.uncertain)};
  const nowTime=time(now)??Number(now),summary=account.cashSummary;
  const key=g=>[g.issuedAt||'',g.issued,g.expiresAt||''].join('|'),ignored=new Set(ignoredEstimates.map(key));
  const source=(summary?.grants||(offers.filter(p=>p.discountType==='uberCash'&&p.cashEstimate).map(p=>({...p.cashEstimate,minimumSpend:p.minimumSpend||0,excludesFees:p.cashTerms?.excludesFees,restrictions:p.restrictions||{}})))).filter(g=>!ignored.has(key(g)));
