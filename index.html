@@ -4495,7 +4495,7 @@
     window.visualViewport?.addEventListener('scroll', updateVisibleViewport);
     document.addEventListener('focusin', updateVisibleViewport);
     document.addEventListener('focusout', () => requestAnimationFrame(updateVisibleViewport));
-    if ('ResizeObserver' in window) {new ResizeObserver(queueDetailViewport).observe(document.getElementById('mainNav'));const filters=document.querySelector('.used-filters');new ResizeObserver(()=>filters.classList.toggle('large-text',parseFloat(getComputedStyle(filters.firstElementChild).fontSize)>16)).observe(filters.firstElementChild);}
+    if ('ResizeObserver' in window) new ResizeObserver(queueDetailViewport).observe(document.getElementById('mainNav'));
     updateVisibleViewport();
     window.addEventListener("resize", applyLayoutPreference);
     requestAnimationFrame(updateNavGlider);

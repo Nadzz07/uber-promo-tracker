@@ -2410,12 +2410,12 @@ html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion
 
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 body:has(#view-used.active) .privacy{display:none}
-.used-filters{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1.28fr) 110px}
+.used-filters{display:flex;flex-wrap:wrap}.used-filters>button{flex:1 1 auto;min-width:0}.used-status-control{flex:0 1 auto}
 .used-filters>button{padding:8px;font-weight:500;font-size:13px}.used-filters>button>span{font-size:11px}
-@media(max-width:389px){.used-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.used-status-control{grid-column:1/-1;justify-self:start}}
-.used-filters.large-text{grid-template-columns:repeat(2,minmax(0,1fr))}.used-filters.large-text .used-status-control{grid-column:1/-1;justify-self:start}
+@media(max-width:389px){.used-filters>button{flex-basis:calc(50% - 4px)}.used-status-control{flex-basis:100%}}
 
-#usedStatusLabel{white-space:nowrap}.used-filters>button{white-space:nowrap}@media(max-width:389px){.used-filters>button{white-space:normal}}.used-filters.large-text>button{white-space:normal}
+
+#usedStatusLabel{white-space:normal}.used-filters>button{white-space:normal}
 
 .finder-progress-filter{margin-top:10px;font-size:13px;color:var(--muted)}.finder-progress-filter summary{min-height:44px;display:flex;align-items:center;cursor:pointer}.finder-progress-filter button{min-height:44px;background:var(--surface);border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:14px;padding:8px 12px}.finder-progress-filter button[aria-pressed=true]{border-color:var(--green)}
 
