@@ -22,6 +22,10 @@ export function toPublicPromo(promo) {
     capBasis: promo.evidence?.cap ? 'explicit' : promo.discountType === 'fixed' ? 'fixed_discount_value' : 'unknown',
     restrictions: promo.evidence?.restrictions || null,
     discountType: promo.discountType,
+    ...(promo.discountType==='uberCash'&&promo.cashEstimate?{
+      cashEstimate:Object.fromEntries(['status','remaining','issued','issuedAt','expiresAt','allocation'].map(key=>[key,promo.cashEstimate[key]])),
+      cashTerms:promo.cashTerms?Object.fromEntries(['duration','unit','anchor','excludesFees'].filter(key=>promo.cashTerms[key]!=null).map(key=>[key,promo.cashTerms[key]])):null
+    }:{}),
     discount: promo.discount,
     maxSaving: promo.maxSaving,
     perUseCap: promo.perUseCap,
@@ -38,7 +42,7 @@ export function toPublicPromo(promo) {
     expires: promo.expires,
     expiresAt: promo.expiresAt || null,
     expiryStatus: promo.expiryStatus || (promo.expires ? "exact" : "unknown"),
-    expiryBasis: ["explicit_in_offer_terms", "weekday_from_email_date", "relative_to_email_date", "estimated_from_email_date", "tracker_35_day_rule"].includes(promo.expiryBasis)
+    expiryBasis: ["explicit_in_offer_terms", "weekday_from_email_date", "relative_to_email_date", "estimated_from_email_date", "tracker_35_day_rule","cash_original_email_duration","cash_activation_unknown"].includes(promo.expiryBasis)
       ? promo.expiryBasis : null,
     classificationConfidence: promo.classificationConfidence || null,
     expiryConfidence: promo.expiryConfidence || null,

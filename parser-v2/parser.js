@@ -1,6 +1,7 @@
 import { classifyMessage } from "./classifier.js";
 import { extractOfferDetails } from "./discount.js";
 import { extractExpiry } from "./expiry.js";
+import {extractCashTerms} from './cash.js';
 import { analyseSender } from "./sender.js";
 import { hasForwardedReceiptClaims, receiptText } from "../receipt-text.js";
 import {
@@ -86,6 +87,7 @@ export function parseUberPromoV2({
     rejectionReason: classification.rejectionReason,
     evidence: {
       ...offer.evidence,
+      ...(offer.discountType==='uberCash'?{cashTerms:extractCashTerms(offer.termsText||compactText)}:{}),
       expiry: expiry.expirySourceText,
       senderBasis: senderAnalysis.basis
     }

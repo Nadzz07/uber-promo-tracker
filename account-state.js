@@ -118,7 +118,7 @@ export function offerReadinessLabel(account) {
 // membership is explicit metadata; an address domain never determines access.
 export function accountOfferKey(promo = {}) {
   if (!['fixed', 'percent'].includes(promo.discountType) || !(Number(promo.discount) > 0)) return null;
-  const minimum=Number(promo.minimumSpend), known=promo.minimumSpend!=null&&Number.isFinite(minimum)&&(minimum>0||promo.minimumSpendVerified===true);
+  const minimum=Number(promo.minimumSpend), known=promo.minimumSpendVerified!==false&&promo.minimumSpend!=null&&Number.isFinite(minimum)&&(minimum>0||promo.minimumSpendVerified===true);
   return [promo.discountType, Number(promo.discount), known?Math.max(0,minimum):'unknown'].join(':');
 }
 export function accountOfferChoices(accounts = []) {

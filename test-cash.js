@@ -82,11 +82,11 @@ test('account-applied duration does not fabricate the actual grant date', () => 
   assert.equal(p.expiresAt, null);
   const current = { ...p, firstEmailSentAt: base.sentAt };
   const state = classifyOfferTrackingState(current, { now: new Date('2026-10-08T20:00:00Z') });
-  assert.equal(state.trackingState, 'available');
-  assert.equal(applyOfferExpiryPolicy(current).expiryBasis, 'tracker_35_day_rule');
+  assert.equal(state.trackingState, 'needs_checking');
+  assert.equal(applyOfferExpiryPolicy(current).expiryBasis, 'cash_activation_unknown');
   const reminder = { ...current, emailSentAt: '2026-10-08T12:00:00Z' };
   assert.equal(applyOfferExpiryPolicy(reminder).expiresAt, applyOfferExpiryPolicy(current).expiresAt);
-  assert.equal(classifyOfferTrackingState(reminder, { now: new Date('2026-10-23T00:00:00Z') }).trackingState, 'expired');
+  assert.equal(classifyOfferTrackingState(reminder, { now: new Date('2026-10-23T00:00:00Z') }).trackingState, 'needs_checking');
 });
 
 test('Cash payment and an advertised amount do not increase confirmed receipt savings', () => {

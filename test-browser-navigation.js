@@ -27,11 +27,11 @@ export async function directoryStatus(page,value) {
  const panel=page.locator('#accountSecondaryFilters');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await page.locator('#accountScope').selectOption(value);
 }
 export async function directoryType(page,value) {
- await page.locator('#accountTypeTrigger').click();await page.locator('[data-offer-type="'+value+'"]').click();
+ await page.locator('#accountTypeTrigger').click();const main=page.locator('[data-offer-type="'+value+'"]');if(await main.count())await main.click();else{await page.locator('[data-offer-type="other"]').click();await page.locator('[data-catalogue-value="'+value+'"]').click();}
 }
 export async function directoryReset(page) {
  await page.locator('#accountSearch').fill('');await page.locator('[data-login-filter="all"]').click();await page.locator('#accountProvider').selectOption('all');
- if(await page.locator('#clearAccountType').isEnabled())await page.locator('#clearAccountType').click();
+ await directoryType(page,'all');
  const panel=page.locator('#accountSecondaryFilters');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await page.locator('[data-reset-secondary]').click();
 }
 
@@ -50,3 +50,7 @@ export async function scrollAboveDock(page,selector) {
  await page.waitForFunction(()=>{const n=document.getElementById('mainNav'),s=getComputedStyle(n);return Math.abs(parseFloat(getComputedStyle(document.body).paddingBottom)-(n.getBoundingClientRect().height+parseFloat(s.bottom)+16))<1.1;});
  await page.locator(selector).evaluate(e=>e.scrollIntoView({block:'end',behavior:'instant'}));await settlePageLayout(page);
 }
+
+export async function usedStatus(page,value){await page.locator('#usedStatus').click();await page.locator('[data-status-option="'+value+'"]').click();}
+
+export async function finderAllOffers(page){await page.locator('#finderOfferType').selectOption('other');await page.locator('[data-catalogue-value="all"]').click();}

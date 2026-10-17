@@ -1,0 +1,37 @@
+import assert from 'node:assert/strict';
+import {rankBasketPlans} from './deal-intelligence.js';
+import {cashForOrder} from './cash-planner.js';
+import {normaliseOfferPreferences,matchesDiscoveryScope,plannerOffersForScope,mainOfferChoices,selectedOfferScope} from './offer-preferences.js';
+const now='2026-10-17T12:00:00Z';
+const promo=(ref,overrides={})=>({id:'p-'+ref,accountRef:ref,canLogin:true,service:'Uber Eats',discountType:'fixed',discount:12,minimumSpend:15,minimumSpendVerified:true,uses:1,usesRemaining:1,expiresAt:'2026-11-01T12:00:00Z',expiryStatus:'exact',trackingState:'available',...overrides});
+const account=ref=>({accountRef:ref,canLogin:true,accountStatus:'active',orderCount:0,rideCount:0});
+const preferences=normaliseOfferPreferences();
+assert.equal(mainOfferChoices().length,7);
+assert.equal(mainOfferChoices().at(-1).key,'other');
+for(const discount of [10,12,15])assert.equal(matchesDiscoveryScope({promos:[promo('a',{discount})]},'preferred',preferences),true);
+for(const p of [promo('a',{discount:15,minimumSpend:25}),promo('a',{discountType:'percent',discount:15}),promo('a',{minimumSpend:15,minimumSpendVerified:false}),promo('a',{minimumSpend:null})])assert.equal(matchesDiscoveryScope({promos:[p]},'preferred',preferences),false);
+const cashAccount={...account('a'),cashPosition:{status:'estimated',remaining:10},promos:[promo('a',{discount:5})]};
+assert.equal(matchesDiscoveryScope(cashAccount,'preferred',preferences),true);
+assert.equal(matchesDiscoveryScope(cashAccount,'cash-promo',preferences),true);
+assert.equal(plannerOffersForScope(cashAccount.promos,[cashAccount],'preferred',preferences).length,1);
+assert.equal(plannerOffersForScope(cashAccount.promos,[cashAccount],'preferred',{...preferences,anyPromoWithCash:false}).length,0);
+assert.equal(matchesDiscoveryScope(cashAccount,'preferred',{...preferences,includeCash:false}),false);
+assert.equal(selectedOfferScope({...preferences,defaultView:'all',selection:'fixed:12:15'}),'fixed:12:15');
+const accounts=[account('a'),account('b')],offers=[promo('a'),promo('b')];
+const plan=(amount,options={})=>rankBasketPlans(offers,amount,{accounts,now,...options}).suggested;
+assert.equal(plan(15).estimatedPay,4);assert.equal(plan(30).estimatedPay,8);assert.equal(plan(30,{maxOrders:1}).estimatedPay,19);
+assert.equal(plan(30,{orderFeeEstimate:2}).extraFees,4);
+const wallets={a:{status:'estimated',balance:5,at:now,stacking:'supported'},b:{status:'estimated',balance:5,at:now,stacking:'supported'}};
+const original=JSON.stringify(wallets),cashPlan=plan(30,{wallets});assert.equal(cashPlan.orderCount,2);assert.equal(cashPlan.estimatedPay,0);assert.equal(cashPlan.cashUsed,8);assert.equal(cashPlan.totalAfterPromosAndFees,8);assert.equal(cashPlan.netSaving,22,'Cash payments are not additional promotional savings');assert.equal(new Set(cashPlan.orders.map(o=>o.accountRef)).size,cashPlan.orders.length);assert.equal(JSON.stringify(wallets),original);
+assert.equal(cashForOrder({balance:10,status:'estimated',grants:[{remaining:10,excludesFees:true}]},null,10,0,1).used,10);
+assert.equal(cashForOrder({balance:10,status:'estimated',grants:[{remaining:10,minimumSpend:20}]},null,15,0,1).used,0);
+assert.equal(cashForOrder({balance:10,status:'verified',stacking:'unsupported'},promo('a'),15,12,1).used,0);
+assert.equal(plan(15,{wallets:{a:{status:'estimated',balance:4,at:now}}}).conditional,true,'Unconfirmed compatibility is labelled, not promised');
+console.log('✓ Shared preferred terms, short picker, saved selections, Cash + any promo, per-order fees, cheapest cash-aware split and no Cash double counting');
+
+const threeAccounts=Array.from({length:3},(_,i)=>({accountRef:'A3'+i,canLogin:true,orderCount:0,rideCount:0}));
+const threePromos=threeAccounts.map(a=>({...a,id:'fractional-'+a.accountRef,service:'Uber Eats',discountType:'fixed',discount:12,minimumSpend:15,minimumSpendVerified:true,uses:1,usesRemaining:1,expiryStatus:'exact',expiresAt:'2099-12-31T23:59:59Z'}));
+const fractional=rankBasketPlans(threePromos,45.04,{accounts:threeAccounts,wallets:{A30:{status:'estimated',balance:12,remaining:12,at:new Date().toISOString(),stacking:'supported'}},maxOrders:3,orderFeeEstimate:1});
+assert.equal(fractional.suggested.estimatedPay,8,'Fractional remainder goes to the account with usable Cash, even when it is first in iteration');
+
+assert.equal(matchesDiscoveryScope({promos:[{discountType:'fixed',discount:12,minimumSpend:15,minimumSpendVerified:false}]},'fixed:12:15',normaliseOfferPreferences()),false,'An unverified minimum cannot become an exact £12 off £15 match');

@@ -1,4 +1,4 @@
-import {openHomeDetail} from './test-browser-navigation.js';
+import {openHomeDetail,usedStatus} from './test-browser-navigation.js';
 // Verify decision boundaries and local privacy through the refined sheets.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
@@ -23,9 +23,9 @@ const name=process.env.TRACKER_BROWSER_ENGINE||'chromium',browser=await{chromium
 try{
  for(const width of [320,390,1440]){
   const page=await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'}),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
+  await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
   const saved=await page.locator('#savedStat').innerText();
-  await openHomeDetail(page,'planner');await page.locator('[data-open-sheet="advanced"]').click();
+  await openHomeDetail(page,'planner');await page.locator('[data-open-sheet="advanced"]:visible').click();
   assert.equal(await page.locator('#sheetFeeInput').inputValue(),'1.00','Default extra-order estimate remains £1');
   await page.locator('#sheetFeeInput').fill('0');
   let settings=await page.evaluate(()=>Object.keys(localStorage).filter(k=>k.includes('planner')).map(k=>JSON.parse(localStorage.getItem(k))).find(v=>'feeTouched' in v));
@@ -57,9 +57,9 @@ try{
   await page.locator('[data-mark-offer-done][data-done="true"]').click();await page.locator('[data-confirm-offer-action]').click();
   assert.match(await page.locator('.offer-card .use-line').innerText(),/1 of 5 confirmed used/);
   await page.keyboard.press('Escape');await page.locator('[data-view="used"]').click();
-  assert.equal(await page.locator('#manualDisclosureCount').innerText(),'1');assert.equal(await page.locator('#fullyUsedCount').innerText(),'0');assert.equal(await page.locator('#usedAccountCount').innerText(),'1');
+  assert.equal(await page.locator('#usedAccountCount').innerText(),'1');await usedStatus(page,'manual');assert.equal(await page.locator('#usedResultsCount').innerText(),'1 promotion');await usedStatus(page,'completed');assert.equal(await page.locator('#usedResultsCount').innerText(),'0 promotions');
   assert.equal(await page.locator('#savedStat').innerText(),saved,'Visual actions cannot alter savings');
-  await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="appearance"]').click();await page.locator('[data-theme-colour="#c5a0ff"]').click();await page.keyboard.press('Escape');await page.locator('#view-more [data-open-sheet="receipts"]').click();
+  await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="appearance"]').click();await page.locator('[data-open-sheet="theme"]').click();await page.locator('[data-theme-colour="#c5a0ff"]').click();await page.keyboard.press('Escape');await page.locator('[data-settings-back]').click();await page.locator('#view-more [data-open-sheet="receipts"]').click();
   assert.equal(await page.locator('.finance-heading-icon').evaluate(el=>getComputedStyle(el).color),'rgb(197, 160, 255)');
   assert.ok(await page.locator('.insights-hero').evaluate(el=>getComputedStyle(el).backgroundImage.includes('197, 160, 255')&&getComputedStyle(el).borderColor.includes('197, 160, 255')),'The approved solid Receipt insights hero follows the chosen accent');
   assert.equal(await page.locator('.receipt-record-metric strong').first().innerText(),'2','Receipt records retain the actual combined service count');
@@ -76,9 +76,7 @@ try{
   const homeHeroHeight=await page.locator('.total-saved-card').evaluate(el=>el.getBoundingClientRect().height);
   assert.ok(homeHeroHeight<=170,'Home savings keeps compact preview proportions: '+name+' / '+width+' / '+homeHeroHeight);
   await page.locator('[data-view="used"]').click();
-  const metrics=await page.locator('.activity-card').evaluateAll(cards=>cards.map(card=>({height:card.getBoundingClientRect().height,overflow:card.scrollWidth>card.clientWidth+1,icon:card.querySelector('.metric-icon').getBoundingClientRect().width})));
-  assert.ok(metrics.every(card=>card.height<=(width<370?145:130)&&!card.overflow&&card.icon<=32),'Used tiles and icons remain balanced without oversized empty space: '+name+' / '+width+' / '+JSON.stringify(metrics));
-  assert.equal(await page.locator('#view-used > details').count(),8,'Every existing status group remains available');
+  assert.equal(await page.locator('.activity-card,#view-used > details').count(),0,'Old metric and category-menu presentation is removed');assert.equal(await page.locator('#usedStatusOptions [role=option]').count(),8,'Every existing status group remains available');assert.ok(await page.locator('.used-summary').evaluate(e=>e.scrollWidth<=e.clientWidth+1));
   await page.locator('[data-view="more"]').click();
   await page.keyboard.press('Escape');await page.locator('#view-more [data-open-sheet="device"]').click();
   await page.locator('#deviceAccountsFile').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{}')});await page.waitForFunction(()=>document.getElementById('deviceImportStatus').textContent.includes('Choose a tracker'));assert.match(await page.locator('#deviceImportStatus').innerText(),/Choose a tracker/);
@@ -96,7 +94,7 @@ try{
    days:Array.from({length:5},(_,i)=>({period:'2026-10-0'+(9-i),eats:i===0?1:0,rides:1,saved:i*3,dateFallbacks:i===4?1:0}))}};
   const populatedPage=await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'});
   await populatedPage.route('**/promos.json*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(populated)}));
-  await populatedPage.goto('http://127.0.0.1:'+server.address().port);await populatedPage.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
+  await populatedPage.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await populatedPage.goto('http://127.0.0.1:'+server.address().port);await populatedPage.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
   await populatedPage.locator('[data-view="accounts"]').click();
   assert.equal(await populatedPage.locator('#accountsTotal').innerText(),'8');assert.equal(await populatedPage.locator('#accountsAccessible').innerText(),'8');
   await populatedPage.locator('.accounts-stat [data-metric-label="Total accounts"]').click();

@@ -30,10 +30,10 @@ const server=http.createServer((req,res)=>{
 const engine={chromium,webkit,firefox}[process.env.TRACKER_BROWSER_ENGINE||'chromium'],browser=await engine.launch();
 try {
  const page=await browser.newPage({viewport:{width:390,height:844},timezoneId:'Europe/London',reducedMotion:'reduce'});const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.clock.install({time});await page.goto('http://127.0.0.1:'+server.address().port);
+ await page.clock.install({time});await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto('http://127.0.0.1:'+server.address().port);
  await page.waitForFunction(()=>window.__runtime?.model().length===1);
  assert.equal(await page.locator('#accountsList .account-card').count(),0,'Closed account screen is deferred');
- assert.equal(await page.locator('#fullyUsedList .activity-row').count(),0);
+ assert.equal(await page.locator('#usedRecords .used-record').count(),0);
  assert.equal(await page.evaluate(()=>window.__runtime.model()===window.__runtime.model()),true,'Repeated projections reuse derived accounts');
  await page.evaluate(()=>window.originalPlan=window.__runtime.planner());await openHomeDetail(page,'offers');await page.locator('#view-offers [data-home-detail="planner"]').click();assert.equal(await page.evaluate(()=>window.__runtime.planner()===window.originalPlan),true,'Opening detail views reuses unchanged planner calculations');await page.locator('[data-view="home"]').click();
  const renders=await page.evaluate(()=>window.__runtime.renders);await page.clock.fastForward(4*60000);

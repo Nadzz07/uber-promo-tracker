@@ -15,6 +15,7 @@ import { combinedReceiptSavings, confirmedReceiptSaving } from "./savings-intell
 import { receiptActivity } from "./dashboard-data.js";
 import {readFinancialEvents} from './financial-ledger.js';
 import {currentFinancialEvents} from './receipt-financials.js';
+import {reconstructCashEvidence} from './cash-reconstruction.js';
 import { applyOfferTrackingStates, classifyOfferCompletion } from "./offer-state.js";
 import {
   DEFAULT_PRIVATE_DB,
@@ -377,6 +378,7 @@ async function generatePromos() {
     const adjust=r=>corrections[r.receiptId]?{...r,financialCorrection:corrections[r.receiptId]}:r;
     const receipts = getReceipts(db).map(adjust);
     const transportReceipts = getTransportReceipts(db).map(adjust);
+    const cashEvidence=reconstructCashEvidence(db,getOffers(db,{includeHistorical:true}),[...receipts,...transportReceipts],generatedAt);
     const evidence = applyReceiptEvidence(durableOffers, receipts, { now: generatedAt });
 
     for (const promo of evidence.promos) {
@@ -390,7 +392,7 @@ async function generatePromos() {
         getOffers(db, {
           service: "Uber Eats",
           includeHistorical: false
-        }),
+        }).map(cashEvidence.annotate),
         evidence.matches,
         { now: generatedAt }
       )
@@ -444,6 +446,7 @@ async function generatePromos() {
 
       return {
         ...account,
+        cashSummary:cashEvidence.summary(account.accountRef),
         activePromoCount: availableCounts.get(account.accountRef) || 0,
         needsReview: reviewOfferCount > 0,
         reviewOfferCount,
@@ -465,6 +468,7 @@ async function generatePromos() {
     const summary = getSavingsSummary(db,{receipts,rides:transportReceipts});
     summary.accountStatusVersion = 2;
     summary.offerEligibilityVersion = 1;
+    summary.cashModelVersion = 1;
     const eligibility = eligibleAccountCounts(accounts);
     summary.availableAccounts = eligibility.available;
     summary.readyToUseAccounts = eligibility.ready;
@@ -523,7 +527,7 @@ async function generatePromos() {
         getOffers(db, {
           service: "Uber Eats",
           includeHistorical: true
-        }),
+        }).map(cashEvidence.annotate),
         evidence.matches,
         { now: generatedAt }
       )

@@ -6,6 +6,21 @@ const forbidden = /^(?:alias|email|accountAlias|code|promo_code|promoCode|recipi
 const email = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
 const masked = /[a-z0-9._%+-]{0,2}…[a-z0-9._%+-]{0,2}@[a-z0-9.-]+\.[a-z]{2,}/gi;
 
+// Email-derived Cash estimates are public aggregates, never private wallet
+// verifications or source evidence. Reject extra keys at every nested level.
+function cashKeys(value,allowed){if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).some(k=>!allowed.includes(k)))throw Error('Invalid public Cash aggregate.');}
+function cashEstimate(value,grant=false){
+  cashKeys(value,['status','remaining','issued','issuedAt','expiresAt','allocation',...(grant?['minimumSpend','excludesFees','restrictions']:[])]);
+  if(value.issuedAt!=null&&!Number.isFinite(Date.parse(value.issuedAt)))throw Error('Invalid Cash issue date.');
+  if(!['estimated','exhausted','expired','needs_checking','duplicate'].includes(value.status))throw Error('Private or invalid Cash state in public snapshot.');
+  if(!Number.isFinite(value.issued)||value.issued<=0||value.remaining!==null&&(!Number.isFinite(value.remaining)||value.remaining<0||value.remaining>value.issued))throw Error('Invalid public Cash amount.');
+  if(value.status==='needs_checking'?value.remaining!==null:value.remaining===null)throw Error('Unknown Cash is not zero.');
+  if(['expired','exhausted','duplicate'].includes(value.status)&&value.remaining!==0)throw Error('Closed Cash cannot be spendable.');
+  if(value.status==='estimated'&&(!(value.remaining>0)||!Number.isFinite(Date.parse(value.expiresAt))))throw Error('Spendable Cash requires expiry evidence.');
+  if(!['inferred_from_receipts','no_recorded_usage','source_needs_checking'].includes(value.allocation))throw Error('Invalid public Cash allocation label.');
+  if(grant){cashKeys(value.restrictions,['stacking']);if(![null,'unknown','no_other_promotions','allowed','supported'].includes(value.restrictions.stacking))throw Error('Invalid Cash restriction.');if(!Number.isFinite(value.minimumSpend)||value.minimumSpend<0||typeof value.excludesFees!=='boolean')throw Error('Invalid Cash terms.');}
+}
+
 export function assertPublicSnapshot(payload, history, privateValues = []) {
   function visit(value) {
     if (Array.isArray(value)) return value.forEach(visit);
@@ -24,6 +39,7 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     throw new Error("Invalid public snapshot structure.");
   }
   visit(payload); visit(history);
+  for(const account of payload.accounts)if(account.cashSummary){const c=account.cashSummary;cashKeys(c,['status','remaining','expiresAt','hasUncertainty','grants']);if(!['estimated','exhausted','expired','needs_checking','none'].includes(c.status)||!Array.isArray(c.grants)||typeof c.hasUncertainty!=='boolean')throw Error('Invalid Cash summary.');c.grants.forEach(g=>cashEstimate(g,true));const total=Math.round(c.grants.filter(g=>g.status==='estimated').reduce((n,g)=>n+g.remaining,0)*100)/100;if(c.remaining!==(total>0?total:c.hasUncertainty?null:0))throw Error('Cash summary disagrees with grants.');}
   if ([1, 2].includes(payload.summary?.accountStatusVersion)) {
     const independent = payload.summary.accountStatusVersion === 2;
     const accounts = new Map();
@@ -83,6 +99,8 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     }
   }
   for (const promo of [...payload.promos, ...history.records]) {
+    if(promo.cashEstimate){if(promo.discountType!=='uberCash')throw Error('Cash estimate on a promotional discount.');cashEstimate(promo.cashEstimate);}
+    if(promo.cashTerms){cashKeys(promo.cashTerms,['duration','unit','anchor','excludesFees']);if(promo.cashTerms.duration!=null&&(!Number.isFinite(promo.cashTerms.duration)||promo.cashTerms.duration<=0))throw Error('Invalid Cash duration.');if(promo.cashTerms.unit!=null&&!['days','weeks','months'].includes(promo.cashTerms.unit))throw Error('Invalid Cash duration unit.');if(promo.cashTerms.anchor!=null&&!['original_email','activation','unknown'].includes(promo.cashTerms.anchor))throw Error('Invalid Cash expiry anchor.');}
     if (promo.title !== publicOfferTitle(promo)) throw new Error("Public title must be built from offer fields.");
     if (promo.service !== "Uber Eats") throw new Error("Only Eats offers may be published.");
     if (/^demo-/i.test(promo.id || "")) throw new Error("Test records cannot be published.");
