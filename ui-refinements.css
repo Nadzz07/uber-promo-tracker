@@ -2511,3 +2511,4 @@ html:has(.preferred-page.active) { scroll-padding-top:calc(12px + var(--preferre
 
 #view-more .row-chevron svg { display:block; width:14px; height:18px; }
 .nav-btn svg { stroke-width:1.7; }
+.preferred-page.motion-enter > :is(.preferred-back,.preferred-head,.preferred-catalogue-head) { animation:none; }
