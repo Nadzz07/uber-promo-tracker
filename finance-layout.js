@@ -1,5 +1,9 @@
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const paths = {
+  palette: '<path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1-4c-1-1 0-3 2-3h2a3 3 0 0 0 3-3 9 9 0 0 0-9-8Z"/><circle cx="7" cy="11" r=".7"/><circle cx="9" cy="7" r=".7"/><circle cx="14" cy="6.5" r=".7"/><circle cx="17.5" cy="10" r=".7"/>',
+  motion: '<path d="m9 2 2 6 6 2-6 2-2 6-2-6-6-2 6-2 2-6ZM18 14l1.5 4.5L24 20l-4.5 1.5L18 26l-1.5-4.5L12 20l4.5-1.5L18 14Z" transform="scale(.88)"/>',
+  list: '<circle cx="4" cy="5" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="19" r="1"/><path d="M10 5h11M10 12h11M10 19h7"/>',
+  gift: '<path d="M3 10h18v4H3zM5 14v8h14v-8M12 10v12M12 10C3 10 4 1 9 3c2 1 3 4 3 7ZM12 10c9 0 8-9 3-7-2 1-3 4-3 7Z"/>',
   tag: '<path d="M3 3h9l9 9-9 9-9-9V3Z"/><circle cx="8" cy="8" r="1"/>',
   layers: '<path d="m12 2 10 6-10 6L2 8l10-6ZM2 12l10 6 10-6M2 16l10 6 10-6"/>',
   sort: '<path d="M7 3v18m-4-4 4 4 4-4M17 21V3m-4 4 4-4 4 4"/>',

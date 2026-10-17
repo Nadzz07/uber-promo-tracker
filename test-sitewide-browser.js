@@ -59,7 +59,7 @@ try{
   await page.keyboard.press('Escape');await page.locator('[data-view="used"]').click();
   assert.equal(await page.locator('#usedAccountCount').innerText(),'1');await usedStatus(page,'manual');assert.equal(await page.locator('#usedResultsCount').innerText(),'1 promotion');await usedStatus(page,'completed');assert.equal(await page.locator('#usedResultsCount').innerText(),'0 promotions');
   assert.equal(await page.locator('#savedStat').innerText(),saved,'Visual actions cannot alter savings');
-  await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="appearance"]').click();await page.locator('[data-theme-colour="#c5a0ff"]').click();await page.keyboard.press('Escape');await page.locator('#view-more [data-open-sheet="receipts"]').click();
+  await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="appearance"]').click();await page.locator('[data-open-sheet="theme"]').click();await page.locator('[data-theme-colour="#c5a0ff"]').click();await page.keyboard.press('Escape');await page.locator('[data-settings-back]').click();await page.locator('#view-more [data-open-sheet="receipts"]').click();
   assert.equal(await page.locator('.finance-heading-icon').evaluate(el=>getComputedStyle(el).color),'rgb(197, 160, 255)');
   assert.ok(await page.locator('.insights-hero').evaluate(el=>getComputedStyle(el).backgroundImage.includes('197, 160, 255')&&getComputedStyle(el).borderColor.includes('197, 160, 255')),'The approved solid Receipt insights hero follows the chosen accent');
   assert.equal(await page.locator('.receipt-record-metric strong').first().innerText(),'2','Receipt records retain the actual combined service count');

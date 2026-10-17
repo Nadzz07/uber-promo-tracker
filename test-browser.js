@@ -221,7 +221,7 @@ try {
   await page.keyboard.press('ArrowLeft'); assert.equal(await page.locator('#view-used').isVisible(), true);
   await page.keyboard.press('End'); assert.equal(await page.locator('#view-more').isVisible(), true);
 
-  await page.locator('[data-open-sheet="appearance"]').click();
+  await page.locator('[data-open-sheet="appearance"]').click();await page.locator('[data-open-sheet="theme"]').click();
   const manualBeforeLayout = await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:manual-state:v3'));
   // Mobile on a wide display stays the phone composition, including its fixed dock.
   await page.locator('[name="layoutPreference"][value="mobile"]').check();
@@ -235,7 +235,7 @@ try {
   await page.locator('[data-view="more"]').click();
   assert.equal(await page.locator('#view-more .screen-title').innerText(), 'More');
   assert.equal(await page.locator('#view-more .more-group').count(), 4, 'Tools retain grouped destinations');
-  await page.locator('[data-open-sheet="appearance"]').click();
+  await page.locator('[data-open-sheet="appearance"]').click();await page.locator('[data-open-sheet="theme"]').click();
   await page.locator('[name="layoutPreference"][value="desktop"]').check();
   assert.equal(await page.locator('html').getAttribute('data-layout'), 'desktop');
   await page.setViewportSize({ width: 390, height: 844 });
@@ -263,7 +263,7 @@ try {
   await page.locator('[data-theme-colour="#c5a0ff"]').click();
   const chosen = await page.evaluate(() => ({ stored: localStorage.getItem('uber-eats-promo-tracker:theme:v1'), colour: getComputedStyle(document.documentElement).getPropertyValue('--green') }));
   assert.equal(chosen.stored, '#c5a0ff'); assert.notEqual(chosen.colour.trim(), '#9bea72');
-  await page.locator('.settings-theme-advanced > summary').click();await page.locator('#colourWheel').scrollIntoViewIfNeeded();
+  await page.locator('#colourWheel').scrollIntoViewIfNeeded();
   const wheel = await page.locator('#colourWheel').boundingBox();
   await page.mouse.click(wheel.x+wheel.width*.8, wheel.y+wheel.height*.5);
   assert.notEqual(await page.locator('#themeColour').inputValue(), '#c5a0ff');

@@ -2528,6 +2528,8 @@
         <button class="used-info-link" data-used-info="true"><span data-icon="info" aria-hidden="true"></span><span>How statuses are decided</span><span aria-hidden="true">›</span></button>
       </section>
 
+      <section id="view-settings" class="view" aria-labelledby="settingsTitle"><header class="settings-head"><button data-settings-back="true"><span aria-hidden="true">‹</span> More</button><h1 id="settingsTitle" tabindex="-1">Settings</h1><span aria-hidden="true"></span></header><div id="settingsContent" class="compact-settings"></div></section>
+
       <section id="view-more" class="view"><div class="screen-head"><h1 class="screen-title">More</h1></div><div class="more-grid"><section class="more-group" aria-labelledby="more-group-0"><h2 id="more-group-0" class="eyebrow">Offers & history</h2><div class="more-group-list"><button class="more-card" data-jump-planner="true"><span class="more-icon" data-icon="bag" aria-hidden="true"></span><span class="more-content"><span class="more-title">Order Planner</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="history"><span class="more-icon" data-icon="calendar" aria-hidden="true"></span><span class="more-content"><span class="more-title">Promo history</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="locked"><span class="more-icon" data-icon="history" aria-hidden="true"></span><span class="more-content"><span class="more-title">Archived accounts</span><span class="more-count" id="lockedCardCopy"></span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section><section class="more-group" aria-labelledby="more-group-1"><h2 id="more-group-1" class="eyebrow">Savings & finances</h2><div class="more-group-list"><button class="more-card" data-open-sheet="savings"><span class="more-icon" data-icon="savings" aria-hidden="true"></span><span class="more-content"><span class="more-title">Savings</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="receipts"><span class="more-icon" data-icon="insights" aria-hidden="true"></span><span class="more-content"><span class="more-title">Receipt insights</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="finance"><span class="more-icon" data-icon="lock" aria-hidden="true"></span><span class="more-content"><span class="more-title">Private finances</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section><section class="more-group" aria-labelledby="more-group-2"><h2 id="more-group-2" class="eyebrow">Accounts & data</h2><div class="more-group-list"><button class="more-card" data-open-sheet="device"><span class="more-icon" data-icon="shield" aria-hidden="true"></span><span class="more-content"><span class="more-title">Private account import</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="health"><span class="more-icon" data-icon="history" aria-hidden="true"></span><span class="more-content"><span class="more-title">Sync & data</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section><section class="more-group" aria-labelledby="more-group-3"><h2 id="more-group-3" class="eyebrow">Settings & help</h2><div class="more-group-list"><button class="more-card" data-open-sheet="appearance"><span class="more-icon" data-icon="settings" aria-hidden="true"></span><span class="more-content"><span class="more-title">Settings</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-guide="overview"><span class="more-icon" data-icon="help" aria-hidden="true"></span><span class="more-content"><span class="more-title">Help & Guide</span></span><span class="row-chevron" aria-hidden="true">›</span></button><button class="more-card" data-open-sheet="about"><span class="more-icon" data-icon="info" aria-hidden="true"></span><span class="more-content"><span class="more-title">About this tracker</span></span><span class="row-chevron" aria-hidden="true">›</span></button></div></section></div></section>
       <section id="view-help" class="view" aria-labelledby="guideTitle">
         <button class="advanced-btn" data-guide-back="true">‹ Back to More</button>
@@ -2743,6 +2745,7 @@
       const brightness = document.getElementById('themeBrightness');
       if (brightness) brightness.value = hsl.lightness;
       document.querySelectorAll('[data-theme-colour]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.themeColour === themeColour)));
+      const currentLabel=document.getElementById('currentThemeLabel');if(currentLabel)currentLabel.textContent=themeColourLabel();
       const status = document.getElementById('themeStatus');
       if (status) status.textContent = saved ? 'Saved on this device. Dark colours are brightened for readable text.' : 'Applied for this visit. Browser storage is unavailable.';
     }
@@ -2796,6 +2799,7 @@
     }
 
     function savePlannerSettings() {
+      const helper=document.getElementById('settingsFeeHelper');if(helper)helper.textContent=money(effectiveFee())+' estimated per order';
       try {
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(plannerSettings));
       } catch { showLocalNotice(); }
@@ -3668,6 +3672,7 @@
     }
     document.getElementById('guideSearch').addEventListener('input', event => searchGuide(event.target.value));
     document.addEventListener('click', event => {
+      if(event.target.closest('[data-settings-back]')){if(routeEntries.get(window.history.state?.trackerEntry)?.opener?.closest('#view-more'))window.history.back();else switchView('more');return;}
       if (event.target.closest('[data-guide-back]')) { switchView('more'); return; }
       const guide = event.target.closest('[data-open-guide]');
       if (guide) { openGuide(guide.dataset.openGuide); return; }
@@ -3738,29 +3743,38 @@
       if(!saveOfferState(next))return;
       accountTypeFilter=selectedOfferScope(offerPreferences);finderFilters.type=accountTypeFilter;
       invalidateAccountProjection();plannerComparisonCache=null;selectedPlannerKey=null;renderAll();
-      if(openSheetType==='appearance')renderAppearanceSheet();
+      if(currentView==='settings')renderSettingsPage();
     }
-    function renderAppearanceSheet(){
-      renderLegacyAppearanceControls();setSheetHeading('Settings','');
-      const host=document.getElementById('sheetBody'),layout=host.querySelector('.layout-settings'),oldTheme=host.querySelector('.setting-card');
-      const presets=oldTheme.querySelector('.theme-presets'),colours=oldTheme.querySelector('.colour-controls'),reset=oldTheme.querySelector('#resetTheme'),feedback=oldTheme.querySelector('#themeStatus');
-      const wrapper=document.createElement('div');wrapper.className='compact-settings';
-      wrapper.innerHTML='<section class="settings-group"><h3>Offer preferences</h3><div class="settings-group-panel">'+
-        '<label class="compact-setting-row">'+financeIcon('filter')+'<span>Default offer view</span><select id="defaultOfferView"><option value="preferred">Preferred offers</option><option value="all">All offers</option></select></label>'+
-        '<button id="preferredPromosButton" class="compact-setting-row">'+financeIcon('tag')+'<span>Preferred promos<small>'+offerPreferences.preferredPromos.length+' selected</small></span><span aria-hidden="true">›</span></button>'+
+    function themeColourLabel(){
+      const named={'#9bea72':'Lime','#80d4ff':'Ocean','#c5a0ff':'Violet','#c989f5':'Purple','#ff9bb8':'Rose','#ffc778':'Amber'};
+      return named[themeColour]||'Custom';
+    }
+    function preferredPromosSummary(){
+      const keys=offerPreferences.preferredPromos,amounts=keys.filter(k=>/^fixed:\d+(?:\.\d+)?:15$/.test(k)).map(k=>money(Number(k.split(':')[1])));
+      if(amounts.length===keys.length&&amounts.length)return amounts.length===1?amounts[0]+' off £15':amounts.slice(0,-1).join(', ')+' & '+amounts.at(-1)+' off £15';
+      return keys.length?keys.length+' selected promos':'No standalone promos selected';
+    }
+    function renderSettingsPage(){
+      const host=document.getElementById('settingsContent'),chevron='<span class="settings-chevron" aria-hidden="true">›</span>';
+      host.innerHTML='<section class="settings-group"><h2>Appearance</h2><div class="settings-group-panel">'+
+        '<button class="compact-setting-row" data-open-sheet="theme">'+financeIcon('palette')+'<span>Theme colour</span><span class="settings-current-colour"><i aria-hidden="true"></i><span id="currentThemeLabel">'+escapeHtml(themeColourLabel())+'</span></span>'+chevron+'</button>'+
+        '<label class="compact-setting-row">'+financeIcon('motion')+'<span>Motion</span><select id="motionPreference" aria-label="Motion"><option value="system">System</option><option value="reduced">Reduced</option></select>'+chevron+'</label></div></section>'+
+        '<section class="settings-group"><h2>Offer preferences</h2><div class="settings-group-panel">'+
+        '<label class="compact-setting-row">'+financeIcon('list')+'<span>Default offer view</span><select id="defaultOfferView" aria-label="Default offer view"><option value="preferred">Preferred offers</option><option value="all">All offers</option></select>'+chevron+'</label>'+
+        '<button id="preferredPromosButton" class="compact-setting-row">'+financeIcon('tag')+'<span>Preferred promos<small>'+escapeHtml(preferredPromosSummary())+'</small></span>'+chevron+'</button>'+
         '<label class="compact-setting-row">'+financeIcon('wallet')+'<span>Include Uber Cash</span><input id="includeCashPreference" type="checkbox" role="switch"'+(offerPreferences.includeCash?' checked':'')+'></label>'+
-        '<label class="compact-setting-row">'+financeIcon('bag')+'<span>Any promo with Uber Cash'+(!offerPreferences.includeCash?'<small>Enable Include Uber Cash to use this saved preference.</small>':'')+'</span><input id="anyCashPromoPreference" type="checkbox" role="switch"'+(offerPreferences.anyPromoWithCash?' checked':'')+(!offerPreferences.includeCash?' disabled':'')+'></label></div><button class="settings-default-action" id="returnPreferredDefaults">Return to preferred offers</button></section>'+
-        '<section class="settings-group"><h3>Appearance</h3><div class="settings-group-panel"><div class="compact-setting-row settings-layout-row">'+financeIcon('grid')+'<span>Layout</span><div id="settingsLayoutSlot"></div></div><div class="compact-setting-row theme-preset-row">'+financeIcon('settings')+'<span>Theme colour</span><div id="settingsThemePresets"></div></div><details class="settings-theme-advanced"><summary>Custom colour <span aria-hidden="true">⌄</span></summary><div id="settingsThemeAdvanced"></div></details><label class="compact-setting-row">'+financeIcon('partial')+'<span>Motion</span><select id="motionPreference"><option value="system">System</option><option value="reduced">Reduced</option></select></label></div></section>'+
-        '<section class="settings-group"><h3>Planning</h3><div class="settings-group-panel"><button class="compact-setting-row" data-open-sheet="advanced">'+financeIcon('settings')+'<span>Fee settings<small>'+escapeHtml(money(effectiveFee()))+' estimated per order</small></span><span aria-hidden="true">›</span></button></div></section>'+
-        '<section class="settings-group"><h3>Private records</h3><div class="settings-group-panel"><button class="compact-setting-row" data-open-sheet="finance">'+financeIcon('lock')+'<span>Private finances<small>Cash balances, receipt corrections and history</small></span><span aria-hidden="true">›</span></button></div></section>';
-      host.replaceChildren(wrapper);host.querySelector('#settingsLayoutSlot').append(layout);host.querySelector('#settingsThemePresets').append(presets);host.querySelector('#settingsThemeAdvanced').append(colours,reset,feedback);
+        '<label class="compact-setting-row">'+financeIcon('gift')+'<span>Any promo with Uber Cash'+(!offerPreferences.includeCash?'<small>Enable Include Uber Cash to use this saved preference.</small>':'')+'</span><input id="anyCashPromoPreference" type="checkbox" role="switch"'+(offerPreferences.anyPromoWithCash?' checked':'')+(!offerPreferences.includeCash?' disabled':'')+'></label></div><p class="settings-group-note">Other offers stay available in a separate searchable picker.</p>'+
+        (offerPreferences.selection&&offerPreferences.selection!=='preferred'||offerPreferences.plannerSelection&&offerPreferences.plannerSelection!=='preferred'?'<button class="settings-default-action" id="returnPreferredDefaults">Return to preferred offers</button>':'')+'</section>'+
+        '<section class="settings-group"><h2>Fees</h2><div class="settings-group-panel"><button class="compact-setting-row" data-open-sheet="advanced">'+financeIcon('settings')+'<span>Fee settings<small id="settingsFeeHelper">'+escapeHtml(money(effectiveFee()))+' estimated per order</small></span>'+chevron+'</button></div><p class="settings-group-note">Applied to every order, including the first.</p></section>'+
+        '<section class="settings-private"><div class="settings-group-panel"><button class="compact-setting-row" data-open-sheet="finance">'+financeIcon('lock')+'<span>Private finances<small>Cash balances &amp; correction history</small></span>'+chevron+'</button></div></section>';
       const defaults=host.querySelector('#defaultOfferView');defaults.value=offerPreferences.defaultView;
-      defaults.addEventListener('change',e=>{refreshOfferPreferences({...offerPreferences,defaultView:e.target.value});document.getElementById('defaultOfferView').focus();});
-      for(const [id,key]of [['includeCashPreference','includeCash'],['anyCashPromoPreference','anyPromoWithCash']])host.querySelector('#'+id).addEventListener('change',e=>{refreshOfferPreferences({...offerPreferences,[key]:e.target.checked});document.getElementById(id).focus();});
-      host.querySelector('#preferredPromosButton').addEventListener('click',()=>openOfferCatalogue({choices:offerCatalogueChoices(),selected:offerPreferences.preferredPromos,multiple:true,opener:document.getElementById('preferredPromosButton'),onApply:values=>{refreshOfferPreferences({...offerPreferences,preferredPromos:values});requestAnimationFrame(()=>document.getElementById('preferredPromosButton')?.focus());}}));
-      host.querySelector('#returnPreferredDefaults').addEventListener('click',()=>{refreshOfferPreferences({...offerPreferences,selection:'preferred',plannerSelection:'preferred'});document.getElementById('returnPreferredDefaults').focus();});
+      defaults.addEventListener('change',e=>{refreshOfferPreferences({...offerPreferences,defaultView:e.target.value});document.getElementById('defaultOfferView').focus({preventScroll:true});});
+      for(const [id,key]of [['includeCashPreference','includeCash'],['anyCashPromoPreference','anyPromoWithCash']])host.querySelector('#'+id).addEventListener('change',e=>{refreshOfferPreferences({...offerPreferences,[key]:e.target.checked});document.getElementById(id).focus({preventScroll:true});});
+      host.querySelector('#preferredPromosButton').addEventListener('click',()=>openOfferCatalogue({choices:offerCatalogueChoices(),selected:offerPreferences.preferredPromos,multiple:true,opener:document.getElementById('preferredPromosButton'),onApply:values=>{refreshOfferPreferences({...offerPreferences,preferredPromos:values});requestAnimationFrame(()=>document.getElementById('preferredPromosButton')?.focus({preventScroll:true}));}}));
+      host.querySelector('#returnPreferredDefaults')?.addEventListener('click',()=>{refreshOfferPreferences({...offerPreferences,selection:'preferred',plannerSelection:'preferred'});document.getElementById('preferredPromosButton').focus({preventScroll:true});});
       const motion=host.querySelector('#motionPreference');motion.value=motionSetting;
       motion.addEventListener('change',()=>{try{localStorage.setItem(MOTION_KEY,motion.value);motionSetting=motion.value;document.documentElement.dataset.motion=motionSetting;mainNav.dataset.motion=motionSetting;liquidNavigation?.refreshMotion();}catch{motion.value=motionSetting;}});
+      queueDetailViewport();
     }
 
     let pendingDeviceImport = null;
@@ -4256,6 +4270,7 @@
     function renderUsedInformation(){setSheetHeading('How statuses are decided','Accounts and promotions are counted separately.');document.getElementById('sheetBody').innerHTML='<div class="setting-card"><p>Fully used accounts have at least one Eats and one Ride receipt, or five Eats receipts. Login and archive status stay independent.</p><p>Needs checking counts accounts with uncertain offer or receipt evidence. The record explains the uncertainty.</p><p>Expired offers counts promotions in Finished · Expired and Expired · Unused. Summary values count different categories; they are not a partition and must not be added together.</p><p>Completed promotions require every permitted use to be verified. Partial use, manual finish and ignore states stay separate.</p></div><button class="advanced-btn" data-open-guide="verification">Read the full status guide ›</button>';}
 
     function openUtilitySheet(type, financeTarget = null, financeMissing = false, financeAccount = null) {
+      if(type==='appearance'){switchView('settings');document.getElementById('settingsTitle').focus({preventScroll:true});return;}
       if (financeView) financeView.destroy();
       openSheetType = type;
       const financeRevision = ++financeOpenRevision;
@@ -4269,7 +4284,7 @@
       if (type === "health") renderHealthSheet();
       if (type === "receipts") renderReceiptsSheet();
       if (type === "history") renderHistorySheet();
-      if (type === "appearance") renderAppearanceSheet();
+      if(type==='theme'){renderLegacyAppearanceControls();setSheetHeading('Theme colour & layout','Saved on this device.');}
       if (type === "device") renderDeviceSheet();
       if (type === 'finance') {
         setSheetHeading('Private finances', 'Receipt corrections & Cash balances.');
@@ -4333,6 +4348,7 @@
         renderHomeAccounts();
       } else if (currentView === 'accounts') renderAccounts();
       else if (currentView === 'used') renderUsed();
+      else if (currentView === 'settings') renderSettingsPage();
       else if (currentView === 'more') renderMore();
       renderedClockKey = timedViewKey();
     }
@@ -4376,7 +4392,7 @@
     function switchView(view) {
       recordViewRoute(view);
       currentView = view;
-      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used'].includes(view));
+      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used','settings'].includes(view));
       renderAll();
       let activeSection = null;
 
@@ -4387,8 +4403,8 @@
       });
 
       document.querySelectorAll("[data-view]").forEach(button => {
-        button.classList.toggle("active", button.dataset.view === (view === "help" ? "more" : ["offers","planner"].includes(view) ? "home" : view));
-        if (button.dataset.view === (view === "help" ? "more" : ["offers","planner"].includes(view) ? "home" : view)) button.setAttribute("aria-current", "page");
+        button.classList.toggle("active", button.dataset.view === (["help","settings"].includes(view) ? "more" : ["offers","planner"].includes(view) ? "home" : view));
+        if (button.dataset.view === (["help","settings"].includes(view) ? "more" : ["offers","planner"].includes(view) ? "home" : view)) button.setAttribute("aria-current", "page");
         else button.removeAttribute("aria-current");
       });
 
@@ -4415,7 +4431,7 @@
       switchView(state.trackerView);
       if (state.trackerSheet === 'advanced') openUtilitySheet('advanced');
       else if (state.trackerSheet === 'account') openAccountSheet(state.trackerAccount);
-      else if(state.trackerSheet==='used-info')openUtilitySheet('used-info');
+      else if(['used-info','theme'].includes(state.trackerSheet))openUtilitySheet(state.trackerSheet);
       routeRestoring = false;
       window.scrollTo({top:routeEntries.get(state.trackerEntry)?.scroll || 0,behavior:'instant'});
       const opener = leaving?.opener;
@@ -4439,10 +4455,10 @@
       detailViewportFrame = requestAnimationFrame(() => {
         detailViewportFrame = 0;
         const root = document.documentElement;
-        const view = document.querySelector('#view-planner.active, #view-offers.active, #view-accounts.active, #view-used.active');
+        const view = document.querySelector('#view-planner.active, #view-offers.active, #view-accounts.active, #view-used.active, #view-settings.active');
         const active = Boolean(view);
         const prefix = view?.id?.slice(5) || 'planner';
-        for(const name of ['planner','offers','accounts','used'])if(name!==prefix)root.style.removeProperty('--'+name+'-nav-clearance');
+        for(const name of ['planner','offers','accounts','used','settings'])if(name!==prefix)root.style.removeProperty('--'+name+'-nav-clearance');
         const rootStyle = active ? getComputedStyle(root) : null;
         const themeMeta = document.querySelector('meta[name="theme-color"]');
         if (active && themeMeta) {
@@ -4890,10 +4906,10 @@
     window.addEventListener("storage", event => {
       if(event.key===OFFER_PREFERENCES_KEY||event.key===null){offerPreferences=readOfferPreferences(localStorage);accountTypeFilter=selectedOfferScope(offerPreferences);finderFilters.type=accountTypeFilter;renderAll();}
       if(event.key==='uber-tracker-finance-encrypted-v1'||event.key===null){financeSession?.lock();privateWallets={};renderRecommendation();}
-      if (event.key === LAYOUT_KEY || event.key === null) { layoutPreference = readLayoutPreference(); applyLayoutPreference(); if (openSheetType === 'appearance') renderAppearanceSheet(); }
+      if (event.key === LAYOUT_KEY || event.key === null) { layoutPreference = readLayoutPreference(); applyLayoutPreference(); if (openSheetType === 'theme') renderLegacyAppearanceControls(); if(currentView==='settings')renderSettingsPage(); }
       if (event.key === STATE_KEY || event.key === null) { manualStore = readManualStore(); reconcileLocalEvidence(); invalidateAccountProjection(); renderAll(); if (openSheetType === "account") renderAccountSheet(); }
       if (event.key === SETTINGS_KEY) { plannerSettings = readPlannerSettings(); renderRecommendation(); }
-      if (event.key === THEME_KEY) { applyTheme(readThemeColour()); if (openSheetType === 'appearance') renderAppearanceSheet(); }
+      if (event.key === THEME_KEY) { applyTheme(readThemeColour()); if (openSheetType === 'theme') renderLegacyAppearanceControls(); if(currentView==='settings')renderSettingsPage(); }
       if (event.key === DEVICE_ACCOUNTS_KEY || event.key === null) { deviceAccounts = readDeviceAccounts(); renderAll(); if (openSheetType === 'account') renderAccountSheet(); if (openSheetType === 'device') renderDeviceSheet(); }
     });
     function refreshTimedViews() {
