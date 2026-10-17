@@ -93,8 +93,10 @@ try{
   await page.locator('#plannerFulfilment').selectOption('pickup');assert.equal(await page.locator('.plan-accounts .plan-row').count(),0);
   await page.locator('#plannerFulfilment').selectOption('delivery');assert.equal(await rows.count(),2);
   await page.locator('#basketInput').fill('15');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='Use 1 account');assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£4.00']);
-  await page.locator('[data-view="more"]').click();await page.waitForFunction(theme=>document.querySelector('meta[name="theme-color"]').content===theme,originalTheme);
+  await page.locator('[data-view="more"]').click();await page.waitForFunction(()=>document.querySelector('meta[name="theme-color"]').content==='#0e1015');
+  await page.waitForFunction(()=>document.documentElement.style.getPropertyValue('--planner-nav-clearance')==='');
   assert.equal(await page.evaluate(()=>document.documentElement.style.getPropertyValue('--planner-nav-clearance')),'','Planner measurements do not change other screens');
+  await page.locator('[data-view="home"]').click();await page.waitForFunction(theme=>document.querySelector('meta[name="theme-color"]').content===theme,originalTheme);
   assert.ok(!/maximum-scale|user-scalable=no/.test(await page.locator('meta[name="viewport"]').getAttribute('content')));
   assert.deepEqual(errors,[]);await context.close();
  }

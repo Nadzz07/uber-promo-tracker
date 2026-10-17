@@ -17,7 +17,7 @@ export function offerScopeLabel(key){
  const [type,discount,minimum]=String(key).split(':');
  return type==='fixed'?'£'+discount+' off'+(minimum==='unknown'?' · minimum not shown':' £'+minimum):discount+'% off'+(minimum==='unknown'?' · minimum not shown':' £'+minimum);
 }
-export function mainOfferChoices(){return [{key:'preferred',label:'All preferred offers'},...DEFAULT_PREFERRED_PROMOS.map(key=>({key,label:offerScopeLabel(key)})),{key:'cash',label:'Uber Cash'},{key:'cash-promo',label:'Uber Cash + promo'},{key:'other',label:'Other offers…'}];}
+export function mainOfferChoices(preferences={}){return [{key:'preferred',label:'All preferred offers'},...normaliseOfferPreferences(preferences).preferredPromos.map(key=>({key,label:offerScopeLabel(key)})),{key:'cash',label:'Uber Cash'},{key:'cash-promo',label:'Uber Cash + promo'},{key:'other',label:'Other offers…'}];}
 export function hasCurrentCash(account){const cash=account.cashPosition||account.cashSummary;return cash?cash.remaining!=null&&Number(cash.remaining)>0&&['estimated','verified','verified_reconciled'].includes(cash.status):false;}
 export function isPreferredPromo(promo,preferences){return promo.discountType!=='uberCash'&&promo.minimumSpendVerified!==false&&preferences.preferredPromos.includes(accountOfferKey(promo));}
 function cashCanPair(account){const cash=account.cashPosition||account.cashSummary;return hasCurrentCash(account)&&cash.stacking!=='unsupported'&&(!cash.grants?.length||cash.grants.some(g=>g.remaining>0&&g.restrictions?.stacking!=='no_other_promotions'));}
