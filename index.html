@@ -4692,7 +4692,7 @@
       if (event.target.closest('[data-home-back]')) { returnHome(); return; }
       if(event.target.closest('[data-planner-matches]')) { switchView('offers'); document.getElementById('offersTitle').focus({preventScroll:true}); return; }
       const homeDetail = event.target.closest('[data-home-detail]');
-      if (homeDetail) { if(homeDetail.dataset.homeDetail==='offers'&&!homeDetail.closest('#view-planner'))finderFilters={accountRef:null,type:'all',login:'all',provider:'all'}; switchView(homeDetail.dataset.homeDetail); routeEntries.get(currentRouteEntry).opener = homeDetail; document.getElementById(homeDetail.dataset.homeDetail + 'Title').focus({preventScroll:true}); return; }
+      if (homeDetail) { if(homeDetail.dataset.homeDetail==='offers'&&!homeDetail.closest('#view-planner'))finderFilters={accountRef:null,type:accountTypeFilter,login:'all',provider:'all'}; switchView(homeDetail.dataset.homeDetail); routeEntries.get(currentRouteEntry).opener = homeDetail; document.getElementById(homeDetail.dataset.homeDetail + 'Title').focus({preventScroll:true}); return; }
       if (event.target.closest('[data-jump-planner]')) { switchView('planner'); requestAnimationFrame(() => { document.getElementById('basketInput').focus({preventScroll:true}); document.querySelector('.hero-card').scrollIntoView({block:'start',behavior:motionReduced()?'instant':'smooth'}); }); return; }
       if (event.target.closest("[data-retry-load]")) { load(); return; }
       const showMore = event.target.closest("[data-show-more-accounts]");
