@@ -4379,7 +4379,7 @@
       glider.style.transform = "translate3d(" + active.offsetLeft + "px," + active.offsetTop + "px,0)";
     }
 
-    let routeRestoring = false, routeSerial = 0, currentRouteEntry = 0;
+    let routeRestoring = false, routeSerial = 0, currentRouteEntry = 0, pendingPreferredPop = null;
     const routeEntries = new Map([[0, {scroll: 0}]]);
     const initialView = ['offers','planner'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
     window.history.replaceState({trackerView: initialView, trackerEntry: 0}, '', initialView === 'home' ? location.href : '#' + initialView);
@@ -4395,6 +4395,9 @@
       // entry rather than racing an asynchronous history.back().
       const method = window.history.state?.trackerSheet ? 'replaceState' : 'pushState';
       window.history[method]({trackerView: view, trackerEntry: entry}, '', '#' + view);
+      const position=method==='pushState'?window.history.length-1:routeEntries.get(old)?.position;
+      routeEntries.get(entry).position=position??window.history.length-1;
+      if(method==='pushState'&&routeEntries.has(old))routeEntries.get(old).position=position-1;
     }
     function switchView(view) {
       if(preferredEditor.active&&!preferredViews.has(view)&&preferredEditor.dirty&&!routeRestoring){preferredEditor.requestDiscard(()=>switchView(view));return;}
@@ -4435,9 +4438,15 @@
     window.addEventListener('popstate', event => {
       const leaving = routeEntries.get(currentRouteEntry), state = event.state;
       if (!state?.trackerView) return;
+      if(pendingPreferredPop&&state.trackerEntry===currentRouteEntry){
+        const steps=pendingPreferredPop.steps;pendingPreferredPop=null;
+        preferredEditor.requestDiscard(()=>{preferredEditor.end();window.history.go(steps);});return;
+      }
       if(preferredViews.has(currentView)&&!preferredViews.has(state.trackerView)&&preferredEditor.dirty){
-        // Restore the still-open draft before asking. Cancel keeps the current
-        // view; confirmed discard repeats Back to its original destination.
+        // Undo the navigation before asking, preserving the full history stack
+        // even when Back skips both child pages. Confirm repeats that traversal.
+        const delta=leaving?.position-routeEntries.get(state.trackerEntry)?.position;
+        if(Number.isFinite(delta)&&delta){pendingPreferredPop={steps:-delta};window.history.go(delta);return;}
         window.history.pushState({trackerView:currentView,trackerEntry:currentRouteEntry},'','#'+currentView);
         preferredEditor.requestDiscard(()=>window.history.back());return;
       }
