@@ -54,3 +54,9 @@ export async function scrollAboveDock(page,selector) {
 export async function usedStatus(page,value){await page.locator('#usedStatus').click();await page.locator('[data-status-option="'+value+'"]').click();}
 
 export async function finderAllOffers(page){await page.locator('#finderOfferType').selectOption('other');await page.locator('[data-catalogue-value="all"]').click();}
+
+export async function openOfferManagement(page, key = null) {
+ const card=key?page.locator('[data-offer-key="'+key+'"]'):page.locator('.offer-card').first();
+ if(await card.count()&&await card.getAttribute('open')===null)await card.locator('>summary').click();
+ const panel=card.locator('.manage-offer').first();if(await panel.count()&&await panel.getAttribute('open')===null)await panel.locator('>summary').click();
+}

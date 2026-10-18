@@ -105,5 +105,6 @@ exclude:
   - test-preferred-cash-planner.js
   - test-used-activity.js
   - test-used-preferences-browser.js
+  - test-account-details-browser.js
   - test-preferred-pages-browser.js
   - test-cash-pipeline.js
