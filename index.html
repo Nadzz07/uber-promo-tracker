@@ -3953,8 +3953,9 @@
       const liveItems=promosOnly.filter(isPromoActive),reviewItems=promosOnly.filter(p=>!isExpired(p)&&p.trackingState==='needs_checking'&&effectivePromoState(manualStore,p)!=='ignored');
       const historicItems=promosOnly.filter(p=>!liveItems.includes(p)&&!reviewItems.includes(p));
       const ranked=rankPromosForSpend(liveItems,currentBasket(),{service:'Uber Eats',accountRef:account.accountRef,accessibleOnly:false});
-      const preferred=accountOfferToOpen||ranked[0]?.promo?.id||liveItems[0]?.id;
+      const preferred=accountOfferToOpen||(window.history.state?.trackerAccount===account.accountRef?window.history.state.trackerOffer:null)||ranked[0]?.promo?.id||liveItems[0]?.id;
       liveItems.sort((a,b)=>Number(promoStateKey(b)===preferred)-Number(promoStateKey(a)===preferred));
+      historicItems.sort((a,b)=>Number(promoStateKey(b)===preferred)-Number(promoStateKey(a)===preferred));
       const receiptMet=currentAccountState(account).accountUsed;
       const cashEntry=accountCashEntry(account,cashItems);
       const count=liveItems.length+reviewItems.length;
@@ -4275,7 +4276,9 @@
 
     let pendingOfferAction = null;
     function revealOfferHistory(promo, managementAction = false) {
-      const currentOffer=document.querySelector('#sheetBody details[data-offer-key="'+CSS.escape(promoStateKey(promo))+'"]'); if(currentOffer)currentOffer.open=true;
+      let currentOffer=document.querySelector('#sheetBody details[data-offer-key="'+CSS.escape(promoStateKey(promo))+'"]');
+      if(!currentOffer){accountOfferToOpen=promoStateKey(promo);renderAccountSheet();currentOffer=document.querySelector('#sheetBody details[data-offer-key="'+CSS.escape(promoStateKey(promo))+'"]');}
+      if(currentOffer)currentOffer.open=true;
       const past = document.querySelector('#sheetBody details[data-history-key="' + CSS.escape(promoStateKey(promo)) + '"]');
       if (past) { document.getElementById('accountOfferHistory').open = true; past.open = true; }
       if(!managementAction){const usage=currentOffer?.querySelector('.offer-verification');if(usage){usage.open=true;usage.querySelector('summary').focus();}return;}
