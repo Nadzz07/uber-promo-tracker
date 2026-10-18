@@ -3255,7 +3255,7 @@
         const account = accounts.find(a => a.accountRef === order.accountRef) || order;
         return '<div class="plan-row" data-plan-account="' + escapeHtml(order.accountRef) + '">' +
           '<span class="plan-order-number">' + (index + 1) + '</span><div class="plan-body">' +
-          '<button class="plan-account" data-account-offers="' + escapeHtml(order.accountRef) + '">' + escapeHtml(accountDisplay(account)) + '</button>' +
+          '<button class="plan-account" data-account-offers="' + escapeHtml(order.accountRef) + '" data-account-offer="' + escapeHtml(order.promoId || order.promo?.id || (order.cashApplied>0?'cash':'')) + '">' + escapeHtml(accountDisplay(account)) + '</button>' +
           '<div class="plan-login">' + escapeHtml(loginRouteText(account)) + '</div>' +
           '<div class="plan-promo">' + escapeHtml(plannerOfferSummary(order.promo)) + '</div>' +
           '<div class="plan-subtotal">Basket ' + escapeHtml(money(order.subtotal)) +
@@ -3404,7 +3404,7 @@
         const allowance = multi ? uses + ' · up to ' + Number(multi.usesRemaining ?? multi.uses ?? 1) + ' left' : '';
         const meta = [ending ? '<time class="expiry-pill" datetime="' + escapeHtml(new Date(expiryEndTime(ending)).toISOString()) + '" title="' + escapeHtml(expiry) + '" aria-label="' + escapeHtml(expiry) + '">' + escapeHtml(offerCountdown(ending)) + '</time>' : '', multi ? '<span class="pill-row"><span class="pill" role="note" title="' + escapeHtml(allowance) + '" aria-label="' + escapeHtml(allowance) + '">' + escapeHtml(uses) + '</span></span>' : ''].filter(Boolean).join('<span aria-hidden="true">·</span>');
         return '<article class="account-card offer-preview-card' + (chosen ? ' picked' : '') + '" data-card-account="' + escapeHtml(account.accountRef) + '">' +
-          '<div class="account-top"><div class="account-identity"><span class="app-icon-surface account-provider" aria-hidden="true">' + accountProviderIcon(account) + '</span><div class="account-identity-copy"><div class="account-email">' + escapeHtml(accountDisplay(account)) + '</div><div class="account-login-route">' + escapeHtml(loginRouteText(account)) + '</div></div></div><span class="pill account-access-pill' + (account.canLogin === true ? ' good' : '') + '">' + (account.canLogin === true ? 'Can log in' : account.canLogin === false ? 'Can’t log in' : 'Access pending') + '</span><button class="offer-preview-open" data-account-offers="' + escapeHtml(account.accountRef) + '" aria-label="View account ' + escapeHtml(accountDisplay(account)) + '"><span aria-hidden="true">›</span></button></div>' +
+          '<div class="account-top"><div class="account-identity"><span class="app-icon-surface account-provider" aria-hidden="true">' + accountProviderIcon(account) + '</span><div class="account-identity-copy"><div class="account-email">' + escapeHtml(accountDisplay(account)) + '</div><div class="account-login-route">' + escapeHtml(loginRouteText(account)) + '</div></div></div><span class="pill account-access-pill' + (account.canLogin === true ? ' good' : '') + '">' + (account.canLogin === true ? 'Can log in' : account.canLogin === false ? 'Can’t log in' : 'Access pending') + '</span><button class="offer-preview-open" data-account-offers="' + escapeHtml(account.accountRef) + '" data-account-offer="' + escapeHtml(offer?.id || '') + '" aria-label="View account ' + escapeHtml(accountDisplay(account)) + '"><span aria-hidden="true">›</span></button></div>' +
           '<div class="offer-preview-content"><div class="offer-preview-primary"><div class="account-offer">' + escapeHtml(primary) + '</div>' +
           (chosen || bestNow ? '<span class="offer-preview-best">' + (chosen ? 'Chosen' : 'Best now') + '</span>' : '') + '</div>' +
           (description ? '<div class="offer-preview-description">' + escapeHtml(description) + '</div>' : '') +
@@ -3536,7 +3536,7 @@
       const walletLabel=wallet?.status==='verified'?'Manually verified':wallet?.status==='verified_reconciled'?'Estimated since verification':'Estimated remaining';
       const status=account.canLogin===true&&account.accessStatus!=='pending'?'Can log in':account.canLogin===false?'Can’t log in':'Access pending';
       const extra=selected&&Number(selected.uses)>1?'<small class="directory-use-limit">'+confirmedUses(selected)+'/'+Number(selected.uses)+' confirmed · '+Number(selected.usesRemaining??selected.uses)+' remaining</small>':'';
-      return '<article class="account-card directory-card" data-card-account="'+escapeHtml(account.accountRef)+'"><button class="directory-account-head" data-account-offers="'+escapeHtml(account.accountRef)+'" aria-label="View account '+escapeHtml(accountDisplay(account))+'"><span class="directory-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="directory-identity"><span class="account-email">'+escapeHtml(accountDisplay(account))+'</span><span class="account-login-route">'+escapeHtml(loginRouteText(account))+'</span></span><span class="account-access-pill '+(status==='Can log in'?'positive':'')+'">'+escapeHtml(status)+'</span><span class="directory-chevron" aria-hidden="true">›</span></button>'+
+      return '<article class="account-card directory-card" data-card-account="'+escapeHtml(account.accountRef)+'"><button class="directory-account-head" data-account-offers="'+escapeHtml(account.accountRef)+'" data-account-offer="'+escapeHtml(selected?.id||(accountTypeFilter==='cash'?'cash':''))+'" aria-label="View account '+escapeHtml(accountDisplay(account))+'"><span class="directory-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="directory-identity"><span class="account-email">'+escapeHtml(accountDisplay(account))+'</span><span class="account-login-route">'+escapeHtml(loginRouteText(account))+'</span></span><span class="account-access-pill '+(status==='Can log in'?'positive':'')+'">'+escapeHtml(status)+'</span><span class="directory-chevron" aria-hidden="true">›</span></button>'+
         (selected?'<div class="directory-offer-row">'+financeIcon('tag')+'<div><strong>'+escapeHtml(directoryOffer(selected))+'</strong>'+extra+(selected.discountType==='percent'&&(selected.perUseCap??selected.maxSaving)!=null?'<small>Up to '+escapeHtml(money(selected.perUseCap??selected.maxSaving))+' per order</small>':'')+'</div></div>':'')+
         (hasCurrentCash(account)?'<div class="directory-offer-row directory-cash">'+financeIcon('wallet')+'<div><span>Uber Cash '+escapeHtml(money(wallet.remaining))+'</span><span class="directory-wallet-status">'+financeIcon('info')+escapeHtml(walletLabel)+'</span></div></div><p class="directory-cash-help">'+(selected?'Check Cash and promo compatibility in Uber.':wallet?.status==='verified'?'Balance checked privately in Uber.':'Estimate from issued Cash and recorded usage.')+'</p>':'')+
         (!selected&&!hasCurrentCash(account)?'<p class="directory-no-offer">No current offers · history in account details</p>':'')+
@@ -3845,81 +3845,63 @@
       } catch { document.getElementById('deviceImportStatus').textContent = 'Browser storage is unavailable. No import was applied. Enable storage on your own device and try again.'; }
     }
 
-    function offerSheetCard(promo) {
-      const total = Math.max(1, Number(promo.uses || 1));
-      const confirmed = confirmedUses(promo);
-      const pending = pendingManualUses(manualStore, promo);
-      const activity = manualActivity(manualStore, promo);
-      const rawRemaining = Math.max(
-        0,
-        Number(promo.usesRemaining ?? promo.uses ?? 1) - pending
-      );
-      const remaining = activity.ignored
-        ? rawRemaining
-        : effectiveRemainingUses(manualStore, promo);
-      const used = confirmed;
-      const progress = Math.max(0, Math.min(100, (used / total) * 100));
-      const state = effectivePromoState(manualStore, promo);
-
-      const lifecycle = promotionActivity(manualStore, promo);
-      const status = '<span class="pill' + (lifecycle.bucket === 'completed' ? ' good' : lifecycle.bucket === 'needs_checking' || isExpired(promo) ? ' warn' : '') + '">' + escapeHtml(lifecycle.status) + '</span>';
-
-      const useButtonDisabled =
-        promo.canLogin === false ||
-        remaining <= 0 ||
-        promo.trackingState === 'needs_checking' ||
-        useCountNeedsReview(promo) ||
-        activity.ignored ||
-        state === "used" ||
-        isExpired(promo);
+    let accountOfferToOpen = null;
+    function accountOfferTitle(promo) {
+      if(promo.discount==null || !Number.isFinite(Number(promo.discount)) || Number(promo.discount)<=0)return 'Promo value needs checking';
+      const value = promoLabel(promo);
+      const minimum = accountOfferKey(promo)?.endsWith(':unknown') || promo.minimumSpend == null;
+      return value + (minimum ? ' · minimum unknown' : Number(promo.minimumSpend) > 0 ? ' ' + money(promo.minimumSpend) : '');
+    }
+    function accountOfferExpiry(promo) {
+      return offerCountdown(promo) || 'Expiry unknown';
+    }
+    function accountOfferDeadline(promo) {
+      const end=expiryEndTime(promo);
+      return accountOfferExpiry(promo)+(end!=null?' · '+(promo.expiryStatus==='estimated'?'Estimated end ':'Ends ')+formatDate(promo.expires||promo.expiresAt)+' at '+ukClock.format(new Date(end))+' UK':'');
+    }
+    function offerSheetCard(promo, {open = false, historic = false} = {}) {
+      const total = Number(promo.uses);
+      const knownLimit = Number.isInteger(total) && total > 0 && !useCountNeedsReview(promo) && (promo.usesVerified === true || promo.evidence?.usesBasis === 'explicit_offer_terms');
+      const knownConfirmed = promo.receiptConfirmedUses != null && Number.isInteger(Number(promo.receiptConfirmedUses)) && Number(promo.receiptConfirmedUses)>=0;
+      const confirmed = knownConfirmed ? Math.max(0, Number(promo.receiptConfirmedUses)) : null;
+      const pending = pendingManualUses(manualStore, promo), activity = manualActivity(manualStore, promo);
+      const remaining = effectiveRemainingUses(manualStore, promo), state = effectivePromoState(manualStore, promo);
+      const lifecycle = promotionActivity(manualStore, promo), key = promoStateKey(promo);
+      const useButtonDisabled = promo.canLogin === false || remaining <= 0 || promo.trackingState === 'needs_checking' || useCountNeedsReview(promo) || activity.ignored || state === 'used' || isExpired(promo);
       const undoDisabled = pending <= 0;
-
-      return (
-        '<div class="offer-card">' +
-          '<div class="offer-top">' +
-            '<div class="account-identity"><span class="app-icon-surface">' + financeIcon('bag') + '</span><div class="account-identity-copy">' +
-              '<div class="offer-name">' + escapeHtml(promo.title || promoLabel(promo)) + '</div>' +
-              '<div class="offer-details">' + escapeHtml(serverPromoMeta(promo)) + '</div>' +
-            '</div></div>' +
-            '<div class="offer-value">' + escapeHtml(promoLabel(promo)) + '</div>' +
-          '</div>' +
-          '<details class="disclosure-card offer-terms"><summary><span><strong>Offer details</strong><small>' + (promo.offerScope === 'uncertain' ? 'Order or product scope needs checking' : promo.termsVerification === 'email_verified' ? 'Discount found in original email' : 'Check original terms') + '</small></span></summary><div class="disclosure-body">' +
+      const subtitle = [(promo.minimumSpend == null || accountOfferKey(promo)?.endsWith(':unknown') ? 'Minimum spend unknown' : Number(promo.minimumSpend) ? money(promo.minimumSpend) + ' minimum' : 'No minimum spend'), knownLimit ? 'Up to ' + total + (total === 1 ? ' order' : ' orders') : 'Use limit unknown', promo.discountType === 'percent' && (promo.perUseCap ?? promo.maxSaving) != null ? 'Max. ' + money(promo.perUseCap ?? promo.maxSaving) + ' per order' : ''].filter(Boolean).join(' · ');
+      const progress = knownLimit && knownConfirmed ? '<div class="use-progress"><div class="progress-track" role="progressbar" aria-label="Receipt-confirmed uses" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + Math.min(confirmed,total) + '" aria-valuetext="' + confirmed + ' of ' + total + ' uses confirmed"><div class="progress-fill" style="width:' + Math.min(100,confirmed/total*100) + '%"></div></div><div class="use-line"><span>' + confirmed + ' of ' + total + ' uses confirmed</span><span>Up to ' + remaining + ' left</span></div></div>' : '<p class="account-usage-unknown">' + (knownConfirmed ? confirmed + ' receipt-confirmed use' + (confirmed === 1 ? '' : 's') + ' · use limit unknown' : 'Receipt-confirmed usage unknown') + '</p>';
+      return '<details class="offer-card account-detail-offer' + (historic ? ' past-offer' : '') + '" data-offer-key="' + escapeHtml(key) + '"' + (historic ? ' data-history-key="' + escapeHtml(key) + '"' : '') + (open ? ' open' : '') + '><summary class="account-offer-toggle">' + financeIcon(promo.discountType === 'percent' ? 'promo-tag' : 'bag') + '<span class="account-offer-heading"><strong class="offer-name">' + escapeHtml(accountOfferTitle(promo)) + '</strong><small class="offer-details">' + escapeHtml(subtitle) + '</small><small class="compact-offer-expiry">' + escapeHtml(accountOfferExpiry(promo)) + (!isPromoActive(promo) ? ' · ' + escapeHtml(lifecycle.status) : '') + '</small></span>' + financeIcon('chevron-down') + '</summary><div class="account-offer-body"><div class="pill-row"><span class="pill' + (lifecycle.bucket === 'completed' ? ' good' : lifecycle.bucket === 'needs_checking' || isExpired(promo) ? ' warn' : '') + '">' + escapeHtml(lifecycle.status) + '</span><span class="account-offer-expiry" tabindex="0" aria-label="' + escapeHtml(accountOfferDeadline(promo)) + '" title="' + escapeHtml(accountOfferDeadline(promo)) + '">' + financeIcon('menu-calendar') + escapeHtml(accountOfferExpiry(promo)) + '</span></div>' + progress + (pending ? '<p class="account-manual-usage">' + pending + ' manual use' + (pending===1?'':'s') + ' · awaiting receipt evidence</p>' : '') +
+          '<details class="offer-terms account-offer-action" data-disclosure-key="terms-' + escapeHtml(promoStateKey(promo)) + '"><summary>' + financeIcon('info') + '<span>Offer details</span>' + financeIcon('chevron-right') + '</summary><div class="disclosure-body">' +
             '<dl class="terms-grid"><dt>Advertised</dt><dd>' + escapeHtml(offerTitle(promo)) + '</dd>' +
             '<dt>Minimum</dt><dd>' + (promo.minimumSpendVerified ? escapeHtml(money(promo.minimumSpend)) : 'Unknown') + '</dd>' +
             '<dt>Cap</dt><dd>' + (promo.perUseCap != null ? escapeHtml(money(promo.perUseCap)) + ' per use · explicit' : promo.maxSaving != null ? escapeHtml(money(promo.maxSaving)) + ' · explicit' : promo.discountType === 'fixed' ? escapeHtml(money(promo.discount)) + ' fixed value' : 'Not stated') + '</dd>' +
-            '<dt>Expiry</dt><dd>' + escapeHtml((promo.expiryStatus === 'estimated' ? 'Est. ends ' : 'Ends ') + (formatDate(promo.expires || promo.expiresAt) || 'Unknown') + (promo.expiryStatus !== 'estimated' && expiryEndTime(promo) != null ? ' at ' + ukClock.format(new Date(expiryEndTime(promo))) + ' UK' : '')) + '</dd>' +
+            '<dt>Expiry basis</dt><dd>' + (promo.expiryStatus === 'estimated' ? 'Estimated date · confirm in Uber' : expiryEndTime(promo) != null ? 'Explicit deadline from offer evidence' : 'Expiry unknown') + '</dd>' +
             (effectiveDiscountPercent(promo, currentBasket()) != null ? '<dt>Calculated</dt><dd>' + effectiveDiscountPercent(promo, currentBasket()) + '% at ' + escapeHtml(money(currentBasket())) + ' before fees</dd>' : '') +
             '<dt>Activation</dt><dd>' + (promo.restrictions?.promoCodeRequired ? 'Apply promo code in Uber' : 'Confirm in Uber') + '</dd>' +
-            '<dt>Use count</dt><dd>' + (promo.usesVerified ? total + ' stated in email' : 'Allowance needs checking') + '</dd>' +
+            '<dt>Use count</dt><dd>' + (knownLimit ? total + ' stated in email' : 'Allowance needs checking') + '</dd>' +
             '<dt>Order type</dt><dd>' + (promo.discountType === 'uberCash' ? 'Delivery and Pickup' : promo.restrictions?.fulfilment === 'pickup_only' ? 'Pickup only' : 'Delivery only') + '</dd>' +
             (promo.restrictions?.stacking === 'no_other_promotions' ? '<dt>Combining</dt><dd>No other promotions</dd>' : '') +
             (promo.restrictions?.excludesFees ? '<dt>Minimum excludes</dt><dd>Delivery & other fees</dd>' : '') +
             (promo.restrictions?.excludesAlcoholTobacco ? '<dt>Excluded</dt><dd>Alcohol & tobacco baskets</dd>' : '') +
             (promo.restrictions?.merchantLimited ? '<dt>Merchants</dt><dd>Selected merchants · confirm in Uber</dd>' : '') +
-            '</dl><p class="sheet-help">Eligibility and remaining uses require confirmation in Uber.</p><button class="advanced-btn" data-open-guide="promotions">How offers work ›</button></div></details>' +
-          '<div class="pill-row">' + status +
-            (confirmed > 0 ? '<span class="pill">' + confirmed + ' receipt-confirmed</span>' : '') +
-          '</div>' +
-          (useCountNeedsReview(promo) ? '<div class="setting-note">Verify the order count from the original offer before recording a use.</div>' : '<div class="use-progress">' +
-            '<div class="use-line"><span>' + used + ' of ' + total + ' confirmed used</span><span>' + Math.max(0,total-confirmed) + ' not confirmed redeemed</span></div>' +
-            '<div class="progress-track"><div class="progress-fill" style="width:' + progress + '%"></div></div>' +
-          '</div>') +
-          '<details class="offer-verification disclosure-card" data-verify-key="' + escapeHtml(promoStateKey(promo)) + '"' + (document.querySelector('#sheetBody details[data-verify-key="' + CSS.escape(promoStateKey(promo)) + '"]')?.open ? ' open' : '') + '><summary><span><strong>Usage &amp; history</strong><small>' + escapeHtml(lifecycle.status) + '</small></span></summary><div class="disclosure-body">' +
-            '<p>' + confirmed + '/' + total + ' receipt-confirmed uses.' + (pending ? ' ' + pending + ' manually logged uses await evidence.' : '') + '</p>' +
+            '<dt>Original offer email</dt><dd>' + escapeHtml(formatEvidenceTime(promo.firstEmailSentAt || promo.emailSentAt) || 'Source date unavailable') + '</dd><dt>Source evidence</dt><dd>' + escapeHtml(promo.sourceEvidenceStatus === 'missing' ? 'Missing · needs review' : promo.termsVerification === 'email_verified' ? 'Terms verified from email' : 'Check original email terms') + '</dd></dl><p class="sheet-help">Eligibility and remaining uses require confirmation in Uber.</p><button class="advanced-btn" data-open-guide="promotions">How offers work ›</button></div></details>' +
+          '<details class="offer-verification account-offer-action" data-verify-key="' + escapeHtml(promoStateKey(promo)) + '"' + (document.querySelector('#sheetBody details[data-verify-key="' + CSS.escape(promoStateKey(promo)) + '"]')?.open ? ' open' : '') + '><summary>' + financeIcon('history') + '<span>Usage &amp; history</span>' + financeIcon('chevron-right') + '</summary><div class="disclosure-body">' +
+            '<p>' + (knownConfirmed ? confirmed + (knownLimit ? '/' + total : '') + ' receipt-confirmed uses.' : 'Receipt-confirmed usage is unknown.') + (pending ? ' ' + pending + ' manually logged uses await evidence.' : '') + '</p>' +
             '<p>Manual: ' + (activity.forceDone ? 'Marked finished' + (activity.manualFinishedAt ? ' on ' + escapeHtml(formatEvidenceTime(activity.manualFinishedAt)) : '') : 'Open') + '.</p>' +
             '<p>Verification: ' + (activity.verificationConflict ? 'Conflicting evidence needs review.' : lifecycle.consumed ? 'Every permitted use confirmed.' : 'Incomplete.') + '</p>' +
-            '<p>Last evidence update: ' + escapeHtml(formatEvidenceTime(activity.lastEvidenceUpdate || payload.generatedAt) || 'Not yet available') + '. Last confirmed use: ' + escapeHtml(formatEvidenceTime(promo.lastUsedAt) || 'None recorded') + '.</p>' +
+            '<p>Last evidence update: ' + escapeHtml(formatEvidenceTime(activity.lastEvidenceUpdate) || 'Not yet available') + '. Last confirmed use: ' + escapeHtml(formatEvidenceTime(promo.lastUsedAt) || 'None recorded') + '.</p>' +
             (activity.verificationConflict ? '<p role="status">' + escapeHtml(activity.verificationConflict) + '</p><button class="action-btn" data-review-evidence="' + escapeHtml(promoStateKey(promo)) + '"' + (promo.reviewReasons?.includes('ambiguous_receipt_match') ? ' disabled' : '') + '>Accept current confirmed count</button>' : '') +
             (promo.reviewReasons?.includes('ambiguous_receipt_match') ? '<p>A receipt could match more than one offer. No redemption is assigned until the source evidence identifies it.</p>' : '') +
             (activity.history.length ? '<ol class="completion-history">' + activity.history.map(event => '<li>' + escapeHtml(({manually_finished:'Marked finished manually',legacy_manual_finish:'Existing manual finish · last saved',manual_finish_undone:'Manual finish undone',completion_verified:'Completion verified from receipts',evidence_reviewed:'Updated evidence reviewed',offer_terms_corrected:'Offer terms corrected · saved decision preserved'})[event.type] || 'Manual action') + ' · ' + escapeHtml(formatEvidenceTime(event.at) || 'Date unavailable') + ' · ' + Number(event.confirmedUses || 0) + ' confirmed</li>').join('') + '</ol>' : '<p>No completion actions recorded.</p>') +
             '<button class="advanced-btn" data-open-guide="verification">Learn about verification ›</button></div></details>' +
+          '<details class="account-offer-action manage-offer" data-disclosure-key="manage-' + escapeHtml(key) + '"><summary>' + financeIcon('more') + '<span>Manage offer</span>' + financeIcon('chevron-down') + '</summary><div class="account-manual-controls">' +
           '<div class="offer-actions">' +
             '<button class="action-btn primary" data-use-one="' + escapeHtml(promoStateKey(promo)) + '"' +
               (useButtonDisabled ? ' disabled' : '') + '>Record 1 use manually</button>' +
             '<button class="action-btn" data-undo-use="' + escapeHtml(promoStateKey(promo)) + '"' +
               (undoDisabled ? ' disabled' : '') + '>Undo manual use</button>' +
           '</div>' +
-          (promo.discountType === 'uberCash' ? '<div class="setting-note">Issued Cash is reconciled against recorded receipt usage. Estimates are not confirmed wallet balances. Unknown expiry or ambiguous credit usage needs checking. Cash payments are separate from promotional savings.</div>' : '') +
           '<div class="offer-more">' +
             (activity.ignored
               ? '<button class="action-btn warning" data-toggle-ignore="' + escapeHtml(promoStateKey(promo)) + '" data-ignore="false">Restore offer</button>'
@@ -3930,88 +3912,62 @@
                 ? '<button class="action-btn" disabled>Finished</button>'
                 : '<button class="action-btn danger" data-mark-offer-done="' + escapeHtml(promoStateKey(promo)) + '" data-done="true">Mark finished manually</button>') +
           '</div>' +
-        '</div>'
-      );
+          '</div></details></div></details>';
     }
 
-    function openAccountSheet(accountRef) {
-      const account = accounts.find(item => item.accountRef === accountRef);
+    function accountCashTerms(grant) { return [Number(grant.minimumSpend)>0?money(grant.minimumSpend)+' eligible minimum':null,grant.excludesFees?'Fees excluded':null,grant.restrictions?.stacking==='no_other_promotions'?'Cannot combine with other promotions':null].filter(Boolean).join(' · '); }
+    function accountCashEntry(account, cashItems) {
+      const cash = enrichedAccounts().find(a=>a.accountRef===account.accountRef)?.cashPosition;
+      if (!cashItems.length && (!cash || cash.status==='none')) return '';
+      const labels = {estimated:'Estimated remaining',verified:'Verified balance',verified_reconciled:'Reconciled from verified balance',needs_checking:'Balance needs checking',exhausted:'Exhausted',expired:'Expired',none:'Balance unknown'};
+      const status = labels[cash?.status] || 'Balance unknown';
+      const grants = [...new Map([...cashItems.map(p=>p.cashEstimate).filter(Boolean),...(account.cashSummary?.grants || [])].map(g=>[[g.issuedAt,g.issued,g.expiresAt].join('|'),g])).values()];
+      const current = grants.filter(g=>!['expired','exhausted'].includes(g.status) && Date.parse(g.expiresAt)>Date.now());
+      const end = current.length ? Math.min(...current.map(g=>Date.parse(g.expiresAt))) : null;
+      const expiry = end ? (current.length>1 || ['verified','verified_reconciled'].includes(cash?.status) ? 'Next grant: ' : '') + offerCountdown({expiresAt:new Date(end).toISOString(),expiryStatus:'exact'}) : cash?.status==='expired' ? 'Credit expired' : cash?.status==='exhausted' ? 'No recorded credit remaining' : 'Expiry unknown';
+      const balance = cash?.remaining == null || cash?.status==='none' ? 'Unknown' : money(cash.remaining);
+      return '<details class="account-cash-entry" data-cash-entry data-disclosure-key="cash"><summary>' + financeIcon('wallet') + '<span><strong>Uber Cash</strong><small>' + escapeHtml(status + ' · ' + expiry) + '</small></span><strong class="cash-entry-balance">' + escapeHtml(balance) + '</strong>' + financeIcon('chevron-down') + '</summary><div class="account-cash-body"><p>' + escapeHtml(status) + (cash?.verifiedAt ? ' · checked ' + escapeHtml(formatEvidenceTime(cash.verifiedAt)) : '') + '.</p>' + (cash?.spentSinceVerification ? '<p>' + escapeHtml(money(cash.spentSinceVerification)) + ' recorded credit used since verification.</p>' : '') + '<details class="account-offer-action" data-disclosure-key="cash-details"><summary>' + financeIcon('info') + '<span>Cash details</span>' + financeIcon('chevron-down') + '</summary><div class="disclosure-body">' + '<p class="sheet-help">Uber Cash pays eligible charges; it is not a promo discount. Check charge coverage and promo compatibility in Uber.</p>' + (['restricted','unsupported'].includes(cash?.stacking)?'<p class="account-cash-caution">Recorded Cash terms restrict combination with other promotions.</p>':'') + (cash?.status==='needs_checking'?'<p class="account-cash-caution">Incomplete or ambiguous credit evidence. Unknown is not zero.</p>':'') + '</div></details>' + '<details class="account-offer-action" data-disclosure-key="cash-evidence"><summary>' + financeIcon('history') + '<span>Grant &amp; usage evidence</span>' + financeIcon('chevron-down') + '</summary><div class="disclosure-body">' + (grants.length ? '<ol class="cash-grant-evidence">' + grants.map(g=>'<li><strong>' + escapeHtml(money(g.issued)) + ' issued</strong><span>' + escapeHtml(formatEvidenceTime(g.issuedAt) || 'Issue date unknown') + ' · ' + escapeHtml(g.status || 'Needs checking') + '</span><span>' + (g.expiresAt ? 'Expires ' + escapeHtml(formatEvidenceTime(g.expiresAt)) : 'Expiry unknown') + '</span><span>' + (g.remaining==null?'Remaining unknown':escapeHtml(money(g.remaining))+' recorded remaining') + ' · ' + escapeHtml(g.allocation==='inferred_from_receipts'?'Allocation inferred from receipts':'Grant and recorded credit usage') + '</span>' + (accountCashTerms(g)?'<span>'+escapeHtml(accountCashTerms(g))+'</span>':'') + '</li>').join('') + '</ol>' : '<p>Grant evidence is unavailable. Verify privately in Uber.</p>') + (cashItems.length?'<p>Individual issued-credit records remain accessible below. They are not additional wallet balances. A later verified wallet balance takes precedence over grant-level estimates.</p>' + cashItems.map(p=>'<details class="account-offer-action cash-source-record" data-disclosure-key="cash-source-'+escapeHtml(promoStateKey(p))+'"><summary><span>' + escapeHtml(promoLabel(p)) + ' · ' + escapeHtml(formatDate(p.firstEmailSentAt||p.emailSentAt)||'Source date unknown') + '</span>' + financeIcon('chevron-down') + '</summary><div class="disclosure-body"><p>' + escapeHtml(promotionActivity(manualStore,p).status) + '</p><details class="manage-offer account-offer-action" data-disclosure-key="cash-manage-'+escapeHtml(promoStateKey(p))+'"><summary><span>Manage issued-credit record</span>' + financeIcon('chevron-down') + '</summary><div class="account-manual-controls"><button class="action-btn" data-use-one="'+escapeHtml(promoStateKey(p))+'"'+(p.canLogin===false||!isPromoActive(p)||useCountNeedsReview(p)?' disabled':'')+'>Record 1 use manually</button><button class="action-btn" data-undo-use="'+escapeHtml(promoStateKey(p))+'"'+(pendingManualUses(manualStore,p)>0?'':' disabled')+'>Undo manual use</button><button class="action-btn warning" data-toggle-ignore="'+escapeHtml(promoStateKey(p))+'" data-ignore="'+(!manualActivity(manualStore,p).ignored)+'">'+(manualActivity(manualStore,p).ignored?'Restore record':'Ignore record')+'</button><button class="action-btn danger" data-mark-offer-done="'+escapeHtml(promoStateKey(p))+'" data-done="'+(!manualActivity(manualStore,p).forceDone)+'">'+(manualActivity(manualStore,p).forceDone?'Undo manual finish':'Mark finished manually')+'</button></div></details></div></details>').join(''):'') + '</div></details><button class="account-sheet-link" data-open-sheet="finance" data-finance-target="cash" data-finance-account="'+escapeHtml(account.accountRef)+'">' + financeIcon('lock') + '<span>Verify or correct balance privately</span>' + financeIcon('chevron-right') + '</button></div></details>';
+    }
+
+    function openAccountSheet(accountRef, offerKey = null) {
+      const account = accounts.find(item=>item.accountRef===accountRef);
       if (!account) return;
-
-      openSheetType = "account";
-      openAccountRef = accountRef;
-      accountHistoryLimit = 30;
-
-      setSheetHeading("Account details", account.canLogin ? "Choose an offer or log a use." : "Receipt and savings history for an unavailable account.");
-      renderAccountSheet();
-      showSheet();
+      document.getElementById('sheetBody').replaceChildren();
+      openSheetType='account'; openAccountRef=accountRef; accountHistoryLimit=30; accountOfferToOpen=offerKey;
+      setSheetHeading('Account details','Choose an offer or log a use');
+      renderAccountSheet();showSheet();
+      if(window.history.state?.trackerSheet==='account')window.history.replaceState({...window.history.state,trackerOffer:offerKey},'');
     }
-
     function accountSheetClockKey() {
-      return allPromosForAccount(openAccountRef).map(p => promoStateKey(p) + '|' + offerCountdown(p)).join(';');
+      return allPromosForAccount(openAccountRef).map(p=>promoStateKey(p)+'|'+offerCountdown(p)).join(';');
     }
-
     function renderAccountSheet() {
-      if (!openAccountRef) return;
-
-      const account = accounts.find(item => item.accountRef === openAccountRef);
-      if (!account) return;
-
-      const items = allPromosForAccount(openAccountRef)
-        .slice()
-        .sort((a, b) => {
-          const activeA = isPromoActive(a) ? 1 : 0;
-          const activeB = isPromoActive(b) ? 1 : 0;
-          if (activeB !== activeA) return activeB - activeA;
-          return String(b.emailSentAt || "").localeCompare(String(a.emailSentAt || ""));
-        });
-
-      const liveItems = items.filter(isPromoActive);
-      const reviewItems = items.filter(p => !isExpired(p) && p.trackingState === 'needs_checking' && effectivePromoState(manualStore,p) !== 'ignored');
-      const historicItems = items.filter(p => !liveItems.includes(p) && !reviewItems.includes(p));
-      accountSheetClock = accountSheetClockKey();
-      const historyOpen = document.querySelector('#accountOfferHistory')?.open || false;
-      const expandedHistory = new Set([...document.querySelectorAll('#sheetBody details[data-history-key][open]')].map(el=>el.dataset.historyKey));
-      const best = bestForAccount(account);
-      const bestSaving = Number(best?.calculation?.saving || 0);
-
-      const body =
-        '<div class="account-sheet-hero">' +
-          '<div class="account-sheet-top">' +
-            '<div class="account-identity"><span class="app-icon-surface account-provider">' + accountProviderIcon(account) + '</span><div class="account-identity-copy">' +
-              '<div class="account-sheet-label">Uber Eats account</div>' +
-              '<div class="account-sheet-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
-              '<div class="account-login-route">' + escapeHtml(loginRouteText(account)) + '</div>' +
-            '</div></div>' +
-            '<div class="account-status-badge ' + (account.canLogin ? 'ok' : 'no') + '">' +
-              '<span class="status-dot"></span>' +
-              escapeHtml(accountStatusLabel(currentAccountState(account))) +
-            '</div>' +
-          '</div>' +
-          '<div class="account-sheet-summary">' +
-            '<div><span>Eligible promotions</span><strong>' + liveItems.length + '</strong></div>' +
-            '<div><span>' + (currentAccountState(account).recommendationEligible ? 'Save now' : 'Potential saving') + '</span><strong>' + (bestSaving > 0 ? escapeHtml(money(bestSaving)) : '—') + '</strong></div>' +
-            '<div><span>History</span><strong>' + escapeHtml(receiptHistoryText(account)) + '</strong></div>' +
-          '</div>' +
-          '<div class="account-login-route">' + escapeHtml(accountProgressDescription(currentAccountState(account))) + '</div>' +
-          (Number(account.sourceReviewCount||0)>0?'<p class="sheet-help" role="status">'+account.sourceReviewCount+' preserved receipt sources await independent original verification. They are excluded from confirmed usage and savings.</p>':'')+
-          receiptReviewAction(account) +
-          '<div class="account-sheet-actions">' +
-            (deviceEmail(deviceAccounts, account)
-              ? '<button class="account-secondary" data-copy-email="' + escapeHtml(account.accountRef) + '">Copy login email</button>'
-              : '<button class="account-secondary" data-open-sheet="device">Show full login email</button>') +
-            '<button class="account-primary" data-use-this-account="' + escapeHtml(account.accountRef) + '"' + (currentAccountState(account).recommendationEligible ? '' : ' disabled') + '>Use this account</button>' +
-          '</div>' +
-        '</div>' +
-        '<div class="sheet-section offers-section">' +
-          '<div class="account-readiness">' + escapeHtml(offerReadinessLabel(currentAccountState(account))) + '</div>' +
-          '<div class="sheet-section-title">' + (account.canLogin ? 'Current offers' : 'Eligible offers · login unavailable') + '</div>' +
-          (liveItems.length ? liveItems.map(offerSheetCard).join('') : '<div class="empty">' + (account.canLogin ? 'No usable offers right now. Expired and completed offers are kept below.' : 'Historical offers cannot be used on this account.') + '</div>') +
-          (reviewItems.length ? '<details class="offer-history"><summary>Terms need checking · ' + reviewItems.length + '</summary>' + reviewItems.map(offerSheetCard).join('') + '</details>' : '') +
-          (historicItems.length ? '<details id="accountOfferHistory" class="offer-history"' + (historyOpen ? ' open' : '') + '><summary>Past, completed &amp; ignored offers · ' + historicItems.length + '</summary><p class="sheet-help">History is preserved and excluded from current opportunities.</p>' + (historicItems).slice(0,accountHistoryLimit).map(p => '<details class="past-offer" data-history-key="' + escapeHtml(promoStateKey(p)) + '"' + (expandedHistory.has(promoStateKey(p)) ? ' open' : '') + '><summary><span>' + escapeHtml(p.title || promoLabel(p)) + '</span><span>' + escapeHtml(promotionActivity(manualStore,p).status) + '</span></summary>' + offerSheetCard(p) + '</details>').join('') + (historicItems.length > accountHistoryLimit ? '<button class="ghost-btn" data-more-account-history="true">Show 30 more historical offers</button>' : '') + '</details>' : '') +
-        '</div>';
-
-      document.getElementById("sheetBody").innerHTML = body;
+      if(!openAccountRef)return;
+      const account=accounts.find(a=>a.accountRef===openAccountRef);if(!account)return;
+      setSheetHeading('Account details','Choose an offer or log a use');
+      const host=document.getElementById('sheetBody'),previous=host.querySelector('[data-account-sheet="'+CSS.escape(account.accountRef)+'"]');
+      const scroll=previous?host.scrollTop:0,focusKey=previous&&document.activeElement?.dataset;
+      const expanded=new Set(previous?[...host.querySelectorAll('details[open]')].map(e=>e.dataset.offerKey||e.dataset.disclosureKey||e.id).filter(Boolean):[]);
+      const items=allPromosForAccount(openAccountRef).slice().sort((a,b)=>String(b.emailSentAt||'').localeCompare(String(a.emailSentAt||'')));
+      const promosOnly=items.filter(p=>p.discountType!=='uberCash'),cashItems=items.filter(p=>p.discountType==='uberCash');
+      const liveItems=promosOnly.filter(isPromoActive),reviewItems=promosOnly.filter(p=>!isExpired(p)&&p.trackingState==='needs_checking'&&effectivePromoState(manualStore,p)!=='ignored');
+      const historicItems=promosOnly.filter(p=>!liveItems.includes(p)&&!reviewItems.includes(p));
+      const ranked=rankPromosForSpend(liveItems,currentBasket(),{service:'Uber Eats',accountRef:account.accountRef,accessibleOnly:false});
+      const preferred=accountOfferToOpen||ranked[0]?.promo?.id||liveItems[0]?.id;
+      liveItems.sort((a,b)=>Number(promoStateKey(b)===preferred)-Number(promoStateKey(a)===preferred));
+      const receiptMet=currentAccountState(account).accountUsed;
+      const cashEntry=accountCashEntry(account,cashItems);
+      const count=liveItems.length+reviewItems.length;
+      const summaryCount=count+' promo'+(count===1?'':'s')+(cashEntry?' + cash':'');
+      const access=account.canLogin===true?'Can log in':account.canLogin===false?'Can’t log in':'Access pending';
+      const bestValue=ranked[0]?.calculation?.saving;
+      accountSheetClock=accountSheetClockKey();
+      host.innerHTML='<div data-account-sheet="'+escapeHtml(account.accountRef)+'"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">'+accountProviderIcon(account)+'</span><div class="account-identity-copy"><div class="account-sheet-label">Uber Eats account</div><div class="account-sheet-email">'+escapeHtml(accountDisplay(account))+'</div><div class="account-login-route">'+escapeHtml(loginRouteText(account))+'</div></div></div><div class="account-detail-badges">'+(receiptMet?'<span class="account-receipt-badge">'+financeIcon('check-circle')+'Account receipt rule met</span>':'')+'<span class="account-login-badge'+(account.canLogin===true?' positive':'')+'"><span class="status-dot"></span>'+escapeHtml(access)+'</span></div><div class="account-sheet-summary"><div><span>Available promos</span><strong>'+liveItems.length+'</strong></div><div><span>Best promo</span><strong class="account-best-promo" title="'+escapeHtml('Best individual promo at the current '+money(currentBasket())+' basket, before fees; Cash excluded')+'">'+(bestValue>0?escapeHtml(money(bestValue)):'—')+'</strong></div><div><span>History</span><strong class="account-detail-history">'+escapeHtml(receiptHistoryText(account))+'</strong></div></div>'+(receiptMet?'<p class="account-receipt-note">Receipt rule met.'+(liveItems.length?' Offers can still be available.':'')+'</p>':'')+'</section>'+receiptReviewAction(account)+'<div class="account-sheet-actions">'+(deviceEmail(deviceAccounts,account)?'<button class="account-secondary" data-copy-email="'+escapeHtml(account.accountRef)+'">'+financeIcon('copy')+'Copy login email</button>':'<button class="account-secondary" data-copy-unlock="true">'+financeIcon('copy')+'Copy login email</button>')+'<button class="account-primary" data-use-this-account="'+escapeHtml(account.accountRef)+'"'+(currentAccountState(account).recommendationEligible?'':' disabled')+'>Use this account</button></div><section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>'+summaryCount+'</span></div>'+(!liveItems.length?'<p class="account-no-offers">No currently eligible promos.'+(cashEntry?' Cash is shown below with its own balance state.':' Past offers are kept below.')+'</p>':'')+liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')+cashEntry+liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')+reviewItems.map(p=>offerSheetCard(p,{open:accountOfferToOpen===promoStateKey(p)})).join('')+(historicItems.length?'<details id="accountOfferHistory" class="offer-history"'+(expanded.has('accountOfferHistory')||historicItems.some(p=>promoStateKey(p)===accountOfferToOpen)?' open':'')+'><summary>Past, completed &amp; ignored offers · '+historicItems.length+financeIcon('chevron-down')+'</summary>'+historicItems.slice(0,accountHistoryLimit).map(p=>offerSheetCard(p,{historic:true,open:expanded.has(promoStateKey(p))||promoStateKey(p)===accountOfferToOpen})).join('')+(historicItems.length>accountHistoryLimit?'<button class="ghost-btn" data-more-account-history="true">Show 30 more historical offers</button>':'')+'</details>':'')+'</section><details class="account-management" data-disclosure-key="manage-account"><summary>'+financeIcon('menu-sliders')+'<span>Manage account</span>'+financeIcon('chevron-right')+'</summary><div class="disclosure-body"><p>'+escapeHtml(access)+' · '+escapeHtml(accountArchived(account)?'Archived account':'Active account')+'. Login access, archive status and offer completion are independent.</p><button class="account-sheet-link" data-open-sheet="device">'+financeIcon('shield')+'<span>Private account import &amp; login information</span>'+financeIcon('chevron-right')+'</button><button class="account-sheet-link" data-open-sheet="finance" data-finance-account="'+escapeHtml(account.accountRef)+'">'+financeIcon('lock')+'<span>Private corrections, notes &amp; history</span>'+financeIcon('chevron-right')+'</button><button class="account-sheet-link" data-open-guide="accounts">'+financeIcon('help')+'<span>Account management guide</span>'+financeIcon('chevron-right')+'</button>'+(Number(account.sourceReviewCount)>0?'<p>'+Number(account.sourceReviewCount)+' receipt sources need original verification. They are excluded from confirmed usage and savings.</p>':'')+'</div></details></div>';
+      if(previous){for(const el of host.querySelectorAll('details'))if(expanded.has(el.dataset.offerKey||el.dataset.disclosureKey||el.id))el.open=true;host.scrollTop=scroll;}
+      if(accountOfferToOpen){const target=accountOfferToOpen==='cash'||cashItems.some(p=>promoStateKey(p)===accountOfferToOpen)?host.querySelector('[data-cash-entry]'):host.querySelector('[data-offer-key="'+CSS.escape(accountOfferToOpen)+'"]');if(target)target.open=true;}else if(!previous&&!liveItems.length&&Number(enrichedAccounts().find(a=>a.accountRef===account.accountRef)?.cashPosition?.remaining)>0){const row=host.querySelector('[data-cash-entry]');if(row)row.open=true;}
+      if(window.history.state?.trackerSheet==='account')window.history.replaceState({...window.history.state,trackerOffer:accountOfferToOpen||window.history.state.trackerOffer},'');
+      accountOfferToOpen=null;
+      if(focusKey){for(const name of ['useOne','undoUse','toggleIgnore','markOfferDone'])if(focusKey[name])host.querySelector('[data-'+name.replace(/[A-Z]/g,c=>'-'+c.toLowerCase())+'="'+CSS.escape(focusKey[name])+'"]')?.focus({preventScroll:true});}
     }
 
     function renderAdvancedSheet() {
@@ -4243,14 +4199,14 @@
     }
 
     function showSheet() {
-      if (!routeRestoring && ['offers','planner','used'].includes(currentView)) {
+      if (!routeRestoring && ['offers','planner','used','accounts'].includes(currentView)) {
         const state = window.history.state;
         if (routeEntries.has(state?.trackerEntry)) routeEntries.get(state.trackerEntry).scroll = window.scrollY;
         const entry = ++routeSerial;
         currentRouteEntry = entry;
-        routeEntries.set(entry, {opener: document.activeElement, scroll: window.scrollY});
+        routeEntries.set(entry, {opener: document.activeElement, scroll: window.scrollY, accountRef:openAccountRef||sheetOpener?.dataset.accountOffers, activityKey:document.activeElement?.dataset.activityRecord||sheetOpener?.dataset.activityRecord});
         const method=state?.trackerSheet?'replaceState':'pushState';
-        window.history[method]({trackerView: currentView, trackerEntry: entry, trackerSheet: openSheetType, trackerAccount: openAccountRef}, '', '#' + currentView);
+        window.history[method]({trackerView: currentView, trackerEntry: entry, trackerSheet: openSheetType, trackerAccount: openAccountRef,trackerOffer: accountOfferToOpen}, '', '#' + currentView);
         const position=method==='pushState'?window.history.length-1:routeEntries.get(state?.trackerEntry)?.position;
         routeEntries.get(entry).position=position??window.history.length-1;
         if(method==='pushState'&&routeEntries.has(state?.trackerEntry))routeEntries.get(state.trackerEntry).position=position-1;
@@ -4273,7 +4229,7 @@
       backdrop.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
       document.getElementById("app").inert = false;
-      if (sheetOpener?.isConnected) sheetOpener.focus();
+      if (sheetOpener?.isConnected) sheetOpener.focus({preventScroll:true});
       sheetOpener = null;
       openSheetType = null;
       openAccountRef = null;
@@ -4305,7 +4261,7 @@
         financeModule ||= import('./private-finance-ui.js');
         financeModule.then(module=>{
           if(openSheetType!=='finance'||financeRevision!==financeOpenRevision)return;
-          financeSession ||= new module.PrivateFinanceSession({onLock:()=>{privateWallets={};invalidateAccountProjection();reviewData=reviewView=null;renderAccounts();renderHomeAccounts();renderUsed();if(openSheetType==='finance')financeView?.render();else if(document.getElementById('sheetTitle').textContent==='Private finances')document.getElementById('sheetBody').replaceChildren();renderRecommendation();}});
+          financeSession ||= new module.PrivateFinanceSession({onLock:()=>{privateWallets={};invalidateAccountProjection();reviewData=reviewView=null;renderAccounts();renderHomeAccounts();renderUsed();if(openSheetType==='account')renderAccountSheet();else if(openSheetType==='finance')financeView?.render();else if(document.getElementById('sheetTitle').textContent==='Private finances')document.getElementById('sheetBody').replaceChildren();renderRecommendation();}});
           financeSession.visibility(document.hidden);
           financeView=module.financeInterface({host,vault:financeSession.vault,initialPanel:financeTarget,missingOnly:financeMissing,initialAccountRef:financeAccount,publishedReviewCount:accounts.reduce((n,a)=>n+Number(a.receiptReviewCount||0),0),
             accountLabel:ref=>accountDisplay(accounts.find(a=>a.accountRef===ref)||{accountRef:ref}),
@@ -4318,9 +4274,12 @@
     }
 
     let pendingOfferAction = null;
-    function revealOfferHistory(promo) {
+    function revealOfferHistory(promo, managementAction = false) {
+      const currentOffer=document.querySelector('#sheetBody details[data-offer-key="'+CSS.escape(promoStateKey(promo))+'"]'); if(currentOffer)currentOffer.open=true;
       const past = document.querySelector('#sheetBody details[data-history-key="' + CSS.escape(promoStateKey(promo)) + '"]');
       if (past) { document.getElementById('accountOfferHistory').open = true; past.open = true; }
+      if(!managementAction){const usage=currentOffer?.querySelector('.offer-verification');if(usage){usage.open=true;usage.querySelector('summary').focus();}return;}
+      const management=currentOffer?.querySelector('.manage-offer');if(management)management.open=true;
       document.querySelector('#sheetBody [data-mark-offer-done="' + CSS.escape(promoStateKey(promo)) + '"], #sheetBody [data-toggle-ignore="' + CSS.escape(promoStateKey(promo)) + '"]')?.focus();
     }
     function renderOfferConfirmation(promo, kind) {
@@ -4460,14 +4419,14 @@
       closeSheet(true);
       switchView(state.trackerView);
       if (state.trackerSheet === 'advanced') openUtilitySheet('advanced');
-      else if (state.trackerSheet === 'account') openAccountSheet(state.trackerAccount);
+      else if (state.trackerSheet === 'account') openAccountSheet(state.trackerAccount,state.trackerOffer);
       else if(['used-info','theme'].includes(state.trackerSheet))openUtilitySheet(state.trackerSheet);
       routeRestoring = false;
       window.scrollTo({top:routeEntries.get(state.trackerEntry)?.scroll || 0,behavior:'instant'});
       const opener = leaving?.opener;
       if(state.trackerView==='settings'&&preferredViews.has(leaving?.preferredView))requestAnimationFrame(()=>document.getElementById('preferredPromosButton')?.focus({preventScroll:true}));
       if (!state.trackerSheet && opener?.isConnected && opener.getClientRects().length) opener.focus({preventScroll:true});
-      else if (!state.trackerSheet) document.querySelector('#view-' + state.trackerView + ' h1')?.focus({preventScroll:true});
+      else if (!state.trackerSheet) {const view=document.getElementById('view-'+state.trackerView); const restored=leaving?.accountRef&&view?.querySelector('[data-account-offers="'+CSS.escape(leaving.accountRef)+'"]') || leaving?.activityKey&&view?.querySelector('[data-activity-record="'+CSS.escape(leaving.activityKey)+'"]');(restored||view?.querySelector('h1'))?.focus({preventScroll:true});}
       // Returning to the directory can change the dock height (especially with
       // larger text). Restore after its measured clearance has been applied so
       // the browser does not clamp the saved position to the shorter fallback.
@@ -4708,7 +4667,7 @@
       if(e.target.closest('[data-used-more]')){if(usedState.full)usedState.limit+=24;else{usedState.full=true;usedState.limit=24;}renderUsed();(document.querySelector('[data-used-more]')||document.querySelector('.used-info-link'))?.focus({preventScroll:true});return;}
       if(e.target.closest('[data-reset-used]')){usedState={status:'used',query:'',sort:'latest',full:false,limit:24};document.getElementById('usedSearch').value='';document.getElementById('usedSort').value='latest';renderUsed();return;}
       if(e.target.closest('[data-used-info]')){e.target.closest('button').focus({preventScroll:true});openUtilitySheet('used-info');return;}
-      const target=e.target.closest('[data-activity-record]');if(target){const r=usedRecordIndex.get(target.dataset.activityRecord);if(r){target.focus({preventScroll:true});openAccountSheet(r.account.accountRef);if(r.promo)revealOfferHistory(r.promo);}}
+      const target=e.target.closest('[data-activity-record]');if(target){const r=usedRecordIndex.get(target.dataset.activityRecord);if(r){target.focus({preventScroll:true});openAccountSheet(r.account.accountRef,r.promo?promoStateKey(r.promo):null);if(r.promo)revealOfferHistory(r.promo);}}
     });
     document.getElementById('clearAccountType').addEventListener('click',()=>{closeAccountPicker();applyOfferScope(offerPreferences.defaultView,false);});
     document.getElementById('accountTypeTrigger').addEventListener('click',()=>{if(document.getElementById('accountTypeOptions').hidden)openAccountPicker();else closeAccountPicker(true);});
@@ -4768,7 +4727,7 @@
       if (event.target.closest('[data-more-account-history]')) { accountHistoryLimit += 30; renderAccountSheet(); return; }
       const offersButton = event.target.closest("[data-account-offers]");
       if (offersButton) {
-        openAccountSheet(offersButton.dataset.accountOffers);
+        offersButton.focus({preventScroll:true}); openAccountSheet(offersButton.dataset.accountOffers, offersButton.dataset.accountOffer || offersButton.closest('[data-offer-id]')?.dataset.offerId);
         return;
       }
 
@@ -4822,6 +4781,7 @@
         try { localStorage.removeItem(DEVICE_ACCOUNTS_KEY); } catch { document.getElementById('deviceImportStatus').textContent = 'Could not clear browser storage. Clear this site’s data in browser settings.'; return; }
         deviceAccounts = {}; renderAll(); renderDeviceSheet(); return;
       }
+      if(event.target.closest('[data-copy-unlock]')){openUtilitySheet('device');return;}
       const copyButton = event.target.closest('[data-copy-email]');
       if (copyButton) {
         const account = accounts.find(a => a.accountRef === copyButton.dataset.copyEmail), address = deviceEmail(deviceAccounts, account);
@@ -4846,7 +4806,7 @@
         switchView("offers");
         requestAnimationFrame(() => {
           const card = document.querySelector('[data-card-account="' + CSS.escape(selectedAccountRef) + '"]');
-          card?.scrollIntoView({ behavior: "smooth", block: "center" });
+          card?.scrollIntoView({ behavior: motionReduced() ? "instant" : "smooth", block: "center" });
         });
         return;
       }
@@ -4891,7 +4851,7 @@
           if (enabled) renderOfferConfirmation(promo, ignoreButton ? 'ignore' : 'done');
           else {
             manualStore = ignoreButton ? setOfferIgnored(manualStore,promo,false) : setOfferDone(manualStore,promo,false);
-            refreshAfterStateChange(); revealOfferHistory(promo);
+            refreshAfterStateChange(); revealOfferHistory(promo,true);
           }
         }
         return;
@@ -4902,11 +4862,11 @@
         if (promo) {
           manualStore = action.kind === 'ignore' ? setOfferIgnored(manualStore,promo,true) : setOfferDone(manualStore,promo,true);
           openSheetType = 'account'; pendingOfferAction = null;
-          refreshAfterStateChange(); revealOfferHistory(promo);
+          refreshAfterStateChange(); revealOfferHistory(promo,true);
         }
         return;
       }
-      if (event.target.closest('[data-cancel-offer-action]')) { pendingOfferAction=null; openSheetType='account'; renderAccountSheet(); return; }
+      if (event.target.closest('[data-cancel-offer-action]')) { const promo=promoByKey(pendingOfferAction?.key); pendingOfferAction=null; openSheetType='account'; accountOfferToOpen=promo?promoStateKey(promo):null; renderAccountSheet(); if(promo)revealOfferHistory(promo,true); return; }
 
       if (event.target.id === "resetPlannerSettings") {
         selectedPlannerKey = null;

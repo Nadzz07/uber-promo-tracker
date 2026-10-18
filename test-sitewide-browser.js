@@ -1,4 +1,4 @@
-import {openHomeDetail,usedStatus} from './test-browser-navigation.js';
+import {openHomeDetail,usedStatus,openOfferManagement} from './test-browser-navigation.js';
 // Verify decision boundaries and local privacy through the refined sheets.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
@@ -48,14 +48,14 @@ try{
   assert.match(await page.locator('#deviceImportStatus').innerText(),/8 emails imported/);assert.equal(requests.length,0,'Review and apply stay entirely local');
   assert.equal(await page.evaluate(()=>Object.keys(JSON.parse(localStorage.getItem('uber-eats-promo-tracker:device-accounts:v1'))).length),8,'Apply includes entries beyond the visible preview');
   await page.keyboard.press('Escape');await page.locator('[data-view="accounts"]').click();if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('#accountsList [data-account-offers="A001"]').click();
-  await page.locator('[data-toggle-ignore][data-ignore="true"]').click();await page.locator('[data-cancel-offer-action]').click();
+  await openOfferManagement(page);await page.locator('[data-toggle-ignore][data-ignore="true"]').click();await page.locator('[data-cancel-offer-action]').click();
   assert.equal(await page.locator('[data-toggle-ignore][data-ignore="false"]').count(),0,'Cancel must not ignore');
-  await page.locator('[data-toggle-ignore][data-ignore="true"]').click();await page.locator('[data-confirm-offer-action]').click();
-  assert.equal(await page.locator('[data-toggle-ignore][data-ignore="false"]').count(),1);await page.locator('[data-toggle-ignore][data-ignore="false"]').click();
-  await page.locator('[data-mark-offer-done][data-done="true"]').click();await page.locator('[data-cancel-offer-action]').click();
+  await openOfferManagement(page);await page.locator('[data-toggle-ignore][data-ignore="true"]').click();await page.locator('[data-confirm-offer-action]').click();
+  assert.equal(await page.locator('[data-toggle-ignore][data-ignore="false"]').count(),1);await openOfferManagement(page);await page.locator('[data-toggle-ignore][data-ignore="false"]').click();
+  await openOfferManagement(page);await page.locator('[data-mark-offer-done][data-done="true"]').click();await page.locator('[data-cancel-offer-action]').click();
   assert.equal(await page.locator('[data-mark-offer-done][data-done="false"]').count(),0);
-  await page.locator('[data-mark-offer-done][data-done="true"]').click();await page.locator('[data-confirm-offer-action]').click();
-  assert.match(await page.locator('.offer-card .use-line').innerText(),/1 of 5 confirmed used/);
+  await openOfferManagement(page);await page.locator('[data-mark-offer-done][data-done="true"]').click();await page.locator('[data-confirm-offer-action]').click();
+  assert.match(await page.locator('.offer-card .use-line').innerText(),/1 of 5 uses confirmed/);
   await page.keyboard.press('Escape');await page.locator('[data-view="used"]').click();
   assert.equal(await page.locator('#usedAccountCount').innerText(),'1');await usedStatus(page,'manual');assert.equal(await page.locator('#usedResultsCount').innerText(),'1 promotion');await usedStatus(page,'completed');assert.equal(await page.locator('#usedResultsCount').innerText(),'0 promotions');
   assert.equal(await page.locator('#savedStat').innerText(),saved,'Visual actions cannot alter savings');

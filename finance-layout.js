@@ -1,5 +1,10 @@
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const paths = {
+  copy: '<rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H3v13h5"/>',
+  'check-circle': '<circle cx="12" cy="12" r="9"/><path d="m7 12 3 3 7-7"/>',
+  'chevron-down': '<path d="m5 9 7 7 7-7"/>',
+  more: '<circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="20" cy="12" r="1" fill="currentColor"/>',
+
   'menu-coins': '<ellipse cx="15" cy="5" rx="6" ry="3"/><path d="M9 5v5c0 4 12 4 12 0V5M15 13v4c3 0 6-1 6-3v-4"/><ellipse cx="8" cy="13" rx="6" ry="3"/><path d="M2 13v5c0 4 12 4 12 0v-5M2 17v3c0 4 12 4 12 0v-3"/>',
   'menu-calendar': '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18"/>',
   'menu-sync': '<path d="M20 8a8 8 0 0 0-14-4L3 7M3 2v5h5M4 16a8 8 0 0 0 14 4l3-3M21 22v-5h-5"/>',

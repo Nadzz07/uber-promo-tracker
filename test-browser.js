@@ -1,4 +1,4 @@
-import {openHomeDetail,directoryStatus,directoryType,directoryReset,usedStatus} from './test-browser-navigation.js';
+import {openHomeDetail,directoryStatus,directoryType,directoryReset,usedStatus,openOfferManagement} from './test-browser-navigation.js';
 // Synthetic data is intercepted in the test browser only, never written to public JSON.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -31,14 +31,14 @@ try {
   assert.equal(await page.locator('.account-card').count(), 0);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   const time = new Date().toISOString();
-  const offer = { id: 'test-offer-1', accountRef: 'A001', accountMasked: 'al…ha@example.invalid', canLogin: true, service: 'Uber Eats', title: '£10 off on 5 orders', discountType: 'fixed', discount: 10, minimumSpend: 15, uses: 5, usesRemaining: 4, receiptConfirmedUses: 1, expires: '2099-12-31', expiresAt: '2099-12-31T23:59:59', expiryStatus: 'exact', trackingState: 'available', receiptState: 'partial', emailSentAt: time };
+  const offer = { id: 'test-offer-1', accountRef: 'A001', accountMasked: 'al…ha@example.invalid', canLogin: true, service: 'Uber Eats', title: '£10 off on 5 orders', discountType: 'fixed', discount: 10, minimumSpend: 15, uses: 5, usesVerified: true, usesRemaining: 4, receiptConfirmedUses: 1, expires: '2099-12-31', expiresAt: '2099-12-31T23:59:59', expiryStatus: 'exact', trackingState: 'available', receiptState: 'partial', emailSentAt: time };
   const offers = [offer,
     { ...offer, id: 'test-review', accountRef: 'A002', accountMasked: 're…ew@example.invalid', discount: 50, trackingState: 'needs_checking', expires: null, expiresAt: null, expiryStatus: 'unknown', emailSentAt: null, firstEmailSentAt: null },
     { ...offer, id: 'test-locked', accountRef: 'A003', accountMasked: 'lo…ed@example.invalid', canLogin: false, discount: 40 },
     { ...offer, id: 'test-expired', accountRef: 'A004', accountMasked: 'ex…ed@example.invalid', discount: 30, expiresAt: new Date(Date.now() - 1000).toISOString() },
     { ...offer, id: 'test-offer-5', accountRef: 'A005', accountMasked: 'be…ta@example.invalid' },
     { ...offer, id: 'test-used-account', accountRef: 'A006', accountMasked: 'us…ed@example.invalid', discount: 5 },
-    { ...offer, id: 'test-bad-count', accountRef: 'A007', accountMasked: 'ba…nt@example.invalid', discount: 15, uses: 96, usesRemaining: 96, receiptConfirmedUses: 0, receiptState: null, title: '£15 off on 96 orders' }
+    { ...offer, id: 'test-bad-count', usesVerified: false, accountRef: 'A007', accountMasked: 'ba…nt@example.invalid', discount: 15, uses: 96, usesRemaining: 96, receiptConfirmedUses: 0, receiptState: null, title: '£15 off on 96 orders' }
   ];
   const payload = { schemaVersion: 3, generatedAt: time, summary: { totalSaved: 10, estimatedTotalSaved: 15, estimatedUberOneSavings: 5, knownAccounts: 999, accessibleAccounts: 999, feeModel: { sampleSize: 1, averageExtraOrderFees: 3 } }, accounts: offers.map(p => ({ accountRef: p.accountRef, accountMasked: p.accountMasked, canLogin: p.canLogin, orderCount: p.accountRef === 'A006' ? 5 : 0, rideCount: 0 })), promos: offers };
   let failPromos = false, failHistory = false;
@@ -66,14 +66,14 @@ try {
   for (const hidden of ['lo…ed', 're…ew', 'ex…ed', 'us…ed', 'ba…nt']) assert.equal(recommendation.includes(hidden), false);
   if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('[data-account-offers="A001"]:visible').first().click();
   assert.equal(await page.evaluate(() => document.activeElement.id), 'sheetClose');
-  await page.locator('.offer-terms > summary').first().click();assert.match(await page.locator('.terms-grid').first().innerText(), /Ends 31 Dec at 23:59 UK/, 'An explicit Uber deadline takes priority over the fallback window');
+  await page.locator('.offer-terms > summary').first().click();assert.match(await page.locator('.account-offer-expiry').first().getAttribute('aria-label'), /Ends 31 Dec at 23:59 UK/, 'An explicit Uber deadline takes priority over the fallback window');
   assert.equal(await page.locator('.sheet').evaluate(el => getComputedStyle(el).animationName), 'liquidSheetOpen');
   const sheetAnimation = await page.locator('.sheet').evaluate(el => parseFloat(getComputedStyle(el).animationDuration));
   assert.ok(sheetAnimation >= .2 && sheetAnimation <= .4, 'Sheets should use a short, purposeful transition');
   assert.equal(await page.locator('#app').evaluate(e => e.inert), true);
   await page.keyboard.press('Shift+Tab');
   assert.equal(await page.evaluate(() => document.getElementById('sheetBackdrop').contains(document.activeElement)), true);
-  await page.locator('[data-use-one="test-offer-1"]').click();
+  await openOfferManagement(page);await page.locator('[data-use-one="test-offer-1"]').click();
   const manual = await page.evaluate(() => JSON.parse(localStorage.getItem('uber-eats-promo-tracker:manual-state:v3')));
   assert.equal(manual.offers['test-offer-1'].manualUsesConsumed, 1);
   await page.keyboard.press('Escape');
@@ -81,7 +81,7 @@ try {
   offer.receiptConfirmedUses = 2; offer.usesRemaining = 3;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
   if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('[data-account-offers="A001"]:visible').first().click();
-  assert.match(await page.locator('#sheetBody').innerText(), /3 not confirmed redeemed/);
+  assert.match(await page.locator('#sheetBody').innerText(), /Up to 3 left/);
   await page.keyboard.press('Escape');
   await page.locator('[data-view="used"]').click();
   assert.equal(await page.locator('#usedStatusOptions').isVisible(),false,'Status picker is closed by default');
