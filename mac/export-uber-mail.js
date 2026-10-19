@@ -243,7 +243,7 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, 
     if (!recipient || !body.trim()) throw new Error("A selected message is incomplete; retry after Mail finishes downloading.");
     if (Number(message.id()) !== Number(row.id)) throw new Error("Mailbox changed during export; retry the scan.");
 
-    if ((calendarRange || captureReceiptHeaders) && /receipt|thanks for (?:your )?(?:order|riding)|your.*trip/i.test(row.subject)) {
+    if ((calendarRange || captureReceiptHeaders) && /receipt|thanks for (?:your )?(?:order(?:ing)?|riding)|your\b.*\b(?:order|trip|ride)\b/i.test(row.subject + '\n' + body)) {
       try { rawSource = String(message.source() || ""); } catch (_) { throw new Error("Original receipt headers unavailable; retry after download."); }
     }
     const rawMessageId = row.messageId || headerValue(rawSource, "Message-ID");

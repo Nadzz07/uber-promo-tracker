@@ -29,6 +29,7 @@ import {
   getSavingsSummary,
   openPrivateDb,
   reconcileOfferSources,
+  reconcileEatsReceiptSources,
   reconcileTransportReceiptIdentities,
   replaceReceiptMatches,
   resetAccountAccess,
@@ -173,6 +174,7 @@ async function generatePromos() {
   const processedMessageKeys = new Set();
   const sourceFamilies = new Map();
   const transportSources = [];
+  const eatsSources = [];
   try {
     db.exec("BEGIN IMMEDIATE");
     transaction = true;
@@ -235,7 +237,8 @@ async function generatePromos() {
           parsedAt: generatedAt
         });
 
-        upsertReceipt(db, storedReceipt, generatedAt);
+        storedReceipt.receiptId=upsertReceipt(db, storedReceipt, generatedAt);
+        eatsSources.push(storedReceipt);
         processedMessageKeys.add(key);
         continue;
       }
@@ -366,6 +369,7 @@ async function generatePromos() {
     if (rebuildOfferSources) {
       const rebuilt = reconcileOfferSources(db, { processedMessageKeys, families: sourceFamilies });
       console.log('Complete stored-source offer reconstruction: ' + JSON.stringify(rebuilt));
+      console.log('Complete Eats receipt source reconstruction: '+JSON.stringify(reconcileEatsReceiptSources(db,processedMessageKeys,eatsSources)));
       console.log('Complete receipt identity reconstruction: ' + JSON.stringify(reconcileTransportReceiptIdentities(db,processedMessageKeys,transportSources)));
     }
 

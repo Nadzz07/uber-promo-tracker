@@ -42,6 +42,17 @@ assert.match(withHeaders[0].originalHeaders,/To: alpha@example.invalid/);
 assert.equal(rawReads,1);
 assert.equal(ctx.scanMailbox(box,'receipt',90,0,'INBOX','2026-10-08T12:00:00Z',{[key]:date},null,null,true).length,0);
 assert.equal(rawReads,1,'Discovery does not download unchanged receipt originals again');
+// Eats subjects describe the day/order and need not contain the word receipt.
+collection.subject=()=>['Your Saturday afternoon order with Uber Eats'];
+message.content=()=>"Here's your receipt for your order. Total £8.11";
+const eatsHeaders=ctx.scanMailbox(box,'promo',30,0,'INBOX','2026-10-08T12:00:00Z',{},null,null,true);
+assert.match(eatsHeaders[0].originalHeaders,/Message-ID: native@uber.com/,'Order-style Eats subjects retain original headers for safe account discovery');
+message.messageId=()=> 'native@uber.com';message.toRecipients={address:()=>['alpha@example.invalid']};message.dateSent=()=>date;
+const calendarEats=ctx.scanMailbox(box,'promo',30,0,'INBOX',date,{},ctx.dateRange(0,0,date,'2026-10-01T00:00:00Z','2026-10-09T00:00:00Z'),[],true);
+assert.match(calendarEats[0].originalHeaders,/From: Uber/,'Calendar filing exports carry original receipt identity too');
+collection.subject=()=>['An Uber account message'];
+assert.match(ctx.scanMailbox(box,'promo',30,0,'INBOX',date,{},null,null,true)[0].originalHeaders,/Message-ID/,'Receipt body signals also retain original evidence');
+collection.subject=()=>['Your Uber receipt'];
 const range=ctx.dateRange(0,0,date,"2026-10-08T23:00:00Z","2026-10-09T23:00:00Z");
 assert.equal(range.end-range.start,24*60*60*1000);
 assert.throws(()=>ctx.dateRange(0,0,date,"invalid","2026-10-09T23:00:00Z"),/boundaries/);
