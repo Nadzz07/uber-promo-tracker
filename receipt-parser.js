@@ -65,7 +65,9 @@ function extractOrderKey(text) {
   const normaliseTime = match =>
     String(match[1]).padStart(2, "0") + ":" + match[2];
 
+  const orderAt=receiptOrderDate(source).orderAt;
   return [
+    ...(orderAt ? ["placed=" + orderAt] : []),
     "date=" + dateMatch[1] + "-" + dateMatch[2].slice(0, 3).toLowerCase() + "-" + dateMatch[3],
     "pickup=" + normaliseTime(pickup),
     "delivery=" + normaliseTime(delivery)

@@ -44,7 +44,7 @@ assert.equal(ctx.scanMailbox(box,'receipt',90,0,'INBOX','2026-10-08T12:00:00Z',{
 assert.equal(rawReads,1,'Discovery does not download unchanged receipt originals again');
 // Eats subjects describe the day/order and need not contain the word receipt.
 collection.subject=()=>['Your Saturday afternoon order with Uber Eats'];
-message.content=()=>"Here's your receipt for your order. Total £5.19";
+message.content=()=>"Here's your receipt for your order. Total £8.11";
 const eatsHeaders=ctx.scanMailbox(box,'promo',30,0,'INBOX','2026-10-08T12:00:00Z',{},null,null,true);
 assert.match(eatsHeaders[0].originalHeaders,/Message-ID: native@uber.com/,'Order-style Eats subjects retain original headers for safe account discovery');
 message.messageId=()=> 'native@uber.com';message.toRecipients={address:()=>['alpha@example.invalid']};message.dateSent=()=>date;

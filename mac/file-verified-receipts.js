@@ -3,7 +3,7 @@ ObjC.import('Foundation');
 function read(path) { const v=$.NSString.stringWithContentsOfFileEncodingError($(String(path)),$.NSUTF8StringEncoding,null); if(!v)throw new Error('Private verified plan unavailable');return ObjC.unwrap(v); }
 function mid(value) { return String(value||'').trim().replace(/^<|>$/g,'').toLowerCase(); }
 function boxes(parent) { try{return parent.mailboxes();}catch(_){return [];} }
-function find(list,name,result,path='') { for(let i=0;i<list.length;i++){const b=list[i], full=path+'/'+String(b.name());let account='local';try{account=String(b.account().id());}catch(_){}if(String(b.name()).toLowerCase()===name.toLowerCase())result.push({key:account+full,box:b});find(boxes(b),name,result,full);} }
+function find(list,name,result,path='') { for(let i=0;i<list.length;i++){const b=list[i], full=path+'/'+String(b.name());let account='local';try{account=String(b.account().id());}catch(_){}if(String(b.name()).toLowerCase()===name.toLowerCase())result.push({key:account+full,accountId:account,box:b});find(boxes(b),name,result,full);} }
 function recipient(message) { const values=message.toRecipients.address(); const unique=[...new Set(values.map(v=>String(v).trim().toLowerCase()))]; return unique.length===1?unique[0]:null; }
 function identityMatches(message,target) { return mid(message.messageId())===mid(target.messageId)&&recipient(message)===target.recipient&&new Date(message.dateReceived()).toISOString()===target.receivedAt&&String(message.content()||'')===target.body; }
 function destinationMatches(destination,target) { const ids=destination.messages.id(), mids=destination.messages.messageId(), final=destination.messages.id();if(JSON.stringify(ids)!==JSON.stringify(final)||ids.length!==mids.length)throw new Error('Destination changed during verification');const matches=[];for(let i=0;i<ids.length;i++)if(mid(mids[i])===mid(target.messageId)) {const m=destination.messages.byId(ids[i]);if(identityMatches(m,target))matches.push(ids[i]);}return matches; }
@@ -18,20 +18,23 @@ function run(argv) {
  // Resolve unique mailbox identity even if Mail exposes it at two roots.
  const unique=[];for(const box of destinations){const key=box.key;if(!unique.some(v=>v.key===key))unique.push(box);}
  if(unique.length!==1)throw new Error('Receipt destination is missing or ambiguous; no messages moved');const destination=unique[0].box;
+ const physicalInboxes=[];for(let i=0;i<accounts.length;i++)find(boxes(accounts[i]),'INBOX',physicalInboxes);
  const results=[];let halted=false;
  for(const target of plan.targets) {
   if(halted){results.push({messageId:target.messageId,status:'left_untouched'});continue;}
   if(+new Date(target.receivedAt)<start||+new Date(target.receivedAt)>=end||target.sourceMailbox!=='INBOX')throw new Error('Out-of-day or non-Inbox target rejected before move');
   try {
-   const message=Mail.inbox.messages.byId(target.mailNativeId);
+   const sources=physicalInboxes.filter(v=>v.accountId===unique[0].accountId&&v.box.messages.id().indexOf(target.mailNativeId)>=0);
+   if(sources.length!==1)throw new Error('Unique physical Inbox original required; no move');
+   const source=sources[0].box,sourceBefore=source.messages.id(),message=source.messages.byId(target.mailNativeId);
    if(Number(message.id())!==Number(target.mailNativeId)||!identityMatches(message,target))throw new Error('Original Inbox receipt changed; no move');
    const before=destinationMatches(destination,target);
    if(before.length)throw new Error('Matching destination copy already exists; original left in Inbox for review');
    Mail.move(message,{to:destination});
-   let after=[];for(let retry=0;retry<5;retry++){after=destinationMatches(destination,target);if(after.length===1)break;$.NSThread.sleepForTimeInterval(.4);}
+   let after=[],remaining=[];for(let retry=0;retry<12;retry++){after=destinationMatches(destination,target);remaining=source.messages.id();if(after.length===1&&remaining.indexOf(target.mailNativeId)<0)break;$.NSThread.sleepForTimeInterval(1);}
    if(after.length!==1)throw new Error('Move issued but destination not uniquely verified; reconcile before retry');
-   let remains=false;try{remains=identityMatches(Mail.inbox.messages.byId(target.mailNativeId),target);}catch(_){}
-   if(remains)throw new Error('Destination exists but original still in Inbox; reconcile before retry');
+   if(remaining.indexOf(target.mailNativeId)>=0)throw new Error('Destination exists but original still in physical Inbox; reconcile before retry');
+   const removed=sourceBefore.filter(id=>remaining.indexOf(id)<0);if(removed.length!==1||removed[0]!==target.mailNativeId)throw new Error('Unexpected physical Inbox change; reconcile before retry');
    results.push({messageId:target.messageId,status:'moved_verified',destinationId:after[0]});
   } catch(error) { halted=true;results.push({messageId:target.messageId,status:'attention',reason:String(error)}); }
  }

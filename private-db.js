@@ -204,6 +204,7 @@ function initSchema(db) {
     prepare(db, "PRAGMA table_info(receipts)").all().map(row => row.name)
   );
 
+  if (!receiptColumns.has("order_key")) db.exec("ALTER TABLE receipts ADD COLUMN order_key TEXT");
   if (!receiptColumns.has("uber_cash_savings")) db.exec("ALTER TABLE receipts ADD COLUMN uber_cash_savings REAL");
   if (!receiptColumns.has("reported_savings")) {
     db.exec("ALTER TABLE receipts ADD COLUMN reported_savings REAL");
@@ -904,26 +905,42 @@ function projectReceiptFinancialSources(db, table, receipt) {
   const message=receipt.messageKey&&prepare(db,'SELECT accepted,kind FROM messages WHERE message_key=?').get(receipt.messageKey);
   const kind=table==='receipts'?'receipt':'transport_receipt';
   if(!message?.accepted||message.kind!==kind)return;
-  const fields=['total','promotionDiscount','uberCashUsed','uberCashSavings','reportedSavings','uberOneSavings',...(table==='receipts'?['subtotal','deliveryFee','serviceFee','smallOrderFee','tip']:[])];
-  const payload={orderDate:receipt.orderDate||null,orderAt:receipt.orderAt||null,dateBasis:receipt.dateBasis||'email_fallback',receivedAt:receipt.receivedAt||receipt.sentAt,financial:receipt.evidence?.financial||receipt.financialEvidence||{}};
+  const fields=receiptFinancialFields(table);
+  const payload={orderDate:receipt.orderDate||null,orderAt:receipt.orderAt||null,dateBasis:receipt.dateBasis||'email_fallback',receivedAt:receipt.receivedAt||receipt.sentAt,financial:receipt.evidence?.financial||receipt.financialEvidence||{},uberOneSignal:receipt.uberOneSignal?1:0};
   for(const key of fields)payload[key]=receipt[key]??null;
   prepare(db,`INSERT INTO receipt_source_projections VALUES(?,?,?,?,?) ON CONFLICT(table_name,receipt_id,message_key) DO UPDATE SET received_at=excluded.received_at,payload_json=excluded.payload_json`).run(table,receipt.receiptId,receipt.messageKey,payload.receivedAt??null,JSON.stringify(payload));
-  const sources=prepare(db,`SELECT p.payload_json FROM receipt_source_projections p JOIN messages m USING(message_key) WHERE p.table_name=? AND p.receipt_id=? AND m.accepted=1 AND m.kind=? ORDER BY p.received_at,p.message_key`).all(table,receipt.receiptId,kind).map(r=>JSON.parse(r.payload_json));
+  reprojectReceiptFinancialSources(db,table,receipt.receiptId);
+}
+
+function receiptFinancialFields(table){return ['total','promotionDiscount','uberCashUsed','uberCashSavings','reportedSavings','uberOneSavings',...(table==='receipts'?['subtotal','deliveryFee','serviceFee','smallOrderFee','tip']:[])];}
+function reprojectReceiptFinancialSources(db,table,receiptId){
+  const fields=receiptFinancialFields(table),kind=table==='receipts'?'receipt':'transport_receipt';
+  const sources=prepare(db,`SELECT p.payload_json FROM receipt_source_projections p JOIN messages m USING(message_key) WHERE p.table_name=? AND p.receipt_id=? AND m.accepted=1 AND m.kind=? ORDER BY p.received_at,p.message_key`).all(table,receiptId,kind).map(r=>JSON.parse(r.payload_json));
   const values=Object.fromEntries(fields.map(k=>[k,null])),financial={};
   for(const source of sources){for(const key of fields)if(source[key]!=null)values[key]=source[key];if(source.reportedSavings!=null)financial.reportedKind=source.financial.reportedKind||'total';for(const key of ['scheduleSavings','outOfPocket'])if(source.financial[key]!=null)financial[key]=source.financial[key];}
   const dated=sources.filter(s=>s.orderDate);
   const dates=[...new Set(dated.map(s=>s.orderDate))];
   const order=dated.at(-1);
-  prepare(db,'UPDATE '+table+' SET order_at=?,order_date=?,date_basis=? WHERE receipt_id=?').run(dates.length===1?order.orderAt:null,dates.length===1?order.orderDate:null,dates.length>1?'conflicting_order_dates':order?.dateBasis||'email_fallback',receipt.receiptId);
+  prepare(db,'UPDATE '+table+' SET order_at=?,order_date=?,date_basis=? WHERE receipt_id=?').run(dates.length===1?order.orderAt:null,dates.length===1?order.orderDate:null,dates.length>1?'conflicting_order_dates':order?.dateBasis||'email_fallback',receiptId);
+  if(table==='receipts')prepare(db,'UPDATE receipts SET uber_one_signal=? WHERE receipt_id=?').run(sources.some(s=>s.uberOneSignal)?1:0,receiptId);
   const column=key=>key.replace(/[A-Z]/g,c=>'_'+c.toLowerCase());
-  prepare(db,'UPDATE '+table+' SET '+fields.map(k=>column(k)+'=?').join(',')+',financial_evidence_json=? WHERE receipt_id=?').run(...fields.map(k=>values[k]),JSON.stringify(financial),receipt.receiptId);
+  prepare(db,'UPDATE '+table+' SET '+fields.map(k=>column(k)+'=?').join(',')+',financial_evidence_json=? WHERE receipt_id=?').run(...fields.map(k=>values[k]),JSON.stringify(financial),receiptId);
 }
 
 export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
-  const previous = prepare(db, `SELECT receipt_id FROM receipts WHERE account_ref = ? AND
+  let previous = prepare(db, `SELECT receipt_id FROM receipts WHERE account_ref = ? AND
     (receipt_id = ? OR (message_key IS NOT NULL AND message_key = ?) OR
-     (order_id IS NOT NULL AND upper(trim(order_id)) = ?)) LIMIT 1`)
-    .get(receipt.accountRef, receipt.receiptId || null, receipt.messageKey || null, receipt.orderId ? String(receipt.orderId).trim().toUpperCase() : null);
+     (order_id IS NOT NULL AND upper(trim(order_id)) = ?) OR
+     (order_key IS NOT NULL AND order_key = ?)) LIMIT 1`)
+    .get(receipt.accountRef, receipt.receiptId || null, receipt.messageKey || null, receipt.orderId ? String(receipt.orderId).trim().toUpperCase() : null, receipt.orderKey||null);
+  // A stronger order key must not create another copy of the same purchase.
+  // Reuse an accepted legacy source unless different explicit purchase times
+  // establish a separate order. Adjustments retain their existing record.
+  if(!previous&&receipt.reparsedSource&&receipt.messageKey){
+    const old=prepare(db,"SELECT r.* FROM receipts r JOIN receipt_source_projections p ON p.receipt_id=r.receipt_id AND p.table_name='receipts' WHERE p.message_key=? AND r.account_ref=?").all(receipt.messageKey,receipt.accountRef);
+    if(old.length>1)throw Error('Legacy receipt source has multiple records; review required.');
+    if(old.length){const evidence=prepare(db,'SELECT subject,body_text FROM messages WHERE message_key IN (?,?)').all(receipt.messageKey,old[0].message_key),adjusted=evidence.some(m=>/refund|adjusted receipt|updated receipt|corrected receipt|new total|changed total/i.test(m.subject+' '+m.body_text));if(!receipt.orderAt||!old[0].order_at||receipt.orderAt===old[0].order_at||adjusted)previous={receipt_id:old[0].receipt_id};}
+  }
   if (previous) receipt = { ...receipt, receiptId: previous.receipt_id };
   restoreRejectedReceiptSource(db, 'receipts', receipt, previous?.receipt_id, seenAt);
   if (receipt.reparsedSource && receipt.messageKey) prepare(db, `UPDATE receipts SET
@@ -1009,7 +1026,28 @@ export function upsertReceipt(db, receipt, seenAt = new Date().toISOString()) {
     seenAt,
     seenAt
   );
+  prepare(db,'UPDATE receipts SET order_key=COALESCE(?,order_key) WHERE receipt_id=?').run(receipt.orderKey||null,receipt.receiptId);
   projectReceiptFinancialSources(db, 'receipts', receipt);
+  return receipt.receiptId;
+}
+
+// Only complete original-source reconstruction may move a legacy source out of
+// a falsely combined order. Keep the old projection and row in a private journal;
+// record IDs and financial correction history remain attached to their sources.
+export function reconcileEatsReceiptSources(db,processedMessageKeys,assignments){
+  const originals=prepare(db,'SELECT message_key,account_ref,sender,body_text FROM messages').all();
+  if(!(processedMessageKeys instanceof Set)||!Array.isArray(assignments)||originals.some(m=>!processedMessageKeys.has(m.message_key)||!m.account_ref||!m.sender||m.body_text==null))throw Error('Complete receipt source coverage is required for Eats identity reconciliation.');
+  const targets=new Map();
+  for(const r of assignments){const source=prepare(db,'SELECT account_ref,accepted,kind FROM messages WHERE message_key=?').get(r.messageKey),target=prepare(db,'SELECT account_ref FROM receipts WHERE receipt_id=?').get(r.receiptId);if(!source?.accepted||source.kind!=='receipt'||source.account_ref!==r.accountRef||target?.account_ref!==r.accountRef||targets.has(r.messageKey)&&targets.get(r.messageKey)!==r.receiptId)throw Error('Invalid receipt source assignment.');targets.set(r.messageKey,r.receiptId);}
+  const plans=[];
+  for(const projection of prepare(db,"SELECT * FROM receipt_source_projections WHERE table_name='receipts'").all()){const target=targets.get(projection.message_key);if(!target||target===projection.receipt_id)continue;const old=prepare(db,'SELECT * FROM receipts WHERE receipt_id=?').get(projection.receipt_id),next=prepare(db,'SELECT * FROM receipts WHERE receipt_id=?').get(target);if(!old||old.account_ref!==next?.account_ref||!next.order_key&&!next.order_id)throw Error('Receipt split lacks independently parsed order identity.');const distinctIds=old.order_id&&next.order_id&&old.order_id.toUpperCase()!==next.order_id.toUpperCase(),distinctTimes=old.order_at&&next.order_at&&old.order_at!==next.order_at;const evidence=prepare(db,'SELECT subject,body_text FROM messages WHERE message_key IN (?,?)').all(projection.message_key,old.message_key);if(!distinctIds&&(!distinctTimes||evidence.some(m=>/refund|adjusted receipt|updated receipt|corrected receipt|new total|changed total/i.test(m.subject+' '+m.body_text))))throw Error('Receipt split needs distinct purchase evidence; adjustment remains for review.');plans.push({projection,target,old});}
+  const leaving=new Set(plans.map(p=>p.projection.receipt_id+'|'+p.projection.message_key));
+  const affected=new Set(plans.flatMap(p=>[p.projection.receipt_id,p.target]));
+  for(const id of affected){const sources=prepare(db,"SELECT p.message_key FROM receipt_source_projections p JOIN messages m USING(message_key) WHERE p.table_name='receipts' AND p.receipt_id=? AND m.accepted=1 AND m.kind='receipt'").all(id);if(!sources.some(s=>!leaving.has(id+'|'+s.message_key)))throw Error('Receipt reconciliation would leave an unassigned record; manual review required.');}
+  db.exec('CREATE TABLE IF NOT EXISTS eats_receipt_source_repairs (original_receipt_id TEXT NOT NULL,message_key TEXT NOT NULL,target_receipt_id TEXT NOT NULL,original_projection_json TEXT NOT NULL,original_row_json TEXT NOT NULL,repaired_at TEXT NOT NULL,PRIMARY KEY(original_receipt_id,message_key,target_receipt_id))');
+  for(const p of plans){prepare(db,'INSERT OR IGNORE INTO eats_receipt_source_repairs VALUES(?,?,?,?,?,?)').run(p.projection.receipt_id,p.projection.message_key,p.target,JSON.stringify(p.projection),JSON.stringify(p.old),new Date().toISOString());prepare(db,"DELETE FROM receipt_source_projections WHERE table_name='receipts' AND receipt_id=? AND message_key=?").run(p.projection.receipt_id,p.projection.message_key);}
+  for(const id of affected){reprojectReceiptFinancialSources(db,'receipts',id);const sources=prepare(db,"SELECT m.message_key,m.sent_at,m.received_at FROM receipt_source_projections p JOIN messages m USING(message_key) WHERE p.table_name='receipts' AND p.receipt_id=? AND m.accepted=1 AND m.kind='receipt' ORDER BY m.received_at,m.message_key").all(id),latest=sources.at(-1),sent=sources.map(s=>s.sent_at||s.received_at).filter(Boolean).sort()[0];prepare(db,'UPDATE receipts SET message_key=?,sent_at=?,received_at=? WHERE receipt_id=?').run(latest.message_key,sent,latest.received_at,id);}
+  return {coveredSources:assignments.length,reassignedSources:plans.length,affectedRecords:affected.size};
 }
 
 function receiptReviews(db,table,kind) {
