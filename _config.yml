@@ -108,3 +108,4 @@ exclude:
   - test-account-details-browser.js
   - test-preferred-pages-browser.js
   - test-cash-pipeline.js
+  - test-account-sheet-data.js

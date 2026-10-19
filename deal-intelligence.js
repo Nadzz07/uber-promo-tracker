@@ -446,7 +446,7 @@ export function planBasketSplit(
 // estimates, and fees enter the calculation before verified Cash is deducted.
 export function rankBasketPlans(promos = [], subtotal, {
   wallets = {}, accounts = [], fees = {}, fulfilment = 'delivery',
-  maxOrders = 3, orderFeeEstimate = 1, now = new Date().toISOString()
+  maxOrders = 3, orderFeeEstimate = 1, now = new Date().toISOString(), requiredPromoId = null
 } = {}) {
   if(number(subtotal)==null||Number(subtotal)<=0||Number(subtotal)>1000)return {suggested:null,plans:[],reason:'Enter a basket between £0.01 and £1,000.'};
   const perOrder = number(orderFeeEstimate);
@@ -467,6 +467,7 @@ export function rankBasketPlans(promos = [], subtotal, {
         checkoutFees: option.fees, extraFee: option.estimatedFee, estimatedPay: option.outOfPocket}]
     });
   }
+  if(requiredPromoId)for(let i=candidates.length-1;i>=0;i--)if(!candidates[i].orders.every(order=>(order.promo?.id||order.promo?.offerId)===requiredPromoId))candidates.splice(i,1);
   // Cost is primary. Fewer orders and conserving Cash break equal-cost ties.
   candidates.sort((a, b) => a.estimatedPay - b.estimatedPay || a.cashUsed - b.cashUsed || a.orderCount - b.orderCount);
   for (const plan of candidates) plan.key = plan.kind + ':' + plan.orders.map(o => [o.accountRef, o.promo?.id || 'wallet', o.subtotal].join('/')).join('|');

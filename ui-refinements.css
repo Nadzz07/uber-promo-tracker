@@ -2637,3 +2637,128 @@ html:has(.preferred-page.active) { scroll-padding-top:calc(12px + var(--preferre
 .account-offer-expiry svg { flex:0 0 15px; }
 
 .sheet[data-screen="Account details"] .account-offer-action > summary,.sheet[data-screen="Account details"] .account-sheet-link { min-height:44px; }
+
+/* Approved inline account sheet: evidence, scoped management and one calculator. */
+.sheet[data-screen="Account details"] .finance-heading-icon,
+.sheet[data-screen="Account details"] #sheetSub:empty { display:none; }
+.sheet[data-screen="Account details"] .sheet-head { padding:5px 14px 10px; gap:10px; }
+.sheet[data-screen="Account details"] .sheet-title { font-size:21px; font-weight:550; letter-spacing:-.015em; }
+.sheet[data-screen="Account details"] .account-sheet-hero { padding:13px 12px 10px; }
+.sheet[data-screen="Account details"] .account-sheet-top { gap:10px; }
+.sheet[data-screen="Account details"] .account-sheet-top > .account-detail-provider { flex-basis:30px; }
+.sheet[data-screen="Account details"] .account-sheet-email { margin:0; font-size:15px; font-weight:550; line-height:1.35; }
+.sheet[data-screen="Account details"] .account-login-route { font-size:11px; }
+.sheet[data-screen="Account details"] .account-login-badge { flex:none; padding:4px 8px; font-size:10px; font-weight:450; }
+.sheet[data-screen="Account details"] .account-sheet-actions { margin:11px 0 0; gap:8px; }
+.sheet[data-screen="Account details"] .account-sheet-actions > button { font-size:12px; font-weight:500; padding:8px 7px; border-radius:8px; }
+.account-rule-note { margin-top:8px; font-size:11px; color:var(--muted); }
+.account-rule-note > summary { display:flex; align-items:center; gap:6px; min-height:28px; list-style:none; cursor:pointer; }
+.account-rule-note svg { width:14px; height:14px; }
+.account-rule-note svg:last-child { margin-left:auto; }
+.account-rule-note p { margin:5px 0; font-size:11px; line-height:1.5; }
+.sheet[data-screen="Account details"] .offers-section { margin-top:14px; }
+.account-offers-heading { margin-bottom:8px; }
+.account-offers-heading h2 { font-size:18px; font-weight:550; }
+.sheet[data-screen="Account details"] .account-detail-offer { border-radius:11px; }
+.sheet[data-screen="Account details"] .account-detail-offer[open] { background:linear-gradient(135deg,rgba(var(--accent-rgb),.13),rgba(var(--accent-rgb),.045)),var(--bg-deep); }
+.sheet[data-screen="Account details"] .account-offer-toggle { gap:11px; padding:12px 12px 10px; }
+.sheet[data-screen="Account details"] .account-offer-toggle > svg:first-child { width:22px; height:22px; flex-basis:22px; }
+.account-offer-titleline { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.sheet[data-screen="Account details"] .offer-name { font-size:14px; font-weight:550; }
+.sheet[data-screen="Account details"] .account-detail-offer[open] .offer-name { font-size:17px; font-weight:550; }
+.account-selected-badge { display:inline-flex; align-items:center; padding:3px 9px; border:1px solid rgba(var(--accent-rgb),.55); border-radius:999px; font-size:10px; line-height:1.3; color:var(--green-strong); background:rgba(var(--accent-rgb),.08); }
+.account-detail-offer:not([open]) .account-selected-badge { display:none; }
+.sheet[data-screen="Account details"] .account-offer-body { padding:0 12px 10px; }
+.account-offer-meta { display:flex; flex-wrap:wrap; align-items:baseline; gap:7px 12px; margin:0 0 11px 34px; }
+.sheet[data-screen="Account details"] .account-offer-expiry { font-size:11px; color:var(--muted); gap:6px; }
+.sheet[data-screen="Account details"] .offer-terms { margin:0; padding:0; border:0; background:none; border-radius:0; }
+.sheet[data-screen="Account details"] .offer-terms > summary { display:flex; align-items:center; gap:5px; min-height:25px; padding:0; border:0; font-size:11px; font-weight:400; color:var(--muted); background:none; }
+.sheet[data-screen="Account details"] .offer-terms > summary svg { width:13px; height:13px; }
+.sheet[data-screen="Account details"] .offer-terms:not([open]) { flex:none; width:max-content; }
+.sheet[data-screen="Account details"] .offer-terms > summary > span { flex:none; }
+.sheet[data-screen="Account details"] .offer-terms[open] { flex-basis:100%; min-width:0; }
+.sheet[data-screen="Account details"] .offer-terms .disclosure-body { padding:6px 0; }
+.sheet[data-screen="Account details"] .terms-grid { display:block; margin:0; }
+.sheet[data-screen="Account details"] .terms-grid > div { display:grid; grid-template-columns:90px minmax(0,1fr); gap:8px; padding:5px 0; border-bottom:1px solid var(--line-soft); font-size:11px; }
+.sheet[data-screen="Account details"] .terms-grid :is(dt,dd) { padding:0; margin:0; border:0; overflow-wrap:anywhere; }
+.account-offer-state { display:inline-block; margin:0 0 6px; color:var(--muted); font-size:10px; }
+.sheet[data-screen="Account details"] .use-progress { margin:0; }
+.sheet[data-screen="Account details"] .progress-track { height:9px; border-radius:999px; border:1px solid rgba(255,255,255,.12); overflow:hidden; }
+.sheet[data-screen="Account details"] .progress-fill { height:100%; border-radius:999px; }
+.sheet[data-screen="Account details"] .use-line { margin-top:6px; gap:10px; font-size:12px; font-weight:400; }
+.sheet[data-screen="Account details"] .account-manual-usage { margin:3px 0 0; font-size:11px; color:var(--muted); }
+.account-matching-receipts { margin-top:14px; }
+.account-matching-receipts h4 { font-size:11px; font-weight:450; color:var(--muted); margin:0 0 6px; }
+.account-receipt-list { border:1px solid var(--line-soft); border-radius:8px; background:rgba(255,255,255,.045); }
+.account-receipt-row,.account-receipts-private { display:flex; align-items:center; gap:9px; width:100%; min-height:44px; border:0; background:none; padding:9px 10px; color:var(--text); font:inherit; font-size:12px; text-align:left; }
+.account-receipt-row + .account-receipt-row { border-top:1px solid var(--line-soft); }
+.account-receipt-row > svg:first-child,.account-receipts-private > svg:first-child { width:20px; height:22px; flex:none; color:var(--muted); }
+.account-receipt-row > span,.account-receipts-private > span { flex:1; min-width:0; overflow-wrap:anywhere; }
+.account-receipt-row > svg:last-child,.account-receipts-private > svg:last-child { width:13px; height:15px; flex:none; color:var(--muted); }
+.account-receipt-toggle,.account-receipt-more { display:flex; align-items:center; gap:6px; min-height:38px; padding:6px 3px; border:0; background:none; color:var(--green-strong); font:inherit; font-size:11px; text-align:left; }
+.account-receipt-toggle svg { width:13px; height:13px; }
+.account-receipt-empty { margin:5px 0 9px; color:var(--muted); font-size:11px; line-height:1.5; }
+.account-offer-actions { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:9px; border-top:1px solid var(--line-soft); margin-top:11px; padding-top:11px; }
+.account-record-use,.account-manage-toggle { display:flex; justify-content:center; align-items:center; gap:8px; min-height:44px; padding:8px; border:1px solid var(--line); border-radius:8px; font:inherit; font-size:12px; font-weight:450; color:var(--text); background:rgba(255,255,255,.025); box-shadow:none; }
+.account-record-use svg,.account-manage-toggle svg { width:17px; height:17px; flex:none; }
+.account-manage-toggle svg:last-child { width:13px; }
+.account-record-use:disabled { opacity:.4; cursor:not-allowed; }
+.sheet[data-screen="Account details"] div.manage-offer { grid-column:1/-1; margin:0; padding:0; width:100%; border:1px solid var(--line); border-radius:9px; background:var(--surface-gradient); }
+.sheet[data-screen="Account details"] div.manage-offer[hidden] { display:none; }
+.account-manage-row { display:flex; align-items:center; gap:10px; min-height:56px; width:100%; padding:10px 12px; border:0; border-bottom:1px solid var(--line-soft); border-radius:0; background:none; text-align:left; font:inherit; color:var(--text); }
+.account-manage-row svg { width:20px; height:22px; flex:none; color:var(--muted); }
+.account-manage-row strong { display:block; font-size:12px; font-weight:500; }
+.account-manage-row small { display:block; margin-top:3px; font-size:10px; line-height:1.4; color:var(--muted); }
+.account-manage-row.warning svg,.account-manage-row.warning strong { color:var(--amber); }
+.account-manage-row.danger svg,.account-manage-row.danger strong { color:#ef999e; }
+.account-manage-row:disabled { opacity:.38; cursor:not-allowed; }
+.account-manage-footer { padding:8px 12px; margin:0; font-size:10px; color:var(--muted); }
+.account-action-history { margin:0 12px 9px; font-size:11px; }
+.account-action-history > summary { min-height:32px; display:flex; justify-content:space-between; align-items:center; }
+.account-action-history svg { width:13px; height:13px; }
+.sheet[data-screen="Account details"] .account-cash-entry > summary { display:flex; gap:9px; min-height:62px; padding:10px 12px; }
+.account-cash-copy { flex:1; min-width:0; }
+.account-cash-title { display:flex; flex-wrap:wrap; align-items:center; gap:7px; }
+.sheet[data-screen="Account details"] .account-cash-title > strong { font-size:14px; font-weight:500; }
+.cash-balance-badge { font-size:9px; line-height:1.3; padding:2px 5px; border:1px solid rgba(94,194,123,.3); border-radius:5px; background:rgba(94,194,123,.08); color:#78d993; }
+.sheet[data-screen="Account details"] .cash-entry-balance { flex:none; font-size:18px; font-weight:550; color:#78d993; margin:0; }
+.sheet[data-screen="Account details"] .account-cash-entry > summary > svg:first-child { width:23px; height:24px; }
+.sheet[data-screen="Account details"] .account-cash-copy > small { font-size:10px; line-height:1.4; margin-top:3px; }
+.account-calculator { margin:15px 0 10px; }
+.account-calculator h3 { margin:0 0 7px; font-size:12px; font-weight:450; }
+.account-calculator-panel,#plannerAccountContext { padding:9px 10px; border:1px solid var(--line); border-radius:11px; background:var(--surface-gradient); }
+.account-calculator-controls { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:11px; align-items:center; }
+.account-calculator-promo { display:flex; min-width:0; align-items:center; gap:7px; padding:0 7px; min-height:44px; border:1px solid var(--line); border-radius:7px; }
+.account-calculator-promo > svg:first-child { width:17px; height:18px; flex:none; color:var(--muted); }
+.account-calculator-promo > svg:last-child { width:12px; height:12px; flex:none; color:var(--muted); }
+.account-calculator-promo select { min-width:0; flex:1; width:100%; min-height:42px; appearance:none; -webkit-appearance:none; border:0; background:none; color:var(--text); font:inherit; font-size:16px; padding:6px 0; }
+.account-calculator-cash { display:flex; align-items:center; gap:8px; min-width:0; }
+.account-calculator-cash > span { flex:1; min-width:0; font-size:11px; }
+.account-calculator-cash small { display:block; font-size:10px; line-height:1.4; color:var(--muted); margin-top:3px; }
+.account-calculator-cash input { appearance:none; -webkit-appearance:none; width:36px; height:23px; flex:none; margin:0; padding:0; border-radius:20px; background:#4c515d; position:relative; cursor:pointer; }
+.account-calculator-cash input::after { content:''; width:19px; height:19px; border-radius:50%; background:white; position:absolute; left:2px; top:2px; }
+.account-calculator-cash input:checked { background:var(--green); }
+.account-calculator-cash input:checked::after { transform:translateX(13px); }
+.account-calculator-cash input:disabled { opacity:.4; cursor:not-allowed; }
+.account-calculate { display:flex; justify-content:center; align-items:center; gap:9px; min-height:44px; width:100%; margin-top:8px; padding:8px; font:inherit; font-size:12px; font-weight:550; border:0; border-radius:7px; background:var(--green); color:#09111a; box-shadow:none; }
+.account-calculate svg { width:18px; height:20px; }
+.account-calculate:disabled { opacity:.35; cursor:not-allowed; }
+.account-calculator-helper { font-size:10px; line-height:1.4; text-align:center; color:var(--muted); margin:5px 0 0; }
+#plannerAccountContext { margin:10px 0 16px; }
+#plannerAccountContext[hidden] { display:none; }
+#plannerAccountContext > label { display:block; margin-bottom:9px; font-size:12px; color:var(--muted); }
+#plannerAccountRef { display:block; width:100%; min-height:44px; margin-top:5px; padding:8px 10px; border:1px solid var(--line); border-radius:7px; background:var(--bg-deep); color:var(--text); font:inherit; font-size:16px; }
+.planner-clear-account { min-height:38px; padding:6px 0; border:0; background:none; color:var(--green-strong); font:inherit; font-size:12px; }
+.account-receipt-back { display:flex; align-items:center; justify-content:center; flex:none; width:44px; height:44px; border:0; background:none; color:var(--green-strong); }
+.account-receipt-back svg { width:21px; height:24px; }
+.sheet[data-account-receipt-child] .finance-heading-icon { display:none; }
+@media(max-width:369px){ .account-calculator-controls { grid-template-columns:minmax(0,1fr); } .sheet[data-screen="Account details"] .account-sheet-actions { grid-template-columns:1fr 1fr; } .sheet[data-screen="Account details"] .account-sheet-top { flex-wrap:wrap; } .sheet[data-screen="Account details"] .account-login-badge { margin-left:40px; } }
+@media(prefers-reduced-motion:reduce){.account-calculator-cash input::after { transition:none; }}
+
+.sheet[data-screen="Account details"] .offer-history > summary::before { content:none; }
+.sheet[data-screen="Account details"] .offer-history > summary { font-weight:450; text-align:left; }
+
+.account-receipt-toggle { width:max-content; max-width:100%; }
+.account-receipt-toggle > span { flex:0 1 auto; min-width:0; }
+.account-receipt-toggle > svg { flex:none; }
+.sheet[data-screen="Account details"] .account-cash-entry:is([data-cash-state="needs_checking"],[data-cash-state="expired"],[data-cash-state="exhausted"]) .cash-entry-balance { color:var(--muted); }

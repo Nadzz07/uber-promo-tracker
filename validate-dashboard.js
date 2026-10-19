@@ -46,7 +46,7 @@ assert.ok(html.includes("Total saved"));
 assert.ok(html.includes('id="loginStat"') && html.includes('id="archivedStat"'));
 assert.ok(html.includes("Overview"));
 assert.ok(html.includes("Total accounts"));
-assert.ok(html.includes("Available promos"));
+assert.ok(html.includes("Matching receipts"));
 assert.ok(html.includes("Account receipt rule met"));
 assert.ok(html.includes("Manage offer"));
 assert.ok(html.includes("Accounts available"));

@@ -38,9 +38,9 @@ try { for(const width of [390,980,1440,1920]) {
  if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('#accountsList [data-account-offers="A815"]').click();
  assert.equal(await page.locator('[data-use-this-account="A815"]').isDisabled(),true);
  assert.match(await page.locator('.account-login-badge').innerText(),/Can’t log in/);assert.ok(await page.locator('[data-use-this-account]').isDisabled());
- const review=page.locator('#sheetBody .account-detail-offer').filter({has:page.locator('.pill', {hasText:'Needs checking'})});
+ const review=page.locator('#sheetBody .account-detail-offer').filter({has:page.locator('.account-offer-state', {hasText:'Needs checking'})});
  await review.locator('> summary').click();
- const reviewStatus=review.locator('.pill').filter({hasText:'Needs checking'}).first();await reviewStatus.scrollIntoViewIfNeeded();await reviewStatus.waitFor({state:'visible'});assert.match(await review.textContent(),/Needs checking/);
+ const reviewStatus=review.locator('.account-offer-state').filter({hasText:'Needs checking'}).first();await reviewStatus.scrollIntoViewIfNeeded();await reviewStatus.waitFor({state:'visible'});assert.match(await review.textContent(),/Needs checking/);
  const terms=page.locator('.offer-terms').first();await terms.locator('> summary').click();assert.notEqual(await terms.getAttribute('open'),null);assert.match(await terms.textContent(),/Minimum£15/);assert.match(await terms.textContent(),/Calculated100%/);assert.match(await terms.textContent(),/remaining uses require confirmation in Uber/);
  await page.keyboard.press('Escape');
 

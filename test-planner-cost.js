@@ -56,3 +56,9 @@ assert.equal(r.suggested.cashUsed,19);assert.equal(r.suggested.estimatedPay,1,'C
 r=ranked(30,{wallets:manualWallet,orderFeeEstimate:2,fees:{A900:3},maxOrders:1});
 assert.equal(r.suggested.checkoutFees,3);assert.equal(r.suggested.extraFees,0);assert.equal(r.suggested.estimatedPay,2,'Recorded matching fees replace the manual estimate');
 console.log('✓ Manual per-account fees: £2/£4/£6, zero and fractional fees, cheapest-plan ranking, reconciled payments and Cash, recorded-fee replacement');
+
+const scopedPromo={...offers[0],discount:5},scopedWallet={A900:{balance:100,stacking:'supported',at:now}};
+const selectedPromoPlan=rankBasketPlans([scopedPromo],15,{accounts:[accounts[0]],wallets:scopedWallet,requiredPromoId:scopedPromo.id,now,orderFeeEstimate:1}).suggested;
+assert.equal(selectedPromoPlan.orders[0].promo.id,scopedPromo.id,'An explicit calculator promo is not silently replaced by a cash-only option');assert.equal(selectedPromoPlan.totalAfterPromosAndFees,11);assert.equal(selectedPromoPlan.cashUsed,11);assert.equal(selectedPromoPlan.estimatedPay,0);
+assert.equal(rankBasketPlans([scopedPromo],15,{accounts:[accounts[0]],requiredPromoId:'a-different-offer',now}).suggested,null,'Account handoff never substitutes another promo');
+console.log('✓ Explicit shared-calculator promo scope preserves selection and applies Cash and first-order fees once.');
