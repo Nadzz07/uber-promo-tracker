@@ -119,6 +119,21 @@ removed object and recoverable original; any discrepancy halts further routing. 
 never routes messages. Mail movement requires its own explicit authorization;
 validation and interface work do not require it. Bin is never emptied.
 
+## Account details and private receipt evidence
+
+Account details stays in one bottom sheet. Offer expansion is independent of
+its shared calculator selection. Terms, matched receipts and offer management
+expand inline; the calculator passes the selected account, one promo and Cash
+choice to Order Planner without recording a use or spending Cash.
+
+A newly exported private finance transfer includes source-assigned receipt links
+using the existing keyed offer IDs. Import it in **Private finances** to see the
+latest matching receipt and the inline receipt list. Older transfers still work
+and ask for an updated import; the browser never guesses matches from a discount
+amount. These links remain in the encrypted private vault and are rejected from
+public snapshots. Receipt confirmation, outstanding manual uses and unknown use
+limits retain their separate meanings.
+
 ## Tests and publication
 
 ```bash
@@ -131,7 +146,7 @@ npm run build
 ```
 
 CI checks Node 22/24 on Linux/macOS and Chromium/WebKit/Firefox. The build publishes only
-18 allowlisted application files; tests, documentation and private files are
+31 allowlisted application files; tests, documentation and private files are
 excluded. Keep regression tests so later updates cannot silently change receipts,
 savings, privacy or controls.
 

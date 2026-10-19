@@ -58,5 +58,5 @@ export async function finderAllOffers(page){await page.locator('#finderOfferType
 export async function openOfferManagement(page, key = null) {
  const card=key?page.locator('[data-offer-key="'+key+'"]'):page.locator('.offer-card').first();
  if(await card.count()&&await card.getAttribute('open')===null)await card.locator('>summary').click();
- const panel=card.locator('.manage-offer').first();if(await panel.count()&&await panel.getAttribute('open')===null)await panel.locator('>summary').click();
+ const trigger=card.locator('[data-manage-toggle]');if(await trigger.count()){if(await trigger.getAttribute('aria-expanded')!=='true')await trigger.click();}else{const panel=card.locator('.manage-offer').first();if(await panel.count()&&await panel.getAttribute('open')===null)await panel.locator('>summary').click();}
 }
