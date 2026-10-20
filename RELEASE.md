@@ -64,8 +64,7 @@ shown. Existing combined Uber One benefits stay in their existing field; no
 split or refund amounts are invented from the mockups. Change receipt retains
 search/filter selection. Save, cancel, Undo/Redo, saved/error feedback, original
 receipt records, financial event meanings, encryption, transfers and the
-15-minute background/reload/manual locks remain intact. The editor's Private
-control can lock immediately. Mobile fields retain the 16px floor and pinch
+Private data persists on this browser profile without an app lock. Mobile fields retain the 16px floor and pinch
 zoom remains enabled. Browser emulation is not physical iPhone testing.
 
 ## Approved preview refinement · 13 October
@@ -83,7 +82,7 @@ badge, offer section and full-width account action. Shared circles, typography,
 search and filter styling follow the supplied previews. Savings and Private
 finances retain their approved layouts and accent-driven curved hero surface.
 All existing account classifications, financial calculations, fee semantics,
-imports, encryption and the 15-minute background lock remain in place.
+imports and encrypted transfers remain in place.
 
 The cloud repair changes code only. `promos.json` and `history.json` are preserved.
 The cloud has no private Mac SQLite database, account list or Apple Mail access.
@@ -275,15 +274,13 @@ uses Mail's delete command or empties Bin.
 
 ## Private financial corrections and reviewed Mail cleanup
 
-More → Private finances loads only when opened. Import an owner-only private
-finance export, then save receipt corrections or a current Uber Cash balance
-inside encrypted browser storage. The passphrase remains in memory only for the
-current page session; it is never persisted. Closing a sheet or briefly switching
-apps does not require unlocking again. Manual Lock, reload/navigation, fifteen minutes
-in the background, or another tab changing the vault locks it. Background contents
-are concealed, and returning checks the deadline even if mobile timers were suspended. Export an
-encrypted backup before clearing browser data. Device changes are not uploaded;
-transfer them privately to the Mac ledger to include them in later snapshots:
+Private data loads from this browser profile at startup and persists across reloads,
+backgrounding and tab closure. Anyone using the profile can read imported records.
+Sync & data contains import and encrypted transfer controls. Existing passphrase-
+encrypted storage requires a one-time migration using its original passphrase;
+the original ciphertext is retained for recovery. No key is shared or hardcoded.
+Device changes are not uploaded. Back up before clearing browser data. Transfer
+edits privately to the Mac ledger to include them in later snapshots:
 
 ```sh
 node mac/private-finance.js export --db /absolute/private.local.db --file finance-new.local.json
@@ -330,4 +327,41 @@ chevrons apply to expanded views as well as their entry cards. Used / Finished
 keeps its four summary tiles and all eight independent status groups; its tiles
 size to their contents instead of reserving a large empty area. Controls retain
 44px touch targets, and unknown fees, private imports, encrypted finances and the
-15-minute background lock retain their existing behaviour.
+device-local persistence retain their existing behaviour.
+
+## Persistent device-local private data
+
+The app has no inactivity, reload, manual or cross-tab authentication lock. It
+hydrates imported records at startup. Existing encrypted records need their
+original passphrase once under More → Sync & data → Migrate existing data once.
+Wrong passwords, quota errors and interrupted migration preserve the original.
+A separate encrypted recovery original remains after successful migration; the
+original storage key is the only active ledger. No shared decryption key exists.
+Anyone using this browser profile can access imported data. Public exports and
+deployments remain sanitized. Transfer/backup files use AES-GCM with a chosen
+passphrase. Import an encrypted transfer on Mac with `--passphrase-file` pointing
+to an owner-only file (mode 600); the passphrase is never a command-line value.
+
+Older supported exports retain their receipts and correction history. Without
+source-assigned per-offer links, the app cannot reconstruct promo redemption
+from equal discount amounts or account receipt counts. The offer states this
+briefly; Sync & data explains the missing metadata. Reimporting the same file
+does not fix absent source evidence. Existing safe usage aggregates remain
+visible independently of receipt details.
+
+## Account Details matte surfaces and grouped history
+
+Account Details uses fixed charcoal surfaces and status colours. Accent buttons,
+selected offers, chips, tracks and links derive from the saved colour-wheel hue.
+The compact history summaries use one exclusive existing classification per promotion, plus
+distinct historical credit grants. Manual completion is not receipt-confirmed
+completion; expired credit is not recorded spending. Current and review states
+stay separate. History groups load incrementally in the same sheet, including
+all records after Show more; the handler now listens on the sheet's document
+rather than the inert underlying app. Receipt dates and amounts come from
+matched private records, with no placeholder uses or inferred offer matches.
+
+The latest history design has no progress/composition bar. Completed, Expired
+and Ignored use compact icon summaries; expanded records use quiet divided
+charcoal groups. Active offers, Cash, the calculator and management retain their
+positions as history expands. Reduced-motion uses immediate native disclosure.

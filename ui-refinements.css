@@ -860,18 +860,9 @@ body::before, body::after { display: none; }
 .sheet[data-finance-layout] .finance-help-row > span { flex:0 1 auto; font-size:12px; }
 .sheet[data-finance-layout] .finance-help-row::after { display:none; }
 .finance-help-row .finance-icon { width:18px; height:18px; flex-basis:18px; }
-.finance-session-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
-.finance-session-bar > span { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--muted); }
-.finance-session-bar .finance-icon { width:17px; height:17px; flex-basis:17px; color:var(--green); }
-.finance-session-bar .advanced-btn { display:flex; align-items:center; gap:6px; min-height:44px; margin:0; }
-.finance-session-help { font-size:11px; line-height:1.6; }
-.finance-unlock { padding:20px; border:1px solid var(--line); border-radius:24px; background:var(--surface-gradient); }
-.finance-unlock h3 { margin:16px 0 8px; font-size:20px; }
-.finance-unlock form { margin-top:20px; }
 .finance-empty .finance-icon-surface { margin-bottom:16px; }
 .sheet[data-finance-layout] p[role="status"]:empty { display:none; }
 .sheet[data-finance-layout] .finance-controls { margin:0; }
-.sheet[data-finance-concealed] .sheet-body { visibility:hidden; }
 @media (max-width:767px) {
   .sheet[data-finance-layout] { max-height:calc(100dvh - env(safe-area-inset-top) - 12px); }
 }
@@ -1513,11 +1504,9 @@ body::before, body::after { display: none; }
 @media (max-width:400px) { #view-offers .quick-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 .app-shell.detail-mode > .privacy .full-privacy { display:none; }
 .app-shell.detail-mode > .privacy .home-privacy { display:block; }
-.receipt-editor-heading .receipt-private-lock { display:flex; align-items:center; gap:8px; min-height:44px; padding:4px 0 4px 8px; background:none; border:0; font:inherit; font-size:12px; color:var(--muted); cursor:pointer; }
 #view-planner .planner-mode select { appearance:none; -webkit-appearance:none; border:1px solid var(--line); border-radius:14px; background:var(--glass-soft); color:var(--text); padding:12px 30px 12px 12px; min-height:48px; line-height:1.4; }
 #view-planner .planner-mode { position:relative; }
 #view-planner .planner-mode::after { content:'⌄'; position:absolute; right:12px; bottom:13px; color:var(--muted); pointer-events:none; }
-.receipt-editor-heading .receipt-private-lock { width:auto; flex:0 0 auto; white-space:nowrap; }
 .receipt-editor-heading h2 { min-width:0; }
 #financeRideHero[hidden],.receipt-final-summary[hidden] { display:none; }
 #financeRideHero h3 { display:flex; align-items:center; gap:10px; margin:0 0 10px; font-size:15px; font-weight:500; }
@@ -1583,7 +1572,7 @@ body::before, body::after { display: none; }
 .sheet:has(.finance-cash-panel[open]) .sheet-head { position:absolute; inset:8px 20px auto auto; padding:0; min-height:0; border:0; background:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
 .sheet:has(.finance-cash-panel[open]) .sheet-head > :not(.sheet-close) { display:none; }
 .sheet:has(.finance-cash-panel[open]) .sheet-close { min-width:44px; min-height:44px; width:44px; height:44px; border:0; background:none; }
-.sheet-body:has(.finance-cash-panel[open]) > :not(.finance-cash-panel,[data-finance-panel="history"],[data-finance-panel="tools"],.finance-session-help) { display:none; }
+.sheet-body:has(.finance-cash-panel[open]) > :not(.finance-cash-panel,[data-finance-panel="history"]) { display:none; }
 .sheet-body:has(.finance-cash-panel[open]) .finance-cash-panel > summary { display:none; }
 .sheet-body:has(.finance-receipt-panel[open],.finance-cash-panel[open]) { padding:8px 0 max(16px,env(safe-area-inset-bottom)); }
 .sheet-body:has(.finance-receipt-panel[open]) { padding-inline:8.65%; }
@@ -1596,8 +1585,6 @@ body::before, body::after { display: none; }
 .receipt-editor-back > span { font-size:24px; }
 .receipt-editor-heading,.cash-editor-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 12px; }
 .receipt-editor-heading h2,.cash-editor-heading h2 { margin:0; font-size:24px; line-height:1.2; letter-spacing:-.025em; font-weight:700; min-width:0; }
-.receipt-editor-heading .receipt-private-lock,.cash-private-lock { display:flex; align-items:center; gap:6px; width:auto; flex:0 0 auto; min-height:32px; padding:0; background:none; border:0; font:inherit; font-size:11px; color:var(--muted); white-space:nowrap; cursor:pointer; }
-.cash-private-lock svg { width:16px; height:16px; flex-basis:16px; }
 .cash-editor-heading { margin-bottom:0; }
 .cash-editor-intro { font-size:11.5px; line-height:1.4; color:var(--muted); margin:-7px 0 4px; }
 [data-finance-form="receipt"],[data-finance-form="cash"] { gap:9px; }
@@ -1629,7 +1616,6 @@ body::before, body::after { display: none; }
 .finance-history-row { gap:12px; padding:10px 0; }
 .finance-history-row .sheet-row-title { font-size:12px; line-height:1.35; font-weight:600; }
 .finance-history-row .sheet-row-meta,.finance-history-date { font-size:10.5px; line-height:1.4; }
-.finance-session-help { font-size:10px; line-height:1.4; margin:12px 0 0; }
 .receipt-selected-card { display:grid; grid-template-columns:26px minmax(0,1fr) auto; gap:6px 10px; align-items:center; }
 .receipt-selected-card > .finance-icon { width:24px; height:24px; flex-basis:24px; }
 .receipt-selected-card > div { min-width:0; }
@@ -1754,7 +1740,6 @@ body::before, body::after { display: none; }
 .sheet-body:has(.finance-receipt-panel[open],.finance-cash-panel[open]) { padding-top:0; }
 .receipt-editor-heading { margin-bottom:0; }
 .receipt-editor-heading h2 { font-size:23px; line-height:1.2; }
-.receipt-editor-heading .receipt-private-lock { min-height:28px; }
 .finance-history-more { display:flex; justify-content:space-between; align-items:center; width:100%; min-height:32px; padding:6px 0; font:inherit; font-size:11px; background:none; border:0; border-top:1px solid var(--line-soft); color:var(--muted); cursor:pointer; }
 .sheet[data-finance-layout]:has(.finance-receipt-panel[open]) .sheet-head > .finance-editor-navback-receipt,
 .sheet[data-finance-layout]:has(.finance-cash-panel[open]):not(:has(.finance-receipt-panel[open])) .sheet-head > .finance-editor-navback-cash { display:flex; align-items:center; gap:10px; min-height:40px; color:var(--muted); font:inherit; font-size:12px; background:none; border:0; padding:0; cursor:pointer; }
@@ -2688,14 +2673,13 @@ html:has(.preferred-page.active) { scroll-padding-top:calc(12px + var(--preferre
 .sheet[data-screen="Account details"] .use-line { margin-top:6px; gap:10px; font-size:12px; font-weight:400; }
 .sheet[data-screen="Account details"] .account-manual-usage { margin:3px 0 0; font-size:11px; color:var(--muted); }
 .account-matching-receipts { margin-top:10px; }
-.account-matching-receipts.is-locked { margin-top:6px; }
 .account-matching-receipts h4 { font-size:11px; font-weight:450; color:var(--muted); margin:0 0 6px; }
 .account-receipt-list { border:1px solid var(--line-soft); border-radius:8px; background:rgba(255,255,255,.045); }
-.account-receipt-row,.account-receipts-private { display:flex; align-items:center; gap:9px; width:100%; min-height:44px; border:0; background:none; padding:9px 10px; color:var(--text); font:inherit; font-size:12px; text-align:left; }
+.account-receipt-row { display:flex; align-items:center; gap:9px; width:100%; min-height:44px; border:0; background:none; padding:9px 10px; color:var(--text); font:inherit; font-size:12px; text-align:left; }
 .account-receipt-row + .account-receipt-row { border-top:1px solid var(--line-soft); }
-.account-receipt-row > svg:first-child,.account-receipts-private > svg:first-child { width:20px; height:22px; flex:none; color:var(--muted); }
-.account-receipt-row > span,.account-receipts-private > span { flex:1; min-width:0; overflow-wrap:anywhere; }
-.account-receipt-row > svg:last-child,.account-receipts-private > svg:last-child { width:13px; height:15px; flex:none; color:var(--muted); }
+.account-receipt-row > svg:first-child { width:20px; height:22px; flex:none; color:var(--muted); }
+.account-receipt-row > span { flex:1; min-width:0; overflow-wrap:anywhere; }
+.account-receipt-row > svg:last-child { width:13px; height:15px; flex:none; color:var(--muted); }
 .account-receipt-toggle,.account-receipt-more { display:flex; align-items:center; gap:6px; min-height:38px; padding:6px 3px; border:0; background:none; color:var(--green-strong); font:inherit; font-size:11px; text-align:left; }
 .account-receipt-toggle svg { width:13px; height:13px; }
 .account-receipt-empty { margin:5px 0 9px; color:var(--muted); font-size:11px; line-height:1.5; }
@@ -2781,3 +2765,128 @@ html:has(.preferred-page.active) { scroll-padding-top:calc(12px + var(--preferre
 .account-credit-manage { margin-top:7px; border-top:1px solid var(--line-soft); }
 .account-credit-manage > summary { justify-content:space-between; }
 .account-cash-entry[data-cash-state="needs_checking"] .cash-balance-badge { color:var(--muted); border-color:var(--line); background:transparent; }
+#privateDataTools input {font-size:16px;min-height:44px;}
+#privateDataTools form {display:grid;gap:10px;margin-block:12px;}
+#privateDataTools .setting-card {margin-bottom:18px;}
+
+/* Account sheet palette: one selected accent, fixed neutral/status colours. */
+.sheet-backdrop:has(.sheet[data-screen="Account details"]) { background:rgba(16,20,26,.88); }
+.sheet[data-screen="Account details"] {
+  --bg-deep:#0E1218; --text:#FFFFFF; --muted:#97A1AF; --line:#272C35; --line-soft:#272C35;
+  --green:var(--account-accent); --green-strong:color-mix(in srgb,var(--account-accent) 65%,white);
+  --surface-gradient:#161A21; --surface-inset:#161A21;
+  --account-tint:hsl(var(--account-accent-hue) 65% 15%);
+  --account-outline:color-mix(in srgb,var(--account-accent) 60%,#161A21);
+  background:#0E1218; border-color:#272C35; box-shadow:none;
+}
+body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { background-color:#0B0E13; }
+.sheet[data-screen="Account details"] :is(.sheet-head,.sheet-body,.account-sheet-hero,.account-detail-offer,.account-cash-entry,.account-calculator-panel,.account-management,div.manage-offer,.offer-history) { box-shadow:none; background-image:none; }
+.sheet[data-screen="Account details"] .sheet-handle { background:#3B414C; }
+.sheet[data-screen="Account details"] .sheet-head { padding:6px 16px 12px; }
+.sheet[data-screen="Account details"] .sheet-title { font-size:22px; font-weight:600; }
+.sheet[data-screen="Account details"] .sheet-body { padding-inline:16px; }
+.sheet[data-screen="Account details"] .sheet-close { color:#97A1AF; border:1px solid #272C35; }
+.sheet[data-screen="Account details"] .account-sheet-hero { background:#161A21; padding:12px 12px 7px; border-radius:12px; }
+.sheet[data-screen="Account details"] .account-sheet-email { font-size:15px; font-weight:600; }
+.sheet[data-screen="Account details"] .account-login-route { font-size:12px; color:#97A1AF; }
+.sheet[data-screen="Account details"] .account-login-badge.positive { color:#7FE0A8; background:#0F2A1C; border-color:#25583C; }
+.sheet[data-screen="Account details"] .account-login-badge.positive .status-dot { background:#3DDC84; }
+.sheet[data-screen="Account details"] .account-sheet-actions > button { min-height:44px; font-size:13px; border-radius:9px; }
+.sheet[data-screen="Account details"] :is(.account-primary,.account-calculate) { background:var(--account-accent); color:#06121F; border:0; font-weight:600; }
+.sheet[data-screen="Account details"] .account-secondary { background:#161A21; border:1px solid #272C35; }
+.sheet[data-screen="Account details"] .account-rule-note { margin-top:5px; font-size:12px; }
+.sheet[data-screen="Account details"] .account-rule-note > summary { min-height:32px; }
+.sheet[data-screen="Account details"] .receipt-review-action { background:#1C1911; border-color:#4B3F1D; color:#E8B84A; margin-top:10px; border-radius:10px; }
+.sheet[data-screen="Account details"] .receipt-review-action small { color:#D6B45E; }
+.sheet[data-screen="Account details"] .account-offers-heading h2 { font-size:19px; font-weight:600; }
+.sheet[data-screen="Account details"] .account-offers-heading > span { font-size:12px; }
+.sheet[data-screen="Account details"] .account-detail-offer { background:#161A21; border-color:#272C35; border-radius:11px; }
+.sheet[data-screen="Account details"] .account-detail-offer[open] { background:var(--account-tint); border:1px solid var(--account-outline); }
+.sheet[data-screen="Account details"] .account-detail-offer[open] .offer-name { font-size:19px; font-weight:600; }
+.sheet[data-screen="Account details"] .offer-details { font-size:12px; }
+.sheet[data-screen="Account details"] .compact-offer-expiry { font-size:11px; }
+.sheet[data-screen="Account details"] .account-selected-badge { background:color-mix(in srgb,var(--account-accent) 30%,#0E1218); color:color-mix(in srgb,var(--account-accent) 48%,white); border-color:var(--account-outline); }
+.sheet[data-screen="Account details"] .account-offer-meta { align-items:center; margin-bottom:11px; }
+.sheet[data-screen="Account details"] .account-offer-expiry { font-size:12px; }
+.sheet[data-screen="Account details"] .offer-terms > summary { min-height:32px; font-size:12px; color:var(--green-strong); }
+.sheet[data-screen="Account details"] .progress-track { border:0; background:hsl(var(--account-accent-hue) 37% 24%); height:8px; }
+.sheet[data-screen="Account details"] .progress-fill { background:var(--account-accent); }
+.sheet[data-screen="Account details"] .use-line { font-size:12px; }
+.sheet[data-screen="Account details"] .account-record-use { border:1.5px solid var(--account-accent); background:color-mix(in srgb,var(--account-accent) 20%,#0E1218); color:var(--green-strong); }
+.sheet[data-screen="Account details"] .account-manage-toggle { background:var(--account-tint); border-color:var(--account-outline); }
+.sheet[data-screen="Account details"] .account-receipt-list { background:color-mix(in srgb,var(--account-accent) 7%,#161A21); border-color:var(--account-outline); }
+.sheet[data-screen="Account details"] .account-receipt-row strong { display:block; font-size:12px; font-weight:500; }
+.sheet[data-screen="Account details"] .account-receipt-row small { display:block; color:#97A1AF; font-size:11px; margin-top:2px; }
+.sheet[data-screen="Account details"] .account-cash-entry { background:#161A21; padding:0; border-radius:11px; }
+.sheet[data-screen="Account details"] .cash-entry-balance { color:#7FE0A8; font-size:20px; font-weight:600; }
+.sheet[data-screen="Account details"] .cash-balance-badge { color:#7FE0A8; background:#0F2A1C; border-color:#25583C; }
+.sheet[data-screen="Account details"] .account-cash-entry[data-cash-state="needs_checking"] :is(.cash-entry-balance,.cash-balance-badge) { color:#97A1AF; background:none; border-color:#272C35; }
+.sheet[data-screen="Account details"] .account-cash-body { padding:0 12px 10px; }
+.sheet[data-screen="Account details"] .account-review-offers { margin-top:14px; }
+.sheet[data-screen="Account details"] .account-review-offers > h3 { font-size:13px; font-weight:500; color:#97A1AF; margin:0 0 7px; }
+.sheet[data-screen="Account details"] .account-calculator { margin-top:12px; }
+.sheet[data-screen="Account details"] .account-calculator-panel { background:#161A21; border-radius:11px; padding:11px 12px; }
+.sheet[data-screen="Account details"] .account-calculator-panel > h3 { font-size:13px; margin-bottom:8px; }
+.sheet[data-screen="Account details"] .account-calculator-controls { gap:10px; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); }
+.sheet[data-screen="Account details"] .account-calculator-promo { border-color:#272C35; background:#161A21; }
+.sheet[data-screen="Account details"] .account-calculator-cash > span { font-size:12px; }
+.sheet[data-screen="Account details"] .account-calculator-cash small { font-size:11px; }
+.sheet[data-screen="Account details"] .account-calculator-cash input { background:#3B414C; }
+.sheet[data-screen="Account details"] .account-calculator-cash input:checked { background:hsl(var(--account-accent-hue) var(--account-accent-saturation) 59%); }
+.sheet[data-screen="Account details"] .account-calculate { min-height:46px; font-size:13px; border-radius:9px; margin-top:10px; }
+.sheet[data-screen="Account details"] .account-calculator-helper { color:#8A93A1; font-size:10px; margin-top:6px; }
+.sheet[data-screen="Account details"] .account-management { background:#161A21; border-color:#272C35; border-radius:10px; }
+.sheet[data-screen="Account details"] .offer-history { margin-top:10px; background:#161A21; border:1px solid #272C35; border-radius:11px; padding:0; }
+.sheet[data-screen="Account details"] .offer-history > summary { display:block; padding:12px; color:#97A1AF; list-style:none; }
+.sheet[data-screen="Account details"] .offer-history > summary::after { content:none; }
+.sheet[data-screen="Account details"] .offer-history > summary::-webkit-details-marker { display:none; }
+.account-history-title { display:flex; align-items:center; gap:11px; min-height:24px; color:#FFFFFF; font-size:12px; line-height:1.4; }
+.account-history-title > svg { width:21px; height:21px; flex:none; color:#97A1AF; }
+.account-history-title > span { flex:1; min-width:0; overflow-wrap:anywhere; }
+.account-history-title > svg:last-child { width:14px; height:14px; }
+.offer-history[open] .account-history-title > svg:last-child { transform:rotate(180deg); }
+.account-history-legend { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px 9px; margin-left:32px; font-size:10px; }
+.history-key { display:inline-flex; align-items:center; gap:5px; line-height:1.4; }
+.history-key strong { font-weight:550; color:#FFFFFF; font-variant-numeric:tabular-nums; }
+.account-history-groups { padding:0 11px 11px; border-top:1px solid #272C35; }
+.account-history-group { padding-top:12px; }
+.account-history-group > h3 { display:flex; gap:7px; align-items:center; margin:0 0 7px; color:#97A1AF; font-size:12px; font-weight:500; }
+.account-history-group > h3 > span { font-variant-numeric:tabular-nums; }
+.account-history-group .past-offer:not([open]) { background:#0E1218; }
+.account-history-group .cash-source-record { border-top:0; border-bottom:1px solid #272C35; padding:3px 0; }
+@media(max-width:369px){.sheet[data-screen="Account details"] .account-calculator-controls { grid-template-columns:minmax(0,1fr); }.account-history-legend { margin-left:0; }.sheet[data-screen="Account details"] .account-sheet-top { flex-wrap:wrap; }}
+.sheet[data-screen="Account details"] .account-receipt-list.is-expanded { display:grid; grid-template-columns:repeat(auto-fit,minmax(76px,1fr)); gap:0; border:0; background:none; }
+.sheet[data-screen="Account details"] .account-receipt-list.is-expanded .account-receipt-row { display:flex; flex-direction:column; gap:5px; padding:8px 4px; text-align:center; border:0; }
+.sheet[data-screen="Account details"] .account-receipt-list.is-expanded .account-receipt-row > svg:first-child { color:var(--green-strong); width:21px; height:23px; }
+.sheet[data-screen="Account details"] .account-receipt-list.is-expanded .account-receipt-row > svg:last-child { display:none; }
+.sheet[data-screen="Account details"] .account-receipt-list.is-expanded .account-receipt-row strong { font-size:11px; }
+.sheet[data-screen="Account details"] .account-receipt-list.is-expanded .account-receipt-row small { font-size:10px; }
+.sheet[data-screen="Account details"] .past-offer > summary::before { content:none; }
+.sheet[data-screen="Account details"] .receipt-review-action::after { color:#E8B84A; }
+.sheet[data-screen="Account details"] .account-detail-provider svg { color:#FFFFFF; }
+/* Latest quiet history disclosure: icon summaries, no graph or progress bar. */
+.sheet[data-screen="Account details"] .offer-history { background:#13171D; border-color:#252B33; }
+.sheet[data-screen="Account details"] .offer-history > summary { padding:11px 12px; }
+.account-history-title { font-weight:450; }
+.account-history-title > svg:first-child { width:21px; height:21px; }
+.account-history-legend { gap:7px 10px; margin-top:9px; font-size:11px; justify-content:space-between; }
+.history-key { gap:5px; color:#97A1AF; }
+.history-key > svg { width:16px; height:16px; flex:none; color:#8A93A1; }
+.history-key.completed > svg,.account-history-group.completed > h3 > svg { color:color-mix(in srgb,var(--account-accent) 72%,#97A1AF); }
+.history-key.expired > svg,.account-history-group.expired > h3 > svg { color:#C5A25A; }
+.history-key.ignored > svg,.account-history-group.ignored > h3 > svg { color:#8A93A1; }
+.history-key strong { font-weight:450; color:#CBD1DA; }
+.account-history-groups { padding:0 9px 10px; border-top:0; }
+.account-history-group { margin-top:8px; padding:0 10px 2px; border:1px solid #252B33; border-radius:9px; background:#11151B; }
+.account-history-group > h3 { gap:6px; min-height:35px; margin:0; color:#C5CCD7; font-size:12px; font-weight:450; }
+.account-history-group > h3 > svg { width:17px; height:17px; flex:none; color:#8A93A1; }
+.sheet[data-screen="Account details"] .account-history-group .past-offer { background:none; border:0; border-top:1px solid #272C35; border-radius:0; margin:0; }
+.sheet[data-screen="Account details"] .account-history-group .past-offer[open] { background:none; border-color:#272C35; }
+.sheet[data-screen="Account details"] .account-history-group .account-offer-toggle { padding:9px 0; min-height:51px; gap:9px; }
+.sheet[data-screen="Account details"] .account-history-group .offer-name,.sheet[data-screen="Account details"] .account-history-group .account-detail-offer[open] .offer-name { font-size:13px; font-weight:500; }
+.sheet[data-screen="Account details"] .account-history-group .compact-offer-expiry { font-size:11px; }
+.sheet[data-screen="Account details"] .account-history-group .account-offer-body { padding:0 0 8px; }
+.account-history-group .cash-source-record { border-top:1px solid #272C35; border-bottom:0; }
+.account-history-group .cash-source-record > summary { min-height:51px; padding:9px 0; }
+.account-history-group .cash-source-record strong { font-size:13px; font-weight:500; }
+.sheet[data-screen="Account details"] .account-calculator-panel { background:#141A23; }
