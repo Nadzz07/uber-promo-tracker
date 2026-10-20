@@ -4,7 +4,7 @@ import {PALETTE,ACCENT_TOKENS,cssToken,colourRgb,basePaletteCss} from './theme-p
 import {applyThemeTokens,DEFAULT_COLOUR} from './appearance.js';
 import {contrastRatio} from './liquid-glass.js';
 const html=fs.readFileSync('index.html','utf8');
-for(const file of ['ui-refinements.css','liquid-glass.css','desktop-layout.css','theme-system.css','index.html']){
+for(const file of ['ui-refinements.css','liquid-glass.css','desktop-layout.css','theme-system.css','index.html','parser-test.html','processor-test.html']){
  const source=fs.readFileSync(file,'utf8'),css=file.endsWith('.html')?[...source.matchAll(/<style>([\s\S]*?)<\/style>/g)].map(m=>m[1]).join('\n'):source;
  assert.equal(/#[\da-f]{3,8}\b|rgba?\(|hsla?\(|(?:linear|radial|conic)-gradient\(/i.test(css),false,'Rendered CSS must use only the shared colour tokens: '+file);
  for(const match of css.matchAll(/(?:box-shadow|text-shadow)\s*:\s*([^;}\n]+)/gi))assert.ok(/^(none\b|var\()/.test(match[1].trim()),'No decorative glow/shadow: '+file);

@@ -2875,7 +2875,7 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 .account-history-group .cash-source-record strong { font-size:13px; font-weight:500; }
 .sheet[data-screen="Account details"] .account-calculator-panel { background: var(--color-panel); }
 
-/* Inline account management: saved metadata, notes and reversible archive. */
+/* Inline account management: saved metadata and reversible archive. */
 .sheet[data-screen="Account details"] .account-management { padding:0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--card-radius); background: var(--color-panel); }
 .account-management > h3 { margin:0; font-size:16px; font-weight:600; }
 .account-management-toggle { display:flex; align-items:center; gap:var(--space-3); width:100%; min-height:54px; padding:var(--space-2) 0; border: 0; background: transparent; color: var(--text); font:inherit; text-align:left; cursor:pointer; }
@@ -2898,21 +2898,14 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 .account-record-methods > span { display:inline-flex; align-items:center; gap:var(--space-2); white-space:nowrap; }
 .account-record-methods svg { width:22px; height:22px; flex:none; color: var(--color-text); }
 .account-record-source { margin:var(--space-2) 0 var(--space-3); color: var(--color-secondary); font-size:12px; line-height:1.5; }
-.account-note-heading { display:flex; align-items:center; justify-content:space-between; gap:var(--space-3); }
-.account-note-heading h4 { margin:0; color: var(--text); font-size:14px; line-height:1.5; font-weight:550; }
 .account-management-action { min-width:44px; min-height:40px; padding:var(--space-1) 0 var(--space-1) var(--space-2); border: 0; border-radius: var(--control-radius); background: transparent; color: var(--account-accent); font:inherit; font-size:14px; font-weight:500; cursor:pointer; }
-.account-management-action.secondary { color: var(--color-label); }
 .account-management-action:disabled { color: var(--color-secondary); opacity:.65; cursor:default; }
-.account-saved-note { margin:0 0 var(--space-2); color: var(--color-label); font-size:14px; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere; }
-.account-saved-note.is-empty { color: var(--color-secondary); }
-.account-management textarea { display:block; width:100%; box-sizing:border-box; min-height:92px; padding:var(--space-2) var(--space-3); border: 1px solid var(--color-outline); border-radius: var(--control-radius); background: var(--color-panel); color: var(--color-text); font:inherit; font-size:16px; line-height:1.5; resize:vertical; }
-.account-note-actions { display:flex; gap:var(--space-4); justify-content:flex-end; }
 .account-management-feedback { margin:0 0 var(--space-2); color: var(--color-label); font-size:12px; line-height:1.5; }
 .account-archive-row { display:flex; align-items:center; gap:var(--space-3); padding-top:var(--space-2); border-top: 1px solid var(--color-outline); }
 .account-archive-row > svg { width:24px; height:24px; flex:none; color: var(--color-text); }
 .account-archive-row > div { flex:1; min-width:0; }
 .account-archive-row > div > span { display:block; font-size:14px; line-height:1.5; font-weight:400; }
 .account-archive-row small { display:block; margin-top:2px; color: var(--color-secondary); font-size:12px; line-height:1.5; }
-.account-management :is(button,textarea):focus-visible { outline: 2px solid var(--account-accent); outline-offset: 3px; }
+.account-management button:focus-visible { outline: 2px solid var(--account-accent); outline-offset: 3px; }
 @media (prefers-reduced-motion:reduce) { .account-management-toggle > svg:last-child { transition:none; } }
 @media (max-width:360px) { .sheet[data-screen="Account details"] .account-management { padding-inline:var(--space-3); } .account-record-summary > div { gap:var(--space-2); padding-inline:var(--space-2); } }

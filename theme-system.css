@@ -95,3 +95,6 @@ input[role=switch]:checked { background:var(--color-toggle)!important; border-co
 :is(.app-icon-surface,.setting-icon,.stat-icon) { background:transparent; border:0; box-shadow:none; border-radius:0; }
 .finance-hero::before,.total-saved-card::before,.insights-hero::before,.home-overview::after { content:none; }
 :root { --motion-stagger:32ms; }
+
+/* Keep freshly hydrated sheet content visible when reopening during dismissal. */
+.sheet-backdrop.open .sheet-body > * { visibility:visible; }

@@ -2570,7 +2570,6 @@
     } from "./deal-intelligence.js";
 
     import {
-      accountManualRecord,
       accountWithManualState,
       saveAccountManualRecord,
       confirmedUses,
@@ -4051,22 +4050,14 @@
     function accountSheetClockKey() {
       return allPromosForAccount(openAccountRef).map(p=>promoStateKey(p)+'|'+offerCountdown(p)).join(';');
     }
-    const accountNoteDrafts = new Map();
-    function accountNoteValue(store, account) {
-      const record = accountManualRecord(store, account);
-      if (typeof record.note === 'string') return record.note;
-      const imported = financeVault.data?.accounts.find(row => row.accountRef === account.accountRef);
-      return [imported?.notes, imported?.note, account.notes, account.note].find(value => typeof value === 'string') || '';
-    }
     function accountManagementMarkup(account) {
-      const e = escapeHtml, note = accountNoteValue(manualStore, account), draft = accountNoteDrafts.get(account.accountRef);
+      const e = escapeHtml;
       const methods = [...new Set((Array.isArray(account.loginMethods) ? account.loginMethods : account.loginMethod === 'Both' ? ['iCloud','Google'] : [account.loginMethod]).filter(value => ['iCloud','Google'].includes(value)))];
       const access = account.canLogin === true && account.accessStatus !== 'pending' ? 'Can log in' : account.canLogin === false ? 'Can’t log in' : 'Not recorded';
       const archived = accountArchived(currentAccountState(account)), deactivated = account.deactivated || account.accountStatus === 'deactivated';
       return `<section class="account-management" data-disclosure-key="manage-account" data-expanded="false"><h3><button type="button" class="account-management-toggle" id="accountManagementToggle" data-account-management-toggle aria-expanded="false" aria-controls="accountManagementBody">${financeIcon('menu-sliders')}<span>Manage account</span>${financeIcon('chevron-down')}</button></h3><div id="accountManagementBody" class="account-management-body" hidden>
         <dl class="account-record-summary"><div><dt>Login access</dt><dd class="account-record-access${access === 'Can log in' ? ' positive' : ''}">${access === 'Can log in' ? '<span class="status-dot" aria-hidden="true"></span>' : ''}${e(access)}</dd></div><div><dt>Login method</dt><dd class="account-record-methods">${methods.length ? methods.map(method => `<span>${financeIcon(method === 'iCloud' ? 'cloud' : 'google')}${method}</span>`).join('') : 'Not recorded'}</dd></div></dl>
-        <p class="account-record-source">From your account records.</p><div class="account-note-heading"><h4>Notes</h4>${!draft ? '<button type="button" class="account-management-action" data-account-note-edit="true">Edit</button>' : ''}</div>
-        ${draft ? `<form data-account-note-form><label class="sr-only" for="accountNote">Account notes</label><textarea id="accountNote" rows="3" maxlength="10000">${e(draft.value)}</textarea><div class="account-note-actions"><button type="submit" data-account-note-save="true" class="account-management-action">Save</button><button type="button" class="account-management-action secondary" data-account-note-cancel="true">Cancel</button></div></form>` : `<p class="account-saved-note${note.trim() ? '' : ' is-empty'}">${note.trim() ? e(note) : 'No notes'}</p>`}
+        <p class="account-record-source">From your account records.</p>
         <p class="account-management-feedback" role="status" aria-live="polite" hidden></p><div class="account-archive-row">${financeIcon('archive')}<div><span>${archived ? 'Archived account' : 'Archive account'}</span><small>Keeps receipts and history.</small></div><button type="button" class="account-management-action" data-account-archive="${!archived}"${deactivated ? ' disabled' : ''}>${archived ? 'Unarchive' : 'Archive'}</button></div>
       </div></section>`;
     }
@@ -4076,23 +4067,15 @@
       prior?.cancel();accountManagementMotions.delete(panel);body.style.overflow='';
       panel.dataset.expanded = String(open);
       panel.querySelector('[data-account-management-toggle]').setAttribute('aria-expanded', String(open));
-      if(!open&&body.contains(document.activeElement))panel.querySelector('[data-account-management-toggle]').focus({preventScroll:true});
+      if(!open&&(animate||body.contains(document.activeElement)))panel.querySelector('[data-account-management-toggle]').focus({preventScroll:true});
       body.inert=!open;
       if(!animate||motionReduced()||!body.animate){body.hidden=!open;return;}
       body.hidden=false;body.style.overflow='hidden';
-      const duration=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--motion-fast'))||180;
+      const timing=getComputedStyle(document.documentElement).getPropertyValue('--motion-fast').trim();
+      const duration=Number.isFinite(parseFloat(timing))?parseFloat(timing)*(timing.endsWith('ms')?1:1000):180;
       const animation=body.animate([{height:from+'px',opacity:open ? .65 : 1},{height:(open?body.scrollHeight:0)+'px',opacity:open?1:.65}],{duration,easing:'ease-out'});
       accountManagementMotions.set(panel,animation);
       animation.onfinish=()=>{if(accountManagementMotions.get(panel)!==animation)return;body.hidden=!open;body.style.overflow='';accountManagementMotions.delete(panel);};
-    }
-    function renderAccountManagement(focusId = null) {
-      const panel = document.querySelector('.account-management'), account = accounts.find(row => row.accountRef === openAccountRef);
-      if (!panel || !account) return;
-      const open = panel.dataset.expanded === 'true', scroll = document.getElementById('sheetBody').scrollTop;
-      panel.outerHTML = accountManagementMarkup(account);
-      setAccountManagementOpen(document.querySelector('.account-management'), open);
-      document.getElementById('sheetBody').scrollTop = scroll;
-      document.querySelector(focusId || '[data-account-note-edit]')?.focus({preventScroll:true});
     }
     function commitAccountManagement(patch) {
       const account = accounts.find(row => row.accountRef === openAccountRef); if (!account) return false;
@@ -4100,20 +4083,16 @@
         // Merge the latest offer/account decisions, rather than replacing another
         // tab's unrelated edits with this sheet's older copy.
         const raw = localStorage.getItem(STATE_KEY), latest = raw ? normaliseManualStore(JSON.parse(raw)) : normaliseManualStore();
-        const draft = accountNoteDrafts.get(account.accountRef);
-        if ('note' in patch && draft && accountNoteValue(latest, account) !== draft.base) throw Error('Notes changed in another tab. Cancel to see the latest note.');
         const next = saveAccountManualRecord(latest, account, patch);
         localStorage.setItem(STATE_KEY, JSON.stringify(next)); manualStore = next;
-        if ('note' in patch) accountNoteDrafts.delete(account.accountRef);
         invalidateAccountProjection(); renderAll(); renderAccountSheet();
-        const focus = 'note' in patch ? '[data-account-note-edit]' : '[data-account-archive]';
-        document.querySelector(focus)?.focus({preventScroll:true});
+        document.querySelector('[data-account-archive]')?.focus({preventScroll:true});
         const feedback = document.querySelector('.account-management-feedback');
-        feedback.hidden = false; feedback.textContent = 'note' in patch ? 'Notes saved.' : patch.archived ? 'Account archived.' : 'Account unarchived.';
+        feedback.hidden = false; feedback.textContent = patch.archived ? 'Account archived.' : 'Account unarchived.';
         return true;
       } catch (error) {
         const feedback = document.querySelector('.account-management-feedback');
-        feedback.hidden = false; feedback.textContent = /another tab/.test(error.message) ? error.message : 'Couldn’t save. Your changes are still here. Try again.';
+        feedback.hidden = false; feedback.textContent = 'Couldn’t save. Try again.';
         return false;
       }
     }
@@ -4121,12 +4100,8 @@
       const panel = event.target.closest('.account-management'); if (!panel) return;
       if (event.target.closest('[data-account-management-toggle]')) { setAccountManagementOpen(panel, panel.dataset.expanded !== 'true',true); return; }
       const account = accounts.find(row => row.accountRef === openAccountRef); if (!account) return;
-      if (event.target.closest('[data-account-note-edit]')) { const note = accountNoteValue(manualStore, account); accountNoteDrafts.set(account.accountRef, {value:note, base:note}); renderAccountManagement('#accountNote'); return; }
-      if (event.target.closest('[data-account-note-cancel]')) { accountNoteDrafts.delete(account.accountRef); renderAccountManagement(); return; }
       const archive = event.target.closest('[data-account-archive]'); if (archive && !archive.disabled) commitAccountManagement({archived:archive.dataset.accountArchive === 'true'});
     });
-    document.addEventListener('input', event => { if (event.target.id === 'accountNote') { const draft = accountNoteDrafts.get(openAccountRef); if (draft) draft.value = event.target.value; } });
-    document.addEventListener('submit', event => { if (event.target.matches('[data-account-note-form]')) { event.preventDefault(); commitAccountManagement({note:document.getElementById('accountNote').value}); } });
     function renderAccountSheet() {
       if(!openAccountRef)return;
       const account=accounts.find(a=>a.accountRef===openAccountRef);if(!account)return;
@@ -4161,7 +4136,7 @@
       }else if(!previous&&!liveItems.length&&currentCash){const row=host.querySelector('[data-cash-entry]');if(row)row.open=true;}
       if(window.history.state?.trackerSheet==='account')window.history.replaceState({...window.history.state,trackerOffer:accountOfferToOpen||window.history.state.trackerOffer},'');
       accountOfferToOpen=null;
-      if(['accountCalcPromo','accountCalcCash','accountNote'].includes(focusId))document.getElementById(focusId)?.focus({preventScroll:true});
+      if(['accountCalcPromo','accountCalcCash'].includes(focusId))document.getElementById(focusId)?.focus({preventScroll:true});
       if(focusKey){for(const name of ['useOne','undoUse','toggleIgnore','markOfferDone'])if(focusKey[name])host.querySelector('[data-'+name.replace(/[A-Z]/g,c=>'-'+c.toLowerCase())+'="'+CSS.escape(focusKey[name])+'"]')?.focus({preventScroll:true});}
     }
 

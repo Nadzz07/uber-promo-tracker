@@ -378,11 +378,12 @@ glows, reflection layers and navigation backdrop sampling/refraction were remove
 Spring navigation and reduced-motion preferences remain supported.
 
 Manage account is an inline accessible accordion. Saved login metadata is read
-without domain inference. Notes and reversible archive choices persist in the
-existing device-local manual store under `accountRecords`, bound to account identity.
+without domain inference. Reversible archive choices persist in the existing device-local manual store under
+`accountRecords`, bound to account identity. The Notes interface has been removed;
+previously stored metadata is preserved.
 Legacy retired account-done flags remain ignored. Archive changes active rotation
 through the existing classification; it does not change login, receipts, offers or
-financial records. Cross-tab note conflicts retain the draft and require review.
+financial records. Cross-tab updates preserve unrelated saved decisions.
 
 History has no title total or progress graph. Category counts remain dynamic; the
 expanded view shows one selected status, defaults to the first non-empty category,
@@ -391,8 +392,8 @@ category and record. Historical credit and reminder evidence are deduplicated.
 
 Manual usage continues to reconcile from reliable promo-specific receipt evidence.
 Confirmed receipts replace outstanding manual uses once; account receipt totals or
-matching discount amounts alone cannot establish a redemption. The real current
-private export contains 436 receipts but no source-assigned per-promo links, so
+matching discount amounts alone cannot establish a redemption. The verified source
+reconstruction contains 436 distinct receipts but no source-assigned per-promo links, so
 ambiguous assignments are not invented.
 
 Browser checks cover three accent colours, all main/detail/settings/data screens,
