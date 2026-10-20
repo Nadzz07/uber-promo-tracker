@@ -43,11 +43,8 @@ function extractTripKey(text, { bikeSignal = false } = {}) {
     .map(match => String(match[1]).padStart(2, "0") + ":" + match[2]))];
   // Payment attempts and refunds have their own clocks. Prefer the journey
   // section's pickup/drop-off pair, which stays stable across receipt updates.
-  const journey = source.match(/\bYou rode with\b([\s\S]*)/i)?.[1];
-  const timingSource = journey && clockTimes(journey).length >= 2 ? journey : source.replace(
-    /(\bPayments?\b[\s\S]*)/i,
-    block => block.replace(/\b\d{1,2}\/\d{1,2}\/20\d{2}\s+\d{1,2}:\d{2}\b/g, '')
-  );
+  const journey = source.match(/\bTrip\s+details\b([\s\S]*?)(?:\bYou\s+rode\s+with\b|$)/i)?.[1];
+  const timingSource = journey && clockTimes(journey).length >= 2 ? journey : source;
   const times = clockTimes(timingSource).slice(0, 2);
 
   const distanceMatch = source.match(

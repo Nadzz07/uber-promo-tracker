@@ -56,7 +56,7 @@ const message={subject:'Your trip with Uber',sender:'Uber <receipts@uber.com>',r
 assert.equal(parseUberTransportReceipt({...message,body:plain}).tripKey,parseUberTransportReceipt({...message,body:repeated}).tripKey);
 assert.equal(parseUberTransportReceipt({...message,body:plain}).tripKey,parseUberTransportReceipt({...message,body:plain.replace('4 Jul 2026','Saturday, 4 July 2026')}).tripKey);
 const paidRide = (updated=false) => parseUberTransportReceipt({...message,
- body:`4 Jul 2026\n10:05\n${updated?'We adjusted the total for your recent ride.':'Thanks for riding with Uber.'}\nTrip fare\nTotal £${updated?'8':'9'}\nPayments\n04/07/2026 ${updated?'10:34':'10:32'}\nYou rode with EXAMPLE DRIVER\nUberX\n10:16 pickup\n10:31 drop off`,
+ body:`4 Jul 2026\n10:05\n${updated?'We adjusted the total for your recent ride.':'Thanks for riding with Uber.'}\nTrip fare\nTotal £${updated?'8':'9'}\nPayments\n04/07/2026 ${updated?'10:34':'10:32'}\nTrip details\nUberX\n10:16 pickup\n10:31 drop off\nYou rode with EXAMPLE DRIVER`,
  receivedAt:updated?'2026-07-04T09:35:00Z':'2026-07-04T09:33:00Z'});
 assert.equal(paidRide().tripKey,'date=2026-07-04|startTime=10:16|endTime=10:31');
 assert.equal(paidRide(true).tripKey,paidRide().tripKey,'A payment/refund clock cannot turn an adjusted Ride into another journey');
