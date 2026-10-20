@@ -2059,7 +2059,7 @@ html[data-layout="mobile"] #view-planner :is(button,input,select,summary) { scro
 #view-offers .offer-preview-card .account-access-pill { display:inline-flex; align-items:center; align-self:start; gap:var(--space-1); margin:2px 0 0; padding:3px var(--space-2); font-size:12px; font-weight:500; line-height:1.4; }
 #view-offers .account-access-pill.good::before { content:''; width:6px; height:6px; flex:0 0 6px; border-radius: 50%; background: var(--status-success,var(--color-accent)); }
 #view-offers .offer-preview-open { width:24px; min-height:44px; margin-top:-5px; }
-#view-offers .offer-preview-content { margin-left:42px; min-width:0; }
+#view-offers .offer-preview-content { margin-left:calc(32px + var(--space-2)); min-width:0; }
 #view-offers .offer-preview-primary { display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-1) var(--space-2); }
 #view-offers .offer-preview-card .account-offer { margin:0; padding:0; border: 0; font-size:23px; line-height:1.3; font-weight:600; overflow-wrap:anywhere; }
 #view-offers .offer-preview-best { position:static; display:inline-flex; padding:3px var(--space-2); border-radius: 999px; font-size:12px; font-weight:500; line-height:1.4; background: color-mix(in srgb, var(--color-accent) 6.5%, transparent); }
@@ -2091,7 +2091,7 @@ html[data-layout="mobile"] #view-offers :is(button,input,select,summary) { scrol
  #view-offers .offer-controls { grid-template-columns:minmax(0,1.5fr) minmax(100px,1fr); gap:var(--space-2); }
  #view-offers .offer-scope-row { padding-inline:var(--space-2); gap:1px var(--space-2); }
  #view-offers .offer-preview-card .account-top { grid-template-columns:minmax(0,1fr) 24px; }
- #view-offers .offer-preview-card .account-access-pill { grid-column:1; grid-row:2; margin-left:42px; }
+ #view-offers .offer-preview-card .account-access-pill { grid-column:1; grid-row:2; margin-left:calc(32px + var(--space-2)); }
  #view-offers .offer-preview-open { grid-column:2; grid-row:1; }
  #view-offers .offer-preview-content { margin-left:0; }
 }
