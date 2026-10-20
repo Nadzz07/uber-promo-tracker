@@ -1,5 +1,7 @@
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const paths = {
+  archive:'<path d="M3 3h18v5H3zM5 8v13h14V8M9 12h6"/>',
+  google:'<path d="M20.5 10.5H12v4h4.8a5.6 5.6 0 1 1-1.5-7.8l3-3a10 10 0 1 0 2.2 6.8Z"/>',
   plus:'<path d="M12 4v16M4 12h16"/>',
   calculator:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 10h1M12 10h1M16 10h.1M8 14h1M12 14h1M16 14h.1M8 18h1M12 18h1M16 18h.1"/>',
   undo:'<path d="M9 4 3 9l6 5M3 9h10a7 7 0 0 1 0 14"/>',

@@ -1,6 +1,6 @@
 import {dedupeReceipts} from './receipt-identity.js';
 import {receiptWhen} from './receipt-date.js';
-import {promotionActivity,promoStateKey} from './manual-state.js';
+import {getOfferManualState,promotionActivity,promoStateKey} from './manual-state.js';
 import {classifyOfferTrackingState} from './offer-state.js';
 
 // Receipt identities and link evidence stay in the encrypted private transfer.
@@ -74,6 +74,6 @@ export function accountHistoryGroups(promos=[],grants=[],store={},now=new Date()
   const group=activity.bucket==='completed'?'completed':activity.bucket==='ignored'?'ignored':activity.bucket.includes('expired')?'expired':activity.bucket==='manual'?'manual':'other';
   byKey.get(group).records.push({kind:'promo',key,promo,activity});
  }
- for(const grant of grants){if(!['expired','exhausted'].includes(grant.status))continue;const key='credit:'+JSON.stringify([grant.issuedAt,grant.issued,grant.expiresAt]);if(seen.has(key))continue;seen.add(key);byKey.get(grant.status==='expired'?'expired':'exhausted').records.push({kind:'cash',key,grant});}
+ for(const grant of grants){const states=(grant.offers||[]).map(p=>getOfferManualState(store,p)),group=states.some(s=>s.ignored)?'ignored':states.some(s=>s.forceDone)?'manual':grant.status==='expired'?'expired':grant.status==='exhausted'?'exhausted':null;if(!group)continue;const key='credit:'+JSON.stringify([grant.issuedAt,grant.issued,grant.expiresAt]);if(seen.has(key))continue;seen.add(key);byKey.get(group).records.push({kind:'cash',key,grant});}
  return groups;
 }

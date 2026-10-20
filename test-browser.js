@@ -129,7 +129,7 @@ try {
     assert.ok(glider.width > 0 && glider.height > 0, `Liquid nav glider should be sized at ${width}px`);
     assert.notEqual(glider.transform, 'none', `Liquid nav glider should be positioned at ${width}px`);
     assert.equal(await page.locator('.nav-glider').evaluate(el => getComputedStyle(el).transitionDuration), '0s', 'Physical springs own the glider; CSS timing must not override them');
-    assert.equal(await page.locator('#mainNav').getAttribute('data-material'), engine === chromium ? 'refractive' : 'accessible-glass');
+    assert.equal(await page.locator('#mainNav').getAttribute('data-material'), 'matte');
     // Resize transitions settle before checking exact geometry below.
     if (width < 980) {
       const nav = await page.locator('#mainNav').evaluate(el => ({ bottom: innerHeight-el.getBoundingClientRect().bottom, radius: getComputedStyle(el).borderRadius, position: getComputedStyle(el).position, height: el.offsetHeight }));

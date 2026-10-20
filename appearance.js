@@ -1,5 +1,6 @@
+import {PALETTE,ACCENT_TOKENS,cssToken,colourRgb} from './theme-palette.js';
 export const THEME_KEY = 'uber-eats-promo-tracker:theme:v1';
-export const DEFAULT_COLOUR = '#9bea72';
+export const DEFAULT_COLOUR = PALETTE.accent.toLowerCase();
 export const LAYOUT_KEY = 'uber-eats-promo-tracker:layout:v1';
 
 export function normaliseLayout(value) {
@@ -38,7 +39,21 @@ export function themeTokens(value) {
   const luminance = channels => channels.map(v => { const x = v / 255; return x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4; })
     .reduce((sum, v, i) => sum + v * [.2126,.7152,.0722][i], 0);
   // Dark selections keep their hue while becoming readable on the dark glass.
-  while ((luminance(rgb) + .05) / (luminance([12,19,17]) + .05) < 7) rgb = rgb.map(v => Math.min(255, v + Math.max(1, Math.ceil((255-v) * .06))));
+  while ((luminance(rgb) + .05) / (luminance(colourRgb(PALETTE.panel)) + .05) < 4.5) rgb = rgb.map(v => Math.min(255, v + Math.max(1, Math.ceil((255-v) * .06))));
   const hex = channels => '#' + channels.map(v => v.toString(16).padStart(2, '0')).join('');
   return { chosen, accent: hex(rgb), strong: hex(rgb.map(v => Math.round(v + (255-v) * .2))), rgb: rgb.join(', ') };
 }
+
+export function applyThemeTokens(root, value) {
+  const chosen=normaliseColour(value),baseHue=colourHsl(PALETTE.accent).hue,delta=colourHsl(chosen).hue-baseHue;
+  for(const [name,base] of Object.entries(PALETTE)) {
+    let colour=base;
+    if(ACCENT_TOKENS.includes(name)&&chosen!==DEFAULT_COLOUR.toLowerCase()) {const hsl=colourHsl(base);colour=hslColour(hsl.hue+delta,hsl.saturation,hsl.lightness);}
+    if(name==='accent')colour=themeTokens(chosen).accent;
+    root.style.setProperty(cssToken(name),colour);
+  }
+  root.style.setProperty('--color-panel-rgb',colourRgb(PALETTE.panel).join(','));
+  root.style.setProperty('--color-accent-rgb',colourRgb(themeTokens(chosen).accent).join(','));
+}
+// Preset hue choices remain available without embedding UI colours elsewhere.
+export const THEME_PRESETS=[['Lime',[155,234,114]],['Ocean',[128,212,255]],['Violet',[197,160,255]],['Rose',[255,155,184]],['Amber',[255,199,120]]].map(([label,rgb])=>({label,value:'#'+rgb.map(v=>v.toString(16).padStart(2,'0')).join('')}));

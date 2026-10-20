@@ -27,4 +27,4 @@ export function receiptOrderDate(body='') {
 }
 
 export function receiptWhen(receipt={}) {return receipt.orderAt||receipt.orderDate||receipt.sentAt||receipt.receivedAt||null;}
-export function receiptDay(receipt={}) {return receipt.orderDate||ukDateKey(receipt.sentAt||receipt.receivedAt);}
+export function receiptDay(receipt={}) {return receipt.orderDate||ukDateKey(receipt.orderAt||receipt.sentAt||receipt.receivedAt);}

@@ -109,3 +109,6 @@ exclude:
   - test-preferred-pages-browser.js
   - test-cash-pipeline.js
   - test-account-sheet-data.js
+  - test-manage-account-browser.js
+  - test-theme-browser.js
+  - test-theme-system.js

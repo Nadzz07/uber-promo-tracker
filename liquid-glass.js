@@ -1,3 +1,4 @@
+import {PALETTE,colourRgb} from './theme-palette.js';
 // A small, local-only material for navigation. It never captures the screen,
 // copies private DOM content, requests media access or sends samples anywhere.
 export function springStep(state, target, dt, { mass = 1, stiffness = 480, damping = 32 } = {}) {
@@ -13,19 +14,12 @@ export function springStep(state, target, dt, { mass = 1, stiffness = 480, dampi
 const linear = value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4;
 export function luminance(rgb) { return rgb.reduce((sum, value, i) => sum + linear(value / 255) * [.2126,.7152,.0722][i], 0); }
 export function contrastRatio(a, b) { const x = luminance(a), y = luminance(b); return (Math.max(x,y)+.05)/(Math.min(x,y)+.05); }
-export function materialPalette(background = [14,16,21], accent = [197,160,255]) {
+export function materialPalette(background = colourRgb(PALETTE.panel), accent = colourRgb(PALETTE.accent)) {
   const safe = rgb => rgb.map(v => Math.max(0,Math.min(255,Number(v)||0)));
-  const sample = safe(background), tint = sample.map(v=>Math.min(36,Math.round(18+v*.06)));
-  const opacity = Math.max(.84,Math.min(.94,.84+luminance(sample)*.10));
-  // Prove contrast against the brightest possible underlying pixel, including
-  // images/gradients that cannot be sampled from a web page's DOM. Blur and
-  // displacement cannot exceed that bound. Typography is never blend-mode text.
-  // Include the specular layer and selected capsule, both white-tinted, in
-  // the bound as well as the underlying backdrop.
-  const worst = tint.map(v => ((v*opacity+255*(1-opacity))*.94+255*.06)*.925+255*.075);
-  let vibrant = safe(accent);
-  while (contrastRatio(vibrant,worst)<4.5) vibrant=vibrant.map(v=>Math.min(255,v+(255-v)*.15+1));
-  return { tint, opacity, text:[246,246,250], secondary:[212,214,224], accent:vibrant.map(Math.ceil), worst };
+  const tint=colourRgb(PALETTE.panel),opacity=1,worst=tint;
+  let vibrant=safe(accent);
+  while(contrastRatio(vibrant,worst)<4.5)vibrant=vibrant.map(v=>Math.min(255,v+(255-v)*.15+1));
+  return {tint,opacity,text:colourRgb(PALETTE.text),secondary:colourRgb(PALETTE.label),accent:vibrant.map(Math.ceil),worst};
 }
 
 export function createLiquidNavigation(nav) {
@@ -34,53 +28,16 @@ export function createLiquidNavigation(nav) {
   const isReduced=()=>motion.matches||nav.dataset?.motion==='reduced';
   const states={x:{value:0,velocity:0},y:{value:0,velocity:0},width:{value:0,velocity:0},height:{value:0,velocity:0},flex:{value:0,velocity:0}};
   const targets={x:0,y:0,width:0,height:0,flex:0};
-  let frame=0, last=0, initialized=false, hapticPending=false, disposed=false, lensSize='', paletteKey='';
-  const ns='http://www.w3.org/2000/svg', make=(name, attrs)=>{const el=doc.createElementNS(ns,name);for(const [key,value] of Object.entries(attrs))el.setAttribute(key,value);return el;};
-  // WebKit currently parses url() backdrop filters but does not render them.
-  // Apply the shader only to renderers known to support it; Safari keeps the
-  // same accessible foreground, springs, edge reflection and depth material.
-  const refractive=/Chrome\/|Chromium\/|Edg\//.test(win.navigator.userAgent)&&!/iPhone|iPad|iPod/.test(win.navigator.userAgent)&&win.CSS.supports('backdrop-filter','url("#tracker-liquid-lens")');
-  const svg=make('svg',{'aria-hidden':'true',width:'0',height:'0',class:'liquid-filter-defs'}),defs=make('defs',{});
-  const filter=make('filter',{id:'tracker-liquid-lens',x:'0',y:'0',width:'100%',height:'100%','color-interpolation-filters':'sRGB',filterUnits:'objectBoundingBox'});
-  const map=make('feImage',{result:'curvature',preserveAspectRatio:'none',x:'0',y:'0',width:'100%',height:'100%'});
-  filter.append(make('feGaussianBlur',{in:'SourceGraphic',stdDeviation:'2',result:'soft-backdrop'}),map,make('feDisplacementMap',{in:'soft-backdrop',in2:'curvature',scale:'18',xChannelSelector:'R',yChannelSelector:'G',result:'refracted'}),make('feGaussianBlur',{in:'refracted',stdDeviation:'.3',result:'polished'}),make('feColorMatrix',{in:'polished',type:'saturate',values:'1.12'}));
-  defs.append(filter);svg.append(defs);doc.body.append(svg);
-  nav.dataset.material=refractive?'refractive':'accessible-glass';
-  function lens() {
-    if(!refractive)return;
-    const width=Math.max(1,Math.round(nav.clientWidth)),height=Math.max(1,Math.round(nav.clientHeight));
-    const size=width+'x'+height;if(size===lensSize)return;lensSize=size;
-    const canvas=doc.createElement('canvas');canvas.width=width;canvas.height=height;
-    const ctx=canvas.getContext('2d'),pixels=ctx.createImageData(width,height),radius=Math.min(width,height)/2;
-    for(let y=0;y<height;y++)for(let x=0;x<width;x++){
-      const cx=Math.max(radius,Math.min(width-radius,x)),cy=Math.max(radius,Math.min(height-radius,y));
-      const dx=x-cx,dy=y-cy,distance=Math.hypot(dx,dy),depth=radius-distance;
-      const curvature=distance>0?Math.max(0,1-Math.max(0,depth)/18)**2:0,index=(y*width+x)*4;
-      pixels.data[index]=Math.round(128+(distance?dx/distance:0)*110*curvature);
-      pixels.data[index+1]=Math.round(128+(distance?dy/distance:0)*110*curvature);
-      pixels.data[index+2]=128;pixels.data[index+3]=255;
-    }
-    ctx.putImageData(pixels,0,0);map.setAttribute('href',canvas.toDataURL('image/png'));
-    nav.style.backdropFilter='url("#tracker-liquid-lens")';
-  }
+  let frame=0, last=0, initialized=false, hapticPending=false, disposed=false, paletteKey='';
+  // Matte navigation has a fixed, contrast-proven surface. It needs no
+  // backdrop sampling, refraction canvas, blur filter or scroll-time readback.
+  nav.dataset.material='matte';
   function adaptiveMaterial() {
     if(disposed||doc.hidden)return;
-    const rect=nav.getBoundingClientRect(),samples=[];
-    for(const fraction of [.15,.5,.85]){
-      const under=doc.elementsFromPoint(rect.left+rect.width*fraction,rect.top+rect.height/2).find(el=>el!==nav&&!nav.contains(el)&&el!==svg);
-      let current=under;
-      while(current){
-        const raw=win.getComputedStyle(current).backgroundColor.match(/[\d.]+/g)?.map(Number);
-        if(raw&&raw.length>=3&&(raw[3]??1)>.8){samples.push(raw.slice(0,3));break;}
-        current=current.parentElement;
-      }
-    }
-    const sample=samples.sort((a,b)=>luminance(b)-luminance(a))[0]||[14,16,21];
     const colour=win.getComputedStyle(doc.documentElement).getPropertyValue('--accent-rgb').split(',').map(Number);
-    const palette=materialPalette(sample,colour.length===3?colour:undefined);
-    const key=JSON.stringify([palette.tint,palette.opacity,palette.accent]);if(key===paletteKey)return;paletteKey=key;
-    nav.style.setProperty('--liquid-tint',palette.tint.join(','));nav.style.setProperty('--liquid-opacity',palette.opacity);
-    nav.style.setProperty('--liquid-accent',`rgb(${palette.accent.join(',')})`);
+    const palette=materialPalette(undefined,colour.length===3?colour:undefined),key=JSON.stringify(palette.accent);
+    if(key===paletteKey)return;paletteKey=key;
+    nav.style.setProperty('--liquid-accent','var(--color-accent)');
   }
   function paint() {
     const width=states.width.value+'px',height=states.height.value+'px';
@@ -121,10 +78,10 @@ export function createLiquidNavigation(nav) {
   function scheduleMaterial(){if(!disposed&&!doc.hidden&&!sampleFrame)sampleFrame=win.requestAnimationFrame(()=>{sampleFrame=0;adaptiveMaterial();});}
   function visibilityChange(){if(doc.hidden){win.cancelAnimationFrame(frame);win.cancelAnimationFrame(sampleFrame);frame=sampleFrame=last=0;}else{scheduleMaterial();wake();}}
   function motionChange(){hapticPending=false;if(isReduced()){win.cancelAnimationFrame(frame);frame=0;states.flex={value:0,velocity:0};for(const key of ['x','y','width','height'])states[key]={value:targets[key],velocity:0};paint();}}
-  const resize=new win.ResizeObserver(()=>{lens();scheduleMaterial();});resize.observe(nav);
+  const resize=new win.ResizeObserver(()=>{scheduleMaterial();});resize.observe(nav);
   const theme=new win.MutationObserver(scheduleMaterial);theme.observe(doc.documentElement,{attributes:true,attributeFilter:['style','data-layout']});
-  nav.addEventListener('pointerdown',pointerDown);win.addEventListener('scroll',scheduleMaterial,{passive:true});motion.addEventListener('change',motionChange);
+  nav.addEventListener('pointerdown',pointerDown);motion.addEventListener('change',motionChange);
   doc.addEventListener('visibilitychange',visibilityChange);
-  lens();adaptiveMaterial();
-  return {setTarget,dragTo:next=>setTarget(next,{immediate:true}),refreshMaterial:scheduleMaterial,refreshMotion:motionChange,destroy(){disposed=true;win.cancelAnimationFrame(frame);win.cancelAnimationFrame(sampleFrame);resize.disconnect();theme.disconnect();svg.remove();nav.removeEventListener('pointerdown',pointerDown);win.removeEventListener('scroll',scheduleMaterial);motion.removeEventListener('change',motionChange);doc.removeEventListener('visibilitychange',visibilityChange);}};
+  adaptiveMaterial();
+  return {setTarget,dragTo:next=>setTarget(next,{immediate:true}),refreshMaterial:scheduleMaterial,refreshMotion:motionChange,destroy(){disposed=true;win.cancelAnimationFrame(frame);win.cancelAnimationFrame(sampleFrame);resize.disconnect();theme.disconnect();nav.removeEventListener('pointerdown',pointerDown);motion.removeEventListener('change',motionChange);doc.removeEventListener('visibilitychange',visibilityChange);}};
 }

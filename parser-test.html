@@ -11,22 +11,24 @@
 
 <title>Uber Promo Parser Test</title>
 
+<link rel="stylesheet" href="theme-system.css">
+
 <style>
 
 body {
-    font-family: Arial, sans-serif;
-    background: #111;
-    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--color-screen);
+    color: var(--color-text);
     max-width: 900px;
     margin: auto;
     padding: 40px 20px;
 }
 
 .test {
-    background: #1d1d1d;
+    background: var(--color-panel);
     margin-bottom: 20px;
     padding: 20px;
-    border-radius: 14px;
+    border-radius: var(--card-radius);
 }
 
 .pass {
@@ -36,9 +38,9 @@ body {
 pre {
     white-space: pre-wrap;
     overflow-wrap: anywhere;
-    background: #080808;
+    background: var(--color-dropdown);
     padding: 15px;
-    border-radius: 10px;
+    border-radius: var(--control-radius);
 }
 
 </style>
@@ -59,6 +61,11 @@ into promo data.
 
 
 <script type="module">
+import {basePaletteCss} from './theme-palette.js';
+import {applyThemeTokens,THEME_KEY} from './appearance.js';
+const paletteStyle=document.createElement('style');paletteStyle.textContent=basePaletteCss();document.head.prepend(paletteStyle);
+try { applyThemeTokens(document.documentElement,localStorage.getItem(THEME_KEY)); } catch { applyThemeTokens(document.documentElement); }
+
 
 import {
     parseUberPromo

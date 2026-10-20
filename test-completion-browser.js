@@ -34,10 +34,8 @@ try{
  const badges=await page.locator('.account-card .pill-row').allTextContents();assert.ok(badges.every(text=>!/Login:|Partial account usage|promos available|Available/.test(text)),'Cards repeat secondary badges');
  await page.emulateMedia({reducedMotion:'reduce'});await page.locator('[data-view="more"]').click();await page.waitForTimeout(50);
  assert.ok(await page.locator('.nav-glider').evaluate(el=>!getComputedStyle(el).transform.includes('NaN')));
- if(engine===chromium){
-  await page.evaluate(()=>{const pattern=document.createElement('div');pattern.id='shader-proof';pattern.style.cssText='position:fixed;inset:0;z-index:49;background:repeating-linear-gradient(90deg,#fff 0px,#fff 6px,#000 6px,#000 12px)';document.body.append(pattern);const nav=document.getElementById('mainNav');nav.style.zIndex='100';nav.style.background='transparent';});
-  const displacement=page.locator('#tracker-liquid-lens feDisplacementMap');await displacement.evaluate(el=>el.setAttribute('scale','0'));const flat=await page.locator('#mainNav').screenshot();await displacement.evaluate(el=>el.setAttribute('scale','18'));const bent=await page.locator('#mainNav').screenshot();assert.ok(!flat.equals(bent),'SVG displacement must change the rendered backdrop pixels');
-  await page.locator('#shader-proof').evaluate(el=>el.style.backgroundPosition='3px 0');const changed=await page.locator('#mainNav').screenshot();assert.ok(!bent.equals(changed),'Backdrop sampling must update with the underlying pixels');
- }
- assert.deepEqual(errors,[]);await page.close();console.log('✓ Final seven-situation table, Fully used counters, independent access/archive filters, preserved 1/5 expiry, deduped history and live refraction ('+(process.env.TRACKER_BROWSER_ENGINE||'chromium')+')');
+ const navSurface=await page.locator('#mainNav').evaluate(el=>({background:getComputedStyle(el).backgroundColor,filter:getComputedStyle(el).backdropFilter}));
+ assert.equal(navSurface.filter,'none','Matte navigation avoids backdrop/refraction work');assert.equal(await page.locator('#tracker-liquid-lens').count(),0);assert.notEqual(navSurface.background,'rgba(0, 0, 0, 0)','Navigation has an opaque, readable surface');
+
+ assert.deepEqual(errors,[]);await page.close();console.log('✓ Final seven-situation table, Fully used counters, independent access/archive filters, preserved 1/5 expiry, deduped history and matte navigation ('+(process.env.TRACKER_BROWSER_ENGINE||'chromium')+')');
 }finally{await browser.close();server.close();}

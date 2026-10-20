@@ -41,11 +41,38 @@ export function serverRemainingUses(promo) {
 export function normaliseManualStore(payload = {}) {
   return {
     version: 3,
+    ...(payload?.accountRecords && typeof payload.accountRecords === 'object' && !Array.isArray(payload.accountRecords)
+      ? { accountRecords: { ...payload.accountRecords } } : {}),
     offers:
       payload && typeof payload.offers === "object" && payload.offers
         ? { ...payload.offers }
         : {}
   };
+}
+
+// Account decisions share the existing device-local manual store. They never
+// change login metadata, receipts, promotion usage or financial records.
+export function accountManualRecord(store, account) {
+  const record = store?.accountRecords?.[account?.accountRef];
+  return record && record.accountMasked === account.accountMasked ? record : {};
+}
+
+export function accountWithManualState(store, account) {
+  const record = accountManualRecord(store, account);
+  if (typeof record.archived !== 'boolean' || account.deactivated || account.accountStatus === 'deactivated') return account;
+  return { ...account, archived: record.archived, accountStatus: record.archived ? 'archived' : 'active' };
+}
+
+export function saveAccountManualRecord(store, account, patch, at = new Date().toISOString()) {
+  if (!account?.accountRef || !account.accountMasked) throw Error('Account record unavailable.');
+  if (Object.keys(patch).some(key => !['note', 'archived'].includes(key)) ||
+      ('note' in patch && (typeof patch.note !== 'string' || patch.note.length > 10000)) ||
+      ('archived' in patch && typeof patch.archived !== 'boolean')) throw Error('Invalid account change.');
+  const next = normaliseManualStore(store);
+  next.accountRecords = { ...next.accountRecords, [account.accountRef]: {
+    ...accountManualRecord(next, account), ...patch, accountMasked: account.accountMasked, updatedAt: at
+  } };
+  return next;
 }
 
 // This mapping is supplied only in the owner's private device export. The

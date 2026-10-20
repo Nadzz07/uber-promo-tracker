@@ -65,3 +65,14 @@ console.log('✓ Account history uses exclusive existing classifications, preser
 
 assert.equal(offerReceiptAvailability({accounts:[{accountRef:'other'}],receipts:[{}],receiptMatchVersion:1,offerReceiptMatches:[]},promo).status,'not_imported','A partial export cannot establish receipt coverage for another account');
 assert.equal(offerReceiptAvailability({accounts:[{accountRef:'A1'}],receipts:[],receiptMatchVersion:1,offerReceiptMatches:[]},{...promo,receiptConfirmedUses:0}).status,'no_matches','A supported empty receipt corpus differs from no private import');
+
+{
+ const creditPromo={id:'cash-history-source',accountRef:'A1',discountType:'uberCash'};
+ const grant={issuedAt:'2026-09-01T12:00:00Z',issued:10,expiresAt:'2026-10-01T12:00:00Z',status:'expired',offers:[creditPromo]};
+ const state={version:3,offers:{'cash-history-source':{ignored:true}}};
+ const grouped=accountHistoryGroups([], [grant,{...grant}],state);
+ assert.equal(grouped.find(g=>g.key==='ignored').records.length,1,'Ignored credit is historical once, even after expiry/reminders');
+ assert.equal(grouped.find(g=>g.key==='expired').records.length,0,'Historical credit belongs to one status category');
+ assert.equal(accountHistoryGroups([],[{...grant,status:'estimated'}],{version:3,offers:{'cash-history-source':{forceDone:true}}}).find(g=>g.key==='manual').records.length,1,'Manual credit decisions remain distinct from verified completion');
+}
+console.log('✓ Historical credit preserves ignored/manual decisions, source evidence and exclusive deduplication.');

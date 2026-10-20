@@ -38,8 +38,8 @@ jobs:
       matrix:
         browser: [chromium, webkit, firefox]
     runs-on: ubuntu-latest
-    # The expanded 19-program WebKit suite needs installation and cleanup time.
-    timeout-minutes: 15
+    # The 21-program suite includes three-theme screen/contrast checks.
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

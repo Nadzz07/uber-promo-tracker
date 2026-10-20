@@ -365,3 +365,38 @@ The latest history design has no progress/composition bar. Completed, Expired
 and Ignored use compact icon summaries; expanded records use quiet divided
 charcoal groups. Active offers, Cash, the calculator and management retain their
 positions as history expands. Reduced-motion uses immediate native disclosure.
+
+
+## Shared matte UI, account management and history
+
+All rendered screens now use `theme-palette.js` as the fixed colour registry and
+`theme-system.css` for shared component, spacing, radius and motion tokens. Build
+injects the same palette before first paint. The saved wheel rotates the accent
+family; neutral surfaces, known-positive login/Cash and receipt-warning colours
+remain fixed. The wheel's functional spectrum is drawn once; decorative gradients,
+glows, reflection layers and navigation backdrop sampling/refraction were removed.
+Spring navigation and reduced-motion preferences remain supported.
+
+Manage account is an inline accessible accordion. Saved login metadata is read
+without domain inference. Reversible archive choices persist in the existing device-local manual store under
+`accountRecords`, bound to account identity. The Notes interface has been removed;
+previously stored metadata is preserved.
+Legacy retired account-done flags remain ignored. Archive changes active rotation
+through the existing classification; it does not change login, receipts, offers or
+financial records. Cross-tab updates preserve unrelated saved decisions.
+
+History has no title total or progress graph. Category counts remain dynamic; the
+expanded view shows one selected status, defaults to the first non-empty category,
+and retains manual/exhausted credit categories. Source navigation opens the relevant
+category and record. Historical credit and reminder evidence are deduplicated.
+
+Manual usage continues to reconcile from reliable promo-specific receipt evidence.
+Confirmed receipts replace outstanding manual uses once; account receipt totals or
+matching discount amounts alone cannot establish a redemption. The verified source
+reconstruction contains 436 distinct receipts but no source-assigned per-promo links, so
+ambiguous assignments are not invented.
+
+Browser checks cover three accent colours, all main/detail/settings/data screens,
+inline terms/history/management, forms, empty/error states, fixed statuses and
+rendered text contrast. Screenshots use synthetic or sanitized records only.
+Physical iPhone and native browser chrome testing must be reported separately.
