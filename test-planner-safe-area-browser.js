@@ -4,6 +4,7 @@ import http from 'node:http';
 import {once} from 'node:events';
 import {execFileSync} from 'node:child_process';
 import {chromium,webkit,firefox,devices} from 'playwright';
+import {PALETTE,colourRgb} from './theme-palette.js';
 
 execFileSync(process.execPath,['build-site.js']);
 const stamp=new Date().toISOString(),end=new Date(Date.now()+10*86400000).toISOString();
@@ -72,7 +73,7 @@ try{
     const background=getComputedStyle(document.body,'::before');
     return{header:rect(head),ancestors,background:{height:parseFloat(background.height),color:background.backgroundColor,filter:background.filter},nav:rect(document.querySelector('.bottom-nav')),padding:parseFloat(getComputedStyle(document.body).paddingBottom),overflow:document.documentElement.scrollWidth>innerWidth};
    });
-   if(width<980){assert.equal(layout.header.top,top+24,'Only the shell applies the top inset');assert.equal(layout.background.height,top);assert.equal(layout.background.color,'rgb(14, 16, 21)');assert.equal(layout.background.filter,'none');if(large)assert.ok(layout.nav.height>100,'Clearance follows actual enlarged dock height');}
+   if(width<980){assert.equal(layout.header.top,top+24,'Only the shell applies the top inset');assert.equal(layout.background.height,top);assert.equal(layout.background.color,'rgb('+colourRgb(PALETTE.screen).join(', ')+')');assert.equal(layout.background.filter,'none');if(large)assert.ok(layout.nav.height>100,'Clearance follows actual enlarged dock height');}
    for(const ancestor of layout.ancestors){assert.ok(ancestor.filter==='none'||ancestor.filter==='blur(0px)');assert.equal(ancestor.backdrop,'none');assert.ok(!['clip','hidden'].includes(ancestor.overflowY),'No ancestor clips vertical page scrolling');}
    assert.equal(layout.overflow,false);
    for(const expanded of [false,true]){
