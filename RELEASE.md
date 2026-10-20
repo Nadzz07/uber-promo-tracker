@@ -353,10 +353,15 @@ visible independently of receipt details.
 
 Account Details uses fixed charcoal surfaces and status colours. Accent buttons,
 selected offers, chips, tracks and links derive from the saved colour-wheel hue.
-The history bar uses one exclusive existing classification per promotion, plus
+The compact history summaries use one exclusive existing classification per promotion, plus
 distinct historical credit grants. Manual completion is not receipt-confirmed
 completion; expired credit is not recorded spending. Current and review states
 stay separate. History groups load incrementally in the same sheet, including
 all records after Show more; the handler now listens on the sheet's document
 rather than the inert underlying app. Receipt dates and amounts come from
 matched private records, with no placeholder uses or inferred offer matches.
+
+The latest history design has no progress/composition bar. Completed, Expired
+and Ignored use compact icon summaries; expanded records use quiet divided
+charcoal groups. Active offers, Cash, the calculator and management retain their
+positions as history expands. Reduced-motion uses immediate native disclosure.

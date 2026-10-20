@@ -51,9 +51,9 @@ assert.equal(offerReceiptAvailability(null,promo).status,'not_imported');
 assert.equal(offerReceiptAvailability(null,{...promo,receiptConfirmedUses:0}).status,'not_imported','A published zero does not mean private details were imported');
 assert.equal(offerReceiptAvailability(null,promo,'migration_required').status,'migration_required');
 assert.equal(offerReceiptAvailability(null,promo,'error').status,'error');
-assert.equal(offerReceiptAvailability({receipts:[{}]},promo).status,'outdated');
-assert.equal(offerReceiptAvailability({receipts:[{}],receiptMatchVersion:1,offerReceiptMatches:[]},{...promo,receiptConfirmedUses:0}).status,'no_matches');
-assert.equal(offerReceiptAvailability({receipts:[{}],receiptMatchVersion:1,offerReceiptMatches:[]},{...promo,receiptConfirmedUses:2}).status,'missing_details');
+assert.equal(offerReceiptAvailability({accounts:[{accountRef:'A1'}],receipts:[{}]},promo).status,'outdated');
+assert.equal(offerReceiptAvailability({accounts:[{accountRef:'A1'}],receipts:[{}],receiptMatchVersion:1,offerReceiptMatches:[]},{...promo,receiptConfirmedUses:0}).status,'no_matches');
+assert.equal(offerReceiptAvailability({accounts:[{accountRef:'A1'}],receipts:[{}],receiptMatchVersion:1,offerReceiptMatches:[]},{...promo,receiptConfirmedUses:2}).status,'missing_details');
 assert.equal(offerReceiptAvailability(data,{...promo,reviewReasons:['ambiguous_receipt_match'],id:'other'}).status,'unresolved');
 console.log('✓ Receipt availability distinguishes absent, legacy, failed, outdated, known zero, aggregate-only and unresolved evidence');
 
@@ -62,3 +62,6 @@ const historyPromos=[historyOffer('complete',{receiptConfirmedUses:5,usesRemaini
 const history=accountHistoryGroups([...historyPromos,historyPromos[0]],[{issued:10,issuedAt:'2026-01-01',expiresAt:'2026-02-01',status:'expired'},{issued:12,issuedAt:'2026-02-01',status:'exhausted'},{issued:12,issuedAt:'2026-02-01',status:'exhausted'}],historyStore,new Date('2026-10-20'));
 assert.deepEqual(Object.fromEntries(history.map(g=>[g.key,g.records.length])),{completed:1,expired:2,ignored:1,manual:1,exhausted:1,other:0});
 console.log('✓ Account history uses exclusive existing classifications, preserves manual/exhausted distinctions and deduplicates promos and grants');
+
+assert.equal(offerReceiptAvailability({accounts:[{accountRef:'other'}],receipts:[{}],receiptMatchVersion:1,offerReceiptMatches:[]},promo).status,'not_imported','A partial export cannot establish receipt coverage for another account');
+assert.equal(offerReceiptAvailability({accounts:[{accountRef:'A1'}],receipts:[],receiptMatchVersion:1,offerReceiptMatches:[]},{...promo,receiptConfirmedUses:0}).status,'no_matches','A supported empty receipt corpus differs from no private import');

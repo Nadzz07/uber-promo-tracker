@@ -56,7 +56,7 @@ export function offerReceiptAvailability(data,promo,storeStatus='ready'){
  if(storeStatus==='loading')return {status:'loading',message:'Loading receipt details.'};
  if(storeStatus==='migration_required')return {status:'migration_required',message:'Receipt data needs one-time migration in Sync & data.'};
  if(storeStatus==='error')return {status:'error',message:'Receipt data could not load. Original data is preserved.'};
- if(!data?.receipts?.length)return {status:'not_imported',message:'Receipt details not imported.'};
+ if(!data?.accounts?.some(a=>a.accountRef===promo.accountRef))return {status:'not_imported',message:'Receipt details not imported.'};
  if(data.receiptMatchVersion!==1)return {status:'outdated',message:'Receipt matching unavailable in this export.'};
  if(promo.reviewReasons?.includes('ambiguous_receipt_match')||(data.offerReceiptMatches||[]).some(m=>m.accountRef===promo.accountRef&&m.status==='ambiguous'&&(!m.offerId||[promo.id,promo.offerId].includes(m.offerId))))return {status:'unresolved',message:'Receipt matching needs checking.'};
  const confirmed=promo.receiptConfirmedUses;

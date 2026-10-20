@@ -2845,14 +2845,8 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 .account-history-title > span { flex:1; min-width:0; overflow-wrap:anywhere; }
 .account-history-title > svg:last-child { width:14px; height:14px; }
 .offer-history[open] .account-history-title > svg:last-child { transform:rotate(180deg); }
-.account-history-track { display:flex; gap:3px; height:7px; margin:9px 0 8px 32px; border-radius:999px; overflow:hidden; background:#272C35; }
-.history-segment { min-width:0; flex-basis:0; background:#758193; border-radius:999px; }
-.history-segment.completed,.history-key.completed i { background:var(--account-accent); }
-.history-segment.expired,.history-key.expired i { background:#D3A42C; }
-.history-segment.ignored,.history-key.ignored i { background:#758193; }
 .account-history-legend { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px 9px; margin-left:32px; font-size:10px; }
 .history-key { display:inline-flex; align-items:center; gap:5px; line-height:1.4; }
-.history-key i { width:7px; height:7px; flex:none; border-radius:50%; background:#758193; }
 .history-key strong { font-weight:550; color:#FFFFFF; font-variant-numeric:tabular-nums; }
 .account-history-groups { padding:0 11px 11px; border-top:1px solid #272C35; }
 .account-history-group { padding-top:12px; }
@@ -2860,7 +2854,7 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 .account-history-group > h3 > span { font-variant-numeric:tabular-nums; }
 .account-history-group .past-offer:not([open]) { background:#0E1218; }
 .account-history-group .cash-source-record { border-top:0; border-bottom:1px solid #272C35; padding:3px 0; }
-@media(max-width:369px){.sheet[data-screen="Account details"] .account-calculator-controls { grid-template-columns:minmax(0,1fr); }.account-history-track,.account-history-legend { margin-left:0; }.sheet[data-screen="Account details"] .account-sheet-top { flex-wrap:wrap; }}
+@media(max-width:369px){.sheet[data-screen="Account details"] .account-calculator-controls { grid-template-columns:minmax(0,1fr); }.account-history-legend { margin-left:0; }.sheet[data-screen="Account details"] .account-sheet-top { flex-wrap:wrap; }}
 .sheet[data-screen="Account details"] .account-receipt-list.is-expanded { display:grid; grid-template-columns:repeat(auto-fit,minmax(76px,1fr)); gap:0; border:0; background:none; }
 .sheet[data-screen="Account details"] .account-receipt-list.is-expanded .account-receipt-row { display:flex; flex-direction:column; gap:5px; padding:8px 4px; text-align:center; border:0; }
 .sheet[data-screen="Account details"] .account-receipt-list.is-expanded .account-receipt-row > svg:first-child { color:var(--green-strong); width:21px; height:23px; }
@@ -2870,3 +2864,29 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 .sheet[data-screen="Account details"] .past-offer > summary::before { content:none; }
 .sheet[data-screen="Account details"] .receipt-review-action::after { color:#E8B84A; }
 .sheet[data-screen="Account details"] .account-detail-provider svg { color:#FFFFFF; }
+/* Latest quiet history disclosure: icon summaries, no graph or progress bar. */
+.sheet[data-screen="Account details"] .offer-history { background:#13171D; border-color:#252B33; }
+.sheet[data-screen="Account details"] .offer-history > summary { padding:11px 12px; }
+.account-history-title { font-weight:450; }
+.account-history-title > svg:first-child { width:21px; height:21px; }
+.account-history-legend { gap:7px 10px; margin-top:9px; font-size:11px; justify-content:space-between; }
+.history-key { gap:5px; color:#97A1AF; }
+.history-key > svg { width:16px; height:16px; flex:none; color:#8A93A1; }
+.history-key.completed > svg,.account-history-group.completed > h3 > svg { color:color-mix(in srgb,var(--account-accent) 72%,#97A1AF); }
+.history-key.expired > svg,.account-history-group.expired > h3 > svg { color:#C5A25A; }
+.history-key.ignored > svg,.account-history-group.ignored > h3 > svg { color:#8A93A1; }
+.history-key strong { font-weight:450; color:#CBD1DA; }
+.account-history-groups { padding:0 9px 10px; border-top:0; }
+.account-history-group { margin-top:8px; padding:0 10px 2px; border:1px solid #252B33; border-radius:9px; background:#11151B; }
+.account-history-group > h3 { gap:6px; min-height:35px; margin:0; color:#C5CCD7; font-size:12px; font-weight:450; }
+.account-history-group > h3 > svg { width:17px; height:17px; flex:none; color:#8A93A1; }
+.sheet[data-screen="Account details"] .account-history-group .past-offer { background:none; border:0; border-top:1px solid #272C35; border-radius:0; margin:0; }
+.sheet[data-screen="Account details"] .account-history-group .past-offer[open] { background:none; border-color:#272C35; }
+.sheet[data-screen="Account details"] .account-history-group .account-offer-toggle { padding:9px 0; min-height:51px; gap:9px; }
+.sheet[data-screen="Account details"] .account-history-group .offer-name,.sheet[data-screen="Account details"] .account-history-group .account-detail-offer[open] .offer-name { font-size:13px; font-weight:500; }
+.sheet[data-screen="Account details"] .account-history-group .compact-offer-expiry { font-size:11px; }
+.sheet[data-screen="Account details"] .account-history-group .account-offer-body { padding:0 0 8px; }
+.account-history-group .cash-source-record { border-top:1px solid #272C35; border-bottom:0; }
+.account-history-group .cash-source-record > summary { min-height:51px; padding:9px 0; }
+.account-history-group .cash-source-record strong { font-size:13px; font-weight:500; }
+.sheet[data-screen="Account details"] .account-calculator-panel { background:#141A23; }
