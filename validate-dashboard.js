@@ -34,7 +34,7 @@ assert.ok(html.includes("[1,2,3,4].map"));
 assert.ok(html.includes("Use this account"));
 assert.ok(html.includes("account-status-badge"));
 assert.ok(html.includes('id="sheetBackdrop"'));
-assert.ok(html.includes("Record 1 use manually"));
+assert.ok(html.includes("Record use") && html.includes("data-use-one"));
 assert.ok(html.includes("Undo manual use"));
 assert.ok(html.includes("Mark finished manually"));
 assert.equal(html.includes("Mark account done"), false, "manual account-done control should stay retired");

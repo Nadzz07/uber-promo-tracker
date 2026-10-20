@@ -23,7 +23,7 @@ export function toPublicPromo(promo) {
     restrictions: promo.evidence?.restrictions || null,
     discountType: promo.discountType,
     ...(promo.discountType==='uberCash'&&promo.cashEstimate?{
-      cashEstimate:Object.fromEntries(['status','remaining','issued','issuedAt','expiresAt','allocation'].map(key=>[key,promo.cashEstimate[key]])),
+      cashEstimate:Object.fromEntries(['status','remaining','issued','issuedAt','expiresAt','allocation','recordedUsed'].filter(key=>promo.cashEstimate[key]!==undefined).map(key=>[key,promo.cashEstimate[key]])),
       cashTerms:promo.cashTerms?Object.fromEntries(['duration','unit','anchor','excludesFees'].filter(key=>promo.cashTerms[key]!=null).map(key=>[key,promo.cashTerms[key]])):null
     }:{}),
     discount: promo.discount,
@@ -58,7 +58,7 @@ export function toPublicPromo(promo) {
     needsReview: Boolean(promo.needsReview),
     reviewReasons: Array.isArray(promo.reviewReasons) ? promo.reviewReasons : [],
     closedReason: promo.closedReason || null,
-    receiptConfirmedUses: Number(promo.receiptConfirmedUses || 0),
+    receiptConfirmedUses: promo.receiptConfirmedUses==null?null:Number(promo.receiptConfirmedUses),
     lastUsedAt: promo.lastUsedAt || null,
     firstEmailSentAt: promo.firstEmailSentAt || promo.emailSentAt || null,
     emailSentAt: promo.emailSentAt || null

@@ -10,7 +10,8 @@ const masked = /[a-z0-9._%+-]{0,2}…[a-z0-9._%+-]{0,2}@[a-z0-9.-]+\.[a-z]{2,}/g
 // verifications or source evidence. Reject extra keys at every nested level.
 function cashKeys(value,allowed){if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).some(k=>!allowed.includes(k)))throw Error('Invalid public Cash aggregate.');}
 function cashEstimate(value,grant=false){
-  cashKeys(value,['status','remaining','issued','issuedAt','expiresAt','allocation',...(grant?['minimumSpend','excludesFees','restrictions']:[])]);
+  cashKeys(value,['status','remaining','issued','issuedAt','expiresAt','allocation','recordedUsed',...(grant?['minimumSpend','excludesFees','restrictions']:[])]);
+  if(value.recordedUsed!=null&&(!Number.isFinite(value.recordedUsed)||value.recordedUsed<0||value.recordedUsed>value.issued))throw Error('Invalid recorded Cash usage.');
   if(value.issuedAt!=null&&!Number.isFinite(Date.parse(value.issuedAt)))throw Error('Invalid Cash issue date.');
   if(!['estimated','exhausted','expired','needs_checking','duplicate'].includes(value.status))throw Error('Private or invalid Cash state in public snapshot.');
   if(!Number.isFinite(value.issued)||value.issued<=0||value.remaining!==null&&(!Number.isFinite(value.remaining)||value.remaining<0||value.remaining>value.issued))throw Error('Invalid public Cash amount.');

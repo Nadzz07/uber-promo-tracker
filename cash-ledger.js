@@ -76,6 +76,7 @@ export function reconcileCashGrants(sources=[],receipts=[],{now=Date.now()}={}){
 }
 export function publicCashEstimate(grant){
  return {issuedAt:grant.at==null?null:new Date(grant.at).toISOString(),status:grant.status,remaining:grant.status==='needs_checking'?null:grant.status==='expired'?0:grant.remaining,issued:grant.issued,
+  recordedUsed:grant.uncertain?null:money(Math.max(0,grant.issued-grant.remaining)),
   expiresAt:grant.end==null?null:new Date(grant.end).toISOString(),allocation:grant.allocations?.length?'inferred_from_receipts':'no_recorded_usage'};
 }
 export function summariseCash(grants=[]){
@@ -113,11 +114,56 @@ export function currentCashPosition(account,offers=[],wallet=null,receipts=[],{n
  if(verified)return {...verified,verificationNeedsChecking:Boolean(verified.uncertain)};
  const nowTime=time(now)??Number(now),summary=account.cashSummary;
  const key=g=>[g.issuedAt||'',g.issued,g.expiresAt||''].join('|'),ignored=new Set(ignoredEstimates.map(key));
- const source=(summary?.grants||(offers.filter(p=>p.discountType==='uberCash'&&p.cashEstimate).map(p=>({...p.cashEstimate,minimumSpend:p.minimumSpend||0,excludesFees:p.cashTerms?.excludesFees,restrictions:p.restrictions||{}})))).filter(g=>!ignored.has(key(g)));
- const current=source.filter(g=>g.status==='estimated'&&g.remaining>0&&time(g.expiresAt)>nowTime);
+ const source=(summary?.grants?.length?summary.grants:offers.filter(p=>p.discountType==='uberCash').map(p=>({...creditFromOffer(p),minimumSpend:p.minimumSpend||0,excludesFees:p.cashTerms?.excludesFees,restrictions:p.restrictions||{}}))).filter(g=>!ignored.has(key(g)));
+ const normalised=source.map(g=>({...g,status:cashGrantState(g,nowTime)}));
+ const current=normalised.filter(g=>g.status==='estimated'&&g.remaining>0&&time(g.expiresAt)>nowTime);
  const remaining=money(current.reduce((sum,g)=>sum+g.remaining,0));
- const unknown=source.some(g=>g.status==='needs_checking');
- return {status:remaining>0?'estimated':unknown?'needs_checking':source.some(g=>g.status==='exhausted')?'exhausted':source.length?'expired':'none',remaining:remaining>0?remaining:unknown?null:0,
+ const unknown=normalised.some(g=>g.status==='needs_checking');
+ return {status:remaining>0?'estimated':unknown?'needs_checking':normalised.some(g=>g.status==='exhausted')?'exhausted':source.length?'expired':'none',remaining:remaining>0?remaining:unknown?null:0,
   balance:remaining>0?remaining:unknown?null:0,grants:current,at:new Date(nowTime).toISOString(),estimated:true,verificationNeedsChecking:Boolean(verified?.uncertain),
   stacking:current.some(g=>g.restrictions?.stacking==='no_other_promotions')?'restricted':'unknown'};
+}
+
+function creditFromOffer(p){
+ if(p.cashEstimate)return p.cashEstimate;
+ const end=expiryEndTime(applyOfferExpiryPolicy(p));
+ return {issued:p.discount,issuedAt:p.firstEmailSentAt||p.emailSentAt,expiresAt:end==null?null:new Date(end).toISOString(),status:'needs_checking',remaining:null};
+}
+
+// Re-evaluate deadlines at render/calculation time, including stale exports.
+export function cashGrantState(grant,now=Date.now()){
+ const end=time(grant.expiresAt),clock=time(now)??Number(now);
+ if(end!=null&&end<=clock)return 'expired';
+ if(grant.status==='duplicate')return 'duplicate';
+ if(grant.status==='exhausted')return 'exhausted';
+ if(grant.status==='expired')return 'expired';
+ if(grant.status==='estimated'&&amount(grant.remaining)===0)return 'exhausted';
+ if(grant.status==='estimated'&&end!=null&&amount(grant.remaining)>0)return 'estimated';
+ return 'needs_checking';
+}
+
+// The summary is the deduplicated credit ledger. Offer rows only supply terms
+// and actions; reminders must not add another balance or another history row.
+export function cashCreditHistory(account,offers=[],now=Date.now()){
+ const records=(account.cashSummary?.grants||[]).map(g=>({...g,offers:[]}));
+ const same=(a,b)=>a.issuedAt===b.issuedAt&&a.issued===b.issued&&a.expiresAt===b.expiresAt;
+ for(const p of offers.filter(p=>p.discountType==='uberCash')){
+  const g=creditFromOffer(p);
+  if(g.status==='duplicate')continue;
+  let record=records.find(r=>same(r,g));
+  if(!record){record={...g,offers:[]};records.push(record);}
+  record.offers.push(p);
+ }
+ return records.map(g=>({...g,status:cashGrantState(g,now)})).sort((a,b)=>(time(b.issuedAt)||0)-(time(a.issuedAt)||0));
+}
+
+export function cashCalculationState(wallet,promo=null){
+ const positive=amount(wallet?.remaining??wallet?.balance)>0&&['estimated','verified','verified_reconciled'].includes(wallet?.status);
+ if(!positive){
+  const closed=['none','expired','exhausted','duplicate'].includes(wallet?.status);
+  return {usable:false,reason:wallet&&!closed&&(wallet.status==='needs_checking'||amount(wallet.remaining??wallet.balance)==null)?'Balance needs checking':'No available Uber Cash'};
+ }
+ const restricted=promo&&(wallet.stacking==='unsupported'||promo.restrictions?.stacking==='no_other_promotions'||wallet.stacking==='restricted'&&wallet.grants?.length&&wallet.grants.every(g=>g.restrictions?.stacking==='no_other_promotions'));
+ if(restricted)return {usable:false,reason:'Cannot combine with this promo'};
+ return {usable:true,reason:promo&&wallet.stacking!=='supported'?'Cash compatibility not verified':null};
 }
