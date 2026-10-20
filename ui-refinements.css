@@ -2677,9 +2677,9 @@ html:has(.preferred-page.active) { scroll-padding-top:calc(12px + var(--preferre
 .account-receipt-list { border:1px solid var(--line-soft); border-radius:8px; background:rgba(255,255,255,.045); }
 .account-receipt-row { display:flex; align-items:center; gap:9px; width:100%; min-height:44px; border:0; background:none; padding:9px 10px; color:var(--text); font:inherit; font-size:12px; text-align:left; }
 .account-receipt-row + .account-receipt-row { border-top:1px solid var(--line-soft); }
-.account-receipt-row > svg:first-child > svg:first-child { width:20px; height:22px; flex:none; color:var(--muted); }
-.account-receipt-row > span > span { flex:1; min-width:0; overflow-wrap:anywhere; }
-.account-receipt-row > svg:last-child > svg:last-child { width:13px; height:15px; flex:none; color:var(--muted); }
+.account-receipt-row > svg:first-child { width:20px; height:22px; flex:none; color:var(--muted); }
+.account-receipt-row > span { flex:1; min-width:0; overflow-wrap:anywhere; }
+.account-receipt-row > svg:last-child { width:13px; height:15px; flex:none; color:var(--muted); }
 .account-receipt-toggle,.account-receipt-more { display:flex; align-items:center; gap:6px; min-height:38px; padding:6px 3px; border:0; background:none; color:var(--green-strong); font:inherit; font-size:11px; text-align:left; }
 .account-receipt-toggle svg { width:13px; height:13px; }
 .account-receipt-empty { margin:5px 0 9px; color:var(--muted); font-size:11px; line-height:1.5; }
@@ -2768,3 +2768,105 @@ html:has(.preferred-page.active) { scroll-padding-top:calc(12px + var(--preferre
 #privateDataTools input {font-size:16px;min-height:44px;}
 #privateDataTools form {display:grid;gap:10px;margin-block:12px;}
 #privateDataTools .setting-card {margin-bottom:18px;}
+
+/* Account sheet palette: one selected accent, fixed neutral/status colours. */
+.sheet-backdrop:has(.sheet[data-screen="Account details"]) { background:rgba(16,20,26,.88); }
+.sheet[data-screen="Account details"] {
+  --bg-deep:#0E1218; --text:#FFFFFF; --muted:#97A1AF; --line:#272C35; --line-soft:#272C35;
+  --green:var(--account-accent); --green-strong:color-mix(in srgb,var(--account-accent) 65%,white);
+  --surface-gradient:#161A21; --surface-inset:#161A21;
+  --account-tint:hsl(var(--account-accent-hue) 65% 15%);
+  --account-outline:color-mix(in srgb,var(--account-accent) 60%,#161A21);
+  background:#0E1218; border-color:#272C35; box-shadow:none;
+}
+body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { background-color:#0B0E13; }
+.sheet[data-screen="Account details"] :is(.sheet-head,.sheet-body,.account-sheet-hero,.account-detail-offer,.account-cash-entry,.account-calculator-panel,.account-management,div.manage-offer,.offer-history) { box-shadow:none; background-image:none; }
+.sheet[data-screen="Account details"] .sheet-handle { background:#3B414C; }
+.sheet[data-screen="Account details"] .sheet-head { padding:6px 16px 12px; }
+.sheet[data-screen="Account details"] .sheet-title { font-size:22px; font-weight:600; }
+.sheet[data-screen="Account details"] .sheet-body { padding-inline:16px; }
+.sheet[data-screen="Account details"] .sheet-close { color:#97A1AF; border:1px solid #272C35; }
+.sheet[data-screen="Account details"] .account-sheet-hero { background:#161A21; padding:12px 12px 7px; border-radius:12px; }
+.sheet[data-screen="Account details"] .account-sheet-email { font-size:15px; font-weight:600; }
+.sheet[data-screen="Account details"] .account-login-route { font-size:12px; color:#97A1AF; }
+.sheet[data-screen="Account details"] .account-login-badge.positive { color:#7FE0A8; background:#0F2A1C; border-color:#25583C; }
+.sheet[data-screen="Account details"] .account-login-badge.positive .status-dot { background:#3DDC84; }
+.sheet[data-screen="Account details"] .account-sheet-actions > button { min-height:44px; font-size:13px; border-radius:9px; }
+.sheet[data-screen="Account details"] :is(.account-primary,.account-calculate) { background:var(--account-accent); color:#06121F; border:0; font-weight:600; }
+.sheet[data-screen="Account details"] .account-secondary { background:#161A21; border:1px solid #272C35; }
+.sheet[data-screen="Account details"] .account-rule-note { margin-top:5px; font-size:12px; }
+.sheet[data-screen="Account details"] .account-rule-note > summary { min-height:32px; }
+.sheet[data-screen="Account details"] .receipt-review-action { background:#1C1911; border-color:#4B3F1D; color:#E8B84A; margin-top:10px; border-radius:10px; }
+.sheet[data-screen="Account details"] .receipt-review-action small { color:#D6B45E; }
+.sheet[data-screen="Account details"] .account-offers-heading h2 { font-size:19px; font-weight:600; }
+.sheet[data-screen="Account details"] .account-offers-heading > span { font-size:12px; }
+.sheet[data-screen="Account details"] .account-detail-offer { background:#161A21; border-color:#272C35; border-radius:11px; }
+.sheet[data-screen="Account details"] .account-detail-offer[open] { background:var(--account-tint); border:1px solid var(--account-outline); }
+.sheet[data-screen="Account details"] .account-detail-offer[open] .offer-name { font-size:19px; font-weight:600; }
+.sheet[data-screen="Account details"] .offer-details { font-size:12px; }
+.sheet[data-screen="Account details"] .compact-offer-expiry { font-size:11px; }
+.sheet[data-screen="Account details"] .account-selected-badge { background:color-mix(in srgb,var(--account-accent) 30%,#0E1218); color:color-mix(in srgb,var(--account-accent) 48%,white); border-color:var(--account-outline); }
+.sheet[data-screen="Account details"] .account-offer-meta { align-items:center; margin-bottom:11px; }
+.sheet[data-screen="Account details"] .account-offer-expiry { font-size:12px; }
+.sheet[data-screen="Account details"] .offer-terms > summary { min-height:32px; font-size:12px; color:var(--green-strong); }
+.sheet[data-screen="Account details"] .progress-track { border:0; background:hsl(var(--account-accent-hue) 37% 24%); height:8px; }
+.sheet[data-screen="Account details"] .progress-fill { background:var(--account-accent); }
+.sheet[data-screen="Account details"] .use-line { font-size:12px; }
+.sheet[data-screen="Account details"] .account-record-use { border:1.5px solid var(--account-accent); background:color-mix(in srgb,var(--account-accent) 20%,#0E1218); color:var(--green-strong); }
+.sheet[data-screen="Account details"] .account-manage-toggle { background:var(--account-tint); border-color:var(--account-outline); }
+.sheet[data-screen="Account details"] .account-receipt-list { background:color-mix(in srgb,var(--account-accent) 7%,#161A21); border-color:var(--account-outline); }
+.sheet[data-screen="Account details"] .account-receipt-row strong { display:block; font-size:12px; font-weight:500; }
+.sheet[data-screen="Account details"] .account-receipt-row small { display:block; color:#97A1AF; font-size:11px; margin-top:2px; }
+.sheet[data-screen="Account details"] .account-cash-entry { background:#161A21; padding:0; border-radius:11px; }
+.sheet[data-screen="Account details"] .cash-entry-balance { color:#7FE0A8; font-size:20px; font-weight:600; }
+.sheet[data-screen="Account details"] .cash-balance-badge { color:#7FE0A8; background:#0F2A1C; border-color:#25583C; }
+.sheet[data-screen="Account details"] .account-cash-entry[data-cash-state="needs_checking"] :is(.cash-entry-balance,.cash-balance-badge) { color:#97A1AF; background:none; border-color:#272C35; }
+.sheet[data-screen="Account details"] .account-cash-body { padding:0 12px 10px; }
+.sheet[data-screen="Account details"] .account-review-offers { margin-top:14px; }
+.sheet[data-screen="Account details"] .account-review-offers > h3 { font-size:13px; font-weight:500; color:#97A1AF; margin:0 0 7px; }
+.sheet[data-screen="Account details"] .account-calculator { margin-top:12px; }
+.sheet[data-screen="Account details"] .account-calculator-panel { background:#161A21; border-radius:11px; padding:11px 12px; }
+.sheet[data-screen="Account details"] .account-calculator-panel > h3 { font-size:13px; margin-bottom:8px; }
+.sheet[data-screen="Account details"] .account-calculator-controls { gap:10px; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); }
+.sheet[data-screen="Account details"] .account-calculator-promo { border-color:#272C35; background:#161A21; }
+.sheet[data-screen="Account details"] .account-calculator-cash > span { font-size:12px; }
+.sheet[data-screen="Account details"] .account-calculator-cash small { font-size:11px; }
+.sheet[data-screen="Account details"] .account-calculator-cash input { background:#3B414C; }
+.sheet[data-screen="Account details"] .account-calculator-cash input:checked { background:hsl(var(--account-accent-hue) var(--account-accent-saturation) 59%); }
+.sheet[data-screen="Account details"] .account-calculate { min-height:46px; font-size:13px; border-radius:9px; margin-top:10px; }
+.sheet[data-screen="Account details"] .account-calculator-helper { color:#8A93A1; font-size:10px; margin-top:6px; }
+.sheet[data-screen="Account details"] .account-management { background:#161A21; border-color:#272C35; border-radius:10px; }
+.sheet[data-screen="Account details"] .offer-history { margin-top:10px; background:#161A21; border:1px solid #272C35; border-radius:11px; padding:0; }
+.sheet[data-screen="Account details"] .offer-history > summary { display:block; padding:12px; color:#97A1AF; list-style:none; }
+.sheet[data-screen="Account details"] .offer-history > summary::after { content:none; }
+.sheet[data-screen="Account details"] .offer-history > summary::-webkit-details-marker { display:none; }
+.account-history-title { display:flex; align-items:center; gap:11px; min-height:24px; color:#FFFFFF; font-size:12px; line-height:1.4; }
+.account-history-title > svg { width:21px; height:21px; flex:none; color:#97A1AF; }
+.account-history-title > span { flex:1; min-width:0; overflow-wrap:anywhere; }
+.account-history-title > svg:last-child { width:14px; height:14px; }
+.offer-history[open] .account-history-title > svg:last-child { transform:rotate(180deg); }
+.account-history-track { display:flex; gap:3px; height:7px; margin:9px 0 8px 32px; border-radius:999px; overflow:hidden; background:#272C35; }
+.history-segment { min-width:0; flex-basis:0; background:#758193; border-radius:999px; }
+.history-segment.completed,.history-key.completed i { background:var(--account-accent); }
+.history-segment.expired,.history-key.expired i { background:#D3A42C; }
+.history-segment.ignored,.history-key.ignored i { background:#758193; }
+.account-history-legend { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px 9px; margin-left:32px; font-size:10px; }
+.history-key { display:inline-flex; align-items:center; gap:5px; line-height:1.4; }
+.history-key i { width:7px; height:7px; flex:none; border-radius:50%; background:#758193; }
+.history-key strong { font-weight:550; color:#FFFFFF; font-variant-numeric:tabular-nums; }
+.account-history-groups { padding:0 11px 11px; border-top:1px solid #272C35; }
+.account-history-group { padding-top:12px; }
+.account-history-group > h3 { display:flex; gap:7px; align-items:center; margin:0 0 7px; color:#97A1AF; font-size:12px; font-weight:500; }
+.account-history-group > h3 > span { font-variant-numeric:tabular-nums; }
+.account-history-group .past-offer:not([open]) { background:#0E1218; }
+.account-history-group .cash-source-record { border-top:0; border-bottom:1px solid #272C35; padding:3px 0; }
+@media(max-width:369px){.sheet[data-screen="Account details"] .account-calculator-controls { grid-template-columns:minmax(0,1fr); }.account-history-track,.account-history-legend { margin-left:0; }.sheet[data-screen="Account details"] .account-sheet-top { flex-wrap:wrap; }}
+.sheet[data-screen="Account details"] .account-receipt-list.is-expanded { display:grid; grid-template-columns:repeat(auto-fit,minmax(76px,1fr)); gap:0; border:0; background:none; }
+.sheet[data-screen="Account details"] .account-receipt-list.is-expanded .account-receipt-row { display:flex; flex-direction:column; gap:5px; padding:8px 4px; text-align:center; border:0; }
+.sheet[data-screen="Account details"] .account-receipt-list.is-expanded .account-receipt-row > svg:first-child { color:var(--green-strong); width:21px; height:23px; }
+.sheet[data-screen="Account details"] .account-receipt-list.is-expanded .account-receipt-row > svg:last-child { display:none; }
+.sheet[data-screen="Account details"] .account-receipt-list.is-expanded .account-receipt-row strong { font-size:11px; }
+.sheet[data-screen="Account details"] .account-receipt-list.is-expanded .account-receipt-row small { font-size:10px; }
+.sheet[data-screen="Account details"] .past-offer > summary::before { content:none; }
+.sheet[data-screen="Account details"] .receipt-review-action::after { color:#E8B84A; }
+.sheet[data-screen="Account details"] .account-detail-provider svg { color:#FFFFFF; }

@@ -1,5 +1,6 @@
 import {dedupeReceipts} from './receipt-identity.js';
 import {receiptWhen} from './receipt-date.js';
+import {promotionActivity,promoStateKey} from './manual-state.js';
 import {classifyOfferTrackingState} from './offer-state.js';
 
 // Receipt identities and link evidence stay in the encrypted private transfer.
@@ -61,4 +62,18 @@ export function offerReceiptAvailability(data,promo,storeStatus='ready'){
  const confirmed=promo.receiptConfirmedUses;
  if(confirmed!=null&&Number(confirmed)>0)return {status:'missing_details',message:'Matching receipt details are not in this import.'};
  return {status:'no_matches',message:'No matching receipts.'};
+}
+
+// A single primary classification per record. Completed is receipt-verified;
+// manual completion and exhausted credit must never inflate that category.
+export function accountHistoryGroups(promos=[],grants=[],store={},now=new Date()){
+ const definitions=[['completed','Completed'],['expired','Expired'],['ignored','Ignored'],['manual','Manually finished'],['exhausted','Exhausted credit'],['other','Other history']];
+ const groups=definitions.map(([key,label])=>({key,label,records:[]})),byKey=new Map(groups.map(g=>[g.key,g])),seen=new Set();
+ for(const promo of promos){const key=promoStateKey(promo);if(seen.has(key))continue;seen.add(key);const activity=promotionActivity(store,promo,now);
+  if(['available','partial','needs_checking'].includes(activity.bucket))continue;
+  const group=activity.bucket==='completed'?'completed':activity.bucket==='ignored'?'ignored':activity.bucket.includes('expired')?'expired':activity.bucket==='manual'?'manual':'other';
+  byKey.get(group).records.push({kind:'promo',key,promo,activity});
+ }
+ for(const grant of grants){if(!['expired','exhausted'].includes(grant.status))continue;const key='credit:'+JSON.stringify([grant.issuedAt,grant.issued,grant.expiresAt]);if(seen.has(key))continue;seen.add(key);byKey.get(grant.status==='expired'?'expired':'exhausted').records.push({kind:'cash',key,grant});}
+ return groups;
 }

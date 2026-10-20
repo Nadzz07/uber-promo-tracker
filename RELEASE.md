@@ -348,3 +348,15 @@ from equal discount amounts or account receipt counts. The offer states this
 briefly; Sync & data explains the missing metadata. Reimporting the same file
 does not fix absent source evidence. Existing safe usage aggregates remain
 visible independently of receipt details.
+
+## Account Details matte surfaces and grouped history
+
+Account Details uses fixed charcoal surfaces and status colours. Accent buttons,
+selected offers, chips, tracks and links derive from the saved colour-wheel hue.
+The history bar uses one exclusive existing classification per promotion, plus
+distinct historical credit grants. Manual completion is not receipt-confirmed
+completion; expired credit is not recorded spending. Current and review states
+stay separate. History groups load incrementally in the same sheet, including
+all records after Show more; the handler now listens on the sheet's document
+rather than the inert underlying app. Receipt dates and amounts come from
+matched private records, with no placeholder uses or inferred offer matches.

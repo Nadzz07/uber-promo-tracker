@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {validateOfferReceiptLinks,mergeOfferReceiptLinks,offerReceiptAvailability,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
+import {accountHistoryGroups,validateOfferReceiptLinks,mergeOfferReceiptLinks,offerReceiptAvailability,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
 import {validateFinanceData,PrivateFinanceVault} from './private-finance-vault.js';
 import {assertPublicSnapshot} from './public-snapshot.js';
 const receipt=(id,accountRef='A1',orderAt='2026-10-18T12:00:00Z',extra={})=>({receiptId:id,accountRef,orderAt,service:'Uber Eats',total:4,...extra});
@@ -56,3 +56,9 @@ assert.equal(offerReceiptAvailability({receipts:[{}],receiptMatchVersion:1,offer
 assert.equal(offerReceiptAvailability({receipts:[{}],receiptMatchVersion:1,offerReceiptMatches:[]},{...promo,receiptConfirmedUses:2}).status,'missing_details');
 assert.equal(offerReceiptAvailability(data,{...promo,reviewReasons:['ambiguous_receipt_match'],id:'other'}).status,'unresolved');
 console.log('✓ Receipt availability distinguishes absent, legacy, failed, outdated, known zero, aggregate-only and unresolved evidence');
+
+const historyOffer=(id,extra={})=>({id,accountRef:'A1',uses:5,usesVerified:true,receiptConfirmedUses:0,usesRemaining:5,expiresAt:'2026-12-01T23:59:59Z',discountType:'fixed',discount:12,...extra});
+const historyPromos=[historyOffer('complete',{receiptConfirmedUses:5,usesRemaining:0}),historyOffer('expired',{expiresAt:'2026-01-01',receiptConfirmedUses:1}),historyOffer('ignored',{receiptConfirmedUses:5,usesRemaining:0}),historyOffer('manual'),historyOffer('active')],historyStore={offers:{ignored:{ignored:true},manual:{forceDone:true}}};
+const history=accountHistoryGroups([...historyPromos,historyPromos[0]],[{issued:10,issuedAt:'2026-01-01',expiresAt:'2026-02-01',status:'expired'},{issued:12,issuedAt:'2026-02-01',status:'exhausted'},{issued:12,issuedAt:'2026-02-01',status:'exhausted'}],historyStore,new Date('2026-10-20'));
+assert.deepEqual(Object.fromEntries(history.map(g=>[g.key,g.records.length])),{completed:1,expired:2,ignored:1,manual:1,exhausted:1,other:0});
+console.log('✓ Account history uses exclusive existing classifications, preserves manual/exhausted distinctions and deduplicates promos and grants');
