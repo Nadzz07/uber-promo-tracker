@@ -14,7 +14,7 @@ html,body { background:var(--color-screen); color:var(--color-text); }
 body::before,body::after,.bottom-nav::before,.nav-glider::after { content:none; }
 :is(.glass,.stat-card,.account-card,.quick-card,.activity-card,.activity-list,.more-group-list,.settings-group-panel,.setting-card,.setting-row,.disclosure-card,.sheet-list,.insight,.finance-editor-card,.receipt-preview-card,.receipt-charges-card,.receipt-payment-card,.home-overview,.hero-card,.used-summary,.used-record,.used-more,.directory-summary,.directory-card,.empty,.loading) { background:var(--color-panel); border-color:var(--color-border); box-shadow:none; }
 :is(.sheet,.picker-dialog,.catalogue-dialog,.offer-catalogue,.preferred-editor) { background:var(--color-sheet); border-color:var(--color-border); box-shadow:none; }
-.sheet-backdrop { background:color-mix(in srgb,var(--color-dimmed) 90%,transparent); backdrop-filter:none; -webkit-backdrop-filter:none; }
+.sheet-backdrop { background:var(--color-dimmed); backdrop-filter:none; -webkit-backdrop-filter:none; }
 .sheet-handle { background:var(--color-outline); }
 .sheet-close { background:var(--color-close); border-color:var(--color-close-border); color:var(--color-icon); }
 :is(input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]),textarea,select,.search-wrap,.search-input,.account-picker-trigger,.account-control,.offer-scope-row) { background:var(--color-dropdown); border-color:var(--color-outline); color:var(--color-text); }
@@ -102,3 +102,5 @@ input[role=switch]:checked { background:var(--color-toggle)!important; border-co
 .nav-btn[data-view=used]:not(.active) svg { background:var(--color-outline); color:var(--color-secondary); }
 /* A historical offer keeps its actual date visible when its details open. */
 .sheet[data-screen="Account details"] .past-offer[open] .compact-offer-expiry { display:block; }
+
+.sheet[data-screen="Account details"] .account-detail-offer[open]:not(.past-offer) .account-offer-actions { border-color:var(--color-selected-divider); }

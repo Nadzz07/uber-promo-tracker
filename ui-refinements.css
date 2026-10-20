@@ -2497,7 +2497,7 @@ html:has(.preferred-page.active) { scroll-padding-top:calc(var(--space-3) + var(
 .sheet[data-screen="Account details"] .sheet-head > div { flex:1; min-width:0; }
 .sheet[data-screen="Account details"] .sheet-title { font-size:22px; line-height:1.2; font-weight:600; letter-spacing:-.025em; }
 .sheet[data-screen="Account details"] .sheet-sub { margin-top:var(--space-1); font-size:12px; line-height:1.4; }
-.sheet[data-screen="Account details"] .sheet-close { width:44px; height:44px; background: transparent; box-shadow: none; }
+.sheet[data-screen="Account details"] .sheet-close { width:44px; height:44px; background: var(--color-close); box-shadow: none; }
 .sheet[data-screen="Account details"] .sheet-body { min-height:0; flex:1; max-height:none; overflow:auto; padding:0 var(--space-3) calc(var(--space-4) + var(--account-safe-bottom)); scroll-padding-block:var(--space-3); }
 .sheet[data-screen="Account details"] .account-sheet-hero { margin:0; padding:var(--space-3) var(--space-4) 0; border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--surface-gradient); box-shadow: none; }
 .sheet[data-screen="Account details"] .account-sheet-top { display:flex; flex-wrap:nowrap; align-items:center; gap:var(--space-3); }
@@ -2754,7 +2754,7 @@ html:has(.preferred-page.active) { scroll-padding-top:calc(var(--space-3) + var(
 #privateDataTools .setting-card {margin-bottom:var(--space-4);}
 
 /* Account sheet palette: one selected accent, fixed neutral/status colours. */
-.sheet-backdrop:has(.sheet[data-screen="Account details"]) { background: var(--color-dropdown); }
+.sheet-backdrop:has(.sheet[data-screen="Account details"]) { background: var(--color-dimmed); }
 .sheet[data-screen="Account details"] {
   --bg-deep: var(--color-sheet); --text: var(--color-text); --muted: var(--color-secondary); --line: var(--color-border); --line-soft: var(--color-border);
   --green: var(--account-accent); --green-strong: color-mix(in srgb,var(--account-accent) 65%,var(--color-text));
@@ -2769,7 +2769,7 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 .sheet[data-screen="Account details"] .sheet-head { padding:var(--space-1) var(--space-4) var(--space-3); }
 .sheet[data-screen="Account details"] .sheet-title { font-size:22px; font-weight:600; }
 .sheet[data-screen="Account details"] .sheet-body { padding-inline:var(--space-4); }
-.sheet[data-screen="Account details"] .sheet-close { color: var(--color-secondary); border: 1px solid var(--color-border); }
+.sheet[data-screen="Account details"] .sheet-close { color: var(--color-icon); border: 1px solid var(--color-close-border); }
 .sheet[data-screen="Account details"] .account-sheet-hero { background: var(--color-panel); padding:var(--space-3) var(--space-3) var(--space-2); border-radius: var(--card-radius); }
 .sheet[data-screen="Account details"] .account-sheet-email { font-size:15px; font-weight:600; }
 .sheet[data-screen="Account details"] .account-login-route { font-size:12px; color: var(--color-secondary); }
@@ -2789,11 +2789,11 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 .sheet[data-screen="Account details"] .account-detail-offer[open] .offer-name { font-size:19px; font-weight:600; }
 .sheet[data-screen="Account details"] .offer-details { font-size:12px; }
 .sheet[data-screen="Account details"] .compact-offer-expiry { font-size:12px; }
-.sheet[data-screen="Account details"] .account-selected-badge { background: color-mix(in srgb,var(--account-accent) 30%,var(--color-sheet)); color: color-mix(in srgb,var(--account-accent) 48%,var(--color-text)); border-color: var(--account-outline); }
+.sheet[data-screen="Account details"] .account-selected-badge { background: var(--color-chip); color: var(--color-chip-text); border-color: var(--color-selected-border); }
 .sheet[data-screen="Account details"] .account-offer-meta { align-items:center; margin-bottom:var(--space-3); }
 .sheet[data-screen="Account details"] .account-offer-expiry { font-size:12px; }
 .sheet[data-screen="Account details"] .offer-terms > summary { min-height:32px; font-size:12px; color: var(--green-strong); }
-.sheet[data-screen="Account details"] .progress-track { border: 0; background: var(--color-selected); height:8px; }
+.sheet[data-screen="Account details"] .progress-track { border: 0; background: var(--color-track); height:8px; }
 .sheet[data-screen="Account details"] .progress-fill { background: var(--account-accent); }
 .sheet[data-screen="Account details"] .use-line { font-size:12px; }
 .sheet[data-screen="Account details"] .account-record-use { border: 1.5px solid var(--account-accent); background: color-mix(in srgb,var(--account-accent) 20%,var(--color-sheet)); color: var(--green-strong); }
@@ -2812,7 +2812,8 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 .sheet[data-screen="Account details"] .account-calculator-panel { background: var(--color-panel); border-radius: var(--card-radius); padding:var(--space-3) var(--space-3); }
 .sheet[data-screen="Account details"] .account-calculator-panel > h3 { font-size:13px; margin-bottom:var(--space-2); }
 .sheet[data-screen="Account details"] .account-calculator-controls { gap:var(--space-2); grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); }
-.sheet[data-screen="Account details"] .account-calculator-promo { border-color: var(--color-border); background: var(--color-panel); }
+.sheet[data-screen="Account details"] .account-calculator-promo { border-color: var(--color-dropdown-border); background: var(--color-dropdown); }
+.sheet[data-screen="Account details"] .account-calculator-promo select { background:transparent; border:0; border-radius:0; }
 .sheet[data-screen="Account details"] .account-calculator-cash > span { font-size:12px; }
 .sheet[data-screen="Account details"] .account-calculator-cash small { font-size:12px; }
 .sheet[data-screen="Account details"] .account-calculator-cash input { background: var(--color-outline); }
