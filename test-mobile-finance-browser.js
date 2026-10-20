@@ -1,3 +1,4 @@
+import {importPrivateFinance} from './test-browser-navigation.js';
 import {openHomeDetail,leaveReceiptEditor,openReceiptPayments,openFinanceHistory,openOfferManagement} from './test-browser-navigation.js';
 // Computed mobile sizes and real encrypted form flows; fixtures stay off disk.
 import fs from 'node:fs';
@@ -34,9 +35,9 @@ try{for(const width of [320,390,430,844,1024]){
  assert.equal(await page.locator('#basketInput').evaluate(e=>parseFloat(getComputedStyle(e).fontSize)),20,'Neutral basket amount matches the reference and remains readable');
  await openHomeDetail(page,'planner');await page.locator('[data-open-sheet="advanced"]:visible').click();await fields(page);assert.equal(await page.locator('.setting-money input').first().evaluate(e=>parseFloat(getComputedStyle(e).fontSize)),25,'Sheet amount keeps its larger size');await page.keyboard.press('Escape');
  await page.locator('[data-view="accounts"]').click();await page.locator('#accountsList [data-account-offers]').first().click();await openOfferManagement(page);await page.locator('[data-toggle-ignore][data-ignore="true"]').click();await page.locator('#sheetBody').evaluate(e=>{const field=document.createElement('textarea');field.id='futureSheetTextarea';field.className='sheet-input';e.append(field);});await fields(page);await page.keyboard.press('Escape');
- await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="finance"]').click();await page.locator('#financePassword').waitFor();await fields(page);
- await page.locator('#financePassword').fill('mobile test passphrase');await page.locator('[data-finance-form="unlock"] button').click();await page.locator('.finance-empty').waitFor();
- await page.locator('[data-finance-import]').setInputFiles({name:'finance.local.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(transfer))});await page.locator('#financeReceipt option').first().waitFor({state:'attached'});
+ await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="finance"]').click();await fields(page);
+ await page.locator('.finance-empty').waitFor();
+ await importPrivateFinance(page,{name:'finance.local.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(transfer))});await page.locator('#financeReceipt option').first().waitFor({state:'attached'});
  await page.locator('[data-finance-panel="receipt"] > summary').click();await page.locator('[data-finance-action="change-receipt"]').click();await page.locator('#financeReceipt').selectOption('rcp_adjusted');await fields(page);assert.equal(await page.locator('#financePaid').getAttribute('required'),'','Final payment required for refund review');await page.locator('#financeMissingOnly').check();assert.equal(await page.locator('#financeReceipt option').count(),2,'Known savings with an adjustment stay in Missing details');await page.locator('#financeMissingOnly').uncheck();
  if(await page.locator('[data-finance-disclosure="breakdown"]').getAttribute('open')===null)await page.locator('[data-finance-disclosure="breakdown"] > summary').click();assert.equal(await page.locator('#finance-ridePromotions').isVisible(),false,'Only the receipt service is shown first');
  await page.locator('#financeTotal').fill('16.21');await openReceiptPayments(page);await page.locator('#financePaid').fill('0');await page.locator('#finance-eatsPromotions').fill('12');await page.locator('#finance-explicitUberOne').fill('4.21');
@@ -49,7 +50,7 @@ try{for(const width of [320,390,430,844,1024]){
  assert.equal(await page.locator('[data-finance-disclosure="breakdown"]').getAttribute('open'),'','Saving keeps expanded breakdown');assert.match(await page.locator('[data-finance-feedback="receipt"]').innerText(),/Saved correction.*Adjusted receipt/);
  assert.ok(await page.locator('[data-finance-feedback="receipt"]').evaluate(e=>{const r=e.getBoundingClientRect(),s=e.closest('.sheet-body').getBoundingClientRect();return r.top>=s.top-1&&r.bottom<=s.bottom+1;}),'Saved confirmation stays in view');
  if(process.env.TRACKER_SCREENSHOT_DIR&&width===390){fs.mkdirSync(process.env.TRACKER_SCREENSHOT_DIR,{recursive:true,mode:0o700});await page.screenshot({path:process.env.TRACKER_SCREENSHOT_DIR+'/03-correction-saved.png'});}
- const decrypt=()=>page.evaluate(async()=>{const {decryptFinance}=await import('./private-finance-vault.js');return decryptFinance(JSON.parse(localStorage.getItem('uber-tracker-finance-encrypted-v1')),'mobile test passphrase');});
+ const decrypt=()=>page.evaluate(async()=>{return JSON.parse(localStorage.getItem('uber-tracker-finance-encrypted-v1')).data;});
  const saved=await decrypt();assert.equal(saved.events[0].value.total,16.21);assert.equal(saved.events[0].value.outOfPocket,0);assert.deepEqual(saved.events[0].value.breakdown,{eatsPromotions:12,explicitUberOne:4.21});assert.equal(saved.events[0].value.reviewedReceiptRevision,'a'.repeat(64));assert.equal(await page.locator('#financePaid').getAttribute('required'),null,'Review completes only after final savings and payment are saved');
  // A mismatch shows a nearby error and preserves typed values and ciphertext.
  const ciphertext=await page.evaluate(()=>localStorage.getItem('uber-tracker-finance-encrypted-v1'));

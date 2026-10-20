@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {validateOfferReceiptLinks,mergeOfferReceiptLinks,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
+import {validateOfferReceiptLinks,mergeOfferReceiptLinks,offerReceiptAvailability,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
 import {validateFinanceData,PrivateFinanceVault} from './private-finance-vault.js';
 import {assertPublicSnapshot} from './public-snapshot.js';
 const receipt=(id,accountRef='A1',orderAt='2026-10-18T12:00:00Z',extra={})=>({receiptId:id,accountRef,orderAt,service:'Uber Eats',total:4,...extra});
@@ -13,7 +13,7 @@ const newer={...data,receipts:[receipts[0]],receiptMatchExportedAt:'2026-10-20T0
 assert.deepEqual(mergeOfferReceiptLinks(data,newer).offerReceiptMatches.map(m=>m.receiptId),['r2','r3'],'A newer authoritative import clears stale links for its receipts');
 assert.equal(mergeOfferReceiptLinks(data,{...newer,receiptMatchExportedAt:'2026-10-01'}).offerReceiptMatches.length,4,'Older imports do not replace newer assignments');
 assert.equal(mergeOfferReceiptLinks(data,{receipts}).offerReceiptMatches.length,4,'Legacy backups retain current private match evidence');
-const storage=new Map(),vault=new PrivateFinanceVault({getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)});await vault.unlock('synthetic receipt link passphrase');await vault.import(data);await vault.import(newer);assert.deepEqual(vault.data.offerReceiptMatches.map(m=>m.receiptId),['r2','r3']);vault.lock();await vault.unlock('synthetic receipt link passphrase');assert.equal(vault.data.offerReceiptMatches.length,2,'Receipt link evidence survives encrypted reload');
+const storage=new Map(),vault=new PrivateFinanceVault({getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)});await vault.import(data);await vault.import(newer);assert.deepEqual(vault.data.offerReceiptMatches.map(m=>m.receiptId),['r2','r3']);vault.hydrate();assert.equal(vault.data.offerReceiptMatches.length,2,'Receipt link evidence survives device reload');
 const offers=[{id:'pub_a',accountRef:'A1'},{id:'pub_b',accountRef:'A1'},{id:'pub_c',accountRef:'A2'}],accounts=[{accountRef:'A1'},{accountRef:'A2'}],wallets={A1:{remaining:12},A2:{remaining:20}};
 assert.deepEqual(plannerAccountChoices({accountRef:'A1',promoKey:'pub_b',includeCash:true},offers,accounts,wallets),{offers:[offers[1]],accounts:[accounts[0]],wallets:{A1:wallets.A1}});assert.deepEqual(plannerAccountChoices({accountRef:'A1',promoKey:null,includeCash:false},offers,accounts,wallets),{offers:[],accounts:[accounts[0]],wallets:{}});assert.equal(plannerAccountChoices(null,offers,accounts,wallets).offers,offers);
 for(const field of ['offerReceiptMatches','receiptMatchVersion','receiptMatchExportedAt'])assert.throws(()=>assertPublicSnapshot({accounts:[],promos:[],[field]:data[field]}),'Private receipt links cannot enter public snapshots');
@@ -45,3 +45,14 @@ console.log('✓ Account sheet: authoritative private receipt links, exact offer
  assert.equal(offerWithPrivateReceiptUses({...source,uses:2,usesRemaining:2},data).trackingState,'needs_checking','Conflicting private counts cannot certify completion');
 }
 console.log('✓ Newer private matches reconcile manual entries and full usage independently of receipt-list expansion; source records remain immutable.');
+
+const promo={id:'absent',accountRef:'A1'};
+assert.equal(offerReceiptAvailability(null,promo).status,'not_imported');
+assert.equal(offerReceiptAvailability(null,{...promo,receiptConfirmedUses:0}).status,'not_imported','A published zero does not mean private details were imported');
+assert.equal(offerReceiptAvailability(null,promo,'migration_required').status,'migration_required');
+assert.equal(offerReceiptAvailability(null,promo,'error').status,'error');
+assert.equal(offerReceiptAvailability({receipts:[{}]},promo).status,'outdated');
+assert.equal(offerReceiptAvailability({receipts:[{}],receiptMatchVersion:1,offerReceiptMatches:[]},{...promo,receiptConfirmedUses:0}).status,'no_matches');
+assert.equal(offerReceiptAvailability({receipts:[{}],receiptMatchVersion:1,offerReceiptMatches:[]},{...promo,receiptConfirmedUses:2}).status,'missing_details');
+assert.equal(offerReceiptAvailability(data,{...promo,reviewReasons:['ambiguous_receipt_match'],id:'other'}).status,'unresolved');
+console.log('✓ Receipt availability distinguishes absent, legacy, failed, outdated, known zero, aggregate-only and unresolved evidence');

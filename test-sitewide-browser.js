@@ -121,7 +121,7 @@ try{
   assert.ok(await populatedPage.locator('.sheet').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'Approved insight cards cannot overflow');
   assert.equal(await populatedPage.locator('.insights-chart-card select').count(),0,'No nonfunctional illustrative range control');
   await populatedPage.locator('.receipt-record-metric[data-open-sheet="finance"]').click();
-  await populatedPage.locator('#financePassword').waitFor();
+  await populatedPage.locator('.finance-empty').waitFor();
   assert.equal(await populatedPage.locator('#sheetTitle').innerText(),'Private finances','Missing details uses the existing private corrections route');
   await populatedPage.close();
  }

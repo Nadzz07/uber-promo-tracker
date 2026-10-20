@@ -48,19 +48,19 @@ try {
 
 const saved=new Map(),storage={getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)};
 const vault=new PrivateFinanceVault(storage),data={kind:'uber-tracker-private-finance',schemaVersion:1,receiptReviewVersion:1,accounts:[{accountRef:'A001'}],receipts:[receipt],events:[]};
-await vault.unlock('test passphrase only');await vault.import(data);
+await vault.import(data);
 const set=(kind,value)=>vault.append({kind,recordId:kind==='receipt'?receipt.receiptId:'A001',accountRef:'A001',action:'set',value});
 await set('receipt',{total:10});await set('receipt',reviewed);await set('cash',{balance:12});
 await vault.changeHistory('receipt',receipt.receiptId,'undo');assert.equal(vault.current().corrections[receipt.receiptId].total,10);assert.equal(receiptFinancials(receipt,vault.current().corrections[receipt.receiptId]).needsAdjustmentReview,true);
 await vault.changeHistory('receipt',receipt.receiptId,'redo');assert.equal(vault.current().corrections[receipt.receiptId].total,12);assert.equal(vault.current().wallets.A001.balance,12);
-vault.lock();await vault.unlock('test passphrase only');await vault.changeHistory('receipt',receipt.receiptId,'undo');await vault.changeHistory('receipt',receipt.receiptId,'undo');assert.equal(vault.current().corrections[receipt.receiptId],undefined);
+vault.hydrate();await vault.changeHistory('receipt',receipt.receiptId,'undo');await vault.changeHistory('receipt',receipt.receiptId,'undo');assert.equal(vault.current().corrections[receipt.receiptId],undefined);
 await vault.changeHistory('receipt',receipt.receiptId,'redo');assert.equal(vault.current().corrections[receipt.receiptId].total,10);
 await set('receipt',{total:11});assert.equal(vault.editHistory('receipt',receipt.receiptId).redo,null,'A new edit clears that record’s redo');
 const verifiedCashAt=vault.current().wallets.A001.at;await vault.changeHistory('cash','A001','undo');assert.equal(vault.current().wallets.A001,undefined);await vault.changeHistory('cash','A001','redo');assert.equal(vault.current().wallets.A001.balance,12);assert.equal(vault.current().wallets.A001.at,verifiedCashAt,'Undo/redo never renews Cash verification');
 const ledger=openPrivateDb(':memory:');try{const account=ensureAccount(ledger,{alias:'test@example.invalid'});assert.equal(account.accountRef,'A001');upsertReceipt(ledger,{receiptId:receipt.receiptId,accountRef:'A001'});mergeFinancialEvents(ledger,vault.data.events);assert.deepEqual(readFinancialEvents(ledger),vault.data.events,'Undo/redo metadata survives Mac transfer');assert.deepEqual(financialEditHistory(readFinancialEvents(ledger),'receipt',receipt.receiptId),vault.editHistory('receipt',receipt.receiptId));mergeFinancialEvents(ledger,vault.data.events);}finally{ledger.close();}
-const before=vault.data,ciphertext=vault.encryptedBackup();vault.storage={...storage,setItem(){throw Error('quota');}};await assert.rejects(()=>vault.resetReceiptCorrections(),/quota/);assert.equal(vault.data,before);assert.equal(vault.encryptedBackup(),ciphertext);
+const before=vault.data,ciphertext=storage.getItem('uber-tracker-finance-encrypted-v1');vault.storage={...storage,setItem(){throw Error('quota');}};await assert.rejects(()=>vault.resetReceiptCorrections(),/quota/);assert.equal(vault.data,before);assert.equal(storage.getItem('uber-tracker-finance-encrypted-v1'),ciphertext);
 vault.storage=storage;await vault.resetReceiptCorrections();assert.ok(vault.data.events.every(e=>e.kind==='cash'));assert.deepEqual(vault.data.receipts,data.receipts);assert.deepEqual(vault.data.accounts,data.accounts);assert.equal(vault.current().wallets.A001.balance,12);assert.equal(vault.current().corrections[receipt.receiptId],undefined);
 await vault.import({...data,receiptReviewVersion:undefined,receipts:[{...receipt,financialReview:undefined}]});assert.deepEqual(vault.data.receipts[0].financialReview,evidence,'An older transfer cannot discard refund review flags');
-assert.deepEqual((await decryptFinance(JSON.parse(vault.encryptedBackup()),'test passphrase only')).events,vault.data.events);
-vault.lock();await assert.rejects(()=>vault.resetReceiptCorrections(),/Unlock/);
+assert.deepEqual((await decryptFinance(JSON.parse(await vault.encryptedBackup('test passphrase only')),'test passphrase only')).events,vault.data.events);
+vault.hydrate();assert.equal(vault.current().wallets.A001.balance,12);
 console.log('✓ Refund/adjusted evidence, trusted source history, stable review revisions, known final payment, unchanged financial totals, private metadata; durable undo/redo, Mac round-trip and receipt-only encrypted reset');

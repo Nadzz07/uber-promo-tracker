@@ -60,3 +60,13 @@ export async function openOfferManagement(page, key = null) {
  if(await card.count()&&await card.getAttribute('open')===null)await card.locator('>summary').click();
  const trigger=card.locator('[data-manage-toggle]');if(await trigger.count()){if(await trigger.getAttribute('aria-expanded')!=='true')await trigger.click();}else{const panel=card.locator('.manage-offer').first();if(await panel.count()&&await panel.getAttribute('open')===null)await panel.locator('>summary').click();}
 }
+
+// Exercise the actual import location, then return to Private finances.
+export async function importPrivateFinance(page,file){
+ if(await page.locator('#sheetBackdrop.open').count()) {await page.locator('#sheetClose').click();await page.locator('#sheetBackdrop.open').waitFor({state:'hidden'});}
+ await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="health"]').click();
+ await page.locator('[data-finance-import]').setInputFiles(file);
+ await page.waitForFunction(()=>document.querySelector('#privateDataTools [role="status"]')?.textContent.includes('receipts on this device'));
+ await page.locator('#sheetClose').click();await page.locator('#sheetBackdrop.open').waitFor({state:'hidden'});
+ await page.locator('#view-more [data-open-sheet="finance"]').click();await page.locator('#financeReceipt').waitFor({state:'attached'});
+}

@@ -28,7 +28,7 @@ export function offerMatchedReceipts(data,promo) {
   const rows=(data.offerReceiptMatches||[]).filter(m=>m.status==='confirmed'&&m.accountRef===promo.accountRef&&ids.has(m.offerId)&&receipts.has(m.receiptId)).map(m=>({...receipts.get(m.receiptId),match:m}));
   return dedupeReceipts(rows).sort((a,b)=>String(receiptWhen(b)||'').localeCompare(String(receiptWhen(a)||''))||a.receiptId.localeCompare(b.receiptId));
 }
-// The unlocked transfer may be newer than the public snapshot. Derive a view,
+// The device-local transfer may be newer than the public snapshot. Derive a view,
 // without rewriting either source or counting an expanded list a second time.
 export function offerWithPrivateReceiptUses(promo,data) {
   if(promo.discountType==='uberCash'||data?.receiptMatchVersion!==1||!data.offerReceiptMatches?.some(m=>m.status==='confirmed'&&m.accountRef===promo.accountRef&&[promo.id,promo.offerId].includes(m.offerId)))return promo;
@@ -45,4 +45,20 @@ export function offerWithPrivateReceiptUses(promo,data) {
 export function plannerAccountChoices(context,offers,accounts,wallets) {
   if(!context)return {offers,accounts,wallets};
   return {offers:context.promoKey?offers.filter(p=>p.accountRef===context.accountRef&&(p.id===context.promoKey||p.offerId===context.promoKey)):[],accounts:accounts.filter(a=>a.accountRef===context.accountRef),wallets:context.includeCash&&wallets[context.accountRef]?{[context.accountRef]:wallets[context.accountRef]}:{}};
+}
+
+// Missing detail and known aggregate usage are independent. Older supported
+// exports retain receipts; lack of link metadata cannot be repaired by guessing.
+export function offerReceiptAvailability(data,promo,storeStatus='ready'){
+ const rows=offerMatchedReceipts(data,promo);
+ if(rows.length)return {status:'available',message:'',rows};
+ if(storeStatus==='loading')return {status:'loading',message:'Loading receipt details.'};
+ if(storeStatus==='migration_required')return {status:'migration_required',message:'Receipt data needs one-time migration in Sync & data.'};
+ if(storeStatus==='error')return {status:'error',message:'Receipt data could not load. Original data is preserved.'};
+ if(!data?.receipts?.length)return {status:'not_imported',message:'Receipt details not imported.'};
+ if(data.receiptMatchVersion!==1)return {status:'outdated',message:'Receipt matching unavailable in this export.'};
+ if(promo.reviewReasons?.includes('ambiguous_receipt_match')||(data.offerReceiptMatches||[]).some(m=>m.accountRef===promo.accountRef&&m.status==='ambiguous'&&(!m.offerId||[promo.id,promo.offerId].includes(m.offerId))))return {status:'unresolved',message:'Receipt matching needs checking.'};
+ const confirmed=promo.receiptConfirmedUses;
+ if(confirmed!=null&&Number(confirmed)>0)return {status:'missing_details',message:'Matching receipt details are not in this import.'};
+ return {status:'no_matches',message:'No matching receipts.'};
 }

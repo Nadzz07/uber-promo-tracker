@@ -6,16 +6,22 @@ import {keyedPublicOfferId} from '../identity.js';
 import {backupPrivateDb} from '../private-backup.js';
 import {readFinancialEvents,mergeFinancialEvents} from '../financial-ledger.js';
 import {financialSummary,currentFinancialEvents} from '../receipt-financials.js';
+import {decryptFinance} from '../private-finance-vault.js';
 const args=process.argv.slice(2),operation=args.shift();
-let source=process.env.TRACKER_PRIVATE_DB||'uber-tracker.local.db',file;
-for(let i=0;i<args.length;i++)if(args[i]==='--db')source=args[++i];else if(args[i]==='--file')file=args[++i];else throw Error('Use export|import --db DB --file NEW.local.json');
+let source=process.env.TRACKER_PRIVATE_DB||'uber-tracker.local.db',file,passphraseFile;
+for(let i=0;i<args.length;i++)if(args[i]==='--db')source=args[++i];else if(args[i]==='--file')file=args[++i];else if(args[i]==='--passphrase-file')passphraseFile=args[++i];else throw Error('Use export|import --db DB --file NEW.local.json');
 if(!['export','import'].includes(operation)||!file||!/\.local\.json$/.test(file)||!fs.existsSync(source)||path.resolve(source)===path.resolve(file))throw Error('An existing private DB and *.local.json transfer file are required.');
 if(operation==='export'&&fs.existsSync(file))throw Error('Existing transfer files are never overwritten.');
 backupPrivateDb(source);
 const db=openPrivateDb(source);
 try{
  if(operation==='import'){
-  const data=JSON.parse(fs.readFileSync(file));
+  let data=JSON.parse(fs.readFileSync(file));
+  if(data.kind==='uber-tracker-encrypted-finance'){
+   if(!passphraseFile)throw Error('Encrypted transfer requires --passphrase-file pointing to an owner-only private file.');
+   const info=fs.statSync(passphraseFile);if(!info.isFile()||(info.mode&0o077)!==0)throw Error('The passphrase file must be owner-only.');
+   data=await decryptFinance(data,fs.readFileSync(passphraseFile,'utf8').replace(/\r?\n$/,''));
+  }
   if(data.kind!=='uber-tracker-private-finance'||data.schemaVersion!==1)throw Error('Not a private financial transfer.');
   mergeFinancialEvents(db,data.events);
  }
