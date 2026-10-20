@@ -99,6 +99,6 @@ input[role=switch]:checked { background:var(--color-toggle)!important; border-co
 /* Keep freshly hydrated sheet content visible when reopening during dismissal. */
 .sheet-backdrop.open .sheet-body > * { visibility:visible; }
 /* Keep the Used tick-in-disc recognizable without an inactive accent. */
-.nav-btn[data-view=used]:not(.active) svg { background:var(--color-outline); color:var(--color-label); }
+.nav-btn[data-view=used]:not(.active) svg { background:var(--color-outline); color:var(--color-secondary); }
 /* A historical offer keeps its actual date visible when its details open. */
 .sheet[data-screen="Account details"] .past-offer[open] .compact-offer-expiry { display:block; }
