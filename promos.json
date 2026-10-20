@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "generatedAt": "2026-10-20T10:24:44.985Z",
+  "generatedAt": "2026-10-20T10:48:19.181Z",
   "source": "apple-mail-sqlite",
   "demo": false,
   "sync": {
@@ -36,7 +36,7 @@
       {
         "period": "2026-10-09",
         "eats": 0,
-        "rides": 3,
+        "rides": 2,
         "saved": 17.94
       },
       {
@@ -216,8 +216,8 @@
       {
         "period": "2026-07-16",
         "eats": 0,
-        "rides": 5,
-        "saved": 48.8
+        "rides": 4,
+        "saved": 38.8
       },
       {
         "period": "2026-07-15",
@@ -258,13 +258,13 @@
       {
         "period": "2026-07-07",
         "eats": 0,
-        "rides": 3,
+        "rides": 2,
         "saved": 19.88
       },
       {
         "period": "2026-07-06",
         "eats": 0,
-        "rides": 3,
+        "rides": 2,
         "saved": 13.22
       },
       {
@@ -504,8 +504,8 @@
       {
         "period": "2026-03-24",
         "eats": 0,
-        "rides": 3,
-        "saved": 28.99
+        "rides": 2,
+        "saved": 18.99
       },
       {
         "period": "2026-03-23",
@@ -1424,8 +1424,8 @@
       {
         "period": "2026-03",
         "eats": 16,
-        "rides": 23,
-        "saved": 369.94
+        "rides": 22,
+        "saved": 359.94
       },
       {
         "period": "2026-04",
@@ -1448,8 +1448,8 @@
       {
         "period": "2026-07",
         "eats": 25,
-        "rides": 26,
-        "saved": 598.43
+        "rides": 23,
+        "saved": 588.43
       },
       {
         "period": "2026-08",
@@ -1466,21 +1466,21 @@
       {
         "period": "2026-10",
         "eats": 9,
-        "rides": 14,
+        "rides": 13,
         "saved": 228.31
       }
     ]
   },
   "summary": {
     "orderCount": 169,
-    "promoSavings": 2528.23,
+    "promoSavings": 2508.23,
     "uberCashUsed": 998.78,
     "uberCashConfirmedSavings": 0,
     "uberOneConfirmedSavings": 0,
     "otherConfirmedSavings": 1299.51,
-    "confirmedSaved": 3827.74,
+    "confirmedSaved": 3807.74,
     "estimatedUberOneSavings": 0,
-    "estimatedTotalSaved": 3827.74,
+    "estimatedTotalSaved": 3807.74,
     "lastOrderAt": "2026-10-18T07:40:00.000Z",
     "recentDays": 30,
     "recentOrders": 11,
@@ -1488,7 +1488,7 @@
     "recentEstimatedUberOneSavings": 0,
     "recentEstimatedTotalSaved": 268.89,
     "trackedOrders": 169,
-    "totalSaved": 3827.74,
+    "totalSaved": 3807.74,
     "averageSavedPerOrder": 7.69,
     "estimatedAverageSavedPerOrder": 7.69,
     "uberOneEstimateModel": {
@@ -1500,29 +1500,29 @@
       "explanation": "Receipts do not separately state an Uber One saving or the undiscounted delivery and service fees. Combined savings remain in confirmed totals. A missing estimate does not mean no Uber One benefit."
     },
     "eatsConfirmedSaved": 1299.51,
-    "rideConfirmedSaved": 2528.23,
-    "trackedRides": 272,
+    "rideConfirmedSaved": 2508.23,
+    "trackedRides": 267,
     "financialBreakdown": {
-      "total": 3827.74,
+      "total": 3807.74,
       "categories": {
         "eatsPromotions": 14.85,
-        "ridePromotions": 2528.23,
+        "ridePromotions": 2508.23,
         "explicitUberOne": 0,
         "combinedUberOnePromotions": 1140.06,
         "schedule": 1.5,
         "other": 143.1
       },
       "missing": 115,
-      "missingSavings": 97,
+      "missingSavings": 94,
       "adjustmentsNeedingReview": 29,
       "conflicting": 0,
       "cashUsed": 998.78,
       "outOfPocket": 128.59,
       "paymentKnown": 87,
-      "receipts": 441,
+      "receipts": 436,
       "manual": 1
     },
-    "recentRides": 15,
+    "recentRides": 14,
     "averageExtraOrderFees": 0,
     "knownAccounts": 319,
     "accessibleAccounts": 143,
@@ -1549,7 +1549,7 @@
     "completedPromotions": 0,
     "archivedAccounts": 169,
     "deactivatedAccounts": 65,
-    "archivedConfirmedSaved": 1294.19,
+    "archivedConfirmedSaved": 1284.19,
     "deactivatedConfirmedSaved": 263.53,
     "needsCheckingAccounts": 0,
     "receiptSourcesNeedingReview": 44,
@@ -1588,6 +1588,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -1647,6 +1648,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -1706,6 +1708,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -1765,6 +1768,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -1869,6 +1873,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -1928,6 +1933,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -1987,6 +1993,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -2271,6 +2278,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -2330,6 +2338,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -2569,6 +2578,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -2718,6 +2728,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -2822,6 +2833,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -2881,6 +2893,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -3030,6 +3043,7 @@
             "status": "expired",
             "remaining": 0,
             "issued": 10,
+            "recordedUsed": 0,
             "expiresAt": "2026-05-25T22:59:59.000Z",
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -3043,6 +3057,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -3102,6 +3117,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -3161,6 +3177,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 15,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -3265,6 +3282,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -3459,6 +3477,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -3653,6 +3672,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -3712,6 +3732,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -3996,6 +4017,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -4100,6 +4122,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -4249,6 +4272,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -4308,6 +4332,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -4367,6 +4392,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -4426,6 +4452,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -4530,6 +4557,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 15,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -4589,6 +4617,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -4648,6 +4677,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -4752,6 +4782,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -5020,7 +5051,7 @@
       "lastOrderAt": null,
       "lastRideAt": "2026-07-05T23:25:00.000Z",
       "orderCount": 0,
-      "rideCount": 2,
+      "rideCount": 1,
       "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 1,
@@ -5081,6 +5112,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -5140,6 +5172,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -5244,6 +5277,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -5303,6 +5337,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -5407,6 +5442,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -5466,6 +5502,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -5525,6 +5562,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -5584,6 +5622,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -5688,6 +5727,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -5701,6 +5741,7 @@
             "status": "expired",
             "remaining": 0,
             "issued": 10,
+            "recordedUsed": 0,
             "expiresAt": "2026-10-03T22:59:59.000Z",
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -5760,6 +5801,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -5893,7 +5935,7 @@
       "lastOrderAt": null,
       "lastRideAt": "2026-10-09T16:07:00.000Z",
       "orderCount": 0,
-      "rideCount": 2,
+      "rideCount": 1,
       "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 1,
@@ -5999,6 +6041,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -6058,6 +6101,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -6117,6 +6161,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -6176,6 +6221,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -6235,6 +6281,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -6294,6 +6341,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -6353,6 +6401,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -6412,6 +6461,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -6471,6 +6521,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -6530,6 +6581,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -6634,6 +6686,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -6693,6 +6746,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -6752,6 +6806,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -6811,6 +6866,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -6870,6 +6926,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -6929,6 +6986,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -6988,6 +7046,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -7047,6 +7106,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -7106,6 +7166,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -7165,6 +7226,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -7224,6 +7286,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -7237,6 +7300,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -7296,6 +7360,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -7355,6 +7420,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -7414,6 +7480,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -7473,6 +7540,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -7622,6 +7690,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -7681,6 +7750,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -7740,6 +7810,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -7799,6 +7870,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -7903,6 +7975,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -7916,6 +7989,7 @@
             "status": "expired",
             "remaining": 0,
             "issued": 10,
+            "recordedUsed": 0,
             "expiresAt": "2026-08-24T22:59:59.000Z",
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -7975,6 +8049,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -8034,6 +8109,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -8138,6 +8214,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -8197,6 +8274,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -8256,6 +8334,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -8315,6 +8394,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -8374,6 +8454,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -8433,6 +8514,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -8537,6 +8619,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -8596,6 +8679,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -8655,6 +8739,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -8714,6 +8799,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -8818,6 +8904,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -8831,6 +8918,7 @@
             "status": "expired",
             "remaining": 0,
             "issued": 10,
+            "recordedUsed": 0,
             "expiresAt": "2026-08-28T22:59:59.000Z",
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -8980,6 +9068,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -9039,6 +9128,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -9082,8 +9172,8 @@
       "lastOrderAt": "2026-07-03T15:16:00.000Z",
       "lastRideAt": "2026-03-24T08:33:00.000Z",
       "orderCount": 1,
-      "rideCount": 2,
-      "totalSaved": 20,
+      "rideCount": 1,
+      "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
       "activePromoCount": 4,
@@ -9098,6 +9188,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -9110,14 +9201,14 @@
       },
       "needsReview": false,
       "reviewOfferCount": 3,
-      "promoSavings": 20,
+      "promoSavings": 10,
       "uberCashUsed": 11.9,
       "uberCashConfirmedSavings": 0,
       "uberOneConfirmedSavings": 0,
       "otherConfirmedSavings": 0,
-      "rideConfirmedSaved": 20,
+      "rideConfirmedSaved": 10,
       "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 20,
+      "estimatedTotalSaved": 10,
       "accountUsed": true,
       "partialUsage": false,
       "accountUsedReason": "eats_and_ride_receipts",
@@ -9157,6 +9248,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -9216,6 +9308,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -9275,6 +9368,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -9469,6 +9563,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -9528,6 +9623,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -9587,6 +9683,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -9646,6 +9743,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -9705,6 +9803,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -9764,6 +9863,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -9868,6 +9968,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -9927,6 +10028,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -10076,6 +10178,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 20,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -10135,6 +10238,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -10239,6 +10343,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -10298,6 +10403,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 10,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -10447,6 +10553,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -10506,6 +10613,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -10565,6 +10673,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -10578,6 +10687,7 @@
             "status": "expired",
             "remaining": 0,
             "issued": 10,
+            "recordedUsed": 0,
             "expiresAt": "2026-09-10T22:59:59.000Z",
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -10817,6 +10927,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -10860,7 +10971,7 @@
       "lastOrderAt": null,
       "lastRideAt": "2026-07-07T21:30:00.000Z",
       "orderCount": 0,
-      "rideCount": 2,
+      "rideCount": 1,
       "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 1,
@@ -10905,8 +11016,8 @@
       "lastOrderAt": null,
       "lastRideAt": "2026-07-16T20:23:00.000Z",
       "orderCount": 0,
-      "rideCount": 2,
-      "totalSaved": 20,
+      "rideCount": 1,
+      "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 1,
       "activePromoCount": 1,
@@ -10921,6 +11032,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -10933,14 +11045,14 @@
       },
       "needsReview": false,
       "reviewOfferCount": 1,
-      "promoSavings": 20,
+      "promoSavings": 10,
       "uberCashUsed": 0,
       "uberCashConfirmedSavings": 0,
       "uberOneConfirmedSavings": 0,
       "otherConfirmedSavings": 0,
-      "rideConfirmedSaved": 20,
+      "rideConfirmedSaved": 10,
       "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 20,
+      "estimatedTotalSaved": 10,
       "accountUsed": false,
       "partialUsage": true,
       "accountUsedReason": null,
@@ -11475,6 +11587,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -14324,6 +14437,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -15553,6 +15667,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": 0,
             "expiresAt": null,
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -15612,6 +15727,7 @@
             "status": "needs_checking",
             "remaining": null,
             "issued": 12,
+            "recordedUsed": null,
             "expiresAt": null,
             "allocation": "inferred_from_receipts",
             "minimumSpend": 0,
@@ -15941,6 +16057,7 @@
             "status": "expired",
             "remaining": 0,
             "issued": 10,
+            "recordedUsed": 0,
             "expiresAt": "2026-05-17T22:59:59.000Z",
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -16090,6 +16207,7 @@
             "status": "expired",
             "remaining": 0,
             "issued": 10,
+            "recordedUsed": 0,
             "expiresAt": "2026-05-03T22:59:59.000Z",
             "allocation": "no_recorded_usage",
             "minimumSpend": 0,
@@ -17842,7 +17960,8 @@
         "issued": 10,
         "issuedAt": "2026-10-17T08:56:41.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -18116,7 +18235,8 @@
         "issued": 12,
         "issuedAt": "2026-10-05T09:44:48.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -18343,7 +18463,8 @@
         "issued": 15,
         "issuedAt": "2026-10-05T09:34:51.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -19638,7 +19759,8 @@
         "issued": 15,
         "issuedAt": "2026-10-04T18:36:06.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -19964,7 +20086,8 @@
         "issued": 12,
         "issuedAt": "2026-10-04T13:15:59.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -20037,7 +20160,8 @@
         "issued": 12,
         "issuedAt": "2026-10-04T12:32:49.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -20567,7 +20691,8 @@
         "issued": 12,
         "issuedAt": "2026-10-04T10:10:12.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -25932,7 +26057,8 @@
         "issued": 20,
         "issuedAt": "2026-10-14T11:28:49.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 25,
@@ -46505,7 +46631,8 @@
         "issued": 12,
         "issuedAt": "2026-09-16T20:43:21.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 28,
@@ -46577,7 +46704,8 @@
         "issued": 12,
         "issuedAt": "2026-09-16T19:36:45.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 28,
@@ -46653,7 +46781,8 @@
         "issued": 12,
         "issuedAt": "2026-09-17T17:17:27.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 28,
@@ -59020,7 +59149,8 @@
         "issued": 10,
         "issuedAt": "2026-09-19T15:11:17.000Z",
         "expiresAt": "2026-10-03T22:59:59.000Z",
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "excludesFees": false
@@ -61181,7 +61311,8 @@
         "issued": 12,
         "issuedAt": "2026-09-12T16:57:19.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 28,
@@ -62279,7 +62410,8 @@
         "issued": 12,
         "issuedAt": "2026-09-26T10:48:32.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -73968,7 +74100,8 @@
         "issued": 12,
         "issuedAt": "2026-09-17T15:17:24.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 28,
@@ -74604,7 +74737,8 @@
         "issued": 12,
         "issuedAt": "2026-05-13T17:04:58.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -74879,7 +75013,8 @@
         "issued": 12,
         "issuedAt": "2026-09-13T18:27:55.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -78887,7 +79022,8 @@
         "issued": 10,
         "issuedAt": "2026-08-27T15:25:21.000Z",
         "expiresAt": "2026-09-10T22:59:59.000Z",
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "excludesFees": false
@@ -82900,7 +83036,8 @@
         "issued": 12,
         "issuedAt": "2026-07-05T18:47:28.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -89890,7 +90027,8 @@
         "issued": 12,
         "issuedAt": "2026-08-16T09:49:51.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -90471,7 +90609,8 @@
         "issued": 12,
         "issuedAt": "2026-07-05T10:40:08.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -93404,7 +93543,8 @@
         "issued": 10,
         "issuedAt": "2026-08-22T15:00:04.000Z",
         "expiresAt": "2026-08-28T22:59:59.000Z",
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "excludesFees": false
@@ -97197,7 +97337,8 @@
         "issued": 12,
         "issuedAt": "2026-08-15T18:07:22.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -98901,7 +99042,8 @@
         "issued": 10,
         "issuedAt": "2026-08-14T17:05:43.000Z",
         "expiresAt": "2026-08-24T22:59:59.000Z",
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "excludesFees": false
@@ -106005,7 +106147,8 @@
         "issued": 10,
         "issuedAt": "2026-08-14T17:05:43.000Z",
         "expiresAt": "2026-08-24T22:59:59.000Z",
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "excludesFees": false
@@ -107403,7 +107546,8 @@
         "issued": 12,
         "issuedAt": "2026-06-09T10:47:45.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -113839,7 +113983,8 @@
         "issued": 12,
         "issuedAt": "2026-06-09T15:02:14.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 28,
@@ -122535,7 +122680,8 @@
         "issued": 12,
         "issuedAt": "2026-05-15T08:38:46.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -124595,7 +124741,8 @@
         "issued": 12,
         "issuedAt": "2026-07-06T11:09:18.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -124713,7 +124860,8 @@
         "issued": 12,
         "issuedAt": "2026-07-06T06:59:05.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -124783,7 +124931,8 @@
         "issued": 12,
         "issuedAt": "2026-07-05T19:51:53.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -137943,7 +138092,8 @@
         "issued": 12,
         "issuedAt": "2026-07-05T15:47:42.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -138217,7 +138367,8 @@
         "issued": 12,
         "issuedAt": "2026-07-05T13:56:15.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -138287,7 +138438,8 @@
         "issued": 12,
         "issuedAt": "2026-07-05T14:10:08.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -138357,7 +138509,8 @@
         "issued": 12,
         "issuedAt": "2026-07-05T13:32:53.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -141079,7 +141232,8 @@
         "issued": 12,
         "issuedAt": "2026-07-05T11:01:55.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -142856,7 +143010,8 @@
         "issued": 12,
         "issuedAt": "2026-07-05T16:21:18.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -142926,7 +143081,8 @@
         "issued": 12,
         "issuedAt": "2026-07-05T13:00:22.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -143766,7 +143922,8 @@
         "issued": 12,
         "issuedAt": "2026-07-06T19:45:28.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -144302,7 +144459,8 @@
         "issued": 12,
         "issuedAt": "2026-07-06T11:38:06.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -148385,7 +148543,8 @@
         "issued": 12,
         "issuedAt": "2026-07-06T19:45:51.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -150142,7 +150301,8 @@
         "issued": 12,
         "issuedAt": "2026-05-13T09:51:12.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -150263,7 +150423,8 @@
         "issued": 12,
         "issuedAt": "2026-05-14T16:42:26.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -152690,7 +152851,8 @@
         "issued": 12,
         "issuedAt": "2026-06-08T12:41:52.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -152859,7 +153021,8 @@
         "issued": 12,
         "issuedAt": "2026-06-07T17:07:22.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -152977,7 +153140,8 @@
         "issued": 12,
         "issuedAt": "2026-06-07T14:58:21.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -153044,7 +153208,8 @@
         "issued": 12,
         "issuedAt": "2026-06-07T14:59:36.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -153267,7 +153432,8 @@
         "issued": 12,
         "issuedAt": "2026-05-13T14:03:41.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -153334,7 +153500,8 @@
         "issued": 12,
         "issuedAt": "2026-06-09T19:42:56.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -153401,7 +153568,8 @@
         "issued": 12,
         "issuedAt": "2026-06-07T17:27:19.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -153471,7 +153639,8 @@
         "issued": 12,
         "issuedAt": "2026-06-08T18:19:13.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -153541,7 +153710,8 @@
         "issued": 12,
         "issuedAt": "2026-06-08T18:04:03.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -153611,7 +153781,8 @@
         "issued": 12,
         "issuedAt": "2026-05-14T14:18:56.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -153678,7 +153849,8 @@
         "issued": 12,
         "issuedAt": "2026-06-09T18:47:58.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -153801,7 +153973,8 @@
         "issued": 12,
         "issuedAt": "2026-05-14T17:56:52.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -153922,7 +154095,8 @@
         "issued": 12,
         "issuedAt": "2026-06-07T13:57:29.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -154466,7 +154640,8 @@
         "issued": 12,
         "issuedAt": "2026-06-09T09:43:50.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -155374,7 +155549,8 @@
         "issued": 12,
         "issuedAt": "2026-06-11T17:18:48.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -157037,7 +157213,8 @@
         "issued": 12,
         "issuedAt": "2026-06-07T20:28:01.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -157104,7 +157281,8 @@
         "issued": 12,
         "issuedAt": "2026-06-09T16:25:21.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -158831,7 +159009,8 @@
         "issued": 12,
         "issuedAt": "2026-05-14T09:43:43.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -158952,7 +159131,8 @@
         "issued": 12,
         "issuedAt": "2026-06-08T18:14:42.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -160454,7 +160634,8 @@
         "issued": 12,
         "issuedAt": "2026-06-08T20:12:44.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -160524,7 +160705,8 @@
         "issued": 12,
         "issuedAt": "2026-06-08T18:13:53.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -160807,7 +160989,8 @@
         "issued": 12,
         "issuedAt": "2026-06-08T18:12:55.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -163895,7 +164078,8 @@
         "issued": 12,
         "issuedAt": "2026-05-13T18:28:51.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -164737,7 +164921,8 @@
         "issued": 12,
         "issuedAt": "2026-05-13T19:58:06.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -178608,7 +178793,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T21:41:09.000Z",
         "expiresAt": "2026-05-25T22:59:59.000Z",
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -180317,7 +180503,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T21:43:07.000Z",
         "expiresAt": "2026-05-17T22:59:59.000Z",
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -186137,7 +186324,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T20:02:42.000Z",
         "expiresAt": "2026-05-03T22:59:59.000Z",
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -187135,7 +187323,8 @@
         "issued": 12,
         "issuedAt": "2026-04-06T15:02:18.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -188315,7 +188504,8 @@
         "issued": 12,
         "issuedAt": "2026-04-17T14:01:47.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -191598,7 +191788,8 @@
         "issued": 12,
         "issuedAt": "2026-03-14T11:17:42.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -192244,7 +192435,8 @@
         "issued": 12,
         "issuedAt": "2026-04-06T15:16:42.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -192464,7 +192656,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T20:02:42.000Z",
         "expiresAt": "2026-05-03T22:59:59.000Z",
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -193533,7 +193726,8 @@
         "issued": 12,
         "issuedAt": "2026-04-06T20:25:45.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -196583,7 +196777,8 @@
         "issued": 12,
         "issuedAt": "2026-04-07T11:01:53.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -196755,7 +196950,8 @@
         "issued": 12,
         "issuedAt": "2026-04-06T15:40:08.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -197893,7 +198089,8 @@
         "issued": 12,
         "issuedAt": "2026-04-07T06:48:13.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -197960,7 +198157,8 @@
         "issued": 12,
         "issuedAt": "2026-04-07T06:04:23.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -198030,7 +198228,8 @@
         "issued": 12,
         "issuedAt": "2026-04-06T17:12:13.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -198100,7 +198299,8 @@
         "issued": 12,
         "issuedAt": "2026-04-06T15:50:27.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -200033,7 +200233,8 @@
         "issued": 12,
         "issuedAt": "2026-04-07T06:51:01.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -200967,7 +201168,8 @@
         "issued": 12,
         "issuedAt": "2026-03-14T18:21:14.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 28,
@@ -203253,7 +203455,8 @@
         "issued": 12,
         "issuedAt": "2026-03-08T18:57:20.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -204547,7 +204750,8 @@
         "issued": 12,
         "issuedAt": "2026-03-09T10:31:57.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -204665,7 +204869,8 @@
         "issued": 12,
         "issuedAt": "2026-03-10T20:21:45.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -206350,7 +206555,8 @@
         "issued": 12,
         "issuedAt": "2026-03-08T15:17:38.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -207287,7 +207493,8 @@
         "issued": 12,
         "issuedAt": "2026-03-10T20:06:04.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -207354,7 +207561,8 @@
         "issued": 12,
         "issuedAt": "2026-03-14T11:30:39.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -207990,7 +208198,8 @@
         "issued": 12,
         "issuedAt": "2026-03-14T16:01:14.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -208057,7 +208266,8 @@
         "issued": 12,
         "issuedAt": "2026-03-08T14:59:37.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -208124,7 +208334,8 @@
         "issued": 12,
         "issuedAt": "2026-03-08T12:44:33.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -208194,7 +208405,8 @@
         "issued": 12,
         "issuedAt": "2026-03-11T07:55:48.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -208516,7 +208728,8 @@
         "issued": 12,
         "issuedAt": "2026-03-08T22:05:11.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -208583,7 +208796,8 @@
         "issued": 12,
         "issuedAt": "2026-03-08T19:50:42.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -212175,7 +212389,8 @@
         "issued": 10,
         "issuedAt": "2026-02-08T17:25:23.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 28,
@@ -213982,7 +214197,8 @@
         "issued": 10,
         "issuedAt": "2026-02-08T18:27:23.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -214052,7 +214268,8 @@
         "issued": 10,
         "issuedAt": "2026-02-08T15:56:31.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -214122,7 +214339,8 @@
         "issued": 10,
         "issuedAt": "2026-02-08T11:20:30.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -217405,7 +217623,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T20:42:21.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -217475,7 +217694,8 @@
         "issued": 10,
         "issuedAt": "2026-02-08T14:11:20.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -217596,7 +217816,8 @@
         "issued": 10,
         "issuedAt": "2026-02-08T12:08:32.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -218431,7 +218652,8 @@
         "issued": 10,
         "issuedAt": "2026-02-08T21:03:51.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -219266,7 +219488,8 @@
         "issued": 10,
         "issuedAt": "2026-02-08T12:44:58.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -219948,7 +220171,8 @@
         "issued": 10,
         "issuedAt": "2026-02-08T10:08:59.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -220120,7 +220344,8 @@
         "issued": 10,
         "issuedAt": "2026-02-08T21:36:17.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 28,
@@ -221414,7 +221639,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T21:43:07.000Z",
         "expiresAt": "2026-05-17T22:59:59.000Z",
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -221482,7 +221708,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T21:41:09.000Z",
         "expiresAt": "2026-05-25T22:59:59.000Z",
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -221550,7 +221777,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T20:02:42.000Z",
         "expiresAt": "2026-05-03T22:59:59.000Z",
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -221618,7 +221846,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T20:18:51.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -222054,7 +222283,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T10:32:34.000Z",
         "expiresAt": null,
-        "allocation": "no_recorded_usage"
+        "allocation": "no_recorded_usage",
+        "recordedUsed": 0
       },
       "cashTerms": {
         "duration": 35,
@@ -223195,7 +223425,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T21:36:33.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -226381,7 +226612,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T18:29:39.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -226448,7 +226680,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T15:44:49.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -226515,7 +226748,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T15:29:37.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -226582,7 +226816,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T15:18:07.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -226649,7 +226884,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T15:02:28.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -226716,7 +226952,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T14:52:08.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -226783,7 +227020,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T13:58:21.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -226956,7 +227194,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T13:22:22.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -227023,7 +227262,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T13:02:54.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
@@ -227141,7 +227381,8 @@
         "issued": 10,
         "issuedAt": "2026-01-04T12:43:08.000Z",
         "expiresAt": null,
-        "allocation": "inferred_from_receipts"
+        "allocation": "inferred_from_receipts",
+        "recordedUsed": null
       },
       "cashTerms": {
         "duration": 35,
