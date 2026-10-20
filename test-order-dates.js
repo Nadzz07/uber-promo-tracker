@@ -54,3 +54,5 @@ console.log('✓ Distinct purchase times separate equal delivery windows; duplic
  }finally{db.close()}
 }
 console.log('✓ Legacy duplicate copies retain one durable receipt when the parsed purchase time agrees.');
+
+assert.equal(receiptDay({orderAt:'2026-10-09T23:30:00Z',sentAt:'2026-10-12T12:00:00Z'}),'2026-10-10','An imported order timestamp supplies the UK receipt day before a later email timestamp');
