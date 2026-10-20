@@ -3868,11 +3868,15 @@
     let accountCalculator=null,plannerAccountContext=null,accountReceiptReturn=null;
     const accountReceiptLimits=new Map();
     const cashMoney=value=>value==null?'Unknown':'£'+fractionalMoney.format(value);
+    function privateCashEvidenceLocked(){
+      if(financeSession?.vault?.data)return false;
+      try{return Boolean(financeSession?.vault?.hasSaved()||localStorage.getItem('uber-tracker-finance-encrypted-v1'));}catch{return false;}
+    }
     function accountCashState(ref,promoKey=null){
       const wallet=enrichedAccounts().find(a=>a.accountRef===ref)?.cashPosition;
       const promo=promoKey?promoByKey(promoKey):null;
       const state=cashCalculationState(wallet,promo);
-      if(!state.usable&&financeSession?.vault?.hasSaved()&&!financeSession.vault.data)state.reason='Unlock private balance';
+      if(!state.usable&&['No available Uber Cash','Balance needs checking'].includes(state.reason)&&privateCashEvidenceLocked())state.reason='Unlock private balance';
       return {wallet,...state,description:state.usable?cashMoney(wallet.remaining)+' '+(wallet.status==='verified'?'verified':'estimated')+(state.reason?' · Compatibility unverified':' balance'):state.reason};
     }
     function initialiseAccountCalculator(accountRef,offerKey=null){
@@ -3961,7 +3965,7 @@
       const cash=enrichedAccounts().find(a=>a.accountRef===account.accountRef)?.cashPosition;
       const positive=cashCalculationState(cash).usable,review=cash?.status==='needs_checking';
       if(!positive&&!review)return '';
-      const e=escapeHtml,status=review?(financeSession?.vault?.hasSaved()&&!financeSession.vault.data?'Private balance locked':'Cash needs checking'):cash.status==='verified'?'Verified balance':cash.status==='verified_reconciled'?'Estimated from balance check':'Estimated remaining';
+      const e=escapeHtml,status=review?(privateCashEvidenceLocked()?'Private balance locked':'Cash needs checking'):cash.status==='verified'?'Verified balance':cash.status==='verified_reconciled'?'Estimated from balance check':'Estimated remaining';
       const expiry=positive&&cash.grants?.length?offerCountdown({expiresAt:cash.grants.map(g=>g.expiresAt).filter(Boolean).sort()[0],expiryStatus:'exact'}):'';
       return `<details class="account-cash-entry" data-cash-entry data-cash-state="${e(cash.status)}" data-disclosure-key="cash"><summary>${financeIcon('wallet')}<span class="account-cash-copy"><span class="account-cash-title"><strong>Uber Cash</strong><span class="cash-balance-badge">Balance</span></span><small>${e(status+(expiry?' · '+expiry:''))}</small></span><strong class="cash-entry-balance">${e(positive?cashMoney(cash.remaining):'Unknown')}</strong>${financeIcon('chevron-down')}</summary><div class="account-cash-body">${accountCreditHistory(account,cashItems)}<button class="account-sheet-link" data-open-sheet="finance" data-finance-target="cash" data-finance-account="${e(account.accountRef)}">${financeIcon('lock')}<span>Update balance</span>${financeIcon('chevron-right')}</button></div></details>`;
     }

@@ -346,7 +346,7 @@ try {
   await filterPage.locator('[data-jump-accounts][data-target-filter="unfinished"]').click();
   assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts');
   for (const ref of ['A102','A104','A109','A107','A110']) assert.equal(await filterPage.locator('#accountsList [data-card-account="'+ref+'"]').count(), 1, 'The full list retains unused, expired and one-left accounts');
-  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4\/5 confirmed · 1 remaining/);
+  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4\/5 confirmed · Up to 1 left/);
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A108"]').count(),0,'Untouched accounts do not count as started promos');
   await filterPage.locator('[data-view="home"]').click();
   await openHomeDetail(filterPage,'offers');await filterPage.locator('[data-intent="cash"]').click();
