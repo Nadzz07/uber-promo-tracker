@@ -91,3 +91,21 @@ assert.equal(accountMatchesProvider({accountMasked:'a@icloud.com'},'iCloud'),fal
 assert.equal(accountMatchesLogin({canLogin:false,accountStatus:'active'},'locked'),true);
 assert.equal(accountMatchesLogin({canLogin:true,accountStatus:'archived'},'login'),true);
 console.log('✓ Shared Accounts/finder filters preserve distinct minima, unknown terms, explicit provider membership and independent login/archive access');
+
+// Device account decisions preserve the existing manual-offer store and source.
+const {normaliseManualStore,accountManualRecord,accountWithManualState,saveAccountManualRecord,consumeManualUse}=await import('./manual-state.js');
+const identity={accountRef:'A970',accountMasked:'ma…@example.invalid',canLogin:true,loginMethod:'Both',accountStatus:'active',orderCount:5,rideCount:1};
+const baseline=normaliseManualStore({offers:{sample:{manualUsesConsumed:2,ignored:true}}});
+const noted=saveAccountManualRecord(baseline,identity,{note:'Device-only account note'},now);
+const archived=saveAccountManualRecord(noted,identity,{archived:true},now);
+assert.deepEqual(archived.offers,baseline.offers);assert.equal(accountManualRecord(archived,identity).note,'Device-only account note');
+const applied=accountWithManualState(archived,identity);assert.equal(accountArchived(applied),true);assert.equal(applied.canLogin,true);assert.equal(applied.loginMethod,'Both');assert.equal(applied.orderCount,5);assert.equal(identity.accountStatus,'active');
+assert.equal(classifyAccount(applied,[activeOffer()]).recommendationEligible,false);
+assert.equal(accountWithManualState(archived,{...identity,accountMasked:'changed@example.invalid'}).accountStatus,'active','Decisions are bound to the saved identity');
+const reopened=saveAccountManualRecord(archived,identity,{archived:false},now);assert.equal(accountArchived(accountWithManualState(reopened,identity)),false);
+assert.equal(accountArchived(accountWithManualState(reopened,{...identity,deactivated:true,accountStatus:'deactivated'})),true,'Unarchive cannot reactivate a deactivated account');
+assert.equal(accountWithManualState(archived,{...identity,canLogin:false}).canLogin,false);
+assert.equal(accountManualRecord(consumeManualUse(archived,{...activeOffer(),id:'other'}),identity).note,'Device-only account note','Promotion actions retain account notes and archive choices');
+assert.equal(accountManualRecord(normaliseManualStore(JSON.parse(JSON.stringify(archived))),identity).note,'Device-only account note');
+for(const patch of [{note:42},{archived:'false'},{canLogin:true},{note:'x'.repeat(10001)}])assert.throws(()=>saveAccountManualRecord(archived,identity,patch));
+console.log('✓ Device account notes/archive persistence, identity binding, independent access and receipt rules, preserved manual decisions');

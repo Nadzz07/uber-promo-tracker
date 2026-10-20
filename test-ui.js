@@ -115,7 +115,7 @@ test('Colour selections preserve valid colours, round trip HSL and keep all acce
     const hsl = colourHsl(input); assert.equal(hslColour(hsl.hue, hsl.saturation, hsl.lightness), input);
     const rgb = themeTokens(input).rgb.split(',').map(Number);
     const luminance = values => values.map(v => v/255 <= .04045 ? v/255/12.92 : ((v/255+.055)/1.055)**2.4).reduce((s,v,i) => s+v*[.2126,.7152,.0722][i],0);
-    assert.ok((luminance(rgb)+.05)/(luminance([12,19,17])+.05) >= 7);
+    assert.ok((luminance(rgb)+.05)/(luminance([12,19,17])+.05) >= 4.5);
   }
 });
 

@@ -1,0 +1,96 @@
+/* One matte system shared by every screen. Fixed colours live in theme-palette.js. */
+:root {
+ --bg:var(--color-screen); --bg-deep:var(--color-screen); --surface:var(--color-panel); --surface-inset:var(--color-dropdown); --surface-gradient:var(--color-panel);
+ --text:var(--color-text); --muted:var(--color-secondary); --dim:var(--color-tertiary); --line:var(--color-border); --line-soft:var(--color-border);
+ --accent:var(--color-accent); --green:var(--color-accent); --green-strong:var(--color-soft-accent); --green-soft:var(--color-selected); --amber:var(--color-soft-accent); --amber-soft:var(--color-selected); --red:var(--color-label);
+ --glass:var(--color-panel); --glass-strong:var(--color-panel); --glass-soft:var(--color-dropdown); --glass-blur:0px;
+ --shadow:none; --inner:none; --surface-shadow:none; --hero-surface:var(--color-panel); --hero-edge:var(--color-border);
+ --surface-rgb:var(--color-panel-rgb); --accent-rgb:var(--color-accent-rgb); --account-accent:var(--color-accent); --account-tint:var(--color-selected); --account-outline:var(--color-selected-border);
+ --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px;
+ --card-radius:12px; --panel-radius:12px; --control-radius:10px; --radius-xl:16px; --radius-lg:12px; --radius-md:10px; --radius-sm:8px;
+ --motion-fast:180ms; --motion-normal:260ms; --motion-slow:320ms; --motion-ease:cubic-bezier(.2,.8,.2,1); --transition-fast:var(--motion-fast); --transition-panel:var(--motion-slow);
+}
+html,body { background:var(--color-screen); color:var(--color-text); }
+body::before,body::after,.bottom-nav::before,.nav-glider::after { content:none; }
+:is(.glass,.stat-card,.account-card,.quick-card,.activity-card,.activity-list,.more-group-list,.settings-group-panel,.setting-card,.setting-row,.disclosure-card,.sheet-list,.insight,.finance-editor-card,.receipt-preview-card,.receipt-charges-card,.receipt-payment-card,.home-overview,.hero-card,.used-summary,.used-record,.used-more,.directory-summary,.directory-card,.empty,.loading) { background:var(--color-panel); border-color:var(--color-border); box-shadow:none; }
+:is(.sheet,.picker-dialog,.catalogue-dialog,.offer-catalogue,.preferred-editor) { background:var(--color-sheet); border-color:var(--color-border); box-shadow:none; }
+.sheet-backdrop { background:color-mix(in srgb,var(--color-dimmed) 90%,transparent); backdrop-filter:none; -webkit-backdrop-filter:none; }
+.sheet-handle { background:var(--color-outline); }
+.sheet-close { background:var(--color-close); border-color:var(--color-close-border); color:var(--color-icon); }
+:is(input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]),textarea,select,.search-wrap,.search-input,.account-picker-trigger,.account-control,.offer-scope-row) { background:var(--color-dropdown); border-color:var(--color-outline); color:var(--color-text); }
+:is(input,textarea)::placeholder { color:var(--color-secondary); opacity:1; font-weight:400; }
+:is(input,textarea,select) { font-size:max(16px,1em); }
+:is(button,a,input,textarea,select,summary):focus-visible { outline:2px solid var(--color-accent); outline-offset:3px; }
+:is(.action-btn,.advanced-btn,.ghost-btn,.account-secondary,.account-record-use,.account-manage-toggle,.sheet-action-row,.sheet-row,.compact-setting-row,.more-card,.catalogue-option,.catalogue-action) { box-shadow:none; border-color:var(--color-outline); font-weight:500; }
+:is(.action-btn,.advanced-btn,.account-secondary,.account-manage-toggle) { background:var(--color-panel); color:var(--color-text); border-radius:var(--control-radius); }
+:is(.account-primary,.account-calculate,.primary-btn,.primary-action,.preferred-save,.preferred-save-button) { background:var(--color-accent); color:var(--color-on-accent); border:1px solid var(--color-accent); box-shadow:none; font-weight:600; border-radius:var(--control-radius); }
+:is(.pill,.chip,.badge,.selected-badge,.account-selected-badge) { border-radius:8px; box-shadow:none; }
+:is(.pill.active,.chip.active,.account-selected-badge,.directory-login-tabs [aria-pressed=true],.account-login-tabs [aria-pressed=true]) { color:var(--color-chip-text); background:var(--color-chip); border-color:var(--color-selected-border); }
+:is(.progress-track,.use-progress-track,.progress-bar) { background:var(--color-track); box-shadow:none; }
+:is(.progress-fill,.use-progress-fill) { background:var(--color-accent); box-shadow:none; }
+input[role=switch],.compact-setting-row input[role=switch] { background:var(--color-outline); border-color:var(--color-outline); box-shadow:none; }
+input[role=switch]:checked,.compact-setting-row input[role=switch]:checked { background:var(--color-toggle); border-color:var(--color-toggle); }
+:is(.bottom-nav,html[data-layout=desktop] .bottom-nav) { background:var(--color-panel); border-color:var(--color-border); box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
+:is(.nav-btn,html[data-layout=desktop] .nav-btn) { color:var(--color-secondary); }
+:is(.nav-btn.active,html[data-layout=desktop] .nav-btn.active) { color:var(--color-soft-accent); }
+.nav-glider { background:var(--color-selected); border-color:var(--color-selected-border); box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
+.colour-wheel { position:relative; background:var(--color-panel); box-shadow:none; }
+.colour-wheel canvas { position:absolute; inset:0; width:100%; height:100%; border-radius:50%; pointer-events:none; }
+.colour-thumb { border-color:var(--color-text); box-shadow:none; z-index:1; }
+.sheet[data-screen="Account details"] { --bg-deep:var(--color-sheet); --text:var(--color-text); --muted:var(--color-secondary); --line:var(--color-border); --line-soft:var(--color-border); --surface-gradient:var(--color-panel); --surface-inset:var(--color-dropdown); --account-tint:var(--color-selected); --account-outline:var(--color-selected-border); }
+.sheet[data-screen="Account details"] .account-detail-offer[open]:not(.past-offer) { background:var(--color-selected); border-color:var(--color-selected-border); color:var(--color-selected-text); }
+.sheet[data-screen="Account details"] .account-detail-offer[open] .offer-details { color:var(--color-selected-subtitle); }
+.sheet[data-screen="Account details"] .account-detail-offer[open] .account-record-use { background:var(--color-record); color:var(--color-soft-accent); border-color:var(--color-accent); }
+.sheet[data-screen="Account details"] .account-detail-offer[open] .account-manage-toggle { border-color:var(--color-manage-outline); }
+.sheet[data-screen="Account details"] .offer-terms > summary { color:var(--color-link); }
+:is(.directory-login-pill.positive,.account-login-badge.positive,.account-record-access.positive,.cash-entry-balance:not(:empty),.cash-balance-badge) { color:var(--color-positive); }
+:is(.directory-login-pill.positive,.account-login-badge.positive,.cash-balance-badge) { background:var(--color-positive-fill); border-color:var(--color-positive-border); }
+:is(.directory-login-pill.positive,.account-login-badge.positive,.account-record-access.positive) .status-dot { background:var(--color-positive-dot); box-shadow:none; }
+.account-cash-entry[data-cash-state=needs_checking] .cash-entry-balance,.account-cash-entry[data-cash-state=needs_checking] .cash-balance-badge { color:var(--color-secondary); background:transparent; border-color:var(--color-border); }
+:is(.receipt-review-action,.finance-review-box,.receipt-adjustment-review) { background:var(--color-warning-fill); border-color:var(--color-warning-border); color:var(--color-text); }
+:is(.receipt-review-action,.finance-review-box,.receipt-adjustment-review) :is(svg,.finance-icon) { color:var(--color-warning-icon); }
+:is(.receipt-review-action,.finance-review-box,.receipt-adjustment-review) small { color:var(--color-warning-text); }
+.receipt-review-action::after { color:var(--color-warning-chevron); }
+:is(button,a,summary,input,select,textarea) { transition-property:background-color,border-color,color,opacity,transform; transition-duration:var(--motion-fast); transition-timing-function:var(--motion-ease); }
+button:active:not(:disabled) { transform:scale(.985); }
+@media (prefers-reduced-motion:reduce) { :root { --motion-fast:0ms; --motion-normal:0ms; --motion-slow:0ms; } *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; } }
+html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion=reduced] *::after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; }
+@media (forced-colors:active) { :is(button,a,input,textarea,select,summary):focus-visible { outline-color:Highlight; } }
+/* History categories share the same muted card/row system. */
+.sheet[data-screen="Account details"] .offer-history { background:var(--color-dropdown); border-color:var(--color-border); }
+.offer-history[open] > summary .account-history-legend { display:none; }
+.account-history-tabs { display:flex; flex-wrap:wrap; gap:6px; justify-content:space-between; margin:0 0 12px 32px; }
+.history-tab { display:inline-flex; align-items:center; justify-content:center; gap:5px; min-height:38px; padding:5px 8px; border:1px solid transparent; border-radius:22px; background:transparent; color:var(--color-secondary); font-size:12px; line-height:1.4; font-weight:400; cursor:pointer; }
+.history-tab svg { flex:none; width:17px; height:17px; }
+.history-tab strong { font-weight:400; color:var(--color-label); }
+.history-tab[aria-selected=true] { background:var(--color-selected); border-color:var(--color-border); color:var(--color-soft-accent); }
+.history-tab.completed svg,.history-key.completed > svg,.account-history-group.completed > h3 > svg { color:var(--color-soft-accent); }
+.history-tab.expired svg,.history-key.expired > svg,.account-history-group.expired > h3 > svg { color:var(--color-secondary); }
+.history-tab.ignored svg,.history-key.ignored > svg,.account-history-group.ignored > h3 > svg { color:var(--color-tertiary); }
+.account-history-label { margin:0; padding:10px 0 8px; border-top:1px solid var(--color-border); font-size:14px; font-weight:500; color:var(--color-text); }
+.account-history-group { background:var(--color-panel); border-color:var(--color-border); }
+.account-history-group > h3 { color:var(--color-label); font-weight:400; }
+.account-history-empty { margin:0; padding:12px 0; color:var(--color-secondary); font-size:13px; }
+.history-record-status { display:inline-flex; align-items:center; gap:5px; flex:none; max-width:40%; padding:4px 7px; border:1px solid var(--color-border); border-radius:16px; background:var(--color-dropdown); color:var(--color-secondary); font-size:11px; font-weight:400; }
+.history-record-status svg { flex:none; width:14px; height:14px; }
+.history-record-status.completed { color:var(--color-soft-accent); }
+.history-record-status.ignored { color:var(--color-tertiary); }
+.account-history-group .past-offer > summary,.account-history-group .cash-source-record > summary { gap:8px; }
+.account-history-group .past-offer .offer-name,.account-history-group .cash-source-record > summary strong { font-size:13px; font-weight:400; }
+.account-history-group .past-offer:not([open]),.account-history-group .historical-credit { background:transparent; }
+.account-history-group .cash-source-record > summary > span:first-of-type { flex:1; min-width:0; }
+.account-history-group .cash-source-record > summary .history-record-status { flex:0 1 auto; }
+@media(max-width:369px) { .account-history-tabs { margin-left:0; gap:3px; }.history-tab { padding-inline:5px; font-size:11px; }.history-record-status { padding:4px; gap:3px; }.history-record-status svg { display:none; } }
+/* Positive access is the same fixed green on every page. */
+#view-accounts .account-access-pill.positive,#view-offers .account-access-pill.good,.offer-preview-card .account-access-pill.good { color:var(--color-positive); background:var(--color-positive-fill); border-color:var(--color-positive-border); }
+#view-accounts .account-access-pill.positive::before,#view-offers .account-access-pill.good::before,.used-access.positive i { background:var(--color-positive-dot); }
+input[role=switch]:checked { background:var(--color-toggle)!important; border-color:var(--color-toggle)!important; }
+:root { --button-text:var(--color-on-accent); --status-success:var(--color-positive); }
+.plan-subtotal { color:var(--color-label)!important; }
+.receipt-editor-actions > button[type=submit],.finance-save-balance { background:var(--color-accent); color:var(--color-on-accent); border-color:var(--color-accent); }
+.receipt-editor-actions > button,.receipt-history-actions > button { border-radius:var(--control-radius); }
+:root { --space-5:20px; --space-6:24px; --space-8:32px; --type-caption:12px; --type-body:14px; --type-control:16px; --type-title:24px; }
+#view-home .home-overview { background:transparent; }
+:is(input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]),textarea,select,.search-input,.account-picker-trigger) { border-radius:var(--control-radius); }
+:is(.app-icon-surface,.setting-icon,.stat-icon) { background:transparent; border:0; box-shadow:none; border-radius:0; }
+.finance-hero::before,.total-saved-card::before,.insights-hero::before,.home-overview::after { content:none; }

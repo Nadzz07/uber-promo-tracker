@@ -1,11 +1,12 @@
 import fs from "node:fs";
+import {basePaletteCss} from "./theme-palette.js";
 import { createHash } from "node:crypto";
 import { assertPublicSnapshot } from "./public-snapshot.js";
 import { transformSync, version as minifierVersion } from "esbuild";
 const payload = JSON.parse(fs.readFileSync("promos.json", "utf8"));
 const history = JSON.parse(fs.readFileSync("history.json", "utf8"));
 assertPublicSnapshot(payload, history);
-const files = ["account-sheet-data.js", "receipt-identity.js", "index.html", "promos.json", "history.json", "deal-intelligence.js", "cash-ledger.js", "cash-planner.js", "offer-preferences.js", "preference-picker.js", "used-activity.js", "manual-state.js", "offer-time.js", "offer-state.js", "account-state.js", "offer-details.js", "appearance.js", "device-accounts.js", "desktop-layout.css", "ui-refinements.css", "nav-gestures.js", "dashboard-data.js", "receipt-date.js", "liquid-glass.js", "liquid-glass.css", "help-guide.js", "receipt-financials.js", "private-finance-vault.js", "private-finance-ui.js", "finance-layout.js"];
+const files = ["theme-palette.js", "theme-system.css", "account-sheet-data.js", "receipt-identity.js", "index.html", "promos.json", "history.json", "deal-intelligence.js", "cash-ledger.js", "cash-planner.js", "offer-preferences.js", "preference-picker.js", "used-activity.js", "manual-state.js", "offer-time.js", "offer-state.js", "account-state.js", "offer-details.js", "appearance.js", "device-accounts.js", "desktop-layout.css", "ui-refinements.css", "nav-gestures.js", "dashboard-data.js", "receipt-date.js", "liquid-glass.js", "liquid-glass.css", "help-guide.js", "receipt-financials.js", "private-finance-vault.js", "private-finance-ui.js", "finance-layout.js"];
 fs.rmSync("dist", { recursive: true, force: true });
 fs.mkdirSync("dist");
 // Version the entire code bundle so a cached parent module cannot keep an
@@ -24,7 +25,7 @@ for (const file of files) {
   if (/\.(?:html|js|css)$/.test(file)) {
     let content = fs.readFileSync(file, 'utf8').replace(/(from\s+["']|import\(\s*["']|(?:href|src)=["'])(\.\/)?([a-z-]+\.(?:js|css))(["'])/g,
       (match, prefix, relative, asset, quote) => versions.has(asset) ? prefix + (relative || '') + asset + '?v=' + versions.get(asset) + quote : match);
-    if (file.endsWith('.html')) content = content
+    if (file.endsWith('.html')) content = content.replace('<style>', '<style data-theme-palette>'+basePaletteCss()+'</style><style>')
       .replace(/<style>([\s\S]*?)<\/style>/g, (_, css) => '<style>' + compact(css, 'css') + '</style>')
       .replace(/<script([^>]*)>([\s\S]*?)<\/script>/g, (_, attributes, js) => '<script' + attributes + '>' + compact(js, 'js', /type="module"/.test(attributes)) + '</script>');
     else content = compact(content, file.endsWith('.css') ? 'css' : 'js', file.endsWith('.js'));

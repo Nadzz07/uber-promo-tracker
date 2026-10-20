@@ -5,7 +5,7 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#101712">
+  <meta name="theme-color" content="">
   <meta name="description" content="Private Uber Eats promo tracker with account recommendations, usage tracking and receipt-based savings.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -25,25 +25,25 @@
 
     :root {
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --accent-rgb: 155, 234, 114;
-      --bg: #101712;
-      --bg-deep: #0b100c;
-      --glass: rgba(35, 48, 39, .58);
-      --glass-strong: rgba(42, 56, 46, .78);
-      --glass-soft: rgba(255, 255, 255, .045);
-      --line: rgba(255, 255, 255, .105);
-      --line-soft: rgba(255, 255, 255, .065);
-      --text: #f7faf7;
-      --muted: #a9b4ab;
-      --dim: #758179;
-      --green: #9bea72;
-      --green-strong: #b9fa96;
-      --green-soft: rgba(var(--accent-rgb), .14);
-      --amber: #f1c66d;
-      --amber-soft: rgba(241, 198, 109, .12);
-      --red: #f28e8e;
-      --shadow: 0 22px 60px rgba(0, 0, 0, .3);
-      --inner: inset 0 1px 0 rgba(255,255,255,.08);
+      --accent-rgb: var(--color-accent-rgb);
+      --bg: var(--color-dropdown);
+      --bg-deep: var(--color-screen);
+      --glass: var(--color-panel);
+      --glass-strong: var(--color-panel);
+      --glass-soft: var(--color-panel);
+      --line: var(--color-panel);
+      --line-soft: var(--color-panel);
+      --text: var(--color-panel);
+      --muted: var(--color-panel);
+      --dim: var(--color-panel);
+      --green: var(--color-accent);
+      --green-strong: var(--color-accent);
+      --green-soft: color-mix(in srgb, var(--color-accent) 14.0%, transparent);
+      --amber: var(--color-accent);
+      --amber-soft: var(--color-accent);
+      --red: var(--color-accent);
+      --shadow: none;
+      --inner: none;
       --radius-xl: 28px;
       --radius-lg: 22px;
       --radius-md: 17px;
@@ -61,10 +61,7 @@
       min-height: 100vh;
       overflow-x: hidden;
       padding-bottom: calc(108px + env(safe-area-inset-bottom));
-      background:
-        radial-gradient(circle at 8% 4%, rgba(116, 201, 91, .13), transparent 30rem),
-        radial-gradient(circle at 100% 28%, rgba(71, 135, 83, .11), transparent 32rem),
-        linear-gradient(180deg, #111914 0%, #0c120e 58%, #09100b 100%);
+      background: var(--color-panel);
     }
 
     body::before,
@@ -75,7 +72,7 @@
       width: 260px;
       height: 260px;
       border-radius: 50%;
-      filter: blur(74px);
+      filter: none;
       pointer-events: none;
       opacity: .45;
     }
@@ -83,13 +80,13 @@
     body::before {
       top: 14%;
       left: -130px;
-      background: rgba(var(--accent-rgb), .16);
+      background: color-mix(in srgb, var(--color-accent) 16.0%, transparent);
     }
 
     body::after {
       right: -150px;
       bottom: 12%;
-      background: rgba(var(--accent-rgb), .14);
+      background: color-mix(in srgb, var(--color-accent) 14.0%, transparent);
     }
 
     button, input, select { font: inherit; }
@@ -99,40 +96,40 @@
     .app-shell {
       width: min(1060px, 100%);
       margin: 0 auto;
-      padding: max(16px, env(safe-area-inset-top)) 15px 38px;
+      padding: max(var(--space-4), env(safe-area-inset-top)) var(--space-4) 38px;
     }
 
     .glass {
       border: 1px solid var(--line);
       background: var(--glass);
-      box-shadow: var(--inner), var(--shadow);
-      backdrop-filter: blur(24px) saturate(135%);
-      -webkit-backdrop-filter: blur(24px) saturate(135%);
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
 
     .topbar {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 14px;
+      gap: var(--space-3);
       min-height: 64px;
-      padding: 5px 1px 0;
+      padding: var(--space-1) 1px 0;
     }
 
     .brand-kicker {
       color: var(--green);
-      font-size: 10px;
-      font-weight: 900;
+      font-size:12px;
+      font-weight:600;
       letter-spacing: .16em;
       text-transform: uppercase;
     }
 
     .brand-title {
-      margin-top: 4px;
+      margin-top: var(--space-1);
       max-width: 260px;
       font-size: 24px;
       line-height: 1.02;
-      font-weight: 950;
+      font-weight:600;
       letter-spacing: -.055em;
     }
 
@@ -141,19 +138,19 @@
     .scan-pill {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
+      gap: var(--space-2);
       min-height: 31px;
-      padding: 0 11px;
+      padding: 0 var(--space-3);
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: rgba(34, 45, 38, .64);
-      box-shadow: var(--inner);
+      background: var(--color-panel);
+      box-shadow: none;
       color: var(--muted);
-      font-size: 9px;
-      font-weight: 900;
+      font-size:12px;
+      font-weight:600;
       letter-spacing: .08em;
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
 
     .scan-dot {
@@ -161,7 +158,7 @@
       height: 7px;
       border-radius: 50%;
       background: var(--dim);
-      box-shadow: 0 0 0 4px rgba(255,255,255,.025);
+      box-shadow: none;
     }
 
     .scan-pill.live .scan-dot { background: var(--green); }
@@ -169,22 +166,22 @@
     .scan-pill.stale .scan-dot { background: var(--amber); }
 
     .scan-time {
-      margin-top: 5px;
+      margin-top: var(--space-1);
       color: var(--dim);
-      font-size: 8px;
+      font-size:12px;
     }
 
     .sync-strip {
       display: none;
       align-items: center;
-      gap: 8px;
-      margin: 10px 0 6px;
-      padding: 9px 11px;
-      border: 1px solid rgba(241,198,109,.2);
-      border-radius: 13px;
-      background: rgba(83, 67, 32, .17);
-      color: #d6c18f;
-      font-size: 9px;
+      gap: var(--space-2);
+      margin: var(--space-2) 0 var(--space-1);
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--color-accent);
+      border-radius: var(--card-radius);
+      background: var(--color-selected);
+      color: var(--color-soft-accent);
+      font-size:12px;
       line-height: 1.4;
     }
 
@@ -194,55 +191,55 @@
     .view.active { display: block; }
 
     .screen-head {
-      margin: 18px 2px 14px;
+      margin: var(--space-4) 2px var(--space-3);
     }
 
     .eyebrow {
       color: var(--green);
-      font-size: 9px;
-      font-weight: 900;
+      font-size:12px;
+      font-weight:600;
       letter-spacing: .13em;
       text-transform: uppercase;
     }
 
     .screen-title {
-      margin: 5px 0 0;
+      margin: var(--space-1) 0 0;
       font-size: clamp(29px, 8vw, 42px);
       line-height: 1;
       letter-spacing: -.06em;
     }
 
     .screen-copy {
-      margin-top: 8px;
+      margin-top: var(--space-2);
       max-width: 620px;
       color: var(--muted);
-      font-size: 11px;
+      font-size:12px;
       line-height: 1.5;
     }
 
     .stats-row {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      margin: 13px 0 14px;
+      gap: var(--space-2);
+      margin: var(--space-3) 0 var(--space-3);
     }
 
     .stat-card {
       min-width: 0;
       min-height: 84px;
-      padding: 12px 11px;
+      padding: var(--space-3) var(--space-3);
       border-radius: var(--radius-md);
       border: 1px solid var(--line-soft);
-      background: rgba(36, 48, 40, .47);
-      box-shadow: var(--inner);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      background: var(--color-panel);
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
 
     .stat-label {
       color: var(--dim);
-      font-size: 8px;
-      font-weight: 850;
+      font-size:12px;
+      font-weight:600;
     }
 
     .home-overview .stat-label.accounts-available-label {
@@ -250,11 +247,11 @@
     }
 
     .stat-value {
-      margin-top: 9px;
+      margin-top: var(--space-2);
       overflow: hidden;
       color: var(--text);
       font-size: clamp(19px, 5.2vw, 28px);
-      font-weight: 950;
+      font-weight:600;
       letter-spacing: -.05em;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -271,7 +268,7 @@
     .hero-card {
       position: relative;
       overflow: hidden;
-      padding: 17px;
+      padding: var(--space-4);
       border-radius: var(--radius-xl);
     }
 
@@ -283,30 +280,30 @@
       top: -100px;
       right: -75px;
       border-radius: 50%;
-      background: rgba(var(--accent-rgb), .13);
-      filter: blur(18px);
+      background: color-mix(in srgb, var(--color-accent) 13.0%, transparent);
+      filter: none;
       pointer-events: none;
     }
 
     .hero-label {
       position: relative;
       color: var(--muted);
-      font-size: 9px;
-      font-weight: 850;
+      font-size:12px;
+      font-weight:600;
     }
 
     .basket-line {
       position: relative;
       display: flex;
       align-items: center;
-      gap: 7px;
-      margin-top: 4px;
+      gap: var(--space-2);
+      margin-top: var(--space-1);
     }
 
     .basket-currency {
       color: var(--muted);
       font-size: 27px;
-      font-weight: 850;
+      font-weight:600;
     }
 
     .basket-input {
@@ -319,7 +316,7 @@
       color: var(--text);
       font-size: 38px;
       line-height: 1;
-      font-weight: 950;
+      font-weight:600;
       letter-spacing: -.06em;
     }
 
@@ -327,8 +324,8 @@
       position: relative;
       display: grid;
       grid-template-columns: repeat(4, minmax(0,1fr));
-      gap: 7px;
-      margin-top: 13px;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
     }
 
     .quick-btn,
@@ -338,26 +335,26 @@
     .action-btn {
       min-height: 39px;
       border: 1px solid var(--line);
-      border-radius: 12px;
-      background: rgba(255,255,255,.045);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
       color: var(--muted);
       cursor: pointer;
-      font-size: 9px;
-      font-weight: 850;
-      box-shadow: var(--inner);
+      font-size:12px;
+      font-weight:600;
+      box-shadow: none;
     }
 
     .quick-btn:active,
     .filter-btn.active {
-      border-color: rgba(var(--accent-rgb), .46);
+      border-color: color-mix(in srgb, var(--color-accent) 46.0%, transparent);
       background: var(--green-soft);
       color: var(--green-strong);
     }
 
     .recommendation {
       position: relative;
-      margin-top: 16px;
-      padding-top: 15px;
+      margin-top: var(--space-4);
+      padding-top: var(--space-4);
       border-top: 0;
     }
 
@@ -365,12 +362,12 @@
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 12px;
+      gap: var(--space-3);
     }
 
     .recommendation-title {
       font-size: 17px;
-      font-weight: 950;
+      font-weight:600;
       letter-spacing: -.035em;
     }
 
@@ -386,7 +383,7 @@
       color: var(--green);
       text-align: right;
       font-size: 23px;
-      font-weight: 950;
+      font-weight:600;
       letter-spacing: -.05em;
     }
 
@@ -394,26 +391,26 @@
       display: block;
       margin-top: 2px;
       color: var(--dim);
-      font-size: 7px;
-      font-weight: 750;
+      font-size:12px;
+      font-weight:600;
       letter-spacing: 0;
     }
 
     .plan-list {
       display: grid;
-      gap: 7px;
-      margin-top: 12px;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
     }
 
     .plan-row {
       display: grid;
       grid-template-columns: 31px minmax(0,1fr) auto;
       align-items: center;
-      gap: 9px;
-      padding: 10px;
+      gap: var(--space-2);
+      padding: var(--space-2);
       border: 1px solid var(--line-soft);
-      border-radius: 13px;
-      background: rgba(255,255,255,.035);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
     }
 
     .plan-number {
@@ -421,17 +418,17 @@
       height: 31px;
       display: grid;
       place-items: center;
-      border-radius: 10px;
+      border-radius: var(--control-radius);
       background: var(--green-soft);
       color: var(--green);
-      font-size: 10px;
-      font-weight: 950;
+      font-size:12px;
+      font-weight:600;
     }
 
     .plan-account {
       overflow: hidden;
       font-size: 10.5px;
-      font-weight: 900;
+      font-weight:600;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
@@ -447,29 +444,29 @@
 
     .plan-saving {
       color: var(--green);
-      font-size: 11px;
-      font-weight: 900;
+      font-size:12px;
+      font-weight:600;
     }
 
     .hero-footer {
       position: relative;
       display: flex;
       justify-content: space-between;
-      gap: 9px;
+      gap: var(--space-2);
       align-items: center;
-      margin-top: 12px;
+      margin-top: var(--space-3);
     }
 
     .advanced-btn {
       min-height: 34px;
-      padding: 0 10px;
+      padding: 0 var(--space-2);
       border: 1px solid var(--line-soft);
       border-radius: 999px;
-      background: rgba(255,255,255,.035);
+      background: var(--color-panel);
       color: var(--muted);
       cursor: pointer;
-      font-size: 8px;
-      font-weight: 850;
+      font-size:12px;
+      font-weight:600;
     }
 
     .fee-note {
@@ -482,20 +479,20 @@
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      gap: 12px;
-      margin: 24px 2px 11px;
+      gap: var(--space-3);
+      margin: var(--space-6) 2px var(--space-3);
     }
 
     .section-title {
       margin-top: 3px;
       font-size: 19px;
-      font-weight: 930;
+      font-weight:600;
       letter-spacing: -.04em;
     }
 
     .section-meta {
       color: var(--dim);
-      font-size: 8px;
+      font-size:12px;
       text-align: right;
     }
 
@@ -503,7 +500,7 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
       grid-auto-rows: 112px;
-      gap: 8px;
+      gap: var(--space-2);
     }
 
     .quick-card {
@@ -511,20 +508,20 @@
       flex-direction: column;
       justify-content: space-between;
       min-width: 0;
-      padding: 13px;
+      padding: var(--space-3);
       border: 1px solid var(--line);
       border-radius: var(--radius-md);
-      background: rgba(37, 49, 41, .5);
-      box-shadow: var(--inner);
+      background: var(--color-panel);
+      box-shadow: none;
       cursor: pointer;
       text-align: left;
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
 
     .quick-card.active {
-      border-color: rgba(var(--accent-rgb), .48);
-      background: linear-gradient(145deg, rgba(var(--accent-rgb), .15), rgba(37,49,41,.55));
+      border-color: color-mix(in srgb, var(--color-accent) 48.0%, transparent);
+      background: var(--color-selected);
     }
 
     .quick-card[data-intent="cash-promo"] { grid-column: 1 / -1; }
@@ -533,7 +530,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 7px;
+      gap: var(--space-2);
     }
 
     .quick-icon {
@@ -541,60 +538,60 @@
       height: 32px;
       display: grid;
       place-items: center;
-      border-radius: 11px;
-      background: rgba(255,255,255,.055);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
       color: var(--green);
       font-size: 12px;
-      font-weight: 950;
-      box-shadow: var(--inner);
+      font-weight:600;
+      box-shadow: none;
     }
 
     .quick-count {
       color: var(--dim);
-      font-size: 8px;
-      font-weight: 800;
+      font-size:12px;
+      font-weight:600;
     }
 
     .quick-title {
       font-size: 14px;
-      font-weight: 900;
+      font-weight:600;
       letter-spacing: -.025em;
     }
 
     .quick-sub {
       margin-top: 2px;
       color: var(--muted);
-      font-size: 8px;
+      font-size:12px;
       line-height: 1.35;
     }
 
     .account-list {
       display: grid;
-      gap: 9px;
+      gap: var(--space-2);
     }
 
     .account-card {
       min-width: 0;
-      padding: 14px;
+      padding: var(--space-3);
       border: 1px solid var(--line);
       border-radius: var(--radius-lg);
-      background: rgba(35, 47, 39, .55);
-      box-shadow: var(--inner);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: var(--color-panel);
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
 
     .account-top {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 11px;
+      gap: var(--space-3);
     }
 
     .account-email {
       overflow: hidden;
       font-size: 13.5px;
-      font-weight: 930;
+      font-weight:600;
       letter-spacing: -.02em;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -604,14 +601,14 @@
       margin-top: 3px;
       color: var(--green);
       font-size: 8.5px;
-      font-weight: 850;
+      font-weight:600;
       line-height: 1.35;
     }
 
     .account-offer {
       margin-top: 3px;
       color: var(--muted);
-      font-size: 9px;
+      font-size:12px;
       line-height: 1.35;
     }
 
@@ -620,7 +617,7 @@
       color: var(--green);
       text-align: right;
       font-size: 17px;
-      font-weight: 950;
+      font-weight:600;
       letter-spacing: -.04em;
     }
 
@@ -628,39 +625,39 @@
       display: block;
       margin-top: 2px;
       color: var(--dim);
-      font-size: 7px;
-      font-weight: 700;
+      font-size:12px;
+      font-weight:600;
       letter-spacing: 0;
     }
 
     .pill-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 9px;
+      gap: var(--space-1);
+      margin-top: var(--space-2);
     }
 
     .pill {
       display: inline-flex;
       align-items: center;
       min-height: 23px;
-      padding: 0 8px;
+      padding: 0 var(--space-2);
       border: 1px solid var(--line-soft);
       border-radius: 999px;
-      background: rgba(255,255,255,.035);
+      background: var(--color-panel);
       color: var(--muted);
       font-size: 7.5px;
-      font-weight: 800;
+      font-weight:600;
     }
 
     .pill.good {
-      border-color: rgba(var(--accent-rgb), .34);
+      border-color: color-mix(in srgb, var(--color-accent) 34.0%, transparent);
       background: var(--green-soft);
       color: var(--green);
     }
 
     .pill.warn {
-      border-color: rgba(241,198,109,.3);
+      border-color: var(--color-soft-accent);
       background: var(--amber-soft);
       color: var(--amber);
     }
@@ -668,70 +665,70 @@
     .account-actions {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 7px;
-      margin-top: 12px;
-      padding-top: 11px;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+      padding-top: var(--space-3);
       border-top: 1px solid var(--line-soft);
     }
 
     .ghost-btn {
       min-height: 38px;
-      padding: 0 12px;
+      padding: 0 var(--space-3);
       text-align: left;
     }
 
     .done-btn {
       min-width: 82px;
-      padding: 0 10px;
+      padding: 0 var(--space-2);
       color: var(--muted);
       text-align: center;
     }
 
     .weak-wrap {
-      margin-top: 10px;
+      margin-top: var(--space-2);
       overflow: hidden;
       border: 1px solid var(--line-soft);
-      border-radius: 16px;
-      background: rgba(255,255,255,.025);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
     }
 
     .weak-wrap summary {
-      padding: 12px 13px;
+      padding: var(--space-3) var(--space-3);
       list-style: none;
       color: var(--muted);
       cursor: pointer;
-      font-size: 9px;
-      font-weight: 850;
+      font-size:12px;
+      font-weight:600;
     }
 
     .weak-wrap summary::-webkit-details-marker { display: none; }
 
     .weak-inner {
-      padding: 0 8px 8px;
+      padding: 0 var(--space-2) var(--space-2);
     }
 
-    .search-wrap { margin: 14px 0 9px; }
+    .search-wrap { margin: var(--space-3) 0 var(--space-2); }
 
     .search-input {
       width: 100%;
       min-height: 48px;
-      padding: 0 14px;
+      padding: 0 var(--space-3);
       border: 1px solid var(--line);
-      border-radius: 15px;
+      border-radius: var(--card-radius);
       outline: none;
-      background: rgba(38, 50, 42, .58);
+      background: var(--color-panel);
       color: var(--text);
-      font-size: 11px;
-      font-weight: 750;
-      box-shadow: var(--inner);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      font-size:12px;
+      font-weight:600;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
 
     .filter-row {
       display: flex;
-      gap: 7px;
-      margin: 9px 0 12px;
+      gap: var(--space-2);
+      margin: var(--space-2) 0 var(--space-3);
       overflow-x: auto;
       scrollbar-width: none;
     }
@@ -740,63 +737,63 @@
 
     .filter-btn {
       flex: 0 0 auto;
-      padding: 0 12px;
+      padding: 0 var(--space-3);
       white-space: nowrap;
     }
 
     .activity-summary {
       display: grid;
       grid-template-columns: repeat(3, minmax(0,1fr));
-      gap: 8px;
-      margin-bottom: 17px;
+      gap: var(--space-2);
+      margin-bottom: var(--space-4);
     }
 
     .activity-card {
       min-height: 80px;
-      padding: 11px;
+      padding: var(--space-3);
       border: 1px solid var(--line-soft);
-      border-radius: 15px;
-      background: rgba(36,48,40,.46);
-      box-shadow: var(--inner);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
+      box-shadow: none;
     }
 
     .activity-card strong {
       display: block;
-      margin-top: 7px;
+      margin-top: var(--space-2);
       font-size: 20px;
       letter-spacing: -.04em;
     }
 
     .activity-card span {
       color: var(--dim);
-      font-size: 8px;
-      font-weight: 800;
+      font-size:12px;
+      font-weight:600;
     }
 
-    .activity-section { margin-top: 20px; }
+    .activity-section { margin-top: var(--space-5); }
 
     .activity-title {
-      margin: 0 2px 8px;
+      margin: 0 2px var(--space-2);
       color: var(--muted);
-      font-size: 10px;
-      font-weight: 900;
+      font-size:12px;
+      font-weight:600;
     }
 
     .activity-list {
       overflow: hidden;
       border: 1px solid var(--line-soft);
-      border-radius: 17px;
-      background: rgba(35,47,39,.45);
-      box-shadow: var(--inner);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
+      box-shadow: none;
     }
 
     .activity-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 11px;
+      gap: var(--space-3);
       min-height: 64px;
-      padding: 11px 12px;
+      padding: var(--space-3) var(--space-3);
       border-bottom: 1px solid var(--line-soft);
     }
 
@@ -804,48 +801,48 @@
 
     .activity-email {
       font-size: 10.5px;
-      font-weight: 900;
+      font-weight:600;
     }
 
     .activity-meta {
       margin-top: 3px;
       color: var(--muted);
-      font-size: 8px;
+      font-size:12px;
       line-height: 1.35;
     }
 
     .restore-btn {
       flex: 0 0 auto;
       min-height: 31px;
-      padding: 0 9px;
+      padding: 0 var(--space-2);
       border: 1px solid var(--line);
-      border-radius: 10px;
-      background: rgba(255,255,255,.04);
+      border-radius: var(--control-radius);
+      background: var(--color-panel);
       color: var(--green);
       cursor: pointer;
-      font-size: 8px;
-      font-weight: 850;
+      font-size:12px;
+      font-weight:600;
     }
 
     .more-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 8px;
+      gap: var(--space-2);
     }
 
     .more-card {
       position: relative;
       min-height: 112px;
-      padding: 14px;
+      padding: var(--space-3);
       border: 1px solid var(--line);
-      border-radius: 19px;
-      background: rgba(37, 49, 41, .5);
-      box-shadow: var(--inner);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
+      box-shadow: none;
       cursor: pointer;
       text-align: left;
       overflow: hidden;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
 
     .more-card::after {
@@ -856,8 +853,8 @@
       width: 100px;
       height: 100px;
       border-radius: 50%;
-      background: rgba(var(--accent-rgb), .06);
-      filter: blur(8px);
+      background: color-mix(in srgb, var(--color-accent) 6.0%, transparent);
+      filter: none;
     }
 
     .more-icon {
@@ -865,35 +862,35 @@
       height: 34px;
       display: grid;
       place-items: center;
-      margin-bottom: 18px;
-      border-radius: 11px;
-      background: rgba(255,255,255,.055);
+      margin-bottom: var(--space-4);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
       color: var(--green);
       font-size: 13px;
-      font-weight: 950;
-      box-shadow: var(--inner);
+      font-weight:600;
+      box-shadow: none;
     }
 
     .more-title {
       font-size: 13px;
-      font-weight: 900;
+      font-weight:600;
     }
 
     .more-copy {
-      margin-top: 4px;
+      margin-top: var(--space-1);
       color: var(--muted);
       font-size: 8.5px;
       line-height: 1.4;
     }
 
     .empty {
-      padding: 22px 15px;
+      padding: var(--space-5) var(--space-4);
       border: 1px dashed var(--line);
-      border-radius: 16px;
-      background: rgba(255,255,255,.02);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
       color: var(--muted);
       text-align: center;
-      font-size: 9px;
+      font-size:12px;
       line-height: 1.55;
     }
 
@@ -907,31 +904,31 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 3px;
-      padding: 5px;
-      border: 1px solid rgba(255,255,255,.115);
-      border-radius: 22px;
-      background: rgba(30, 41, 34, .68);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 18px 45px rgba(0,0,0,.36);
-      backdrop-filter: blur(28px) saturate(145%);
-      -webkit-backdrop-filter: blur(28px) saturate(145%);
+      padding: var(--space-1);
+      border: 1px solid var(--color-outline);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
 
     .nav-btn {
       min-height: 55px;
       border: 0;
-      border-radius: 17px;
+      border-radius: var(--card-radius);
       background: transparent;
       color: var(--dim);
       cursor: pointer;
-      font-size: 8px;
-      font-weight: 850;
+      font-size:12px;
+      font-weight:600;
     }
 
     .nav-btn svg {
       display: block;
       width: 18px;
       height: 18px;
-      margin: 0 auto 4px;
+      margin: 0 auto var(--space-1);
       fill: none;
       stroke: currentColor;
       stroke-width: 1.9;
@@ -940,14 +937,14 @@
     }
 
     .nav-btn.active {
-      background: rgba(255,255,255,.07);
+      background: var(--color-panel);
       color: var(--green);
-      box-shadow: var(--inner);
+      box-shadow: none;
     }
 
     .privacy {
-      margin: 25px 18px 4px;
-      color: #657067;
+      margin: var(--space-6) var(--space-4) var(--space-1);
+      color: var(--color-tertiary);
       font-size: 7.5px;
       line-height: 1.5;
       text-align: center;
@@ -961,9 +958,9 @@
       align-items: flex-end;
       justify-content: center;
       padding: 0;
-      background: rgba(2, 6, 3, .55);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: var(--color-screen);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
 
     .sheet-backdrop.open { display: flex; }
@@ -972,14 +969,13 @@
       width: min(100%, 620px);
       max-height: min(86vh, 820px);
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,.13);
+      border: 1px solid var(--color-outline);
       border-bottom: 0;
-      border-radius: 28px 28px 0 0;
-      background:
-        linear-gradient(180deg, rgba(47,62,52,.95), rgba(22,31,25,.97));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.11), 0 -24px 70px rgba(0,0,0,.48);
-      backdrop-filter: blur(34px) saturate(140%);
-      -webkit-backdrop-filter: blur(34px) saturate(140%);
+      border-radius: var(--card-radius) var(--card-radius) 0 0;
+      background: var(--color-panel);
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
       animation: sheetIn .22s ease-out;
     }
 
@@ -991,29 +987,29 @@
     .sheet-handle {
       width: 42px;
       height: 4px;
-      margin: 9px auto 3px;
+      margin: var(--space-2) auto 3px;
       border-radius: 999px;
-      background: rgba(255,255,255,.2);
+      background: var(--color-panel);
     }
 
     .sheet-head {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 13px;
-      padding: 13px 16px 12px;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4) var(--space-3);
     }
 
     .sheet-title {
       font-size: 20px;
-      font-weight: 950;
+      font-weight:600;
       letter-spacing: -.04em;
     }
 
     .sheet-sub {
       margin-top: 3px;
       color: var(--muted);
-      font-size: 9px;
+      font-size:12px;
       line-height: 1.4;
     }
 
@@ -1025,7 +1021,7 @@
       flex: 0 0 auto;
       border: 1px solid var(--line);
       border-radius: 50%;
-      background: rgba(255,255,255,.055);
+      background: var(--color-panel);
       color: var(--muted);
       cursor: pointer;
       font-size: 16px;
@@ -1034,22 +1030,22 @@
     .sheet-body {
       max-height: calc(min(86vh, 820px) - 78px);
       overflow-y: auto;
-      padding: 0 16px calc(22px + env(safe-area-inset-bottom));
+      padding: 0 var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom));
       overscroll-behavior: contain;
     }
 
     .sheet-section {
-      padding: 13px 0;
+      padding: var(--space-3) 0;
       border-top: 1px solid var(--line-soft);
     }
 
     .sheet-section:first-child { border-top: 0; }
 
     .sheet-label {
-      margin-bottom: 7px;
+      margin-bottom: var(--space-2);
       color: var(--dim);
-      font-size: 8px;
-      font-weight: 900;
+      font-size:12px;
+      font-weight:600;
       letter-spacing: .08em;
       text-transform: uppercase;
     }
@@ -1058,44 +1054,44 @@
     .sheet-select {
       width: 100%;
       min-height: 47px;
-      padding: 0 12px;
+      padding: 0 var(--space-3);
       border: 1px solid var(--line);
-      border-radius: 13px;
+      border-radius: var(--card-radius);
       outline: none;
-      background: rgba(255,255,255,.05);
+      background: var(--color-panel);
       color: var(--text);
-      font-size: 11px;
-      font-weight: 800;
-      box-shadow: var(--inner);
+      font-size:12px;
+      font-weight:600;
+      box-shadow: none;
     }
 
     .sheet-help {
-      margin-top: 6px;
+      margin-top: var(--space-1);
       color: var(--muted);
-      font-size: 8px;
+      font-size:12px;
       line-height: 1.45;
     }
 
     .offer-card {
-      padding: 13px;
+      padding: var(--space-3);
       border: 1px solid var(--line);
-      border-radius: 17px;
-      background: rgba(255,255,255,.04);
-      box-shadow: var(--inner);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
+      box-shadow: none;
     }
 
-    .offer-card + .offer-card { margin-top: 8px; }
+    .offer-card + .offer-card { margin-top: var(--space-2); }
 
     .offer-top {
       display: flex;
       justify-content: space-between;
-      gap: 11px;
+      gap: var(--space-3);
       align-items: flex-start;
     }
 
     .offer-name {
       font-size: 12px;
-      font-weight: 900;
+      font-weight:600;
       line-height: 1.35;
     }
 
@@ -1103,58 +1099,58 @@
       flex: 0 0 auto;
       color: var(--green);
       font-size: 12px;
-      font-weight: 900;
+      font-weight:600;
     }
 
     .offer-details {
-      margin-top: 4px;
+      margin-top: var(--space-1);
       color: var(--muted);
-      font-size: 8px;
+      font-size:12px;
       line-height: 1.45;
     }
 
     .use-progress {
-      margin-top: 11px;
+      margin-top: var(--space-3);
     }
 
     .use-line {
       display: flex;
       justify-content: space-between;
-      gap: 10px;
+      gap: var(--space-2);
       color: var(--muted);
-      font-size: 8px;
-      font-weight: 800;
+      font-size:12px;
+      font-weight:600;
     }
 
     .progress-track {
       height: 7px;
-      margin-top: 7px;
+      margin-top: var(--space-2);
       overflow: hidden;
       border-radius: 999px;
-      background: rgba(255,255,255,.07);
+      background: var(--color-panel);
     }
 
     .progress-fill {
       height: 100%;
       border-radius: inherit;
-      background: linear-gradient(90deg, #75d854, #b4f18f);
-      box-shadow: 0 0 16px rgba(var(--accent-rgb), .24);
+      background: var(--color-panel);
+      box-shadow: none;
     }
 
     .offer-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 7px;
-      margin-top: 11px;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
     }
 
     .action-btn {
-      padding: 0 9px;
+      padding: 0 var(--space-2);
       min-height: 40px;
     }
 
     .action-btn.primary {
-      border-color: rgba(var(--accent-rgb), .37);
+      border-color: color-mix(in srgb, var(--color-accent) 37.0%, transparent);
       background: var(--green-soft);
       color: var(--green);
     }
@@ -1165,8 +1161,8 @@
 
     .offer-more {
       display: flex;
-      gap: 7px;
-      margin-top: 7px;
+      gap: var(--space-2);
+      margin-top: var(--space-2);
     }
 
     .offer-more .action-btn { flex: 1; }
@@ -1174,25 +1170,25 @@
     .sheet-list {
       overflow: hidden;
       border: 1px solid var(--line-soft);
-      border-radius: 15px;
-      background: rgba(255,255,255,.03);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
     }
 
     .sheet-row {
       display: flex;
       justify-content: space-between;
-      gap: 11px;
+      gap: var(--space-3);
       align-items: center;
       min-height: 58px;
-      padding: 10px 11px;
+      padding: var(--space-2) var(--space-3);
       border-bottom: 1px solid var(--line-soft);
     }
 
     .sheet-row:last-child { border-bottom: 0; }
 
     .sheet-row-title {
-      font-size: 10px;
-      font-weight: 900;
+      font-size:12px;
+      font-weight:600;
     }
 
     .sheet-row-meta {
@@ -1204,35 +1200,35 @@
     .sheet-row-value {
       flex: 0 0 auto;
       color: var(--muted);
-      font-size: 9px;
-      font-weight: 850;
+      font-size:12px;
+      font-weight:600;
       text-align: right;
     }
 
     .insight-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 8px;
+      gap: var(--space-2);
     }
 
     .insight {
       min-height: 88px;
-      padding: 12px;
+      padding: var(--space-3);
       border: 1px solid var(--line-soft);
-      border-radius: 15px;
-      background: rgba(255,255,255,.035);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
     }
 
     .insight-label {
       color: var(--dim);
-      font-size: 8px;
-      font-weight: 800;
+      font-size:12px;
+      font-weight:600;
     }
 
     .insight-value {
-      margin-top: 8px;
+      margin-top: var(--space-2);
       font-size: 20px;
-      font-weight: 950;
+      font-weight:600;
       letter-spacing: -.04em;
     }
 
@@ -1241,14 +1237,14 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      margin: 14px 2px 10px;
+      gap: var(--space-3);
+      margin: var(--space-3) 2px var(--space-2);
     }
 
     .home-intro-copy {
       max-width: 245px;
       color: var(--muted);
-      font-size: 9px;
+      font-size:12px;
       line-height: 1.4;
       text-align: right;
     }
@@ -1259,16 +1255,13 @@
 
     .brand-title {
       font-size: 27px;
-      text-shadow: 0 0 28px rgba(var(--accent-rgb), .10);
+      text-shadow: none;
     }
 
     .hero-card {
-      padding: 18px;
-      background:
-        radial-gradient(circle at 88% 8%, rgba(var(--accent-rgb), .20), transparent 14rem),
-        radial-gradient(circle at 10% 100%, rgba(83,175,104,.12), transparent 18rem),
-        linear-gradient(155deg, rgba(48,65,53,.82), rgba(23,32,27,.72));
-      border-color: rgba(var(--accent-rgb), .18);
+      padding: var(--space-4);
+      background: var(--color-selected);
+      border-color: color-mix(in srgb, var(--color-accent) 18.0%, transparent);
     }
 
     .hero-heading {
@@ -1276,12 +1269,12 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 14px;
-      margin-bottom: 15px;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
     }
 
     .hero-title {
-      margin: 5px 0 0;
+      margin: var(--space-1) 0 0;
       max-width: 285px;
       font-size: clamp(27px, 7.5vw, 38px);
       line-height: .98;
@@ -1294,10 +1287,10 @@
       width: 38px;
       height: 38px;
       flex: 0 0 auto;
-      border-radius: 13px;
-      background: linear-gradient(145deg, rgba(var(--accent-rgb), .22), rgba(var(--accent-rgb), .07));
+      border-radius: var(--card-radius);
+      background: var(--color-selected);
       color: var(--green-strong);
-      box-shadow: var(--inner), 0 0 28px rgba(var(--accent-rgb), .12);
+      box-shadow: none;
       font-size: 17px;
     }
 
@@ -1305,31 +1298,29 @@
       position: relative;
       display: block;
       min-height: 102px;
-      padding: 14px 15px 13px;
-      border: 1px solid rgba(var(--accent-rgb), .24);
-      border-radius: 19px;
-      background:
-        linear-gradient(145deg, rgba(8,16,10,.43), rgba(10,20,13,.24)),
-        rgba(4,10,6,.26);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.075), 0 12px 35px rgba(0,0,0,.16);
+      padding: var(--space-3) var(--space-4) var(--space-3);
+      border: 1px solid color-mix(in srgb, var(--color-accent) 24.0%, transparent);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
+      box-shadow: none;
       cursor: text;
     }
 
     .basket-editor:focus-within {
-      border-color: rgba(var(--accent-rgb), .72);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 0 0 3px rgba(var(--accent-rgb), .10), 0 16px 44px rgba(0,0,0,.2);
+      border-color: color-mix(in srgb, var(--color-accent) 72.0%, transparent);
+      box-shadow: none;
     }
 
     .basket-editor-copy {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      gap: 12px;
+      gap: var(--space-3);
       min-width: 0;
     }
 
     .basket-editor-copy strong {
-      font-size: 10px;
+      font-size:12px;
       letter-spacing: .01em;
       text-transform: uppercase;
     }
@@ -1344,17 +1335,17 @@
       display: grid;
       grid-template-columns: auto minmax(0,1fr) 36px;
       align-items: center;
-      gap: 5px;
+      gap: var(--space-1);
       width: 100%;
       min-width: 0;
-      margin-top: 7px;
+      margin-top: var(--space-2);
     }
 
     .basket-value-wrap .basket-currency {
       color: var(--green-strong);
       font-size: 31px;
       line-height: 1;
-      font-weight: 950;
+      font-weight:600;
       letter-spacing: -.04em;
     }
 
@@ -1364,7 +1355,7 @@
       text-align: left;
       font-size: clamp(32px, 9vw, 39px);
       line-height: 1;
-      color: #fff;
+      color: var(--color-text);
       caret-color: var(--green);
       font-variant-numeric: tabular-nums;
     }
@@ -1389,98 +1380,96 @@
       height: 36px;
       display: grid;
       place-items: center;
-      border: 1px solid rgba(255,255,255,.07);
-      border-radius: 12px;
-      background: rgba(255,255,255,.065);
+      border: 1px solid var(--color-outline);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
       color: var(--green);
-      box-shadow: var(--inner);
+      box-shadow: none;
       font-size: 14px;
     }
 
     .recommendation {
-      margin-top: 14px;
-      padding-top: 15px;
-      border-color: rgba(255,255,255,.09);
+      margin-top: var(--space-3);
+      padding-top: var(--space-4);
+      border-color: var(--color-outline);
     }
 
     .advanced-btn {
       min-height: 40px;
-      padding: 0 13px;
-      border-color: rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      color: #d6ded7;
-      font-size: 9px;
+      padding: 0 var(--space-3);
+      border-color: var(--color-outline);
+      background: var(--color-panel);
+      color: var(--color-label);
+      font-size:12px;
     }
 
     .advanced-btn span {
-      margin-left: 5px;
+      margin-left: var(--space-1);
       color: var(--green);
       font-size: 15px;
       vertical-align: -1px;
     }
 
     .stat-card {
-      background: linear-gradient(155deg, rgba(44,58,49,.62), rgba(27,36,30,.5));
+      background: var(--color-panel);
     }
 
     .quick-card,
     .account-card,
     .more-card {
-      background: linear-gradient(155deg, rgba(43,57,48,.62), rgba(26,35,29,.52));
+      background: var(--color-panel);
     }
 
     .account-card.picked {
-      border-color: rgba(var(--accent-rgb), .7);
-      box-shadow: var(--inner), 0 0 0 3px rgba(var(--accent-rgb), .09), 0 18px 50px rgba(0,0,0,.22);
+      border-color: color-mix(in srgb, var(--color-accent) 70.0%, transparent);
+      box-shadow: none;
     }
 
     .savings-hero {
       position: relative;
       overflow: hidden;
-      padding: 17px;
-      margin-bottom: 12px;
-      border: 1px solid rgba(var(--accent-rgb), .19);
-      border-radius: 21px;
-      background:
-        radial-gradient(circle at 100% 0%, rgba(var(--accent-rgb), .18), transparent 12rem),
-        linear-gradient(150deg, rgba(48,66,53,.76), rgba(25,35,29,.66));
-      box-shadow: var(--inner);
+      padding: var(--space-4);
+      margin-bottom: var(--space-3);
+      border: 1px solid color-mix(in srgb, var(--color-accent) 19.0%, transparent);
+      border-radius: var(--card-radius);
+      background: var(--color-selected);
+      box-shadow: none;
     }
 
     .savings-hero-label {
       color: var(--muted);
-      font-size: 8px;
-      font-weight: 850;
+      font-size:12px;
+      font-weight:600;
       text-transform: uppercase;
       letter-spacing: .08em;
     }
 
     .savings-hero-value {
-      margin-top: 5px;
+      margin-top: var(--space-1);
       color: var(--green-strong);
       font-size: 37px;
       line-height: 1;
-      font-weight: 950;
+      font-weight:600;
       letter-spacing: -.055em;
     }
 
     .savings-confidence {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: var(--space-1);
       min-height: 28px;
-      margin-top: 10px;
-      padding: 0 9px;
-      border: 1px solid rgba(var(--accent-rgb), .22);
+      margin-top: var(--space-2);
+      padding: 0 var(--space-2);
+      border: 1px solid color-mix(in srgb, var(--color-accent) 22.0%, transparent);
       border-radius: 999px;
-      background: rgba(var(--accent-rgb), .09);
+      background: color-mix(in srgb, var(--color-accent) 9.0%, transparent);
       color: var(--green);
       font-size: 7.5px;
-      font-weight: 850;
+      font-weight:600;
     }
 
     .savings-hero-copy {
-      margin-top: 10px;
+      margin-top: var(--space-2);
       max-width: 470px;
       color: var(--muted);
       font-size: 8.5px;
@@ -1490,11 +1479,11 @@
     .settings-explainer {
       display: grid;
       gap: 3px;
-      margin: 2px 0 12px;
-      padding: 11px 12px;
-      border: 1px solid rgba(var(--accent-rgb), .16);
-      border-radius: 14px;
-      background: rgba(var(--accent-rgb), .06);
+      margin: 2px 0 var(--space-3);
+      padding: var(--space-3) var(--space-3);
+      border: 1px solid color-mix(in srgb, var(--color-accent) 16.0%, transparent);
+      border-radius: var(--card-radius);
+      background: color-mix(in srgb, var(--color-accent) 6.0%, transparent);
       color: var(--muted);
       font-size: 8.5px;
       line-height: 1.4;
@@ -1502,22 +1491,22 @@
 
     .settings-explainer strong {
       color: var(--text);
-      font-size: 10px;
+      font-size:12px;
     }
 
     .setting-card {
-      margin-top: 10px;
-      padding: 14px;
+      margin-top: var(--space-2);
+      padding: var(--space-3);
       border: 1px solid var(--line);
-      border-radius: 19px;
-      background: rgba(255,255,255,.045);
-      box-shadow: var(--inner);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
+      box-shadow: none;
     }
 
     .setting-card-head {
       display: grid;
       grid-template-columns: 38px minmax(0,1fr);
-      gap: 10px;
+      gap: var(--space-2);
       align-items: start;
     }
 
@@ -1526,16 +1515,16 @@
       height: 38px;
       display: grid;
       place-items: center;
-      border-radius: 12px;
+      border-radius: var(--card-radius);
       background: var(--green-soft);
       color: var(--green-strong);
       font-size: 14px;
-      font-weight: 950;
+      font-weight:600;
     }
 
     .setting-title {
       font-size: 12px;
-      font-weight: 900;
+      font-weight:600;
     }
 
     .setting-copy {
@@ -1548,20 +1537,20 @@
     .setting-money {
       display: grid;
       grid-template-columns: auto minmax(0,1fr) auto;
-      gap: 7px;
+      gap: var(--space-2);
       align-items: center;
       min-height: 58px;
-      margin-top: 12px;
-      padding: 0 11px;
-      border: 1px solid rgba(var(--accent-rgb), .25);
-      border-radius: 15px;
-      background: rgba(0,0,0,.18);
+      margin-top: var(--space-3);
+      padding: 0 var(--space-3);
+      border: 1px solid color-mix(in srgb, var(--color-accent) 25.0%, transparent);
+      border-radius: var(--card-radius);
+      background: var(--color-screen);
     }
 
     .setting-money > span {
       color: var(--green);
       font-size: 20px;
-      font-weight: 900;
+      font-weight:600;
     }
 
     .setting-money input {
@@ -1572,19 +1561,19 @@
       background: transparent;
       color: var(--text);
       font-size: 25px;
-      font-weight: 950;
+      font-weight:600;
     }
 
     .setting-money em {
       color: var(--green);
-      font-size: 7px;
+      font-size:12px;
       font-style: normal;
-      font-weight: 800;
+      font-weight:600;
       text-align: right;
     }
 
     .setting-note {
-      margin-top: 8px;
+      margin-top: var(--space-2);
       color: var(--dim);
       font-size: 7.5px;
       line-height: 1.45;
@@ -1593,8 +1582,8 @@
     .max-order-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0,1fr));
-      gap: 7px;
-      margin-top: 12px;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
     }
 
     .max-order-btn {
@@ -1604,11 +1593,11 @@
       align-content: center;
       gap: 2px;
       border: 1px solid var(--line);
-      border-radius: 15px;
-      background: rgba(255,255,255,.04);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
       color: var(--muted);
       cursor: pointer;
-      box-shadow: var(--inner);
+      box-shadow: none;
     }
 
     .max-order-btn strong {
@@ -1617,62 +1606,60 @@
     }
 
     .max-order-btn span {
-      font-size: 7px;
-      font-weight: 800;
+      font-size:12px;
+      font-weight:600;
     }
 
     .max-order-btn.active {
-      border-color: rgba(var(--accent-rgb), .55);
-      background: linear-gradient(145deg, rgba(var(--accent-rgb), .20), rgba(var(--accent-rgb), .08));
+      border-color: color-mix(in srgb, var(--color-accent) 55.0%, transparent);
+      background: var(--color-selected);
       color: var(--green-strong);
-      box-shadow: var(--inner), 0 0 24px rgba(var(--accent-rgb), .08);
+      box-shadow: none;
     }
 
     .settings-reset {
       width: 100%;
       min-height: 47px;
-      margin: 12px 0 4px;
+      margin: var(--space-3) 0 var(--space-1);
       border: 1px solid var(--line);
-      border-radius: 14px;
-      background: rgba(255,255,255,.045);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
       color: var(--muted);
       cursor: pointer;
-      font-size: 9px;
-      font-weight: 850;
+      font-size:12px;
+      font-weight:600;
     }
 
     .account-sheet-hero {
-      margin: 0 0 12px;
-      padding: 15px;
-      border: 1px solid rgba(var(--accent-rgb), .16);
-      border-radius: 21px;
-      background:
-        radial-gradient(circle at 100% 0%, rgba(var(--accent-rgb), .15), transparent 12rem),
-        linear-gradient(150deg, rgba(49,65,54,.78), rgba(27,36,30,.62));
-      box-shadow: var(--inner);
+      margin: 0 0 var(--space-3);
+      padding: var(--space-4);
+      border: 1px solid color-mix(in srgb, var(--color-accent) 16.0%, transparent);
+      border-radius: var(--card-radius);
+      background: var(--color-selected);
+      box-shadow: none;
     }
 
     .account-sheet-top {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 10px;
+      gap: var(--space-2);
     }
 
     .account-sheet-label {
       color: var(--dim);
       font-size: 7.5px;
-      font-weight: 850;
+      font-weight:600;
       text-transform: uppercase;
       letter-spacing: .08em;
     }
 
     .account-sheet-email {
-      margin-top: 4px;
+      margin-top: var(--space-1);
       overflow: hidden;
       max-width: 225px;
       font-size: 18px;
-      font-weight: 950;
+      font-weight:600;
       letter-spacing: -.035em;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -1682,24 +1669,24 @@
       flex: 0 0 auto;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: var(--space-1);
       min-height: 34px;
-      padding: 0 10px;
+      padding: 0 var(--space-2);
       border-radius: 999px;
-      font-size: 8px;
-      font-weight: 900;
-      box-shadow: var(--inner);
+      font-size:12px;
+      font-weight:600;
+      box-shadow: none;
     }
 
     .account-status-badge.ok {
-      border: 1px solid rgba(var(--accent-rgb), .34);
-      background: rgba(var(--accent-rgb), .12);
+      border: 1px solid color-mix(in srgb, var(--color-accent) 34.0%, transparent);
+      background: color-mix(in srgb, var(--color-accent) 12.0%, transparent);
       color: var(--green-strong);
     }
 
     .account-status-badge.no {
-      border: 1px solid rgba(241,198,109,.3);
-      background: rgba(241,198,109,.10);
+      border: 1px solid var(--color-accent);
+      background: var(--color-accent);
       color: var(--amber);
     }
 
@@ -1708,34 +1695,34 @@
       height: 7px;
       border-radius: 50%;
       background: currentColor;
-      box-shadow: 0 0 12px currentColor;
+      box-shadow: none;
     }
 
     .account-sheet-summary {
       display: grid;
       grid-template-columns: repeat(3,minmax(0,1fr));
-      gap: 7px;
-      margin-top: 14px;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
     }
 
     .account-sheet-summary > div {
       min-width: 0;
-      padding: 9px;
+      padding: var(--space-2);
       border: 1px solid var(--line-soft);
-      border-radius: 12px;
-      background: rgba(0,0,0,.13);
+      border-radius: var(--card-radius);
+      background: var(--color-screen);
     }
 
     .account-sheet-summary span {
       display: block;
       color: var(--dim);
-      font-size: 7px;
-      font-weight: 800;
+      font-size:12px;
+      font-weight:600;
     }
 
     .account-sheet-summary strong {
       display: block;
-      margin-top: 5px;
+      margin-top: var(--space-1);
       overflow: hidden;
       font-size: 13px;
       text-overflow: ellipsis;
@@ -1745,117 +1732,117 @@
     .account-sheet-actions {
       display: grid;
       grid-template-columns: minmax(0,1fr) auto;
-      gap: 8px;
-      margin-top: 12px;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
     }
 
     .account-primary,
     .account-secondary {
       min-height: 49px;
-      border-radius: 14px;
+      border-radius: var(--card-radius);
       cursor: pointer;
-      font-size: 10px;
-      font-weight: 900;
+      font-size:12px;
+      font-weight:600;
     }
 
     .account-primary {
-      border: 1px solid rgba(var(--accent-rgb), .35);
+      border: 1px solid color-mix(in srgb, var(--color-accent) 35.0%, transparent);
       background: var(--green);
-      color: #0b120d;
-      box-shadow: 0 10px 30px rgba(var(--accent-rgb), .16);
+      color: var(--color-tertiary);
+      box-shadow: none;
     }
 
     .account-secondary {
       min-width: 92px;
-      padding: 0 12px;
+      padding: 0 var(--space-3);
       border: 1px solid var(--line);
-      background: rgba(255,255,255,.045);
+      background: var(--color-panel);
       color: var(--muted);
     }
 
     .sheet-section-title {
-      margin-bottom: 9px;
+      margin-bottom: var(--space-2);
       color: var(--muted);
-      font-size: 9px;
-      font-weight: 900;
+      font-size:12px;
+      font-weight:600;
     }
 
     .offers-section .offer-card {
-      background: rgba(255,255,255,.055);
+      background: var(--color-panel);
     }
 
     .offer-actions .action-btn {
       min-height: 46px;
-      font-size: 9px;
+      font-size:12px;
     }
 
 
 
     @media (max-width: 370px) {
-      .app-shell { padding-left: 10px; padding-right: 10px; }
-      .stats-row { gap: 6px; }
-      .stat-card { padding: 10px 8px; }
-      .quick-grid { gap: 6px; }
-      .hero-card { padding: 14px; }
+      .app-shell { padding-left: var(--space-2); padding-right: var(--space-2); }
+      .stats-row { gap: var(--space-1); }
+      .stat-card { padding: var(--space-2) var(--space-2); }
+      .quick-grid { gap: var(--space-1); }
+      .hero-card { padding: var(--space-3); }
       .recommendation-top { display: block; }
-      .recommendation-save { margin-top: 8px; text-align: left; }
+      .recommendation-save { margin-top: var(--space-2); text-align: left; }
     }
 
 
     /* Frosted surfaces stay static; motion uses compositor-friendly transforms. */
-    :root { --muted: #bcc8c0; --dim: #97a79e; --line: rgba(222,255,236,.13); }
-    body { background: radial-gradient(ellipse at 8% 0%, rgba(var(--accent-rgb), .09), transparent 46%), radial-gradient(ellipse at 100% 35%, rgba(var(--accent-rgb), .05), transparent 48%), #0c1311; font-size: 14px; }
+    :root { --muted: var(--color-panel); --dim: var(--color-panel); --line: var(--color-accent); }
+    body { background: var(--color-selected); font-size: 14px; }
     .app-shell { max-width: 1240px; }
-    .topbar { padding: 12px 0 22px; gap: 18px; }
-    .brand-kicker, .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .12em; }
-    .brand-title { font-weight: 750; letter-spacing: -.045em; }
+    .topbar { padding: var(--space-3) 0 var(--space-5); gap: var(--space-4); }
+    .brand-kicker, .eyebrow { font-size:12px; font-weight:600; letter-spacing: .12em; }
+    .brand-title { font-weight:600; letter-spacing: -.045em; }
     .home-intro-copy, .screen-copy { font-size: 13px; line-height: 1.6; }
     .glass, .stat-card, .account-card, .quick-card, .more-card {
-      background: linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
-      border: 1px solid rgba(222,255,236,.13);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 12px 36px rgba(0,0,0,.12);
-      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      background: var(--color-panel);
+      border: 1px solid var(--color-accent);
+      box-shadow: none;
+      backdrop-filter: none; -webkit-backdrop-filter: none;
     }
-    .stats-row { max-width: none; gap: 12px; margin-bottom: 24px; }
-    .stat-card { padding: 18px; border-radius: 20px; }
-    .stat-label { font-size: 11px; font-weight: 650; }
-    .stat-value { font-size: clamp(26px, 4vw, 38px); font-weight: 750; letter-spacing: -.05em; }
-    .stat-sub { font-size: 10px; line-height: 1.5; }
-    .hero-card { border-radius: 28px; padding: 22px; background: linear-gradient(150deg, rgba(124,207,157,.12), rgba(255,255,255,.045) 55%, rgba(96,135,163,.06)); }
-    .hero-title { font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -.04em; }
-    .basket-editor { margin-top: 22px; border-radius: 18px; }
-    .basket-editor-copy strong { font-size: 12px; font-weight: 650; }
-    .basket-editor-copy small, .fee-note { font-size: 10px; line-height: 1.5; }
-    .basket-input { font-size: 28px; font-weight: 650; }
-    .recommendation { border-radius: 20px; }
-    .recommendation-title, .account-email { font-size: 14px; font-weight: 650; }
+    .stats-row { max-width: none; gap: var(--space-3); margin-bottom: var(--space-6); }
+    .stat-card { padding: var(--space-4); border-radius: var(--card-radius); }
+    .stat-label { font-size:12px; font-weight:600; }
+    .stat-value { font-size: clamp(26px, 4vw, 38px); font-weight:600; letter-spacing: -.05em; }
+    .stat-sub { font-size:12px; line-height: 1.5; }
+    .hero-card { border-radius: var(--card-radius); padding: var(--space-5); background: var(--color-panel); }
+    .hero-title { font-size: 24px; line-height: 1.2; font-weight:600; letter-spacing: -.04em; }
+    .basket-editor { margin-top: var(--space-5); border-radius: var(--card-radius); }
+    .basket-editor-copy strong { font-size: 12px; font-weight:600; }
+    .basket-editor-copy small, .fee-note { font-size:12px; line-height: 1.5; }
+    .basket-input { font-size: 28px; font-weight:600; }
+    .recommendation { border-radius: var(--card-radius); }
+    .recommendation-title, .account-email { font-size: 14px; font-weight:600; }
     .recommendation-copy, .recommendation-line, .account-offer { font-size: 12px; line-height: 1.5; }
-    .section-title { font-size: 20px; font-weight: 700; letter-spacing: -.025em; }
-    .section-meta { font-size: 11px; }
-    .quick-grid { gap: 10px; grid-auto-rows: minmax(124px, auto); }
-    .quick-card { border-radius: 20px; padding: 15px; }
-    .quick-card.active { border-color: rgba(var(--accent-rgb), .44); background: linear-gradient(145deg, rgba(var(--accent-rgb), .14), rgba(var(--accent-rgb), .04)); }
-    .quick-title { font-size: 13px; font-weight: 650; }
-    .quick-sub { font-size: 11px; line-height: 1.4; }
-    .quick-icon { font-size: 18px; font-weight: 650; }
-    .quick-count { font-size: 11px; }
-    .account-card { border-radius: 22px; padding: 18px; }
-    .account-list { gap: 12px; }
-    .account-actions button { min-height: 44px; font-size: 12px; font-weight: 650; }
-    .account-primary, .account-secondary, .action-btn, .advanced-btn { min-height: 44px; font-size: 12px; font-weight: 650; }
+    .section-title { font-size: 20px; font-weight:600; letter-spacing: -.025em; }
+    .section-meta { font-size:12px; }
+    .quick-grid { gap: var(--space-2); grid-auto-rows: minmax(124px, auto); }
+    .quick-card { border-radius: var(--card-radius); padding: var(--space-4); }
+    .quick-card.active { border-color: color-mix(in srgb, var(--color-accent) 44.0%, transparent); background: var(--color-selected); }
+    .quick-title { font-size: 13px; font-weight:600; }
+    .quick-sub { font-size:12px; line-height: 1.4; }
+    .quick-icon { font-size: 18px; font-weight:600; }
+    .quick-count { font-size:12px; }
+    .account-card { border-radius: var(--card-radius); padding: var(--space-4); }
+    .account-list { gap: var(--space-3); }
+    .account-actions button { min-height: 44px; font-size: 12px; font-weight:600; }
+    .account-primary, .account-secondary, .action-btn, .advanced-btn { min-height: 44px; font-size: 12px; font-weight:600; }
     .account-meta, .account-status, .offer-meta, .offer-copy, .empty { font-size: 12px; line-height: 1.6; }
-    .bottom-nav { background: linear-gradient(135deg, rgba(42,58,51,.88), rgba(21,32,29,.92)); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 12px 40px rgba(0,0,0,.35); }
-    .nav-btn { font-size: 11px; font-weight: 650; border-radius: 16px; }
-    .nav-btn.active { background: rgba(var(--accent-rgb), .12); }
+    .bottom-nav { background: var(--color-panel); box-shadow: none; }
+    .nav-btn { font-size:12px; font-weight:600; border-radius: var(--card-radius); }
+    .nav-btn.active { background: color-mix(in srgb, var(--color-accent) 12.0%, transparent); }
     .search-input, .setting-input { font-size: 16px; min-height: 48px; }
     .filter-btn { min-height: 40px; font-size: 12px; }
-    .sheet { background: linear-gradient(145deg, #24352d, #121c19); box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 32px 100px rgba(0,0,0,.5); }
+    .sheet { background: var(--color-panel); box-shadow: none; }
     .sheet-section-title, .offer-actions .action-btn { font-size: 12px; }
     button { transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease; }
     button:active { transform: scale(.98); }
     .view.active { animation: reveal-view 180ms ease-out; }
     @keyframes reveal-view { from { opacity: .4; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-    @media (hover: hover) and (pointer: fine) { .quick-card:hover, .account-card:hover { border-color: rgba(222,255,236,.28); } }
+    @media (hover: hover) and (pointer: fine) { .quick-card:hover, .account-card:hover { border-color: var(--color-soft-accent); } }
 
 
     :where(html[data-layout="mobile"]) .topbar { align-items: flex-start; }
@@ -1864,42 +1851,42 @@
 
     :where(html[data-layout="mobile"]) .scan-wrap { max-width: 105px; }
 
-    :where(html[data-layout="mobile"]) .stat-card { padding: 13px 10px; }
+    :where(html[data-layout="mobile"]) .stat-card { padding: var(--space-3) var(--space-2); }
 
-    :where(html[data-layout="mobile"]) .stats-row { gap: 8px; }
+    :where(html[data-layout="mobile"]) .stats-row { gap: var(--space-2); }
 
-    :where(html[data-layout="mobile"]) .hero-card { padding: 18px; }
+    :where(html[data-layout="mobile"]) .hero-card { padding: var(--space-4); }
 
     :where(html[data-layout="mobile"]) .hero-title { font-size: 22px; }
 
-    :where(html[data-layout="mobile"]) .stat-sub { font-size: 9px; }
+    :where(html[data-layout="mobile"]) .stat-sub { font-size:12px; }
 
 
 
     /* Premium dashboard hierarchy: compact status, stronger home title, calm basket editing. */
     .home-title {
-      margin: 4px 0 0;
+      margin: var(--space-1) 0 0;
       font-size: clamp(34px, 4vw, 52px);
       line-height: .96;
-      font-weight: 760;
+      font-weight:600;
       letter-spacing: -.055em;
     }
     .home-intro-main { min-width: 0; }
     .home-sync {
       flex: 0 1 430px;
       margin: 0;
-      padding: 10px 13px;
-      border-color: rgba(241,198,109,.14);
-      border-radius: 16px;
-      background: linear-gradient(135deg, rgba(83,67,32,.14), rgba(255,255,255,.025));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.045);
-      font-size: 10px;
+      padding: var(--space-2) var(--space-3);
+      border-color: var(--color-soft-accent);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
+      box-shadow: none;
+      font-size:12px;
     }
     .home-sync strong { white-space: nowrap; }
-    .local-notice { margin: 8px 0 14px; }
+    .local-notice { margin: var(--space-2) 0 var(--space-3); }
     .basket-editor:focus-within {
-      border-color: rgba(255,255,255,.22);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 16px 44px rgba(0,0,0,.2);
+      border-color: var(--color-outline);
+      box-shadow: none;
     }
     .basket-input:focus,
     .basket-input:focus-visible {
@@ -1916,28 +1903,28 @@
 
 
 
-    :where(html[data-layout="mobile"]) .home-intro { display: block; margin-top: 18px; }
+    :where(html[data-layout="mobile"]) .home-intro { display: block; margin-top: var(--space-4); }
 
     :where(html[data-layout="mobile"]) .home-title { font-size: 36px; }
 
-    :where(html[data-layout="mobile"]) .home-intro-copy { max-width: none; margin-top: 8px; text-align: left; font-size: 12px; }
+    :where(html[data-layout="mobile"]) .home-intro-copy { max-width: none; margin-top: var(--space-2); text-align: left; font-size: 12px; }
 
-    :where(html[data-layout="mobile"]) .home-sync { margin-top: 14px; max-width: none; }
+    :where(html[data-layout="mobile"]) .home-sync { margin-top: var(--space-3); max-width: none; }
 
-    :where(html[data-layout="mobile"]) .home-overview { padding-left: 16px; padding-right: 16px; }
+    :where(html[data-layout="mobile"]) .home-overview { padding-left: var(--space-4); padding-right: var(--space-4); }
 
     :where(html[data-layout="mobile"]) .home-overview .stats-row {
         grid-template-columns: 1fr;
-        gap: 8px;
+        gap: var(--space-2);
       }
 
     :where(html[data-layout="mobile"]) .home-overview .stat-card {
         min-height: 72px;
-        padding: 12px 14px;
+        padding: var(--space-3) var(--space-3);
       }
 
     :where(html[data-layout="mobile"]) .home-overview .stat-label {
-        font-size: 11px;
+        font-size:12px;
         letter-spacing: 0;
       }
 
@@ -1948,12 +1935,10 @@
     .home-overview {
       position: relative;
       overflow: hidden;
-      margin: 18px 0 24px;
-      padding: 22px;
-      border-radius: 28px;
-      background:
-        radial-gradient(circle at 0% 0%, rgba(var(--accent-rgb), .10), transparent 36%),
-        linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
+      margin: var(--space-4) 0 var(--space-6);
+      padding: var(--space-5);
+      border-radius: var(--card-radius);
+      background: var(--color-selected);
     }
     .home-overview::after {
       content: "";
@@ -1963,64 +1948,56 @@
       right: -130px;
       top: -150px;
       border-radius: 50%;
-      background: rgba(129,174,255,.08);
-      filter: blur(10px);
+      background: var(--color-accent);
+      filter: none;
       pointer-events: none;
     }
     .home-overview .home-intro { margin: 0; }
-    .home-overview .stats-row { position: relative; z-index: 1; margin: 20px 0 0; }
+    .home-overview .stats-row { position: relative; z-index: 1; margin: var(--space-5) 0 0; }
     .home-overview .stat-card {
-      background: rgba(8,15,12,.28);
-      border-color: rgba(255,255,255,.10);
+      background: var(--color-screen);
+      border-color: var(--color-outline);
     }
     .home-overview .stat-card:first-child {
-      background: linear-gradient(145deg, rgba(var(--accent-rgb), .10), rgba(8,15,12,.25));
+      background: var(--color-selected);
     }
     .home-overview .available-stat-card {
-      border-color: rgba(var(--accent-rgb), .22);
-      background:
-        radial-gradient(circle at 100% 0%, rgba(var(--accent-rgb), .12), transparent 70%),
-        linear-gradient(145deg, rgba(var(--accent-rgb), .075), rgba(8,15,12,.25));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 12px 34px rgba(67,126,82,.08);
+      border-color: color-mix(in srgb, var(--color-accent) 22.0%, transparent);
+      background: var(--color-selected);
+      box-shadow: none;
     }
     .home-overview .available-stat-card .stat-value {
       color: var(--green-strong);
-      text-shadow: 0 0 24px rgba(var(--accent-rgb), .12);
+      text-shadow: none;
     }
     .home-overview .available-stat-card.watch {
-      border-color: rgba(241,198,109,.28);
-      background:
-        radial-gradient(circle at 100% 0%, rgba(241,198,109,.12), transparent 70%),
-        linear-gradient(145deg, rgba(241,198,109,.07), rgba(8,15,12,.25));
+      border-color: var(--color-soft-accent);
+      background: var(--color-panel);
     }
-    .home-overview .available-stat-card.watch .stat-value { color: #f1c66d; }
+    .home-overview .available-stat-card.watch .stat-value { color: var(--color-soft-accent); }
     .home-overview .available-stat-card.empty-state {
-      border-color: rgba(255,126,126,.32);
-      background:
-        radial-gradient(circle at 100% 0%, rgba(255,126,126,.13), transparent 70%),
-        linear-gradient(145deg, rgba(255,126,126,.07), rgba(8,15,12,.25));
+      border-color: var(--color-soft-accent);
+      background: var(--color-panel);
     }
-    .home-overview .available-stat-card.empty-state .stat-value { color: #ff9b9b; }
+    .home-overview .available-stat-card.empty-state .stat-value { color: var(--color-soft-accent); }
     .insight-value.estimated-value {
       color: var(--muted);
     }
     .basket-editor {
-      border-color: rgba(255,255,255,.13) !important;
-      background:
-        linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.018)),
-        rgba(4,10,6,.24) !important;
+      border-color: var(--color-outline) !important;
+      background: var(--color-panel) !important;
     }
     .basket-editor:focus-within {
-      border-color: rgba(255,255,255,.26) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 18px 48px rgba(0,0,0,.22) !important;
+      border-color: var(--color-outline) !important;
+      box-shadow: none !important;
     }
 
 
 
     @media (max-width: 370px) {
-      .home-overview { padding: 10px; }
-      .home-overview .stats-row { gap: 6px; }
-      .home-overview .stat-card { padding: 11px 12px; }
+      .home-overview { padding: var(--space-2); }
+      .home-overview .stats-row { gap: var(--space-1); }
+      .home-overview .stat-card { padding: var(--space-3) var(--space-3); }
     }
 
     /* Product lockup: compact brand hierarchy without competing with the page title. */
@@ -2033,16 +2010,16 @@
     :where(html[data-layout="mobile"]) .topbar {
         min-height: 74px;
         align-items: flex-start;
-        padding-top: 8px;
+        padding-top: var(--space-2);
       }
 
     :where(html[data-layout="mobile"]) .brand-kicker {
-        font-size: 9px;
+        font-size:12px;
         letter-spacing: .15em;
       }
 
     :where(html[data-layout="mobile"]) .brand-title {
-        margin-top: 5px;
+        margin-top: var(--space-1);
         max-width: none;
         font-size: clamp(24px, 7.2vw, 30px);
         line-height: .96;
@@ -2059,14 +2036,12 @@
       top: 0;
       left: 0;
       z-index: -1;
-      border-radius: 16px;
-      background:
-        radial-gradient(circle at 28% 12%, rgba(255,255,255,.24), transparent 38%),
-        linear-gradient(135deg, rgba(var(--accent-rgb), .18), rgba(255,255,255,.07));
-      border: 1px solid rgba(255,255,255,.12);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 8px 24px rgba(0,0,0,.18);
-      backdrop-filter: blur(22px) saturate(165%);
-      -webkit-backdrop-filter: blur(22px) saturate(165%);
+      border-radius: var(--card-radius);
+      background: var(--color-selected);
+      border: 1px solid var(--color-outline);
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
       transition: transform 520ms cubic-bezier(.22,1,.36,1), width 520ms cubic-bezier(.22,1,.36,1), height 520ms cubic-bezier(.22,1,.36,1), opacity 180ms ease;
       pointer-events: none;
     }
@@ -2084,8 +2059,8 @@
       animation: liquidViewIn 520ms cubic-bezier(.22,1,.36,1) both;
     }
     @keyframes liquidViewIn {
-      from { opacity: 0; transform: translateY(14px) scale(.992); filter: blur(7px); }
-      to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+      from { opacity: 0; transform: translateY(14px) scale(.992); filter: none; }
+      to { opacity: 1; transform: translateY(0) scale(1); filter: none; }
     }
 
     .sheet-backdrop {
@@ -2105,14 +2080,14 @@
       animation: none;
       opacity: 0;
       transform: translateY(34px) scale(.965);
-      filter: blur(5px);
+      filter: none;
       transition: transform 520ms cubic-bezier(.22,1,.36,1), opacity 300ms ease, filter 360ms ease;
       will-change: transform, opacity;
     }
     .sheet-backdrop.open .sheet {
       opacity: 1;
       transform: translateY(0) scale(1);
-      filter: blur(0);
+      filter: none;
     }
     .glass, .quick-card, .account-card, .more-card {
       transition: transform 420ms cubic-bezier(.22,1,.36,1), border-color 240ms ease, box-shadow 420ms ease;
@@ -2120,7 +2095,7 @@
     @media (hover: hover) and (pointer: fine) {
       .quick-card:hover, .account-card:hover, .more-card:hover {
         transform: translateY(-3px);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 18px 44px rgba(0,0,0,.2);
+        box-shadow: none;
       }
     }
 
@@ -2156,8 +2131,8 @@
       animation: liquidRefresh 460ms var(--smooth-spring) both;
     }
     @keyframes liquidRefresh {
-      from { opacity: .25; transform: translateY(9px) scale(.992); filter: blur(5px); }
-      to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+      from { opacity: .25; transform: translateY(9px) scale(.992); filter: none; }
+      to { opacity: 1; transform: translateY(0) scale(1); filter: none; }
     }
     .motion-value {
       animation: valueSpring 480ms var(--spring);
@@ -2181,10 +2156,10 @@
       animation: liquidSheetOpen 620ms var(--smooth-spring) both;
     }
     @keyframes liquidSheetOpen {
-      0% { opacity: 0; transform: translateY(42px) scale(.955); filter: blur(7px); }
-      68% { opacity: 1; transform: translateY(-5px) scale(1.008); filter: blur(0); }
+      0% { opacity: 0; transform: translateY(42px) scale(.955); filter: none; }
+      68% { opacity: 1; transform: translateY(-5px) scale(1.008); filter: none; }
       84% { transform: translateY(2px) scale(.998); }
-      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: none; }
     }
     .sheet-close {
       transition: transform 420ms var(--spring), background-color 220ms ease, border-color 220ms ease;
@@ -2217,73 +2192,73 @@
     .brand-kicker, .brand-title { filter: none; text-shadow: none; }
     .brand-title { line-height: 1.12; }
     .scan-wrap { flex-shrink: 0; max-width: none; }
-    .scan-pill { color: #edf4ef; font-size: 10px; font-weight: 700; }
-    .scan-time { font-size: 11px; line-height: 1.5; color: #c8d3cc; font-weight: 500; }
+    .scan-pill { color: var(--color-text); font-size:12px; font-weight:600; }
+    .scan-time { font-size:12px; line-height: 1.5; color: var(--color-label); font-weight: 500; }
     .scan-dot { box-shadow: none; }
     .account-email, .account-sheet-email, .activity-email, .plan-account, .sheet-row-title {
       white-space: normal; overflow-wrap: anywhere; text-overflow: clip; overflow: visible;
     }
     .plan-row > :nth-child(2) { min-width: 0; }
     .plan-account { display: block; border: 0; padding: 0; text-align: left; background: transparent; color: var(--text); cursor: pointer; font-size: 13px; line-height: 1.4; }
-    .plan-promo { white-space: normal; overflow-wrap: anywhere; font-size: 11px; line-height: 1.5; }
+    .plan-promo { white-space: normal; overflow-wrap: anywhere; font-size:12px; line-height: 1.5; }
     .account-sheet-email { max-width: none; }
     .account-sheet-actions { flex-wrap: wrap; }
     .account-sheet-actions > button { flex: 1 1 140px; }
-    .privacy { font-size: 10px; color: var(--dim); line-height: 1.6; }
+    .privacy { font-size:12px; color: var(--dim); line-height: 1.6; }
     .bottom-nav {
-      background: linear-gradient(155deg, rgba(235,245,239,.13), rgba(140,156,150,.07));
-      border-color: rgba(255,255,255,.26);
-      box-shadow: inset 0 1px 1px rgba(255,255,255,.3), inset 0 -1px 1px rgba(255,255,255,.1), 0 8px 28px rgba(0,0,0,.28);
-      backdrop-filter: blur(20px) saturate(165%);
-      -webkit-backdrop-filter: blur(20px) saturate(165%);
+      background: var(--color-panel);
+      border-color: var(--color-outline);
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
     }
-    .nav-btn, .nav-btn.active { color: #f4f8f5; }
+    .nav-btn, .nav-btn.active { color: var(--color-text); }
     .nav-btn { font-weight: 600; }
     .nav-btn:active:not(:disabled) { transform: none; }
     .nav-btn.active svg { transform: none; }
     .nav-glider {
-      background: radial-gradient(ellipse at 22% 0%, rgba(255,255,255,.13), transparent 60%), rgba(3,10,7,.46);
-      border-color: rgba(255,255,255,.14);
-      box-shadow: inset 0 1px 1px rgba(255,255,255,.2), inset 0 -1px 0 rgba(255,255,255,.08), 0 2px 8px rgba(0,0,0,.12);
+      background: var(--color-panel);
+      border-color: var(--color-outline);
+      box-shadow: none;
     }
     .nav-glider::after {
       content: ''; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
-      box-shadow: inset 2px 0 1px rgba(125,216,255,.65), inset -2px 0 1px rgba(248,171,245,.65), inset 0 2px 1px rgba(255,255,255,.8);
+      box-shadow: none;
       opacity: 0; transition: opacity 160ms ease;
     }
-    .bottom-nav.dragging .nav-glider { transition: none; background: rgba(240,250,246,.16); }
+    .bottom-nav.dragging .nav-glider { transition: none; background: var(--color-panel); }
     .bottom-nav.dragging .nav-glider::after { opacity: 1; }
     .sheet {
-      background: linear-gradient(145deg, rgba(54,66,61,.88), rgba(18,27,23,.94));
-      backdrop-filter: blur(32px) saturate(150%); -webkit-backdrop-filter: blur(32px) saturate(150%);
+      background: var(--color-panel);
+      backdrop-filter: none; -webkit-backdrop-filter: none;
     }
-    .colour-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; }
+    .colour-controls { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-5); }
     .colour-wheel {
       position: relative; width: 164px; height: 164px; border-radius: 50%; flex-shrink: 0; cursor: crosshair; touch-action: none;
-      background: radial-gradient(circle, #fff 0%, rgba(255,255,255,0) 70%), conic-gradient(#f33, #ff3, #3f3, #3ff, #33f, #f3f, #f33);
-      box-shadow: 0 0 0 5px rgba(255,255,255,.045), 0 8px 24px rgba(0,0,0,.25);
+      background: var(--color-panel);
+      box-shadow: none;
     }
-    .colour-thumb { position: absolute; width: 18px; height: 18px; border: 2px solid white; border-radius: 50%; box-shadow: 0 1px 5px #000; transform: translate(-50%,-50%); pointer-events: none; }
+    .colour-thumb { position: absolute; width: 18px; height: 18px; border: 2px solid var(--color-text); border-radius: 50%; box-shadow: none; transform: translate(-50%,-50%); pointer-events: none; }
     .colour-fields { flex: 1 1 150px; }
-    .colour-fields label { display: block; font-size: 12px; color: var(--muted); margin: 12px 0 5px; }
-    #themeColour { width: 100%; height: 44px; padding: 3px; border: 1px solid var(--line); border-radius: 12px; background: transparent; cursor: pointer; }
+    .colour-fields label { display: block; font-size: 12px; color: var(--muted); margin: var(--space-3) 0 var(--space-1); }
+    #themeColour { width: 100%; height: 44px; padding: 3px; border: 1px solid var(--line); border-radius: var(--card-radius); background: transparent; cursor: pointer; }
     #themeBrightness { width: 100%; accent-color: var(--green); }
-    .theme-presets { display: flex; flex-wrap: wrap; gap: 12px; margin: 22px 0; }
-    .theme-swatch { width: 44px; height: 44px; padding: 6px; border: 1px solid var(--line); border-radius: 50%; background: transparent; cursor: pointer; }
+    .theme-presets { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: var(--space-5) 0; }
+    .theme-swatch { width: 44px; height: 44px; padding: var(--space-1); border: 1px solid var(--line); border-radius: 50%; background: transparent; cursor: pointer; }
     .theme-swatch span { display: block; height: 100%; border-radius: 50%; background: var(--swatch); }
     .theme-swatch[aria-pressed="true"] { outline: 2px solid var(--green); outline-offset: 3px; }
-    .device-import { display: block; cursor: pointer; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--glass-soft); margin: 18px 0; }
-    .device-import input { display: block; max-width: 100%; margin-top: 12px; font-size: 12px; }
+    .device-import { display: block; cursor: pointer; padding: var(--space-3); border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--glass-soft); margin: var(--space-4) 0; }
+    .device-import input { display: block; max-width: 100%; margin-top: var(--space-3); font-size: 12px; }
     #deviceImportStatus { color: var(--muted); font-size: 12px; line-height: 1.6; }
-    .layout-settings { margin: 0 0 20px; padding: 18px; border: 1px solid var(--line); border-radius: 20px; background: var(--glass-soft); }
-    .layout-settings legend { padding: 0 6px; font-size: 14px; font-weight: 650; }
-    .layout-control { display: flex; gap: 4px; padding: 4px; margin: 10px 0 12px; border-radius: 16px; background: rgba(0,0,0,.18); }
-    .layout-option { position: relative; flex: 1; min-width: 0; padding: 13px 8px; border-radius: 12px; text-align: center; font-size: 12px; font-weight: 650; cursor: pointer; color: var(--muted); }
+    .layout-settings { margin: 0 0 var(--space-5); padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--glass-soft); }
+    .layout-settings legend { padding: 0 var(--space-1); font-size: 14px; font-weight:600; }
+    .layout-control { display: flex; gap: var(--space-1); padding: var(--space-1); margin: var(--space-2) 0 var(--space-3); border-radius: var(--card-radius); background: var(--color-screen); }
+    .layout-option { position: relative; flex: 1; min-width: 0; padding: var(--space-3) var(--space-2); border-radius: var(--card-radius); text-align: center; font-size: 12px; font-weight:600; cursor: pointer; color: var(--muted); }
     .layout-option input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0; cursor: pointer; }
-    .layout-option:has(input:checked) { background: var(--green-soft); color: var(--green-strong); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
+    .layout-option:has(input:checked) { background: var(--green-soft); color: var(--green-strong); box-shadow: none; }
     .layout-option:has(input:focus-visible) { outline: 2px solid var(--green); outline-offset: 2px; }
     #layoutStatus { margin: 0; font-size: 12px; line-height: 1.6; color: var(--muted); }
     :where(html[data-layout="mobile"]) { --mobile-max-width: 760px; }
@@ -2293,25 +2268,25 @@
 
     :where(html[data-layout="mobile"]) body { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 
-    :where(html[data-layout="mobile"]) .app-shell { padding-top: calc(env(safe-area-inset-top, 0px) + 18px); }
+    :where(html[data-layout="mobile"]) .app-shell { padding-top: calc(env(safe-area-inset-top, 0px) + var(--space-4)); }
 
-    :where(html[data-layout="mobile"]) .topbar { min-height: 78px; gap: 10px; align-items: flex-start; padding: 0 0 16px; }
+    :where(html[data-layout="mobile"]) .topbar { min-height: 78px; gap: var(--space-2); align-items: flex-start; padding: 0 0 var(--space-4); }
 
-    :where(html[data-layout="mobile"]) .brand-kicker { font-size: 10px; }
+    :where(html[data-layout="mobile"]) .brand-kicker { font-size:12px; }
 
-    :where(html[data-layout="mobile"]) .brand-title { font-size: clamp(22px, 6.5vw, 30px); line-height: 1.15; margin-top: 5px; }
+    :where(html[data-layout="mobile"]) .brand-title { font-size: clamp(22px, 6.5vw, 30px); line-height: 1.15; margin-top: var(--space-1); }
 
     :where(html[data-layout="mobile"]) .scan-time { max-width: 105px; }
 
     :where(html[data-layout="mobile"]) .bottom-nav {
         position: fixed; top: auto; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); left: 50%;
-        width: min(calc(100% - 28px), calc(var(--mobile-max-width) - 28px), 500px); transform: translateX(-50%); margin: 0; padding: 4px;
+        width: min(calc(100% - 28px), calc(var(--mobile-max-width) - 28px), 500px); transform: translateX(-50%); margin: 0; padding: var(--space-1);
         display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 0; border-radius: 999px;
       }
 
-    :where(html[data-layout="mobile"]) .nav-btn { min-height: 58px; border-radius: 999px; font-size: 11px; }
+    :where(html[data-layout="mobile"]) .nav-btn { min-height: 58px; border-radius: 999px; font-size:12px; }
 
-    :where(html[data-layout="mobile"]) .nav-btn svg { display: block; width: 23px; height: 23px; margin: 0 auto 4px; }
+    :where(html[data-layout="mobile"]) .nav-btn svg { display: block; width: 23px; height: 23px; margin: 0 auto var(--space-1); }
 
     :where(html[data-layout="mobile"]) .nav-glider { border-radius: 999px; }
 
@@ -2319,13 +2294,14 @@
 
     @supports not ((backdrop-filter: blur(4px)) or (-webkit-backdrop-filter: blur(4px))) {
       .glass, .bottom-nav, .account-card, .quick-card, .more-card, .search-input, .sheet {
-        background: #1d2921;
+        background: var(--color-panel);
       }
     }
   </style>
   <link rel="stylesheet" href="./desktop-layout.css">
   <link rel="stylesheet" href="./ui-refinements.css">
   <link rel="stylesheet" href="./liquid-glass.css">
+  <link rel="stylesheet" href="./theme-system.css">
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -2567,6 +2543,7 @@
 
   <script type="module">
     import { financeIcon, financeHero, financeMetric } from "./finance-layout.js";
+    import { PALETTE } from './theme-palette.js';
     import { financialSummary, receiptFinancials } from "./receipt-financials.js";
     document.querySelectorAll('[data-icon]').forEach(element => { element.innerHTML = financeIcon(element.dataset.icon); element.setAttribute('aria-hidden','true'); });
     document.querySelectorAll('.metric-help').forEach(button => { button.innerHTML = financeIcon('info'); });
@@ -2575,7 +2552,7 @@
     import {openOfferCatalogue,createPreferredPromosEditor} from "./preference-picker.js";
     import {ACTIVITY_STATUSES,buildUsedActivity,activityResults} from "./used-activity.js";
     import { offerTitle, useCountNeedsReview, effectiveDiscountPercent } from "./offer-details.js";
-    import { THEME_KEY, DEFAULT_COLOUR, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
+    import { THEME_KEY, DEFAULT_COLOUR, applyThemeTokens, THEME_PRESETS, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
     import { offerFinishedReason, offerClosureLabel, classifyOfferCompletion } from "./offer-state.js";
     import {PrivateFinanceVault} from './private-finance-vault.js';
     import {accountHistoryGroups,offerReceiptAvailability,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
@@ -2593,6 +2570,9 @@
     } from "./deal-intelligence.js";
 
     import {
+      accountManualRecord,
+      accountWithManualState,
+      saveAccountManualRecord,
       confirmedUses,
       consumeManualUse,
       effectivePromoState,
@@ -2726,11 +2706,13 @@
     function applyTheme(value) {
       themeColour = normaliseColour(value);
       const tokens = themeTokens(themeColour), root = document.documentElement;
+      applyThemeTokens(root,themeColour);
+      document.querySelector('meta[name="theme-color"]').content=PALETTE.screen;
       root.style.setProperty('--green', tokens.accent);
-      root.style.setProperty('--green-strong', tokens.strong);
-      root.style.setProperty('--green-soft', 'rgba(' + tokens.rgb + ', .14)');
+      root.style.setProperty('--green-strong', 'var(--color-soft-accent)');
+      root.style.setProperty('--green-soft', 'var(--color-selected)');
       root.style.setProperty('--accent-rgb', tokens.rgb);
-      const colour=colourHsl(themeColour);root.style.setProperty('--account-accent',hslColour(colour.hue,colour.saturation,Math.max(60,colour.lightness)));
+      const colour=colourHsl(themeColour);root.style.setProperty('--account-accent',tokens.accent);
       root.style.setProperty('--account-accent-hue',colour.hue);root.style.setProperty('--account-accent-saturation',colour.saturation+'%');
     }
 
@@ -2897,7 +2879,7 @@
     function accountProviderIcon(account) {
       const method = loginMethodLabel(account);
       return method === 'iCloud' ? financeIcon('cloud') : method === 'Google'
-        ? '<svg class="finance-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><text x="12" y="19" text-anchor="middle" fill="currentColor" font-family="Arial,sans-serif" font-size="22" font-weight="700">G</text></svg>'
+        ? financeIcon('google')
         : financeIcon('user');
     }
 
@@ -2942,6 +2924,7 @@
     }
 
     function currentAccountState(account) {
+      account = accountWithManualState(manualStore, account);
       ensureAccountProjection();
       const cached = accountStateMemo.get(account.accountRef);
       if (cached) return { ...account, ...cached };
@@ -3237,7 +3220,7 @@
       setAnimatedText("usableStat", totalAccounts.toLocaleString("en-GB"));
       setAnimatedText("activeStat", availableAccounts.toLocaleString("en-GB"));
       setAnimatedText('loginStat', accounts.filter(a=>a.canLogin).length.toLocaleString('en-GB'));
-      setAnimatedText('archivedStat', accounts.filter(accountArchived).length.toLocaleString('en-GB'));
+      setAnimatedText('archivedStat', accounts.map(currentAccountState).filter(accountArchived).length.toLocaleString('en-GB'));
       document.getElementById('homeReceiptCount').textContent = Number(Number(summary.trackedOrders||0)+Number(summary.trackedRides||0)).toLocaleString('en-GB') + ' receipts';
       document.getElementById('homeUberOne').textContent = Number(summary.estimatedUberOneSavings||0)>0 ? '+ ' + money(summary.estimatedUberOneSavings) + ' estimated Uber One' : Number(summary.uberOneConfirmedSavings||0)>0 ? money(summary.uberOneConfirmedSavings) + ' explicit Uber One' : 'Uber One estimate unavailable';
       renderHomeAnalytics();
@@ -3717,7 +3700,7 @@
     });
 
     function renderMore() {
-      const locked = accounts.filter(accountArchived).length;
+      const locked = accounts.map(currentAccountState).filter(accountArchived).length;
       document.getElementById("lockedCardCopy").textContent =
         locked.toLocaleString("en-GB") +
         (locked === 1 ? " account" : " accounts");
@@ -3738,12 +3721,13 @@
           '<div class="colour-fields"><label for="themeColour">Custom colour</label><input id="themeColour" type="color" value="' + themeColour + '">' +
           '<label for="themeBrightness">Brightness</label><input id="themeBrightness" type="range" min="10" max="90" step="1"></div>' +
         '</div><div class="theme-presets" role="group" aria-label="Theme presets">' +
-          [['#9bea72','Lime'],['#80d4ff','Ocean'],['#c5a0ff','Violet'],['#ff9bb8','Rose'],['#ffc778','Amber']].map(([colour,label]) =>
+          THEME_PRESETS.map(({value:colour,label}) =>
             '<button class="theme-swatch" style="--swatch:' + colour + '" data-theme-colour="' + colour + '" aria-label="' + label + '" aria-pressed="false"><span></span></button>'
           ).join('') +
-        '</div><button id="resetTheme" class="action-btn">Reset to lime</button><div id="themeStatus" class="setting-note" role="status"></div></div>';
+        '</div><button id="resetTheme" class="action-btn">Reset to blue</button><div id="themeStatus" class="setting-note" role="status"></div></div>';
       chooseTheme(themeColour);
       const wheel = document.getElementById('colourWheel');
+      drawColourWheel(wheel);
       function pick(event) {
         const rect = wheel.getBoundingClientRect(), x = event.clientX - rect.left - rect.width / 2, y = event.clientY - rect.top - rect.height / 2;
         const hue = (Math.atan2(x,-y) * 180 / Math.PI + 360) % 360;
@@ -3769,9 +3753,15 @@
       accountTypeFilter=selectedOfferScope(offerPreferences);finderFilters.type=accountTypeFilter;closeAccountPicker();
       invalidateAccountProjection();plannerComparisonCache=null;selectedPlannerKey=null;renderAll();return true;
     }
+    function drawColourWheel(wheel) {
+      const canvas=document.createElement('canvas');canvas.width=canvas.height=192;canvas.setAttribute('aria-hidden','true');
+      const ctx=canvas.getContext('2d'),image=ctx.createImageData(192,192);
+      for(let y=0;y<192;y++)for(let x=0;x<192;x++){const dx=x-95.5,dy=y-95.5,d=Math.hypot(dx,dy);if(d>96)continue;const hue=(Math.atan2(dx,-dy)*180/Math.PI+360)%360,hex=hslColour(hue,Math.min(100,d/96*100),65),index=(y*192+x)*4;for(let i=0;i<3;i++)image.data[index+i]=parseInt(hex.slice(1+i*2,3+i*2),16);image.data[index+3]=255;}
+      ctx.putImageData(image,0,0);wheel.prepend(canvas);
+    }
     function themeColourLabel(){
-      const named={'#9bea72':'Lime','#80d4ff':'Ocean','#c5a0ff':'Violet','#c989f5':'Purple','#ff9bb8':'Rose','#ffc778':'Amber'};
-      return named[themeColour]||'Custom';
+      const named=Object.fromEntries(THEME_PRESETS.map(({value,label})=>[value,label]));
+      return themeColour===DEFAULT_COLOUR?'Blue':named[themeColour]||'Custom';
     }
     function preferredPromosSummary(){
       const keys=offerPreferences.preferredPromos,amounts=keys.filter(k=>/^fixed:\d+(?:\.\d+)?:15$/.test(k)).map(k=>money(Number(k.split(':')[1])));
@@ -3928,7 +3918,7 @@
       const progress=receiptUsageUnavailable(promo)?'':knownLimit&&knownConfirmed?`<div class="use-progress"><div class="progress-track" role="progressbar" aria-label="Receipt-confirmed uses" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${Math.min(confirmed,total)}" aria-valuetext="${confirmed} of ${total} uses confirmed"><div class="progress-fill" style="width:${Math.min(100,confirmed/total*100)}%"></div></div><div class="use-line"><span>${confirmed} of ${total} uses receipt-confirmed</span><span>Up to ${remaining} left</span></div></div>`:`<p class="account-usage-unknown">${knownConfirmed?confirmed+' receipt-confirmed uses · use limit unknown':promo.usageEvidenceConflict?'Receipt count needs review':'Receipt-confirmed usage unknown'}</p>`;
       const history=activity.history.length||activity.verificationConflict?`<details class="account-action-history" data-disclosure-key="history-${e(key)}"><summary>Saved action history${financeIcon('chevron-down')}</summary>${activity.verificationConflict?`<p role="status">${e(activity.verificationConflict)}</p><button data-review-evidence="${e(key)}"${promo.reviewReasons?.includes('ambiguous_receipt_match')?' disabled':''}>Accept current confirmed count</button>`:''}<ol>${activity.history.map(event=>`<li>${e(({manually_finished:'Marked finished manually',manual_finish_undone:'Manual finish undone',completion_verified:'Completion verified from receipts',evidence_reviewed:'Evidence reviewed',offer_terms_corrected:'Source terms corrected'})[event.type]||'Manual action')} · ${e(formatEvidenceTime(event.at)||'Date unknown')}</li>`).join('')}</ol></details>`:'';
       const row=(icon,label,helper,attribute,disabled=false,kind='')=>`<button class="account-manage-row ${kind}" ${attribute}${disabled?' disabled':''}>${financeIcon(icon)}<span><strong>${label}</strong><small>${helper}</small></span></button>`;
-      return `<details class="offer-card account-detail-offer${historic?' past-offer':''}" data-offer-key="${e(key)}"${historic?` data-history-key="${e(key)}"`:''}${open?' open':''}><summary class="account-offer-toggle">${financeIcon('promo-tag')}<span class="account-offer-heading"><span class="account-offer-titleline"><strong class="offer-name">${e(promo.discountType==='percent'?promoLabel(promo):accountOfferTitle(promo))}</strong>${accountCalculator?.promoKey===key?'<span class="account-selected-badge">Selected</span>':''}</span><small class="offer-details">${e(subtitle)}</small><small class="compact-offer-expiry">${e(historic?accountHistoricalMeta(promo,lifecycle):minimum+' · '+accountOfferExpiry(promo))}</small></span>${financeIcon('chevron-down')}</summary><div class="account-offer-body">${lifecycle.bucket!=='available'&&lifecycle.bucket!=='partial'?`<span class="account-offer-state">${e(lifecycle.status)}</span>`:''}<div class="account-offer-meta"><span class="account-offer-expiry" tabindex="0" aria-label="${e(accountOfferDeadline(promo))}" title="${e(accountOfferDeadline(promo))}">${financeIcon('menu-calendar')}${e(accountOfferExpiry(promo))}</span><details class="offer-terms" data-disclosure-key="terms-${e(key)}"><summary><span>More terms</span>${financeIcon('chevron-down')}</summary><div class="disclosure-body"><dl class="terms-grid">${terms}</dl><p class="sheet-help">Eligibility and remaining uses require confirmation in Uber.</p></div></details></div>${progress}${pending?`<p class="account-manual-usage">${pending+' manual '+(pending===1?'use':'uses')}</p>`:''}${accountReceiptMarkup(promo)}<div class="account-offer-actions"><button class="account-record-use" data-use-one="${e(key)}"${disabled?' disabled':''}>${financeIcon('plus')}Record use</button><button class="account-manage-toggle" aria-label="Manage offer" data-manage-toggle="${e(key)}" aria-expanded="false" aria-controls="manage-${e(key)}">${financeIcon('more')}Manage${financeIcon('chevron-down')}</button><div class="manage-offer" id="manage-${e(key)}" data-disclosure-key="manage-${e(key)}" hidden>${row('undo','Undo manual use','Remove the latest manual entry',`data-undo-use="${e(key)}"`,pending<=0||promo.usageEvidenceUnavailable||promo.usageEvidenceConflict)}${row('ignored',activity.ignored?'Restore offer':'Ignore offer',activity.ignored?'Restore this offer to recommendations':'Exclude from recommendations',`data-toggle-ignore="${e(key)}" data-ignore="${!activity.ignored}"`,false,'warning')}${row('history',activity.forceDone?'Reopen offer':lifecycle.consumed?'Completed · verified':'Mark finished manually',activity.forceDone?'Remove manual finish':'Keep as manually finished, not verified',`data-mark-offer-done="${e(key)}" data-done="${!activity.forceDone}"`,lifecycle.consumed&&!activity.forceDone,'danger')}<p class="account-manage-footer">Applies to this offer only.</p>${history}</div></div></div></details>`;
+      return `<details class="offer-card account-detail-offer${historic?' past-offer':''}" data-offer-key="${e(key)}"${historic?` data-history-key="${e(key)}"`:''}${open?' open':''}><summary class="account-offer-toggle">${financeIcon('promo-tag')}<span class="account-offer-heading"><span class="account-offer-titleline"><strong class="offer-name">${e(promo.discountType==='percent'?promoLabel(promo):accountOfferTitle(promo))}</strong>${accountCalculator?.promoKey===key?'<span class="account-selected-badge">Selected</span>':''}</span><small class="offer-details">${e(subtitle)}</small><small class="compact-offer-expiry">${e(historic?accountHistoricalMeta(promo,lifecycle):minimum+' · '+accountOfferExpiry(promo))}</small></span>${historic?`<span class="history-record-status ${e(lifecycle.bucket==='ignored'?'ignored':lifecycle.consumed?'completed':isExpired(promo)?'expired':'other')}">${historyCategoryIcon(lifecycle.bucket==='ignored'?'ignored':lifecycle.consumed?'completed':isExpired(promo)?'expired':'other')}<span>${e(lifecycle.bucket==='ignored'?'Ignored':lifecycle.consumed?'Completed':isExpired(promo)?'Expired':lifecycle.bucket==='manual'?'Manually finished':'History')}</span></span>`:''}${financeIcon('chevron-down')}</summary><div class="account-offer-body">${lifecycle.bucket!=='available'&&lifecycle.bucket!=='partial'?`<span class="account-offer-state">${e(lifecycle.status)}</span>`:''}<div class="account-offer-meta"><span class="account-offer-expiry" tabindex="0" aria-label="${e(accountOfferDeadline(promo))}" title="${e(accountOfferDeadline(promo))}">${financeIcon('menu-calendar')}${e(accountOfferExpiry(promo))}</span><details class="offer-terms" data-disclosure-key="terms-${e(key)}"><summary><span>More terms</span>${financeIcon('chevron-down')}</summary><div class="disclosure-body"><dl class="terms-grid">${terms}</dl><p class="sheet-help">Eligibility and remaining uses require confirmation in Uber.</p></div></details></div>${progress}${pending?`<p class="account-manual-usage">${pending+' manual '+(pending===1?'use':'uses')}</p>`:''}${accountReceiptMarkup(promo)}<div class="account-offer-actions"><button class="account-record-use" data-use-one="${e(key)}"${disabled?' disabled':''}>${financeIcon('plus')}Record use</button><button class="account-manage-toggle" aria-label="Manage offer" data-manage-toggle="${e(key)}" aria-expanded="false" aria-controls="manage-${e(key)}">${financeIcon('more')}Manage${financeIcon('chevron-down')}</button><div class="manage-offer" id="manage-${e(key)}" data-disclosure-key="manage-${e(key)}" hidden>${row('undo','Undo manual use','Remove the latest manual entry',`data-undo-use="${e(key)}"`,pending<=0||promo.usageEvidenceUnavailable||promo.usageEvidenceConflict)}${row('ignored',activity.ignored?'Restore offer':'Ignore offer',activity.ignored?'Restore this offer to recommendations':'Exclude from recommendations',`data-toggle-ignore="${e(key)}" data-ignore="${!activity.ignored}"`,false,'warning')}${row('history',activity.forceDone?'Reopen offer':lifecycle.consumed?'Completed · verified':'Mark finished manually',activity.forceDone?'Remove manual finish':'Keep as manually finished, not verified',`data-mark-offer-done="${e(key)}" data-done="${!activity.forceDone}"`,lifecycle.consumed&&!activity.forceDone,'danger')}<p class="account-manage-footer">Applies to this offer only.</p>${history}</div></div></div></details>`;
     }
     function accountCalculatorMarkup(context,planner=false){
       const e=escapeHtml,ref=context.accountRef,items=allPromosForAccount(ref).filter(p=>p.discountType!=='uberCash'),cash=accountCashState(ref,context.promoKey),id=planner?'plannerAccountPromo':'accountCalcPromo';
@@ -3940,11 +3930,11 @@
     const accountReceiptChildStates=new Map();
     let plannerAccountOriginEntry=null;
     function accountDisclosureSnapshot(receiptId=null){
-      const host=document.getElementById('sheetBody');return {accountRef:openAccountRef,calculator:accountCalculator?{...accountCalculator}:null,receiptId,historyLimit:accountHistoryLimit,receiptLimits:[...accountReceiptLimits],scroll:host.scrollTop,expanded:[...host.querySelectorAll('details[open],div.manage-offer:not([hidden])')].map(el=>el.dataset.offerKey||el.dataset.disclosureKey||el.id).filter(Boolean)};
+      const host=document.getElementById('sheetBody');return {accountRef:openAccountRef,calculator:accountCalculator?{...accountCalculator}:null,receiptId,historyLimit:accountHistoryLimit,receiptLimits:[...accountReceiptLimits],scroll:host.scrollTop,expanded:[...host.querySelectorAll('details[open],div.manage-offer:not([hidden]),.account-management[data-expanded="true"]')].map(el=>el.dataset.offerKey||el.dataset.disclosureKey||el.id).filter(Boolean)};
     }
     function restoreAccountDisclosureState(saved){
       const host=document.getElementById('sheetBody'),keys=new Set(saved.expanded||[]);
-      for(const el of host.querySelectorAll('details,div.manage-offer')){if(!keys.has(el.dataset.offerKey||el.dataset.disclosureKey||el.id))continue;if(el.matches('div.manage-offer')){el.hidden=false;el.setAttribute('open','');el.closest('.account-offer-actions').querySelector('[data-manage-toggle]')?.setAttribute('aria-expanded','true');}else el.open=true;}
+      for(const el of host.querySelectorAll('details,div.manage-offer,.account-management')){if(!keys.has(el.dataset.offerKey||el.dataset.disclosureKey||el.id))continue;if(el.matches('.account-management'))setAccountManagementOpen(el,true);else if(el.matches('div.manage-offer')){el.hidden=false;el.setAttribute('open','');el.closest('.account-offer-actions').querySelector('[data-manage-toggle]')?.setAttribute('aria-expanded','true');}else el.open=true;}
       host.scrollTop=saved.scroll||0;if(saved.receiptId)host.querySelector('[data-account-receipt="'+CSS.escape(saved.receiptId)+'"]')?.focus({preventScroll:true});
     }
     function openAccountReceipt(receiptId=null,offerKey=null){
@@ -3973,15 +3963,16 @@
     });
 
     function accountCashTerms(grant) { return [Number(grant.minimumSpend)>0?money(grant.minimumSpend)+' eligible minimum':null,grant.excludesFees?'Fees excluded':null,grant.restrictions?.stacking==='no_other_promotions'?'Cannot combine with other promotions':null].filter(Boolean).join(' · '); }
-    function accountCreditRecord(g) {
+    function accountCreditRecord(g, historic=false) {
         const e=escapeHtml,source=g.offers[0],state=({expired:'Expired '+(formatDate(g.expiresAt)||''),exhausted:'Exhausted',needs_checking:'Needs checking',estimated:'Estimated remaining'})[g.status]||'Needs checking';
         const details=[g.issuedAt?'Email '+formatEvidenceTime(g.issuedAt):'Original date unavailable',g.expiresAt?'Expiry '+formatEvidenceTime(g.expiresAt):'Expiry not established',g.recordedUsed==null?'Recorded spending not established':g.recordedUsed>0?money(g.recordedUsed)+' recorded credit used':'No credit spending recorded',g.status==='expired'?'Expired credit is unavailable; this does not establish how much was spent.':null,g.allocation==='inferred_from_receipts'?'Credit allocation estimated from receipts.':null,source?.cashTerms?.duration?source.cashTerms.duration+' '+source.cashTerms.unit+' from '+(source.cashTerms.anchor==='original_email'?'the original email':source.cashTerms.anchor==='activation'?'application to the account · application date unknown':'the stated anchor'):null,accountCashTerms(g),!source?'Source evidence is unavailable in this import.':source.sourceEvidenceStatus==='missing'?'Original source needs review.':'Source: original email. Detailed email evidence stays on your Mac.'].filter(Boolean);
         const activity=source?manualActivity(manualStore,source):null,key=source?promoStateKey(source):String(g.issuedAt)+'-'+g.issued;
         const manage=source?`<details class="account-credit-manage" data-disclosure-key="cash-manage-${e(key)}"><summary>Manage credit record${financeIcon('chevron-down')}</summary><div class="account-manual-controls"><button class="action-btn" data-use-one="${e(key)}"${source.canLogin!==true||!isPromoActive(source)||useCountNeedsReview(source)?' disabled':''}>Record use</button><button class="action-btn" data-undo-use="${e(key)}"${pendingManualUses(manualStore,source)>0?'':' disabled'}>Undo manual use</button><button class="action-btn warning" data-toggle-ignore="${e(key)}" data-ignore="${!activity.ignored}">${activity.ignored?'Restore record':'Ignore record'}</button><button class="action-btn danger" data-mark-offer-done="${e(key)}" data-done="${!activity.forceDone}">${activity.forceDone?'Reopen record':'Mark finished manually'}</button></div></details>`:'';
-        return `<details class="cash-source-record" data-disclosure-key="cash-source-${e(key)}" data-credit-offers="${e(JSON.stringify(g.offers.map(promoStateKey)))}"><summary>${financeIcon('wallet')}<span><strong>${e(money(g.issued))} credit · ${e(state)}</strong><small>${e(formatDate(g.issuedAt)||'Date unknown')}</small></span>${financeIcon('chevron-down')}</summary><div class="disclosure-body">${details.map(t=>'<p>'+e(t)+'</p>').join('')}${manage}</div></details>`;
+        const label=historic?(activity?.ignored?'Ignored':activity?.forceDone?'Manually finished':g.status==='expired'?'Expired':g.status==='exhausted'?'Exhausted':'History'):null;
+        return `<details class="cash-source-record${historic?' historical-credit':''}" data-disclosure-key="cash-source-${e(key)}" data-credit-offers="${e(JSON.stringify(g.offers.map(promoStateKey)))}"><summary>${financeIcon('wallet')}<span><strong>${e(money(g.issued))} ${historic?'account credit':'credit · '+e(state)}</strong><small>${e(historic?['Credited '+(formatDate(g.issuedAt)||'date unknown'),g.status==='expired'?'Expired '+(formatDate(g.expiresAt)||'date unknown'):null].filter(Boolean).join(' · '):formatDate(g.issuedAt)||'Date unknown')}</small></span>${historic?`<span class="history-record-status ${activity?.ignored?'ignored':g.status==='expired'?'expired':'other'}">${historyCategoryIcon(activity?.ignored?'ignored':g.status==='expired'?'expired':'exhausted')}<span>${e(label)}</span></span>`:''}${financeIcon('chevron-down')}</summary><div class="disclosure-body">${details.map(t=>'<p>'+e(t)+'</p>').join('')}${manage}</div></details>`;
     }
     function accountCreditHistory(account,cashItems,standalone=false) {
-      const e=escapeHtml,grants=cashCreditHistory(account,cashItems).filter(g=>!['expired','exhausted'].includes(g.status)),check=privateWallets[account.accountRef];
+      const e=escapeHtml,grants=cashCreditHistory(account,cashItems).filter(g=>!['expired','exhausted'].includes(g.status)&&!g.offers.some(p=>{const state=getOfferManualState(manualStore,p);return state.ignored||state.forceDone;})),check=privateWallets[account.accountRef];
       if(!grants.length&&!check)return '';
       const checked=check?`<details class="cash-source-record" data-disclosure-key="cash-balance-check"><summary>${financeIcon('history')}<span><strong>Balance check</strong><small>${e(formatDate(check.at))}</small></span>${financeIcon('chevron-down')}</summary><div class="disclosure-body"><p>${e(cashMoney(check.balance))} verified · ${e(formatEvidenceTime(check.at))}</p><p>${check.stacking==='unsupported'?'Cannot combine with promos':check.stacking==='supported'?'Promo compatibility verified':'Promo compatibility not verified'}</p></div></details>`:'';
       return `<details class="account-credit-history" data-credit-history data-disclosure-key="cash-evidence"><summary>${financeIcon('history')}<span>Credit history</span><small>${grants.length} credits</small>${financeIcon('chevron-down')}</summary><div class="credit-history-list">${checked}${grants.map(accountCreditRecord).join('')}${!grants.length?'<p class="sheet-help">Credit emails are unavailable in this import.</p>':''}</div></details>${standalone?`<button class="account-sheet-link" data-open-sheet="finance" data-finance-target="cash" data-finance-account="${e(account.accountRef)}">${financeIcon('lock')}<span>Update balance</span>${financeIcon('chevron-right')}</button>`:''}`;
@@ -4001,24 +3992,54 @@
       document.getElementById('sheetBody').replaceChildren();
       accountCalculator=restore?.calculator||initialiseAccountCalculator(accountRef,offerKey);
       accountReceiptLimits.clear();for(const [key,limit] of restore?.receiptLimits||[])accountReceiptLimits.set(key,limit);
+      if(!restore)accountHistorySelections.delete(accountRef);
       openSheetType='account'; openAccountRef=accountRef; accountHistoryLimit=restore?.historyLimit||30; accountOfferToOpen=offerKey;
       setSheetHeading('Account details','');
       renderAccountSheet();showSheet();if(restore)restoreAccountDisclosureState(restore);
       if(window.history.state?.trackerSheet==='account')window.history.replaceState({...window.history.state,trackerOffer:offerKey},'');
     }
-    function accountHistoryMarkup(groups,expanded){
-      const e=escapeHtml,total=groups.reduce((n,g)=>n+g.records.length,0);if(!total)return '';
-      const records=groups.flatMap(g=>g.records),selected=records.find(r=>r.kind==='promo'?(promoStateKey(r.promo)===accountOfferToOpen||expanded.has(promoStateKey(r.promo))):r.grant.offers.some(p=>promoStateKey(p)===accountOfferToOpen));
-      const allowed=[];for(let i=0;allowed.length<Math.min(accountHistoryLimit,records.length);i++){for(const group of groups){if(group.records[i]&&allowed.length<accountHistoryLimit)allowed.push(group.records[i]);}}if(selected&&!allowed.includes(selected)){allowed.pop();allowed.push(selected);}
-      const shown=new Set(allowed.map(r=>r.key));
-      const order=['completed','expired','ignored','manual','exhausted','other'],legend=groups.filter(g=>order.slice(0,3).includes(g.key)).sort((a,b)=>order.indexOf(a.key)-order.indexOf(b.key));
-      const icon=key=>financeIcon(({completed:'check-circle',expired:'clock',ignored:'ignored',manual:'history',exhausted:'wallet'})[key]||'info');
-      return `<details id="accountOfferHistory" class="offer-history"${expanded.has('accountOfferHistory')||selected?' open':''}><summary><span class="account-history-title">${financeIcon('clock')}<span>Past, completed &amp; ignored offers · ${total.toLocaleString('en-GB')}</span>${financeIcon('chevron-down')}</span><span class="account-history-legend">${legend.map(g=>`<span class="history-key ${g.key}">${icon(g.key)}<span>${g.label}</span><strong>${g.records.length.toLocaleString('en-GB')}</strong></span>`).join('')}</span></summary><div class="account-history-groups">${groups.filter(g=>g.records.length).map(g=>`<section class="account-history-group ${g.key}" aria-label="${e(g.label)}"><h3>${icon(g.key)}<span>${g.label}</span><span>· ${g.records.length.toLocaleString('en-GB')}</span></h3>${g.records.filter(r=>shown.has(r.key)).map(r=>r.kind==='cash'?accountCreditRecord(r.grant):offerSheetCard(r.promo,{historic:true,open:expanded.has(promoStateKey(r.promo))||promoStateKey(r.promo)===accountOfferToOpen})).join('')}${!g.records.some(r=>shown.has(r.key))?'<p class="sheet-help">Load more to view these records.</p>':''}</section>`).join('')}${records.length>allowed.length?`<button class="ghost-btn" data-more-account-history="true">Show ${Math.min(30,records.length-allowed.length)} more · ${allowed.length} of ${records.length}</button>`:''}</div></details>`;
+    const accountHistorySelections = new Map(), accountHistoryModels = new Map();
+    const historyCategoryOrder = ['completed','expired','ignored','manual','exhausted','other'];
+    function historyCategoryIcon(key) { return financeIcon(({completed:'check-circle',expired:'clock',ignored:'ignored',manual:'history',exhausted:'wallet'})[key] || 'info'); }
+    function accountHistoryControls(groups, category) {
+      const e=escapeHtml;
+      const buttons=groups.filter(g=>historyCategoryOrder.slice(0,3).includes(g.key)).sort((a,b)=>historyCategoryOrder.indexOf(a.key)-historyCategoryOrder.indexOf(b.key));
+      const tab=g=>`<button type="button" class="history-tab ${g.key}" id="history-tab-${g.key}" role="tab" aria-selected="${g.key===category}" aria-controls="accountHistoryResults" tabindex="${g.key===category?'0':'-1'}" data-history-category="${g.key}">${historyCategoryIcon(g.key)}<span>${e(g.label)}</span>${historyCategoryOrder.indexOf(g.key)<3?`<strong>${g.records.length.toLocaleString('en-GB')}</strong>`:''}</button>`;
+      const other=groups.filter(g=>!buttons.includes(g)&&g.records.length);
+      return `<div class="account-history-tabs" role="tablist" aria-label="Historical offer status">${buttons.map(tab).join('')}${other.map(tab).join('')}</div>`;
     }
+    function accountHistoryResults(groups, category, expanded=new Set()) {
+      const e=escapeHtml,group=groups.find(g=>g.key===category)||groups[0],records=group.records;
+      const selected=records.find(r=>r.kind==='promo'?promoStateKey(r.promo)===accountOfferToOpen:r.grant.offers.some(p=>promoStateKey(p)===accountOfferToOpen));
+      const shown=records.slice(0,accountHistoryLimit);if(selected&&!shown.includes(selected)){shown.pop();shown.push(selected);}
+      return `<h3 class="account-history-label">Offers history</h3><section id="accountHistoryResults" role="tabpanel" aria-labelledby="history-tab-${e(group.key)}" class="account-history-group ${e(group.key)}" aria-label="${e(group.label)}"><h3>${historyCategoryIcon(group.key)}<span>${e(group.label)}</span></h3>${shown.map(r=>r.kind==='cash'?accountCreditRecord(r.grant,true):offerSheetCard(r.promo,{historic:true,open:expanded.has(promoStateKey(r.promo))||promoStateKey(r.promo)===accountOfferToOpen})).join('')}${!records.length?`<p class="account-history-empty">No ${e(group.label.toLowerCase())} offers.</p>`:''}</section>${records.length>shown.length?`<button type="button" class="ghost-btn" data-more-account-history="true">Show ${Math.min(30,records.length-shown.length)} more · ${shown.length} of ${records.length}</button>`:''}`;
+    }
+    function accountHistoryMarkup(groups, expanded, activeExpanded=new Set()) {
+      const total=groups.reduce((n,g)=>n+g.records.length,0);if(!total)return '';
+      accountHistoryModels.set(openAccountRef,groups);
+      const originating=groups.find(g=>g.records.some(r=>r.kind==='promo'?(promoStateKey(r.promo)===accountOfferToOpen||activeExpanded.has(promoStateKey(r.promo))):r.grant.offers.some(p=>promoStateKey(p)===accountOfferToOpen)));
+      const first=groups.find(g=>g.records.length)?.key||'completed';
+      const category=originating?.key||accountHistorySelections.get(openAccountRef)||first;
+      accountHistorySelections.set(openAccountRef,category);
+      const legend=groups.filter(g=>historyCategoryOrder.slice(0,3).includes(g.key)).sort((a,b)=>historyCategoryOrder.indexOf(a.key)-historyCategoryOrder.indexOf(b.key));
+      return `<details id="accountOfferHistory" class="offer-history"${expanded.has('accountOfferHistory')||originating?' open':''}><summary><span class="account-history-title">${financeIcon('clock')}<span>Past, completed &amp; ignored offers</span>${financeIcon('chevron-down')}</span><span class="account-history-legend">${legend.map(g=>`<span class="history-key ${g.key}">${historyCategoryIcon(g.key)}<span>${g.label}</span><strong>${g.records.length.toLocaleString('en-GB')}</strong></span>`).join('')}</span></summary><div class="account-history-groups">${accountHistoryControls(groups,category)}<div class="account-history-results">${accountHistoryResults(groups,category,expanded)}</div></div></details>`;
+    }
+    function chooseAccountHistoryCategory(category, focus=false) {
+      const groups=accountHistoryModels.get(openAccountRef),history=document.getElementById('accountOfferHistory');if(!groups||!history||!groups.some(g=>g.key===category))return;
+      const scroll=document.getElementById('sheetBody').scrollTop;
+      accountHistorySelections.set(openAccountRef,category);accountHistoryLimit=30;
+      history.querySelector('.account-history-results').innerHTML=accountHistoryResults(groups,category);
+      for(const button of history.querySelectorAll('[data-history-category]')){const selected=button.dataset.historyCategory===category;button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;}
+      if(focus)history.querySelector('[data-history-category="'+category+'"]')?.focus({preventScroll:true});
+      document.getElementById('sheetBody').scrollTop=scroll;
+    }
+    document.addEventListener('click',event=>{const tab=event.target.closest('[data-history-category]');if(tab)chooseAccountHistoryCategory(tab.dataset.historyCategory,true);});
+    document.addEventListener('keydown',event=>{const tab=event.target.closest('[data-history-category]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const tabs=[...tab.closest('[role="tablist"]').querySelectorAll('[role="tab"]')],index=tabs.indexOf(tab),next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;chooseAccountHistoryCategory(tabs[next].dataset.historyCategory,true);});
     const historyMotions=new WeakMap();
     function toggleAccountHistory(event){
       const summary=event.target.closest('#accountOfferHistory > summary');if(!summary)return false;event.preventDefault();
       const details=summary.parentElement,content=details.querySelector('.account-history-groups'),previous=historyMotions.get(details),opening=previous? !previous.opening:!details.open;
+      if(opening&&!details.open){const first=accountHistoryModels.get(openAccountRef)?.find(g=>g.records.length);if(first)chooseAccountHistoryCategory(first.key);}
       const from=details.open?content.getBoundingClientRect().height:0,scroll=document.getElementById('sheetBody').scrollTop;
       previous?.animation.cancel();historyMotions.delete(details);content.style.overflow='';
       if(motionReduced()||!content.animate){details.open=opening;document.getElementById('sheetBody').scrollTop=scroll;return true;}
@@ -4030,13 +4051,90 @@
     function accountSheetClockKey() {
       return allPromosForAccount(openAccountRef).map(p=>promoStateKey(p)+'|'+offerCountdown(p)).join(';');
     }
+    const accountNoteDrafts = new Map();
+    function accountNoteValue(store, account) {
+      const record = accountManualRecord(store, account);
+      if (typeof record.note === 'string') return record.note;
+      const imported = financeVault.data?.accounts.find(row => row.accountRef === account.accountRef);
+      return [imported?.notes, imported?.note, account.notes, account.note].find(value => typeof value === 'string') || '';
+    }
+    function accountManagementMarkup(account) {
+      const e = escapeHtml, note = accountNoteValue(manualStore, account), draft = accountNoteDrafts.get(account.accountRef);
+      const methods = [...new Set((Array.isArray(account.loginMethods) ? account.loginMethods : account.loginMethod === 'Both' ? ['iCloud','Google'] : [account.loginMethod]).filter(value => ['iCloud','Google'].includes(value)))];
+      const access = account.canLogin === true && account.accessStatus !== 'pending' ? 'Can log in' : account.canLogin === false ? 'Can’t log in' : 'Not recorded';
+      const archived = accountArchived(currentAccountState(account)), deactivated = account.deactivated || account.accountStatus === 'deactivated';
+      return `<section class="account-management" data-disclosure-key="manage-account" data-expanded="false"><h3><button type="button" class="account-management-toggle" id="accountManagementToggle" data-account-management-toggle aria-expanded="false" aria-controls="accountManagementBody">${financeIcon('menu-sliders')}<span>Manage account</span>${financeIcon('chevron-down')}</button></h3><div id="accountManagementBody" class="account-management-body" hidden>
+        <dl class="account-record-summary"><div><dt>Login access</dt><dd class="account-record-access${access === 'Can log in' ? ' positive' : ''}">${access === 'Can log in' ? '<span class="status-dot" aria-hidden="true"></span>' : ''}${e(access)}</dd></div><div><dt>Login method</dt><dd class="account-record-methods">${methods.length ? methods.map(method => `<span>${financeIcon(method === 'iCloud' ? 'cloud' : 'google')}${method}</span>`).join('') : 'Not recorded'}</dd></div></dl>
+        <p class="account-record-source">From your account records.</p><div class="account-note-heading"><h4>Notes</h4>${!draft ? '<button type="button" class="account-management-action" data-account-note-edit="true">Edit</button>' : ''}</div>
+        ${draft ? `<form data-account-note-form><label class="sr-only" for="accountNote">Account notes</label><textarea id="accountNote" rows="3" maxlength="10000">${e(draft.value)}</textarea><div class="account-note-actions"><button type="submit" data-account-note-save="true" class="account-management-action">Save</button><button type="button" class="account-management-action secondary" data-account-note-cancel="true">Cancel</button></div></form>` : `<p class="account-saved-note${note.trim() ? '' : ' is-empty'}">${note.trim() ? e(note) : 'No notes'}</p>`}
+        <p class="account-management-feedback" role="status" aria-live="polite" hidden></p><div class="account-archive-row">${financeIcon('archive')}<div><span>${archived ? 'Archived account' : 'Archive account'}</span><small>Keeps receipts and history.</small></div><button type="button" class="account-management-action" data-account-archive="${!archived}"${deactivated ? ' disabled' : ''}>${archived ? 'Unarchive' : 'Archive'}</button></div>
+      </div></section>`;
+    }
+    const accountManagementMotions = new WeakMap();
+    function setAccountManagementOpen(panel, open, animate=false) {
+      const body=panel.querySelector('.account-management-body'),prior=accountManagementMotions.get(panel),from=body.hidden?0:body.getBoundingClientRect().height;
+      prior?.cancel();accountManagementMotions.delete(panel);body.style.overflow='';
+      panel.dataset.expanded = String(open);
+      panel.querySelector('[data-account-management-toggle]').setAttribute('aria-expanded', String(open));
+      if(!open&&body.contains(document.activeElement))panel.querySelector('[data-account-management-toggle]').focus({preventScroll:true});
+      body.inert=!open;
+      if(!animate||motionReduced()||!body.animate){body.hidden=!open;return;}
+      body.hidden=false;body.style.overflow='hidden';
+      const duration=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--motion-fast'))||180;
+      const animation=body.animate([{height:from+'px',opacity:open ? .65 : 1},{height:(open?body.scrollHeight:0)+'px',opacity:open?1:.65}],{duration,easing:'ease-out'});
+      accountManagementMotions.set(panel,animation);
+      animation.onfinish=()=>{if(accountManagementMotions.get(panel)!==animation)return;body.hidden=!open;body.style.overflow='';accountManagementMotions.delete(panel);};
+    }
+    function renderAccountManagement(focusId = null) {
+      const panel = document.querySelector('.account-management'), account = accounts.find(row => row.accountRef === openAccountRef);
+      if (!panel || !account) return;
+      const open = panel.dataset.expanded === 'true', scroll = document.getElementById('sheetBody').scrollTop;
+      panel.outerHTML = accountManagementMarkup(account);
+      setAccountManagementOpen(document.querySelector('.account-management'), open);
+      document.getElementById('sheetBody').scrollTop = scroll;
+      document.querySelector(focusId || '[data-account-note-edit]')?.focus({preventScroll:true});
+    }
+    function commitAccountManagement(patch) {
+      const account = accounts.find(row => row.accountRef === openAccountRef); if (!account) return false;
+      try {
+        // Merge the latest offer/account decisions, rather than replacing another
+        // tab's unrelated edits with this sheet's older copy.
+        const raw = localStorage.getItem(STATE_KEY), latest = raw ? normaliseManualStore(JSON.parse(raw)) : normaliseManualStore();
+        const draft = accountNoteDrafts.get(account.accountRef);
+        if ('note' in patch && draft && accountNoteValue(latest, account) !== draft.base) throw Error('Notes changed in another tab. Cancel to see the latest note.');
+        const next = saveAccountManualRecord(latest, account, patch);
+        localStorage.setItem(STATE_KEY, JSON.stringify(next)); manualStore = next;
+        if ('note' in patch) accountNoteDrafts.delete(account.accountRef);
+        invalidateAccountProjection(); renderAll(); renderAccountSheet();
+        const focus = 'note' in patch ? '[data-account-note-edit]' : '[data-account-archive]';
+        document.querySelector(focus)?.focus({preventScroll:true});
+        const feedback = document.querySelector('.account-management-feedback');
+        feedback.hidden = false; feedback.textContent = 'note' in patch ? 'Notes saved.' : patch.archived ? 'Account archived.' : 'Account unarchived.';
+        return true;
+      } catch (error) {
+        const feedback = document.querySelector('.account-management-feedback');
+        feedback.hidden = false; feedback.textContent = /another tab/.test(error.message) ? error.message : 'Couldn’t save. Your changes are still here. Try again.';
+        return false;
+      }
+    }
+    document.addEventListener('click', event => {
+      const panel = event.target.closest('.account-management'); if (!panel) return;
+      if (event.target.closest('[data-account-management-toggle]')) { setAccountManagementOpen(panel, panel.dataset.expanded !== 'true',true); return; }
+      const account = accounts.find(row => row.accountRef === openAccountRef); if (!account) return;
+      if (event.target.closest('[data-account-note-edit]')) { const note = accountNoteValue(manualStore, account); accountNoteDrafts.set(account.accountRef, {value:note, base:note}); renderAccountManagement('#accountNote'); return; }
+      if (event.target.closest('[data-account-note-cancel]')) { accountNoteDrafts.delete(account.accountRef); renderAccountManagement(); return; }
+      const archive = event.target.closest('[data-account-archive]'); if (archive && !archive.disabled) commitAccountManagement({archived:archive.dataset.accountArchive === 'true'});
+    });
+    document.addEventListener('input', event => { if (event.target.id === 'accountNote') { const draft = accountNoteDrafts.get(openAccountRef); if (draft) draft.value = event.target.value; } });
+    document.addEventListener('submit', event => { if (event.target.matches('[data-account-note-form]')) { event.preventDefault(); commitAccountManagement({note:document.getElementById('accountNote').value}); } });
     function renderAccountSheet() {
       if(!openAccountRef)return;
       const account=accounts.find(a=>a.accountRef===openAccountRef);if(!account)return;
       setSheetHeading('Account details','');
       const host=document.getElementById('sheetBody'),previous=host.querySelector('[data-account-sheet="'+CSS.escape(account.accountRef)+'"]');
       const scroll=previous?host.scrollTop:0,focusKey=previous&&document.activeElement?.dataset,focusId=previous&&document.activeElement?.id;
-      const expanded=new Set(previous?[...host.querySelectorAll('details[open],div.manage-offer:not([hidden])')].map(e=>e.dataset.offerKey||e.dataset.disclosureKey||e.id).filter(Boolean):[]);
+      const expanded=new Set(previous?[...host.querySelectorAll('details[open],div.manage-offer:not([hidden]),.account-management[data-expanded="true"]')].map(e=>e.dataset.offerKey||e.dataset.disclosureKey||e.id).filter(Boolean):[]);
+      const activeExpanded=new Set(previous?[...host.querySelectorAll('.offers-section details[data-offer-key][open]')].map(el=>el.dataset.offerKey):[]);
       const items=allPromosForAccount(openAccountRef).slice().sort((a,b)=>String(b.emailSentAt||'').localeCompare(String(a.emailSentAt||'')));
       const promosOnly=items.filter(p=>p.discountType!=='uberCash'),cashItems=items.filter(p=>p.discountType==='uberCash');
       const liveItems=promosOnly.filter(isPromoActive),reviewItems=promosOnly.filter(p=>!isExpired(p)&&promotionActivity(manualStore,p).bucket==='needs_checking');
@@ -4054,7 +4152,7 @@
       const access=account.canLogin===true?'Can log in':account.canLogin===false?'Can’t log in':'Access pending';
       accountSheetClock=accountSheetClockKey();
       const calc=accountCalculator?.accountRef===account.accountRef?accountCalculator:(accountCalculator=initialiseAccountCalculator(account.accountRef,accountOfferToOpen));
-      host.innerHTML=`<div data-account-sheet="${escapeHtml(account.accountRef)}"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">${accountProviderIcon(account)}</span><div class="account-identity-copy"><div class="account-sheet-email">${escapeHtml(accountDisplay(account))}</div><div class="account-login-route">${escapeHtml(loginRouteText(account))}</div></div><span class="account-login-badge${account.canLogin===true?' positive':''}"><span class="status-dot"></span>${escapeHtml(access)}</span></div><div class="account-sheet-actions">${deviceEmail(deviceAccounts,account)?`<button class="account-secondary" data-copy-email="${escapeHtml(account.accountRef)}">${financeIcon('copy')}Copy email</button>`:`<button class="account-secondary" data-copy-import="true">${financeIcon('copy')}Copy email</button>`}<button class="account-primary" data-use-this-account="${escapeHtml(account.accountRef)}"${currentAccountState(account).recommendationEligible?'':' disabled'}>${financeIcon('external')}Use this account</button></div>${receiptMet?`<details class="account-rule-note" data-disclosure-key="receipt-rule"><summary>${financeIcon('check-circle')}Account receipt rule met${financeIcon('chevron-down')}</summary><p>${escapeHtml(receiptHistoryText(account))}. Offers can still be available. Login access and offer completion are independent.</p></details>`:''}</section>${receiptReviewAction(account)}<section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>${summaryCount}</span></div>${!liveItems.length?'<p class="account-no-offers">No currently eligible promos.'+(cashEntry?' Cash has its own balance state.':'')+'</p>':''}${liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}${currentCash?cashEntry:''}${liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}</section>${reviewItems.length||cashEntry&&!currentCash?`<section class="account-review-offers"><h3>Needs checking</h3>${!currentCash?cashEntry:''}${reviewItems.map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):accountOfferToOpen===promoStateKey(p)})).join('')}</section>`:''}${!cashEntry?accountCreditHistory(account,cashItems,true):''}${accountHistoryMarkup(historyGroups,expanded)}${!cashEntry&&cashItems.length?`<button class="account-sheet-link" data-open-sheet="finance" data-finance-target="cash" data-finance-account="${escapeHtml(account.accountRef)}">${financeIcon('lock')}<span>Update balance</span>${financeIcon('chevron-right')}</button>`:''}<section class="account-calculator"><div class="account-calculator-panel"><h3>Calculate with</h3>${accountCalculatorMarkup(calc)}</div></section><details class="account-management" data-disclosure-key="manage-account"><summary>${financeIcon('menu-sliders')}<span>Manage account</span>${financeIcon('chevron-right')}</summary><div class="disclosure-body"><p>${escapeHtml(access)} · ${escapeHtml(accountArchived(account)?'Archived account':'Active account')}. Login access, archive status and offer completion are independent.</p><button class="account-sheet-link" data-open-sheet="device">${financeIcon('shield')}<span>Private account import &amp; login information</span>${financeIcon('chevron-right')}</button><button class="account-sheet-link" data-open-sheet="finance" data-finance-account="${escapeHtml(account.accountRef)}">${financeIcon('lock')}<span>Private corrections, notes &amp; history</span>${financeIcon('chevron-right')}</button><button class="account-sheet-link" data-open-guide="accounts">${financeIcon('help')}<span>Account management guide</span>${financeIcon('chevron-right')}</button>${Number(account.sourceReviewCount)>0?`<p>${Number(account.sourceReviewCount)} original receipt sources need verification.</p>`:''}</div></details></div>`;
+      host.innerHTML=`<div data-account-sheet="${escapeHtml(account.accountRef)}"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">${accountProviderIcon(account)}</span><div class="account-identity-copy"><div class="account-sheet-email">${escapeHtml(accountDisplay(account))}</div><div class="account-login-route">${escapeHtml(loginRouteText(account))}</div></div><span class="account-login-badge${account.canLogin===true?' positive':''}"><span class="status-dot"></span>${escapeHtml(access)}</span></div><div class="account-sheet-actions">${deviceEmail(deviceAccounts,account)?`<button class="account-secondary" data-copy-email="${escapeHtml(account.accountRef)}">${financeIcon('copy')}Copy email</button>`:`<button class="account-secondary" data-copy-import="true">${financeIcon('copy')}Copy email</button>`}<button class="account-primary" data-use-this-account="${escapeHtml(account.accountRef)}"${currentAccountState(account).recommendationEligible?'':' disabled'}>${financeIcon('external')}Use this account</button></div>${receiptMet?`<details class="account-rule-note" data-disclosure-key="receipt-rule"><summary>${financeIcon('check-circle')}Account receipt rule met${financeIcon('chevron-down')}</summary><p>${escapeHtml(receiptHistoryText(account))}. Offers can still be available. Login access and offer completion are independent.</p></details>`:''}</section>${receiptReviewAction(account)}<section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>${summaryCount}</span></div>${!liveItems.length?'<p class="account-no-offers">No currently eligible promos.'+(cashEntry?' Cash has its own balance state.':'')+'</p>':''}${liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}${currentCash?cashEntry:''}${liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}</section>${reviewItems.length||cashEntry&&!currentCash?`<section class="account-review-offers"><h3>Needs checking</h3>${!currentCash?cashEntry:''}${reviewItems.map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):accountOfferToOpen===promoStateKey(p)})).join('')}</section>`:''}${!cashEntry?accountCreditHistory(account,cashItems,true):''}${accountHistoryMarkup(historyGroups,expanded,activeExpanded)}${!cashEntry&&cashItems.length?`<button class="account-sheet-link" data-open-sheet="finance" data-finance-target="cash" data-finance-account="${escapeHtml(account.accountRef)}">${financeIcon('lock')}<span>Update balance</span>${financeIcon('chevron-right')}</button>`:''}<section class="account-calculator"><div class="account-calculator-panel"><h3>Calculate with</h3>${accountCalculatorMarkup(calc)}</div></section>${accountManagementMarkup(account)}</div>`;
       if(previous){restoreAccountDisclosureState({expanded:[...expanded],scroll});}
       if(accountOfferToOpen){
         const credit=[...host.querySelectorAll('[data-credit-offers]')].find(row=>JSON.parse(row.dataset.creditOffers).includes(accountOfferToOpen));
@@ -4063,7 +4161,7 @@
       }else if(!previous&&!liveItems.length&&currentCash){const row=host.querySelector('[data-cash-entry]');if(row)row.open=true;}
       if(window.history.state?.trackerSheet==='account')window.history.replaceState({...window.history.state,trackerOffer:accountOfferToOpen||window.history.state.trackerOffer},'');
       accountOfferToOpen=null;
-      if(['accountCalcPromo','accountCalcCash'].includes(focusId))document.getElementById(focusId)?.focus({preventScroll:true});
+      if(['accountCalcPromo','accountCalcCash','accountNote'].includes(focusId))document.getElementById(focusId)?.focus({preventScroll:true});
       if(focusKey){for(const name of ['useOne','undoUse','toggleIgnore','markOfferDone'])if(focusKey[name])host.querySelector('[data-'+name.replace(/[A-Z]/g,c=>'-'+c.toLowerCase())+'="'+CSS.escape(focusKey[name])+'"]')?.focus({preventScroll:true});}
     }
 
@@ -4108,8 +4206,8 @@
     }
 
     function renderLockedSheet() {
-      const locked = accounts
-        .filter(account => !account.canLogin)
+      const locked = accounts.map(currentAccountState)
+        .filter(accountArchived)
         .sort((a, b) => String(b.lastSeenAt || "").localeCompare(String(a.lastSeenAt || "")));
 
       setSheetHeading("Archived accounts", locked.length + " accounts are excluded from recommendations but kept for receipt and savings history.");
@@ -4126,7 +4224,7 @@
       if (!target) return;
 
       const term = String(search || "").trim().toLowerCase();
-      const list = accounts
+      const list = accounts.map(currentAccountState)
         .filter(accountArchived)
         .filter(account => !term || String(accountDisplay(account)).toLowerCase().includes(term));
 
@@ -4245,7 +4343,7 @@
           '<div class="insight"><div class="insight-label">Total accounts</div><div class="insight-value">' + accounts.length.toLocaleString("en-GB") + '</div></div>' +
           '<div class="insight"><div class="insight-label">Can log in</div><div class="insight-value">' + accounts.filter(a=>a.canLogin).length.toLocaleString("en-GB") + '</div></div>' +
           '<div class="insight"><div class="insight-label">Accounts available</div><div class="insight-value">' + eligibleAccountCounts(enrichedAccounts()).available.toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Archived</div><div class="insight-value">' + accounts.filter(accountArchived).length.toLocaleString("en-GB") + '</div></div>' +
+          '<div class="insight"><div class="insight-label">Archived</div><div class="insight-value">' + accounts.map(currentAccountState).filter(accountArchived).length.toLocaleString("en-GB") + '</div></div>' +
           '<div class="insight"><div class="insight-label">Tracked receipts</div><div class="insight-value">' + Number(Number(summary.trackedOrders||0)+Number(summary.trackedRides||0)).toLocaleString("en-GB") + '</div></div>' +
           '<div class="insight"><div class="insight-label">Deactivated · part of Archived</div><div class="insight-value">' + Number(summary.deactivatedAccounts||0) + '</div></div>' +
         '</div></div>' +
