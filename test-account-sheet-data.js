@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {validateOfferReceiptLinks,mergeOfferReceiptLinks,offerMatchedReceipts,plannerAccountChoices} from './account-sheet-data.js';
+import {validateOfferReceiptLinks,mergeOfferReceiptLinks,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
 import {validateFinanceData,PrivateFinanceVault} from './private-finance-vault.js';
 import {assertPublicSnapshot} from './public-snapshot.js';
 const receipt=(id,accountRef='A1',orderAt='2026-10-18T12:00:00Z',extra={})=>({receiptId:id,accountRef,orderAt,service:'Uber Eats',total:4,...extra});
@@ -29,3 +29,19 @@ console.log('✓ Account sheet: authoritative private receipt links, exact offer
  finally{fs.rmSync(dir,{recursive:true,force:true});}
  console.log('✓ Private transfer retains source-assigned receipt links with keyed public offer identities and owner-only file permissions.');
 }
+
+// A newer private transfer drives the whole usage total, not the visible slice.
+{
+ const {pendingManualUses,effectiveRemainingUses,consumeManualUse}=await import('./manual-state.js');
+ const source={id:'pub_a',accountRef:'A1',discountType:'fixed',discount:12,uses:5,usesVerified:true,usesRemaining:5,receiptConfirmedUses:0};
+ const before=JSON.stringify(source),view=offerWithPrivateReceiptUses(source,data);
+ assert.equal(view.receiptConfirmedUses,3);assert.equal(view.usesRemaining,2);assert.equal(JSON.stringify(source),before);
+ const manual={version:3,offers:{pub_a:{manualUsesConsumed:4,receiptConfirmedBaseline:0}}};
+ assert.equal(pendingManualUses(manual,view),1);assert.equal(effectiveRemainingUses(manual,view),1);
+ const next=consumeManualUse(manual,view);assert.equal(pendingManualUses(next,view),2);assert.equal(effectiveRemainingUses(next,view),0);
+ assert.equal(offerWithPrivateReceiptUses(source,null),source,'Locking does not replace stored evidence with a new zero');
+ assert.equal(offerWithPrivateReceiptUses({...source,receiptConfirmedUses:null},null).receiptConfirmedUses,null);
+ assert.equal(offerWithPrivateReceiptUses({...source,uses:3,usesRemaining:3},data).trackingState,'used');
+ assert.equal(offerWithPrivateReceiptUses({...source,uses:2,usesRemaining:2},data).trackingState,'needs_checking','Conflicting private counts cannot certify completion');
+}
+console.log('✓ Newer private matches reconcile manual entries and full usage independently of receipt-list expansion; source records remain immutable.');

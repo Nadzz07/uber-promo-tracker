@@ -1,5 +1,6 @@
 import {dedupeReceipts} from './receipt-identity.js';
 import {receiptWhen} from './receipt-date.js';
+import {classifyOfferTrackingState} from './offer-state.js';
 
 // Receipt identities and link evidence stay in the encrypted private transfer.
 // Never infer an offer link from the discount amount or account alone.
@@ -26,6 +27,20 @@ export function offerMatchedReceipts(data,promo) {
   const receipts=new Map((data.receipts||[]).filter(r=>r.accountRef===promo.accountRef).map(r=>[r.receiptId,r]));
   const rows=(data.offerReceiptMatches||[]).filter(m=>m.status==='confirmed'&&m.accountRef===promo.accountRef&&ids.has(m.offerId)&&receipts.has(m.receiptId)).map(m=>({...receipts.get(m.receiptId),match:m}));
   return dedupeReceipts(rows).sort((a,b)=>String(receiptWhen(b)||'').localeCompare(String(receiptWhen(a)||''))||a.receiptId.localeCompare(b.receiptId));
+}
+// The unlocked transfer may be newer than the public snapshot. Derive a view,
+// without rewriting either source or counting an expanded list a second time.
+export function offerWithPrivateReceiptUses(promo,data) {
+  if(promo.discountType==='uberCash'||data?.receiptMatchVersion!==1||!data.offerReceiptMatches?.some(m=>m.status==='confirmed'&&m.accountRef===promo.accountRef&&[promo.id,promo.offerId].includes(m.offerId)))return promo;
+  const matched=offerMatchedReceipts(data,promo).length;
+  const published=promo.receiptConfirmedUses==null?null:Number(promo.receiptConfirmedUses);
+  if(!matched||published!=null&&matched<=published)return promo;
+  const total=Number(promo.uses),known=Number.isInteger(total)&&total>0&&promo.usesVerified===true;
+  const view={...promo,receiptConfirmedUses:matched,
+    usesRemaining:known?Math.max(0,total-matched):promo.usesRemaining,
+    receiptState:known&&matched>=total?'used':'partial'};
+  if(known&&matched>total)return {...view,receiptState:null,trackingState:'needs_checking',usageEvidenceConflict:true};
+  return {...view,...classifyOfferTrackingState(view,{reviewReasons:view.reviewReasons||[]})};
 }
 export function plannerAccountChoices(context,offers,accounts,wallets) {
   if(!context)return {offers,accounts,wallets};
