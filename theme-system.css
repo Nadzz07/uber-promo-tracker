@@ -94,3 +94,4 @@ input[role=switch]:checked { background:var(--color-toggle)!important; border-co
 :is(input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]),textarea,select,.search-input,.account-picker-trigger) { border-radius:var(--control-radius); }
 :is(.app-icon-surface,.setting-icon,.stat-icon) { background:transparent; border:0; box-shadow:none; border-radius:0; }
 .finance-hero::before,.total-saved-card::before,.insights-hero::before,.home-overview::after { content:none; }
+:root { --motion-stagger:32ms; }

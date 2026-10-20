@@ -976,7 +976,7 @@
       box-shadow: none;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
-      animation: sheetIn .22s ease-out;
+      animation: sheetIn var(--motion-normal) ease-out;
     }
 
     @keyframes sheetIn {
@@ -1838,9 +1838,9 @@
     .filter-btn { min-height: 40px; font-size: 12px; }
     .sheet { background: var(--color-panel); box-shadow: none; }
     .sheet-section-title, .offer-actions .action-btn { font-size: 12px; }
-    button { transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease; }
+    button { transition: background-color var(--motion-fast) ease, border-color var(--motion-fast) ease, transform var(--motion-fast) ease; }
     button:active { transform: scale(.98); }
-    .view.active { animation: reveal-view 180ms ease-out; }
+    .view.active { animation: reveal-view var(--motion-normal) ease-out; }
     @keyframes reveal-view { from { opacity: .4; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     @media (hover: hover) and (pointer: fine) { .quick-card:hover, .account-card:hover { border-color: var(--color-soft-accent); } }
 
@@ -2042,21 +2042,21 @@
       box-shadow: none;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
-      transition: transform 520ms cubic-bezier(.22,1,.36,1), width 520ms cubic-bezier(.22,1,.36,1), height 520ms cubic-bezier(.22,1,.36,1), opacity 180ms ease;
+      transition: transform var(--motion-fast) cubic-bezier(.22,1,.36,1), width var(--motion-fast) cubic-bezier(.22,1,.36,1), height var(--motion-fast) cubic-bezier(.22,1,.36,1), opacity var(--motion-fast) ease;
       pointer-events: none;
     }
     .nav-btn {
       position: relative;
       z-index: 1;
-      transition: color 260ms ease, transform 420ms cubic-bezier(.22,1,.36,1);
+      transition: color var(--motion-fast) ease, transform var(--motion-fast) cubic-bezier(.22,1,.36,1);
     }
     .nav-btn.active { background: transparent; box-shadow: none; }
     .nav-btn.active svg { transform: translateY(-1px) scale(1.08); }
-    .nav-btn svg { transition: transform 420ms cubic-bezier(.22,1,.36,1); }
+    .nav-btn svg { transition: transform var(--motion-fast) cubic-bezier(.22,1,.36,1); }
     .nav-btn:active { transform: scale(.94); }
 
     .view.motion-enter > * {
-      animation: liquidViewIn 520ms cubic-bezier(.22,1,.36,1) both;
+      animation: liquidViewIn var(--motion-normal) cubic-bezier(.22,1,.36,1) both;
     }
     @keyframes liquidViewIn {
       from { opacity: 0; transform: translateY(14px) scale(.992); filter: none; }
@@ -2068,7 +2068,7 @@
       visibility: hidden;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 300ms ease, visibility 0s linear 360ms;
+      transition: opacity var(--motion-fast) ease, visibility 0s linear var(--motion-fast);
     }
     .sheet-backdrop.open {
       visibility: visible;
@@ -2081,7 +2081,7 @@
       opacity: 0;
       transform: translateY(34px) scale(.965);
       filter: none;
-      transition: transform 520ms cubic-bezier(.22,1,.36,1), opacity 300ms ease, filter 360ms ease;
+      transition: transform var(--motion-fast) cubic-bezier(.22,1,.36,1), opacity var(--motion-fast) ease, filter var(--motion-fast) ease;
       will-change: transform, opacity;
     }
     .sheet-backdrop.open .sheet {
@@ -2090,7 +2090,7 @@
       filter: none;
     }
     .glass, .quick-card, .account-card, .more-card {
-      transition: transform 420ms cubic-bezier(.22,1,.36,1), border-color 240ms ease, box-shadow 420ms ease;
+      transition: transform var(--motion-fast) cubic-bezier(.22,1,.36,1), border-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease;
     }
     @media (hover: hover) and (pointer: fine) {
       .quick-card:hover, .account-card:hover, .more-card:hover {
@@ -2106,7 +2106,7 @@
     }
     .nav-glider {
       transition-timing-function: var(--spring), var(--spring), var(--spring), ease;
-      transition-duration: 560ms, 560ms, 560ms, 180ms;
+      transition-duration: var(--motion-fast), var(--motion-fast), var(--motion-fast), var(--motion-fast);
     }
     button, .quick-card, .account-card, .more-card, .filter-btn, .action-btn, .sheet-close {
       -webkit-tap-highlight-color: transparent;
@@ -2117,10 +2117,10 @@
     .account-card:active,
     .more-card:active {
       transform: scale(.955);
-      transition-duration: 90ms;
+      transition-duration: var(--motion-fast);
     }
     .quick-card.active, .filter-btn.active {
-      animation: liquidSelect 440ms var(--spring);
+      animation: liquidSelect var(--motion-normal) var(--spring);
     }
     @keyframes liquidSelect {
       0% { transform: scale(.96); }
@@ -2128,14 +2128,14 @@
       100% { transform: scale(1); }
     }
     .motion-refresh {
-      animation: liquidRefresh 460ms var(--smooth-spring) both;
+      animation: liquidRefresh var(--motion-normal) var(--smooth-spring) both;
     }
     @keyframes liquidRefresh {
       from { opacity: .25; transform: translateY(9px) scale(.992); filter: none; }
       to { opacity: 1; transform: translateY(0) scale(1); filter: none; }
     }
     .motion-value {
-      animation: valueSpring 480ms var(--spring);
+      animation: valueSpring var(--motion-normal) var(--spring);
     }
     @keyframes valueSpring {
       0% { opacity: .45; transform: translateY(5px) scale(.94); }
@@ -2143,17 +2143,17 @@
       100% { opacity: 1; transform: translateY(0) scale(1); }
     }
     .scan-pill.live, .scan-pill.setup, .scan-pill.stale {
-      animation: statusArrive 520ms var(--spring);
+      animation: statusArrive var(--motion-normal) var(--spring);
     }
     @keyframes statusArrive {
       0% { opacity: .45; transform: scale(.92); }
       70% { opacity: 1; transform: scale(1.035); }
       100% { transform: scale(1); }
     }
-    .sheet-backdrop { transition: opacity 320ms ease, visibility 0s linear 560ms; }
+    .sheet-backdrop { transition: opacity var(--motion-fast) ease, visibility 0s linear var(--motion-fast); }
     .sheet-backdrop.open { transition-delay: 0s; }
     .sheet-backdrop.open .sheet {
-      animation: liquidSheetOpen 620ms var(--smooth-spring) both;
+      animation: liquidSheetOpen var(--motion-normal) var(--smooth-spring) both;
     }
     @keyframes liquidSheetOpen {
       0% { opacity: 0; transform: translateY(42px) scale(.955); filter: none; }
@@ -2162,14 +2162,14 @@
       100% { opacity: 1; transform: translateY(0) scale(1); filter: none; }
     }
     .sheet-close {
-      transition: transform 420ms var(--spring), background-color 220ms ease, border-color 220ms ease;
+      transition: transform var(--motion-fast) var(--spring), background-color var(--motion-fast) ease, border-color var(--motion-fast) ease;
     }
     .sheet-close:hover { transform: rotate(8deg) scale(1.04); }
     .filter-row, .quick-grid, .account-list, .recommendation, .activity-list, .more-grid {
       transform: translateZ(0);
     }
     .empty, .local-notice, .sync-strip {
-      transition: opacity 300ms ease, transform 420ms var(--smooth-spring);
+      transition: opacity var(--motion-fast) ease, transform var(--motion-fast) var(--smooth-spring);
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -2227,7 +2227,7 @@
     .nav-glider::after {
       content: ''; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
       box-shadow: none;
-      opacity: 0; transition: opacity 160ms ease;
+      opacity: 0; transition: opacity var(--motion-fast) ease;
     }
     .bottom-nav.dragging .nav-glider { transition: none; background: var(--color-panel); }
     .bottom-nav.dragging .nav-glider::after { opacity: 1; }

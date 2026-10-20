@@ -22,8 +22,8 @@
   --hero-surface: var(--color-selected);
   --hero-edge: color-mix(in srgb, var(--color-accent) 38.0%, transparent);
   --glass-blur: 16px;
-  --transition-fast: 160ms;
-  --transition-panel: 320ms;
+  --transition-fast: var(--motion-fast);
+  --transition-panel: var(--motion-fast);
 }
 
 
@@ -243,11 +243,11 @@ html[data-layout="desktop"] .bottom-nav {
 
 /* Short transitions preserve the glass effect without delaying navigation. */
 .sheet-backdrop.open .sheet { animation-duration: var(--transition-panel); }
-.view.motion-enter > * { animation-duration: 280ms; }
-.motion-refresh { animation-duration: 220ms; }
-.motion-value, .motion-status { animation-duration: 240ms; }
-.quick-card.active, .filter-btn.active { animation-duration: 180ms; }
-.nav-glider { transition-duration: 320ms, 320ms, 320ms, 160ms; }
+.view.motion-enter > * { animation-duration: var(--motion-normal); }
+.motion-refresh { animation-duration: var(--motion-normal); }
+.motion-value, .motion-status { animation-duration: var(--motion-normal); }
+.quick-card.active, .filter-btn.active { animation-duration: var(--motion-normal); }
+.nav-glider { transition-duration: var(--motion-fast), var(--motion-fast), var(--motion-fast), var(--motion-fast); }
 @media (hover: hover) and (pointer: fine) {
   .quick-card:hover, .account-card:hover, .more-card:hover { transform: translateY(-1px); }
 }
@@ -350,7 +350,7 @@ html[data-layout="desktop"] .bottom-nav {
 /* Natural panel heights, one disclosure, and comparable labelled chart rows. */
 .home-analytics, html[data-layout="desktop"] .home-analytics { display: block; }
 .insights-disclosure > summary { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); padding: var(--space-4) 0; min-height: 48px; color: var(--text); cursor: pointer; font-size: 14px; font-weight:600; }
-.insights-disclosure > summary::before { content: '›'; color: var(--muted); transform: rotate(0); transition: transform .18s; }
+.insights-disclosure > summary::before { content: '›'; color: var(--muted); transform: rotate(0); transition: transform var(--motion-fast); }
 .insights-disclosure[open] > summary::before { transform: rotate(90deg); }
 .insights-disclosure > summary > span:first-child { flex: 1; }
 .insights-disclosure > summary > span:last-child { color: var(--muted); font-size: 12px; font-weight: 450; text-align: right; }
@@ -492,7 +492,7 @@ html[data-layout="desktop"] .bottom-nav {
 .disclosure-card, .activity-history.disclosure-card, .used-accounts-panel.disclosure-card { padding:0; border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--surface-gradient); overflow:hidden; }
 .disclosure-card > summary, .insights-disclosure > summary, .activity-history.disclosure-card > summary { display:flex; align-items:center; gap:var(--space-3); min-height:66px; padding:var(--space-4) var(--space-5); margin:0; border: 0; border-radius: 0; background: none; color: var(--text); list-style:none; cursor:pointer; font-size:13px; }
 .disclosure-card > summary::-webkit-details-marker { display:none; }
-.disclosure-card > summary::before { content:'›'; flex:0 0 9px; font-size:21px; line-height:1; color: var(--muted); transform:rotate(0deg); transition:transform .18s ease; }
+.disclosure-card > summary::before { content:'›'; flex:0 0 9px; font-size:21px; line-height:1; color: var(--muted); transform:rotate(0deg); transition:transform var(--motion-fast) ease; }
 .disclosure-card[open] > summary::before { transform:rotate(90deg); }
 .disclosure-card > summary > span:first-of-type { flex:1; min-width:0; }
 .disclosure-card summary strong { font-weight:600; }
@@ -501,7 +501,7 @@ html[data-layout="desktop"] .bottom-nav {
 .disclosure-count { color: var(--muted); font-size:12px; font-weight:500; text-align:right; }
 .disclosure-body { padding:0 var(--space-5) var(--space-5); }
 .disclosure-card[open] > summary { margin-bottom:0; }
-.disclosure-card[open] > .disclosure-body { animation:disclosure-enter .18s ease-out; }
+.disclosure-card[open] > .disclosure-body { animation:disclosure-enter var(--motion-normal) ease-out; }
 .disclosure-body .activity-explanation { margin:0 0 var(--space-3); }
 .disclosure-body .empty { padding:var(--space-3); border-radius: var(--card-radius); background: var(--color-panel); }
 .disclosure-body.insights-panels { padding-top:var(--space-1); }
@@ -589,7 +589,7 @@ html[data-layout="desktop"] .offer-browser .quick-card .quick-sub { display:none
 /* Account offer history uses the same disclosure affordance in the detail sheet. */
 .offer-history > summary, .past-offer > summary, .weak-wrap > summary { display:flex; align-items:center; gap:var(--space-2); list-style:none; }
 .offer-history > summary::-webkit-details-marker, .past-offer > summary::-webkit-details-marker, .weak-wrap > summary::-webkit-details-marker { display:none; }
-.offer-history > summary::before, .past-offer > summary::before, .weak-wrap > summary::before { content:'›'; flex:0 0 9px; font-size:21px; line-height:1; color: var(--muted); transform:rotate(0deg); transition:transform .18s ease; }
+.offer-history > summary::before, .past-offer > summary::before, .weak-wrap > summary::before { content:'›'; flex:0 0 9px; font-size:21px; line-height:1; color: var(--muted); transform:rotate(0deg); transition:transform var(--motion-fast) ease; }
 .offer-history[open] > summary::before, .past-offer[open] > summary::before, .weak-wrap[open] > summary::before { transform:rotate(90deg); }
 .past-offer > summary > span:first-of-type { flex:1; min-width:0; }
 .offer-history > summary { min-height:50px; }
@@ -2341,7 +2341,7 @@ body:has(#view-settings.active)::before { position:fixed; inset:0 0 auto; width:
 .compact-setting-row:has(select) > select { cursor:pointer; }
 .settings-chevron { color: var(--muted); font-size:27px; line-height:1; font-weight:400; flex:0 0 10px; }
 .compact-setting-row input[type=checkbox] { appearance:none; -webkit-appearance:none; position:relative; width:52px; height:30px; min-width:52px; margin:0; border: 1px solid var(--line); border-radius: var(--card-radius); flex-shrink:0; background: var(--surface-inset); cursor:pointer; }
-.compact-setting-row input[type=checkbox]::after { content:''; position:absolute; top:3px; left:3px; width:22px; height:22px; background: var(--color-text); border-radius: 50%; box-shadow: none; transition:transform .16s ease; }
+.compact-setting-row input[type=checkbox]::after { content:''; position:absolute; top:3px; left:3px; width:22px; height:22px; background: var(--color-text); border-radius: 50%; box-shadow: none; transition:transform var(--motion-fast) ease; }
 .compact-setting-row input[type=checkbox]:checked { background: var(--green-strong); border-color: var(--green-strong); }
 .compact-setting-row input[type=checkbox]:checked::after { transform:translateX(22px); }
 .compact-setting-row:has(input:disabled) { color: var(--muted); }
@@ -2881,7 +2881,7 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 .account-management-toggle { display:flex; align-items:center; gap:var(--space-3); width:100%; min-height:54px; padding:var(--space-2) 0; border: 0; background: transparent; color: var(--text); font:inherit; text-align:left; cursor:pointer; }
 .account-management-toggle > span { flex:1; min-width:0; }
 .account-management-toggle > svg { width:22px; height:22px; flex:none; }
-.account-management-toggle > svg:last-child { width:18px; height:18px; color: var(--color-secondary); transition:transform .18s ease; }
+.account-management-toggle > svg:last-child { width:18px; height:18px; color: var(--color-secondary); transition:transform var(--motion-fast) ease; }
 .account-management[data-expanded="true"] .account-management-toggle > svg:last-child { transform:rotate(180deg); }
 .account-management-body { padding:0 0 var(--space-3); }
 .account-management-body[hidden] { display:none; }
