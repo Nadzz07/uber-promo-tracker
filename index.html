@@ -2379,7 +2379,7 @@
             </div>
             <div id="syncStrip" class="sync-strip home-sync" role="status">
               <strong>Waiting for first update</strong>
-              <span>Your private tracker will populate automatically after its first successful sync.</span>
+              <span>Accounts appear after the first successful sync.</span>
             </div>
           </div>
 
@@ -2571,13 +2571,13 @@
     document.querySelectorAll('[data-icon]').forEach(element => { element.innerHTML = financeIcon(element.dataset.icon); element.setAttribute('aria-hidden','true'); });
     document.querySelectorAll('.metric-help').forEach(button => { button.innerHTML = financeIcon('info'); });
     import {OFFER_PREFERENCES_KEY,DEFAULT_PREFERRED_PROMOS,readOfferPreferences,saveOfferPreferences,selectedOfferScope,offerScopeLabel,mainOfferChoices,matchesDiscoveryScope,plannerOffersForScope,hasCurrentCash,isPreferredPromo} from "./offer-preferences.js";
-    import {currentCashPosition} from "./cash-ledger.js";
+    import {currentCashPosition,cashCreditHistory,cashCalculationState} from "./cash-ledger.js";
     import {openOfferCatalogue,createPreferredPromosEditor} from "./preference-picker.js";
     import {ACTIVITY_STATUSES,buildUsedActivity,activityResults} from "./used-activity.js";
     import { offerTitle, useCountNeedsReview, effectiveDiscountPercent } from "./offer-details.js";
     import { THEME_KEY, DEFAULT_COLOUR, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
     import { offerFinishedReason, offerClosureLabel, classifyOfferCompletion } from "./offer-state.js";
-    import {offerMatchedReceipts,plannerAccountChoices} from './account-sheet-data.js';
+    import {offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
     import { createLiquidNavigation } from "./liquid-glass.js";
     import { setupDraggableNavigation } from "./nav-gestures.js";
     import { DEVICE_ACCOUNTS_KEY, parseDeviceAccounts, deviceEmail } from "./device-accounts.js";
@@ -2597,6 +2597,7 @@
       effectivePromoState,
       effectiveRemainingUses,
        manualActivity,
+      getOfferManualState,
       normaliseManualStore,
       migratePrivateOfferIds,
       hasUnmigratedPrivateOfferState,
@@ -2989,8 +2990,17 @@
       return current;
     }
 
+    const privateReceiptViews=new Map();
+    function receiptAwarePromo(promo){
+      if(!promo)return null;
+      const key=promoStateKey(promo);if(privateReceiptViews.has(key))return privateReceiptViews.get(key);
+      let view=offerWithPrivateReceiptUses(promo,financeSession?.vault?.data);
+      const state=getOfferManualState(manualStore,promo),baseline=Math.max(Number(state.receiptConfirmedBaseline||0),Number(state.lastEvidenceCount||0));
+      if(privateFinanceEvidenceLocked()&&baseline>Number(promo.receiptConfirmedUses||0))view={...promo,receiptConfirmedUses:null,trackingState:'needs_checking',usageEvidenceLocked:true};
+      privateReceiptViews.set(key,view);return view;
+    }
     function allPromosForAccount(accountRef) {
-      return accountPromoIndex.get(accountRef) || [];
+      return (accountPromoIndex.get(accountRef)||[]).map(receiptAwarePromo);
     }
 
     function rebuildAccountIndex() {
@@ -3004,6 +3014,7 @@
     }
 
     function invalidateAccountProjection() {
+      privateReceiptViews.clear();
       accountStateMemo.clear();
       activePromoMemo.clear();
       enrichedMemo = null;
@@ -3185,7 +3196,7 @@
 
       if (waitingForFirstSync) {
         pill.classList.add("setup");
-        syncStrip.innerHTML = "<strong>Waiting for first update</strong><span>Your private tracker will populate automatically after its first successful sync.</span>";
+        syncStrip.innerHTML = "<strong>Waiting for first update</strong><span>Accounts appear after the first successful sync.</span>";
         label.textContent = "READY";
         time.textContent = "Waiting for first update";
         syncStrip.style.display = "flex";
@@ -3333,7 +3344,7 @@
           (plan.cashUsed > 0 ? ' − Cash ' + escapeHtml(plannerMoney(plan.cashUsed)) : '') +
           ' + ' + (plan.checkoutFees != null ? 'recorded fees ' : 'fee estimate ') + escapeHtml(plannerMoney(plan.checkoutFees ?? plan.extraFees)) + '</p>' +
           '<button class="plan-select" data-select-plan="' + escapeHtml(plan.key) + '">View accounts for this plan <span aria-hidden="true">›</span></button></article>').join('') : '<p>No other eligible ordering strategy fits this basket.</p>') + '</div></details>' +
-        (selected.conditional ? '<p class="plan-conditional-note">Cash + promo compatibility needs confirmation in Uber. The estimated payment depends on that combination being accepted.</p>' : '') +
+        (selected.conditional ? '<p class="plan-conditional-note">Estimated payment assumes Uber accepts Cash with this promo.</p>' : '') +
         (Object.keys(privateWallets).length ? '<button class="planner-matching-action" data-open-sheet="finance" data-finance-target="cash">Update private Cash balances <span aria-hidden="true">›</span></button>' : '');
       target.querySelector('#plannerOtherOptions').addEventListener('toggle', event => { otherOptionsOpen = event.target.open; });
     }
@@ -3487,9 +3498,9 @@
 
       document.getElementById("accountsKicker").textContent = names[currentIntent];
       document.getElementById("homeAccountMeta").textContent = all.length + (all.length === 1 ? ' account' : ' accounts');
-      const help = { best: 'Best for your basket · confirm eligibility in Uber.', '15off15': 'Full-value offers with a £15 minimum spend.', '12off15': '£12 off £15 · before fees.', cash: 'Estimated or privately verified remaining Cash.', unfinished: 'Started promotions with uses remaining.', 'cash-promo': 'Positive remaining Cash and an available promo on the same account. Compatibility needs confirmation.' };
+      const help = { best: 'Estimate for this basket.', '15off15': 'Full-value offers with a £15 minimum spend.', '12off15': '£12 off £15 · before fees.', cash: 'Estimated or privately verified remaining Cash.', unfinished: 'Started promotions with uses remaining.', 'cash-promo': 'Positive remaining Cash and an available promo on the same account. Compatibility needs confirmation.' };
       document.getElementById('homeAccountsTitle').textContent = 'Best matches';
-      document.getElementById('homeResultsHelp').textContent = (help[currentIntent]||'Match actual discount and minimum-spend terms.') + (currentOfferScope === 'ready' ? ' Ready to use only.' : ' Eligibility is separate from login and archive status. Check the access label before using an account.') + ' Remaining uses are not confirmed redeemed; confirm availability in Uber.';
+      document.getElementById('homeResultsHelp').textContent = (help[currentIntent]||'Match actual discount and minimum-spend terms.') + (currentOfferScope === 'ready' ? ' Ready to use only.' : ' Check login access before use.') + ' Confirm availability in Uber.';
       document.getElementById('resetQuickFind').hidden = accountTypeFilter==='all'&&currentIntent!=='unfinished';
       document.querySelectorAll('[data-intent]').forEach(button => {
         const selected = button.dataset.intent === currentIntent && (currentIntent!=='best'||accountTypeFilter==='preferred');
@@ -3541,7 +3552,7 @@
       const wallet=account.cashPosition;
       const walletLabel=wallet?.status==='verified'?'Manually verified':wallet?.status==='verified_reconciled'?'Estimated since verification':'Estimated remaining';
       const status=account.canLogin===true&&account.accessStatus!=='pending'?'Can log in':account.canLogin===false?'Can’t log in':'Access pending';
-      const extra=selected&&Number(selected.uses)>1?'<small class="directory-use-limit">'+confirmedUses(selected)+'/'+Number(selected.uses)+' confirmed · '+Number(selected.usesRemaining??selected.uses)+' remaining</small>':'';
+      const extra=selected&&Number(selected.uses)>1?'<small class="directory-use-limit">'+confirmedUses(selected)+'/'+Number(selected.uses)+' confirmed · Up to '+Number(selected.usesRemaining??selected.uses)+' left</small>':'';
       return '<article class="account-card directory-card" data-card-account="'+escapeHtml(account.accountRef)+'"><button class="directory-account-head" data-account-offers="'+escapeHtml(account.accountRef)+'" data-account-offer="'+escapeHtml(selected?.id||(accountTypeFilter==='cash'?'cash':''))+'" aria-label="View account '+escapeHtml(accountDisplay(account))+'"><span class="directory-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="directory-identity"><span class="account-email">'+escapeHtml(accountDisplay(account))+'</span><span class="account-login-route">'+escapeHtml(loginRouteText(account))+'</span></span><span class="account-access-pill '+(status==='Can log in'?'positive':'')+'">'+escapeHtml(status)+'</span><span class="directory-chevron" aria-hidden="true">›</span></button>'+
         (selected?'<div class="directory-offer-row">'+financeIcon('tag')+'<div><strong>'+escapeHtml(directoryOffer(selected))+'</strong>'+extra+(selected.discountType==='percent'&&(selected.perUseCap??selected.maxSaving)!=null?'<small>Up to '+escapeHtml(money(selected.perUseCap??selected.maxSaving))+' per order</small>':'')+'</div></div>':'')+
         (hasCurrentCash(account)?'<div class="directory-offer-row directory-cash">'+financeIcon('wallet')+'<div><span>Uber Cash '+escapeHtml(money(wallet.remaining))+'</span><span class="directory-wallet-status">'+financeIcon('info')+escapeHtml(walletLabel)+'</span></div></div><p class="directory-cash-help">'+(selected?'Check Cash and promo compatibility in Uber.':wallet?.status==='verified'?'Balance checked privately in Uber.':'Estimate from issued Cash and recorded usage.')+'</p>':'')+
@@ -3612,7 +3623,7 @@
     let usedActivityCache=null;
     function renderUsed() {
       const rows=enrichedAccounts();
-      if(!usedActivityCache||usedActivityCache.clock!==projectionClock||usedActivityCache.manual!==manualStore||usedActivityCache.data!==payload||usedActivityCache.privateData!==financeSession?.vault?.data)usedActivityCache={clock:projectionClock,manual:manualStore,data:payload,privateData:financeSession?.vault?.data,model:buildUsedActivity(rows,promos,manualStore,receiptReviewCount)};
+      if(!usedActivityCache||usedActivityCache.clock!==projectionClock||usedActivityCache.manual!==manualStore||usedActivityCache.data!==payload||usedActivityCache.privateData!==financeSession?.vault?.data)usedActivityCache={clock:projectionClock,manual:manualStore,data:payload,privateData:financeSession?.vault?.data,model:buildUsedActivity(rows,promos.map(receiptAwarePromo),manualStore,receiptReviewCount)};
       const model=usedActivityCache.model;
       for(const [id,value]of Object.entries({usedAccountCount:model.summary.used,needsCheckCount:model.summary.needs_checking,expiredCount:model.summary.expired,usedQuickCount:model.summary.used,usedReviewQuickCount:model.summary.needs_checking}))document.getElementById(id).textContent=value.toLocaleString('en-GB');
       const categories=[...ACTIVITY_STATUSES,{key:'expired',label:'Expired offers · all',entity:'promotions'}];
@@ -3637,7 +3648,7 @@
     const metricExplanations = {
       'Total Accounts':['accounts','Every tracked account, including archived, deactivated and pending accounts.'],
       'Available Offers':['accounts','Accounts with an eligible current promotion, regardless of login or archive status. Each account counts once. Fully used accounts can still qualify; expired, ignored, manually finished and completed offers do not.'],
-      'Ready to Use':['accounts','Ready to use means eligible, confirmed login access and not archived. Needs attention means eligible but archived, inaccessible or pending. Remaining uses are not confirmed redeemed, rather than confirmed unused. Confirm actual availability in Uber.'],
+      'Ready to Use':['accounts','Ready to use: an eligible offer, confirmed login and active account. Needs attention: archived or login unconfirmed. Remaining uses are estimates; check in Uber.'],
       'Accessible':['accounts','Accounts confirmed as usable for login. This is separate from usage and archive status.'],
       'Archived':['accounts','Outside active rotation. An archived account can still be accessible.'],
       usage:['accounts','Accounts with Eats + Ride receipts, or at least five Eats receipts. Lime counts as Ride. This does not complete individual promotions.'],
@@ -3868,12 +3879,16 @@
     let accountCalculator=null,plannerAccountContext=null,accountReceiptReturn=null;
     const accountReceiptLimits=new Map();
     const cashMoney=value=>value==null?'Unknown':'£'+fractionalMoney.format(value);
+    function privateFinanceEvidenceLocked(){
+      if(financeSession?.vault?.data)return false;
+      try{return Boolean(financeSession?.vault?.hasSaved()||localStorage.getItem('uber-tracker-finance-encrypted-v1'));}catch{return false;}
+    }
     function accountCashState(ref,promoKey=null){
       const wallet=enrichedAccounts().find(a=>a.accountRef===ref)?.cashPosition;
       const promo=promoKey?promoByKey(promoKey):null;
-      const positive=wallet?.remaining!=null&&Number(wallet.remaining)>0&&['estimated','verified','verified_reconciled'].includes(wallet.status);
-      const restricted=Boolean(promo&&(wallet?.stacking==='unsupported'||promo.restrictions?.stacking==='no_other_promotions'));
-      return {wallet,usable:positive&&!restricted,description:restricted?'Cash cannot be combined with this promo.':wallet?.status==='expired'?'Cash expired':wallet?.status==='exhausted'?'Cash exhausted':wallet?.remaining==null?'Balance needs checking':positive?cashMoney(wallet.remaining)+' '+(['verified','verified_reconciled'].includes(wallet.status)?'verified balance':'estimated remaining'):'No current Cash balance'};
+      const state=cashCalculationState(wallet,promo);
+      if(!state.usable&&['No available Uber Cash','Balance needs checking'].includes(state.reason)&&privateFinanceEvidenceLocked())state.reason='Unlock private balance';
+      return {wallet,...state,description:state.usable?cashMoney(wallet.remaining)+' '+(wallet.status==='verified'?'verified':'estimated')+(state.reason?' · Compatibility unverified':' balance'):state.reason};
     }
     function initialiseAccountCalculator(accountRef,offerKey=null){
       const live=allPromosForAccount(accountRef).filter(p=>p.discountType!=='uberCash'&&isPromoActive(p));
@@ -3882,31 +3897,32 @@
       const promoKey=cashOnly?null:selected?promoStateKey(selected):null;
       return {accountRef,promoKey,includeCash:accountCashState(accountRef,promoKey).usable};
     }
+    function receiptUsageLocked(promo){return promo.usageEvidenceLocked||privateFinanceEvidenceLocked()&&(promo.receiptConfirmedUses==null||Number(promo.receiptConfirmedUses)===0);}
     function accountReceiptMarkup(promo){
       const key=promoStateKey(promo),data=financeSession?.vault?.data,rows=offerMatchedReceipts(data,promo),limit=accountReceiptLimits.get(key)||1,e=escapeHtml;
-      if(!data||data.receiptMatchVersion!==1)return `<section class="account-matching-receipts" data-match-key="${e(key)}"><h4>Matching receipts</h4><button class="account-receipts-private" data-account-receipts-unlock="${e(key)}">${financeIcon('lock')}<span>${data?'Import updated private receipt evidence':'Unlock private receipts'}</span>${financeIcon('chevron-right')}</button></section>`;
+      if(!data||data.receiptMatchVersion!==1)return `<section class="account-matching-receipts is-locked" aria-label="Matching receipts" data-match-key="${e(key)}"><button class="account-receipts-private" data-account-receipts-unlock="${e(key)}">${financeIcon('lock')}<span>${data?'Import updated private receipt evidence':receiptUsageLocked(promo)?'Unlock receipts to check usage':'Unlock private receipts'}</span>${financeIcon('chevron-right')}</button></section>`;
       return `<section class="account-matching-receipts" data-match-key="${e(key)}"><h4>Matching receipts${rows.length?' ('+rows.length+')':''}</h4>${rows.length?`<div class="account-receipt-list">${rows.slice(0,limit).map(r=>`<button class="account-receipt-row" data-account-receipt="${e(r.receiptId)}" data-receipt-offer="${e(key)}">${financeIcon('receipt')}<span>${e(formatDate(r.orderAt||r.orderDate||r.sentAt||r.receivedAt)||'Date unknown')} · ${e(r.match.observedSaving!=null?money(r.match.observedSaving)+' promo confirmed':'Promo use confirmed')}</span>${financeIcon('chevron-right')}</button>`).join('')}</div>`:`<p class="account-receipt-empty">${promo.reviewReasons?.includes('ambiguous_receipt_match')?'Receipt matching is unresolved. No receipt is assigned to this offer.':'No matching receipts recorded for this offer.'}</p>`}${rows.length>1?`<button class="account-receipt-toggle" data-receipt-list="${e(key)}" aria-expanded="${limit>1}"><span>${limit>1?'Show latest only':'Show all '+rows.length+' receipts'}</span>${financeIcon(limit>1?'chevron-up':'chevron-down')}</button>`:''}${limit>1&&rows.length>limit?`<button class="account-receipt-more" data-more-matched-receipts="${e(key)}">Show ${Math.min(20,rows.length-limit)} more · ${limit} of ${rows.length}</button>`:''}</section>`;
     }
     function offerSheetCard(promo,{open=false,historic=false}={}){
       const e=escapeHtml,key=promoStateKey(promo),total=Number(promo.uses);
       const knownLimit=Number.isInteger(total)&&total>0&&!useCountNeedsReview(promo)&&(promo.usesVerified===true||promo.evidence?.usesBasis==='explicit_offer_terms');
-      const knownConfirmed=promo.receiptConfirmedUses!=null&&Number.isInteger(Number(promo.receiptConfirmedUses))&&Number(promo.receiptConfirmedUses)>=0;
+      const knownConfirmed=!promo.usageEvidenceConflict&&!promo.usageEvidenceLocked&&!(privateFinanceEvidenceLocked()&&Number(promo.receiptConfirmedUses)===0)&&promo.receiptConfirmedUses!=null&&Number.isInteger(Number(promo.receiptConfirmedUses))&&Number(promo.receiptConfirmedUses)>=0;
       const confirmed=knownConfirmed?Number(promo.receiptConfirmedUses):null,pending=pendingManualUses(manualStore,promo),activity=manualActivity(manualStore,promo),remaining=effectiveRemainingUses(manualStore,promo),lifecycle=promotionActivity(manualStore,promo);
-      const disabled=promo.canLogin!==true||remaining<=0||promo.trackingState==='needs_checking'||useCountNeedsReview(promo)||activity.ignored||effectivePromoState(manualStore,promo)==='used'||isExpired(promo);
+      const disabled=promo.usageEvidenceLocked||promo.canLogin!==true||remaining<=0||promo.trackingState==='needs_checking'||useCountNeedsReview(promo)||activity.ignored||effectivePromoState(manualStore,promo)==='used'||isExpired(promo);
       const minimum=promo.minimumSpend==null||accountOfferKey(promo)?.endsWith(':unknown')?'Minimum spend unknown':Number(promo.minimumSpend)>0?money(promo.minimumSpend)+' minimum':'No minimum spend';
       const subtitle=[minimum,knownLimit?'Up to '+total+(total===1?' order':' orders'):'Use limit unknown',promo.discountType==='percent'&&(promo.perUseCap??promo.maxSaving)!=null?'Max. '+money(promo.perUseCap??promo.maxSaving)+' per order':null].filter(Boolean).join(' · ');
       const term=(label,value)=>`<div><dt>${e(label)}</dt><dd>${e(value)}</dd></div>`;
       const terms=term('Original offer',offerTitle(promo))+term('Minimum',minimum)+term('Limit',knownLimit?total+' orders stated in the offer':'Unknown')+term('Cap',promo.perUseCap!=null?money(promo.perUseCap)+' per use':promo.maxSaving!=null?money(promo.maxSaving):promo.discountType==='fixed'?money(promo.discount)+' fixed discount':'Not stated')+term('Order type',promo.restrictions?.fulfilment==='pickup_only'?'Pickup only':'Delivery only')+term('Activation',promo.restrictions?.promoCodeRequired?'Apply promo code in Uber':'Confirm in Uber')+(promo.restrictions?.merchantLimited?term('Merchants','Selected merchants · confirm in Uber'): '')+(promo.restrictions?.stacking==='no_other_promotions'?term('Combining','No other promotions'):'')+(promo.restrictions?.excludesFees?term('Minimum excludes','Delivery and other fees'):'')+(promo.restrictions?.excludesAlcoholTobacco?term('Excluded','Alcohol and tobacco baskets'):'')+term('Expiry basis',promo.expiryStatus==='estimated'?'Estimated date · confirm in Uber':expiryEndTime(promo)!=null?'Explicit deadline from offer evidence':'Expiry unknown')+(effectiveDiscountPercent(promo,currentBasket())!=null?term('Calculated',effectiveDiscountPercent(promo,currentBasket())+'% at '+money(currentBasket())+' before fees'):'')+term('Original email',formatEvidenceTime(promo.firstEmailSentAt||promo.emailSentAt)||'Source date unavailable')+term('Source evidence',promo.sourceEvidenceStatus==='missing'?'Missing · needs checking':promo.termsVerification==='email_verified'?'Verified from the original email':'Terms need checking');
-      const progress=knownLimit&&knownConfirmed?`<div class="use-progress"><div class="progress-track" role="progressbar" aria-label="Receipt-confirmed uses" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${Math.min(confirmed,total)}" aria-valuetext="${confirmed} of ${total} uses confirmed"><div class="progress-fill" style="width:${Math.min(100,confirmed/total*100)}%"></div></div><div class="use-line"><span>${confirmed} of ${total} uses confirmed</span><span>Up to ${remaining} left</span></div></div>`:`<p class="account-usage-unknown">${knownConfirmed?confirmed+' receipt-confirmed uses · use limit unknown':'Receipt-confirmed usage unknown'}</p>`;
+      const progress=receiptUsageLocked(promo)?'':knownLimit&&knownConfirmed?`<div class="use-progress"><div class="progress-track" role="progressbar" aria-label="Receipt-confirmed uses" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${Math.min(confirmed,total)}" aria-valuetext="${confirmed} of ${total} uses confirmed"><div class="progress-fill" style="width:${Math.min(100,confirmed/total*100)}%"></div></div><div class="use-line"><span>${confirmed} of ${total} uses receipt-confirmed</span><span>Up to ${remaining} left</span></div></div>`:`<p class="account-usage-unknown">${knownConfirmed?confirmed+' receipt-confirmed uses · use limit unknown':promo.usageEvidenceConflict?'Receipt count needs review':privateFinanceEvidenceLocked()?'Receipt evidence locked':'Receipt-confirmed usage unknown'}</p>`;
       const history=activity.history.length||activity.verificationConflict?`<details class="account-action-history" data-disclosure-key="history-${e(key)}"><summary>Saved action history${financeIcon('chevron-down')}</summary>${activity.verificationConflict?`<p role="status">${e(activity.verificationConflict)}</p><button data-review-evidence="${e(key)}"${promo.reviewReasons?.includes('ambiguous_receipt_match')?' disabled':''}>Accept current confirmed count</button>`:''}<ol>${activity.history.map(event=>`<li>${e(({manually_finished:'Marked finished manually',manual_finish_undone:'Manual finish undone',completion_verified:'Completion verified from receipts',evidence_reviewed:'Evidence reviewed',offer_terms_corrected:'Source terms corrected'})[event.type]||'Manual action')} · ${e(formatEvidenceTime(event.at)||'Date unknown')}</li>`).join('')}</ol></details>`:'';
       const row=(icon,label,helper,attribute,disabled=false,kind='')=>`<button class="account-manage-row ${kind}" ${attribute}${disabled?' disabled':''}>${financeIcon(icon)}<span><strong>${label}</strong><small>${helper}</small></span></button>`;
-      return `<details class="offer-card account-detail-offer${historic?' past-offer':''}" data-offer-key="${e(key)}"${historic?` data-history-key="${e(key)}"`:''}${open?' open':''}><summary class="account-offer-toggle">${financeIcon('promo-tag')}<span class="account-offer-heading"><span class="account-offer-titleline"><strong class="offer-name">${e(promo.discountType==='percent'?promoLabel(promo):accountOfferTitle(promo))}</strong>${accountCalculator?.promoKey===key?'<span class="account-selected-badge">Selected</span>':''}</span><small class="offer-details">${e(subtitle)}</small><small class="compact-offer-expiry">${e(minimum+' · '+accountOfferExpiry(promo))}</small></span>${financeIcon('chevron-down')}</summary><div class="account-offer-body">${lifecycle.bucket!=='available'&&lifecycle.bucket!=='partial'?`<span class="account-offer-state">${e(lifecycle.status)}</span>`:''}<div class="account-offer-meta"><span class="account-offer-expiry" tabindex="0" aria-label="${e(accountOfferDeadline(promo))}" title="${e(accountOfferDeadline(promo))}">${financeIcon('menu-calendar')}${e(accountOfferExpiry(promo))}</span><details class="offer-terms" data-disclosure-key="terms-${e(key)}"><summary><span>More terms</span>${financeIcon('chevron-down')}</summary><div class="disclosure-body"><dl class="terms-grid">${terms}</dl><p class="sheet-help">Eligibility and remaining uses require confirmation in Uber.</p></div></details></div>${progress}${pending?`<p class="account-manual-usage">${pending} additional manual ${pending===1?'entry':'entries'}</p>`:''}${accountReceiptMarkup(promo)}<div class="account-offer-actions"><button class="account-record-use" data-use-one="${e(key)}"${disabled?' disabled':''}>${financeIcon('plus')}Record use</button><button class="account-manage-toggle" aria-label="Manage offer" data-manage-toggle="${e(key)}" aria-expanded="false" aria-controls="manage-${e(key)}">${financeIcon('more')}Manage${financeIcon('chevron-down')}</button><div class="manage-offer" id="manage-${e(key)}" data-disclosure-key="manage-${e(key)}" hidden>${row('undo','Undo manual use','Remove the latest manual entry',`data-undo-use="${e(key)}"`,pending<=0)}${row('ignored',activity.ignored?'Restore offer':'Ignore offer',activity.ignored?'Restore this offer to recommendations':'Exclude from recommendations',`data-toggle-ignore="${e(key)}" data-ignore="${!activity.ignored}"`,false,'warning')}${row('history',activity.forceDone?'Reopen offer':lifecycle.consumed?'Completed · verified':'Mark finished manually',activity.forceDone?'Remove manual finish':'Keep as manually finished, not verified',`data-mark-offer-done="${e(key)}" data-done="${!activity.forceDone}"`,lifecycle.consumed&&!activity.forceDone,'danger')}<p class="account-manage-footer">Applies to this offer only.</p>${history}</div></div></div></details>`;
+      return `<details class="offer-card account-detail-offer${historic?' past-offer':''}" data-offer-key="${e(key)}"${historic?` data-history-key="${e(key)}"`:''}${open?' open':''}><summary class="account-offer-toggle">${financeIcon('promo-tag')}<span class="account-offer-heading"><span class="account-offer-titleline"><strong class="offer-name">${e(promo.discountType==='percent'?promoLabel(promo):accountOfferTitle(promo))}</strong>${accountCalculator?.promoKey===key?'<span class="account-selected-badge">Selected</span>':''}</span><small class="offer-details">${e(subtitle)}</small><small class="compact-offer-expiry">${e(minimum+' · '+accountOfferExpiry(promo))}</small></span>${financeIcon('chevron-down')}</summary><div class="account-offer-body">${lifecycle.bucket!=='available'&&lifecycle.bucket!=='partial'?`<span class="account-offer-state">${e(lifecycle.status)}</span>`:''}<div class="account-offer-meta"><span class="account-offer-expiry" tabindex="0" aria-label="${e(accountOfferDeadline(promo))}" title="${e(accountOfferDeadline(promo))}">${financeIcon('menu-calendar')}${e(accountOfferExpiry(promo))}</span><details class="offer-terms" data-disclosure-key="terms-${e(key)}"><summary><span>More terms</span>${financeIcon('chevron-down')}</summary><div class="disclosure-body"><dl class="terms-grid">${terms}</dl><p class="sheet-help">Eligibility and remaining uses require confirmation in Uber.</p></div></details></div>${progress}${pending&&!receiptUsageLocked(promo)?`<p class="account-manual-usage">${promo.usageEvidenceLocked?'Unlock receipts to reconcile manual uses':pending+' manual '+(pending===1?'use':'uses')}</p>`:''}${accountReceiptMarkup(promo)}<div class="account-offer-actions"><button class="account-record-use" data-use-one="${e(key)}"${disabled?' disabled':''}>${financeIcon('plus')}Record use</button><button class="account-manage-toggle" aria-label="Manage offer" data-manage-toggle="${e(key)}" aria-expanded="false" aria-controls="manage-${e(key)}">${financeIcon('more')}Manage${financeIcon('chevron-down')}</button><div class="manage-offer" id="manage-${e(key)}" data-disclosure-key="manage-${e(key)}" hidden>${row('undo','Undo manual use','Remove the latest manual entry',`data-undo-use="${e(key)}"`,pending<=0||promo.usageEvidenceLocked||promo.usageEvidenceConflict)}${row('ignored',activity.ignored?'Restore offer':'Ignore offer',activity.ignored?'Restore this offer to recommendations':'Exclude from recommendations',`data-toggle-ignore="${e(key)}" data-ignore="${!activity.ignored}"`,false,'warning')}${row('history',activity.forceDone?'Reopen offer':lifecycle.consumed?'Completed · verified':'Mark finished manually',activity.forceDone?'Remove manual finish':'Keep as manually finished, not verified',`data-mark-offer-done="${e(key)}" data-done="${!activity.forceDone}"`,lifecycle.consumed&&!activity.forceDone,'danger')}<p class="account-manage-footer">Applies to this offer only.</p>${history}</div></div></div></details>`;
     }
     function accountCalculatorMarkup(context,planner=false){
       const e=escapeHtml,ref=context.accountRef,items=allPromosForAccount(ref).filter(p=>p.discountType!=='uberCash'),cash=accountCashState(ref,context.promoKey),id=planner?'plannerAccountPromo':'accountCalcPromo';
       const hasCash=Number(cash.wallet?.remaining)>0,selected=items.find(p=>promoStateKey(p)===context.promoKey),validPromo=selected&&isPromoActive(selected),cashOn=context.includeCash&&cash.usable;
       const options=items.filter(p=>isPromoActive(p)||promoStateKey(p)===context.promoKey).map(p=>`<option value="${e(promoStateKey(p))}"${promoStateKey(p)===context.promoKey?' selected':''}${!isPromoActive(p)?' disabled':''}>${e(accountOfferTitle(p))}${!isPromoActive(p)?' · unavailable':''}</option>`).join('');
-      return `<div class="account-calculator-controls"><label class="account-calculator-promo" for="${id}">${financeIcon('promo-tag')}<select id="${id}" aria-label="Selected promo for calculation">${hasCash||!options?`<option value=""${!context.promoKey?' selected':''}>${hasCash?'No promo / cash only':'No available promo'}</option>`:''}${options}</select>${financeIcon('chevron-down')}</label><label class="account-calculator-cash"><span>Include Uber Cash<small>${e(cash.description)}</small></span><input id="${planner?'plannerAccountCash':'accountCalcCash'}" type="checkbox" role="switch"${cashOn?' checked':''}${!cash.usable?' disabled':''}></label></div>${planner?'':`<button class="account-calculate" data-account-calculate="true"${!accounts.find(a=>a.accountRef===ref)?.canLogin||!validPromo&&!cashOn?' disabled':''}>${financeIcon('calculator')}Calculate what I’ll pay</button><p class="account-calculator-helper">Opens Order Planner with these choices.</p>`}`;
+      return `<div class="account-calculator-controls"><label class="account-calculator-promo" for="${id}">${financeIcon('promo-tag')}<select id="${id}" aria-label="Selected promo for calculation">${hasCash||!options?`<option value=""${!context.promoKey?' selected':''}>${hasCash?'No promo / cash only':'No available promo'}</option>`:''}${options}</select>${financeIcon('chevron-down')}</label><label class="account-calculator-cash"><span>Include Uber Cash</span><input id="${planner?'plannerAccountCash':'accountCalcCash'}" type="checkbox" role="switch"${cashOn?' checked':''}${!cash.usable?' disabled':''}><small>${e(cash.description)}</small></label></div>${planner?'':`<button class="account-calculate" data-account-calculate="true"${!accounts.find(a=>a.accountRef===ref)?.canLogin||!validPromo&&!cashOn?' disabled':''}>${financeIcon('calculator')}Calculate what I’ll pay</button><p class="account-calculator-helper">Opens Order Planner with these choices.</p>`}`;
     }
 
     const accountReceiptChildStates=new Map();
@@ -3944,17 +3960,26 @@
     });
 
     function accountCashTerms(grant) { return [Number(grant.minimumSpend)>0?money(grant.minimumSpend)+' eligible minimum':null,grant.excludesFees?'Fees excluded':null,grant.restrictions?.stacking==='no_other_promotions'?'Cannot combine with other promotions':null].filter(Boolean).join(' · '); }
-    function accountCashEntry(account, cashItems) {
-      const cash = enrichedAccounts().find(a=>a.accountRef===account.accountRef)?.cashPosition;
-      if (!cashItems.length && (!cash || cash.status==='none')) return '';
-      const labels = {estimated:'Estimated remaining',verified:'Verified balance',verified_reconciled:'Reconciled from verified balance',needs_checking:'Balance needs checking',exhausted:'Exhausted',expired:'Expired',none:'Balance unknown'};
-      const status = labels[cash?.status] || 'Balance unknown';
-      const grants = [...new Map([...cashItems.map(p=>p.cashEstimate).filter(Boolean),...(account.cashSummary?.grants || [])].map(g=>[[g.issuedAt,g.issued,g.expiresAt].join('|'),g])).values()];
-      const current = grants.filter(g=>!['expired','exhausted'].includes(g.status) && Date.parse(g.expiresAt)>Date.now());
-      const end = current.length ? Math.min(...current.map(g=>Date.parse(g.expiresAt))) : null;
-      const expiry = end ? (current.length>1 || ['verified','verified_reconciled'].includes(cash?.status) ? 'Next grant: ' : '') + offerCountdown({expiresAt:new Date(end).toISOString(),expiryStatus:'exact'}) : cash?.status==='expired' ? 'Credit expired' : cash?.status==='exhausted' ? 'No recorded credit remaining' : 'Expiry unknown';
-      const balance = cash?.remaining == null || cash?.status==='none' ? 'Unknown' : cashMoney(cash.remaining);
-      return '<details class="account-cash-entry" data-cash-entry data-cash-state="'+escapeHtml(cash?.status||'needs_checking')+'" data-disclosure-key="cash"><summary>' + financeIcon('wallet') + '<span class="account-cash-copy"><span class="account-cash-title"><strong>Uber Cash</strong><span class="cash-balance-badge">Balance</span></span><small>' + escapeHtml(status + ' · ' + expiry) + '</small></span><strong class="cash-entry-balance">' + escapeHtml(balance) + '</strong>' + financeIcon('chevron-down') + '</summary><div class="account-cash-body"><p>' + escapeHtml(status) + (cash?.verifiedAt ? ' · checked ' + escapeHtml(formatEvidenceTime(cash.verifiedAt)) : '') + '.</p>' + (cash?.spentSinceVerification ? '<p>' + escapeHtml(money(cash.spentSinceVerification)) + ' recorded credit used since verification.</p>' : '') + '<details class="account-offer-action" data-disclosure-key="cash-details"><summary>' + financeIcon('info') + '<span>Cash details</span>' + financeIcon('chevron-down') + '</summary><div class="disclosure-body">' + '<p class="sheet-help">Uber Cash pays eligible charges; it is not a promo discount. Check charge coverage and promo compatibility in Uber.</p>' + (['restricted','unsupported'].includes(cash?.stacking)?'<p class="account-cash-caution">Recorded Cash terms restrict combination with other promotions.</p>':'') + (cash?.status==='needs_checking'?'<p class="account-cash-caution">Incomplete or ambiguous credit evidence. Unknown is not zero.</p>':'') + '</div></details>' + '<details class="account-offer-action" data-disclosure-key="cash-evidence"><summary>' + financeIcon('history') + '<span>Grant &amp; usage evidence</span>' + financeIcon('chevron-down') + '</summary><div class="disclosure-body">' + (grants.length ? '<ol class="cash-grant-evidence">' + grants.map(g=>'<li><strong>' + escapeHtml(money(g.issued)) + ' issued</strong><span>' + escapeHtml(formatEvidenceTime(g.issuedAt) || 'Issue date unknown') + ' · ' + escapeHtml(g.status || 'Needs checking') + '</span><span>' + (g.expiresAt ? 'Expires ' + escapeHtml(formatEvidenceTime(g.expiresAt)) : 'Expiry unknown') + '</span><span>' + (g.remaining==null?'Remaining unknown':escapeHtml(money(g.remaining))+' recorded remaining') + ' · ' + escapeHtml(g.allocation==='inferred_from_receipts'?'Allocation inferred from receipts':'Grant and recorded credit usage') + '</span>' + (accountCashTerms(g)?'<span>'+escapeHtml(accountCashTerms(g))+'</span>':'') + '</li>').join('') + '</ol>' : '<p>Grant evidence is unavailable. Verify privately in Uber.</p>') + (cashItems.length?'<p>Individual issued-credit records remain accessible below. They are not additional wallet balances. A later verified wallet balance takes precedence over grant-level estimates.</p>' + cashItems.map(p=>'<details class="account-offer-action cash-source-record" data-disclosure-key="cash-source-'+escapeHtml(promoStateKey(p))+'"><summary><span>' + escapeHtml(promoLabel(p)) + ' · ' + escapeHtml(formatDate(p.firstEmailSentAt||p.emailSentAt)||'Source date unknown') + '</span>' + financeIcon('chevron-down') + '</summary><div class="disclosure-body"><p>' + escapeHtml(promotionActivity(manualStore,p).status) + '</p><details class="manage-offer account-offer-action" data-disclosure-key="cash-manage-'+escapeHtml(promoStateKey(p))+'"><summary><span>Manage issued-credit record</span>' + financeIcon('chevron-down') + '</summary><div class="account-manual-controls"><button class="action-btn" data-use-one="'+escapeHtml(promoStateKey(p))+'"'+(p.canLogin===false||!isPromoActive(p)||useCountNeedsReview(p)?' disabled':'')+'>Record 1 use manually</button><button class="action-btn" data-undo-use="'+escapeHtml(promoStateKey(p))+'"'+(pendingManualUses(manualStore,p)>0?'':' disabled')+'>Undo manual use</button><button class="action-btn warning" data-toggle-ignore="'+escapeHtml(promoStateKey(p))+'" data-ignore="'+(!manualActivity(manualStore,p).ignored)+'">'+(manualActivity(manualStore,p).ignored?'Restore record':'Ignore record')+'</button><button class="action-btn danger" data-mark-offer-done="'+escapeHtml(promoStateKey(p))+'" data-done="'+(!manualActivity(manualStore,p).forceDone)+'">'+(manualActivity(manualStore,p).forceDone?'Undo manual finish':'Mark finished manually')+'</button></div></details></div></details>').join(''):'') + '</div></details><button class="account-sheet-link" data-open-sheet="finance" data-finance-target="cash" data-finance-account="'+escapeHtml(account.accountRef)+'">' + financeIcon('lock') + '<span>Verify or correct balance privately</span>' + financeIcon('chevron-right') + '</button></div></details>';
+    function accountCreditHistory(account,cashItems,standalone=false) {
+      const e=escapeHtml,grants=cashCreditHistory(account,cashItems),check=privateWallets[account.accountRef];
+      if(!grants.length&&!check)return '';
+      const row=g=>{
+        const source=g.offers[0],state=({expired:'Expired '+(formatDate(g.expiresAt)||''),exhausted:'Exhausted',needs_checking:'Needs checking',estimated:'Estimated remaining'})[g.status]||'Needs checking';
+        const details=[g.issuedAt?'Email '+formatEvidenceTime(g.issuedAt):'Original date unavailable',g.expiresAt?'Expiry '+formatEvidenceTime(g.expiresAt):'Expiry not established',g.recordedUsed==null?'Recorded spending not established':g.recordedUsed>0?money(g.recordedUsed)+' recorded credit used':'No credit spending recorded',g.status==='expired'?'Expired credit is unavailable; this does not establish how much was spent.':null,g.allocation==='inferred_from_receipts'?'Credit allocation estimated from receipts.':null,source?.cashTerms?.duration?source.cashTerms.duration+' '+source.cashTerms.unit+' from '+(source.cashTerms.anchor==='original_email'?'the original email':source.cashTerms.anchor==='activation'?'application to the account · application date unknown':'the stated anchor'):null,accountCashTerms(g),!source?'Source evidence is unavailable in this import.':source.sourceEvidenceStatus==='missing'?'Original source needs review.':'Source: original email. Detailed email evidence stays on your Mac.'].filter(Boolean);
+        const activity=source?manualActivity(manualStore,source):null,key=source?promoStateKey(source):String(g.issuedAt)+'-'+g.issued;
+        const manage=source?`<details class="account-credit-manage" data-disclosure-key="cash-manage-${e(key)}"><summary>Manage credit record${financeIcon('chevron-down')}</summary><div class="account-manual-controls"><button class="action-btn" data-use-one="${e(key)}"${source.canLogin!==true||!isPromoActive(source)||useCountNeedsReview(source)?' disabled':''}>Record use</button><button class="action-btn" data-undo-use="${e(key)}"${pendingManualUses(manualStore,source)>0?'':' disabled'}>Undo manual use</button><button class="action-btn warning" data-toggle-ignore="${e(key)}" data-ignore="${!activity.ignored}">${activity.ignored?'Restore record':'Ignore record'}</button><button class="action-btn danger" data-mark-offer-done="${e(key)}" data-done="${!activity.forceDone}">${activity.forceDone?'Reopen record':'Mark finished manually'}</button></div></details>`:'';
+        return `<details class="cash-source-record" data-disclosure-key="cash-source-${e(key)}" data-credit-offers="${e(JSON.stringify(g.offers.map(promoStateKey)))}"><summary>${financeIcon('wallet')}<span><strong>${e(money(g.issued))} credit · ${e(state)}</strong><small>${e(formatDate(g.issuedAt)||'Date unknown')}</small></span>${financeIcon('chevron-down')}</summary><div class="disclosure-body">${details.map(t=>'<p>'+e(t)+'</p>').join('')}${manage}</div></details>`;
+      };
+      const checked=check?`<details class="cash-source-record" data-disclosure-key="cash-balance-check"><summary>${financeIcon('history')}<span><strong>Balance check</strong><small>${e(formatDate(check.at))}</small></span>${financeIcon('chevron-down')}</summary><div class="disclosure-body"><p>${e(cashMoney(check.balance))} verified · ${e(formatEvidenceTime(check.at))}</p><p>${check.stacking==='unsupported'?'Cannot combine with promos':check.stacking==='supported'?'Promo compatibility verified':'Promo compatibility not verified'}</p></div></details>`:'';
+      return `<details class="account-credit-history" data-credit-history data-disclosure-key="cash-evidence"><summary>${financeIcon('history')}<span>Credit history</span><small>${grants.length} credits</small>${financeIcon('chevron-down')}</summary><div class="credit-history-list">${checked}${grants.map(row).join('')}${!grants.length?'<p class="sheet-help">Credit emails are unavailable in this import.</p>':''}</div></details>${standalone?`<button class="account-sheet-link" data-open-sheet="finance" data-finance-target="cash" data-finance-account="${e(account.accountRef)}">${financeIcon('lock')}<span>Update balance</span>${financeIcon('chevron-right')}</button>`:''}`;
+    }
+    function accountCashEntry(account,cashItems) {
+      const cash=enrichedAccounts().find(a=>a.accountRef===account.accountRef)?.cashPosition;
+      const positive=cashCalculationState(cash).usable,review=cash?.status==='needs_checking';
+      if(!positive&&!review)return '';
+      const e=escapeHtml,status=review?(privateFinanceEvidenceLocked()?'Private balance locked':'Cash needs checking'):cash.status==='verified'?'Verified balance':cash.status==='verified_reconciled'?'Estimated from balance check':'Estimated remaining';
+      const expiry=positive&&cash.grants?.length?offerCountdown({expiresAt:cash.grants.map(g=>g.expiresAt).filter(Boolean).sort()[0],expiryStatus:'exact'}):'';
+      return `<details class="account-cash-entry" data-cash-entry data-cash-state="${e(cash.status)}" data-disclosure-key="cash"><summary>${financeIcon('wallet')}<span class="account-cash-copy"><span class="account-cash-title"><strong>Uber Cash</strong><span class="cash-balance-badge">Balance</span></span><small>${e(status+(expiry?' · '+expiry:''))}</small></span><strong class="cash-entry-balance">${e(positive?cashMoney(cash.remaining):'Unknown')}</strong>${financeIcon('chevron-down')}</summary><div class="account-cash-body">${accountCreditHistory(account,cashItems)}<button class="account-sheet-link" data-open-sheet="finance" data-finance-target="cash" data-finance-account="${e(account.accountRef)}">${financeIcon('lock')}<span>Update balance</span>${financeIcon('chevron-right')}</button></div></details>`;
     }
 
     function openAccountSheet(accountRef, offerKey = null, restore = null) {
@@ -3989,13 +4014,14 @@
       const receiptMet=currentAccountState(account).accountUsed;
       const cashEntry=accountCashEntry(account,cashItems);
       const count=liveItems.length+reviewItems.length;
-      const summaryCount=count+' promo'+(count===1?'':'s')+(cashEntry?' + cash':'');
+      const currentCash=cashCalculationState(enrichedAccounts().find(a=>a.accountRef===account.accountRef)?.cashPosition).usable;
+      const summaryCount=count+' promo'+(count===1?'':'s')+(currentCash?' + cash':'');
       const access=account.canLogin===true?'Can log in':account.canLogin===false?'Can’t log in':'Access pending';
       accountSheetClock=accountSheetClockKey();
       const calc=accountCalculator?.accountRef===account.accountRef?accountCalculator:(accountCalculator=initialiseAccountCalculator(account.accountRef,accountOfferToOpen));
-      host.innerHTML=`<div data-account-sheet="${escapeHtml(account.accountRef)}"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">${accountProviderIcon(account)}</span><div class="account-identity-copy"><div class="account-sheet-email">${escapeHtml(accountDisplay(account))}</div><div class="account-login-route">${escapeHtml(loginRouteText(account))}</div></div><span class="account-login-badge${account.canLogin===true?' positive':''}"><span class="status-dot"></span>${escapeHtml(access)}</span></div><div class="account-sheet-actions">${deviceEmail(deviceAccounts,account)?`<button class="account-secondary" data-copy-email="${escapeHtml(account.accountRef)}">${financeIcon('copy')}Copy email</button>`:`<button class="account-secondary" data-copy-unlock="true">${financeIcon('copy')}Copy email</button>`}<button class="account-primary" data-use-this-account="${escapeHtml(account.accountRef)}"${currentAccountState(account).recommendationEligible?'':' disabled'}>${financeIcon('external')}Use this account</button></div>${receiptMet?`<details class="account-rule-note" data-disclosure-key="receipt-rule"><summary>${financeIcon('check-circle')}Account receipt rule met${financeIcon('chevron-down')}</summary><p>${escapeHtml(receiptHistoryText(account))}. Offers can still be available. Login access and offer completion are independent.</p></details>`:''}</section>${receiptReviewAction(account)}<section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>${summaryCount}</span></div>${!liveItems.length?'<p class="account-no-offers">No currently eligible promos.'+(cashEntry?' Cash has its own balance state.':'')+'</p>':''}${liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}${cashEntry}${liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}${reviewItems.map(p=>offerSheetCard(p,{open:accountOfferToOpen===promoStateKey(p)})).join('')}${historicItems.length?`<details id="accountOfferHistory" class="offer-history"${expanded.has('accountOfferHistory')||historicItems.some(p=>promoStateKey(p)===accountOfferToOpen)?' open':''}><summary>Past, completed &amp; ignored offers · ${historicItems.length}${financeIcon('chevron-down')}</summary>${historicItems.slice(0,accountHistoryLimit).map(p=>offerSheetCard(p,{historic:true,open:expanded.has(promoStateKey(p))||promoStateKey(p)===accountOfferToOpen})).join('')}${historicItems.length>accountHistoryLimit?'<button class="ghost-btn" data-more-account-history="true">Show 30 more historical offers</button>':''}</details>`:''}</section><section class="account-calculator"><h3>Calculate with</h3><div class="account-calculator-panel">${accountCalculatorMarkup(calc)}</div></section><details class="account-management" data-disclosure-key="manage-account"><summary>${financeIcon('menu-sliders')}<span>Manage account</span>${financeIcon('chevron-right')}</summary><div class="disclosure-body"><p>${escapeHtml(access)} · ${escapeHtml(accountArchived(account)?'Archived account':'Active account')}. Login access, archive status and offer completion are independent.</p><button class="account-sheet-link" data-open-sheet="device">${financeIcon('shield')}<span>Private account import &amp; login information</span>${financeIcon('chevron-right')}</button><button class="account-sheet-link" data-open-sheet="finance" data-finance-account="${escapeHtml(account.accountRef)}">${financeIcon('lock')}<span>Private corrections, notes &amp; history</span>${financeIcon('chevron-right')}</button><button class="account-sheet-link" data-open-guide="accounts">${financeIcon('help')}<span>Account management guide</span>${financeIcon('chevron-right')}</button>${Number(account.sourceReviewCount)>0?`<p>${Number(account.sourceReviewCount)} original receipt sources need verification.</p>`:''}</div></details></div>`;
+      host.innerHTML=`<div data-account-sheet="${escapeHtml(account.accountRef)}"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">${accountProviderIcon(account)}</span><div class="account-identity-copy"><div class="account-sheet-email">${escapeHtml(accountDisplay(account))}</div><div class="account-login-route">${escapeHtml(loginRouteText(account))}</div></div><span class="account-login-badge${account.canLogin===true?' positive':''}"><span class="status-dot"></span>${escapeHtml(access)}</span></div><div class="account-sheet-actions">${deviceEmail(deviceAccounts,account)?`<button class="account-secondary" data-copy-email="${escapeHtml(account.accountRef)}">${financeIcon('copy')}Copy email</button>`:`<button class="account-secondary" data-copy-unlock="true">${financeIcon('copy')}Copy email</button>`}<button class="account-primary" data-use-this-account="${escapeHtml(account.accountRef)}"${currentAccountState(account).recommendationEligible?'':' disabled'}>${financeIcon('external')}Use this account</button></div>${receiptMet?`<details class="account-rule-note" data-disclosure-key="receipt-rule"><summary>${financeIcon('check-circle')}Account receipt rule met${financeIcon('chevron-down')}</summary><p>${escapeHtml(receiptHistoryText(account))}. Offers can still be available. Login access and offer completion are independent.</p></details>`:''}</section>${receiptReviewAction(account)}<section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>${summaryCount}</span></div>${!liveItems.length?'<p class="account-no-offers">No currently eligible promos.'+(cashEntry?' Cash has its own balance state.':'')+'</p>':''}${liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}${cashEntry}${liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}${reviewItems.map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):accountOfferToOpen===promoStateKey(p)})).join('')}${!cashEntry?accountCreditHistory(account,cashItems,true):''}${historicItems.length?`<details id="accountOfferHistory" class="offer-history"${expanded.has('accountOfferHistory')||historicItems.some(p=>promoStateKey(p)===accountOfferToOpen||expanded.has(promoStateKey(p)))?' open':''}><summary>Past, completed &amp; ignored offers · ${historicItems.length}${financeIcon('chevron-down')}</summary>${historicItems.slice(0,accountHistoryLimit).map(p=>offerSheetCard(p,{historic:true,open:expanded.has(promoStateKey(p))||promoStateKey(p)===accountOfferToOpen})).join('')}${historicItems.length>accountHistoryLimit?'<button class="ghost-btn" data-more-account-history="true">Show 30 more historical offers</button>':''}</details>`:''}</section><section class="account-calculator"><div class="account-calculator-panel"><h3>Calculate with</h3>${accountCalculatorMarkup(calc)}</div></section><details class="account-management" data-disclosure-key="manage-account"><summary>${financeIcon('menu-sliders')}<span>Manage account</span>${financeIcon('chevron-right')}</summary><div class="disclosure-body"><p>${escapeHtml(access)} · ${escapeHtml(accountArchived(account)?'Archived account':'Active account')}. Login access, archive status and offer completion are independent.</p><button class="account-sheet-link" data-open-sheet="device">${financeIcon('shield')}<span>Private account import &amp; login information</span>${financeIcon('chevron-right')}</button><button class="account-sheet-link" data-open-sheet="finance" data-finance-account="${escapeHtml(account.accountRef)}">${financeIcon('lock')}<span>Private corrections, notes &amp; history</span>${financeIcon('chevron-right')}</button><button class="account-sheet-link" data-open-guide="accounts">${financeIcon('help')}<span>Account management guide</span>${financeIcon('chevron-right')}</button>${Number(account.sourceReviewCount)>0?`<p>${Number(account.sourceReviewCount)} original receipt sources need verification.</p>`:''}</div></details></div>`;
       if(previous){restoreAccountDisclosureState({expanded:[...expanded],scroll});}
-      if(accountOfferToOpen){const target=accountOfferToOpen==='cash'||cashItems.some(p=>promoStateKey(p)===accountOfferToOpen)?host.querySelector('[data-cash-entry]'):host.querySelector('[data-offer-key="'+CSS.escape(accountOfferToOpen)+'"]');if(target)target.open=true;}else if(!previous&&!liveItems.length&&Number(enrichedAccounts().find(a=>a.accountRef===account.accountRef)?.cashPosition?.remaining)>0){const row=host.querySelector('[data-cash-entry]');if(row)row.open=true;}
+      if(accountOfferToOpen){const target=accountOfferToOpen==='cash'||cashItems.some(p=>promoStateKey(p)===accountOfferToOpen)?host.querySelector('[data-cash-entry],[data-credit-history]'):host.querySelector('[data-offer-key="'+CSS.escape(accountOfferToOpen)+'"]');if(target){target.open=true;for(const row of target.querySelectorAll('[data-credit-offers]'))if(JSON.parse(row.dataset.creditOffers).includes(accountOfferToOpen))row.open=true;}}else if(!previous&&!liveItems.length&&Number(enrichedAccounts().find(a=>a.accountRef===account.accountRef)?.cashPosition?.remaining)>0){const row=host.querySelector('[data-cash-entry]');if(row)row.open=true;}
       if(window.history.state?.trackerSheet==='account')window.history.replaceState({...window.history.state,trackerOffer:accountOfferToOpen||window.history.state.trackerOffer},'');
       accountOfferToOpen=null;
       if(['accountCalcPromo','accountCalcCash'].includes(focusId))document.getElementById(focusId)?.focus({preventScroll:true});
@@ -4003,7 +4029,7 @@
     }
 
     function renderAdvancedSheet() {
-      setSheetHeading("Fee settings", "Choose how many separate orders a recommendation can use.");
+      setSheetHeading("Fee settings", "Per-order fees and split limits.");
 
       document.getElementById("sheetBody").innerHTML =
         '<div class="settings-explainer">' +
@@ -4014,7 +4040,7 @@
           '<div class="setting-card-head">' +
             '<div class="setting-icon">' + financeIcon('wallet') + '</div>' +
             '<div><div class="setting-title">Estimated fee per order</div>' +
-            '<div class="setting-copy">Enter the estimated delivery, service and small-order fees for each account, including the first.</div></div>' +
+            '<div class="setting-copy">Estimate delivery, service and small-order fees per order.</div></div>' +
           '</div>' +
           '<label class="setting-money" for="sheetFeeInput">' +
             '<span>£</span>' +
@@ -4022,13 +4048,13 @@
               escapeHtml(hasFeeEstimate() ? effectiveFee().toFixed(2) : '') + '" placeholder="Not entered" inputmode="decimal">' +
             '<em>Default £1 per order</em>' +
           '</label>' +
-          '<div class="setting-note plan-fee-explanation">Applied to every order, including the first. Basket minus promo discounts, plus estimated fees, then eligible Cash payments. £2 means £2 for one order, £4 for two and £6 for three. Matching recorded checkout fees replace this estimate; they are never added twice. Estimates are not confirmed checkout costs. Leave blank to restore £1 per order.</div>' +
+          '<div class="setting-note plan-fee-explanation">Applied to every order, including the first. Recorded checkout fees replace the estimate. Cash reduces payment, not promo savings.</div>' +
         '</div>' +
         '<div class="setting-card">' +
           '<div class="setting-card-head">' +
             '<div class="setting-icon">' + financeIcon('bag') + '</div>' +
             '<div><div class="setting-title">Maximum split orders</div>' +
-            '<div class="setting-copy">The most separate Uber Eats orders or accounts a recommendation can use for one basket.</div></div>' +
+            '<div class="setting-copy">Limit the number of orders for this basket.</div></div>' +
           '</div>' +
           '<div class="max-order-grid" role="group" aria-label="Maximum split orders">' +
             [1,2,3,4].map(value =>
@@ -4088,14 +4114,14 @@
       const summary=payload.summary||{}, financial=summary.financialBreakdown||{}, categories=financial.categories||{};
       const labels={eatsPromotions:'Eats promotions',ridePromotions:'Ride promotions',combinedUberOnePromotions:'Combined Uber One & promotions',explicitUberOne:'Explicit Uber One',schedule:'Schedule savings',other:'Other verified / unallocated savings'};
       const row=(title,value)=>'<div class="sheet-row"><div class="sheet-row-title">'+escapeHtml(title)+'</div><div class="sheet-row-value">'+escapeHtml(value)+'</div></div>';
-      setSheetHeading('Savings', 'Receipt savings & private corrections.');
+      setSheetHeading('Savings', '');
       document.getElementById('sheetBody').innerHTML=financeHero('Total savings',money(summary.totalSaved||0),'Receipt savings & corrections')+
         '<div class="savings-metrics sheet-section insight-grid">'+
         financeMetric('wallet','Uber Cash used',money(financial.cashUsed??summary.uberCashUsed??0),'Payment, not savings')+
         financeMetric('bag','Out of pocket',financial.paymentKnown?money(financial.outOfPocket):'Unknown',Number(financial.paymentKnown||0)+' known payments')+
         financeMetric('calendar','Last 30 days',money(summary.recentConfirmedSaved||0),'Supported savings')+
         financeMetric('receipt','Missing details',missingDetailsCount(),'Review receipts',{panel:'receipt',missing:true})+'</div>'+
-        '<details class="disclosure-card"><summary>'+financeIcon('chart')+'<span><strong>Savings breakdown</strong><small>See where your savings come from</small></span></summary><div class="disclosure-body sheet-list">'+Object.entries(labels).map(([key,title])=>row(title,money(categories[key]||0))).join('')+'<p class="sheet-help">Each amount contributes once to the total.</p></div></details>'+
+        '<details class="disclosure-card"><summary>'+financeIcon('chart')+'<span><strong>Savings breakdown</strong><small>Receipt-supported amounts</small></span></summary><div class="disclosure-body sheet-list">'+Object.entries(labels).map(([key,title])=>row(title,money(categories[key]||0))).join('')+'<p class="sheet-help">Each amount contributes once to the total.</p></div></details>'+
         '<details class="disclosure-card"><summary>'+financeIcon('receipt')+'<span><strong>Evidence & estimates</strong><small>Missing figures and historical accounts</small></span></summary><div class="disclosure-body"><div class="sheet-list">'+row('Archived accounts · included in total',money(summary.archivedConfirmedSaved||0))+row('Manual corrections · included',String(financial.manual||0))+row('Email/manual differences requiring review',String(financial.conflicting||0))+row('Estimated missing Uber One',summary.uberOneEstimateModel?.sampleSize?money(summary.estimatedUberOneSavings||0):'Unavailable')+'</div><p class="sheet-help">'+escapeHtml(summary.uberOneEstimateModel?.explanation||'An estimate needs reliable receipt evidence. Missing savings are unknown, not proof of £0.')+'</p><p class="sheet-help">Combined Uber One and promotional amounts stay combined until reliable itemized evidence identifies their components. Archived history is included, not added again.</p></div></details>'+
         '<div class="savings-navigation"><button class="sheet-action-row" data-open-sheet="finance" data-finance-target="receipt">'+financeIcon('shield')+'<span>Private receipt corrections<small>Adjust and review amounts</small></span></button>'+
         '<button class="sheet-action-row" data-open-sheet="finance" data-finance-target="cash">'+financeIcon('wallet')+'<span>Cash balances<small>Balances verified in Uber</small></span></button>'+
@@ -4129,7 +4155,7 @@
       if (!peak) return '';
       const label = new Date(peak.period+'-01T12:00:00Z').toLocaleString('en-GB',{month:'short',year:'2-digit'});
       const receipts = months.reduce((sum,row)=>sum+Number(row.eats)+Number(row.rides),0);
-      return '<p class="chart-insight"><strong>' + escapeHtml(label) + ' was strongest · ' + escapeHtml(money(peak.saved)) + '</strong><span>' + receipts + ' receipts across these months. Current month is still in progress; archived history is included.</span></p>';
+      return '<p class="chart-insight"><strong>' + escapeHtml(label) + ' was strongest · ' + escapeHtml(money(peak.saved)) + '</strong><span>' + receipts + ' receipts · current month incomplete · includes archived history.</span></p>';
     }
 
     function renderReceiptsSheet() {
@@ -4140,7 +4166,7 @@
       const days = payload.receiptActivity?.days || [];
       setSheetHeading('Receipt insights', 'Confirmed receipts · monthly savings.');
       document.getElementById('sheetBody').innerHTML =
-        '<div class="insights-hero"><span class="app-icon-surface">' + financeIcon('savings') + '</span><div><span class="insights-hero-label">Receipt savings</span><strong>' + escapeHtml(money(total)) + '</strong><p class="insights-period">Across ' + months.length + ' months</p><p>Based on receipt records.</p></div></div>' +
+        '<div class="insights-hero"><span class="app-icon-surface">' + financeIcon('savings') + '</span><div><span class="insights-hero-label">Receipt savings</span><strong>' + escapeHtml(money(total)) + '</strong><p class="insights-period">Across ' + months.length + ' months</p></div></div>' +
         '<section class="setting-card insights-chart-card"><div class="insights-chart-heading"><h3 class="setting-title">Monthly savings</h3><span>' + months.length + ' months</span></div>' + monthlySavingsChart() + '</section>' + monthlySavingsInsight() +
         '<div class="receipt-record-summary"><div class="receipt-record-metric"><span class="app-icon-surface">' + financeIcon('receipt') + '</span><div><span>Receipt records</span><strong>' + (eats + rides).toLocaleString('en-GB') + '</strong></div></div><button class="receipt-record-metric" data-open-sheet="finance" data-finance-target="receipt" data-finance-missing="true"><span class="app-icon-surface">' + financeIcon('info') + '</span><div><span>Missing details</span><strong>' + missingDetailsCount().toLocaleString('en-GB') + '</strong></div></button><p>' + eats + ' Eats · ' + rides + ' Ride</p></div>' +
         '<section class="sheet-section insights-recent"><h3 class="sheet-section-title">Recent receipt activity</h3>' + receiptActivityRows(3,{cards:true}) + (days.length > 3 ? '<details class="receipt-activity-more"><summary>View all <span aria-hidden="true">›</span></summary>' + receiptActivityRows(87,{start:3,cards:true}) + '</details>' : '') + '</section>' +
@@ -4162,7 +4188,7 @@
       const summary = payload.summary || {};
       const generated = payload.generatedAt ? new Date(payload.generatedAt) : null;
 
-      setSheetHeading("Sync & data", "See when your tracker last updated and what data is available.");
+      setSheetHeading("Sync & data", "Snapshot and private data.");
 
       document.getElementById("sheetBody").innerHTML =
         '<p class="sheet-help">' + Number(summary.receiptSourcesNeedingReview||0) + ' historical receipt sources await independent original verification. Their records are preserved privately; unverified sources do not create confirmed usage or savings.</p>' +
@@ -4302,7 +4328,7 @@
           financeView=module.financeInterface({host,vault:financeSession.vault,initialPanel:financeTarget,missingOnly:financeMissing,initialAccountRef:financeAccount,initialReceiptId:financeReceipt,publishedReviewCount:accounts.reduce((n,a)=>n+Number(a.receiptReviewCount||0),0),
             accountLabel:ref=>accountDisplay(accounts.find(a=>a.accountRef===ref)||{accountRef:ref}),
             accountUsage:ref=>{const a=accounts.find(a=>a.accountRef===ref);return a?Number(a.orderCount||0)+Number(a.rideCount||0):null;},
-            onUpdate:vault=>{financeSession.visibility(document.hidden);privateWallets=vault.current().wallets;invalidateAccountProjection();reviewData=reviewView=null;renderAccounts();renderHomeAccounts();renderUsed();renderRecommendation();}});
+            onUpdate:vault=>{financeSession.visibility(document.hidden);privateWallets=vault.current().wallets;invalidateAccountProjection();reconcileLocalEvidence();reviewData=reviewView=null;renderAccounts();renderHomeAccounts();renderUsed();renderRecommendation();}});
         }).catch(()=>{if(openSheetType==='finance'&&financeRevision===financeOpenRevision)host.innerHTML='<p role="alert">Private finances could not load. Please refresh and try again.</p>';});
       }
 
@@ -4332,12 +4358,12 @@
     }
 
     function promoByKey(key) {
-      return promoKeyIndex.get(key) || null;
+      return receiptAwarePromo(promoKeyIndex.get(key));
     }
 
     function reconcileLocalEvidence() {
       privateMigrationPending=promos.some(p=>/^pub_/.test(p.id||''))&&hasUnmigratedPrivateOfferState(manualStore);
-      const next = reconcileManualStore(manualStore, promoKeyIndex, payload.generatedAt || new Date().toISOString());
+      const next = reconcileManualStore(manualStore, new Map([...promoKeyIndex].map(([key,p])=>[key,receiptAwarePromo(p)]).filter(([,p])=>!p.usageEvidenceLocked&&!p.usageEvidenceConflict)), payload.generatedAt || new Date().toISOString());
       if (next !== manualStore) { manualStore = next; saveManualStore(); }
     }
 
@@ -4865,7 +4891,7 @@
       const useButton = event.target.closest("[data-use-one]");
       if (useButton) {
         const promo = promoByKey(useButton.dataset.useOne);
-        if (promo && promo.trackingState !== 'needs_checking' && !useCountNeedsReview(promo)) {
+        if (promo && !promo.usageEvidenceLocked && promo.trackingState !== 'needs_checking' && !useCountNeedsReview(promo)) {
           manualStore = consumeManualUse(manualStore, promo);
           refreshAfterStateChange();
         }
@@ -4875,7 +4901,7 @@
       const undoButton = event.target.closest("[data-undo-use]");
       if (undoButton) {
         const promo = promoByKey(undoButton.dataset.undoUse);
-        if (promo) {
+        if (promo && !promo.usageEvidenceLocked && !promo.usageEvidenceConflict) {
           manualStore = undoManualUse(manualStore, promo);
           refreshAfterStateChange();
         }

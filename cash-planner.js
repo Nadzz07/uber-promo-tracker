@@ -2,12 +2,13 @@ import {ukDateKey} from './offer-time.js';
 const cents=value=>Math.round(Number(value)*100),money=value=>Math.round((value+Number.EPSILON)*100)/100;
 const valid=n=>n!=null&&Number.isFinite(Number(n));
 
-export function cashForOrder(wallet,promo,subtotal,discount,fee){
- if(!wallet||!(Number(wallet.balance)>0)||wallet.status==='needs_checking')return {used:0,conditional:false};
+export function cashForOrder(wallet,promo,subtotal,discount,fee,{now=Date.now()}={}){
+ if(!wallet||!(Number(wallet.balance)>0)||wallet.status&&!['estimated','verified','verified_reconciled'].includes(wallet.status))return {used:0,conditional:false};
  if(promo&&(wallet.stacking==='unsupported'||promo.restrictions?.stacking==='no_other_promotions'))return {used:0,conditional:false};
  let merchandise=Math.max(0,money(subtotal-discount)),fees=fee,used=0;
  const grants=wallet.grants?.length?wallet.grants:[{remaining:Number(wallet.balance),minimumSpend:0,excludesFees:false,restrictions:{}}];
  for(const grant of grants){
+  if(grant.status&&grant.status!=='estimated'||grant.status==='estimated'&&!Number.isFinite(Date.parse(grant.expiresAt))||grant.expiresAt&&Date.parse(grant.expiresAt)<=new Date(now).getTime())continue;
   if(subtotal<Number(grant.minimumSpend||0)||promo&&grant.restrictions?.stacking==='no_other_promotions')continue;
   const take=money(Math.min(Number(grant.remaining)||0,Number(wallet.balance)-used,merchandise+(grant.excludesFees?0:fees)));
   if(take<=0)continue;used=money(used+take);const fromFood=Math.min(take,merchandise);merchandise=money(merchandise-fromFood);fees=money(Math.max(0,fees-(take-fromFood)));
@@ -56,7 +57,7 @@ export function cashAwarePlans(promos,total,{accounts=[],wallets={},fees={},maxO
   for(const p of [...a.promos,...(a.wallet?[null]:[])]){
    if(p?.minimumSpendVerified===false)continue;
    const c=p?calculate(p,basket):{eligible:true,saving:0};if(!c.eligible)continue;
-   const cash=cashForOrder(a.wallet,p,basket,c.saving,charged),pay=money(Math.max(0,basket-c.saving+charged-cash.used));
+   const cash=cashForOrder(a.wallet,p,basket,c.saving,charged,{now}),pay=money(Math.max(0,basket-c.saving+charged-cash.used));
    options.push({accountRef:a.accountRef,accountMasked:a.accountMasked||p?.accountMasked||null,promo:p,subtotal:basket,saving:c.saving,pay:money(basket-c.saving),checkoutFees:known,extraFee:known==null?charged:0,cashUsed:cash.used,cashRemaining:a.wallet?money(a.wallet.balance-cash.used):null,cashBasis:cash.basis||null,conditional:cash.conditional,estimatedPay:pay});
   }
   options.sort((a,b)=>a.estimatedPay-b.estimatedPay||a.cashUsed-b.cashUsed||b.saving-a.saving);const result=options[0]||null;cached.set(key,result);return result;

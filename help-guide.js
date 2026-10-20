@@ -10,7 +10,7 @@ export const guideSections = [
     <dt>Needs Attention</dt><dd>Eligible promotions on archived, inaccessible or pending accounts. Find an offer lets you browse these separately. Results prioritise ready accounts, accessible archived accounts, pending accounts, then accounts that cannot log in.</dd>
     <dt>Fully used accounts</dt><dd>Accounts with at least one Eats receipt and one Ride receipt, or at least five Eats receipts. These counts use unique receipts. Lime journeys count as Ride. Fully used accounts can still be Accessible and have an Available Offer; usage does not automatically archive them.</dd></dl>`},
   {id:'promotions', title:'Promotion statuses', summary:'Confirmed redemption is different from expiry or a manual decision.', content:`
-    <dl><dt>Available</dt><dd>An eligible current promotion with permitted uses not confirmed redeemed. Zero confirmed uses means no start is evidenced; it does not prove the offer is unused. Check the actual remaining uses and activation in Uber.</dd>
+    <dl><dt>Available</dt><dd>An eligible current promo. Zero confirmed uses means no matching redemption evidence, not guaranteed availability. Check remaining uses and activation in Uber.</dd>
     <dt>Partially used</dt><dd>Some uses are receipt-confirmed, but the promotion remains valid and more uses remain.</dd>
     <dt>Completed · Verified</dt><dd>Every permitted use has been confirmed: 5/5 or 3/3, for example. This counts as a Completed promotion.</dd>
     <dt>Finished · Expired</dt><dd>The promotion expired after some confirmed usage. An expired 2/5 remains 2/5; it is finished but not fully redeemed.</dd>

@@ -39,8 +39,13 @@ function extractTripKey(text, { bikeSignal = false } = {}) {
 
   // Responsive HTML may repeat the pickup time before the drop-off time.
   // The same journey must retain the identity of its plain Mail rendering.
-  const times = [...new Set([...source.matchAll(/\b([01]?\d|2[0-3]):([0-5]\d)\b/g)]
-    .map(match => String(match[1]).padStart(2, "0") + ":" + match[2]))].slice(0, 2);
+  const clockTimes = text => [...new Set([...text.matchAll(/\b([01]?\d|2[0-3]):([0-5]\d)\b/g)]
+    .map(match => String(match[1]).padStart(2, "0") + ":" + match[2]))];
+  // Payment attempts and refunds have their own clocks. Prefer the journey
+  // section's pickup/drop-off pair, which stays stable across receipt updates.
+  const journey = source.match(/\bTrip\s+details\b([\s\S]*?)(?:\bYou\s+rode\s+with\b|$)/i)?.[1];
+  const timingSource = journey && clockTimes(journey).length >= 2 ? journey : source;
+  const times = clockTimes(timingSource).slice(0, 2);
 
   const distanceMatch = source.match(
     /\b(\d+(?:[.,]\d+)?)\s*(miles?|mi|km|kilomet(?:er|re)s?)\b/i

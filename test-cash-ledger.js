@@ -67,3 +67,24 @@ assert.equal(currentCashPosition(checkedAccount,[],checkedZero,[laterReceipt],{n
 const laterGrant={...priorGrant,issued:6,remaining:6,issuedAt:'2026-10-16T14:00:00Z'};
 assert.equal(currentCashPosition({...checkedAccount,cashSummary:{grants:[priorGrant,laterGrant]}},[],checkedZero,[laterReceipt],{now,completeEvidence:true}).remaining,6,'A supported new grant after verification still participates');
 console.log('✓ Manual Cash verification stays authoritative when newer receipt evidence is incomplete; prior grants cannot resurrect spent balances');
+
+// Current availability and retained credit history have separate meanings.
+{
+ const {cashCreditHistory,cashCalculationState,publicCashEstimate}=await import('./cash-ledger.js');
+ const expired=grant({expiresAt:'2026-10-03T22:59:59.999Z'}),reconciled=model([expired],[receipt({orderAt:'2026-10-02T12:00:00Z',uberCashUsed:4})]);
+ const history=publicCashEstimate(reconciled.grants[0]);assert.equal(history.status,'expired');assert.equal(history.remaining,0);assert.equal(history.recordedUsed,4,'Expired is not the same as spent');
+ const unknown={issued:12,issuedAt:'2026-05-01T12:00:00Z',status:'needs_checking',remaining:null,expiresAt:null};
+ const available={issued:6,issuedAt:'2026-10-10T12:00:00Z',status:'estimated',remaining:6,expiresAt:'2026-11-01T12:00:00Z'};
+ for(const grants of [[history],[{...available,status:'exhausted',remaining:0}]]){const position=currentCashPosition({cashSummary:{grants}},[],null,[],{now});assert.equal(cashCalculationState(position).usable,false);assert.equal(position.remaining,0);}
+ const account={accountRef:'A1',orderCount:0,cashSummary:{grants:[unknown,history,available]}};
+ const position=currentCashPosition(account,[],null,[],{now});assert.equal(position.remaining,6,'An unresolved old grant cannot hide established current credit');assert.equal(position.grants.length,1);
+ const checked=currentCashPosition(account,[],{balance:9,at:'2026-10-15T12:00:00Z',receiptCount:0},[],{now,completeEvidence:true});assert.equal(checked.remaining,9,'A later balance check takes precedence over historical grants');
+ const staleUnknown={...unknown,expiresAt:'2026-10-02T12:00:00Z'};assert.equal(currentCashPosition({cashSummary:{grants:[staleUnknown]}},[],null,[],{now}).status,'expired','Known expiry closes even a stale uncertain export');
+ assert.equal(cashCreditHistory(account,[{id:'first',discountType:'uberCash',cashEstimate:available},{id:'reminder',discountType:'uberCash',cashEstimate:available}],now).length,3,'One history row per credit, not per reminder');
+ const promo={restrictions:{stacking:'no_other_promotions'}};assert.equal(cashCalculationState({status:'none',remaining:0},promo).reason,'No available Uber Cash');assert.equal(cashCalculationState({status:'needs_checking',remaining:null},promo).reason,'Balance needs checking');assert.equal(cashCalculationState(position,promo).reason,'Cannot combine with this promo');assert.equal(cashCalculationState(position,{}).reason,'Cash compatibility not verified');
+ const {cashForOrder}=await import('./cash-planner.js');for(const status of ['expired','exhausted','needs_checking'])assert.equal(cashForOrder({status,balance:10},null,15,0,1,{now}).used,0);
+ assert.equal(cashForOrder({status:'estimated',balance:10,grants:[{...history,remaining:10}]},null,15,0,1,{now}).used,0);
+ assert.equal(cashForOrder({status:'estimated',balance:10,grants:[{status:'estimated',remaining:10,expiresAt:null}]},null,15,0,1,{now}).used,0,'An issued grant without established expiry cannot cover payment');
+ const {toPublicPromo}=await import('./public-promo.js');assert.equal(toPublicPromo({discountType:'fixed',discount:12,receiptConfirmedUses:null}).receiptConfirmedUses,null,'Publishing an unknown count cannot manufacture zero');
+}
+console.log('✓ Current Cash excludes expired/exhausted/unknown credit; history retains spending, reminders deduplicate, later checks win, and calculator reasons follow actual evidence.');
