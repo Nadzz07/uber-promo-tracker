@@ -1,10 +1,10 @@
 /* Receipt Insights and its detail sheet use the shared rich palette. */
-html:has(#view-receipts.active),body:has(#view-receipts.active) { background:var(--rich-screen); }
+html:has(#view-receipts.active),body:has(#view-receipts.active) { background:var(--rich-screen); overflow-anchor:none; }
 .ri-page { --muted:var(--rich-secondary); --dim:var(--rich-tertiary); color:var(--color-text); max-width:620px; margin-inline:auto; }
 .app-shell:has(#view-receipts.active) > .privacy { display:none; }
-.ri-page-head { position:sticky; top:env(safe-area-inset-top,0px); display:flex; align-items:center; gap:14px; min-height:48px; margin:0 0 14px; z-index:25; background:var(--rich-screen); }
+.ri-page-head { position:sticky; top:env(safe-area-inset-top,0px); display:flex; align-items:center; gap:12px; min-height:44px; margin:0 0 10px; z-index:25; background:var(--rich-screen); }
 .ri-page-head::before { content:''; position:absolute; inset:0 -3px; background:var(--rich-screen); z-index:-1; }
-.ri-page-head h1 { flex:1; font-size:23px; font-weight:600; letter-spacing:-.03em; line-height:1.3; margin:0; }
+.ri-page-head h1 { flex:1; font-size:21px; font-weight:600; letter-spacing:-.03em; line-height:1.3; margin:0; }
 .ri-page-head button { display:grid; place-items:center; flex:none; width:36px; min-height:44px; border:0; background:transparent; color:var(--color-icon); padding:0; cursor:pointer; }
 .ri-page-head svg { width:24px; height:24px; }
 .ri-page .ri-card { border:1px solid var(--rich-border); border-radius:18px; background:linear-gradient(180deg,var(--rich-panel-top),var(--rich-panel-bottom)); box-shadow:none; }
@@ -16,19 +16,19 @@ html:has(#view-receipts.active),body:has(#view-receipts.active) { background:var
 .ri-filters { display:flex; padding:3px; gap:4px; margin-bottom:13px; border:1px solid var(--rich-border); border-radius:15px; background:var(--rich-sheet-mid); }
 .ri-filters button { display:flex; flex:1; min-width:0; align-items:center; justify-content:center; border:1px solid transparent; border-radius:12px; min-height:40px; padding:7px; background:transparent; color:var(--rich-secondary); font:inherit; font-size:15px; cursor:pointer; }
 .ri-filters button[aria-pressed=true] { background:linear-gradient(180deg,var(--rich-button-top),var(--rich-button-bottom)); color:var(--rich-on-accent); font-weight:500; }
-.ri-page .ri-paid-card { position:relative; padding:18px 18px 16px; border-color:var(--rich-selected-border); background:linear-gradient(145deg,var(--rich-selected-top),var(--rich-selected-bottom)); }
-.ri-paid-label { font-size:15px; color:var(--rich-secondary); }
-.ri-paid-total { display:block; color:var(--color-text); font-size:46px; font-weight:650; line-height:1.15; letter-spacing:-.04em; margin:5px 0 3px; overflow-wrap:anywhere; padding-right:45px; }
-.ri-paid-card > p { margin:0; color:var(--rich-secondary); font-size:13px; line-height:1.45; }
-.ri-paid-card > .ri-promo-total { margin-top:8px; font-size:14px; }
-.ri-paid-card > svg { position:absolute; width:58px; height:72px; right:18px; top:40px; color:var(--rich-soft-accent); opacity:.3; stroke-width:1.2; }
-.ri-paid-bottom { display:grid; grid-template-columns:1fr 1fr; gap:18px; border-top:1px solid var(--rich-selected-divider); margin-top:18px; padding-top:13px; }
+.ri-page .ri-paid-card { position:relative; padding:13px 16px; border-color:var(--rich-selected-border); background:linear-gradient(145deg,var(--rich-selected-top),var(--rich-selected-bottom)); }
+.ri-paid-label { font-size:14px; color:var(--rich-secondary); }
+.ri-paid-total { display:block; color:var(--color-text); font-size:36px; font-weight:650; line-height:1.1; letter-spacing:-.04em; margin:5px 0 3px; overflow-wrap:anywhere; padding-right:45px; }
+.ri-paid-card > p { margin:0; color:var(--rich-secondary); font-size:12px; line-height:1.45; }
+.ri-paid-card > .ri-promo-total { margin-top:6px; font-size:13px; }
+.ri-paid-card > svg { position:absolute; width:48px; height:64px; right:16px; top:25px; color:var(--rich-soft-accent); opacity:.3; stroke-width:1.2; }
+.ri-paid-bottom { display:grid; grid-template-columns:1fr 1fr; gap:18px; border-top:1px solid var(--rich-selected-divider); margin-top:10px; padding-top:10px; }
 .ri-paid-bottom > div { min-width:0; }
 .ri-paid-bottom > div + div { padding-left:22px; border-left:1px solid var(--rich-selected-divider); }
-.ri-paid-bottom span { color:var(--rich-secondary); font-size:13px; }
-.ri-paid-bottom strong { display:block; font-size:23px; font-weight:600; line-height:1.25; margin-top:2px; overflow-wrap:anywhere; }
+.ri-paid-bottom span { color:var(--rich-secondary); font-size:12px; }
+.ri-paid-bottom strong { display:block; font-size:21px; font-weight:600; line-height:1.25; margin-top:2px; overflow-wrap:anywhere; }
 .ri-two-cards { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:12px 0; }
-.ri-two-cards > section { display:flex; align-items:flex-start; gap:12px; padding:15px 14px; min-width:0; }
+.ri-two-cards > section { display:flex; align-items:flex-start; gap:12px; padding:13px 12px; min-width:0; }
 .ri-two-cards > section > svg { width:27px; height:30px; color:var(--color-icon); flex:none; margin-top:3px; }
 .ri-two-cards > section > div { min-width:0; }
 .ri-two-cards span { font-size:13px; color:var(--rich-secondary); }
@@ -37,9 +37,10 @@ html:has(#view-receipts.active),body:has(#view-receipts.active) { background:var
 .ri-page .ri-activity { border-radius:20px; padding:18px; margin:0 0 16px; }
 .ri-section-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 14px; }
 .ri-section-head h2 { font-size:19px; font-weight:600; line-height:1.3; letter-spacing:-.02em; margin:0; }
-.ri-activity .ri-select-wrap { max-width:48%; }
+.ri-activity .ri-select-wrap { max-width:52%; }
+.ri-activity .ri-section-head { margin-bottom:0; }
 .ri-page .ri-metric-select { padding-left:11px; font-size:16px; }
-.ri-activity-rows { display:grid; gap:16px; margin:20px 0 18px; }
+.ri-activity-rows { display:grid; gap:16px; margin:17px 0; }
 .ri-activity-row { display:grid; grid-template-columns:65px minmax(0,1fr) auto; align-items:center; gap:10px; font-size:12px; color:var(--rich-secondary); }
 .ri-activity-row strong { min-width:20px; text-align:right; font-variant-numeric:tabular-nums; font-size:15px; color:var(--color-text); font-weight:600; }
 .ri-activity-track { display:block; min-width:0; height:14px; border-radius:14px; background:var(--rich-track); overflow:hidden; }
@@ -131,7 +132,11 @@ body:has(#view-receipts.active) .nav-glider { background:var(--rich-selected-bot
 .ri-two-cards[data-long-amount] strong { overflow-wrap:normal; }
 .ri-paid-card[data-long-amount] .ri-paid-total { padding-right:0; font-size:clamp(28px,8vw,46px); }
 .ri-paid-card[data-long-amount] > svg { display:none; }
-.ri-promos-card .ri-cash-used { margin-top:5px; }
+.ri-page .ri-unknown,.ri-detail .ri-unknown { color:var(--rich-secondary); font-weight:400; font-size:20px; letter-spacing:0; }
+.ri-page .ri-paid-total.ri-unknown { font-size:24px; line-height:1.5; }
+.ri-paid-card > .ri-amount-status { margin-top:10px; color:var(--rich-secondary); font-size:11px; line-height:1.45; }
+.ri-activity-row .ri-unknown { font-size:15px; }
+@media(max-width:979px) { .app-shell:has(#view-receipts.active) { padding-inline:14px; } }
 body:has(#view-receipts.active)::before { content:''; display:block; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); background:var(--rich-screen); opacity:1; z-index:26; pointer-events:none; filter:none; }
 html[data-layout=mobile] body:has(#view-receipts.active) { padding-bottom:var(--receipts-nav-clearance,calc(100px + env(safe-area-inset-bottom))); }
 html[data-layout=mobile]:has(#view-receipts.active) { scroll-padding-bottom:var(--receipts-nav-clearance,100px); }

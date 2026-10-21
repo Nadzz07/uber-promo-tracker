@@ -1,6 +1,7 @@
 import { classifyOfferCompletion } from "./offer-state.js";
 import { classifyAccount } from "./account-state.js";
 import { publicOfferTitle } from "./public-promo.js";
+import {RECEIPT_AMOUNT_KEYS,mergeReceiptAmounts} from './dashboard-data.js';
 
 const forbidden = /^(?:offerReceiptMatches|receiptMatchVersion|receiptMatchExportedAt|alias|email|accountAlias|code|promo_code|promoCode|recipient|sender|subject|body|bodyText|body_text|evidence|evidence_json|merchant|orderId|tripId|messageId|messageKey|mailbox|sourceMailbox|financialCorrection|financialEvents|financialEvidence|financialReview|financial_evidence_json|wallet|wallets|balance|currentCashBalance|manualNote|recordId|eventId|note)$/i;
 const email = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
@@ -95,8 +96,25 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     }
   }
   if (payload.receiptActivity) {
+    const activity=payload.receiptActivity;
+    if(activity.amountVersion!=null&&activity.amountVersion!==1)throw Error('Unsupported public receipt amount version.');
     for (const rows of [payload.receiptActivity.days, payload.receiptActivity.months]) {
       if (!Array.isArray(rows) || rows.reduce((n,r)=>n+r.eats,0)!==payload.summary.trackedOrders || rows.reduce((n,r)=>n+r.rides,0)!==payload.summary.trackedRides || Math.abs(rows.reduce((n,r)=>n+r.saved,0)-payload.summary.totalSaved)>0.011) throw new Error('Receipt activity disagrees with verified receipt totals.');
+      if(activity.amountVersion===1)for(const row of rows){
+        cashKeys(row.amounts,['eats','rides']);
+        for(const kind of ['eats','rides']){
+          const amounts=row.amounts[kind];cashKeys(amounts,RECEIPT_AMOUNT_KEYS);
+          for(const key of RECEIPT_AMOUNT_KEYS){
+            const a=amounts[key];cashKeys(a,['value','known','total',...(key==='fees'?['complete']:[])]);
+            if(!Number.isInteger(a.total)||a.total<0||a.total!==row[kind]||!Number.isInteger(a.known)||a.known<0||a.known>a.total||a.value!==null&&(!Number.isFinite(a.value)||a.value<0||a.value>1e12)||(!a.known?a.value!==(a.total?null:0):a.value===null))throw Error('Invalid public receipt amount coverage.');
+            if(key==='fees'&&(!Number.isInteger(a.complete)||a.complete<0||a.complete>a.known))throw Error('Invalid public fee coverage.');
+          }
+        }
+      }
+    }
+    if(activity.amountVersion===1)for(const month of activity.months)for(const kind of ['eats','rides']){
+      const derived=mergeReceiptAmounts(activity.days.filter(day=>day.period.slice(0,7)===month.period).map(day=>day.amounts[kind]));
+      for(const key of RECEIPT_AMOUNT_KEYS)for(const field of Object.keys(derived[key]))if(field==='value'?Math.abs((derived[key][field]??0)-(month.amounts[kind][key][field]??0))>.011:derived[key][field]!==month.amounts[kind][key][field])throw Error('Monthly receipt amounts disagree with daily aggregates.');
     }
   }
   for (const promo of [...payload.promos, ...history.records]) {
