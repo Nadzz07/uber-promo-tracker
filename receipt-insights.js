@@ -64,7 +64,7 @@ export function receiptInsightsModel({data,corrections={},payload={},range='90',
   const amounts=mergeReceiptAmounts((publicMonths.length?publicMonths:days).map(publicAmounts));
   const total=groups.every(d=>d.saved!=null)?round(groups.reduce((n,d)=>n+d.saved,0)):null;
   const unavailable={loading:'Loading receipt data…',migration_required:'Receipt data needs one-time migration in Sync & data.',error:'Receipt data could not load. Original data is preserved.'}[storeStatus]||'Receipt details not imported.';
-  return {imported,unavailable,service,counts,count:counts[service],publicMonths,publicAmounts,amounts,coverageIncomplete:publicMonths.length>0&&dailyCount!==counts[service],groups,total:days.length?total:null,promo:amounts.promos.value,cash:amounts.cash.value,average:null,best:null,missing:0};
+  return {imported,unavailable,service,counts,count:counts[service],amountVersion:payload.receiptActivity?.amountVersion||0,publicMonths,publicAmounts,amounts,coverageIncomplete:publicMonths.length>0&&dailyCount!==counts[service],groups,total:days.length?total:null,promo:amounts.promos.value,cash:amounts.cash.value,average:null,best:null,missing:0};
  }
  const all=dedupeReceipts(data.receipts).filter(r=>inRange(receiptDay(r),range,now)).map(r=>receiptInsightRecord(r,corrections[r.receiptId||r.id]));
  all.sort((a,b)=>String(receiptWhen(b.receipt)||'').localeCompare(String(receiptWhen(a.receipt)||''))||String(a.id).localeCompare(String(b.id)));
@@ -103,7 +103,7 @@ export function receiptOverviewMetrics(model){
 export function receiptActivityBuckets(model,{range='month',metric='orders',now=new Date()}={}){
  if(!model.imported&&range==='all'&&model.publicMonths?.length){
   const rows=model.publicMonths.slice().sort((a,b)=>a.period.localeCompare(b.period)),period=receiptPeriod(range,now,rows[0].period+'-01');
-  const buckets=rows.map(r=>{const count=model.service==='all'?Number(r.eats)+Number(r.rides):Number(r[model.service]),amounts=model.publicAmounts(r),value=metric==='orders'?count:amounts[metric]?.known?amounts[metric].value:metric==='saved'?(model.service==='all'||!r[model.service==='eats'?'rides':'eats']?number(r.saved):null):count?null:0;return {label:new Date(r.period+'-01T12:00Z').toLocaleString('en-GB',{month:'short',year:'2-digit',timeZone:'Europe/London'}),value,partial:metric!=='orders'&&amounts[metric]?.known<count};});
+  const buckets=rows.map(r=>{const count=model.service==='all'?Number(r.eats)+Number(r.rides):Number(r[model.service]),amounts=model.publicAmounts(r),value=metric==='orders'?count:amounts[metric]?.known?amounts[metric].value:metric==='saved'?(model.service==='all'||!r[model.service==='eats'?'rides':'eats']?number(r.saved):null):count?null:0;return {label:new Date(r.period+'-01T12:00Z').toLocaleString('en-GB',{month:'short',year:'2-digit',timeZone:'Europe/London'}),value,partial:metric!=='orders'&&!(metric==='saved'&&model.amountVersion!==1)&&amounts[metric]?.known<count};});
   const max=Math.max(0,...buckets.map(b=>b.value??0));return {period,title:'Receipt activity',metric,buckets:buckets.map(b=>({...b,width:max>0&&b.value!=null?b.value/max*100:0}))};
  }
  const period=receiptPeriod(range,now,model.groups.map(g=>g.day).filter(Boolean).sort()[0]);
