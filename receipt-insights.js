@@ -1,6 +1,6 @@
 // Read-only projections of the existing ledger. No storage, new financial
 // rules or inferred offer associations are introduced by these screens.
-import {receiptFinancials,financialSummary,moneyAmount} from './receipt-financials.js';
+import {receiptFinancials,receiptPaymentAmount,financialSummary,moneyAmount} from './receipt-financials.js';
 import {dedupeReceipts} from './receipt-identity.js';
 import {receiptDay,receiptWhen} from './receipt-date.js';
 import {ukDateKey} from './offer-time.js';
@@ -49,7 +49,7 @@ export function receiptInsightRecord(receipt,correction){
  // The receipt total includes Cash. Using out-of-pocket here would incorrectly
  // turn a payment source into a discount. Partial/reviewed evidence gets no %.
  const before=confirmed&&receiptTotal!=null&&f.total!=null?round(receiptTotal+f.total):null;
- return {receipt,id:receipt.receiptId||receipt.id,day:receiptDay(receipt),service:receiptService(receipt),f,confirmed,receiptTotal,promoValue,unverifiedAdjustment,
+ return {receipt,id:receipt.receiptId||receipt.id,day:receiptDay(receipt),service:receiptService(receipt),f,confirmed,receiptTotal,promoValue,unverifiedAdjustment,payment:receiptPaymentAmount(receipt,correction),
    percent:before>0?Math.round(f.total/before*100):null,before};
 }
 export function receiptInsightsModel({data,corrections={},payload={},range='90',service='all',now=new Date(),storeStatus='ready'}={}){
@@ -91,7 +91,7 @@ export function appliedReceiptOffer(data,receipt,offers=[]){
 export function receiptPaymentRows(record){
  const {receipt:r,f}=record,fees=[['Delivery',number(r.deliveryFee)],['Service',number(r.serviceFee)],['Small order',number(r.smallOrderFee)]];
  return {subtotal:number(r.subtotal),promo:record.promoValue,cash:number(r.uberCashUsed),
-  feeTotal:fees.every(([,n])=>n!=null)?round(fees.reduce((n,[,v])=>n+v,0)):null,fees:fees.filter(([,n])=>n!=null),tip:number(r.tip),paid:f.outOfPocket};
+  feeTotal:fees.every(([,n])=>n!=null)?round(fees.reduce((n,[,v])=>n+v,0)):null,fees:fees.filter(([,n])=>n!=null),tip:number(r.tip),paid:record.payment};
 }
 const amount=(v,className='')=>'<strong class="'+(v==null?className.replace(/\bri-green\b/g,'')+' ri-unknown':className)+'">'+e(money(v))+'</strong>';
 const serviceTitle=r=>r.service==='eats'?'Uber Eats':'Uber Ride';
@@ -128,20 +128,23 @@ export function receiptActivityBuckets(model,{range='month',metric='orders',now=
 }
 export function receiptAmountCoverage(metrics,count){
  if(!count)return '';
- const fields=[['totals',metrics.paid],['basket',metrics.subtotal],['fees',metrics.fees],['promos',metrics.amounts.promos],['credit',metrics.amounts.cash]];
- if(fields.every(([,s])=>!s.known))return 'Amounts aren’t available for these receipts.';
- if(fields.every(([,s])=>s.known===count)&&metrics.fees.complete===count)return '';
- const groups=new Map();for(const [label,s]of fields){if(!groups.has(s.known))groups.set(s.known,[]);groups.get(s.known).push(label);}
- const parts=[...groups].map(([known,labels])=>(labels.length===4?'other fields':labels.join(', '))+(known?' '+known+'/'+count:' unavailable'));
- return 'Partial amounts · '+parts.join('; ')+(metrics.fees.known>metrics.fees.complete?' · fees partly itemised':'')+'.';
+ const fields=[metrics.paid,metrics.subtotal,metrics.fees,metrics.amounts.promos,metrics.amounts.cash,metrics.outOfPocket];
+ if(fields.every(s=>!s.known))return 'Amounts aren’t available for these receipts.';
+ return fields.every(s=>s.known===count)&&metrics.fees.complete===count?'':'Some receipt details are missing';
+}
+const partialAmount=s=>s.known>0&&(s.known<s.total||s.complete!=null&&s.complete<s.total);
+const amountLabel=(s,label,partialLabel)=>partialAmount(s)?partialLabel:label;
+const coverageLabel=s=>partialAmount(s)?'<small class="ri-coverage">'+s.known+' of '+s.total+' receipts'+(s.complete!=null&&s.complete<s.known?' · itemised fees':'')+'</small>':'';
+export function receiptCoverageDetails(metrics){
+ return [['Receipt totals',metrics.paid],['Basket subtotal',metrics.subtotal],['Fees',metrics.fees],['Promo discounts',metrics.amounts.promos],['Uber Cash used',metrics.amounts.cash],['Out-of-pocket spend',metrics.outOfPocket]].map(([label,s])=>label+': '+(!s.known&&s.total?'not recorded':s.known+' of '+s.total+' receipts')+(s.complete!=null&&s.complete<s.known?' (partly itemised)':'')).join('. ')+'. Credit is a payment, not a promo saving. Spend uses recorded non-credit payments, or compatible receipt totals minus recorded credit. Unresolved adjustments are not assumed to be final payments.';
 }
 export function receiptOverviewMarkup(model,state){
  const m=receiptOverviewMetrics(model),activity=receiptActivityBuckets(model,state),period=activity.period;
  const select=(cls,label,choices,value)=>'<span class="ri-select-wrap"><select class="'+cls+'" aria-label="'+label+'"'+(cls==='ri-metric-select'?' style="width:calc('+(choices.find(([key])=>key===value)?.[1].length||6)+'ch + 38px)"':'')+'>'+choices.map(([key,text])=>'<option value="'+key+'"'+(value===key?' selected':'')+'>'+text+'</option>').join('')+'</select>'+icon('chevron-down')+'</span>';
  const filters='<div class="ri-period">'+select('ri-range','Receipt date range',RECEIPT_RANGES,state.range)+'<span>'+e(period.label)+'</span></div><div class="ri-filters" role="group" aria-label="Receipt type">'+[['eats','Eats'],['rides','Rides'],['all','All']].map(([key,label])=>'<button type="button" data-ri-service="'+key+'" aria-pressed="'+(state.service===key)+'" aria-label="'+label+', '+model.counts[key]+' receipts">'+label+'</button>').join('')+'</div>';
- const coverage=receiptAmountCoverage(m,model.count);
- const hero='<section class="ri-paid-card ri-card"'+(m.paid.value!=null&&money(m.paid.value).length>10?' data-long-amount':'')+' aria-label="Receipt totals"><div class="ri-paid-label">Paid on receipts</div>'+amount(m.paid.value,'ri-paid-total')+'<p>'+model.count+' '+(state.service==='rides'?'rides':'orders')+(m.average!=null?' · '+e(money(m.average))+' average':'')+'</p>'+(m.promos!=null?'<p class="ri-green ri-promo-total">'+e(money(m.promos))+' in promo discounts</p>':'')+icon('receipt-slip')+'<div class="ri-paid-bottom"><div><span>Basket subtotal</span>'+amount(m.subtotal.value)+'</div><div><span>Fees</span>'+amount(m.fees.value)+'</div></div>'+(coverage?'<p class="ri-amount-status">'+e(coverage)+'</p>':'')+'</section>';
- const cards='<div class="ri-two-cards"'+([m.promos,m.cash].some(v=>v!=null&&money(v).length>9)?' data-long-amount':'')+'><section class="ri-card ri-promos-card">'+icon('tag')+'<div><span>Promo discounts</span>'+amount(m.promos,'ri-green')+'</div></section><section class="ri-card ri-cash-card">'+icon('wallet')+'<div><span>Uber Cash used</span>'+amount(m.cash,'ri-green')+(m.cash!=null?'<small>Paid with credit</small>':'')+'</div></section></div>';
+ const coverage=receiptAmountCoverage(m,model.count),promos=m.amounts.promos,cash=m.amounts.cash,sharedCoverage=partialAmount(promos)&&partialAmount(cash)&&promos.known===cash.known&&promos.total===cash.total;
+ const hero='<section class="ri-paid-card ri-card"'+(m.paid.value!=null&&money(m.paid.value).length>10?' data-long-amount':'')+' aria-label="Receipt totals"><div class="ri-paid-label">'+amountLabel(m.paid,'Paid on receipts','Known receipt totals')+'</div>'+amount(m.paid.value,'ri-paid-total')+'<p>'+model.count+' '+(state.service==='rides'?'rides':'orders')+(m.average!=null&&!partialAmount(m.paid)?' · '+e(money(m.average))+' average':'')+'</p>'+coverageLabel(m.paid)+icon('receipt-slip')+([m.subtotal.value,m.fees.value].some(v=>v!=null)?'<div class="ri-paid-bottom"><div><span>'+amountLabel(m.subtotal,'Basket subtotal','Known basket subtotal')+'</span>'+amount(m.subtotal.value)+coverageLabel(m.subtotal)+'</div><div><span>'+amountLabel(m.fees,'Fees','Known fees')+'</span>'+amount(m.fees.value)+coverageLabel(m.fees)+'</div></div>':'')+(coverage?'<div class="ri-amount-status"><span>'+e(coverage)+'</span><details class="ri-coverage-info"><summary aria-label="About missing receipt details">'+icon('info')+'</summary><p>'+e(receiptCoverageDetails(m))+'</p></details></div>':'')+'</section>';
+ const cards='<div class="ri-two-cards"'+([m.promos,m.cash,m.outOfPocket.value].some(v=>v!=null&&money(v).length>9)?' data-long-amount':'')+'><section class="ri-card ri-promos-card"><h2>'+icon('tag')+'Promos &amp; Uber Cash</h2><div class="ri-tile-component"><span>'+amountLabel(promos,'Promo discounts','Known promo discounts')+'</span>'+amount(m.promos,'ri-green ri-promo-value')+(sharedCoverage?'':coverageLabel(promos))+'</div><div class="ri-tile-component"><span>'+amountLabel(cash,'Uber Cash used','Known Uber Cash used')+'</span>'+amount(m.cash,'ri-green ri-cash-value')+(sharedCoverage?'':coverageLabel(cash))+'</div>'+(sharedCoverage?coverageLabel(promos):'')+'</section><section class="ri-card ri-pocket-card"><h2>'+icon('wallet')+'Out-of-pocket spend</h2><div class="ri-spend-value">'+(partialAmount(m.outOfPocket)?'<span>Known spend</span>':'')+amount(m.outOfPocket.value)+coverageLabel(m.outOfPocket)+'</div></section></div>';
  const chart='<section class="ri-card ri-activity"><div class="ri-section-head"><h2>'+e(activity.title)+'</h2>'+select('ri-metric-select','Activity metric',RECEIPT_METRICS,state.metric)+'</div><div class="ri-activity-rows">'+activity.buckets.map(b=>'<div class="ri-activity-row"><span>'+e(b.label)+'</span><span class="ri-activity-track" aria-hidden="true"><span style="width:'+b.width+'%"></span></span><strong'+(b.value==null?' class="ri-unknown"':'')+'>'+(b.value==null?'—':state.metric==='orders'?b.value:e(money(b.value)))+(b.partial&&b.value!=null?'*':'')+'</strong></div>').join('')+'</div><p class="ri-caption">Based on imported receipts'+(activity.buckets.some(b=>b.partial&&b.value!=null)?' · * partial amounts':'')+'</p></section>';
  const rows=model.imported?model.rows.slice(0,state.full?state.limit:2):[];
  const recent='<section class="ri-recent"><div class="ri-section-head"><h2>Recent receipts</h2>'+(model.imported&&model.count>2?'<button data-ri-view-all>'+ (state.full?'Show recent':'View all')+'</button>':'')+'</div><div class="ri-results" aria-live="polite">'+(rows.length?rows.map(row=>{const r=row.receipt,fees=receiptPaymentRows(row),feeParts=fees.fees.filter(([,v])=>v>0),breakdown=number(r.uberCashUsed)>0?'Includes '+money(number(r.uberCashUsed))+' Uber Cash':[number(r.subtotal)!=null?money(number(r.subtotal))+' basket':null,number(r.promotionDiscount)!=null?money(number(r.promotionDiscount))+' promo':null,fees.feeTotal!=null?money(fees.feeTotal)+' fees':feeParts.length?money(feeParts.reduce((n,[,v])=>n+v,0))+' known fees':null].filter(Boolean).join(' · ');

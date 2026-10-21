@@ -38,7 +38,7 @@
       --dim: var(--color-panel);
       --green: var(--color-accent);
       --green-strong: var(--color-accent);
-      --green-soft: color-mix(in srgb, var(--color-accent) 14.0%, transparent);
+      --green-soft: var(--tint-color-accent-14-0-transparent);
       --amber: var(--color-accent);
       --amber-soft: var(--color-accent);
       --red: var(--color-accent);
@@ -80,13 +80,13 @@
     body::before {
       top: 14%;
       left: -130px;
-      background: color-mix(in srgb, var(--color-accent) 16.0%, transparent);
+      background: var(--tint-color-accent-16-0-transparent);
     }
 
     body::after {
       right: -150px;
       bottom: 12%;
-      background: color-mix(in srgb, var(--color-accent) 14.0%, transparent);
+      background: var(--tint-color-accent-14-0-transparent);
     }
 
     button, input, select { font: inherit; }
@@ -280,7 +280,7 @@
       top: -100px;
       right: -75px;
       border-radius: 50%;
-      background: color-mix(in srgb, var(--color-accent) 13.0%, transparent);
+      background: var(--tint-color-accent-13-0-transparent);
       filter: none;
       pointer-events: none;
     }
@@ -346,7 +346,7 @@
 
     .quick-btn:active,
     .filter-btn.active {
-      border-color: color-mix(in srgb, var(--color-accent) 46.0%, transparent);
+      border-color: var(--tint-color-accent-46-0-transparent);
       background: var(--green-soft);
       color: var(--green-strong);
     }
@@ -520,7 +520,7 @@
     }
 
     .quick-card.active {
-      border-color: color-mix(in srgb, var(--color-accent) 48.0%, transparent);
+      border-color: var(--tint-color-accent-48-0-transparent);
       background: var(--color-selected);
     }
 
@@ -651,7 +651,7 @@
     }
 
     .pill.good {
-      border-color: color-mix(in srgb, var(--color-accent) 34.0%, transparent);
+      border-color: var(--tint-color-accent-34-0-transparent);
       background: var(--green-soft);
       color: var(--green);
     }
@@ -853,7 +853,7 @@
       width: 100px;
       height: 100px;
       border-radius: 50%;
-      background: color-mix(in srgb, var(--color-accent) 6.0%, transparent);
+      background: var(--tint-color-accent-6-0-transparent);
       filter: none;
     }
 
@@ -1150,7 +1150,7 @@
     }
 
     .action-btn.primary {
-      border-color: color-mix(in srgb, var(--color-accent) 37.0%, transparent);
+      border-color: var(--tint-color-accent-37-0-transparent);
       background: var(--green-soft);
       color: var(--green);
     }
@@ -1261,7 +1261,7 @@
     .hero-card {
       padding: var(--space-4);
       background: var(--color-selected);
-      border-color: color-mix(in srgb, var(--color-accent) 18.0%, transparent);
+      border-color: var(--tint-color-accent-18-0-transparent);
     }
 
     .hero-heading {
@@ -1299,7 +1299,7 @@
       display: block;
       min-height: 102px;
       padding: var(--space-3) var(--space-4) var(--space-3);
-      border: 1px solid color-mix(in srgb, var(--color-accent) 24.0%, transparent);
+      border: 1px solid var(--tint-color-accent-24-0-transparent);
       border-radius: var(--card-radius);
       background: var(--color-panel);
       box-shadow: none;
@@ -1307,7 +1307,7 @@
     }
 
     .basket-editor:focus-within {
-      border-color: color-mix(in srgb, var(--color-accent) 72.0%, transparent);
+      border-color: var(--tint-color-accent-72-0-transparent);
       box-shadow: none;
     }
 
@@ -1421,7 +1421,7 @@
     }
 
     .account-card.picked {
-      border-color: color-mix(in srgb, var(--color-accent) 70.0%, transparent);
+      border-color: var(--tint-color-accent-70-0-transparent);
       box-shadow: none;
     }
 
@@ -1430,7 +1430,7 @@
       overflow: hidden;
       padding: var(--space-4);
       margin-bottom: var(--space-3);
-      border: 1px solid color-mix(in srgb, var(--color-accent) 19.0%, transparent);
+      border: 1px solid var(--tint-color-accent-19-0-transparent);
       border-radius: var(--card-radius);
       background: var(--color-selected);
       box-shadow: none;
@@ -1460,9 +1460,9 @@
       min-height: 28px;
       margin-top: var(--space-2);
       padding: 0 var(--space-2);
-      border: 1px solid color-mix(in srgb, var(--color-accent) 22.0%, transparent);
+      border: 1px solid var(--tint-color-accent-22-0-transparent);
       border-radius: 999px;
-      background: color-mix(in srgb, var(--color-accent) 9.0%, transparent);
+      background: var(--tint-color-accent-9-0-transparent);
       color: var(--green);
       font-size: 7.5px;
       font-weight:600;
@@ -1481,9 +1481,9 @@
       gap: 3px;
       margin: 2px 0 var(--space-3);
       padding: var(--space-3) var(--space-3);
-      border: 1px solid color-mix(in srgb, var(--color-accent) 16.0%, transparent);
+      border: 1px solid var(--tint-color-accent-16-0-transparent);
       border-radius: var(--card-radius);
-      background: color-mix(in srgb, var(--color-accent) 6.0%, transparent);
+      background: var(--tint-color-accent-6-0-transparent);
       color: var(--muted);
       font-size: 8.5px;
       line-height: 1.4;
@@ -1542,7 +1542,7 @@
       min-height: 58px;
       margin-top: var(--space-3);
       padding: 0 var(--space-3);
-      border: 1px solid color-mix(in srgb, var(--color-accent) 25.0%, transparent);
+      border: 1px solid var(--tint-color-accent-25-0-transparent);
       border-radius: var(--card-radius);
       background: var(--color-screen);
     }
@@ -1611,7 +1611,7 @@
     }
 
     .max-order-btn.active {
-      border-color: color-mix(in srgb, var(--color-accent) 55.0%, transparent);
+      border-color: var(--tint-color-accent-55-0-transparent);
       background: var(--color-selected);
       color: var(--green-strong);
       box-shadow: none;
@@ -1633,7 +1633,7 @@
     .account-sheet-hero {
       margin: 0 0 var(--space-3);
       padding: var(--space-4);
-      border: 1px solid color-mix(in srgb, var(--color-accent) 16.0%, transparent);
+      border: 1px solid var(--tint-color-accent-16-0-transparent);
       border-radius: var(--card-radius);
       background: var(--color-selected);
       box-shadow: none;
@@ -1679,8 +1679,8 @@
     }
 
     .account-status-badge.ok {
-      border: 1px solid color-mix(in srgb, var(--color-accent) 34.0%, transparent);
-      background: color-mix(in srgb, var(--color-accent) 12.0%, transparent);
+      border: 1px solid var(--tint-color-accent-34-0-transparent);
+      background: var(--tint-color-accent-12-0-transparent);
       color: var(--green-strong);
     }
 
@@ -1746,7 +1746,7 @@
     }
 
     .account-primary {
-      border: 1px solid color-mix(in srgb, var(--color-accent) 35.0%, transparent);
+      border: 1px solid var(--tint-color-accent-35-0-transparent);
       background: var(--green);
       color: var(--color-tertiary);
       box-shadow: none;
@@ -1821,7 +1821,7 @@
     .section-meta { font-size:12px; }
     .quick-grid { gap: var(--space-2); grid-auto-rows: minmax(124px, auto); }
     .quick-card { border-radius: var(--card-radius); padding: var(--space-4); }
-    .quick-card.active { border-color: color-mix(in srgb, var(--color-accent) 44.0%, transparent); background: var(--color-selected); }
+    .quick-card.active { border-color: var(--tint-color-accent-44-0-transparent); background: var(--color-selected); }
     .quick-title { font-size: 13px; font-weight:600; }
     .quick-sub { font-size:12px; line-height: 1.4; }
     .quick-icon { font-size: 18px; font-weight:600; }
@@ -1833,7 +1833,7 @@
     .account-meta, .account-status, .offer-meta, .offer-copy, .empty { font-size: 12px; line-height: 1.6; }
     .bottom-nav { background: var(--color-panel); box-shadow: none; }
     .nav-btn { font-size:12px; font-weight:600; border-radius: var(--card-radius); }
-    .nav-btn.active { background: color-mix(in srgb, var(--color-accent) 12.0%, transparent); }
+    .nav-btn.active { background: var(--tint-color-accent-12-0-transparent); }
     .search-input, .setting-input { font-size: 16px; min-height: 48px; }
     .filter-btn { min-height: 40px; font-size: 12px; }
     .sheet { background: var(--color-panel); box-shadow: none; }
@@ -1962,7 +1962,7 @@
       background: var(--color-selected);
     }
     .home-overview .available-stat-card {
-      border-color: color-mix(in srgb, var(--color-accent) 22.0%, transparent);
+      border-color: var(--tint-color-accent-22-0-transparent);
       background: var(--color-selected);
       box-shadow: none;
     }
@@ -2245,7 +2245,6 @@
     .colour-fields { flex: 1 1 150px; }
     .colour-fields label { display: block; font-size: 12px; color: var(--muted); margin: var(--space-3) 0 var(--space-1); }
     #themeColour { width: 100%; height: 44px; padding: 3px; border: 1px solid var(--line); border-radius: var(--card-radius); background: transparent; cursor: pointer; }
-    #themeBrightness { width: 100%; accent-color: var(--green); }
     .theme-presets { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: var(--space-5) 0; }
     .theme-swatch { width: 44px; height: 44px; padding: var(--space-1); border: 1px solid var(--line); border-radius: 50%; background: transparent; cursor: pointer; }
     .theme-swatch span { display: block; height: 100%; border-radius: 50%; background: var(--swatch); }
@@ -2551,7 +2550,7 @@
   <script type="module">
     import { financeIcon, financeHero, financeMetric } from "./finance-layout.js";
     import {createReceiptInsights} from "./receipt-insights.js";
-    import { PALETTE,RICH_PALETTE } from './theme-palette.js';
+    import { PALETTE } from './theme-palette.js';
     import { financialSummary, receiptFinancials } from "./receipt-financials.js";
     document.querySelectorAll('[data-icon]').forEach(element => { element.innerHTML = financeIcon(element.dataset.icon); element.setAttribute('aria-hidden','true'); });
     document.querySelectorAll('.metric-help').forEach(button => { button.innerHTML = financeIcon('info'); });
@@ -2711,7 +2710,7 @@
       catch { return DEFAULT_COLOUR; }
     }
 
-    function updateBrowserTheme(){const meta=document.querySelector('meta[name="theme-color"]'),colour=['receipts','planner'].includes(currentView)?RICH_PALETTE.screen:PALETTE.screen;if(meta.content!==colour)meta.content=colour;}
+    function updateBrowserTheme(){const meta=document.querySelector('meta[name="theme-color"]'),colour=getComputedStyle(document.documentElement).getPropertyValue('--color-screen').trim()||PALETTE.screen;if(meta.content!==colour)meta.content=colour;}
     function applyTheme(value) {
       themeColour = normaliseColour(value);
       const tokens = themeTokens(themeColour), root = document.documentElement;
@@ -2721,12 +2720,11 @@
       root.style.setProperty('--green-strong', 'var(--color-soft-accent)');
       root.style.setProperty('--green-soft', 'var(--color-selected)');
       root.style.setProperty('--accent-rgb', tokens.rgb);
-      const colour=colourHsl(themeColour);root.style.setProperty('--account-accent',tokens.accent);
-      root.style.setProperty('--account-accent-hue',colour.hue);root.style.setProperty('--account-accent-saturation',colour.saturation+'%');
+      root.style.setProperty('--account-accent',tokens.accent);
     }
 
     function chooseTheme(value) {
-      applyTheme(value);
+      applyTheme(themeTokens(value).accent);
       let saved = true;
       try { localStorage.setItem(THEME_KEY, themeColour); } catch { saved = false; }
       const picker = document.getElementById('themeColour');
@@ -2740,8 +2738,6 @@
       }
       wheel?.setAttribute('aria-valuetext', themeColour);
       wheel?.setAttribute('aria-valuenow', Math.round(hsl.hue));
-      const brightness = document.getElementById('themeBrightness');
-      if (brightness) brightness.value = hsl.lightness;
       document.querySelectorAll('[data-theme-colour]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.themeColour === themeColour)));
       const currentLabel=document.getElementById('currentThemeLabel');if(currentLabel)currentLabel.textContent=themeColourLabel();
       const status = document.getElementById('themeStatus');
@@ -3727,16 +3723,16 @@
           ).join('') +
         '</div><p id="layoutStatus" role="status">' + layoutDescription() + '</p></fieldset>' +
         '<div class="setting-card"><div class="setting-title">Theme colour</div>' +
-        '<div class="setting-copy">Drag around the wheel, or choose an exact colour.</div>' +
+        '<div class="setting-copy">Choose a hue for the whole app.</div>' +
         '<div class="colour-controls" style="margin-top:22px">' +
           '<div id="colourWheel" class="colour-wheel" role="slider" tabindex="0" aria-label="Theme colour wheel" aria-valuemin="0" aria-valuemax="360" aria-valuenow="0"><span class="colour-thumb"></span></div>' +
           '<div class="colour-fields"><label for="themeColour">Custom colour</label><input id="themeColour" type="color" value="' + themeColour + '">' +
-          '<label for="themeBrightness">Brightness</label><input id="themeBrightness" type="range" min="10" max="90" step="1"></div>' +
+          '</div>' +
         '</div><div class="theme-presets" role="group" aria-label="Theme presets">' +
           THEME_PRESETS.map(({value:colour,label}) =>
             '<button class="theme-swatch" style="--swatch:' + colour + '" data-theme-colour="' + colour + '" aria-label="' + label + '" aria-pressed="false"><span></span></button>'
           ).join('') +
-        '</div><button id="resetTheme" class="action-btn">Reset to blue</button><div id="themeStatus" class="setting-note" role="status"></div></div>';
+        '</div><button id="resetTheme" class="action-btn">Reset to purple</button><div id="themeStatus" class="setting-note" role="status"></div></div>';
       chooseTheme(themeColour);
       const wheel = document.getElementById('colourWheel');
       drawColourWheel(wheel);
@@ -3754,7 +3750,7 @@
       wheel.addEventListener('keydown', event => {
         if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)) return;
         event.preventDefault(); const hsl = colourHsl(themeColour);
-        const hue = hsl.hue + (event.key === 'ArrowRight' ? 5 : event.key === 'ArrowLeft' ? -5 : 0);
+        const hue = hsl.hue + (['ArrowRight','ArrowUp'].includes(event.key) ? 5 : -5);
         chooseTheme(hslColour(hue, Math.max(0, Math.min(100, hsl.saturation + (event.key === 'ArrowUp' ? 5 : event.key === 'ArrowDown' ? -5 : 0))), hsl.lightness));
         wheel.setAttribute('aria-valuenow', Math.round((hue + 360) % 360));
       });
@@ -3773,7 +3769,7 @@
     }
     function themeColourLabel(){
       const named=Object.fromEntries(THEME_PRESETS.map(({value,label})=>[value,label]));
-      return themeColour===DEFAULT_COLOUR?'Blue':named[themeColour]||'Custom';
+      return themeColour===DEFAULT_COLOUR?'Purple':named[themeColour]||'Custom';
     }
     function preferredPromosSummary(){
       const keys=offerPreferences.preferredPromos,amounts=keys.filter(k=>/^fixed:\d+(?:\.\d+)?:15$/.test(k)).map(k=>money(Number(k.split(':')[1])));
@@ -5075,7 +5071,6 @@
 
     document.getElementById("sheetBody").addEventListener("input", event => {
       if (event.target.id === 'themeColour') chooseTheme(event.target.value);
-      if (event.target.id === 'themeBrightness') { const hsl = colourHsl(themeColour); chooseTheme(hslColour(hsl.hue, hsl.saturation, Number(event.target.value))); }
       if (event.target.id === "sheetFeeInput") {
         selectedPlannerKey = null;
         const amount = event.target.value.trim();

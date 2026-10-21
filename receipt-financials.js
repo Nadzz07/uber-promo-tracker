@@ -53,6 +53,17 @@ export function receiptFinancials(receipt={},correction=receipt.financialCorrect
   return {...result,total:manual.total,categories:Object.keys(manual.breakdown).length?{...Object.fromEntries(financialCategories.map(k=>[k,0])),...manual.breakdown}:{...Object.fromEntries(financialCategories.map(k=>[k,0])),other:manual.total},source:manual.source,outOfPocket:manual.outOfPocket??result.outOfPocket,incomplete:false,needsAdjustmentReview:needsAdjustmentReview&&(manual.reviewedReceiptRevision!==receipt.financialReview.revision||manual.outOfPocket==null),conflict:stated&&Math.abs(total-manual.total)>.011,emailTotal:result.total,manualUpdatedAt:correction.at||null};
 }
 
+// Availability for receipt projections, without changing the stored ledger or
+// savings. A changed receipt can retain an older credit/payment allocation.
+// Only a correction reviewed against that revision establishes final spend.
+export function receiptPaymentAmount(receipt={},correction=receipt.financialCorrection||null){
+ const f=receiptFinancials(receipt,correction),previous=observed(receipt.previousTotal??receipt.financialEvidence?.previousTotal),paid=observed(receipt.total);
+ const legacyAdjustment=[receipt.refundAmount,receipt.financialEvidence?.refund].some(v=>v!=null&&Number.isFinite(Number(v))&&Number(v)!==0)||previous!=null&&paid!=null&&Math.abs(previous-paid)>.011;
+ const reviewed=correction?.outOfPocket!=null&&(!receipt.financialReview?.revision||correction.reviewedReceiptRevision===receipt.financialReview.revision);
+ if((f.needsAdjustmentReview||legacyAdjustment)&&!reviewed)return null;
+ return f.outOfPocket;
+}
+
 export function financialSummary(receipts=[],corrections={}) {
   const categories=Object.fromEntries(financialCategories.map(k=>[k,0]));
   let total=0,missing=0,missingSavings=0,adjustmentsNeedingReview=0,conflicting=0,cashUsed=0,outOfPocket=0,paymentKnown=0,manual=0;

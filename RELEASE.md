@@ -1,3 +1,21 @@
+## Shared hue system and compact Receipt Insights — 21 October 2026
+
+The app uses one hue (default 283) for backgrounds, selected states, tabs,
+buttons, links, chips and continuous progress fills. Five-hue regression checks
+cover 283, 210, 24, 338 and 160. Neutral graphite surfaces, text, green statuses
+and amber warnings remain fixed. Existing saved colour choices retain their hue;
+the colour picker now controls that hue without separate brightness families.
+All fades and legacy component aliases resolve through theme-palette.js.
+
+Receipt Insights groups separately labelled promo discounts and Cash payments
+in one tile, with non-credit spend beside it. Partial values keep visible Known
+labels and concise coverage. Unknown credit cannot become zero. Changed/refunded
+receipts with unresolved payment allocation do not establish final non-credit
+spend; reviewed payment corrections retain precedence. The savings ledger and
+source records are unchanged. Missing basket/fee bands are omitted; one compact
+status and information disclosure replace the coverage paragraph. Filters,
+inline activity, direct receipt navigation and local persistence are preserved.
+
 ## Receipt Insights financial availability — 21 October 2026
 
 Receipt activity now includes versioned, numeric-only per-service amount totals

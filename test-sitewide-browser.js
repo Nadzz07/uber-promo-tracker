@@ -59,7 +59,7 @@ try{
   await page.keyboard.press('Escape');await page.locator('[data-view="used"]').click();
   assert.equal(await page.locator('#usedAccountCount').innerText(),'1');await usedStatus(page,'manual');assert.equal(await page.locator('#usedResultsCount').innerText(),'1 promotion');await usedStatus(page,'completed');assert.equal(await page.locator('#usedResultsCount').innerText(),'0 promotions');
   assert.equal(await page.locator('#savedStat').innerText(),saved,'Visual actions cannot alter savings');
-  await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="appearance"]').click();await page.locator('[data-open-sheet="theme"]').click();await page.locator('[data-theme-colour="#c5a0ff"]').click();await page.keyboard.press('Escape');await page.locator('[data-settings-back]').click();await page.locator('#view-more [data-open-sheet="receipts"]').click();
+  await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="appearance"]').click();await page.locator('[data-open-sheet="theme"]').click();await page.locator('[data-theme-colour="#d87dfc"]').click();await page.keyboard.press('Escape');await page.locator('[data-settings-back]').click();await page.locator('#view-more [data-open-sheet="receipts"]').click();
   assert.ok(await page.locator('.ri-paid-card').evaluate(el=>getComputedStyle(el).backgroundImage.includes('gradient')));
   assert.equal(await page.locator('.ri-activity').count(),1,'Horizontal activity stays inside one card');
   assert.equal(await page.locator('.ri-range').inputValue(),'month');
@@ -67,9 +67,9 @@ try{
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.locator('[data-receipts-back]').click();await page.locator('#view-more [data-open-sheet="savings"]').click();
   const heroColours=await page.locator('.finance-hero').evaluate(el=>({surface:getComputedStyle(el).backgroundImage,reflection:getComputedStyle(el,'::before').content}));
-  assert.equal(heroColours.surface,'none');assert.equal(heroColours.reflection,'none','Savings uses the matte system without a curved reflection');
+  assert.ok(heroColours.surface.includes('gradient'));assert.equal(heroColours.reflection,'none','Savings shares the hue fade without a curved reflection');
   await page.keyboard.press('Escape');await page.locator('[data-view="home"]').click();
-  assert.ok(await page.locator('.total-saved-card').evaluate(el=>getComputedStyle(el).backgroundImage==='none'&&getComputedStyle(el,'::before').content==='none'),'Home shares the matte Savings material');
+  assert.ok(await page.locator('.total-saved-card').evaluate(el=>getComputedStyle(el).backgroundImage.includes('gradient')&&getComputedStyle(el,'::before').content==='none'),'Home shares the Savings material');
   assert.ok(await page.locator('.home-overview').evaluate(el=>el.querySelector('.total-saved-card').getBoundingClientRect().top<el.querySelector('.home-intro').getBoundingClientRect().top),'Savings leads the overview');
   const homeHeroHeight=await page.locator('.total-saved-card').evaluate(el=>el.getBoundingClientRect().height);
   assert.ok(homeHeroHeight<=170,'Home savings keeps compact preview proportions: '+name+' / '+width+' / '+homeHeroHeight);
