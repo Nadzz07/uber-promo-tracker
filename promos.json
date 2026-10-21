@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "generatedAt": "2026-10-21T16:16:43.238Z",
+  "generatedAt": "2026-10-21T16:17:06.423Z",
   "source": "apple-mail-sqlite",
   "demo": false,
   "sync": {
@@ -1545,7 +1545,7 @@
     "fullyUsedOffers": 0,
     "finishedExpiredOffers": 0,
     "fullyConsumedOffers": 0,
-    "expiredUnusedOffers": 3687,
+    "expiredUnusedOffers": 3685,
     "partiallyUsedOffers": 0,
     "usedAccessibleAccounts": 109,
     "completedUsageAccounts": 117,
@@ -2116,7 +2116,7 @@
         ]
       },
       "needsReview": false,
-      "reviewOfferCount": 2,
+      "reviewOfferCount": 3,
       "promoSavings": 8.95,
       "uberCashUsed": 12,
       "uberCashConfirmedSavings": 0,
@@ -2131,7 +2131,7 @@
       "archived": false,
       "accountState": "used",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 11,
+      "expiredUnusedOfferCount": 10,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -2566,7 +2566,7 @@
         "grants": []
       },
       "needsReview": false,
-      "reviewOfferCount": 1,
+      "reviewOfferCount": 2,
       "promoSavings": 10,
       "uberCashUsed": 0,
       "uberCashConfirmedSavings": 0,
@@ -2581,7 +2581,7 @@
       "archived": false,
       "accountState": "used",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 6,
+      "expiredUnusedOfferCount": 5,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -17868,8 +17868,8 @@
       "minimumSpend": 0,
       "sameAccountOfferCount": 7,
       "hasCode": false,
-      "expires": "2026-10-01",
-      "expiresAt": "2026-10-01T11:19:56.000Z",
+      "expires": "2026-11-25",
+      "expiresAt": "2026-11-25T14:54:56.000Z",
       "expiryStatus": "estimated",
       "expiryBasis": "tracker_35_day_rule",
       "classificationConfidence": "high",
@@ -17880,15 +17880,15 @@
       "loginMethod": "iCloud",
       "hasCompanionOffer": false,
       "receiptState": null,
-      "trackingState": "expired",
+      "trackingState": "needs_checking",
       "needsReview": true,
       "reviewReasons": [
         "unconfirmed_discount_scope"
       ],
-      "closedReason": "expired",
+      "closedReason": null,
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
-      "firstEmailSentAt": "2026-08-27T11:19:56.000Z",
+      "firstEmailSentAt": "2026-10-21T14:54:56.000Z",
       "emailSentAt": "2026-10-21T14:54:56.000Z",
       "recommendationEligible": true
     },
@@ -17921,8 +17921,8 @@
       "minimumSpend": 0,
       "sameAccountOfferCount": 4,
       "hasCode": false,
-      "expires": "2026-10-06",
-      "expiresAt": "2026-10-06T12:04:37.000Z",
+      "expires": "2026-11-25",
+      "expiresAt": "2026-11-25T14:49:50.000Z",
       "expiryStatus": "estimated",
       "expiryBasis": "tracker_35_day_rule",
       "classificationConfidence": "high",
@@ -17933,15 +17933,15 @@
       "loginMethod": "iCloud",
       "hasCompanionOffer": false,
       "receiptState": null,
-      "trackingState": "expired",
+      "trackingState": "needs_checking",
       "needsReview": true,
       "reviewReasons": [
         "unconfirmed_discount_scope"
       ],
-      "closedReason": "expired",
+      "closedReason": null,
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
-      "firstEmailSentAt": "2026-09-01T12:04:37.000Z",
+      "firstEmailSentAt": "2026-10-21T14:49:50.000Z",
       "emailSentAt": "2026-10-21T14:49:50.000Z",
       "recommendationEligible": true
     },
