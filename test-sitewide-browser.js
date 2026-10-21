@@ -102,7 +102,7 @@ try{
   await populatedPage.locator('[data-view="more"]').click();await populatedPage.locator('#view-more [data-open-sheet="receipts"]').click();
   await populatedPage.locator('.ri-range').selectOption('all');
   await populatedPage.locator('[data-ri-service=all]').click();
-  assert.equal(await populatedPage.locator('.ri-paid-total').innerText(),'Not shown','Public daily savings do not establish paid amounts');
+  assert.equal(await populatedPage.locator('.ri-paid-total').innerText(),'—','Public daily savings do not establish paid amounts');
   assert.match(await populatedPage.locator('[data-ri-service=all]').getAttribute('aria-label'),/6 receipts/);
   assert.equal(await populatedPage.locator('.ri-activity').count(),1);
   assert.equal(await populatedPage.locator('.monthly-track,.monthly-chart').count(),0,'No old monthly chart remains');

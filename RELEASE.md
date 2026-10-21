@@ -1,3 +1,26 @@
+## Receipt Insights financial availability — 21 October 2026
+
+Receipt activity now includes versioned, numeric-only per-service amount totals
+and coverage counts, derived from the existing receipt ledger and saved
+corrections. Previously the public projection carried order counts and combined
+savings only, so the new overview could not show available receipt totals.
+No receipt IDs, source text, identities, correction events or private balances
+are added to the public projection. Individual receipts remain device-local.
+
+Public and local views share the financial field mapping. Paid on receipts uses
+the original receipt total; Cash stays a payment source. Combined Uber One/promo
+savings stay combined. Missing amounts remain null, zero stays zero, partial
+coverage is stated once, and fee totals use receipt evidence rather than Planner
+estimates. Older snapshots without the optional amount projection retain counts
+and activity with neutral placeholders. No new import or authentication flow is
+introduced. Local imports, corrections, reload and cross-tab hydration are kept.
+
+The reference overview uses the compact rich hero, outlined receipt slip, Promo
+discounts and Uber Cash used tiles, and one horizontal activity card. Out-of-pocket
+payments remain available in the existing Savings breakdown. Validation covers
+source reconstruction, projection privacy, daily/monthly reconciliation, complete,
+partial, unavailable and zero states, filters, mobile layouts and receipt returns.
+
 ## Accounts approved directory — 16 October 2026
 
 Accounts replaces its old branding, oversized heading, separate metric cards and competing filter stack with a compact header, one two-column summary, regular-weight search, independent login tabs, provider/sort controls and a data-driven Offer type picker. Management and offer-availability filters share one secondary disclosure, with visible resettable selections. Sorting uses offer readiness/value or the displayed email; no account creation date is invented.

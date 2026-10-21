@@ -514,7 +514,7 @@ async function generatePromos() {
       source: "apple-mail-sqlite",
       demo: false,
       sync: { state: 'snapshot', lastSuccessfulMailScanAt },
-      receiptActivity: receiptActivity(receipts, transportReceipts, confirmedReceiptSaving),
+      receiptActivity: receiptActivity(receipts, transportReceipts, confirmedReceiptSaving,{includeAmounts:true}),
       summary: {
         ...summary,
         feeModel: {

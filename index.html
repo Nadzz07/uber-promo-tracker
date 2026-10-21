@@ -4416,7 +4416,11 @@
     function renderUsedInformation(){setSheetHeading('How statuses are decided','Accounts and promotions are counted separately.');document.getElementById('sheetBody').innerHTML='<div class="setting-card"><p>Fully used accounts have at least one Eats and one Ride receipt, or five Eats receipts. Login and archive status stay independent.</p><p>Needs checking counts accounts with uncertain offer or receipt evidence. The record explains the uncertainty.</p><p>Expired offers counts promotions in Finished · Expired and Expired · Unused. Summary values count different categories; they are not a partition and must not be added together.</p><p>Completed promotions require every permitted use to be verified. Partial use, manual finish and ignore states stay separate.</p></div><button class="advanced-btn" data-open-guide="verification">Read the full status guide ›</button>';}
 
     function openUtilitySheet(type, financeTarget = null, financeMissing = false, financeAccount = null, financeReceipt = null) {
-      if(type==='receipts'){switchView('receipts');return;}
+      if(type==='receipts'){
+        switchView('receipts');const entry=currentRouteEntry;
+        requestAnimationFrame(()=>{if(currentView==='receipts'&&currentRouteEntry===entry){document.getElementById('receiptInsightsTitle').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}});
+        return;
+      }
       if(type==='appearance'){switchView('settings');document.getElementById('settingsTitle').focus({preventScroll:true});return;}
       if (financeView) {financeView.destroy();financeView=null;}
       openSheetType = type;

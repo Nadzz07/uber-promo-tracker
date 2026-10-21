@@ -40,6 +40,7 @@ const paths = {
   bag: '<path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/>',
   calendar: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 2v6M17 2v6M3 11h18M7 15h2M15 15h2"/>',
   receipt: '<path d="M6 2h9l4 4v16H5V2h1ZM14 2v5h5M8 11h8M8 15h8M8 19h5"/>',
+  'receipt-slip': '<path d="M7 2h13l-3 20-2-1.7-2 1.7-2-1.7-2 1.7-2-1.7L3 22 6 3a1 1 0 0 1 1-1Z"/><path d="M9 7h7M8.3 11h6.5M7.7 15h5"/>',
   chart: '<path d="M4 21V12h3v9M11 21V3h3v18M18 21V8h3v13"/>',
   shield: '<path d="m12 2 9 4v6c0 5-5 9-9 11-4-2-9-6-9-11V6l9-4Z"/><path d="m8 12 3 3 5-6"/>',
   history: '<path d="M3 5v5h5M3 10a9 9 0 1 1 1 8M12 7v6l4 2"/>',

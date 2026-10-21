@@ -58,6 +58,7 @@ assertPublicSnapshot(second, history);
 const stableHistory = value => value.records.map(({firstSeenAt, lastSeenAt, ...record}) => record);
 if (JSON.stringify(first.accounts) !== JSON.stringify(second.accounts) ||
     JSON.stringify(first.promos) !== JSON.stringify(second.promos) ||
+    JSON.stringify(first.receiptActivity) !== JSON.stringify(second.receiptActivity) ||
     JSON.stringify(stableHistory(firstHistory)) !== JSON.stringify(stableHistory(history)) ||
     first.summary.totalSaved !== second.summary.totalSaved || first.summary.trackedOrders !== second.summary.trackedOrders ||
     !firstReconstruction || !secondReconstruction || secondReconstruction.repairedClocks !== 0) throw new Error('Reprocessing is not idempotent.');
@@ -73,6 +74,7 @@ try {
 const report = { verifiedAt: new Date().toISOString(), sourceDatabaseUnchanged: true, backupCreated: true,
   storedBefore: before, afterReprocessing: counts, sourceMessagesReparsed: messages.length,
   receiptsWithoutReparseableEvidence: missingEvidence, idempotent: true, publicPrivacyPassed: true,
+  receiptAmountVersion:second.receiptActivity.amountVersion,
   completeSourceReconstruction: { first: firstReconstruction, second: secondReconstruction },
   confirmedSaved: second.summary.totalSaved, estimatedUberOneSavings: second.summary.estimatedUberOneSavings,
   accountStates: Object.fromEntries(['available', 'used', 'archived', 'expired', 'fully_used', 'needs_checking', 'no_offers'].map(state => [state, second.accounts.filter(a => a.accountState === state).length])),
