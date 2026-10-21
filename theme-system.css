@@ -117,3 +117,6 @@ input[role=switch]:checked { background:var(--color-toggle)!important; border-co
 #savedStat,.savings-hero-value { color:var(--color-positive); }
 .scan-pill.live .scan-dot { background:var(--color-positive); }
 .scan-pill:is(.setup,.stale) .scan-dot { background:var(--color-warning-icon); }
+/* Action chevrons follow the hue; provider/status icons keep their own roles. */
+:is(button,a,summary):has(> span) > svg:last-child,.directory-chevron,.used-chevron { color:var(--color-accent); }
+.receipt-review-action > svg:last-child { color:var(--color-warning-icon); }
