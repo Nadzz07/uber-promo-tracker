@@ -24,7 +24,7 @@ const results=[];
 try{
  for(const [width,height,large] of [[390,844,false],[320,568,false],[440,956,true],[1440,1000,false]]){
   const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:'reduce'}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  const shot=async name=>{if(output){await page.evaluate(()=>Promise.all(document.getAnimations().filter(a=>a.effect?.getComputedTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{}))));}if(output)await page.screenshot({path:output+'/'+engine+'-'+width+(large?'-large':'')+'-'+name+'.png'});};
+  const shot=async name=>{if(output){await page.evaluate(()=>Promise.all(document.getAnimations().filter(a=>a.effect?.getComputedTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{}))));}if(output)await page.screenshot({path:output+'/'+engine+'-'+width+(large?'-large':'')+'-'+name+'.png'});if(name==='unavailable')assert.equal(await page.evaluate(()=>scrollY),0,'Initial data/layout settlement preserves the page header');};
   const overflow=async()=>assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Page has no horizontal overflow');
   const open=async()=>{await page.locator('[data-view=more]').click();await page.locator('#view-more [data-open-sheet=receipts]').click();await page.locator('.ri-paid-card').waitFor();await page.waitForFunction(()=>document.activeElement?.id==='receiptInsightsTitle'&&scrollY===0);};
   await page.goto(url);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');

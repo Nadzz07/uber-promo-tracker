@@ -1,5 +1,5 @@
 /* Receipt Insights and its detail sheet use the shared rich palette. */
-html:has(#view-receipts.active),body:has(#view-receipts.active) { background:var(--rich-screen); }
+html:has(#view-receipts.active),body:has(#view-receipts.active) { background:var(--rich-screen); overflow-anchor:none; }
 .ri-page { --muted:var(--rich-secondary); --dim:var(--rich-tertiary); color:var(--color-text); max-width:620px; margin-inline:auto; }
 .app-shell:has(#view-receipts.active) > .privacy { display:none; }
 .ri-page-head { position:sticky; top:env(safe-area-inset-top,0px); display:flex; align-items:center; gap:12px; min-height:44px; margin:0 0 10px; z-index:25; background:var(--rich-screen); }
