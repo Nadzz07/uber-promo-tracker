@@ -36,15 +36,15 @@ try{
   const originalTheme=await page.locator('meta[name="theme-color"]').getAttribute('content');
   await page.locator('[data-home-detail="planner"]').first().click();await page.locator('.recommendation-title').waitFor();
   await page.locator('#basketInput').fill('30');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='Use 2 accounts');await page.locator('#basketInput').blur();
-  await page.waitForFunction(()=>document.querySelector('meta[name="theme-color"]').content.toLowerCase()==='#0b0e13');
+  await page.waitForFunction(()=>document.querySelector('meta[name="theme-color"]').content.toLowerCase()==='#090d14');
   assert.equal(await page.locator('#view-planner .detail-view-head').evaluate(e=>getComputedStyle(e).animationName),'none','Header stays crisp during page entry');
   await page.evaluate(async()=>{await Promise.all(document.getAnimations().filter(a=>a.effect?.getComputedTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{})));});
   const rows=page.locator('.plan-accounts .plan-row');
   assert.equal(await rows.count(),2);
-  assert.deepEqual(await page.locator('.plan-promo').allTextContents(),['£12 off · £15 minimum','£12 off · £15 minimum']);
-  assert.deepEqual(await page.locator('.plan-subtotal').allTextContents(),['Basket £15 · Fee £1','Basket £15 · Fee £1']);
+  assert.deepEqual(await page.locator('.plan-promo').allTextContents(),['£12 off £15','£12 off £15']);
+  assert.deepEqual(await page.locator('.plan-subtotal').allTextContents(),['£15 basket · £1 fee','£15 basket · £1 fee']);
   assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£4.00','£4.00']);
-  assert.deepEqual(await page.locator('.plan-login').allTextContents(),['Sign in with iCloud','Sign in with Google']);
+  assert.equal(await page.locator('.plan-login').count(),0,'Compact plan rows leave provider details in the existing account interaction');
   assert.ok((await rows.nth(1).innerText()).includes(emails[1]));
   assert.doesNotMatch(await page.locator('.plan-accounts').innerText(),/Selected merchants|Delivery only|Apply promo code/);
   await rows.first().locator('[data-account-offers]').click();
@@ -73,13 +73,13 @@ try{
     const background=getComputedStyle(document.body,'::before');
     return{header:rect(head),ancestors,background:{height:parseFloat(background.height),color:background.backgroundColor,filter:background.filter},nav:rect(document.querySelector('.bottom-nav')),padding:parseFloat(getComputedStyle(document.body).paddingBottom),overflow:document.documentElement.scrollWidth>innerWidth};
    });
-   if(width<980){assert.equal(layout.header.top,top+24,'Only the shell applies the top inset');assert.equal(layout.background.height,top);assert.equal(layout.background.color,'rgb('+colourRgb(PALETTE.screen).join(', ')+')');assert.equal(layout.background.filter,'none');if(large)assert.ok(layout.nav.height>100,'Clearance follows actual enlarged dock height');}
+   if(width<980){assert.equal(layout.header.top,top+24,'Only the shell applies the top inset');assert.equal(layout.background.height,top);assert.equal(layout.background.color,'rgb(9, 13, 20)');assert.equal(layout.background.filter,'none');if(large)assert.ok(layout.nav.height>100,'Clearance follows actual enlarged dock height');}
    for(const ancestor of layout.ancestors){assert.ok(ancestor.filter==='none'||ancestor.filter==='blur(0px)');assert.equal(ancestor.backdrop,'none');assert.ok(!['clip','hidden'].includes(ancestor.overflowY),'No ancestor clips vertical page scrolling');}
    assert.equal(layout.overflow,false);
    for(const expanded of [false,true]){
     await page.locator('#plannerOtherOptions').evaluate((e,open)=>{if(e.open!==open)e.querySelector('summary').click();},expanded);
-    const controls=['#plannerOtherOptions > summary','.planner-matching-action','[data-open-sheet="advanced"]'];
-    if(expanded)controls.splice(1,0,'[data-select-plan]');
+    const controls=['#plannerOtherOptions > summary','[data-open-sheet="advanced"]'];
+    if(expanded)controls.splice(1,0,'[data-select-plan]','[data-planner-matches]');
     for(const selector of controls){
      const control=page.locator('#view-planner '+selector).first();
      await control.evaluate(e=>{e.focus({preventScroll:true});e.scrollIntoView({block:'end',behavior:'instant'});});

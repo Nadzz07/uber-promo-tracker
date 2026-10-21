@@ -397,11 +397,12 @@ try {
   }
   await filterPage.locator('[data-view="home"]').click();
   await filterPage.locator('#homeAnalytics button').click();
-  assert.ok(await filterPage.locator('.insights-chart-card').isVisible(),'Receipt quick action opens the full insights view');
-  assert.equal(await filterPage.locator('.monthly-row').count(),3);
-  assert.match(await filterPage.locator('.chart-insight').innerText(),/Jul 26 was strongest.*£39/);
-  assert.equal(await filterPage.locator('.monthly-track > span').first().evaluate(e=>e.getBoundingClientRect().width),0,'Zero savings must not become a decorative positive bar');
-  await filterPage.keyboard.press('Escape');
+  assert.ok(await filterPage.locator('.ri-activity').isVisible(),'Receipt quick action opens the full insights view');
+  await filterPage.locator('.ri-range').selectOption('all');await filterPage.locator('[data-ri-service=all]').click();await filterPage.locator('.ri-metric-select').selectOption('saved');
+  assert.equal(await filterPage.locator('.ri-activity-row').count(),3);
+  assert.deepEqual(await filterPage.locator('.ri-activity-row strong').allTextContents(),['£1.00','£39.00','£0.00']);
+  assert.equal(await filterPage.locator('.ri-activity-track > span').last().evaluate(e=>e.getBoundingClientRect().width),0,'Zero savings remain zero on the shared scale');
+  await filterPage.locator('[data-receipts-back]').click();
   // A published available state cannot survive its deadline, even without a new import.
   const clockNow=Date.now();
   repeatOffer.expiresAt=new Date(clockNow+2*86400000).toISOString();repeatOffer.expiryStatus='exact';

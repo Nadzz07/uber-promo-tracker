@@ -112,3 +112,6 @@ exclude:
   - test-manage-account-browser.js
   - test-theme-browser.js
   - test-theme-system.js
+
+  - test-receipt-insights.js
+  - test-receipt-insights-browser.js

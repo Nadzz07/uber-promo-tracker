@@ -1,4 +1,5 @@
-import {PALETTE,ACCENT_TOKENS,cssToken,colourRgb} from './theme-palette.js';
+import {PALETTE,ACCENT_TOKENS,cssToken,colourRgb,RICH_PALETTE,RICH_ACCENTS,richCssToken} from './theme-palette.js';
+import {contrastRatio} from './liquid-glass.js';
 export const THEME_KEY = 'uber-eats-promo-tracker:theme:v1';
 export const DEFAULT_COLOUR = PALETTE.accent.toLowerCase();
 export const LAYOUT_KEY = 'uber-eats-promo-tracker:layout:v1';
@@ -54,6 +55,21 @@ export function applyThemeTokens(root, value) {
   }
   root.style.setProperty('--color-panel-rgb',colourRgb(PALETTE.panel).join(','));
   root.style.setProperty('--color-accent-rgb',colourRgb(themeTokens(chosen).accent).join(','));
+  const rich={};
+  for(const [name,base] of Object.entries(RICH_PALETTE)){
+    const hsl=colourHsl(base);
+    rich[name]=RICH_ACCENTS.includes(name)&&chosen!==DEFAULT_COLOUR? hslColour(hsl.hue+delta,hsl.saturation,hsl.lightness):base;
+  }
+  // Hue rotation preserves HSL lightness, but green has much higher luminance
+  // than blue. Tone the derived surfaces (and purple button stops) so every
+  // gradient endpoint retains contrast. The approved default blue is exact.
+  if(chosen!==DEFAULT_COLOUR){
+    const tone=(name,texts,direction)=>{const hsl=colourHsl(rich[name]);for(let i=0;i<100&&texts.some(text=>contrastRatio(colourRgb(rich[name]),colourRgb(rich[text]))<4.6);i++){hsl.lightness=Math.max(0,Math.min(100,hsl.lightness+direction));rich[name]=hslColour(hsl.hue,hsl.saturation,hsl.lightness);}};
+    for(const name of ['selectedTop','selectedBottom'])tone(name,['secondary','positive'],-.6);
+    tone('chip',['chipText'],-.6);
+    for(const name of ['buttonTop','buttonBottom'])tone(name,['onAccent'],.6);
+  }
+  for(const [name,colour] of Object.entries(rich))root.style.setProperty(richCssToken(name),colour);
 }
 // Preset hue choices remain available without embedding UI colours elsewhere.
 export const THEME_PRESETS=[['Lime',[155,234,114]],['Ocean',[128,212,255]],['Violet',[197,160,255]],['Rose',[255,155,184]],['Amber',[255,199,120]]].map(([label,rgb])=>({label,value:'#'+rgb.map(v=>v.toString(16).padStart(2,'0')).join('')}));

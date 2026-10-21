@@ -2302,6 +2302,8 @@
   <link rel="stylesheet" href="./ui-refinements.css">
   <link rel="stylesheet" href="./liquid-glass.css">
   <link rel="stylesheet" href="./theme-system.css">
+  <link rel="stylesheet" href="./receipt-insights.css">
+  <link rel="stylesheet" href="./planner-design.css">
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -2464,11 +2466,11 @@
           <div class="planner-mode"><div class="planner-mode-copy"><label for="plannerFulfilment"><span data-icon="delivery" aria-hidden="true"></span>Order type</label><small>Choose how you’ll order</small></div><span class="planner-select-wrap"><select id="plannerFulfilment"><option value="delivery">Delivery</option><option value="pickup">Pickup</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></div>
         </section>
         <div class="planner-offer-scope"><label for="plannerOfferScope">Offer view</label><select id="plannerOfferScope"><option value="preferred">All preferred offers</option><option value="all">All offers</option></select></div><p id="plannerScopeLabel" class="planner-scope-label"></p><div id="plannerAccountContext" hidden></div><div class="planner-section-head"><h2>Suggested plan</h2><span id="plannerStatus" class="plan-status" hidden></span></div>
-          <div id="recommendation" class="recommendation" aria-live="polite">
+          <div id="plannerSecondaryControls" hidden></div><div id="recommendation" class="recommendation" aria-live="polite">
             <div class="empty">Preparing your recommendation…</div>
           </div>
 
-          <p class="planner-final-fees"><span data-icon="info" aria-hidden="true"></span>Final delivery and service fees are confirmed in Uber.</p>
+          <p class="planner-final-fees"><span data-icon="info" aria-hidden="true"></span>Final fees are confirmed in Uber.</p>
           <button class="planner-matching-action" data-planner-matches="true">Find more matching accounts <span aria-hidden="true">›</span></button>
           <div class="hero-footer">
             <button class="advanced-btn" data-open-sheet="advanced"><span data-icon="settings" aria-hidden="true"></span><span><strong>Fee settings</strong><small id="feeNote"></small></span><span aria-hidden="true">›</span></button>
@@ -2478,6 +2480,11 @@
           <p class="planner-privacy">Private account details stay on your device.</p>
         </div>
 </section>
+      <section id="view-receipts" class="view home-detail ri-page" aria-labelledby="receiptInsightsTitle">
+        <header class="ri-page-head"><button type="button" data-receipts-back="true" aria-label="Back"><span data-icon="chevron-left" aria-hidden="true"></span></button><h1 id="receiptInsightsTitle" tabindex="-1">Receipt insights</h1><button type="button" data-receipts-info="true" aria-label="About receipt totals" aria-expanded="false" aria-controls="receiptInsightsInfo"><span data-icon="info" aria-hidden="true"></span></button></header>
+        <p id="receiptInsightsInfo" class="ri-info ri-card" hidden>Paid on receipts adds the total shown on each receipt, including any amount paid with Uber Cash. It is not your bank or card spending. Out-of-pocket spend uses recorded payment evidence, after credit. Missing amounts are not zero.</p>
+        <div id="receiptInsightsBody"></div>
+      </section>
       <section id="view-accounts" class="view">
         <header class="accounts-head"><h1 id="accountsTitle" tabindex="-1">Accounts</h1><button class="accounts-find" data-directory-find="true"><span data-icon="search" aria-hidden="true"></span>Find an offer <span aria-hidden="true">›</span></button></header>
         <div class="accounts-summary" aria-label="Account totals">
@@ -2543,7 +2550,8 @@
 
   <script type="module">
     import { financeIcon, financeHero, financeMetric } from "./finance-layout.js";
-    import { PALETTE } from './theme-palette.js';
+    import {createReceiptInsights} from "./receipt-insights.js";
+    import { PALETTE,RICH_PALETTE } from './theme-palette.js';
     import { financialSummary, receiptFinancials } from "./receipt-financials.js";
     document.querySelectorAll('[data-icon]').forEach(element => { element.innerHTML = financeIcon(element.dataset.icon); element.setAttribute('aria-hidden','true'); });
     document.querySelectorAll('.metric-help').forEach(button => { button.innerHTML = financeIcon('info'); });
@@ -2643,6 +2651,7 @@
     let plannerSettings = readPlannerSettings();
     let openSheetType = null;
     let financeView = null;
+    let receiptInsightsView = null;
     let financeModule = null;
     const financeVault = new PrivateFinanceVault();
     let financeOpenRevision = 0;
@@ -2702,11 +2711,12 @@
       catch { return DEFAULT_COLOUR; }
     }
 
+    function updateBrowserTheme(){const meta=document.querySelector('meta[name="theme-color"]'),colour=['receipts','planner'].includes(currentView)?RICH_PALETTE.screen:PALETTE.screen;if(meta.content!==colour)meta.content=colour;}
     function applyTheme(value) {
       themeColour = normaliseColour(value);
       const tokens = themeTokens(themeColour), root = document.documentElement;
       applyThemeTokens(root,themeColour);
-      document.querySelector('meta[name="theme-color"]').content=PALETTE.screen;
+      updateBrowserTheme();
       root.style.setProperty('--green', tokens.accent);
       root.style.setProperty('--green-strong', 'var(--color-soft-accent)');
       root.style.setProperty('--green-soft', 'var(--color-selected)');
@@ -3244,26 +3254,24 @@
     const plannerMoney = value => new Intl.NumberFormat('en-GB', {style:'currency', currency:'GBP', minimumFractionDigits:2}).format(value);
     function plannerOfferSummary(promo) {
       if (!promo) return 'Uber Cash payment';
-      const minimum = promo.minimumSpend;
-      return promoLabel(promo) + (minimum != null && Number.isFinite(Number(minimum)) ? ' · ' + money(minimum) + ' minimum' : ' · Minimum unconfirmed');
+      return offerScopeLabel(accountOfferKey(promo));
     }
     function plannerAccountRows(plan) {
       return plan.orders.map((order, index) => {
         const account = accounts.find(a => a.accountRef === order.accountRef) || order;
         return '<div class="plan-row" data-plan-account="' + escapeHtml(order.accountRef) + '">' +
           '<span class="plan-order-number">' + (index + 1) + '</span><div class="plan-body">' +
-          '<button class="plan-account" data-account-offers="' + escapeHtml(order.accountRef) + '" data-account-offer="' + escapeHtml(order.promoId || order.promo?.id || (order.cashApplied>0?'cash':'')) + '">' + escapeHtml(accountDisplay(account)) + '</button>' +
-          '<div class="plan-login">' + escapeHtml(loginRouteText(account)) + '</div>' +
+          '<button class="plan-account" title="'+escapeHtml(accountDisplay(account))+'" data-account-offers="' + escapeHtml(order.accountRef) + '" data-account-offer="' + escapeHtml(order.promoId || order.promo?.id || (order.cashApplied>0?'cash':'')) + '">' + escapeHtml(accountDisplay(account)) + '</button>' +
           '<div class="plan-promo">' + escapeHtml(plannerOfferSummary(order.promo)) + '</div>' +
-          '<div class="plan-subtotal">Basket ' + escapeHtml(money(order.subtotal)) +
-          (order.checkoutFees == null ? ' · Fee ' + escapeHtml(money(order.extraFee)) : '') +
-          (order.checkoutFees != null ? ' · Recorded fees ' + escapeHtml(money(order.checkoutFees)) : '') + '</div>' +
+          '<div class="plan-subtotal">' + escapeHtml(money(order.subtotal))+' basket' +
+          (order.checkoutFees == null ? ' · ' + escapeHtml(money(order.extraFee))+' fee' : '') +
+          (order.checkoutFees != null ? ' · ' + escapeHtml(money(order.checkoutFees))+' recorded fees' : '') + '</div>' +
           (order.cashUsed>0 ? '<div class="plan-subtotal">'+(order.cashBasis==='verified'?'Verified Cash ':'Estimated Cash ') + escapeHtml(plannerMoney(order.cashUsed)) + ' · remaining ' + escapeHtml(plannerMoney(order.cashRemaining)) + '</div>' : '') +
-          '</div><div class="plan-payment"><strong>' + escapeHtml(plannerMoney(order.estimatedPay)) + '</strong><small>Estimated payment</small></div></div>';
+          '</div><div class="plan-payment"><strong>' + escapeHtml(plannerMoney(order.estimatedPay)) + '</strong><span class="sr-only"> estimated payment</span></div></div>';
       }).join('');
     }
     function plannerAllocation(plan) {
-      const amounts = plan.orders.map(o => plannerMoney(o.subtotal));
+      const amounts = plan.orders.map(o => money(o.subtotal));
       return plan.orderCount + (plan.orderCount === 1 ? ' order · ' : ' orders · ') +
         (new Set(amounts).size === 1 ? amounts[0] + (plan.orderCount > 1 ? ' each' : '') : amounts.join(' + '));
     }
@@ -3279,6 +3287,10 @@
       document.getElementById("homePlannerSummary").textContent = "Basket " + money(currentBasket()) + " · " + (plannerSettings.fulfilment === "pickup" ? "Pickup" : "Delivery");
       document.getElementById('plannerFulfilment').value = plannerSettings.fulfilment || 'delivery';
       const target = document.getElementById("recommendation");
+      const scopeHost=document.querySelector('.planner-offer-scope'),scopeNote=document.getElementById('plannerScopeLabel'),matchesAction=document.querySelector('[data-planner-matches]');
+      const controls=document.getElementById('plannerSecondaryControls');
+      for(const control of [scopeHost,scopeNote,matchesAction])if(control)controls.append(control);
+      controls.hidden=true;
       const status = document.getElementById('plannerStatus');
       status.hidden = true;
       if(privateMigrationPending){target.innerHTML='<div class="empty">Import your updated private login file to reconnect saved offer decisions after the security update. Your previous actions remain saved.<button class="advanced-btn" data-open-sheet="device">Import private login file</button></div>';return;}
@@ -3302,7 +3314,7 @@
       }
       const comparison = plannerComparisonCache.value;
       if (!comparison.suggested) {
-        selectedPlannerKey = null;
+        selectedPlannerKey = null;controls.hidden=false;
         target.innerHTML = '<div class="empty">' + escapeHtml(comparison.reason || 'No available accounts right now.') + '</div>';
         return;
       }
@@ -3314,23 +3326,24 @@
       const alternatives = comparison.plans.filter(p => p.key !== selected.key).sort((a,b) => a.estimatedPay-b.estimatedPay);
       status.innerHTML = financeIcon('bolt') + '<span>' + (selected.conditional ? 'Confirm Cash + promo compatibility' : lowest ? 'Lowest estimated cost' : 'Your selected option') + '</span>';
       status.hidden = false;
-      target.innerHTML = '<div class="recommendation-top"><div class="recommendation-choice">' + financeIcon('star') + '<div>' +
+      target.innerHTML = '<div class="recommendation-card"><div class="recommendation-top"><div class="recommendation-choice">' + financeIcon('star') + '<div>' +
         '<h3 class="recommendation-title">Use ' + selected.accountCount + (selected.accountCount === 1 ? ' account' : ' accounts') + '</h3>' +
         '<div class="recommendation-copy">' + escapeHtml(plannerAllocation(selected)) + '</div></div></div>' +
-        '<div class="recommendation-save"><span class="plan-payment-label">Out of pocket</span>' + escapeHtml(plannerMoney(selected.estimatedPay)) + '<small>Including estimated fees</small></div></div>' +
-        '<div class="plan-costs">' + line('bag','Basket',escapeHtml(plannerMoney(selected.subtotal))) +
+        '<div class="recommendation-save" aria-label="Estimated out of pocket">' + escapeHtml(plannerMoney(selected.estimatedPay)) + '<small>Including estimated fees</small></div></div>' +
+        '<div class="plan-costs">' + line('bag','Basket subtotal',escapeHtml(plannerMoney(selected.subtotal))) +
         line('star','Promo discounts','−' + escapeHtml(plannerMoney(selected.grossSaving)), 'discount') +
         line('receipt',selected.checkoutFees != null ? 'Recorded checkout fees' : 'Order fee estimate','+' + escapeHtml(plannerMoney(selected.checkoutFees ?? selected.extraFees))) +
         (selected.cashUsed>0?line('receipt','Total after promos and fees',escapeHtml(plannerMoney(selected.totalAfterPromosAndFees??(selected.subtotal-selected.grossSaving+(selected.checkoutFees??selected.extraFees)))))+line('wallet',selected.cashEstimated?'Cash applied · estimated':'Cash applied · verified','−'+escapeHtml(plannerMoney(selected.cashUsed))):'')+'</div>' +
-        '<div class="plan-accounts"><h4>Accounts to use</h4>' + plannerAccountRows(selected) + '</div>' +
-        '<details id="plannerOtherOptions" class="planner-other-options"' + (otherOptionsOpen ? ' open' : '') + '><summary>' + financeIcon('chart') + '<span>Other options<small>Compare alternative ways to order.</small></span></summary><div class="planner-alternatives">' +
+        '<div class="plan-accounts"><h4>Accounts to use</h4>' + plannerAccountRows(selected) + '</div></div>' +
+        '<details id="plannerOtherOptions" class="planner-other-options"' + (otherOptionsOpen ? ' open' : '') + '><summary>' + financeIcon('chart') + '<span>Other options<small>Compare plans</small></span></summary><div class="planner-alternatives">' +
         (alternatives.length ? alternatives.map(plan => '<article class="plan-alternative"><div class="plan-alternative-head"><div><strong>Use ' + plan.accountCount + (plan.accountCount === 1 ? ' account' : ' accounts') + '</strong><small>' + escapeHtml(plannerAllocation(plan)) + (plan.cashUsed > 0 ? (plan.cashEstimated?' · estimated Cash':' · verified Cash') : '') + (plan.conditional ? ' · confirm compatibility' : '') + '</small></div><div class="plan-alternative-price"><strong>' + escapeHtml(plannerMoney(plan.estimatedPay)) + '</strong><small>' + (plan.estimatedPay === suggested.estimatedPay ? 'Same as suggested' : (plan.estimatedPay > suggested.estimatedPay ? '+' : '−') + escapeHtml(plannerMoney(Math.abs(plan.estimatedPay-suggested.estimatedPay))) + ' vs suggested') + '</small></div></div>' +
-          '<p>Basket ' + escapeHtml(plannerMoney(plan.subtotal)) + ' − discounts ' + escapeHtml(plannerMoney(plan.grossSaving)) +
+          '<p>Basket subtotal ' + escapeHtml(plannerMoney(plan.subtotal)) + ' − promo discounts ' + escapeHtml(plannerMoney(plan.grossSaving)) +
           (plan.cashUsed > 0 ? ' − Cash ' + escapeHtml(plannerMoney(plan.cashUsed)) : '') +
-          ' + ' + (plan.checkoutFees != null ? 'recorded fees ' : 'fee estimate ') + escapeHtml(plannerMoney(plan.checkoutFees ?? plan.extraFees)) + '</p>' +
+          ' + ' + (plan.checkoutFees != null ? 'recorded fees ' : 'order fee estimate ') + escapeHtml(plannerMoney(plan.checkoutFees ?? plan.extraFees)) + '</p>' +
           '<button class="plan-select" data-select-plan="' + escapeHtml(plan.key) + '">View accounts for this plan <span aria-hidden="true">›</span></button></article>').join('') : '<p>No other eligible ordering strategy fits this basket.</p>') + '</div></details>' +
         (selected.conditional ? '<p class="plan-conditional-note">Estimated payment assumes Uber accepts Cash with this promo.</p>' : '') +
         (Object.keys(privateWallets).length ? '<button class="planner-matching-action" data-open-sheet="finance" data-finance-target="cash">Update private Cash balances <span aria-hidden="true">›</span></button>' : '');
+      const otherPlans=target.querySelector('.planner-alternatives');if(scopeHost)otherPlans.append(scopeHost);if(scopeNote)otherPlans.append(scopeNote);if(matchesAction)otherPlans.append(matchesAction);
       target.querySelector('#plannerOtherOptions').addEventListener('toggle', event => { otherOptionsOpen = event.target.open; });
     }
 
@@ -4240,49 +4253,26 @@
         '<button class="sheet-action-row finance-help-row" data-open-guide="savings">'+financeIcon('info')+'<span>How savings work</span></button></div>';
     }
 
-    function receiptActivityRows(limit = 20, {start = 0, cards = false} = {}) {
-      const rows = payload.receiptActivity?.days || [];
-      return rows.length ? '<div class="' + (cards ? 'receipt-activity-list' : 'sheet-list') + '">' + rows.slice(start,start + limit).map(row=>
-        '<div class="' + (cards ? 'receipt-activity-card' : 'sheet-row') + '">' + (cards ? '<span class="app-icon-surface">' + financeIcon('receipt') + '</span>' : '') + '<div class="receipt-activity-copy"><div class="sheet-row-title">' + (cards ? 'Daily total · ' : '') + escapeHtml(formatDate(row.period) || row.period) + '</div><div class="sheet-row-meta">' + Number(row.eats) + ' Eats · ' + Number(row.rides) + ' Ride' + (row.dateFallbacks ? ' · '+row.dateFallbacks+' email-date fallback' : '') + '</div></div><div class="sheet-row-value">' + (cards ? '<small>Receipt savings</small>' : '') + escapeHtml(money(row.saved)) + '</div></div>'
-      ).join('') + '</div>' : '<div class="empty">Receipt activity will appear after a verified import.</div>';
-    }
-
     function renderHomeAnalytics() {
       const target = document.getElementById('homeAnalytics');
-      if (!target.firstElementChild) target.innerHTML = '<button class="home-action-row" data-open-sheet="receipts">' + financeIcon('insights') + '<span><strong>Receipt insights</strong><small>Monthly savings &amp; receipts</small></span><span class="row-chevron" aria-hidden="true">›</span></button>';
+      if (!target.firstElementChild) target.innerHTML = '<button class="home-action-row" data-open-sheet="receipts">' + financeIcon('insights') + '<span><strong>Receipt insights</strong><small>Savings &amp; receipts</small></span><span class="row-chevron" aria-hidden="true">›</span></button>';
     }
 
-    function monthlySavingsChart() {
-      const months = (payload.receiptActivity?.months || []).slice(-6);
-      const maximum = Math.max(1, ...months.map(row => Number(row.saved)));
-      return months.length ? '<div class="monthly-chart" aria-label="Confirmed savings by month">' + months.slice().reverse().map(row => {
-        const label = new Date(row.period + '-01T12:00:00Z').toLocaleString('en-GB', {month:'short',year:'2-digit'});
-        return '<div class="monthly-row"><div class="monthly-label"><strong>' + escapeHtml(label) + '</strong><span>' + (Number(row.eats) + Number(row.rides)) + ' receipts</span></div><div class="monthly-track" aria-hidden="true"><span style="width:' + Math.max(0,Number(row.saved) / maximum * 100) + '%"></span></div><strong class="monthly-value">' + escapeHtml(money(row.saved)) + '</strong></div>';
-      }).join('') + '</div>' : '<div class="empty">No verified receipt savings yet.</div>';
-    }
-
-    function monthlySavingsInsight() {
-      const months = (payload.receiptActivity?.months || []).slice(-6);
-      const peak = months.reduce((best,row)=>!best || Number(row.saved)>Number(best.saved) ? row : best,null);
-      if (!peak) return '';
-      const label = new Date(peak.period+'-01T12:00:00Z').toLocaleString('en-GB',{month:'short',year:'2-digit'});
-      const receipts = months.reduce((sum,row)=>sum+Number(row.eats)+Number(row.rides),0);
-      return '<p class="chart-insight"><strong>' + escapeHtml(label) + ' was strongest · ' + escapeHtml(money(peak.saved)) + '</strong><span>' + receipts + ' receipts · current month incomplete · includes archived history.</span></p>';
-    }
-
-    function renderReceiptsSheet() {
-      const summary = payload.summary || {};
-      const months = (payload.receiptActivity?.months || []).slice(-6);
-      const total = months.reduce((sum, row) => sum + Number(row.saved), 0);
-      const eats = Number(summary.trackedOrders || 0), rides = Number(summary.trackedRides || 0);
-      const days = payload.receiptActivity?.days || [];
-      setSheetHeading('Receipt insights', 'Confirmed receipts · monthly savings.');
-      document.getElementById('sheetBody').innerHTML =
-        '<div class="insights-hero"><span class="app-icon-surface">' + financeIcon('savings') + '</span><div><span class="insights-hero-label">Receipt savings</span><strong>' + escapeHtml(money(total)) + '</strong><p class="insights-period">Across ' + months.length + ' months</p></div></div>' +
-        '<section class="setting-card insights-chart-card"><div class="insights-chart-heading"><h3 class="setting-title">Monthly savings</h3><span>' + months.length + ' months</span></div>' + monthlySavingsChart() + '</section>' + monthlySavingsInsight() +
-        '<div class="receipt-record-summary"><div class="receipt-record-metric"><span class="app-icon-surface">' + financeIcon('receipt') + '</span><div><span>Receipt records</span><strong>' + (eats + rides).toLocaleString('en-GB') + '</strong></div></div><button class="receipt-record-metric" data-open-sheet="finance" data-finance-target="receipt" data-finance-missing="true"><span class="app-icon-surface">' + financeIcon('info') + '</span><div><span>Missing details</span><strong>' + missingDetailsCount().toLocaleString('en-GB') + '</strong></div></button><p>' + eats + ' Eats · ' + rides + ' Ride</p></div>' +
-        '<section class="sheet-section insights-recent"><h3 class="sheet-section-title">Recent receipt activity</h3>' + receiptActivityRows(3,{cards:true}) + (days.length > 3 ? '<details class="receipt-activity-more"><summary>View all <span aria-hidden="true">›</span></summary>' + receiptActivityRows(87,{start:3,cards:true}) + '</details>' : '') + '</section>' +
-        '<button class="sheet-action-row" data-open-sheet="savings">' + financeIcon('info') + '<span>Evidence & estimates<small>See what your receipts confirm</small></span></button><p class="sheet-help insights-privacy">Daily totals are aggregated. Exact receipts stay in Private finances.</p>';
+    function renderReceiptsPage() {
+      receiptInsightsView ||= createReceiptInsights({host:document.getElementById('receiptInsightsBody'),detailHost:document.getElementById('sheetBody'),
+        getSource:()=>({data:financeVault.data,storeStatus:financeVault.status,corrections:financeVault.current().corrections,payload,offers:promos}),
+        getScroll:()=>window.scrollY,setScroll:top=>window.scrollTo({top,behavior:'instant'}),
+        onHeading:(title,state)=>{
+          if(!state.receiptId)return;
+          setSheetHeading(title,'');
+          const sheet=document.querySelector('.sheet'),head=sheet.querySelector('.sheet-head');sheet.dataset.receiptInsights='detail';
+          const back=document.createElement('button');back.type='button';back.className='ri-back';back.setAttribute('aria-label','Back to Receipt insights');back.innerHTML=financeIcon('chevron-left');back.onclick=()=>closeSheet();head.prepend(back);
+        },
+        onOpenReceipt:id=>{
+          openSheetType='receipt-detail';receiptInsightsView.openReceipt(id);showSheet();document.querySelector('.ri-back').focus({preventScroll:true});
+        }
+      });
+      if(openSheetType!=='receipt-detail'){receiptInsightsView.state.receiptId=null;receiptInsightsView.render();}
     }
 
     function renderAboutSheet() {
@@ -4300,6 +4290,7 @@
       privateWallets=financeVault.current().wallets;invalidateAccountProjection();reconcileLocalEvidence();reviewData=reviewView=null;
       renderAccounts();renderHomeAccounts();renderUsed();renderRecommendation();
       if(openSheetType==='account')renderAccountSheet();
+      if(currentView==='receipts'||openSheetType==='receipt-detail')receiptInsightsView?.refresh();
     }
     function mountPrivateDataTools(){
       const host=document.getElementById('privateDataTools');if(!host)return;
@@ -4367,6 +4358,8 @@
     function setSheetHeading(title, sub) {
       const sheet = document.querySelector('.sheet');
       sheet.dataset.screen = title;
+      sheet.toggleAttribute('data-planner-fees',title==='Fee settings'&&currentView==='planner');
+      delete sheet.dataset.receiptInsights;sheet.querySelectorAll('.ri-range-wrap,.ri-back').forEach(e=>e.remove());
       const financeLayout = title === 'Savings' || title === 'Private finances';
       sheet.toggleAttribute('data-finance-layout', financeLayout);
       let icon = sheet.querySelector('.finance-heading-icon');
@@ -4379,7 +4372,7 @@
     }
 
     function showSheet() {
-      if (!routeRestoring && ['offers','planner','used','accounts'].includes(currentView)) {
+      if (!routeRestoring && ['offers','planner','used','accounts','receipts'].includes(currentView)) {
         const state = window.history.state;
         if (routeEntries.has(state?.trackerEntry)) routeEntries.get(state.trackerEntry).scroll = window.scrollY;
         const entry = ++routeSerial;
@@ -4387,7 +4380,7 @@
         routeEntries.set(entry, {opener: document.activeElement, scroll: window.scrollY, accountRef:openAccountRef||sheetOpener?.dataset.accountOffers, activityKey:document.activeElement?.dataset.activityRecord||sheetOpener?.dataset.activityRecord});
         const receiptChild=Boolean(accountReceiptReturn&&openSheetType==='finance');
         const method=state?.trackerSheet&&!(receiptChild&&state.trackerSheet==='account')?'replaceState':'pushState';
-        window.history[method]({trackerView: currentView, trackerEntry: entry, trackerSheet: openSheetType, trackerAccount: openAccountRef,trackerOffer: accountOfferToOpen,accountReceiptChild:receiptChild}, '', '#' + currentView);
+        window.history[method]({trackerView: currentView, trackerEntry: entry, trackerSheet: openSheetType, trackerAccount: openAccountRef,trackerOffer: accountOfferToOpen,accountReceiptChild:receiptChild,trackerReceipt:openSheetType==='receipt-detail'?receiptInsightsView.state.receiptId:null}, '', '#' + currentView);
         const position=method==='pushState'?window.history.length-1:routeEntries.get(state?.trackerEntry)?.position;
         routeEntries.get(entry).position=position??window.history.length-1;
         if(method==='pushState'&&routeEntries.has(state?.trackerEntry))routeEntries.get(state.trackerEntry).position=position-1;
@@ -4403,6 +4396,7 @@
     }
 
     function closeSheet(skipHistory = false) {
+      if(!skipHistory&&openSheetType==='receipt-detail'&&window.history.state?.trackerSheet==='receipt-detail'){window.history.back();return;}
       if(!skipHistory&&accountReceiptReturn&&openSheetType==='finance'&&window.history.state?.accountReceiptChild){window.history.back();return;}
       if (!skipHistory && !routeRestoring && window.history.state?.trackerSheet) window.history.back();
       if(openSheetType==='account'){const entry=routeEntries.get(currentRouteEntry);if(entry)entry.accountSnapshot=accountDisclosureSnapshot();}
@@ -4422,6 +4416,7 @@
     function renderUsedInformation(){setSheetHeading('How statuses are decided','Accounts and promotions are counted separately.');document.getElementById('sheetBody').innerHTML='<div class="setting-card"><p>Fully used accounts have at least one Eats and one Ride receipt, or five Eats receipts. Login and archive status stay independent.</p><p>Needs checking counts accounts with uncertain offer or receipt evidence. The record explains the uncertainty.</p><p>Expired offers counts promotions in Finished · Expired and Expired · Unused. Summary values count different categories; they are not a partition and must not be added together.</p><p>Completed promotions require every permitted use to be verified. Partial use, manual finish and ignore states stay separate.</p></div><button class="advanced-btn" data-open-guide="verification">Read the full status guide ›</button>';}
 
     function openUtilitySheet(type, financeTarget = null, financeMissing = false, financeAccount = null, financeReceipt = null) {
+      if(type==='receipts'){switchView('receipts');return;}
       if(type==='appearance'){switchView('settings');document.getElementById('settingsTitle').focus({preventScroll:true});return;}
       if (financeView) {financeView.destroy();financeView=null;}
       openSheetType = type;
@@ -4434,7 +4429,6 @@
       if (type === "locked") renderLockedSheet();
       if (type === "savings") renderSavingsSheet();
       if (type === "health") renderHealthSheet();
-      if (type === "receipts") renderReceiptsSheet();
       if (type === "history") renderHistorySheet();
       if(type==='theme'){renderLegacyAppearanceControls();setSheetHeading('Theme colour & layout','Saved on this device.');}
       if (type === "device") renderDeviceSheet();
@@ -4495,6 +4489,7 @@
     }
 
     function renderAll() {
+      if(currentView==='receipts')renderReceiptsPage();
       renderStatus();
       if (['home','offers','planner'].includes(currentView)) {
         renderStats();
@@ -4529,7 +4524,7 @@
 
     let routeRestoring = false, routeSerial = 0, currentRouteEntry = 0, pendingPreferredPop = null;
     const routeEntries = new Map([[0, {scroll: 0}]]);
-    const initialView = ['offers','planner'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
+    const initialView = ['offers','planner','receipts'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
     window.history.replaceState({trackerView: initialView, trackerEntry: 0}, '', initialView === 'home' ? location.href : '#' + initialView);
     window.history.scrollRestoration = 'manual';
     function recordViewRoute(view,{preserveSheet=false}={}) {
@@ -4552,8 +4547,8 @@
       if(preferredViews.has(view)&&!preferredEditor.active)preferredEditor.start();
       if(!preferredViews.has(view))preferredEditor.end();
       recordViewRoute(view,routeOptions);
-      currentView = view;
-      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used','settings','more','preferred-promos','preferred-catalogue'].includes(view));
+      currentView = view;updateBrowserTheme();
+      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used','settings','more','preferred-promos','preferred-catalogue','receipts'].includes(view));
       renderAll();
       let activeSection = null;
 
@@ -4564,8 +4559,8 @@
       });
 
       document.querySelectorAll("[data-view]").forEach(button => {
-        button.classList.toggle("active", button.dataset.view === (["help","settings","preferred-promos","preferred-catalogue"].includes(view) ? "more" : ["offers","planner"].includes(view) ? "home" : view));
-        if (button.dataset.view === (["help","settings","preferred-promos","preferred-catalogue"].includes(view) ? "more" : ["offers","planner"].includes(view) ? "home" : view)) button.setAttribute("aria-current", "page");
+        button.classList.toggle("active", button.dataset.view === (["help","settings","preferred-promos","preferred-catalogue","receipts"].includes(view) ? "more" : ["offers","planner"].includes(view) ? "home" : view));
+        if (button.dataset.view === (["help","settings","preferred-promos","preferred-catalogue","receipts"].includes(view) ? "more" : ["offers","planner"].includes(view) ? "home" : view)) button.setAttribute("aria-current", "page");
         else button.removeAttribute("aria-current");
       });
 
@@ -4597,6 +4592,17 @@
         if(Number.isFinite(delta)&&delta){pendingPreferredPop={steps:-delta};window.history.go(delta);return;}
         window.history.pushState({trackerView:currentView,trackerEntry:currentRouteEntry},'','#'+currentView);
         preferredEditor.requestDiscard(()=>window.history.back());return;
+      }
+      if(openSheetType==='receipt-detail'&&state.trackerView==='receipts'&&!state.trackerSheet){
+        routeRestoring=true;closeSheet(true);currentRouteEntry=state.trackerEntry;receiptInsightsView.back();routeRestoring=false;return;
+      }
+      if(currentView==='receipts'&&state.trackerView==='receipts'&&!state.trackerSheet){
+        routeRestoring=true;closeSheet(true);currentRouteEntry=state.trackerEntry;window.scrollTo({top:routeEntries.get(state.trackerEntry)?.scroll||0,behavior:'instant'});if(leaving?.opener?.isConnected)leaving.opener.focus({preventScroll:true});routeRestoring=false;return;
+      }
+      if(state.trackerSheet==='receipt-detail'){
+        routeRestoring=true;currentRouteEntry=state.trackerEntry;
+        if(currentView!=='receipts')switchView('receipts');
+        openSheetType='receipt-detail';receiptInsightsView.openReceipt(state.trackerReceipt);showSheet();document.querySelector('.ri-back')?.focus({preventScroll:true});routeRestoring=false;return;
       }
       if(accountReceiptReturn&&state.trackerSheet==='account'){const saved=accountReceiptReturn;financeView?.destroy();accountReceiptReturn=null;currentRouteEntry=state.trackerEntry;routeRestoring=true;openAccountSheet(saved.accountRef,state.trackerOffer,saved);routeRestoring=false;return;}
       if(state.accountReceiptChild&&accountReceiptChildStates.has(state.trackerEntry)){accountReceiptReturn=accountReceiptChildStates.get(state.trackerEntry);currentRouteEntry=state.trackerEntry;routeRestoring=true;openUtilitySheet('finance','receipt',false,accountReceiptReturn.accountRef,accountReceiptReturn.receiptId);routeRestoring=false;return;}
@@ -4632,20 +4638,12 @@
       detailViewportFrame = requestAnimationFrame(() => {
         detailViewportFrame = 0;
         const root = document.documentElement;
-        const view = document.querySelector('#view-planner.active, #view-offers.active, #view-accounts.active, #view-used.active, #view-settings.active, #view-more.active, #view-preferred-promos.active, #view-preferred-catalogue.active');
+        const view = document.querySelector('#view-planner.active, #view-offers.active, #view-accounts.active, #view-used.active, #view-settings.active, #view-more.active, #view-preferred-promos.active, #view-preferred-catalogue.active, #view-receipts.active');
         const active = Boolean(view);
         const prefix = view?.id?.slice(5) || 'planner';
-        for(const name of ['planner','offers','accounts','used','settings','more'])if(name!==prefix)root.style.removeProperty('--'+name+'-nav-clearance');
+        for(const name of ['planner','offers','accounts','used','settings','more','receipts'])if(name!==prefix)root.style.removeProperty('--'+name+'-nav-clearance');
         const rootStyle = active ? getComputedStyle(root) : null;
-        const themeMeta = document.querySelector('meta[name="theme-color"]');
-        if (active && themeMeta) {
-          themeMeta.dataset.beforePlanner ??= themeMeta.content;
-          const background = rootStyle.getPropertyValue('--bg-deep').trim();
-          if (themeMeta.content !== background) themeMeta.content = background;
-        } else if (themeMeta?.dataset.beforePlanner != null) {
-          themeMeta.content = themeMeta.dataset.beforePlanner;
-          delete themeMeta.dataset.beforePlanner;
-        }
+        updateBrowserTheme();
         const nav = document.getElementById('mainNav');
         if (!active || preferredViews.has(currentView) || root.dataset.layout !== 'mobile' || !nav) {
           root.style.removeProperty('--' + prefix + '-nav-clearance');
@@ -4919,6 +4917,8 @@
 
     });
 
+    document.querySelector('[data-receipts-back]').addEventListener('click',()=>{if(routeEntries.get(currentRouteEntry)?.position>0)window.history.back();else switchView('more');});
+    document.querySelector('[data-receipts-info]').addEventListener('click',event=>{const button=event.currentTarget,info=document.getElementById('receiptInsightsInfo');info.hidden=!info.hidden;button.setAttribute('aria-expanded',String(!info.hidden));});
     document.getElementById("sheetClose").addEventListener("click", () => closeSheet());
 
     document.getElementById("sheetBackdrop").addEventListener("click", event => {
