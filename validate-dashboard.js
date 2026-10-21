@@ -56,7 +56,7 @@ assert.ok(html.includes("Current eligible promotions."));
 assert.ok(html.includes('availableAccounts / totalAccounts) <= 0.1'), "Low-account warning should be proportional to the tracked account pool");
 assert.ok(html.includes("Evidence &amp; estimates") || html.includes("Evidence & estimates"), "Estimates remain separate from supported savings");
 assert.equal(html.includes('Estimated missing Uber One</div><div class="insight-value" style="color:var(--green)"'), false, "Estimated savings must not use confirmed green styling");
-assert.ok(html.includes("Confirmed receipts"));
+assert.ok(html.includes("createReceiptInsights"),"Receipt Insights reads imported records through the shared ledger projection");
 assert.ok(html.includes("Estimated missing Uber One"));
 assert.ok(html.includes("Missing details"));
 assert.ok(html.includes("financeHero"));

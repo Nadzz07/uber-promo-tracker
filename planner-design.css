@@ -1,0 +1,78 @@
+/* Planner uses the same rich theme roles as Receipt Insights. */
+html:has(#view-planner.active),body:has(#view-planner.active) { background:var(--rich-screen); }
+#view-planner { --text:var(--color-text); --muted:var(--rich-secondary); --dim:var(--rich-tertiary); --line:var(--rich-border); --line-soft:var(--rich-border); color:var(--color-text); }
+body:has(#view-planner.active)::before { background:var(--rich-screen); }
+#view-planner .detail-view-head { position:sticky; top:var(--planner-safe-top,0px); z-index:25; background:var(--rich-screen); padding-block:6px; min-height:44px; height:auto; margin-bottom:14px; }
+#view-planner .detail-view-head::before { content:''; position:absolute; inset:0 -2px; z-index:-1; background:var(--rich-screen); }
+#view-planner .detail-back { color:var(--color-icon); }
+#view-planner .detail-switch { color:var(--rich-soft-accent); font-size:14px; font-weight:500; }
+#view-planner .hero-card { background:linear-gradient(180deg,var(--rich-panel-top),var(--rich-panel-bottom)); border-color:var(--rich-border); border-radius:15px; padding:16px; }
+#view-planner .basket-editor-copy label,#view-planner .planner-mode label { font-weight:500; font-size:15px; }
+#view-planner .basket-editor-copy small,#view-planner .planner-mode-copy small { color:var(--rich-secondary); }
+#view-planner .basket-editor-copy svg,#view-planner .planner-mode-copy svg { color:var(--color-icon); }
+#view-planner .basket-value-wrap,#view-planner .planner-select-wrap { flex-basis:132px; border-color:var(--color-outline); background:var(--color-dropdown); }
+#view-planner .basket-value-wrap .basket-input { background:transparent; border:0; font-weight:500; padding:0; }
+#view-planner .planner-section-head { margin:19px 0 12px; gap:8px; }
+#view-planner .planner-section-head h2 { font-size:23px; font-weight:650; }
+#view-planner .plan-status { font-weight:500; color:var(--rich-soft-accent); background:var(--rich-selected-bottom); border-color:var(--rich-selected-border); padding:5px 9px; font-size:11px; }
+#view-planner #recommendation { display:grid; gap:12px; padding:0; border:0; background:transparent; box-shadow:none; }
+#view-planner .recommendation-card { padding:16px 14px 4px; border:1px solid var(--rich-selected-border); border-radius:15px; background:linear-gradient(145deg,var(--rich-selected-top),var(--rich-selected-bottom)); }
+#view-planner .recommendation-top { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-start; }
+#view-planner .recommendation-choice { flex:1 1 150px; min-width:0; gap:9px; }
+#view-planner .recommendation-choice > svg { color:var(--rich-soft-accent); width:25px; height:28px; flex:0 0 25px; }
+#view-planner .recommendation-title { font-size:19px; line-height:1.3; font-weight:600; }
+#view-planner .recommendation-copy { color:var(--rich-secondary); font-size:13px; }
+#view-planner .recommendation-save { margin:0; width:auto; flex:0 0 auto; max-width:100%; text-align:right; color:var(--color-text); font-size:30px; font-weight:700; line-height:1.2; }
+#view-planner .recommendation-save small { max-width:none; white-space:nowrap; font-size:11px; line-height:1.5; color:var(--rich-secondary); font-weight:400; margin-top:3px; }
+#view-planner .plan-costs { border-color:var(--rich-selected-divider); gap:9px; margin-top:16px; padding-top:14px; }
+#view-planner .plan-cost-line { display:flex; gap:10px; color:var(--rich-secondary); font-size:14px; font-weight:400; }
+#view-planner .plan-cost-line > svg { display:none; }
+#view-planner .plan-cost-line > span { flex:1; }
+#view-planner .plan-cost-line strong { margin-left:auto; text-align:right; color:var(--color-text); font-weight:500; }
+#view-planner .plan-cost-line.discount strong { color:var(--rich-positive); }
+#view-planner .plan-accounts { border-color:var(--rich-selected-divider); margin-top:15px; padding-top:12px; }
+#view-planner .plan-accounts h4 { color:var(--color-text); font-weight:600; font-size:15px; margin:0 0 8px; }
+#view-planner .plan-row { grid-template-columns:28px minmax(0,1fr) auto; align-items:center; gap:10px; padding:10px 0 13px; border-top:1px solid var(--rich-selected-divider); }
+#view-planner .plan-row + .plan-row { border-color:var(--rich-selected-divider); }
+#view-planner .plan-order-number { width:28px; height:28px; display:grid; place-items:center; border:1px solid var(--rich-soft-accent); border-radius:50%; font-size:17px; color:var(--color-text); background:transparent; align-self:start; margin-top:2px; }
+#view-planner .plan-body { min-width:0; }
+#view-planner .plan-account { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; overflow-wrap:normal; min-height:27px; font-size:14px; line-height:1.5; font-weight:500; color:var(--color-text); }
+#view-planner .plan-promo { color:var(--rich-soft-accent); margin:0; font-size:13px; }
+#view-planner .plan-subtotal { margin-top:3px; color:var(--rich-secondary)!important; font-size:12px; }
+#view-planner .plan-payment { width:auto; min-width:54px; max-width:115px; text-align:right; }
+#view-planner .plan-payment strong { font-size:19px; line-height:1.4; font-weight:600; color:var(--color-text); overflow-wrap:anywhere; }
+#view-planner .planner-other-options { padding:0 14px; margin:0; border:1px solid var(--rich-border); border-radius:15px; background:linear-gradient(180deg,var(--rich-panel-top),var(--rich-panel-bottom)); }
+#view-planner .planner-other-options > summary { padding:7px 0; min-height:66px; font-size:16px; font-weight:500; gap:14px; }
+#view-planner .planner-other-options > summary .finance-icon { width:24px; height:24px; color:var(--color-icon); }
+#view-planner .planner-other-options small { color:var(--rich-secondary); font-size:12px; }
+#view-planner .planner-alternatives { padding:0 0 14px; gap:12px; }
+#view-planner .plan-alternative { border-radius:10px; background:var(--rich-sheet-mid); border-color:var(--rich-border); padding:12px; }
+#view-planner .plan-alternative p { color:var(--rich-secondary); }
+#view-planner .plan-select { background:var(--rich-selected-bottom); border-color:var(--rich-selected-border); color:var(--rich-soft-accent); }
+#view-planner .planner-final-fees { margin:13px 0 10px; font-size:12px; }
+#view-planner .hero-footer { margin-top:0; }
+#view-planner .hero-footer .advanced-btn { background:linear-gradient(180deg,var(--rich-panel-top),var(--rich-panel-bottom)); border:1px solid var(--rich-border); border-radius:15px; padding:13px 15px; min-height:70px; }
+#view-planner .hero-footer .advanced-btn > [data-icon],#view-planner .hero-footer .advanced-btn > span:last-child { color:var(--color-icon); }
+#view-planner .hero-footer strong { font-weight:500; font-size:16px; }
+#view-planner #feeNote { color:var(--rich-secondary); font-size:12px; }
+#view-planner .planner-offer-scope { margin:5px 0 0; padding-top:8px; border-top:1px solid var(--rich-border); }
+#view-planner .planner-scope-label { margin:0; font-size:12px; }
+#view-planner .planner-privacy { font-size:11px; margin:12px 0 0; }
+body:has(#view-planner.active) .bottom-nav { background:linear-gradient(180deg,var(--rich-panel-top),var(--rich-panel-bottom)); border-color:var(--rich-border); }
+body:has(#view-planner.active) .nav-btn { color:var(--rich-secondary); }
+body:has(#view-planner.active) .nav-btn.active { color:var(--rich-soft-accent); }
+body:has(#view-planner.active) .nav-glider { background:var(--rich-selected-bottom); border-color:var(--rich-border); }
+.sheet[data-planner-fees] { background:linear-gradient(180deg,var(--rich-sheet-top),var(--rich-sheet-mid),var(--rich-sheet-bottom)); border-color:var(--rich-border); }
+.sheet[data-planner-fees] :is(.setting-card,.setting-row,.setting-stepper) { background:linear-gradient(180deg,var(--rich-panel-top),var(--rich-panel-bottom)); border-color:var(--rich-border); }
+.sheet[data-planner-fees] .sheet-sub,.sheet[data-planner-fees] .setting-copy { color:var(--rich-secondary); }
+@media(min-width:980px) { #view-planner .detail-view-head { max-width:700px!important; }html[data-layout=desktop] #view-planner .planner-column { max-width:700px; } }
+@media(max-width:370px) {
+ #view-planner .basket-value-wrap,#view-planner .planner-select-wrap { flex-basis:100%; }
+ #view-planner .recommendation-top { gap:10px; }
+ #view-planner .recommendation-choice { flex-basis:100%; }
+ #view-planner .recommendation-save,#view-planner .recommendation-save small { text-align:left; }
+ #view-planner .recommendation-save { margin-left:34px; }
+ #view-planner .plan-row { grid-template-columns:25px minmax(0,1fr); gap:9px; }
+ #view-planner .plan-payment { grid-column:2; max-width:none; text-align:left; }
+ #view-planner .plan-order-number { width:25px; height:25px; }
+}
