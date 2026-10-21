@@ -103,7 +103,7 @@ export function receiptOverviewMetrics(model){
 export function receiptActivityBuckets(model,{range='month',metric='orders',now=new Date()}={}){
  if(!model.imported&&range==='all'&&model.publicMonths?.length){
   const rows=model.publicMonths.slice().sort((a,b)=>a.period.localeCompare(b.period)),period=receiptPeriod(range,now,rows[0].period+'-01');
-  const buckets=rows.map(r=>{const count=model.service==='all'?Number(r.eats)+Number(r.rides):Number(r[model.service]),amounts=model.publicAmounts(r),value=metric==='orders'?count:amounts[metric]?.known?amounts[metric].value:metric==='saved'?(model.service==='all'||!r[model.service==='eats'?'rides':'eats']?number(r.saved):null):count?null:0;return {label:new Date(r.period+'-01T12:00Z').toLocaleString('en-GB',{month:'short',year:'2-digit',timeZone:'Europe/London'}),value,partial:metric!=='orders'&&!(metric==='saved'&&model.amountVersion!==1)&&amounts[metric]?.known<count};});
+  const buckets=rows.map(r=>{const count=model.service==='all'?Number(r.eats)+Number(r.rides):Number(r[model.service]),amounts=model.publicAmounts(r),value=metric==='orders'?count:model.amountVersion===1?amounts[metric]?.value??(count?null:0):metric==='saved'?(model.service==='all'||!r[model.service==='eats'?'rides':'eats']?number(r.saved):null):count?null:0;return {label:new Date(r.period+'-01T12:00Z').toLocaleString('en-GB',{month:'short',year:'2-digit',timeZone:'Europe/London'}),value,partial:metric!=='orders'&&!(metric==='saved'&&model.amountVersion!==1)&&amounts[metric]?.known<count};});
   const max=Math.max(0,...buckets.map(b=>b.value??0));return {period,title:'Receipt activity',metric,buckets:buckets.map(b=>({...b,width:max>0&&b.value!=null?b.value/max*100:0}))};
  }
  const period=receiptPeriod(range,now,model.groups.map(g=>g.day).filter(Boolean).sort()[0]);
@@ -116,7 +116,7 @@ export function receiptActivityBuckets(model,{range='month',metric='orders',now=
   const rows=model.imported?model.rows.filter(r=>r.day>=start&&r.day<=end):model.groups.filter(r=>r.day>=start&&r.day<=end);
   let value,partial=false;
   if(metric==='orders'){value=model.imported?rows.length:rows.reduce((n,r)=>n+r.count,0);if(model.coverageIncomplete){partial=true;if(!rows.length)value=null;}}
-  else if(!model.imported){const amounts=mergeReceiptAmounts(rows.map(r=>r.amounts)),v=amounts[metric];if(v?.known||metric!=='saved'){value=v?.value??(rows.length?null:0);partial=Boolean(v&&v.known<v.total);}else{const known=sumKnown(rows.map(r=>r.saved));value=known.value;partial=known.known!==known.total;}}
+  else if(!model.imported){const amounts=mergeReceiptAmounts(rows.map(r=>r.amounts)),v=amounts[metric];if(model.amountVersion===1||metric!=='saved'){value=v?.value??(rows.length?null:0);partial=Boolean(v&&v.known<v.total);}else{const known=sumKnown(rows.map(r=>r.saved));value=known.value;partial=known.known!==known.total;}}
   else{const values=rows.map(r=>metric==='paid'?r.receiptTotal:metric==='promos'?r.promoValue:metric==='cash'?number(r.receipt.uberCashUsed):r.f.total),v=sumKnown(values);value=v.value;partial=v.known!==v.total;}
   const monthEnd=new Date(end.slice(0,7)+'-01T12:00Z');monthEnd.setUTCMonth(monthEnd.getUTCMonth()+1,0);
   const partialPeriod=!weekly&&(yearly?(start.slice(5)!=='01-01'||end.slice(5)!=='12-31'):(start.slice(-2)!=='01'||end!==monthEnd.toISOString().slice(0,10)));
