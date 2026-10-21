@@ -1,19 +1,19 @@
-/* One matte system shared by every screen. Fixed colours live in theme-palette.js. */
+/* Shared hue system. All colours and fades are defined in theme-palette.js. */
 :root {
- --bg:var(--color-screen); --bg-deep:var(--color-screen); --surface:var(--color-panel); --surface-inset:var(--color-dropdown); --surface-gradient:var(--color-panel);
+ --bg:var(--color-screen); --bg-deep:var(--color-screen); --surface:var(--color-panel); --surface-inset:var(--color-dropdown); --surface-gradient:var(--theme-panel);
  --text:var(--color-text); --muted:var(--color-secondary); --dim:var(--color-tertiary); --line:var(--color-border); --line-soft:var(--color-border);
- --accent:var(--color-accent); --green:var(--color-accent); --green-strong:var(--color-soft-accent); --green-soft:var(--color-selected); --amber:var(--color-soft-accent); --amber-soft:var(--color-selected); --red:var(--color-label);
+ --accent:var(--color-accent); --green:var(--color-accent); --green-strong:var(--color-soft-accent); --green-soft:var(--color-selected); --amber:var(--color-warning-text); --amber-soft:var(--color-warning-fill); --red:var(--color-label);
  --glass:var(--color-panel); --glass-strong:var(--color-panel); --glass-soft:var(--color-dropdown); --glass-blur:0px;
- --shadow:none; --inner:none; --surface-shadow:none; --hero-surface:var(--color-panel); --hero-edge:var(--color-border);
+ --shadow:none; --inner:none; --surface-shadow:none; --hero-surface:var(--theme-stats); --hero-edge:var(--color-stats-border);
  --surface-rgb:var(--color-panel-rgb); --accent-rgb:var(--color-accent-rgb); --account-accent:var(--color-accent); --account-tint:var(--color-selected); --account-outline:var(--color-selected-border);
  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px;
  --card-radius:12px; --panel-radius:12px; --control-radius:10px; --radius-xl:16px; --radius-lg:12px; --radius-md:10px; --radius-sm:8px;
  --motion-fast:180ms; --motion-normal:260ms; --motion-slow:320ms; --motion-ease:cubic-bezier(.2,.8,.2,1); --transition-fast:var(--motion-fast); --transition-panel:var(--motion-slow);
 }
-html,body { background:var(--color-screen); color:var(--color-text); }
+html,body { background:var(--theme-background); background-attachment:fixed; color:var(--color-text); }
 body::before,body::after,.bottom-nav::before,.nav-glider::after { content:none; }
-:is(.glass,.stat-card,.account-card,.quick-card,.activity-card,.activity-list,.more-group-list,.settings-group-panel,.setting-card,.setting-row,.disclosure-card,.sheet-list,.insight,.finance-editor-card,.receipt-preview-card,.receipt-charges-card,.receipt-payment-card,.home-overview,.hero-card,.used-summary,.used-record,.used-more,.directory-summary,.directory-card,.empty,.loading) { background:var(--color-panel); border-color:var(--color-border); box-shadow:none; }
-:is(.sheet,.picker-dialog,.catalogue-dialog,.offer-catalogue,.preferred-editor) { background:var(--color-sheet); border-color:var(--color-border); box-shadow:none; }
+:is(.glass,.stat-card,.account-card,.quick-card,.activity-card,.activity-list,.more-group-list,.settings-group-panel,.setting-card,.setting-row,.disclosure-card,.sheet-list,.insight,.finance-editor-card,.receipt-preview-card,.receipt-charges-card,.receipt-payment-card,.home-overview,.hero-card,.used-summary,.used-record,.used-more,.directory-summary,.directory-card,.empty,.loading) { background:var(--theme-panel); border-color:var(--color-border); box-shadow:none; }
+:is(.sheet,.picker-dialog,.catalogue-dialog,.offer-catalogue,.preferred-editor) { background:var(--theme-background); border-color:var(--color-border); box-shadow:none; }
 .sheet-backdrop { background:var(--color-dimmed); backdrop-filter:none; -webkit-backdrop-filter:none; }
 .sheet-handle { background:var(--color-outline); }
 .sheet-close { background:var(--color-close); border-color:var(--color-close-border); color:var(--color-icon); }
@@ -23,26 +23,26 @@ body::before,body::after,.bottom-nav::before,.nav-glider::after { content:none; 
 :is(button,a,input,textarea,select,summary):focus-visible { outline:2px solid var(--color-accent); outline-offset:3px; }
 :is(.action-btn,.advanced-btn,.ghost-btn,.account-secondary,.account-record-use,.account-manage-toggle,.sheet-action-row,.sheet-row,.compact-setting-row,.more-card,.catalogue-option,.catalogue-action) { box-shadow:none; border-color:var(--color-outline); font-weight:500; }
 :is(.action-btn,.advanced-btn,.account-secondary,.account-manage-toggle) { background:var(--color-panel); color:var(--color-text); border-radius:var(--control-radius); }
-:is(.account-primary,.account-calculate,.primary-btn,.primary-action,.preferred-save,.preferred-save-button) { background:var(--color-accent); color:var(--color-on-accent); border:1px solid var(--color-accent); box-shadow:none; font-weight:600; border-radius:var(--control-radius); }
+:is(.account-primary,.account-calculate,.primary-btn,.primary-action,.preferred-save,.preferred-save-button) { background:var(--theme-primary); color:var(--color-on-accent); border:1px solid var(--color-accent); box-shadow:none; font-weight:600; border-radius:var(--control-radius); }
 :is(.pill,.chip,.badge,.selected-badge,.account-selected-badge) { border-radius:8px; box-shadow:none; }
 :is(.pill.active,.chip.active,.account-selected-badge,.directory-login-tabs [aria-pressed=true],.account-login-tabs [aria-pressed=true]) { color:var(--color-chip-text); background:var(--color-chip); border-color:var(--color-selected-border); }
 :is(.progress-track,.use-progress-track,.progress-bar) { background:var(--color-track); box-shadow:none; }
-:is(.progress-fill,.use-progress-fill) { background:var(--color-accent); box-shadow:none; }
+:is(.progress-fill,.use-progress-fill) { background:var(--theme-progress); box-shadow:none; }
 input[role=switch],.compact-setting-row input[role=switch] { background:var(--color-outline); border-color:var(--color-outline); box-shadow:none; }
 input[role=switch]:checked,.compact-setting-row input[role=switch]:checked { background:var(--color-toggle); border-color:var(--color-toggle); }
-:is(.bottom-nav,html[data-layout=desktop] .bottom-nav) { background:var(--color-panel); border-color:var(--color-border); box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
+:is(.bottom-nav,html[data-layout=desktop] .bottom-nav) { background:var(--theme-panel); background-color:var(--color-panel); border-color:var(--color-border); box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
 :is(.nav-btn,html[data-layout=desktop] .nav-btn) { color:var(--color-secondary); }
 :is(.nav-btn.active,html[data-layout=desktop] .nav-btn.active) { color:var(--color-soft-accent); }
-.nav-glider { background:var(--color-selected); border-color:var(--color-selected-border); box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
+.nav-glider { background:var(--theme-active-tab); border-color:var(--color-active-tab-border); box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
 .colour-wheel { position:relative; background:var(--color-panel); box-shadow:none; }
 .colour-wheel canvas { position:absolute; inset:0; width:100%; height:100%; border-radius:50%; pointer-events:none; }
 .colour-thumb { border-color:var(--color-text); box-shadow:none; z-index:1; }
-.sheet[data-screen="Account details"] { --bg-deep:var(--color-sheet); --text:var(--color-text); --muted:var(--color-secondary); --line:var(--color-border); --line-soft:var(--color-border); --surface-gradient:var(--color-panel); --surface-inset:var(--color-dropdown); --account-tint:var(--color-selected); --account-outline:var(--color-selected-border); }
-.sheet[data-screen="Account details"] .account-detail-offer[open]:not(.past-offer) { background:var(--color-selected); border-color:var(--color-selected-border); color:var(--color-selected-text); }
+.sheet[data-screen="Account details"] { --bg-deep:var(--color-sheet); --text:var(--color-text); --muted:var(--color-secondary); --line:var(--color-border); --line-soft:var(--color-border); --surface-gradient:var(--theme-panel); --surface-inset:var(--color-dropdown); --account-tint:var(--color-selected); --account-outline:var(--color-selected-border); }
+.sheet[data-screen="Account details"] .account-detail-offer[open]:not(.past-offer) { background:var(--theme-selected); border-color:var(--color-selected-border); color:var(--color-selected-text); }
 .sheet[data-screen="Account details"] .account-detail-offer[open] .offer-details { color:var(--color-selected-subtitle); }
-.sheet[data-screen="Account details"] .account-detail-offer[open] .account-record-use { background:var(--color-record); color:var(--color-soft-accent); border-color:var(--color-accent); }
+.sheet[data-screen="Account details"] .account-detail-offer[open] .account-record-use { background:var(--theme-selected); color:var(--color-soft-accent); border-color:var(--color-accent); }
 .sheet[data-screen="Account details"] .account-detail-offer[open] .account-manage-toggle { border-color:var(--color-manage-outline); }
-.sheet[data-screen="Account details"] .offer-terms > summary { color:var(--color-link); }
+.sheet[data-screen="Account details"] .offer-terms > summary { color:var(--color-soft-accent); }
 :is(.directory-login-pill.positive,.account-login-badge.positive,.account-record-access.positive,.cash-entry-balance:not(:empty),.cash-balance-badge) { color:var(--color-positive); }
 :is(.directory-login-pill.positive,.account-login-badge.positive,.cash-balance-badge) { background:var(--color-positive-fill); border-color:var(--color-positive-border); }
 :is(.directory-login-pill.positive,.account-login-badge.positive,.account-record-access.positive) .status-dot { background:var(--color-positive-dot); box-shadow:none; }
@@ -87,7 +87,7 @@ html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion
 input[role=switch]:checked { background:var(--color-toggle)!important; border-color:var(--color-toggle)!important; }
 :root { --button-text:var(--color-on-accent); --status-success:var(--color-positive); }
 .plan-subtotal { color:var(--color-label)!important; }
-.receipt-editor-actions > button[type=submit],.finance-save-balance { background:var(--color-accent); color:var(--color-on-accent); border-color:var(--color-accent); }
+.receipt-editor-actions > button[type=submit],.finance-save-balance { background:var(--theme-primary); color:var(--color-on-accent); border-color:var(--color-accent); }
 .receipt-editor-actions > button,.receipt-history-actions > button { border-radius:var(--control-radius); }
 :root { --space-5:20px; --space-6:24px; --space-8:32px; --type-caption:12px; --type-body:14px; --type-control:16px; --type-title:24px; }
 #view-home .home-overview { background:transparent; }
@@ -104,3 +104,16 @@ input[role=switch]:checked { background:var(--color-toggle)!important; border-co
 .sheet[data-screen="Account details"] .past-offer[open] .compact-offer-expiry { display:block; }
 
 .sheet[data-screen="Account details"] .account-detail-offer[open]:not(.past-offer) .account-offer-actions { border-color:var(--color-selected-divider); }
+
+/* Reusable material roles across dashboards, lists, controls and sheets. */
+:is(.directory-summary,.home-overview,.used-summary,.stats-panel,.finance-hero,.total-saved-card) { background:var(--theme-stats); border-color:var(--color-stats-border); }
+:is(.action-btn.primary,.advanced-btn.primary,.account-primary,.account-calculate,.primary-btn,.primary-action,.preferred-save,.preferred-save-button,.receipt-editor-actions > button[type=submit],.finance-save-balance) { background:var(--theme-primary); color:var(--color-on-accent); border-color:var(--color-accent-line); }
+:is(.pill.active,.chip.active,.directory-login-tabs [aria-pressed=true],.account-login-tabs [aria-pressed=true],.layout-option:has(input:checked)) { background:var(--theme-selected); border-color:var(--color-accent-line); color:var(--color-pale); box-shadow:var(--theme-selected-shadow); }
+:is(.progress-track,.use-progress-track,.progress-bar) { background:var(--color-track); }
+:is(.progress-fill,.use-progress-fill,.progress-track > span,.progress-bar > span) { background:var(--theme-progress); }
+:is(.total-saved,.total-saved-value,.saved-value,.savings-amount,.finance-total,.receipt-savings-value) { color:var(--color-positive); }
+.bottom-nav::before { content:''; position:absolute; inset:-24px -12px -24px; z-index:-1; pointer-events:none; background:var(--theme-dock-fade); }
+
+#savedStat,.savings-hero-value { color:var(--color-positive); }
+.scan-pill.live .scan-dot { background:var(--color-positive); }
+.scan-pill:is(.setup,.stale) .scan-dot { background:var(--color-warning-icon); }

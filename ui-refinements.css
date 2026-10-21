@@ -20,7 +20,7 @@
   --control-radius: 14px;
   --surface-shadow: none;
   --hero-surface: var(--color-selected);
-  --hero-edge: color-mix(in srgb, var(--color-accent) 38.0%, transparent);
+  --hero-edge: var(--tint-color-accent-38-0-transparent);
   --glass-blur: 16px;
   --transition-fast: var(--motion-fast);
   --transition-panel: var(--motion-fast);
@@ -45,7 +45,7 @@ body {
 .home-overview {
   background: var(--color-selected);
 }
-.home-overview::after { background: color-mix(in srgb, var(--color-accent) 6.0%, transparent); }
+.home-overview::after { background: var(--tint-color-accent-6-0-transparent); }
 .home-overview .stat-card { background: var(--color-screen); }
 .home-overview .stat-card:first-child {
   background: var(--color-selected);
@@ -62,7 +62,7 @@ body {
 }
 .quick-card.active {
   background: var(--color-selected);
-  border-color: color-mix(in srgb, var(--color-accent) 44.0%, transparent);
+  border-color: var(--tint-color-accent-44-0-transparent);
 }
 .savings-hero, .account-sheet-hero {
   background: var(--color-selected);
@@ -101,7 +101,7 @@ html[data-layout="desktop"] .basket-editor {
   box-shadow: none;
 }
 .basket-editor:focus-within {
-  border-color: color-mix(in srgb, var(--color-accent) 55.0%, transparent) !important;
+  border-color: var(--tint-color-accent-55-0-transparent) !important;
   box-shadow: none !important;
 }
 .basket-editor-copy { display: block; }
@@ -202,15 +202,15 @@ html[data-layout="desktop"] .bottom-nav {
 .nav-btn, .nav-btn.active { color: var(--text); }
 .nav-glider {
   background: var(--color-selected);
-  border-color: color-mix(in srgb, var(--color-accent) 20.0%, transparent);
+  border-color: var(--tint-color-accent-20-0-transparent);
 }
-.bottom-nav.dragging .nav-glider { background: color-mix(in srgb, var(--color-accent) 18.0%, transparent); }
+.bottom-nav.dragging .nav-glider { background: var(--tint-color-accent-18-0-transparent); }
 .nav-glider::after {
   box-shadow: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .quick-card:hover, .account-card:hover, .more-card:hover { border-color: color-mix(in srgb, var(--color-accent) 30.0%, transparent); }
+  .quick-card:hover, .account-card:hover, .more-card:hover { border-color: var(--tint-color-accent-30-0-transparent); }
 }
 @media (min-width: 980px) {
   html[data-layout="desktop"] .hero-card { padding: var(--space-6); }
@@ -304,7 +304,7 @@ html[data-layout="desktop"] .bottom-nav {
 .savings-bar-column { min-width: 0; text-align: center; color: var(--muted); font-size:12px; }
 .savings-bar-value { display: block; margin-bottom: var(--space-1); font-size:12px; white-space: nowrap; }
 .savings-bar-track { display: flex; align-items: flex-end; justify-content: center; height: 100px; margin-bottom: var(--space-2); }
-.savings-bar-track > span { width: 65%; border-radius: var(--control-radius) var(--control-radius) 2px 2px; background: color-mix(in srgb, var(--color-accent) 65.0%, transparent); }
+.savings-bar-track > span { width: 65%; border-radius: var(--control-radius) var(--control-radius) 2px 2px; background: var(--tint-color-accent-65-0-transparent); }
 .scan-pill { padding: var(--space-2) var(--space-3); font-size:12px; white-space: nowrap; }
 .scan-pill.live .scan-dot { animation: sync-breathe 3s ease-in-out infinite; }
 .scan-pill.setup .scan-dot { background: var(--dim); box-shadow: none; }
@@ -432,7 +432,7 @@ html[data-layout="desktop"] .bottom-nav {
 .discovery-column .section-title { margin:var(--space-1) 0 0;font-size:23px;line-height:1.2;letter-spacing:-.035em; }
 .discovery-column .eyebrow { font-size:12px;letter-spacing:.12em; }
 .discovery-column .quick-card { background: var(--color-screen);box-shadow: none; }
-.discovery-column .quick-card.active { background: color-mix(in srgb, var(--color-accent) 8.5%, transparent);border-color: color-mix(in srgb, var(--color-accent) 30.0%, transparent); }
+.discovery-column .quick-card.active { background: var(--tint-color-accent-8-5-transparent);border-color: var(--tint-color-accent-30-0-transparent); }
 .best-section > .section-head, html[data-layout="desktop"] .best-section > .section-head {
   padding:var(--space-4) var(--space-4); border: 1px solid var(--line-soft);border-radius: var(--card-radius);background: var(--color-panel);gap:var(--space-2) var(--space-5);
 }
@@ -463,7 +463,7 @@ html[data-layout="desktop"] .bottom-nav {
 .offer-browser .quick-card { min-height:74px; padding:var(--space-3); border-radius: var(--card-radius); }
 .offer-browser .quick-card .quick-sub { display:none; }
 .offer-browser .quick-top { margin-bottom:var(--space-2); }
-.offer-browser .quick-card.active { background: color-mix(in srgb, var(--color-accent) 13.0%, transparent); border-color: color-mix(in srgb, var(--color-accent) 50.0%, transparent); box-shadow: none; }
+.offer-browser .quick-card.active { background: var(--tint-color-accent-13-0-transparent); border-color: var(--tint-color-accent-50-0-transparent); box-shadow: none; }
 .offer-browser .best-section { margin-top:var(--space-5); padding-top:var(--space-5); border-top: 1px solid var(--line); }
 .offer-browser .best-section > .section-head, html[data-layout="desktop"] .offer-browser .best-section > .section-head { padding:0; margin:0 0 var(--space-2); border: 0; border-radius: 0; background: none; align-items:baseline; }
 .offer-browser #accountsKicker { display:none; }
@@ -695,7 +695,7 @@ body::before, body::after { display: none; }
 }
 .savings-hero, .total-saved-card {
   background: var(--color-selected);
-  border-color: color-mix(in srgb, var(--color-accent) 19.0%, transparent);
+  border-color: var(--tint-color-accent-19-0-transparent);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;
@@ -745,7 +745,7 @@ body::before, body::after { display: none; }
 .sheet-action-row::after { content:'›'; flex:0 0 auto; margin-left:auto; color: var(--muted); font-size:23px; line-height:1; }
 .sheet-action-row > span { min-width:0; flex:1; }
 .sheet-action-row small { display: block; margin-top: var(--space-1); color: var(--muted); font-size:12px; font-weight: 400; line-height: 1.45; }
-.sheet-action-row:hover { border-color: color-mix(in srgb, var(--color-accent) 28.0%, transparent); }
+.sheet-action-row:hover { border-color: var(--tint-color-accent-28-0-transparent); }
 .sheet-action-row:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
 .account-card .receipt-review-action { min-height:44px; padding:var(--space-2) var(--space-3); margin:var(--space-2) 0; border-radius: var(--card-radius); }
 .account-card .receipt-review-action > svg { width:20px; height:20px; }
@@ -804,7 +804,7 @@ body::before, body::after { display: none; }
 .finance-hero::before, .total-saved-card::before {
   content:''; position:absolute; z-index:-1; pointer-events:none;
   width:190%; height:220%; left:-60%; top:-120%; border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--color-accent) 46.0%, transparent);
+  border: 1px solid var(--tint-color-accent-46-0-transparent);
   background: var(--color-selected);
   box-shadow: none;
 }
@@ -824,7 +824,7 @@ body::before, body::after { display: none; }
 .sheet[data-finance-layout] .savings-metrics .insight-value { display:block; color: var(--text); font-weight:600; font-size:clamp(21px,6.5vw,29px); letter-spacing:-.03em; }
 .sheet[data-finance-layout] .savings-metrics .sheet-help { padding-top:0; font-size:12px; line-height:1.5; }
 .metric-action { cursor:pointer; }
-.metric-action:hover { border-color: color-mix(in srgb, var(--color-accent) 35.0%, transparent) !important; }
+.metric-action:hover { border-color: var(--tint-color-accent-35-0-transparent) !important; }
 .metric-action:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
 .sheet[data-finance-layout] .disclosure-card > summary::before,
 .sheet[data-finance-layout] .sheet-action-row::before { display:none; }
@@ -864,7 +864,7 @@ body::before, body::after { display: none; }
   color: var(--muted); box-shadow: none;
 }
 .finance-icon { width:22px; height:22px; flex-basis:22px; }
-.finance-heading-icon, .finance-hero .finance-icon-surface { color: var(--green); border-color: color-mix(in srgb, var(--color-accent) 28.0%, transparent); background: var(--color-selected); }
+.finance-heading-icon, .finance-hero .finance-icon-surface { color: var(--green); border-color: var(--tint-color-accent-28-0-transparent); background: var(--color-selected); }
 .screen-head { margin-bottom:var(--space-6); }
 .screen-title, html[data-layout="desktop"] .screen-title { font-size:clamp(28px,7vw,38px); line-height:1.15; letter-spacing:-.035em; }
 .screen-copy { max-width:760px; font-size:14px; line-height:1.65; margin-top:var(--space-2); color: var(--muted); }
@@ -888,7 +888,7 @@ body::before, body::after { display: none; }
   position:relative; isolation:isolate; overflow:hidden; display:grid; grid-template-columns:34px minmax(0,1fr) 100px; gap:var(--space-3); align-items:center; padding:var(--space-4); margin-top:0;
   border-radius: var(--card-radius); border: 1px solid var(--hero-edge); background: var(--hero-surface);
 }
-.total-saved-card > .app-icon-surface { width:34px; height:34px; border-radius: var(--card-radius); color: var(--green); background: color-mix(in srgb, var(--color-accent) 8.0%, transparent); border-color: color-mix(in srgb, var(--color-accent) 30.0%, transparent); }
+.total-saved-card > .app-icon-surface { width:34px; height:34px; border-radius: var(--card-radius); color: var(--green); background: var(--tint-color-accent-8-0-transparent); border-color: var(--tint-color-accent-30-0-transparent); }
 .home-overview .home-intro, html[data-layout="desktop"] .home-overview .home-intro { margin-top:var(--space-6); }
 .total-saved-card strong, html[data-layout="desktop"] .total-saved-card strong { font-size:30px; line-height:1.2; letter-spacing:-.04em; margin:var(--space-1) 0; }
 .total-saved-card .stat-label { padding-right:0; }
@@ -913,7 +913,7 @@ body::before, body::after { display: none; }
 .account-card, html[data-layout="desktop"] .account-card { padding:var(--space-4); border-radius: var(--card-radius); }
 .account-identity { display:flex; align-items:center; gap:var(--space-3); min-width:0; }
 .account-identity-copy { min-width:0; }
-.account-identity .app-icon-surface { color: var(--green); background: color-mix(in srgb, var(--color-accent) 5.5%, transparent); }
+.account-identity .app-icon-surface { color: var(--green); background: var(--tint-color-accent-5-5-transparent); }
 .account-email, html[data-layout="desktop"] .account-email { font-size:16px; line-height:1.4; letter-spacing:-.02em; }
 .account-login-route { font-size:12px; margin-top:var(--space-1); line-height:1.5; }
 .account-offer { font-size:15px; line-height:1.5; font-weight:600; margin-top:var(--space-3); padding-top:var(--space-3); border-top: 1px solid var(--line-soft); color: var(--text); }
@@ -926,7 +926,7 @@ body::before, body::after { display: none; }
 .save-now small { font-size:12px; line-height:1.5; }
 .pill { min-height:26px; padding:var(--space-1) var(--space-2); font-size:12px; line-height:1.5; }
 .hero-card { padding:var(--space-5); }
-.hero-spark { width:44px; height:44px; background: color-mix(in srgb, var(--color-accent) 8.0%, transparent); border: 1px solid color-mix(in srgb, var(--color-accent) 20.0%, transparent); color: var(--green); }
+.hero-spark { width:44px; height:44px; background: var(--tint-color-accent-8-0-transparent); border: 1px solid var(--tint-color-accent-20-0-transparent); color: var(--green); }
 .basket-value-wrap .basket-currency { color: var(--text); }
 .basket-editor-copy strong { font-size:13px; }
 .basket-editor-copy small { font-size:12px; }
@@ -968,8 +968,8 @@ body::before, body::after { display: none; }
 .disclosure-card > summary::after { content:'›'; flex:0 0 auto; margin-left:auto; color: var(--muted); font-size:23px; line-height:1; }
 .disclosure-card[open] > summary::after { transform:rotate(90deg); }
 .disclosure-card > summary > span:not(.app-icon-surface):not(.disclosure-count) { flex:1; min-width:0; }
-.tools-intro { display:flex; align-items:center; gap:var(--space-4); padding:var(--space-4); border: 1px solid color-mix(in srgb, var(--color-accent) 20.0%, transparent); border-radius: var(--card-radius); background: var(--color-selected); margin-bottom:var(--space-6); }
-.tools-intro > .app-icon-surface { width:42px; height:42px; color: var(--green); background: color-mix(in srgb, var(--color-accent) 8.0%, transparent); }
+.tools-intro { display:flex; align-items:center; gap:var(--space-4); padding:var(--space-4); border: 1px solid var(--tint-color-accent-20-0-transparent); border-radius: var(--card-radius); background: var(--color-selected); margin-bottom:var(--space-6); }
+.tools-intro > .app-icon-surface { width:42px; height:42px; color: var(--green); background: var(--tint-color-accent-8-0-transparent); }
 .tools-intro strong { font-size:19px; line-height:1.4; }
 .tools-intro p { color: var(--muted); margin:var(--space-1) 0 0; font-size:14px; line-height:1.6; }
 .more-grid, html[data-layout="desktop"] .more-grid { display:grid; grid-template-columns:1fr; gap:var(--space-6); }
@@ -991,7 +991,7 @@ body::before, body::after { display: none; }
 .sheet-sub { font-size:13px; line-height:1.55; margin-top:var(--space-1); }
 .sheet-close { width:44px; height:44px; flex:0 0 44px; }
 .sheet-body { min-height:0; max-height:none; overflow:auto; overscroll-behavior:contain; scroll-padding:var(--space-6); padding-inline:var(--space-5); }
-.sheet:not([data-finance-layout]) .finance-heading-icon { width:42px; height:42px; border-radius: var(--card-radius); color: var(--green); background: color-mix(in srgb, var(--color-accent) 6.5%, transparent); border-color: color-mix(in srgb, var(--color-accent) 22.0%, transparent); }
+.sheet:not([data-finance-layout]) .finance-heading-icon { width:42px; height:42px; border-radius: var(--card-radius); color: var(--green); background: var(--tint-color-accent-6-5-transparent); border-color: var(--tint-color-accent-22-0-transparent); }
 .sheet:not([data-finance-layout]) .sheet-help, .sheet:not([data-finance-layout]) .sheet-row-meta { font-size:12px; line-height:1.65; }
 .sheet:not([data-finance-layout]) .sheet-row-title, .sheet:not([data-finance-layout]) .sheet-row-value { font-size:14px; line-height:1.5; }
 .sheet:not([data-finance-layout]) .sheet-section-title { font-size:15px; margin:var(--space-6) 0 var(--space-3); }
@@ -1046,9 +1046,9 @@ body::before, body::after { display: none; }
 .device-import { display:block; margin:var(--space-4) 0; font-size:14px; }
 .device-import input { display:block; width:100%; margin-top:var(--space-3); font:inherit; color: var(--muted); }
 .device-import input::file-selector-button { padding:var(--space-3) var(--space-4); min-height:44px; margin-right:var(--space-3); border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--surface); color: var(--text); font:inherit; cursor:pointer; }
-.insights-hero { display:flex; align-items:center; gap:var(--space-4); padding:var(--space-4); border: 1px solid color-mix(in srgb, var(--color-accent) 35.0%, transparent); border-radius: var(--card-radius); background: var(--color-selected); }
+.insights-hero { display:flex; align-items:center; gap:var(--space-4); padding:var(--space-4); border: 1px solid var(--tint-color-accent-35-0-transparent); border-radius: var(--card-radius); background: var(--color-selected); }
 .insights-hero > div { min-width:0; }
-.insights-hero > .app-icon-surface { flex:0 0 48px; width:48px; height:48px; border-radius: 50%; color: var(--green); border-color: color-mix(in srgb, var(--color-accent) 35.0%, transparent); background: var(--color-selected); }
+.insights-hero > .app-icon-surface { flex:0 0 48px; width:48px; height:48px; border-radius: 50%; color: var(--green); border-color: var(--tint-color-accent-35-0-transparent); background: var(--color-selected); }
 .insights-hero > .app-icon-surface .finance-icon { width:30px; height:30px; }
 .insights-hero strong { display:block; margin:var(--space-1) 0; font-size:clamp(27px,7.2vw,36px); line-height:1.12; letter-spacing:-.035em; color: var(--green); }
 .insights-hero span, .insights-hero p { font-size:12px; line-height:1.55; }
@@ -1172,7 +1172,7 @@ body::before, body::after { display: none; }
 .finance-breakdown-check { font-size:12px; line-height:1.6; color: var(--muted); }
 .finance-feedback { margin:var(--space-3) 0 0; padding:var(--space-3); border: 1px solid var(--line); border-radius: var(--card-radius); font-size:13px; line-height:1.5; }
 .finance-feedback:empty { display:none; }
-.finance-feedback[data-state="saved"] { border-color: color-mix(in srgb, var(--color-accent) 30.0%, transparent); color: var(--green); }
+.finance-feedback[data-state="saved"] { border-color: var(--tint-color-accent-30-0-transparent); color: var(--green); }
 .finance-feedback[data-state="error"] { color: var(--color-soft-accent); }
 .finance-breakdown .disclosure-body, [data-finance-panel] > .disclosure-body { animation:none; }
 
@@ -1341,7 +1341,7 @@ body::before, body::after { display: none; }
 #view-planner .planner-mode select { min-height:48px; font-size:16px; flex:0 1 172px; max-width:none; }
 .planner-section-head { margin:var(--space-5) 0 var(--space-3); }
 .planner-section-head h2 { margin:0; font-size:23px; line-height:1.4; letter-spacing:-.03em; }
-#view-planner .recommendation { padding:var(--space-4); margin:0; border-radius: var(--card-radius); border: 1px solid color-mix(in srgb, var(--color-accent) 65.0%, transparent); background: var(--color-selected); }
+#view-planner .recommendation { padding:var(--space-4); margin:0; border-radius: var(--card-radius); border: 1px solid var(--tint-color-accent-65-0-transparent); background: var(--color-selected); }
 #view-planner .recommendation-top { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--space-3); align-items:start; }
 #view-planner .recommendation-title { margin:var(--space-1) 0 0; font-size:20px; line-height:1.4; }
 .plan-status { color: var(--green); font-size:12px; line-height:1.5; font-weight:600; }
@@ -1418,7 +1418,7 @@ body::before, body::after { display: none; }
 .receipt-selected-card small { display:block; margin-top:3px; font-size:12px; line-height:1.6; color: var(--muted); overflow-wrap:anywhere; }
 .receipt-selected-card .finance-change-account { font-size:12px; min-height:44px; }
 .receipt-review-warning { margin:var(--space-2) var(--space-1) 0; font-size:12px; }
-.receipt-savings-card { border-color: color-mix(in srgb, var(--color-accent) 55.0%, transparent); background: var(--color-selected); }
+.receipt-savings-card { border-color: var(--tint-color-accent-55-0-transparent); background: var(--color-selected); }
 .receipt-summary-columns { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--space-4); }
 .receipt-summary-columns > div { min-width:0; }
 .receipt-summary-columns label,.receipt-final-summary > span,.receipt-payment-card > h3,#financeRefundEvidence > h3,.receipt-note-card > label { display:flex; align-items:center; gap:var(--space-2); font-size:15px; line-height:1.5; margin:0 0 var(--space-2); }
@@ -1678,7 +1678,7 @@ body::before, body::after { display: none; }
 .receipt-account-details > summary::-webkit-details-marker { display:none; }
 .receipt-account-details > small { font-size:12px; line-height:1.4; overflow-wrap:anywhere; }
 .receipt-selected-actions { display:flex; flex-direction:column; align-items:flex-end; gap:var(--space-1); }
-.receipt-refund-badge { display:flex; align-items:center; gap:var(--space-1); color: var(--green); border-radius: 999px; background: color-mix(in srgb, var(--color-accent) 12.0%, transparent); padding:var(--space-1) var(--space-2); font-size:12px; line-height:1.4; white-space:nowrap; }
+.receipt-refund-badge { display:flex; align-items:center; gap:var(--space-1); color: var(--green); border-radius: 999px; background: var(--tint-color-accent-12-0-transparent); padding:var(--space-1) var(--space-2); font-size:12px; line-height:1.4; white-space:nowrap; }
 .receipt-refund-badge svg { width:14px; height:14px; flex-basis:14px; }
 .receipt-review-warning { font-size:12px; line-height:1.35; margin:var(--space-1) 2px 0; color: var(--muted); }
 .receipt-review-warning summary { cursor:pointer; }
@@ -1927,10 +1927,10 @@ html[data-layout="desktop"] #view-planner .basket-editor,
 #view-planner .planner-select-wrap > svg { position:absolute; right:12px; top:50%; transform:translateY(-50%); width:18px; height:18px; fill: none; stroke: currentColor; stroke-width:2; pointer-events:none; }
 #view-planner .planner-section-head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:var(--space-2) var(--space-2); margin:var(--space-4) 0 var(--space-3); }
 #view-planner .planner-section-head h2 { font-size:22px; line-height:1.35; }
-#view-planner .plan-status { display:inline-flex; align-items:center; gap:var(--space-1); max-width:100%; padding:var(--space-1) var(--space-2); border: 1px solid color-mix(in srgb, var(--color-accent) 55.0%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--color-accent) 7.0%, transparent); color: var(--green); font-size:12px; line-height:1.4; font-weight:600; }
+#view-planner .plan-status { display:inline-flex; align-items:center; gap:var(--space-1); max-width:100%; padding:var(--space-1) var(--space-2); border: 1px solid var(--tint-color-accent-55-0-transparent); border-radius: 999px; background: var(--tint-color-accent-7-0-transparent); color: var(--green); font-size:12px; line-height:1.4; font-weight:600; }
 #view-planner .plan-status[hidden] { display:none; }
 #view-planner .plan-status svg { width:16px; height:16px; flex:0 0 16px; }
-#view-planner .recommendation { padding:var(--space-4); background: var(--color-selected); border: 1px solid color-mix(in srgb, var(--color-accent) 65.0%, transparent); box-shadow: none; }
+#view-planner .recommendation { padding:var(--space-4); background: var(--color-selected); border: 1px solid var(--tint-color-accent-65-0-transparent); box-shadow: none; }
 #view-planner .recommendation-top { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:var(--space-3); }
 #view-planner .recommendation-choice { display:flex; align-items:flex-start; gap:var(--space-2); flex:1 1 160px; min-width:min(100%,160px); }
 #view-planner .recommendation-choice > svg { width:28px; height:28px; flex:0 0 28px; color: var(--green); }
@@ -2038,7 +2038,7 @@ html[data-layout="mobile"] #view-planner :is(button,input,select,summary) { scro
 #view-offers .quick-icon,#view-offers .quick-icon svg { width:18px; height:18px; }
 #view-offers .quick-title { font-size:inherit; font-weight:550; line-height:1.45; overflow-wrap:anywhere; }
 #view-offers .quick-count { justify-self:end; font-size:inherit; font-weight:500; line-height:1.45; font-variant-numeric:tabular-nums; }
-#view-offers .quick-card.active { border-color: color-mix(in srgb, var(--color-accent) 65.0%, transparent); background: var(--color-selected); }
+#view-offers .quick-card.active { border-color: var(--tint-color-accent-65-0-transparent); background: var(--color-selected); }
 #view-offers .quick-card.active .quick-count { color: var(--green); }
 #view-offers .offer-controls:has(+ #offerFilterPanel[hidden]) { margin-bottom:0; }
 #view-offers .best-section { margin-top:var(--space-5); padding:0; border: 0; }
@@ -2062,7 +2062,7 @@ html[data-layout="mobile"] #view-planner :is(button,input,select,summary) { scro
 #view-offers .offer-preview-content { margin-left:calc(32px + var(--space-2)); min-width:0; }
 #view-offers .offer-preview-primary { display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-1) var(--space-2); }
 #view-offers .offer-preview-card .account-offer { margin:0; padding:0; border: 0; font-size:23px; line-height:1.3; font-weight:600; overflow-wrap:anywhere; }
-#view-offers .offer-preview-best { position:static; display:inline-flex; padding:3px var(--space-2); border-radius: 999px; font-size:12px; font-weight:500; line-height:1.4; background: color-mix(in srgb, var(--color-accent) 6.5%, transparent); }
+#view-offers .offer-preview-best { position:static; display:inline-flex; padding:3px var(--space-2); border-radius: 999px; font-size:12px; font-weight:500; line-height:1.4; background: var(--tint-color-accent-6-5-transparent); }
 #view-offers .offer-preview-description,#view-offers .offer-preview-meta,#view-offers .offer-preview-restriction { font-size:12px; line-height:1.5; margin:var(--space-1) 0 0; }
 #view-offers .offer-preview-meta { align-items:flex-start; gap:var(--space-2); }
 #view-offers .offer-preview-meta svg { width:16px; height:16px; flex:0 0 16px; margin-top:1px; }
@@ -2250,7 +2250,7 @@ body:has(#view-used.active) { padding-bottom:var(--used-nav-clearance,calc(90px 
 #usedSearch::placeholder { color: var(--muted); font-weight:400; }
 .used-filters { display:flex; flex-wrap:wrap; gap:var(--space-2); align-items:stretch; margin-bottom:var(--space-6); }
 .used-filters > button,.used-status-control { display:flex; align-items:center; justify-content:center; gap:var(--space-2); flex:1 1 auto; min-height:44px; border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--surface-gradient); color: var(--text); font-size:13px; padding:var(--space-2) var(--space-3); font-weight:500; }
-.used-filters > button[aria-pressed=true] { border-color: var(--green-strong); background: color-mix(in srgb, var(--color-accent) 24.0%, transparent); }
+.used-filters > button[aria-pressed=true] { border-color: var(--green-strong); background: var(--tint-color-accent-24-0-transparent); }
 .used-filters > button > span { padding:1px var(--space-1); background: var(--color-panel); border-radius: var(--control-radius); font-variant-numeric:tabular-nums; color: var(--muted); }
 .used-status-control { position:relative; flex:0 1 auto; padding:0; min-width:94px; max-width:100%; }
 .used-status-control label { display:flex; align-items:center; gap:var(--space-2); padding:var(--space-2) var(--space-3); line-height:1.3; max-width:100%; overflow-wrap:anywhere; }
@@ -2278,7 +2278,7 @@ body:has(#view-used.active) { padding-bottom:var(--used-nav-clearance,calc(90px 
 .used-evidence p { margin:0; font-size:14px; line-height:1.5; overflow-wrap:anywhere; }
 .used-evidence small { color: var(--muted); display:flex; gap:var(--space-1); align-items:center; margin-top:3px; line-height:1.4; font-size:12px; font-weight:400; }
 .used-evidence small svg { width:14px; height:14px; flex-shrink:0; }
-.receipt-rule-badge { padding:3px var(--space-1); color: var(--green); font-size:12px; line-height:1.4; border: 1px solid color-mix(in srgb, var(--color-accent) 75.0%, transparent); border-radius: var(--control-radius); align-self:center; white-space:normal; max-width:86px; text-align:center; }
+.receipt-rule-badge { padding:3px var(--space-1); color: var(--green); font-size:12px; line-height:1.4; border: 1px solid var(--tint-color-accent-75-0-transparent); border-radius: var(--control-radius); align-self:center; white-space:normal; max-width:86px; text-align:center; }
 .used-more { display:flex; justify-content:space-between; gap:var(--space-3); width:100%; min-height:46px; padding:var(--space-3) var(--space-3); margin-top:var(--space-3); background: var(--surface-gradient); border: 1px solid var(--line); border-radius: var(--card-radius); color: var(--text); font-size:14px; font-weight:500; text-align:left; }
 .used-more > span { font-size:23px; line-height:20px; }
 .used-info-link { display:flex; align-items:center; gap:var(--space-2); min-height:44px; width:100%; padding:var(--space-2); margin:var(--space-2) 0 0; font-size:13px; font-weight:400; color: var(--muted); border: 0; background: none; text-align:left; }
@@ -2314,7 +2314,7 @@ label.catalogue-option { justify-content:flex-start; }
 #catalogueResultCount { color: var(--muted); margin:var(--space-2) 1px; font-size:13px; }
 .offer-catalogue footer { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:var(--space-2); padding-top:var(--space-1); }
 .offer-catalogue footer button { padding:var(--space-2) var(--space-3); min-height:44px; font-size:15px; border: 1px solid var(--line); border-radius: var(--card-radius); color: var(--text); background: var(--surface); }
-.offer-catalogue #applyPreferred { color: var(--bg-deep); background: var(--green); border-color: var(--green); }
+.offer-catalogue #applyPreferred { color: var(--color-on-accent); background: var(--theme-primary); border-color: var(--green); }
 /* Settings follows the compact grouped page, not an activity list or sheet. */
 :root { --settings-safe-top: env(safe-area-inset-top,0px); --settings-safe-bottom: env(safe-area-inset-bottom,0px); }
 .app-shell.detail-mode:has(#view-settings.active) { padding-top:calc(var(--space-4) + var(--settings-safe-top)); padding-bottom:0; }
@@ -2374,7 +2374,7 @@ html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion
 .used-status-control{background: none}.used-status-control #usedStatus{display:flex;align-items:center;gap:var(--space-2);border: 0;border-radius: var(--card-radius);background: transparent;color: var(--text);padding:var(--space-2) var(--space-3);font:inherit;min-height:44px;width:100%}
 #usedStatusOptions{position:absolute;z-index:35;top:calc(100% + 6px);right:0;width:min(320px,calc(100vw - 40px));overflow-y:auto;border: 1px solid var(--line);border-radius: var(--card-radius);padding:var(--space-1);background: var(--bg-deep);box-shadow: none}
 #usedStatusOptions[hidden]{display:none}#usedStatusOptions button{display:flex;justify-content:space-between;gap:var(--space-2);width:100%;min-height:46px;font-size:15px;text-align:left;color: var(--text);background: transparent;border: 0;border-radius: var(--control-radius);padding:var(--space-2)}
-#usedStatusOptions button[aria-selected=true]{color: var(--green);background: color-mix(in srgb, var(--color-accent) 13.0%, transparent)}#usedStatusOptions button:focus-visible{outline: 2px solid var(--green);outline-offset: -2px}
+#usedStatusOptions button[aria-selected=true]{color: var(--green);background: var(--tint-color-accent-13-0-transparent)}#usedStatusOptions button:focus-visible{outline: 2px solid var(--green);outline-offset: -2px}
 
 #usedStatus > span{padding:0;background: transparent;color: inherit}#usedStatusLabel{overflow-wrap:anywhere}
 
@@ -2413,7 +2413,7 @@ body:has(#view-more.active)::before { display:block; position:fixed; inset:0 0 a
 #view-more :is(button,h1) { scroll-margin-bottom:var(--space-4); }
 #view-more.motion-enter > .screen-head { animation:none; }
 .nav-btn[data-view=more] svg circle { fill: currentColor; stroke: none; }
-.bottom-nav:has(.nav-btn[data-view=more].active) .nav-glider { background: color-mix(in srgb, var(--color-accent) 16.0%, transparent); border-color: color-mix(in srgb, var(--color-accent) 24.0%, transparent); }
+.bottom-nav:has(.nav-btn[data-view=more].active) .nav-glider { background: var(--tint-color-accent-16-0-transparent); border-color: var(--tint-color-accent-24-0-transparent); }
 
 /* Favourites are focused child pages. The catalogue is a second page, not a
    nested modal; the short single-choice discovery picker remains independent. */
@@ -2509,7 +2509,7 @@ html:has(.preferred-page.active) { scroll-padding-top:calc(var(--space-3) + var(
 .sheet[data-screen="Account details"] .account-login-route { margin-top:3px; font-size:12px; line-height:1.4; }
 .account-detail-badges { display:flex; flex-wrap:wrap; gap:var(--space-2); padding-block:var(--space-3) var(--space-2); }
 .account-receipt-badge,.account-login-badge { display:inline-flex; align-items:center; gap:var(--space-1); min-height:27px; padding:var(--space-1) var(--space-2); border: 1px solid var(--line); border-radius: 999px; font-size:12px; font-weight:550; line-height:1.3; }
-.account-receipt-badge { color: var(--green-strong); background: color-mix(in srgb, var(--color-accent) 12.0%, transparent); border-color: color-mix(in srgb, var(--color-accent) 45.0%, transparent); }
+.account-receipt-badge { color: var(--green-strong); background: var(--tint-color-accent-12-0-transparent); border-color: var(--tint-color-accent-45-0-transparent); }
 .account-receipt-badge svg { width:15px; height:15px; }
 .account-login-badge.positive { color: var(--color-soft-accent); border-color: var(--color-accent); background: var(--color-accent); }
 .account-login-badge .status-dot { width:7px; height:7px; box-shadow: none; }
@@ -2537,7 +2537,7 @@ html:has(.preferred-page.active) { scroll-padding-top:calc(var(--space-3) + var(
 .account-offers-heading > span { font-size:12px; color: var(--muted); }
 .account-no-offers { font-size:13px; line-height:1.5; color: var(--muted); margin:var(--space-2) 0 var(--space-3); }
 .sheet[data-screen="Account details"] .account-detail-offer { margin:var(--space-2) 0 0; padding:0; border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--surface-gradient); box-shadow: none; }
-.sheet[data-screen="Account details"] .account-detail-offer[open] { border-color: color-mix(in srgb, var(--color-accent) 65.0%, transparent); background: var(--color-selected); }
+.sheet[data-screen="Account details"] .account-detail-offer[open] { border-color: var(--tint-color-accent-65-0-transparent); background: var(--color-selected); }
 .account-detail-offer summary,.account-cash-entry summary,.account-management summary { list-style:none; cursor:pointer; }
 .account-detail-offer summary::-webkit-details-marker,.account-cash-entry summary::-webkit-details-marker,.account-management summary::-webkit-details-marker { display:none; }
 .account-offer-toggle { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-3); min-height:56px; }
@@ -2553,7 +2553,7 @@ html:has(.preferred-page.active) { scroll-padding-top:calc(var(--space-3) + var(
 .account-detail-offer:not([open]) > summary .offer-details { display:none; }
 .account-offer-body { padding:0 var(--space-3) 3px; }
 .sheet[data-screen="Account details"] .account-detail-offer .pill-row { display:flex; align-items:center; justify-content:space-between; gap:var(--space-2); margin:0 0 var(--space-2); }
-.sheet[data-screen="Account details"] .account-detail-offer .pill { min-height:24px; padding:3px var(--space-2); font-size:12px; background: color-mix(in srgb, var(--color-accent) 8.0%, transparent); color: var(--text); }
+.sheet[data-screen="Account details"] .account-detail-offer .pill { min-height:24px; padding:3px var(--space-2); font-size:12px; background: var(--tint-color-accent-8-0-transparent); color: var(--text); }
 .account-offer-expiry { display:flex; align-items:center; gap:var(--space-1); font-size:12px; color: var(--amber); }
 .account-offer-expiry svg { width:15px; height:15px; }
 .sheet[data-screen="Account details"] .use-progress { margin:0 0 var(--space-2); }
@@ -2635,7 +2635,7 @@ html:has(.preferred-page.active) { scroll-padding-top:calc(var(--space-3) + var(
 .account-offer-titleline { display:flex; align-items:center; flex-wrap:wrap; gap:var(--space-2); }
 .sheet[data-screen="Account details"] .offer-name { font-size:14px; font-weight:550; }
 .sheet[data-screen="Account details"] .account-detail-offer[open] .offer-name { font-size:17px; font-weight:550; }
-.account-selected-badge { display:inline-flex; align-items:center; padding:3px var(--space-2); border: 1px solid color-mix(in srgb, var(--color-accent) 55.0%, transparent); border-radius: 999px; font-size:12px; line-height:1.3; color: var(--green-strong); background: color-mix(in srgb, var(--color-accent) 8.0%, transparent); }
+.account-selected-badge { display:inline-flex; align-items:center; padding:3px var(--space-2); border: 1px solid var(--tint-color-accent-55-0-transparent); border-radius: 999px; font-size:12px; line-height:1.3; color: var(--green-strong); background: var(--tint-color-accent-8-0-transparent); }
 .account-detail-offer:not([open]) .account-selected-badge { display:none; }
 .sheet[data-screen="Account details"] .account-offer-body { padding:0 var(--space-3) var(--space-2); }
 .account-offer-meta { display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--space-2) var(--space-3); margin:0 0 var(--space-3) 34px; }
@@ -2757,10 +2757,10 @@ html:has(.preferred-page.active) { scroll-padding-top:calc(var(--space-3) + var(
 .sheet-backdrop:has(.sheet[data-screen="Account details"]) { background: var(--color-dimmed); }
 .sheet[data-screen="Account details"] {
   --bg-deep: var(--color-sheet); --text: var(--color-text); --muted: var(--color-secondary); --line: var(--color-border); --line-soft: var(--color-border);
-  --green: var(--account-accent); --green-strong: color-mix(in srgb,var(--account-accent) 65%,var(--color-text));
+  --green: var(--account-accent); --green-strong: var(--tint-account-accent-65-color-text);
   --surface-gradient: var(--color-panel); --surface-inset: var(--color-panel);
   --account-tint: var(--color-selected);
-  --account-outline: color-mix(in srgb,var(--account-accent) 60%,var(--color-panel));
+  --account-outline: var(--tint-account-accent-60-color-panel);
   background: var(--color-sheet); border-color: var(--color-border); box-shadow: none;
 }
 body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { background-color: var(--color-screen); }
@@ -2776,7 +2776,7 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 .sheet[data-screen="Account details"] .account-login-badge.positive { color: var(--color-positive); background: var(--color-positive-fill); border-color: var(--color-positive-border); }
 .sheet[data-screen="Account details"] .account-login-badge.positive .status-dot { background: var(--color-positive-dot); }
 .sheet[data-screen="Account details"] .account-sheet-actions > button { min-height:44px; font-size:13px; border-radius: var(--control-radius); }
-.sheet[data-screen="Account details"] :is(.account-primary,.account-calculate) { background: var(--account-accent); color: var(--color-on-accent); border: 0; font-weight:600; }
+.sheet[data-screen="Account details"] :is(.account-primary,.account-calculate) { background: var(--theme-primary); color: var(--color-on-accent); border: 0; font-weight:600; }
 .sheet[data-screen="Account details"] .account-secondary { background: var(--color-panel); border: 1px solid var(--color-border); }
 .sheet[data-screen="Account details"] .account-rule-note { margin-top:var(--space-1); font-size:12px; }
 .sheet[data-screen="Account details"] .account-rule-note > summary { min-height:32px; }
@@ -2794,11 +2794,11 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 .sheet[data-screen="Account details"] .account-offer-expiry { font-size:12px; }
 .sheet[data-screen="Account details"] .offer-terms > summary { min-height:32px; font-size:12px; color: var(--green-strong); }
 .sheet[data-screen="Account details"] .progress-track { border: 0; background: var(--color-track); height:8px; }
-.sheet[data-screen="Account details"] .progress-fill { background: var(--account-accent); }
+.sheet[data-screen="Account details"] .progress-fill { background: var(--theme-progress); }
 .sheet[data-screen="Account details"] .use-line { font-size:12px; }
-.sheet[data-screen="Account details"] .account-record-use { border: 1.5px solid var(--account-accent); background: color-mix(in srgb,var(--account-accent) 20%,var(--color-sheet)); color: var(--green-strong); }
+.sheet[data-screen="Account details"] .account-record-use { border: 1.5px solid var(--account-accent); background: var(--tint-account-accent-20-color-sheet); color: var(--green-strong); }
 .sheet[data-screen="Account details"] .account-manage-toggle { background: var(--account-tint); border-color: var(--account-outline); }
-.sheet[data-screen="Account details"] .account-receipt-list { background: color-mix(in srgb,var(--account-accent) 7%,var(--color-panel)); border-color: var(--account-outline); }
+.sheet[data-screen="Account details"] .account-receipt-list { background: var(--tint-account-accent-7-color-panel); border-color: var(--account-outline); }
 .sheet[data-screen="Account details"] .account-receipt-row strong { display:block; font-size:12px; font-weight:500; }
 .sheet[data-screen="Account details"] .account-receipt-row small { display:block; color: var(--color-secondary); font-size:12px; margin-top:2px; }
 .sheet[data-screen="Account details"] .account-cash-entry { background: var(--color-panel); padding:0; border-radius: var(--card-radius); }
@@ -2857,7 +2857,7 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 .account-history-legend { gap:var(--space-2) var(--space-2); margin-top:var(--space-2); font-size:12px; justify-content:space-between; }
 .history-key { gap:var(--space-1); color: var(--color-secondary); }
 .history-key > svg { width:16px; height:16px; flex:none; color: var(--color-tertiary); }
-.history-key.completed > svg,.account-history-group.completed > h3 > svg { color: color-mix(in srgb,var(--account-accent) 72%,var(--color-secondary)); }
+.history-key.completed > svg,.account-history-group.completed > h3 > svg { color: var(--tint-account-accent-72-color-secondary); }
 .history-key.expired > svg,.account-history-group.expired > h3 > svg { color: var(--color-accent); }
 .history-key.ignored > svg,.account-history-group.ignored > h3 > svg { color: var(--color-tertiary); }
 .history-key strong { font-weight:450; color: var(--color-label); }

@@ -36,7 +36,7 @@ try{
   const originalTheme=await page.locator('meta[name="theme-color"]').getAttribute('content');
   await page.locator('[data-home-detail="planner"]').first().click();await page.locator('.recommendation-title').waitFor();
   await page.locator('#basketInput').fill('30');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='Use 2 accounts');await page.locator('#basketInput').blur();
-  await page.waitForFunction(()=>document.querySelector('meta[name="theme-color"]').content.toLowerCase()==='#090d14');
+  await page.waitForFunction(()=>document.querySelector('meta[name="theme-color"]').content.toLowerCase()===getComputedStyle(document.documentElement).getPropertyValue('--color-screen').trim().toLowerCase());
   assert.equal(await page.locator('#view-planner .detail-view-head').evaluate(e=>getComputedStyle(e).animationName),'none','Header stays crisp during page entry');
   await page.evaluate(async()=>{await Promise.all(document.getAnimations().filter(a=>a.effect?.getComputedTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{})));});
   const rows=page.locator('.plan-accounts .plan-row');
@@ -71,9 +71,9 @@ try{
     const rect=e=>{const r=e.getBoundingClientRect();return{top:r.top,bottom:r.bottom,height:r.height,right:r.right};};
     const ancestors=[];for(let e=head;e;e=e.parentElement){const s=getComputedStyle(e);ancestors.push({filter:s.filter,backdrop:s.backdropFilter||s.webkitBackdropFilter,overflowY:s.overflowY});}
     const background=getComputedStyle(document.body,'::before');
-    return{header:rect(head),ancestors,background:{height:parseFloat(background.height),color:background.backgroundColor,filter:background.filter},nav:rect(document.querySelector('.bottom-nav')),padding:parseFloat(getComputedStyle(document.body).paddingBottom),overflow:document.documentElement.scrollWidth>innerWidth};
+    return{header:rect(head),headerColor:getComputedStyle(head).backgroundColor,ancestors,background:{height:parseFloat(background.height),color:background.backgroundColor,filter:background.filter},nav:rect(document.querySelector('.bottom-nav')),padding:parseFloat(getComputedStyle(document.body).paddingBottom),overflow:document.documentElement.scrollWidth>innerWidth};
    });
-   if(width<980){assert.equal(layout.header.top,top+24,'Only the shell applies the top inset');assert.equal(layout.background.height,top);assert.equal(layout.background.color,'rgb(9, 13, 20)');assert.equal(layout.background.filter,'none');if(large)assert.ok(layout.nav.height>100,'Clearance follows actual enlarged dock height');}
+   if(width<980){assert.equal(layout.header.top,top+24,'Only the shell applies the top inset');assert.equal(layout.background.height,top);assert.equal(layout.background.color,layout.headerColor);assert.equal(layout.background.filter,'none');if(large)assert.ok(layout.nav.height>100,'Clearance follows actual enlarged dock height');}
    for(const ancestor of layout.ancestors){assert.ok(ancestor.filter==='none'||ancestor.filter==='blur(0px)');assert.equal(ancestor.backdrop,'none');assert.ok(!['clip','hidden'].includes(ancestor.overflowY),'No ancestor clips vertical page scrolling');}
    assert.equal(layout.overflow,false);
    for(const expanded of [false,true]){
@@ -94,7 +94,7 @@ try{
   await page.locator('#plannerFulfilment').selectOption('pickup');assert.equal(await page.locator('.plan-accounts .plan-row').count(),0);
   await page.locator('#plannerFulfilment').selectOption('delivery');assert.equal(await rows.count(),2);
   await page.locator('#basketInput').fill('15');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='Use 1 account');assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£4.00']);
-  await page.locator('[data-view="more"]').click();await page.waitForFunction(()=>document.querySelector('meta[name="theme-color"]').content.toLowerCase()==='#0b0e13');
+  await page.locator('[data-view="more"]').click();await page.waitForFunction(()=>document.querySelector('meta[name="theme-color"]').content.toLowerCase()===getComputedStyle(document.documentElement).getPropertyValue('--color-screen').trim().toLowerCase());
   await page.waitForFunction(()=>document.documentElement.style.getPropertyValue('--planner-nav-clearance')==='');
   assert.equal(await page.evaluate(()=>document.documentElement.style.getPropertyValue('--planner-nav-clearance')),'','Planner measurements do not change other screens');
   await page.locator('[data-view="home"]').click();await page.waitForFunction(theme=>document.querySelector('meta[name="theme-color"]').content===theme,originalTheme);

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {receiptActivity,receiptAmountSummary} from './dashboard-data.js';
 import {confirmedReceiptSaving} from './savings-intelligence.js';
 import {receiptInsightsModel,receiptOverviewMetrics,receiptOverviewMarkup,receiptActivityBuckets} from './receipt-insights.js';
+import {receiptPaymentAmount,receiptFinancials} from './receipt-financials.js';
 import {assertPublicSnapshot} from './public-snapshot.js';
 const now=new Date('2026-10-21T12:00:00Z'),state={range:'month',service:'eats',metric:'orders',now};
 const base={service:'Uber Eats',orderDate:'2026-10-02',total:4,subtotal:15,promotionDiscount:12,uberCashUsed:0,deliveryFee:0,serviceFee:1,smallOrderFee:0};
@@ -19,7 +20,7 @@ assert.equal(receiptOverviewMetrics(publicModel).cash,2);
 assert.equal(receiptOverviewMetrics(publicModel).outOfPocket.value,8,'Cash deducted once, separate from savings');
 assert.equal(receiptOverviewMetrics(publicModel).promos,24);
 const halfPenny=receiptInsightsModel({data:{receipts:Array.from({length:12},(_,i)=>({...base,receiptId:'pence-'+i,total:i?4.5:4.8}))},...state});assert.equal(receiptOverviewMetrics(halfPenny).average,4.53,'Average rounds integer pennies without a floating-point half-penny loss');
-const fullMarkup=receiptOverviewMarkup(publicModel,state);assert.doesNotMatch(fullMarkup,/Partial amounts|aren’t available|Not shown|\(known\)|0 totals/);assert.match(fullMarkup,/Promo discounts/);assert.match(fullMarkup,/Uber Cash used/);assert.doesNotMatch(fullMarkup,/ri-pocket-card/);
+const fullMarkup=receiptOverviewMarkup(publicModel,state);assert.doesNotMatch(fullMarkup,/Partial amounts|aren’t available|Not shown|\(known\)|0 totals/);assert.match(fullMarkup,/Promo discounts/);assert.match(fullMarkup,/Uber Cash used/);assert.match(fullMarkup,/ri-pocket-card/);assert.match(fullMarkup,/Promos &amp; Uber Cash/);assert.doesNotMatch(fullMarkup,/ri-cash-card/);
 for(const service of ['eats','rides','all'])for(const range of ['month','90','all','lastMonth'])for(const metric of ['orders','paid','promos','cash','saved']){
  const filter={...state,service,range,metric},a=receiptInsightsModel({payload,...filter}),b=receiptInsightsModel({data:{receipts:[...eats,...rides]},...filter});
  assert.deepEqual(receiptOverviewMetrics(a),receiptOverviewMetrics(b),service+' '+range+' local/public financial parity');
@@ -28,7 +29,7 @@ for(const service of ['eats','rides','all'])for(const range of ['month','90','al
 const partialRows=[...eats,{receiptId:'missing',service:'Uber Eats',orderDate:'2026-10-16',total:null,promotionDiscount:null}];
 const partialActivity=receiptActivity(partialRows,[],confirmedReceiptSaving,{includeAmounts:true});
 const partial=receiptInsightsModel({payload:{receiptActivity:partialActivity},...state}),pm=receiptOverviewMetrics(partial),markup=receiptOverviewMarkup(partial,state);
-assert.equal(pm.paid.value,10);assert.equal(pm.paid.known,3);assert.equal(pm.paid.total,4);assert.equal(pm.average,3.33);assert.match(markup,/Partial amounts · .*3\/4/);assert.equal((markup.match(/class="ri-amount-status"/g)||[]).length,1);
+assert.equal(pm.paid.value,10);assert.equal(pm.paid.known,3);assert.equal(pm.paid.total,4);assert.equal(pm.average,3.33);assert.match(markup,/Some receipt details are missing/);assert.match(markup,/Known receipt totals/);assert.match(markup,/3 of 4 receipts/);assert.equal((markup.match(/class="ri-amount-status"/g)||[]).length,1);
 const unavailable=receiptInsightsModel({data:{receipts:[{receiptId:'unknown',service:'Uber Eats',orderDate:'2026-10-16'}]},...state}),missingMarkup=receiptOverviewMarkup(unavailable,state);
 assert.equal(receiptOverviewMetrics(unavailable).paid.value,null);assert.equal((missingMarkup.match(/Amounts aren’t available for these receipts\./g)||[]).length,1);assert.doesNotMatch(missingMarkup,/Not shown|average|totals shown|\(known\)|ri-green[^>]*>—/);assert.equal(receiptOverviewMetrics(unavailable).promos,null);
 const zero=receiptInsightsModel({data:{receipts:[eats[2]]},...state});assert.equal(receiptOverviewMetrics(zero).paid.value,0);assert.match(receiptOverviewMarkup(zero,state),/£0.00/);assert.doesNotMatch(receiptOverviewMarkup(zero,state),/aren’t available/);
@@ -39,3 +40,24 @@ const feePartial=receiptAmountSummary([{...base,deliveryFee:null,smallOrderFee:n
 const corrected=receiptAmountSummary([{...base,financialCorrection:{total:3,breakdown:{eatsPromotions:3},outOfPocket:1}}]);assert.equal(corrected.promos.value,3);assert.equal(corrected.saved.value,3);assert.equal(corrected.outOfPocket.value,1);
 for(const modify of [p=>{p.receiptActivity.days[0].amounts.eats.receiptId='secret';},p=>{p.receiptActivity.days[0].amounts.eats.paid.known=99;},p=>{p.receiptActivity.months[0].amounts.eats.paid.value+=1;},p=>{p.receiptActivity.days[0].amounts.eats.paid.value=null;}]){const invalid=structuredClone(payload);modify(invalid);assert.throws(()=>assertPublicSnapshot(invalid,{records:[]}));}
 console.log('✓ Receipt financial projection: complete/partial/unavailable/zero, public/local field and filter parity, corrections, real fees, Cash separation, coverage, strict numeric privacy and monthly reconciliation.');
+
+const paymentCases=[
+ [{...base,uberCashUsed:null},null],
+ [{...base,total:null,uberCashUsed:2},null],
+ [{...base,total:8,uberCashUsed:3},5],
+ [{...base,total:2,uberCashUsed:3},null],
+ [{...base,total:0,uberCashUsed:0},0],
+ [{...base,uberCashUsed:null,financialEvidence:{outOfPocket:2.75}},2.75],
+ [{...base,total:0,uberCashUsed:0,financialEvidence:{refund:4,previousTotal:4}},null],
+ [{...base,total:1,uberCashUsed:0,financialReview:{reasons:['refund'],revision:'a'.repeat(64)}},null]
+];
+for(const [r,expected]of paymentCases)assert.equal(receiptPaymentAmount(r),expected);
+const adjusted={...base,total:1,financialReview:{reasons:['refund'],revision:'a'.repeat(64)}};
+assert.equal(receiptPaymentAmount(adjusted,{total:12,outOfPocket:1,reviewedReceiptRevision:'a'.repeat(64)}),1);
+assert.equal(receiptPaymentAmount(adjusted,{total:12,outOfPocket:4,reviewedReceiptRevision:'b'.repeat(64)}),null);
+assert.equal(receiptFinancials(adjusted).total,12,'Payment availability cannot alter original savings');
+const mixed=receiptAmountSummary(paymentCases.map(([r],i)=>({...r,receiptId:'mixed-'+i})));
+assert.equal(mixed.outOfPocket.value,7.75);assert.equal(mixed.outOfPocket.known,3);assert.equal(mixed.outOfPocket.total,8);
+assert.doesNotMatch(missingMarkup,/ri-paid-bottom/,'Do not reserve an empty basket/fees band');
+assert.match(markup,/Known spend/);assert.match(markup,/ri-coverage-info/);
+console.log('✓ Non-credit payment evidence: complete mixed payments, explicit payments with unknown Cash, missing/incompatible totals, true zero, refunds, stale and reviewed corrections. Ledger savings unchanged.');
