@@ -39,11 +39,16 @@ function inRange(day,range,now){
 export function receiptInsightRecord(receipt,correction){
  const f=receiptFinancials(receipt,correction),receiptTotal=number(receipt.total),promoKey=receiptService(receipt)==='eats'?'eatsPromotions':'ridePromotions';
  const promoValue=correction?number(correction.breakdown?.[promoKey]):number(receipt.promotionDiscount);
- const confirmed=f.source==='email_reported'&&!f.incomplete&&!f.conflict&&!f.needsAdjustmentReview;
+ // Older supported transfers may retain refund/changed-total evidence without
+ // the newer review revision. Keep their figures, but do not certify a saving
+ // or derive a percentage from that incomplete adjustment history.
+ const previous=number(receipt.previousTotal??receipt.financialEvidence?.previousTotal);
+ const unverifiedAdjustment=f.source==='email_reported'&&([receipt.refundAmount,receipt.financialEvidence?.refund].some(v=>v!=null&&Number.isFinite(Number(v))&&Number(v)!==0)||previous!=null&&receiptTotal!=null&&Math.abs(previous-receiptTotal)>.011);
+ const confirmed=f.source==='email_reported'&&!f.incomplete&&!f.conflict&&!f.needsAdjustmentReview&&!unverifiedAdjustment;
  // The receipt total includes Cash. Using out-of-pocket here would incorrectly
  // turn a payment source into a discount. Partial/reviewed evidence gets no %.
  const before=confirmed&&receiptTotal!=null&&f.total!=null?round(receiptTotal+f.total):null;
- return {receipt,id:receipt.receiptId||receipt.id,day:receiptDay(receipt),service:receiptService(receipt),f,confirmed,receiptTotal,promoValue,
+ return {receipt,id:receipt.receiptId||receipt.id,day:receiptDay(receipt),service:receiptService(receipt),f,confirmed,receiptTotal,promoValue,unverifiedAdjustment,
    percent:before>0?Math.round(f.total/before*100):null,before};
 }
 export function receiptInsightsModel({data,corrections={},payload={},range='90',service='all',now=new Date(),storeStatus='ready'}={}){
