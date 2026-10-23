@@ -14,7 +14,8 @@ function cashGrantWithDeadline(grant,offers=[]){
  const source=offers.filter(p=>p.discountType==='uberCash'&&amount(p.discount)===amount(grant.issued)&&time(p.firstEmailSentAt||p.emailSentAt)===time(grant.issuedAt))
   .map(applyOfferExpiryPolicy).filter(p=>expiryEndTime(p)!=null).sort((a,b)=>Number(b.expiryStatus==='exact')-Number(a.expiryStatus==='exact'))[0];
  const policy=source||applyOfferExpiryPolicy({discountType:'uberCash',firstEmailSentAt:grant.issuedAt});
- return expiryEndTime(policy)==null?grant:{...grant,expiresAt:policy.expiresAt,expiryBasis:policy.expiryBasis};
+ const end=expiryEndTime(policy);
+ return end==null?grant:{...grant,expiresAt:new Date(end).toISOString(),expiryBasis:policy.expiryBasis};
 }
 
 // Pure reconstruction. Source references and allocations stay in the private

@@ -23,6 +23,8 @@ assert.equal(cashForOrder(position,null,15,0,1,{now}).used,0);
 const history=cashCreditHistory(account,[{...offer,cashEstimate:old},{...offer,id:'reminder',cashEstimate:old}],now);
 assert.equal(history.length,1);assert.equal(history[0].status,'expired');assert.equal(history[0].expiresAt,cutoff);assert.equal(history[0].recordedUsed,4,'Expiry does not invent spending');
 assert.equal(history[0].expiryBasis,'tracker_35_day_rule');assert.equal(JSON.stringify(account),original);
+const dateOnly=cashCreditHistory(account,[{...offer,expiryStatus:'exact',expires:'2026-12-01',expiresAt:null}],now);
+assert.equal(dateOnly[0].expiresAt,'2026-12-01T23:59:59.999Z','An explicit date-only source remains the end-of-day deadline');
 const checked=currentCashPosition(account,[offer],{balance:9,at:'2026-10-22T12:00:00Z',receiptCount:0},[],{now,completeEvidence:true});
 assert.equal(checked.status,'verified');assert.equal(checked.remaining,9,'A later verified balance takes priority');
 const current={issued:6,issuedAt:'2026-10-20T12:00:00Z',status:'estimated',remaining:6,expiresAt:'2026-11-20T12:00:00Z'};
