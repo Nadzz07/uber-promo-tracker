@@ -25,6 +25,13 @@ jobs:
           node-version: 22
       - run: npm ci --ignore-scripts
       - run: npm run validate
+      - name: Use Ubuntu primary package mirror
+        run: |
+          for source in /etc/apt/sources.list /etc/apt/sources.list.d/*.sources; do
+            if [ -f "$source" ]; then
+              sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g; s|https://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' "$source"
+            fi
+          done
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
       - run: npm run build
