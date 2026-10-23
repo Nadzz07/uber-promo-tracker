@@ -102,6 +102,7 @@ exclude:
   - test-accounts-reference-browser.js
   - cash-reconstruction.js
   - test-cash-ledger.js
+  - test-cash-expiry-policy.js
   - test-preferred-cash-planner.js
   - test-used-activity.js
   - test-used-preferences-browser.js
