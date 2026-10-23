@@ -75,18 +75,18 @@ test('untrusted senders cannot make credited Cash into an offer', () => {
   assert.equal(p.rejectionReason, 'sender_not_uber');
 });
 
-test('account-applied duration does not fabricate the actual grant date', () => {
+test('account-applied duration retains source uncertainty while the tracker applies its estimated email cutoff', () => {
   const p = parseUberPromoV2({ ...base, subject: 'You have £12 in Uber Cash',
     body: "Use it for an Uber Eats order. Uber Cash is valid for 35 days since it was applied to the user's account." });
   assert.equal(p.expiryStatus, 'unknown');
   assert.equal(p.expiresAt, null);
   const current = { ...p, firstEmailSentAt: base.sentAt };
   const state = classifyOfferTrackingState(current, { now: new Date('2026-10-08T20:00:00Z') });
-  assert.equal(state.trackingState, 'needs_checking');
-  assert.equal(applyOfferExpiryPolicy(current).expiryBasis, 'cash_activation_unknown');
+  assert.equal(state.trackingState, 'available');
+  assert.equal(applyOfferExpiryPolicy(current).expiryBasis, 'tracker_35_day_rule');assert.equal(applyOfferExpiryPolicy(current).expiryStatus,'estimated');
   const reminder = { ...current, emailSentAt: '2026-10-08T12:00:00Z' };
   assert.equal(applyOfferExpiryPolicy(reminder).expiresAt, applyOfferExpiryPolicy(current).expiresAt);
-  assert.equal(classifyOfferTrackingState(reminder, { now: new Date('2026-10-23T00:00:00Z') }).trackingState, 'needs_checking');
+  assert.equal(classifyOfferTrackingState(reminder, { now: new Date('2026-10-23T00:00:00Z') }).trackingState, 'expired');
 });
 
 test('Cash payment and an advertised amount do not increase confirmed receipt savings', () => {
