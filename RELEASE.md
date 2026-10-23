@@ -1,3 +1,32 @@
+## Original colour wheel repair, account search and promo in use — 23 October 2026
+
+The existing wheel again saves its exact six-digit hex output. The theme update
+had fed a derived accent back into the picker, resetting radial saturation and
+brightness. Original brightness, presets and arrow-key behaviour are restored;
+hex-to-hue conversion remains centralized in appearance.js and every material
+continues to use the shared live tokens. No second picker or storage key exists.
+
+Unknown per-offer matching no longer renders a default zero, progress track or
+remaining-use claim. Supported links and safe positive aggregates retain their
+confirmed counts; manual entries remain separate and reconcile once. The private
+source contains no reliable per-offer assignments, so old exports without link
+metadata cannot establish zero by themselves. Existing receipts remain readable.
+
+Accounts searches the full filtered projection before pagination, including
+locally stored full emails, literal punctuation, case and surrounding spaces.
+Offer conditions share one candidate offer; sorts use its individual value with
+unknowns last and stable identity ties. Explicit provider arrays support both
+login methods. Directory and Finder choices are independent except explicit
+handoffs. Reset also resets sort and pagination. Full identities absent from a
+browser profile cannot be reconstructed from the public masked dataset.
+
+Confirmed or explicit manual usage suppresses unused competing promos from
+recommendations, preferred counts and Planner. Other promos remain in the existing
+history accordion as Hidden · another promo used, with a persistent Restore
+choice. Exhaustion does not release competitors. Undo recomputes the projection;
+multiple genuinely used promos and Cash keep their independent evidence. Source
+records, account classification and financial calculations are unchanged.
+
 ## Shared hue system and compact Receipt Insights — 21 October 2026
 
 The app uses one hue (default 283) for backgrounds, selected states, tabs,

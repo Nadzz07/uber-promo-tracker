@@ -260,13 +260,13 @@ try {
   await page.waitForFunction(() => document.documentElement.dataset.layout === 'mobile');
   assert.equal(await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:manual-state:v3')), manualBeforeLayout, 'Layout choices must preserve manual usage');
   assert.equal(await page.locator('#savedStat').innerText(), '£3,382.60', 'Layout choices must preserve financial totals');
-  await page.locator('[data-theme-colour="#d87dfc"]').click();
+  await page.locator('[data-theme-colour="#c5a0ff"]').click();
   const chosen = await page.evaluate(() => ({ stored: localStorage.getItem('uber-eats-promo-tracker:theme:v1'), colour: getComputedStyle(document.documentElement).getPropertyValue('--green') }));
-  assert.equal(chosen.stored, '#d87dfc'); assert.notEqual(chosen.colour.trim(), '#9bea72');
+  assert.equal(chosen.stored, '#c5a0ff'); assert.notEqual(chosen.colour.trim(), '#9bea72');
   await page.locator('#colourWheel').scrollIntoViewIfNeeded();
   const wheel = await page.locator('#colourWheel').boundingBox();
   await page.mouse.click(wheel.x+wheel.width*.8, wheel.y+wheel.height*.5);
-  assert.notEqual(await page.locator('#themeColour').inputValue(), '#d87dfc');
+  assert.notEqual(await page.locator('#themeColour').inputValue(), '#c5a0ff');
   await page.locator('#colourWheel').focus(); await page.keyboard.press('ArrowRight');
   const wheelColour = await page.locator('#themeColour').inputValue();
   await page.keyboard.press('Escape');
@@ -341,10 +341,10 @@ try {
   assert.equal(await filterPage.locator('#unfinishedCount').textContent(), '7');
   await openHomeDetail(filterPage,'offers');if(await filterPage.locator('.finder-progress-filter').getAttribute('open')===null)await filterPage.locator('.finder-progress-filter > summary').click();await filterPage.locator('[data-intent="unfinished"]').click();
   assert.match(await filterPage.locator('#homeAccounts [data-card-account="A101"] .pill-row .pill').getAttribute('aria-label'), /1\/5 confirmed · up to 4 left/);
-  assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A102"]').count(), 1, 'An unfinished account with one remaining use stays in the section');
+  assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A102"]').count(), 0, 'A used lower-value promo is ranked below the fixed discounts; its unused competitor is hidden');
   for (const ref of ['A106','A111','A108','A103']) assert.equal(await filterPage.locator('#homeAccounts [data-card-account="'+ref+'"]').count(), 0, 'Archived and completed accounts without live offers stay out');
   await filterPage.locator('[data-jump-accounts][data-target-filter="unfinished"]').click();
-  assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts');
+  assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts');assert.equal(await filterPage.locator('#accountsList [data-card-account=A102]').count(),1,'The remaining-use account is present in the complete filtered dataset');
   for (const ref of ['A102','A104','A109','A107','A110']) assert.equal(await filterPage.locator('#accountsList [data-card-account="'+ref+'"]').count(), 1, 'The full list retains unused, expired and one-left accounts');
   assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4\/5 confirmed · Up to 1 left/);
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A108"]').count(),0,'Untouched accounts do not count as started promos');
@@ -361,7 +361,7 @@ try {
   assert.equal(await filterPage.locator('#homeAccounts [data-card-account="A101"]').count(), 1, 'Same-account cash and discount are required; expired, consumed, review and archived offers must not qualify');
   await filterPage.locator('.offer-matching-help > summary').click();assert.match(await filterPage.locator('#homeResultsHelp').innerText(), /Compatibility needs confirmation/);
   assert.equal(await filterPage.locator('#savedStat').innerText(), '£40');
-  assert.match(await filterPage.locator('#recommendation').innerText(), /Promo discounts\s*−£12\.00/, 'Finding both offers must not add £7 cash to £12 discount');
+  assert.match(await filterPage.locator('#recommendation').innerText(), /Promo discounts\s*−£0\.00/, 'Finder changes preserve the cash-only Planner scope; Cash cannot become a promo discount');assert.equal(await filterPage.locator('#plannerOfferScope').inputValue(),'cash');
   await filterPage.locator('[data-view="accounts"]').click();
   await directoryType(filterPage,'cash-promo');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A101"]').count(), 1);

@@ -83,7 +83,7 @@ export function accountProgressDescription(account = {}) {
 // Recheck time even when a persisted tracking state has become stale.
 export function offerEligible(promo = {}, now = Date.now()) {
   const scope = promo.offerScope || promo.evidence?.discountScope;
-  return !['product', 'uncertain'].includes(scope) && promo.trackingState === 'available' && promo.sourceEvidenceStatus !== 'missing' && promo.termsVerification !== 'needs_verification' && !promo.ignored && !promo.forceDone &&
+  return !promo.hiddenByPromoUse && !['product', 'uncertain'].includes(scope) && promo.trackingState === 'available' && promo.sourceEvidenceStatus !== 'missing' && promo.termsVerification !== 'needs_verification' && !promo.ignored && !promo.forceDone &&
     promo.receiptState !== 'used' && Number(promo.usesRemaining ?? promo.uses ?? 1) > 0 &&
     !isOfferExpired(applyOfferExpiryPolicy(promo), now) && !classifyOfferCompletion(promo, now).consumed;
 }
@@ -134,8 +134,10 @@ export function accountMatchesOfferType(account, type = 'all') {
   return type === 'all' || (type === 'cash' ? cash : type === 'cash-promo' ? cash && offers.some(p => accountOfferKey(p)) : offers.some(p => accountOfferKey(p) === type));
 }
 export function accountMatchesLogin(account, login = 'all') {
-  return login === 'all' || (login === 'login' ? account.canLogin === true && account.accessStatus !== 'pending' : account.canLogin === false);
+  return login === 'all' || (login === 'login' ? account.canLogin === true && account.accessStatus !== 'pending' : account.canLogin === false && account.accessStatus !== 'pending');
 }
 export function accountMatchesProvider(account, provider = 'all') {
-  return provider === 'all' || account.loginMethod === provider || (account.loginMethod === 'Both' && ['iCloud','Google'].includes(provider));
+  const methods=new Set([...(Array.isArray(account.loginMethods)?account.loginMethods:[]),account.loginMethod]);
+  if(methods.has('Both')){methods.add('iCloud');methods.add('Google');}
+  return provider === 'all' || (Array.isArray(provider)?provider:[provider]).some(p=>methods.has(p));
 }

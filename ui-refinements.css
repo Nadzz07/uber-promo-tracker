@@ -2910,3 +2910,8 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 .account-management button:focus-visible { outline: 2px solid var(--account-accent); outline-offset: 3px; }
 @media (prefers-reduced-motion:reduce) { .account-management-toggle > svg:last-child { transition:none; } }
 @media (max-width:360px) { .sheet[data-screen="Account details"] .account-management { padding-inline:var(--space-3); } .account-record-summary > div { gap:var(--space-2); padding-inline:var(--space-2); } }
+
+/* Compact, continuous receipt-confirmed usage; no track for unknown usage. */
+.sheet[data-screen="Account details"] .account-offer-meta { margin-bottom:var(--space-2); }
+.sheet[data-screen="Account details"] .progress-track { margin-top:0; height:9px; border:1px solid var(--color-selected-divider); border-radius:999px; }
+.account-restore-promo { min-height:44px; padding:var(--space-2) var(--space-3); border:1px solid var(--color-outline); border-radius:var(--control-radius); background:var(--color-panel); color:var(--color-accent); font:inherit; }

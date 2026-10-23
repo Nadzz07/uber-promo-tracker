@@ -19,10 +19,10 @@ export function offerScopeLabel(key){
 }
 export function mainOfferChoices(preferences={}){return [{key:'preferred',label:'All preferred offers'},...normaliseOfferPreferences(preferences).preferredPromos.map(key=>({key,label:offerScopeLabel(key)})),{key:'cash',label:'Uber Cash'},{key:'cash-promo',label:'Uber Cash + promo'},{key:'other',label:'Other offers…'}];}
 export function hasCurrentCash(account){const cash=account.cashPosition||account.cashSummary;return cash?cash.remaining!=null&&Number(cash.remaining)>0&&['estimated','verified','verified_reconciled'].includes(cash.status):false;}
-export function isPreferredPromo(promo,preferences){return promo.discountType!=='uberCash'&&promo.minimumSpendVerified!==false&&preferences.preferredPromos.includes(accountOfferKey(promo));}
+export function isPreferredPromo(promo,preferences){return !promo.hiddenByPromoUse&&promo.discountType!=='uberCash'&&promo.minimumSpendVerified!==false&&preferences.preferredPromos.includes(accountOfferKey(promo));}
 function cashCanPair(account){const cash=account.cashPosition||account.cashSummary;return hasCurrentCash(account)&&cash.stacking!=='unsupported'&&(!cash.grants?.length||cash.grants.some(g=>g.remaining>0&&g.restrictions?.stacking!=='no_other_promotions'));}
 export function matchesDiscoveryScope(account,selection,preferences){
- const offers=(account.promos||[]).filter(p=>p.discountType!=='uberCash'),cash=hasCurrentCash(account);
+ const offers=(account.promos||[]).filter(p=>!p.hiddenByPromoUse&&p.discountType!=='uberCash'),cash=hasCurrentCash(account);
  // Historical accounts remain reachable; readiness is an independent filter.
  if(selection==='all')return true;
  if(selection==='cash')return cash;
@@ -31,6 +31,7 @@ export function matchesDiscoveryScope(account,selection,preferences){
  return offers.some(p=>accountOfferKey(p)===selection);
 }
 export function plannerOffersForScope(promos,accounts,selection,preferences){
+ promos=promos.filter(p=>!p.hiddenByPromoUse);
  if(selection==='all')return promos;
  const byRef=new Map(accounts.map(a=>[a.accountRef,a]));
  return promos.filter(p=>{

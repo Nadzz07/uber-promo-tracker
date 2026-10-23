@@ -25,7 +25,7 @@ try{for(const [width,height,largeText] of [[390,844,false],[430,932,false],[1440
  await context.addInitScript(({accounts,emails})=>localStorage.setItem('uber-eats-promo-tracker:device-accounts:v1',JSON.stringify(Object.fromEntries(accounts.map((a,i)=>[a.accountRef,{email:emails[i],accountMasked:a.accountMasked}])))),{accounts,emails});
  await page.goto(url);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
  if(output&&!largeText&&[430,1440].includes(width)){
-  await page.locator('[data-view="more"]').click();await page.locator('[data-open-sheet="appearance"]').click();await page.locator('[data-open-sheet="theme"]').click();await page.locator('[data-theme-colour="#fcb07d"]').click();await page.keyboard.press('Escape');await page.locator('[data-view="home"]').click();
+  await page.locator('[data-view="more"]').click();await page.locator('[data-open-sheet="appearance"]').click();await page.locator('[data-open-sheet="theme"]').click();await page.locator('[data-theme-colour="#ffc778"]').click();await page.keyboard.press('Escape');await page.locator('[data-view="home"]').click();
   assert.ok(await page.locator('.total-saved-card').evaluate(e=>getComputedStyle(e).backgroundImage.includes('255, 199, 120')),'Home follows the selected Amber theme');
  }
  if(largeText)await page.addStyleTag({content:`
