@@ -70,10 +70,11 @@ export function applyOfferExpiryPolicy(promo = {}) {
       }else date.setTime(anchor+terms.duration*(terms.unit==='weeks'?7:1)*86400000);
       return {...promo,expiresAt:date.toISOString(),expires:londonDate.format(date),expiryStatus:'estimated',expiryBasis:'cash_original_email_duration',expiryConfidence:'terms'};
     }
-    // Relative deadlines printed in a source email remain evidence. A generic
-    // tracker fallback is never a Cash grant's contractual deadline.
+    // Relative source terms still win. When application time is unavailable,
+    // the owner's tracker policy uses first email + 35 days as an estimate,
+    // never as a verified contractual expiry or a reminder's new grant date.
     if(explicit!=null&&['weekday_from_email_date','relative_to_email_date','cash_original_email_duration'].includes(promo.expiryBasis))return promo;
-    return {...promo,expires:null,expiresAt:null,expiryStatus:'unknown',expiryBasis:terms.anchor==='activation'?'cash_activation_unknown':null,expiryConfidence:null};
+    promo={...promo,expires:null,expiresAt:null,expiryStatus:'unknown',expiryBasis:terms.anchor==='activation'?'cash_activation_unknown':null,expiryConfidence:null};
   }
   const anchor = offerTime(promo.firstEmailSentAt || promo.emailSentAt);
   if (anchor == null) return promo;

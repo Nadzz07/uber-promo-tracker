@@ -6,6 +6,17 @@ const time=value=>value?offerTime(value):null;
 const amount=value=>value==null||value===''||!Number.isFinite(Number(value))?null:Math.max(0,money(value));
 const grantKey=g=>g.grantRef||g.offerId||g.id||[g.accountRef,g.discount,g.firstEmailSentAt||g.emailSentAt,g.expiresAt||g.expires].join('|');
 
+// Older supported summaries may predate the email-cutoff policy. Derive a view
+// without rewriting a grant, its spending, or the verified wallet baseline.
+function cashGrantWithDeadline(grant,offers=[]){
+ if(time(grant.expiresAt)!=null)return grant;
+ if(time(grant.issuedAt)==null)return grant;
+ const source=offers.filter(p=>p.discountType==='uberCash'&&amount(p.discount)===amount(grant.issued)&&time(p.firstEmailSentAt||p.emailSentAt)===time(grant.issuedAt))
+  .map(applyOfferExpiryPolicy).filter(p=>expiryEndTime(p)!=null).sort((a,b)=>Number(b.expiryStatus==='exact')-Number(a.expiryStatus==='exact'))[0];
+ const policy=source||applyOfferExpiryPolicy({discountType:'uberCash',firstEmailSentAt:grant.issuedAt});
+ return expiryEndTime(policy)==null?grant:{...grant,expiresAt:policy.expiresAt,expiryBasis:policy.expiryBasis};
+}
+
 // Pure reconstruction. Source references and allocations stay in the private
 // ledger; only sanitised, explicitly estimated amounts may be exported.
 export function dedupeCashGrants(sources=[]){
@@ -23,7 +34,7 @@ export function dedupeCashGrants(sources=[]){
   if(previous){previous.sourceRefs.push(sourceRef);if(source.offerId||source.id)previous.sourceOfferIds.push(source.offerId||source.id);
    // Explicit later deadline evidence can refine a grant, never turn a reminder
    // into a new issue or re-anchor a duration to the reminder date.
-   if(normalised.expiryStatus==='exact'&&end!=null&&(previous.end==null||end<previous.end||terms.expiryExtension===true)){previous.end=end;previous.expiryBasis=normalised.expiryBasis;}
+   if(normalised.expiryStatus==='exact'&&end!=null&&(previous.end==null||previous.expiryBasis==='tracker_35_day_rule'||end<previous.end||terms.expiryExtension===true)){previous.end=end;previous.expiryBasis=normalised.expiryBasis;}
    continue;
   }
   previous={grantRef:grantKey(source),explicitRef:explicitRef||null,accountRef:source.accountRef,service:source.service,issued:amount(source.discount),minimumSpend:amount(source.minimumSpend)||0,at,end,
@@ -89,7 +100,7 @@ export function summariseCash(grants=[]){
 export function reconcileVerifiedCash(wallet,receipts=[],{account={},now=Date.now(),completeEvidence=false}={}){
  if(!wallet||amount(wallet.balance)==null||time(wallet.at)==null||(time(now)??Number(now))<time(wallet.at))return null;
  const cutoff=time(wallet.at),seen=new Set();let remaining=amount(wallet.balance),spent=0,uncertain=false,issuedSinceVerification=0;
- for(const g of account.cashSummary?.grants||[]){const issuedAt=time(g.issuedAt),end=time(g.expiresAt);if(end!=null&&end>cutoff&&end<=(time(now)??Number(now))&&remaining>0)uncertain=true;if(issuedAt>cutoff&&issuedAt<=(time(now)??Number(now))){if(end==null||end<=(time(now)??Number(now)))uncertain=true;else issuedSinceVerification=money(issuedSinceVerification+g.issued);}}
+ for(const original of account.cashSummary?.grants||[]){const g=cashGrantWithDeadline(original),issuedAt=time(g.issuedAt),end=time(g.expiresAt);if(end!=null&&end>cutoff&&end<=(time(now)??Number(now))&&remaining>0)uncertain=true;if(issuedAt>cutoff&&issuedAt<=(time(now)??Number(now))){if(end==null||end<=(time(now)??Number(now)))uncertain=true;else issuedSinceVerification=money(issuedSinceVerification+g.issued);}}
  remaining=money(remaining+issuedSinceVerification);
  const count=Number(account.orderCount||0)+Number(account.rideCount||0);
  completeEvidence=completeEvidence&&uniqueReceipts(receipts.filter(r=>r.accountRef===account.accountRef)).length===count;
@@ -115,7 +126,7 @@ export function currentCashPosition(account,offers=[],wallet=null,receipts=[],{n
  const nowTime=time(now)??Number(now),summary=account.cashSummary;
  const key=g=>[g.issuedAt||'',g.issued,g.expiresAt||''].join('|'),ignored=new Set(ignoredEstimates.map(key));
  const source=(summary?.grants?.length?summary.grants:offers.filter(p=>p.discountType==='uberCash').map(p=>({...creditFromOffer(p),minimumSpend:p.minimumSpend||0,excludesFees:p.cashTerms?.excludesFees,restrictions:p.restrictions||{}}))).filter(g=>!ignored.has(key(g)));
- const normalised=source.map(g=>({...g,status:cashGrantState(g,nowTime)}));
+ const normalised=source.map(g=>cashGrantWithDeadline(g,offers)).map(g=>({...g,status:cashGrantState(g,nowTime)}));
  const current=normalised.filter(g=>g.status==='estimated'&&g.remaining>0&&time(g.expiresAt)>nowTime);
  const remaining=money(current.reduce((sum,g)=>sum+g.remaining,0));
  const unknown=normalised.some(g=>g.status==='needs_checking');
@@ -125,13 +136,14 @@ export function currentCashPosition(account,offers=[],wallet=null,receipts=[],{n
 }
 
 function creditFromOffer(p){
- if(p.cashEstimate)return p.cashEstimate;
+ if(p.cashEstimate)return cashGrantWithDeadline(p.cashEstimate,[p]);
  const end=expiryEndTime(applyOfferExpiryPolicy(p));
  return {issued:p.discount,issuedAt:p.firstEmailSentAt||p.emailSentAt,expiresAt:end==null?null:new Date(end).toISOString(),status:'needs_checking',remaining:null};
 }
 
 // Re-evaluate deadlines at render/calculation time, including stale exports.
 export function cashGrantState(grant,now=Date.now()){
+ grant=cashGrantWithDeadline(grant);
  const end=time(grant.expiresAt),clock=time(now)??Number(now);
  if(end!=null&&end<=clock)return 'expired';
  if(grant.status==='duplicate')return 'duplicate';
@@ -145,7 +157,7 @@ export function cashGrantState(grant,now=Date.now()){
 // The summary is the deduplicated credit ledger. Offer rows only supply terms
 // and actions; reminders must not add another balance or another history row.
 export function cashCreditHistory(account,offers=[],now=Date.now()){
- const records=(account.cashSummary?.grants||[]).map(g=>({...g,offers:[]}));
+ const records=(account.cashSummary?.grants||[]).map(g=>({...cashGrantWithDeadline(g,offers),offers:[]}));
  const same=(a,b)=>a.issuedAt===b.issuedAt&&a.issued===b.issued&&a.expiresAt===b.expiresAt;
  for(const p of offers.filter(p=>p.discountType==='uberCash')){
   const g=creditFromOffer(p);

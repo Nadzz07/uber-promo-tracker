@@ -22,10 +22,10 @@ assert.equal(model([grant(),grant({id:'reminder',emailSentAt:'2026-10-15T12:00:0
 assert.equal(model([grant(),grant({id:'new-grant',emailSentAt:'2026-10-15T12:00:00Z',cashTerms:{explicitNewGrant:true}})]).grants.length,2);
 assert.equal(model([grant()],[receipt({uberCashUsed:10,total:0,refundAmount:10})]).grants[0].remaining,0,'A refund does not invent restored Cash');
 assert.equal(model([grant({grantRef:'g1'})],[receipt({cashGrantRef:'g1',uberCashUsed:10,cashRefundRestored:4})]).grants[0].remaining,4);
-const unknown=applyOfferExpiryPolicy(grant({expiryStatus:'unknown',expiresAt:null}));assert.equal(unknown.expiresAt,null);
+const unknown=applyOfferExpiryPolicy(grant({expiryStatus:'unknown',expiresAt:null}));assert.equal(unknown.expiresAt,'2026-11-05T12:00:00.000Z');assert.equal(unknown.expiryBasis,'tracker_35_day_rule');
 const duration=applyOfferExpiryPolicy(grant({firstEmailSentAt:'2026-10-01T12:00:00Z',emailSentAt:'2026-10-15T12:00:00Z',expiryStatus:'estimated',cashTerms:{anchor:'original_email',duration:31,unit:'days'}}));
 assert.equal(duration.expiresAt,'2026-11-01T12:00:00.000Z');
-assert.equal(applyOfferExpiryPolicy(grant({expiryStatus:'unknown',expiresAt:null,cashTerms:{anchor:'activation',duration:31,unit:'days'}})).expiresAt,null);
+assert.equal(applyOfferExpiryPolicy(grant({expiryStatus:'unknown',expiresAt:null,cashTerms:{anchor:'activation',duration:31,unit:'days'}})).expiresAt,'2026-11-05T12:00:00.000Z');
 const parsed=parseUberPromo({sender:'Uber Eats <offers@uber.com>',recipient:'example@example.invalid',subject:'You have £10 in Uber Cash',body:'Use £10 in Uber Cash on Uber Eats. Uber Cash is valid for 31 days from the original offer email.',sentAt:'2026-10-01T12:00:00Z'});
 assert.equal(parsed.evidence.cashTerms.duration,31);assert.equal(parsed.evidence.cashTerms.anchor,'original_email');
 assert.equal(applyOfferExpiryPolicy({...parsed,firstEmailSentAt:parsed.emailSentAt}).expiresAt,'2026-11-01T12:00:00.000Z');

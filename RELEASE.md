@@ -1,3 +1,16 @@
+## Estimated Cash cutoff — 23 October 2026
+
+When the credit application date is absent, the owner-approved tracker rule uses
+35 days from the first qualifying credit email. This is labelled an estimated
+cutoff, with source terms kept intact; explicit expiry terms and later verified
+wallet balances retain priority. Reminders cannot restart the clock or create
+another balance. Older supported grant summaries are projected through the same
+rule without requiring an import. Expired credit moves to history, preserves
+recorded spending and cannot provide current Cash or Planner coverage. Truly
+missing original dates still require checking. Cash remains exempt from the
+promo-in-use rule, including when a competing 30% promo is hidden after manual
+or confirmed use of a £12 promo.
+
 ## Original colour wheel repair, account search and promo in use — 23 October 2026
 
 The existing wheel again saves its exact six-digit hex output. The theme update
