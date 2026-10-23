@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {accountHistoryGroups,validateOfferReceiptLinks,mergeOfferReceiptLinks,offerReceiptAvailability,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
+import {accountHistoryGroups,validateOfferReceiptLinks,mergeOfferReceiptLinks,offerReceiptAvailability,offerUsageEvidence,directoryAccounts,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
 import {validateFinanceData,PrivateFinanceVault} from './private-finance-vault.js';
 import {assertPublicSnapshot} from './public-snapshot.js';
 const receipt=(id,accountRef='A1',orderAt='2026-10-18T12:00:00Z',extra={})=>({receiptId:id,accountRef,orderAt,service:'Uber Eats',total:4,...extra});
@@ -76,3 +76,56 @@ assert.equal(offerReceiptAvailability({accounts:[{accountRef:'A1'}],receipts:[],
  assert.equal(accountHistoryGroups([],[{...grant,status:'estimated'}],{version:3,offers:{'cash-history-source':{forceDone:true}}}).find(g=>g.key==='manual').records.length,1,'Manual credit decisions remain distinct from verified completion');
 }
 console.log('✓ Historical credit preserves ignored/manual decisions, source evidence and exclusive deduplication.');
+
+// Availability is independent from default counters and detailed receipt rows.
+const usagePromo={id:'pub_a',accountRef:'A1',receiptConfirmedUses:0};
+assert.equal(offerUsageEvidence(null,usagePromo).confirmed,null);
+assert.equal(offerUsageEvidence({accounts:[{accountRef:'A1'}],receipts},usagePromo).confirmed,null);
+assert.equal(offerUsageEvidence({...data,offerReceiptMatches:[]},usagePromo).confirmed,0);
+assert.equal(offerUsageEvidence(data,usagePromo).confirmed,3);
+assert.equal(offerUsageEvidence(null,{...usagePromo,receiptConfirmedUses:2}).confirmed,2);
+assert.equal(offerUsageEvidence(data,{...usagePromo,receiptConfirmedUses:4}).confirmed,4,'Safe aggregate is not hidden by a partial detail import');
+assert.equal(offerUsageEvidence(data,{...usagePromo,usageEvidenceUnavailable:true}).confirmed,null);
+assert.equal(offerUsageEvidence(data,{...usagePromo,reviewReasons:['ambiguous_receipt_match']}).partial,true);
+console.log('✓ Unavailable/default zero, known zero, linked rows, aggregate-only, partial and conflicting usage stay distinct.');
+
+{
+ const {accountPromoUseProjection,consumeManualUse,undoManualUse,restoreCompetingPromo,normaliseManualStore}=await import('./manual-state.js');
+ const offers=[historyOffer('chosen'),historyOffer('other',{discount:10}),{...historyOffer('cash'),discountType:'uberCash'}];
+ let store=normaliseManualStore(),view=()=>accountPromoUseProjection(store,offers);
+ assert.equal(view().filter(p=>p.hiddenByPromoUse).length,0);
+ store=consumeManualUse(store,offers[0]);assert.deepEqual(view().map(p=>p.hiddenByPromoUse),[false,true,false]);
+ store=undoManualUse(store,offers[0]);assert.equal(view().some(p=>p.hiddenByPromoUse),false);
+ const confirmed=[{...offers[0],receiptConfirmedUses:5,usesRemaining:0},offers[1],offers[2]];
+ assert.equal(accountPromoUseProjection(store,confirmed)[1].hiddenByPromoUse,true,'Exhaustion cannot release competitors');
+ store=restoreCompetingPromo(store,offers[1]);assert.equal(accountPromoUseProjection(store,confirmed)[1].hiddenByPromoUse,false);
+ assert.equal(JSON.parse(JSON.stringify(store)).offers.other.competitionRestored,true);
+ const multi=accountPromoUseProjection({},[{...offers[0],receiptConfirmedUses:1},{...offers[1],receiptConfirmedUses:2},offers[2]]);
+ assert.equal(multi.filter(p=>p.promoInUse).length,2,'Multiple genuinely used promos retain their evidence');assert.equal(multi.some(p=>p.hiddenByPromoUse),false);
+ assert.equal(accountHistoryGroups(accountPromoUseProjection({},confirmed),[],{}).find(g=>g.key==='other').records.length,1,'Hidden competitors reuse Other promos in the existing accordion');
+}
+console.log('✓ Promo in use: explicit manual/confirmed evidence, undo, exhaustion, restoration, multiple used offers and independent Cash.');
+
+{
+ const prefs={preferredPromos:['fixed:12:15'],includeCash:true},at=Date.parse('2026-10-20T12:00:00Z');
+ const p=(id,discount=12,days=15)=>({id,accountRef:id.split('-')[0],service:'Uber Eats',discountType:'fixed',discount,minimumSpend:15,minimumSpendVerified:true,uses:5,usesVerified:true,receiptConfirmedUses:0,usesRemaining:5,trackingState:'available',firstEmailSentAt:'2026-10-01T12:00:00Z',expiresAt:new Date(at+days*86400000).toISOString(),expiryStatus:'exact'});
+ const a=(ref,offers,extra={})=>({accountRef:ref,accountMasked:'masked-'+ref,canLogin:true,accountStatus:'active',loginMethod:'iCloud',promos:offers,allOffers:offers,hasEligibleOffers:offers.length>0,...extra});
+ const cash={status:'estimated',remaining:8};
+ const records=[a('A',[p('A-main'),p('A-soon',10,1)],{email:'Punctuation.Name+tag-7@Example.invalid',loginMethods:['iCloud','Google']}),a('B',[p('B-main',12,1)],{email:'beta@example.invalid',loginMethod:'Google',cashPosition:cash}),a('C',[],{email:'cash@example.invalid',cashPosition:cash}),a('D',[p('D-main')],{email:'locked@example.invalid',canLogin:false}),a('E',[],{email:'unknown@example.invalid',cashPosition:{status:'needs_checking',remaining:null}}),a('F',[],{email:'expired@example.invalid',cashPosition:{status:'expired',remaining:0}})];
+ const run=filters=>directoryAccounts([...records,records[0]],{type:'all',management:'tracked',login:'all',provider:'all',...filters},prefs,{emailFor:a=>a.email,now:at,valueFor:p=>p.discount});
+ assert.deepEqual(run({search:'  PUNCTUATION.Name+tag-7@EXAMPLE.invalid  '}).map(a=>a.accountRef),['A']);
+ assert.deepEqual(run({search:'name+tag',provider:'Google',login:'login'}).map(a=>a.accountRef),['A']);
+ assert.deepEqual(run({type:'fixed:12:15',management:'expiring'}).map(a=>a.accountRef),['B'],'Type and expiry must belong to the same offer');
+ assert.deepEqual(run({type:'cash-promo'}).map(a=>a.accountRef),['B']);
+ assert.deepEqual(run({type:'cash'}).map(a=>a.accountRef),['B','C']);
+ assert.deepEqual(run({type:['fixed:10:15','cash']}).map(a=>a.accountRef),['A','B','C'],'A multi-select group uses OR; independent groups use AND');
+ assert.deepEqual(run({search:'locked',login:'login'}),[]);
+ const expired=p('F-old',10,-2);records[5].allOffers=[expired,{...p('F-credit',10,-2),discountType:'uberCash',cashEstimate:{status:'expired',remaining:0}}];
+ assert.deepEqual(run({management:'expired',type:'cash'}).map(a=>a.accountRef),['F'],'Expired cash remains discoverable in explicit history');
+ records[5].cashPosition=cash;assert.equal(run({management:'expired',type:'fixed:10:15',availability:'ready'}).length,0,'Unrelated cash cannot make an expired selected promo ready');records[5].cashPosition={status:'expired',remaining:0};
+ assert.equal(run({search:'none'}).length,0);assert.equal(run({search:''}).length,records.length,'Clear restores all accounts once');
+ assert.deepEqual(run({sort:'email'}).map(a=>a.email),run({sort:'email'}).map(a=>a.email).sort((a,b)=>a.localeCompare(b,'en-GB',{sensitivity:'base'})));
+ assert.equal(run({sort:'best'}).at(-1).directoryValue,null,'Missing value ranks after known values');
+ records.push(a('G',[p('G-z',3)],{email:records[3].email}));assert.deepEqual(run({search:'locked',sort:'email'}).map(a=>a.accountRef),['D','G'],'Stable account identity tie breaker');
+}
+console.log('✓ Directory full identities, punctuation/case/space, AND/OR filters, dual providers, same-offer terms, Cash states, all sorts, missing values and stable deduplication.');

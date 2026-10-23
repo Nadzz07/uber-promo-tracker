@@ -19,6 +19,7 @@ function remainingUses(promo) {
 
 function isAvailable(promo, excludedIds = new Set()) {
   if (!promo) return false;
+  if (promo.hiddenByPromoUse) return false;
   if (promo.needsReview || promo.trackingState === "needs_checking" ||
       promo.trackingState === "used" || promo.expiryStatus === "unknown" ||
       isOfferExpired(promo)) return false;

@@ -122,6 +122,7 @@ export function getOfferManualState(store, promo) {
     lastEvidenceCount: raw.lastEvidenceCount ?? null,
     lastEvidenceTotal: raw.lastEvidenceTotal ?? null,
     verificationConflict: raw.verificationConflict || null,
+    competitionRestored: raw.competitionRestored === true,
     history: Array.isArray(raw.history) ? raw.history : []
   };
 }
@@ -134,6 +135,23 @@ export function pendingManualUses(store, promo) {
   );
 
   return Math.max(0, state.manualUsesConsumed - receiptDelta);
+}
+
+// Usage chooses the account's promo; disclosure, calculator selection and Cash
+// never do. Keep every used promo when receipts establish more than one.
+export function accountPromoUseProjection(store, promos = []) {
+  const used = new Set(promos.filter(p => p.discountType !== 'uberCash' &&
+    ((!p.usageEvidenceUnavailable && !p.usageEvidenceConflict && Number(p.receiptConfirmedUses) > 0) ||
+      pendingManualUses(store,p) > 0)).map(promoStateKey));
+  return promos.map(p => ({...p, promoInUse:used.has(promoStateKey(p)),
+    hiddenByPromoUse:p.discountType !== 'uberCash' && used.size > 0 && !used.has(promoStateKey(p)) && !getOfferManualState(store,p).competitionRestored}));
+}
+
+export function restoreCompetingPromo(store,promo,at=new Date().toISOString()) {
+  const next=normaliseManualStore(store),key=promoStateKey(promo),state=getOfferManualState(next,promo);
+  next.offers[key]={...state,competitionRestored:true,updatedAt:at,
+    history:[...state.history,{type:'competing_promo_restored',at}]};
+  return next;
 }
 
 export function effectiveRemainingUses(store, promo) {

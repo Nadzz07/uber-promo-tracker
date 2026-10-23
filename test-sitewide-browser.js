@@ -55,11 +55,11 @@ try{
   await openOfferManagement(page);await page.locator('[data-mark-offer-done][data-done="true"]').click();await page.locator('[data-cancel-offer-action]').click();
   assert.equal(await page.locator('[data-mark-offer-done][data-done="false"]').count(),0);
   await openOfferManagement(page);await page.locator('[data-mark-offer-done][data-done="true"]').click();await page.locator('[data-confirm-offer-action]').click();
-  assert.match(await page.locator('.offer-card .use-line').innerText(),/1 of 5 uses receipt-confirmed/);
+  assert.match(await page.locator('.offer-card .use-line').innerText(),/1 of 5 uses confirmed/);
   await page.keyboard.press('Escape');await page.locator('[data-view="used"]').click();
   assert.equal(await page.locator('#usedAccountCount').innerText(),'1');await usedStatus(page,'manual');assert.equal(await page.locator('#usedResultsCount').innerText(),'1 promotion');await usedStatus(page,'completed');assert.equal(await page.locator('#usedResultsCount').innerText(),'0 promotions');
   assert.equal(await page.locator('#savedStat').innerText(),saved,'Visual actions cannot alter savings');
-  await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="appearance"]').click();await page.locator('[data-open-sheet="theme"]').click();await page.locator('[data-theme-colour="#d87dfc"]').click();await page.keyboard.press('Escape');await page.locator('[data-settings-back]').click();await page.locator('#view-more [data-open-sheet="receipts"]').click();
+  await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="appearance"]').click();await page.locator('[data-open-sheet="theme"]').click();await page.locator('[data-theme-colour="#c5a0ff"]').click();await page.keyboard.press('Escape');await page.locator('[data-settings-back]').click();await page.locator('#view-more [data-open-sheet="receipts"]').click();
   assert.ok(await page.locator('.ri-paid-card').evaluate(el=>getComputedStyle(el).backgroundImage.includes('gradient')));
   assert.equal(await page.locator('.ri-activity').count(),1,'Horizontal activity stays inside one card');
   assert.equal(await page.locator('.ri-range').inputValue(),'month');
