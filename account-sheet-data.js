@@ -51,6 +51,31 @@ export function plannerAccountChoices(context,offers,accounts,wallets) {
   return {offers:context.promoKey?offers.filter(p=>p.accountRef===context.accountRef&&(p.id===context.promoKey||p.offerId===context.promoKey)):[],accounts:accounts.filter(a=>a.accountRef===context.accountRef),wallets:context.includeCash&&wallets[context.accountRef]?{[context.accountRef]:wallets[context.accountRef]}:{}};
 }
 
+// Match-schema support alone does not establish zero redemption. Compact Uber
+// emails can contain only a total and a link to the full receipt. A positive
+// assignment/aggregate remains usable, but these bodies cannot establish zero.
+function incompleteUsageReceipts(data,promo) {
+ const start=Date.parse(promo.firstEmailSentAt||promo.emailSentAt||''),end=expiryEndTime(promo);
+ return (data.receipts||[]).some(r=>{
+  if(r.accountRef!==promo.accountRef||r.service&&r.service!=='Uber Eats')return false;
+  const at=Date.parse(receiptWhen(r)||'');
+  if(Number.isFinite(at)&&(Number.isFinite(start)&&at<start||end!=null&&at>=end))return false;
+  if(!Number.isFinite(at)||!Number.isFinite(r.promotionDiscount)||r.promotionDiscount<0)return true;
+  return r.promotionDiscount>0&&(!Number.isFinite(r.subtotal)||r.subtotal<=0);
+ });
+}
+
+// A sheet presentation decision, not an offer status or a recommendation rule.
+// An explicit per-account Restore survives without editing global preferences.
+export function preferredAccountOffers(promos,preferences,store={}) {
+ const current=[],other=[];
+ for(const p of promos){
+  if(p.promoInUse||isPreferredPromo(p,preferences)||getOfferManualState(store,p).competitionRestored)current.push(p);
+  else other.push({...p,hiddenByPreference:true});
+ }
+ return {current,other};
+}
+
 // Missing detail and known aggregate usage are independent. Older supported
 // exports retain receipts; lack of link metadata cannot be repaired by guessing.
 export function offerReceiptAvailability(data,promo,storeStatus='ready'){
@@ -64,6 +89,7 @@ export function offerReceiptAvailability(data,promo,storeStatus='ready'){
  if(promo.reviewReasons?.includes('ambiguous_receipt_match')||(data.offerReceiptMatches||[]).some(m=>m.accountRef===promo.accountRef&&m.status==='ambiguous'&&(!m.offerId||[promo.id,promo.offerId].includes(m.offerId))))return {status:'unresolved',message:'Receipt matching needs checking.'};
  const confirmed=promo.receiptConfirmedUses;
  if(confirmed!=null&&Number(confirmed)>0)return {status:'missing_details',message:'Matching receipt details are not in this import.'};
+ if(incompleteUsageReceipts(data,promo))return {status:'incomplete',message:'Confirmed usage unknown'};
  return {status:'no_matches',message:'No matching receipts.'};
 }
 
@@ -81,10 +107,10 @@ export function offerUsageEvidence(data,promo,storeStatus='ready') {
 // A single primary classification per record. Completed is receipt-verified;
 // manual completion and exhausted credit must never inflate that category.
 export function accountHistoryGroups(promos=[],grants=[],store={},now=new Date()){
- const definitions=[['completed','Completed'],['expired','Expired'],['ignored','Ignored'],['manual','Manually finished'],['exhausted','Exhausted credit'],['other','Other promos']];
+ const definitions=[['completed','Completed'],['expired','Expired'],['ignored','Ignored'],['manual','Manually finished'],['exhausted','Exhausted credit'],['other','Other offers']];
  const groups=definitions.map(([key,label])=>({key,label,records:[]})),byKey=new Map(groups.map(g=>[g.key,g])),seen=new Set();
  for(const promo of promos){const key=promoStateKey(promo);if(seen.has(key))continue;seen.add(key);const activity=promotionActivity(store,promo,now);
-  if(!promo.hiddenByPromoUse&&['available','partial','needs_checking'].includes(activity.bucket))continue;
+  if(!promo.hiddenByPromoUse&&!promo.hiddenByPreference&&['available','partial','needs_checking'].includes(activity.bucket))continue;
   const group=activity.bucket==='completed'?'completed':activity.bucket==='ignored'?'ignored':activity.bucket.includes('expired')?'expired':activity.bucket==='manual'?'manual':'other';
   byKey.get(group).records.push({kind:'promo',key,promo,activity});
  }
