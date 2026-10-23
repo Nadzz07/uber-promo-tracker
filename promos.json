@@ -1,11 +1,11 @@
 {
   "schemaVersion": 3,
-  "generatedAt": "2026-10-23T17:49:01.367Z",
+  "generatedAt": "2026-10-23T19:46:27.773Z",
   "source": "apple-mail-sqlite",
   "demo": false,
   "sync": {
     "state": "snapshot",
-    "lastSuccessfulMailScanAt": "2026-10-23T17:48:29.012Z"
+    "lastSuccessfulMailScanAt": "2026-10-23T19:46:11.172Z"
   },
   "receiptActivity": {
     "amountVersion": 1,
@@ -20851,6 +20851,94 @@
   },
   "accounts": [
     {
+      "accountRef": "A024",
+      "accountMasked": "90…fs@icloud.com",
+      "canLogin": true,
+      "accessStatus": "accessible",
+      "loginMethod": "iCloud",
+      "accountStatus": "active",
+      "deactivated": false,
+      "lastSeenAt": "2026-10-23T18:53:07.000Z",
+      "lastPromoAt": "2026-10-23T18:53:07.000Z",
+      "lastOrderAt": "2026-07-03T15:11:00.000Z",
+      "lastRideAt": "2025-10-30",
+      "orderCount": 1,
+      "rideCount": 1,
+      "totalSaved": 10,
+      "sourceReviewCount": 0,
+      "receiptReviewCount": 0,
+      "activePromoCount": 4,
+      "cashSummary": {
+        "status": "expired",
+        "remaining": 0,
+        "expiresAt": null,
+        "hasUncertainty": false,
+        "grants": [
+          {
+            "issuedAt": "2026-01-04T21:41:09.000Z",
+            "status": "expired",
+            "remaining": 0,
+            "issued": 10,
+            "recordedUsed": 0,
+            "expiresAt": "2026-02-08T21:41:09.000Z",
+            "allocation": "no_recorded_usage",
+            "minimumSpend": 0,
+            "excludesFees": false,
+            "restrictions": {
+              "stacking": "unknown"
+            }
+          },
+          {
+            "issuedAt": "2026-05-14T16:42:26.000Z",
+            "status": "expired",
+            "remaining": 0,
+            "issued": 12,
+            "recordedUsed": 0,
+            "expiresAt": "2026-06-18T16:42:26.000Z",
+            "allocation": "no_recorded_usage",
+            "minimumSpend": 0,
+            "excludesFees": false,
+            "restrictions": {
+              "stacking": "unknown"
+            }
+          },
+          {
+            "issuedAt": "2026-05-15T06:17:42.000Z",
+            "status": "expired",
+            "remaining": 0,
+            "issued": 10,
+            "recordedUsed": 0,
+            "expiresAt": "2026-05-25T22:59:59.000Z",
+            "allocation": "no_recorded_usage",
+            "minimumSpend": 0,
+            "excludesFees": false,
+            "restrictions": {
+              "stacking": "unknown"
+            }
+          }
+        ]
+      },
+      "needsReview": false,
+      "reviewOfferCount": 2,
+      "promoSavings": 10,
+      "uberCashUsed": 11.9,
+      "uberCashConfirmedSavings": 0,
+      "uberOneConfirmedSavings": 0,
+      "otherConfirmedSavings": 0,
+      "rideConfirmedSaved": 10,
+      "estimatedUberOneSavings": 0,
+      "estimatedTotalSaved": 10,
+      "accountUsed": true,
+      "partialUsage": false,
+      "accountUsedReason": "eats_and_ride_receipts",
+      "archived": false,
+      "accountState": "used",
+      "fullyUsedOfferCount": 0,
+      "expiredUnusedOfferCount": 22,
+      "hasEligibleOffers": true,
+      "recommendationEligible": true
+    },
+    {
       "accountRef": "A122",
       "accountMasked": "in…2c@icloud.com",
       "canLogin": true,
@@ -21733,94 +21821,6 @@
       "expiredUnusedOfferCount": 15,
       "hasEligibleOffers": true,
       "recommendationEligible": false
-    },
-    {
-      "accountRef": "A024",
-      "accountMasked": "90…fs@icloud.com",
-      "canLogin": true,
-      "accessStatus": "accessible",
-      "loginMethod": "iCloud",
-      "accountStatus": "active",
-      "deactivated": false,
-      "lastSeenAt": "2026-10-23T13:46:10.000Z",
-      "lastPromoAt": "2026-10-23T13:46:10.000Z",
-      "lastOrderAt": "2026-07-03T15:11:00.000Z",
-      "lastRideAt": "2025-10-30",
-      "orderCount": 1,
-      "rideCount": 1,
-      "totalSaved": 10,
-      "sourceReviewCount": 0,
-      "receiptReviewCount": 0,
-      "activePromoCount": 4,
-      "cashSummary": {
-        "status": "expired",
-        "remaining": 0,
-        "expiresAt": null,
-        "hasUncertainty": false,
-        "grants": [
-          {
-            "issuedAt": "2026-01-04T21:41:09.000Z",
-            "status": "expired",
-            "remaining": 0,
-            "issued": 10,
-            "recordedUsed": 0,
-            "expiresAt": "2026-02-08T21:41:09.000Z",
-            "allocation": "no_recorded_usage",
-            "minimumSpend": 0,
-            "excludesFees": false,
-            "restrictions": {
-              "stacking": "unknown"
-            }
-          },
-          {
-            "issuedAt": "2026-05-14T16:42:26.000Z",
-            "status": "expired",
-            "remaining": 0,
-            "issued": 12,
-            "recordedUsed": 0,
-            "expiresAt": "2026-06-18T16:42:26.000Z",
-            "allocation": "no_recorded_usage",
-            "minimumSpend": 0,
-            "excludesFees": false,
-            "restrictions": {
-              "stacking": "unknown"
-            }
-          },
-          {
-            "issuedAt": "2026-05-15T06:17:42.000Z",
-            "status": "expired",
-            "remaining": 0,
-            "issued": 10,
-            "recordedUsed": 0,
-            "expiresAt": "2026-05-25T22:59:59.000Z",
-            "allocation": "no_recorded_usage",
-            "minimumSpend": 0,
-            "excludesFees": false,
-            "restrictions": {
-              "stacking": "unknown"
-            }
-          }
-        ]
-      },
-      "needsReview": false,
-      "reviewOfferCount": 2,
-      "promoSavings": 10,
-      "uberCashUsed": 11.9,
-      "uberCashConfirmedSavings": 0,
-      "uberOneConfirmedSavings": 0,
-      "otherConfirmedSavings": 0,
-      "rideConfirmedSaved": 10,
-      "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 10,
-      "accountUsed": true,
-      "partialUsage": false,
-      "accountUsedReason": "eats_and_ride_receipts",
-      "archived": false,
-      "accountState": "used",
-      "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 22,
-      "hasEligibleOffers": true,
-      "recommendationEligible": true
     },
     {
       "accountRef": "A188",
