@@ -205,11 +205,11 @@ html:has(#view-accounts.active),body:has(#view-accounts.active) { background:var
 .account-history-title { min-height:26px; gap:10px; font-size:13px; }
 .account-history-title .account-history-count { flex:none; font-size:12px; font-weight:400; color:var(--color-secondary); font-variant-numeric:tabular-nums; }
 .sheet[data-screen="Account details"] .account-receipt-list,.sheet[data-screen="Account details"] .account-receipt-list.is-expanded { display:block; border:0; background:none; }
-.sheet[data-screen="Account details"] .account-receipt-list .account-receipt-row { display:flex; flex-direction:row; gap:10px; min-height:44px; padding:8px 0; text-align:left; border:0; }
-.sheet[data-screen="Account details"] .account-receipt-list .account-receipt-row + .account-receipt-row { border-top:1px solid var(--color-selected-divider); }
-.sheet[data-screen="Account details"] .account-receipt-list .account-receipt-row > svg:first-child { width:18px; height:21px; color:var(--color-icon); }
-.sheet[data-screen="Account details"] .account-receipt-list .account-receipt-row > svg:last-child { display:block; width:14px; height:16px; }
-.sheet[data-screen="Account details"] .account-receipt-list .account-receipt-row strong { font-size:12px; font-weight:450; }
+.sheet[data-screen="Account details"] :is(.account-receipt-list,.account-receipt-list.is-expanded) .account-receipt-row { display:flex; flex-direction:row; gap:10px; min-height:44px; padding:8px 0; text-align:left; border:0; }
+.sheet[data-screen="Account details"] :is(.account-receipt-list,.account-receipt-list.is-expanded) .account-receipt-row + .account-receipt-row { border-top:1px solid var(--color-selected-divider); }
+.sheet[data-screen="Account details"] :is(.account-receipt-list,.account-receipt-list.is-expanded) .account-receipt-row > svg:first-child { width:18px; height:21px; color:var(--color-icon); }
+.sheet[data-screen="Account details"] :is(.account-receipt-list,.account-receipt-list.is-expanded) .account-receipt-row > svg:last-child { display:block; width:14px; height:16px; }
+.sheet[data-screen="Account details"] :is(.account-receipt-list,.account-receipt-list.is-expanded) .account-receipt-row strong { font-size:12px; font-weight:450; }
 .sheet[data-screen="Account details"] .account-matching-receipts { margin-top:8px; }
 .sheet[data-screen="Account details"] .account-matching-receipts > h4 { margin:0 0 2px; font-size:12px; font-weight:450; color:var(--color-secondary); }
 .sheet[data-screen="Account details"] .account-calculator { margin-top:10px; }
