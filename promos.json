@@ -1,11 +1,11 @@
 {
   "schemaVersion": 3,
-  "generatedAt": "2026-10-23T19:47:03.252Z",
+  "generatedAt": "2026-10-23T20:47:31.664Z",
   "source": "apple-mail-sqlite",
   "demo": false,
   "sync": {
     "state": "snapshot",
-    "lastSuccessfulMailScanAt": "2026-10-23T19:46:11.172Z"
+    "lastSuccessfulMailScanAt": "2026-10-23T20:47:23.202Z"
   },
   "receiptActivity": {
     "amountVersion": 1,
@@ -20851,6 +20851,66 @@
   },
   "accounts": [
     {
+      "accountRef": "A200",
+      "accountMasked": "se…6m@icloud.com",
+      "canLogin": true,
+      "accessStatus": "accessible",
+      "loginMethod": "iCloud",
+      "accountStatus": "active",
+      "deactivated": false,
+      "lastSeenAt": "2026-10-23T20:36:32.000Z",
+      "lastPromoAt": "2026-10-23T20:36:32.000Z",
+      "lastOrderAt": "2026-02-18T16:55:00.000Z",
+      "lastRideAt": "2025-11-26T14:11:00.000Z",
+      "orderCount": 1,
+      "rideCount": 1,
+      "totalSaved": 8.6,
+      "sourceReviewCount": 0,
+      "receiptReviewCount": 0,
+      "activePromoCount": 2,
+      "cashSummary": {
+        "status": "expired",
+        "remaining": 0,
+        "expiresAt": null,
+        "hasUncertainty": false,
+        "grants": [
+          {
+            "issuedAt": "2026-02-08T15:56:31.000Z",
+            "status": "expired",
+            "remaining": 0,
+            "issued": 10,
+            "recordedUsed": null,
+            "expiresAt": "2026-03-15T15:56:31.000Z",
+            "allocation": "inferred_from_receipts",
+            "minimumSpend": 0,
+            "excludesFees": false,
+            "restrictions": {
+              "stacking": "unknown"
+            }
+          }
+        ]
+      },
+      "needsReview": false,
+      "reviewOfferCount": 0,
+      "promoSavings": 8.6,
+      "uberCashUsed": 10,
+      "uberCashConfirmedSavings": 0,
+      "uberOneConfirmedSavings": 0,
+      "otherConfirmedSavings": 0,
+      "rideConfirmedSaved": 8.6,
+      "estimatedUberOneSavings": 0,
+      "estimatedTotalSaved": 8.6,
+      "accountUsed": true,
+      "partialUsage": false,
+      "accountUsedReason": "eats_and_ride_receipts",
+      "archived": false,
+      "accountState": "used",
+      "fullyUsedOfferCount": 0,
+      "expiredUnusedOfferCount": 41,
+      "hasEligibleOffers": true,
+      "recommendationEligible": true
+    },
+    {
       "accountRef": "A024",
       "accountMasked": "90…fs@icloud.com",
       "canLogin": true,
@@ -21145,66 +21205,6 @@
       "accountState": "used",
       "fullyUsedOfferCount": 0,
       "expiredUnusedOfferCount": 59,
-      "hasEligibleOffers": true,
-      "recommendationEligible": true
-    },
-    {
-      "accountRef": "A200",
-      "accountMasked": "se…6m@icloud.com",
-      "canLogin": true,
-      "accessStatus": "accessible",
-      "loginMethod": "iCloud",
-      "accountStatus": "active",
-      "deactivated": false,
-      "lastSeenAt": "2026-10-23T15:59:14.000Z",
-      "lastPromoAt": "2026-10-23T15:59:14.000Z",
-      "lastOrderAt": "2026-02-18T16:55:00.000Z",
-      "lastRideAt": "2025-11-26T14:11:00.000Z",
-      "orderCount": 1,
-      "rideCount": 1,
-      "totalSaved": 8.6,
-      "sourceReviewCount": 0,
-      "receiptReviewCount": 0,
-      "activePromoCount": 2,
-      "cashSummary": {
-        "status": "expired",
-        "remaining": 0,
-        "expiresAt": null,
-        "hasUncertainty": false,
-        "grants": [
-          {
-            "issuedAt": "2026-02-08T15:56:31.000Z",
-            "status": "expired",
-            "remaining": 0,
-            "issued": 10,
-            "recordedUsed": null,
-            "expiresAt": "2026-03-15T15:56:31.000Z",
-            "allocation": "inferred_from_receipts",
-            "minimumSpend": 0,
-            "excludesFees": false,
-            "restrictions": {
-              "stacking": "unknown"
-            }
-          }
-        ]
-      },
-      "needsReview": false,
-      "reviewOfferCount": 0,
-      "promoSavings": 8.6,
-      "uberCashUsed": 10,
-      "uberCashConfirmedSavings": 0,
-      "uberOneConfirmedSavings": 0,
-      "otherConfirmedSavings": 0,
-      "rideConfirmedSaved": 8.6,
-      "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 8.6,
-      "accountUsed": true,
-      "partialUsage": false,
-      "accountUsedReason": "eats_and_ride_receipts",
-      "archived": false,
-      "accountState": "used",
-      "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 41,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
