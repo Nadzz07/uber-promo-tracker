@@ -2913,5 +2913,5 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 
 /* Compact, continuous receipt-confirmed usage; no track for unknown usage. */
 .sheet[data-screen="Account details"] .account-offer-meta { margin-bottom:var(--space-2); }
-.sheet[data-screen="Account details"] .progress-track { height:9px; border:1px solid var(--color-selected-divider); border-radius:999px; }
+.sheet[data-screen="Account details"] .progress-track { margin-top:0; height:9px; border:1px solid var(--color-selected-divider); border-radius:999px; }
 .account-restore-promo { min-height:44px; padding:var(--space-2) var(--space-3); border:1px solid var(--color-outline); border-radius:var(--control-radius); background:var(--color-panel); color:var(--color-accent); font:inherit; }

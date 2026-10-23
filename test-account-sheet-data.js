@@ -129,3 +129,19 @@ console.log('✓ Promo in use: explicit manual/confirmed evidence, undo, exhaust
  records.push(a('G',[p('G-z',3)],{email:records[3].email}));assert.deepEqual(run({search:'locked',sort:'email'}).map(a=>a.accountRef),['D','G'],'Stable account identity tie breaker');
 }
 console.log('✓ Directory full identities, punctuation/case/space, AND/OR filters, dual providers, same-offer terms, Cash states, all sorts, missing values and stable deduplication.');
+
+{
+ const {accountPromoUseProjection,restoreCompetingPromo}=await import('./manual-state.js');
+ const {plannerOffersForScope,matchesDiscoveryScope,normaliseOfferPreferences}=await import('./offer-preferences.js');
+ const {rankPromosForSpend}=await import('./deal-intelligence.js');
+ const make=(id,discount,confirmed=0)=>({id,accountRef:'scope-account',service:'Uber Eats',discountType:'fixed',discount,minimumSpend:15,minimumSpendVerified:true,uses:5,usesVerified:true,receiptConfirmedUses:confirmed,usesRemaining:5-confirmed,trackingState:confirmed===5?'used':'available',expiresAt:new Date(Date.now()+86400000).toISOString(),expiryStatus:'exact'});
+ const originals=[make('in-use',12,5),make('competitor',10)],before=JSON.stringify(originals),view=accountPromoUseProjection({},originals),preferences=normaliseOfferPreferences({preferredPromos:['fixed:10:15'],includeCash:false});
+ assert.deepEqual(rankPromosForSpend(view,15),[],'Exhausting the used promo cannot release its competitor into a plan');
+ assert.equal(matchesDiscoveryScope({promos:view},'preferred',preferences),false,'Hidden offers cannot inflate preferred counts');
+ assert.deepEqual(plannerOffersForScope(view,[],'all',preferences).map(p=>p.id),['in-use'],'Every Planner scope removes the hidden competitor before ranking');
+ const restored=accountPromoUseProjection(restoreCompetingPromo({},originals[1]),originals);
+ assert.equal(rankPromosForSpend(restored,15)[0].promo.id,'competitor');
+ assert.equal(matchesDiscoveryScope({promos:restored},'preferred',preferences),true);
+ assert.equal(JSON.stringify(originals),before,'The source records and usage evidence remain unchanged');
+}
+console.log('✓ In-use suppression is shared by preferred discovery, every Planner scope and direct ranking, with explicit restoration and immutable sources.');
