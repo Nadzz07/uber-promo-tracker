@@ -120,9 +120,12 @@ console.log('✓ Promo in use: explicit manual/confirmed evidence, undo, exhaust
  assert.deepEqual(run({type:'cash'}).map(a=>a.accountRef),['B','C']);
  assert.deepEqual(run({type:['fixed:10:15','cash']}).map(a=>a.accountRef),['A','B','C'],'A multi-select group uses OR; independent groups use AND');
  assert.deepEqual(run({search:'locked',login:'login'}),[]);
+ records[0].receiptReviewCount=1;
+ assert.deepEqual(run({management:'review',type:'fixed:12:15'}).map(a=>a.accountRef),['A'],'Account receipt review is independent of the selected offer type');
+ assert.deepEqual(run({management:'review',type:'fixed:12:15',availability:'ready'}).map(a=>a.accountRef),['A'],'A valid selected offer remains ready while account receipts need review');
  const expired=p('F-old',10,-2);records[5].allOffers=[expired,{...p('F-credit',10,-2),discountType:'uberCash',cashEstimate:{status:'expired',remaining:0}}];
  assert.deepEqual(run({management:'expired',type:'cash'}).map(a=>a.accountRef),['F'],'Expired cash remains discoverable in explicit history');
- records[5].cashPosition=cash;assert.equal(run({management:'expired',type:'fixed:10:15',availability:'ready'}).length,0,'Unrelated cash cannot make an expired selected promo ready');records[5].cashPosition={status:'expired',remaining:0};
+ records[5].cashPosition=cash;assert.equal(run({management:'expired',type:'all',availability:'ready'}).length,0,'Cash cannot supply the readiness of a different expired offer');assert.equal(run({management:'expired',type:'fixed:10:15',availability:'ready'}).length,0,'Unrelated cash cannot make an expired selected promo ready');records[5].cashPosition={status:'expired',remaining:0};
  assert.equal(run({search:'none'}).length,0);assert.equal(run({search:''}).length,records.length,'Clear restores all accounts once');
  assert.deepEqual(run({sort:'email'}).map(a=>a.email),run({sort:'email'}).map(a=>a.email).sort((a,b)=>a.localeCompare(b,'en-GB',{sensitivity:'base'})));
  assert.equal(run({sort:'best'}).at(-1).directoryValue,null,'Missing value ranks after known values');

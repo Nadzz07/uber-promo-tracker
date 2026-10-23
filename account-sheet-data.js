@@ -108,11 +108,12 @@ export function directoryAccounts(accounts,filters,preferences,{emailFor=a=>a.ac
   if(management==='finished')candidates=candidates.filter(p=>classifyOfferCompletion(p,now).fullyUsed);
   if(management==='expired-unused')candidates=candidates.filter(p=>classifyOfferCompletion(p,now).expiredUnused);
   if(management==='expired')candidates=candidates.filter(p=>isOfferExpired(p,now));
-  if(management==='review')candidates=candidates.filter(p=>p.trackingState==='needs_checking'||p.needsReview);
+  const accountReview=Number(account.sourceReviewCount||0)>0||Number(account.receiptReviewCount||0)>0;
+  if(management==='review'&&!accountReview)candidates=candidates.filter(p=>p.trackingState==='needs_checking'||p.needsReview);
   if(management==='unfinished')candidates=candidates.filter(p=>offerInProgress(p,now));
   if(management==='expiring')candidates=candidates.filter(p=>{const end=expiryEndTime(p);return end!=null&&end>now&&end-now<=7*86400000;});
   candidates=candidates.filter(p=>selections.some(type=>type==='cash-promo'?offerEligible(p,now)&&matchesDiscoveryScope({...account,promos:[p]},'cash-promo',preferences):typeMatches(p,type)));
-  const qualifyingCash=cash&&selections.some(t=>['all','cash','cash-promo'].includes(t)||t==='preferred'&&preferences.includeCash);
+  const qualifyingCash=cash&&(!historical||management==='review'&&accountReview)&&selections.some(t=>['all','cash','cash-promo'].includes(t)||t==='preferred'&&preferences.includeCash);
   const scoped={...account,promos:candidates,hasEligibleOffers:candidates.some(p=>offerEligible(p,now))||qualifyingCash};
   scoped.recommendationEligible=scoped.hasEligibleOffers&&account.canLogin===true&&account.accessStatus!=='pending'&&!account.archived;
   const cashOnlyMatch=selections.some(type=>type==='cash'&&cash||type==='preferred'&&preferences.includeCash&&cash);
@@ -120,7 +121,7 @@ export function directoryAccounts(accounts,filters,preferences,{emailFor=a=>a.ac
   if(selections.includes('cash')&&selections.length===1&&!cash&&!historical)continue;
   if(selections.includes('cash-promo')&&selections.length===1&&!matchesDiscoveryScope(scoped,'cash-promo',preferences))continue;
   if(['finished','expired-unused','expired','unfinished','expiring'].includes(management)&&!candidates.length)continue;
-  if(management==='review'&&!candidates.length&&!Number(account.sourceReviewCount||account.receiptReviewCount||0))continue;
+  if(management==='review'&&!candidates.length&&!accountReview)continue;
   if(management==='offers'&&!candidates.length&&!cash)continue;
   if(!['tracked','finished','expired-unused','expired','review','offers','unfinished','expiring'].includes(management)&&!matchesAccountFilter({...account,hasEligibleOffers:scoped.hasEligibleOffers||candidates.some(p=>p.hiddenByPromoUse)},management))continue;
   if(availability!=='any'&&(!scoped.hasEligibleOffers||availability==='ready'&&!scoped.recommendationEligible||availability==='archived'&&!account.archived||availability==='attention'&&scoped.recommendationEligible))continue;
