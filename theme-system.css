@@ -266,3 +266,35 @@ html:has(#view-accounts.active),body:has(#view-accounts.active) { background:var
 .nav-glider { display:none!important; }
 @media(max-width:370px) { .used-record-head { grid-template-columns:26px minmax(0,1fr) 12px; }.used-evidence { grid-template-columns:18px minmax(0,1fr); }.receipt-rule-badge { grid-column:2; justify-self:start; }.used-results-head { flex-wrap:wrap; }.used-sort { max-width:100%; } }
 @media(prefers-reduced-motion:reduce) { .nav-btn { transition:none; } }
+/* Per-use slots: receipt evidence, explicit manual entries and availability stay distinct. */
+.sheet[data-screen="Account details"] .usage-slots { margin-top:8px; }
+.sheet[data-screen="Account details"] .usage-slots .use-line { margin:0 0 10px; gap:12px; align-items:flex-start; flex-wrap:wrap; }
+.sheet[data-screen="Account details"] .usage-slots .use-line > span:last-child { white-space:nowrap; }
+.sheet[data-screen="Account details"] span.account-manual-usage { display:inline; margin:0; color:var(--color-soft-accent); }
+.usage-slot-grid { display:grid; grid-template-columns:repeat(var(--usage-slot-columns),minmax(0,1fr)); gap:12px 7px; }
+.usage-slot { min-width:0; }
+.sheet[data-screen="Account details"] .usage-slot-control { display:flex; flex-direction:column; align-items:center; width:100%; min-width:0; padding:0; border:0; border-radius:8px; background:none; color:var(--color-secondary); font:inherit; font-size:16px; line-height:1.4; text-align:center; box-shadow:none; }
+.usage-segment { display:block; width:100%; height:8px; margin-bottom:9px; border-radius:10px; background:color-mix(in srgb,var(--color-secondary) 18%,var(--color-track)); transition:background-color 180ms ease; }
+.usage-slot.confirmed .usage-segment { background:var(--color-accent); }
+.usage-slot.manual .usage-segment { background:color-mix(in srgb,var(--color-accent) 38%,var(--color-track)); border:1px solid var(--color-accent-line); }
+.usage-marker { display:flex; align-items:center; justify-content:center; width:32px; height:32px; margin-bottom:5px; border:1px dashed var(--color-secondary); border-radius:50%; font-size:14px; }
+.usage-marker svg { width:19px; height:19px; }
+.usage-slot.confirmed .usage-marker { background:var(--color-accent); border:1px solid var(--color-accent); color:var(--color-on-accent); }
+.usage-slot.manual .usage-marker { border:1.5px solid var(--color-accent-line); background:var(--color-selected-bottom); color:var(--color-soft-accent); }
+.usage-slot-date,.usage-slot-kind,.usage-slot-amount { display:block; max-width:100%; font-size:.875em; overflow-wrap:anywhere; }
+.usage-slot-amount { color:var(--color-text); font-weight:600; font-variant-numeric:tabular-nums; }
+.usage-slot-kind { color:var(--color-soft-accent); }
+.usage-slot.unknown .usage-marker { border-style:dotted; }
+.usage-slot-note { margin:7px 0 0; color:var(--color-tertiary); font-size:12px; }
+.usage-progress-accessible { position:absolute; width:1px; height:1px; padding:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.usage-unknown-line { margin:0 0 8px; }
+.usage-save-error { grid-column:1/-1; margin:8px 0 0; color:var(--color-warning-text); font-size:14px; }
+.usage-slot-control:focus-visible { outline:2px solid var(--color-accent); outline-offset:3px; }
+@media(max-width:360px){.usage-slot-grid { grid-template-columns:repeat(var(--usage-narrow-columns),minmax(0,1fr)); }}
+@media(prefers-reduced-motion:reduce){.usage-segment { transition:none; }}
+html[data-motion="reduced"] .usage-segment { transition:none; }
+.sheet[data-screen="Account details"] .slotted-receipts { margin-top:4px; }
+.usage-receipt-footer { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:4px 10px; color:var(--color-tertiary); font-size:13px; }
+.sheet[data-screen="Account details"] .usage-receipt-footer .account-receipt-toggle { width:auto; min-height:36px; margin:0; padding:4px 0; font-size:13px; }
+
+.usage-slot-amount { white-space:nowrap; overflow-wrap:normal; width:max-content; max-width:none; }

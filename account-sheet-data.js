@@ -1,6 +1,6 @@
 import {dedupeReceipts} from './receipt-identity.js';
 import {receiptWhen} from './receipt-date.js';
-import {getOfferManualState,promotionActivity,promoStateKey} from './manual-state.js';
+import {getOfferManualState,promotionActivity,promoStateKey,pendingManualEntries,pendingManualUses} from './manual-state.js';
 import {classifyOfferTrackingState,classifyOfferCompletion} from './offer-state.js';
 import {accountMatchesLogin,accountMatchesProvider,matchesAccountFilter,accountOfferKey,offerReadinessRank,offerInProgress,offerEligible} from './account-state.js';
 import {hasCurrentCash,matchesDiscoveryScope,isPreferredPromo} from './offer-preferences.js';
@@ -102,6 +102,21 @@ export function offerUsageEvidence(data,promo,storeStatus='ready') {
  if(promo.usageEvidenceUnavailable||promo.usageEvidenceConflict)return {confirmed:null,partial:false,evidence};
  const confirmed=rows.length||aggregate>0?Math.max(rows.length,aggregate||0):aggregate===0&&evidence.status==='no_matches'?0:null;
  return {confirmed,partial:Boolean(unresolved&&confirmed!=null),evidence};
+}
+
+export function offerUsageSlots(data,promo,store={},storeStatus='ready',limitKnown=promo.usesVerified===true) {
+ const usage=offerUsageEvidence(data,promo,storeStatus),manual=pendingManualEntries(store,promo),manualCount=pendingManualUses(store,promo),raw=Number(promo.uses);
+ const total=limitKnown&&Number.isInteger(raw)&&raw>0?raw:null,confirmed=usage.confirmed;
+ const receipts=offerMatchedReceipts(data,promo).slice().reverse();
+ const compact=total==null||total>12||(confirmed!=null&&confirmed+manualCount>total);
+ const complete=confirmed!=null&&!usage.partial;
+ const slots=[];
+ if(!compact)for(let i=0;i<total;i++){
+  if(confirmed!=null&&i<confirmed){const receipt=receipts[i];slots.push({kind:'confirmed',number:i+1,receiptId:receipt?.receiptId||null,at:receipt?receiptWhen(receipt):null,total:receipt?(Number.isFinite(receipt.total)?receipt.total:null):null});}
+  else if(i-(confirmed||0)<manualCount){const entry=manual[i-(confirmed||0)];slots.push({kind:'manual',number:i+1,at:entry.at});}
+  else slots.push({kind:complete?'unused':'unknown',number:i+1,at:null});
+ }
+ return {total,confirmed,manual:manualCount,manualEntries:manual,compact,slots,partial:usage.partial,remaining:complete&&total!=null?Math.max(0,total-confirmed-manualCount):null};
 }
 
 // A single primary classification per record. Completed is receipt-verified;
