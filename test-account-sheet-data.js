@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {accountHistoryGroups,validateOfferReceiptLinks,mergeOfferReceiptLinks,offerReceiptAvailability,offerUsageEvidence,directoryAccounts,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
+import {accountHistoryGroups,preferredAccountOffers,validateOfferReceiptLinks,mergeOfferReceiptLinks,offerReceiptAvailability,offerUsageEvidence,directoryAccounts,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
 import {validateFinanceData,PrivateFinanceVault} from './private-finance-vault.js';
 import {assertPublicSnapshot} from './public-snapshot.js';
 const receipt=(id,accountRef='A1',orderAt='2026-10-18T12:00:00Z',extra={})=>({receiptId:id,accountRef,orderAt,service:'Uber Eats',total:4,...extra});
@@ -81,7 +81,8 @@ console.log('✓ Historical credit preserves ignored/manual decisions, source ev
 const usagePromo={id:'pub_a',accountRef:'A1',receiptConfirmedUses:0};
 assert.equal(offerUsageEvidence(null,usagePromo).confirmed,null);
 assert.equal(offerUsageEvidence({accounts:[{accountRef:'A1'}],receipts},usagePromo).confirmed,null);
-assert.equal(offerUsageEvidence({...data,offerReceiptMatches:[]},usagePromo).confirmed,0);
+assert.equal(offerUsageEvidence({...data,offerReceiptMatches:[]},usagePromo).confirmed,null,'A supported schema with missing receipt amounts cannot establish zero');
+assert.equal(offerUsageEvidence({...data,offerReceiptMatches:[],receipts:[]},usagePromo).confirmed,0,'Supported empty receipt coverage can establish zero');
 assert.equal(offerUsageEvidence(data,usagePromo).confirmed,3);
 assert.equal(offerUsageEvidence(null,{...usagePromo,receiptConfirmedUses:2}).confirmed,2);
 assert.equal(offerUsageEvidence(data,{...usagePromo,receiptConfirmedUses:4}).confirmed,4,'Safe aggregate is not hidden by a partial detail import');
@@ -148,3 +149,25 @@ console.log('✓ Directory full identities, punctuation/case/space, AND/OR filte
  assert.equal(JSON.stringify(originals),before,'The source records and usage evidence remain unchanged');
 }
 console.log('✓ In-use suppression is shared by preferred discovery, every Planner scope and direct ranking, with explicit restoration and immutable sources.');
+
+{
+ const p={id:'coverage',accountRef:'A1',receiptConfirmedUses:0,firstEmailSentAt:'2026-10-01T00:00:00Z',expiresAt:'2026-11-01T00:00:00Z'};
+ const exportData={accounts:[{accountRef:'A1'}],receiptMatchVersion:1,offerReceiptMatches:[],receipts:[{receiptId:'summary-only',accountRef:'A1',service:'Uber Eats',orderAt:'2026-10-05T12:00:00Z',total:4}]};
+ assert.equal(offerUsageEvidence(exportData,p).confirmed,null);
+ assert.equal(offerReceiptAvailability(exportData,p).status,'incomplete');
+ assert.equal(offerUsageEvidence({...exportData,receipts:exportData.receipts.map(r=>({...r,promotionDiscount:0}))},p).confirmed,0,'Explicit zero is not missing');
+ assert.equal(offerUsageEvidence({...exportData,receipts:exportData.receipts.map(r=>({...r,promotionDiscount:'0'}))},p).confirmed,null,'Unsupported amount representations cannot manufacture confirmed zero');
+ assert.equal(offerUsageEvidence({...exportData,receipts:exportData.receipts.map(r=>({...r,promotionDiscount:12}))},p).confirmed,null,'Positive discount without qualifying basket cannot establish matching completeness');
+ assert.equal(offerUsageEvidence({...exportData,receipts:exportData.receipts.map(r=>({...r,orderAt:'2026-09-01T12:00:00Z'}))},p).confirmed,0,'Earlier receipts cannot redeem a later offer');
+ assert.equal(offerUsageEvidence(exportData,{...p,receiptConfirmedUses:2}).confirmed,2,'Keep supported positive aggregate even when details are partial');
+ const pref={preferredPromos:['fixed:12:15']};
+ const preferred={id:'preferred',accountRef:'A1',discountType:'fixed',discount:12,minimumSpend:15,minimumSpendVerified:true};
+ const other={...preferred,id:'other',discountType:'percent',discount:30,minimumSpend:20};
+ const partition=preferredAccountOffers([preferred,other],pref);
+ assert.deepEqual(partition.current.map(p=>p.id),['preferred']);assert.equal(partition.other[0].hiddenByPreference,true);
+ assert.deepEqual(accountHistoryGroups(partition.other).find(g=>g.key==='other').records.map(r=>r.promo.id),['other']);
+ assert.equal(other.hiddenByPreference,undefined,'Presentation does not mutate source');
+ assert.equal(preferredAccountOffers([{...other,promoInUse:true}],pref).current.length,1,'Used promo remains prominent');
+ assert.equal(preferredAccountOffers([other],pref,{version:3,offers:{other:{competitionRestored:true}}}).current.length,1,'An explicit Restore bypasses preference folding');
+}
+console.log('✓ Incomplete compact receipts never manufacture zero; preference folding retains used/restored offers and original records.');

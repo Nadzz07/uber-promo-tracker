@@ -19,6 +19,12 @@ export const RICH_ACCENTS=Object.keys(RICH_PALETTE).filter(key=>!['panelTop','pa
 export const cssToken=name=>'--color-'+name.replace(/[A-Z]/g,c=>'-'+c.toLowerCase());
 export const richCssToken=name=>'--rich-'+name.replace(/[A-Z]/g,c=>'-'+c.toLowerCase());
 export const colourRgb=hex=>hex.slice(1).match(/../g).map(v=>parseInt(v,16));
+function accountButtonStops(hue,ink) {
+ const luminance=hex=>colourRgb(hex).map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);
+ const foreground=luminance(ink);let lightness=53;
+ while(lightness<78&&(luminance(hslColour(hue,90,lightness))+.05)/(foreground+.05)<4.6)lightness++;
+ return [hslColour(hue,94,Math.max(65,lightness+5)),hslColour(hue,90,lightness)];
+}
 // Shared material tints used by the existing component layouts.
 const MATERIAL_TINTS={
  "--tint-color-accent-14-0-transparent": "color-mix(in srgb,var(--color-accent) 14.0%,transparent)",
@@ -61,7 +67,9 @@ const MATERIAL_TINTS={
  "--tint-account-accent-72-color-secondary": "color-mix(in srgb,var(--account-accent) 72%,var(--color-secondary))"
 };
 export function paletteProperties(hue=DEFAULT_HUE){
+ hue=Number.isFinite(Number(hue))?((Number(hue)%360)+360)%360:DEFAULT_HUE;
  const p=paletteForHue(hue),props=Object.fromEntries(Object.entries(p).map(([k,v])=>[cssToken(k),v]));
+ const accountButtons=accountButtonStops(hue,p.onAccent);
  for(const [k,v]of Object.entries(richPalette(p)))props[richCssToken(k)]=v;
  return {...MATERIAL_TINTS,...props,'--accent-hue':String(hue),'--color-panel-rgb':colourRgb(p.panel).join(','),'--color-accent-rgb':colourRgb(p.accent).join(','),
  '--theme-background':'linear-gradient(180deg,var(--color-screen),var(--color-sheet) 50%,var(--color-background-bottom))',
@@ -72,6 +80,11 @@ export function paletteProperties(hue=DEFAULT_HUE){
  '--theme-active-tab':'linear-gradient(180deg,var(--color-active-tab),var(--color-active-tab-bottom))',
  '--theme-stats':'linear-gradient(180deg,var(--color-stats),var(--color-stats-bottom))',
  '--theme-selected-shadow':'0 0 12px color-mix(in srgb,var(--color-accent) 22%,transparent)',
- '--theme-dock-fade':'linear-gradient(180deg,transparent,var(--color-background-bottom) 72%)'};
+ '--theme-dock-fade':'linear-gradient(180deg,transparent,var(--color-background-bottom) 72%)',
+ // Account reference materials keep the chosen hue, with deeper chroma than
+ // the general-purpose selected pill. No fixed blue or picker override.
+ '--theme-account-page':`linear-gradient(180deg,${hslColour(hue,45,9)},${hslColour(hue,40,5)})`,
+ '--theme-account-selected':`linear-gradient(145deg,${hslColour(hue,64,22)},${hslColour(hue,64,10)})`,
+ '--theme-account-primary':`linear-gradient(180deg,${accountButtons[0]},${accountButtons[1]})`};
 }
 export const basePaletteCss=()=>':root{'+Object.entries(paletteProperties()).map(([k,v])=>k+':'+v+';').join('')+'}';
