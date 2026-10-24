@@ -117,3 +117,5 @@ exclude:
   - test-receipt-insights.js
   - test-receipt-insights-browser.js
   - test-receipt-amounts.js
+  - test-usage-slots-browser.js
+  - test-used-reference-browser.js

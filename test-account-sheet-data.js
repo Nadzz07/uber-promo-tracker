@@ -171,3 +171,37 @@ console.log('✓ In-use suppression is shared by preferred discovery, every Plan
  assert.equal(preferredAccountOffers([other],pref,{version:3,offers:{other:{competitionRestored:true}}}).current.length,1,'An explicit Restore bypasses preference folding');
 }
 console.log('✓ Incomplete compact receipts never manufacture zero; preference folding retains used/restored offers and original records.');
+
+{
+ const {offerUsageSlots}=await import('./account-sheet-data.js');
+ const {consumeManualUse,undoManualUse,normaliseManualStore,pendingManualEntries}=await import('./manual-state.js');
+ const promo={id:'slot-offer',accountRef:'S1',uses:5,usesVerified:true,receiptConfirmedUses:3,usesRemaining:2};
+ const receipts=[1,2,3].map(i=>({receiptId:'slot-'+i,accountRef:'S1',service:'Uber Eats',orderAt:`2026-10-0${i}T12:00:00Z`,total:i===2?null:i*2}));
+ const data={accounts:[{accountRef:'S1'}],receipts,events:[],receiptMatchVersion:1,offerReceiptMatches:receipts.map(r=>({receiptId:r.receiptId,accountRef:'S1',offerId:'slot-offer',status:'confirmed'}))};
+ let store=normaliseManualStore();
+ assert.deepEqual(offerUsageSlots(data,promo,store).slots.map(s=>s.kind),['confirmed','confirmed','confirmed','unused','unused']);
+ store=consumeManualUse(store,promo,'2026-10-20T12:00:00Z');
+ let model=offerUsageSlots(data,promo,store);assert.deepEqual(model.slots.map(s=>s.kind),['confirmed','confirmed','confirmed','manual','unused']);assert.equal(model.remaining,1);assert.equal(model.slots[3].at,'2026-10-20T12:00:00Z');assert.equal(model.slots[1].total,null);assert.equal(model.slots[0].total,2,'Slot amounts are receipt totals, not savings');
+ const saved=JSON.parse(JSON.stringify(store));assert.deepEqual(offerUsageSlots(data,promo,saved),model);
+ store=undoManualUse(store,promo);assert.equal(offerUsageSlots(data,promo,store).manual,0);assert.equal(offerUsageSlots(data,promo,store).confirmed,3);
+ const fourth={receiptId:'slot-4',accountRef:'S1',service:'Uber Eats',orderAt:'2026-10-04',total:12};
+ const incoming={...data,receipts:[...receipts,fourth],offerReceiptMatches:[...data.offerReceiptMatches,{receiptId:fourth.receiptId,accountRef:'S1',offerId:'slot-offer',status:'confirmed'}]};
+ model=offerUsageSlots(incoming,{...promo,receiptConfirmedUses:4,usesRemaining:1},saved);assert.equal(model.confirmed,4);assert.equal(model.manual,0);assert.equal(model.remaining,1);assert.equal(incoming.receipts.length,4);
+ const unrelated={...data,receipts:[...receipts,fourth]};assert.equal(offerUsageSlots(unrelated,promo,saved).manual,1,'Equal amounts without an assigned promo match do not reconcile manual uses');
+ const unknown=offerUsageSlots(null,{...promo,receiptConfirmedUses:null,usesRemaining:5},consumeManualUse(normaliseManualStore(),{...promo,receiptConfirmedUses:null,usesRemaining:5},'2026-10-20'));
+ assert.equal(unknown.confirmed,null);assert.equal(unknown.remaining,null);assert.equal(unknown.slots[0].kind,'manual');assert.ok(unknown.slots.slice(1).every(s=>s.kind==='unknown'));
+ for(const uses of [1,2,3,5,6,12])assert.equal(offerUsageSlots(null,{...promo,uses,receiptConfirmedUses:0,usesRemaining:uses}).slots.length,uses);
+ for(const uses of [null,100,100000])assert.equal(offerUsageSlots(null,{...promo,uses,receiptConfirmedUses:null},saved).compact,true);
+ const legacy=normaliseManualStore({offers:{'slot-offer':{manualUsesConsumed:2,receiptConfirmedBaseline:3,lastManualUseAt:'2026-10-18'}}});assert.deepEqual(pendingManualEntries(legacy,promo).map(e=>e.at),[null,'2026-10-18']);assert.deepEqual(pendingManualEntries(consumeManualUse(legacy,{...promo,uses:6,usesRemaining:3},'2026-10-20'),{...promo,uses:6,usesRemaining:3}).map(e=>e.at),[null,'2026-10-18','2026-10-20']);
+ console.log('✓ Usage slots: actual limits, dated manual/undo/persistence, receipt totals, explicit-match reconciliation, unknown and compact limits; originals retained.');
+}
+
+{
+ const {consumeManualUse,undoManualUse,pendingManualUses,accountPromoUseProjection}=await import('./manual-state.js');
+ const p={id:'unavailable-baseline',accountRef:'qa-local',uses:5,usesVerified:true,usesRemaining:5,receiptConfirmedUses:null,usageEvidenceUnavailable:true};
+ let s={version:3,offers:{'unavailable-baseline':{manualUsesConsumed:1,receiptConfirmedBaseline:3,history:[]}}};
+ assert.equal(accountPromoUseProjection(s,[p,{...p,id:'competitor',usageEvidenceUnavailable:false,receiptConfirmedUses:0}])[0].hiddenByPromoUse,false,'Temporarily unavailable receipts do not hide the prior promo in use');
+ const recorded=consumeManualUse(s,p,'2026-10-24T10:00:00Z');assert.equal(recorded.offers[p.id].manualUsesConsumed,2);assert.equal(recorded.offers[p.id].receiptConfirmedBaseline,3,'Unavailable evidence must preserve its known receipt baseline');
+ const undone=undoManualUse(recorded,p);assert.equal(undone.offers[p.id].manualUsesConsumed,1);assert.equal(undone.offers[p.id].receiptConfirmedBaseline,3);
+ assert.equal(pendingManualUses(undone,{...p,usageEvidenceUnavailable:false,receiptConfirmedUses:3}),1,'Restoring the same receipts must not erase unrelated manual entries');
+}

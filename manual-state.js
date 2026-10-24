@@ -137,11 +137,26 @@ export function pendingManualUses(store, promo) {
   return Math.max(0, state.manualUsesConsumed - receiptDelta);
 }
 
+// Preserve per-entry dates without inventing dates for older count-only records.
+// Receipt deltas consume the oldest outstanding entries on this specific offer.
+export function pendingManualEntries(store, promo, limit=12) {
+  const state=getOfferManualState(store,promo),count=pendingManualUses(store,promo),entries=[];
+  for(const event of state.history){
+    if(event.type==='manual_use_recorded')entries.push({id:event.id,at:event.at});
+    if(event.type==='manual_use_undone'){const i=entries.findIndex(e=>e.id===event.entryId);if(i>=0)entries.splice(i,1);}
+  }
+  if(!count)return [];
+  const shown=Math.min(count,limit),known=entries.slice(-shown);
+  const missing=Math.max(0,shown-known.length);
+  return [...Array.from({length:missing},(_,i)=>({id:null,at:!known.length&&i===missing-1?state.lastManualUseAt:null})),...known];
+}
+
 // Usage chooses the account's promo; disclosure, calculator selection and Cash
 // never do. Keep every used promo when receipts establish more than one.
 export function accountPromoUseProjection(store, promos = []) {
   const used = new Set(promos.filter(p => p.discountType !== 'uberCash' &&
     ((!p.usageEvidenceUnavailable && !p.usageEvidenceConflict && Number(p.receiptConfirmedUses) > 0) ||
+      (p.usageEvidenceUnavailable && !p.usageEvidenceConflict && getOfferManualState(store,p).receiptConfirmedBaseline > 0) ||
       pendingManualUses(store,p) > 0)).map(promoStateKey));
   return promos.map(p => ({...p, promoInUse:used.has(promoStateKey(p)),
     hiddenByPromoUse:p.discountType !== 'uberCash' && used.size > 0 && !used.has(promoStateKey(p)) && !getOfferManualState(store,p).competitionRestored}));
@@ -189,11 +204,13 @@ function rebaseOfferState(store, promo) {
   const key = promoStateKey(promo);
   const current = getOfferManualState(safe, promo);
   const pending = pendingManualUses(safe, promo);
+  const legacy=pendingManualEntries(safe,promo).filter(entry=>!entry.id).map((entry,i)=>({type:'manual_use_recorded',id:'legacy-'+current.history.length+'-'+i,at:entry.at,legacy:true}));
 
   safe.offers[key] = {
     ...current,
     manualUsesConsumed: pending,
-    receiptConfirmedBaseline: confirmedUses(promo)
+    receiptConfirmedBaseline: promo.usageEvidenceUnavailable ? current.receiptConfirmedBaseline : confirmedUses(promo),
+    history:[...legacy,...current.history]
   };
 
   return safe;
@@ -219,7 +236,8 @@ export function consumeManualUse(
     ...state,
     manualUsesConsumed: state.manualUsesConsumed + 1,
     lastManualUseAt: usedAt,
-    updatedAt: usedAt
+    updatedAt: usedAt,
+    history:[...state.history,{type:'manual_use_recorded',id:usedAt+'-'+state.history.length,at:usedAt}]
   };
 
   return safe;
@@ -239,7 +257,8 @@ export function undoManualUse(
   safe.offers[key] = {
     ...state,
     manualUsesConsumed: state.manualUsesConsumed - 1,
-    updatedAt
+    updatedAt,
+    history:[...state.history,{type:'manual_use_undone',entryId:pendingManualEntries(safe,promo).at(-1)?.id||null,at:updatedAt}]
   };
 
   return safe;

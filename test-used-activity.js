@@ -9,7 +9,7 @@ let store=setOfferDone(normaliseManualStore(),offers[5],true,now);store=setOffer
 const model=buildUsedActivity(accounts,offers,store);
 assert.equal(ACTIVITY_STATUSES.length,8);for(const status of ACTIVITY_STATUSES)assert.ok(model.buckets[status.key].length>0,status.key);
 assert.equal(model.summary.used,2);assert.equal(model.summary.needs_checking,1);assert.equal(model.summary.expired,2);
-assert.equal(receiptUsageEvidence(accounts[0]),'5 Eats receipts');assert.equal(receiptUsageEvidence(accounts[1]),'1 Eats + 1 Ride');
+assert.equal(receiptUsageEvidence(accounts[0]),'5 Eats orders');assert.equal(receiptUsageEvidence(accounts[1]),'1 Eats + 1 Ride');
 assert.equal(model.buckets.used[0].account.canLogin,false,'Login stays independent');assert.equal(model.buckets.manual[0].evidence,'Owner recorded completion');
 assert.equal(model.buckets.completed[0].receiptRuleMet,undefined);assert.equal(model.buckets.expired_unused[0].receiptRuleMet,undefined);
 assert.equal(activityResults(model,{status:'used',query:'aa…bb',sort:'latest'}).length,1);
@@ -18,3 +18,10 @@ assert.equal(activityResults(model,{status:'used',sort:'latest'})[0].account.acc
 assert.equal(model.buckets.used.some(r=>r.account.accountRef==='A3'),false,'Four Eats is not Fully used');
 assert.equal(buildUsedActivity([{accountRef:'undated',orderCount:5}],[],store).buckets.used[0].at,null,'Missing activity dates stay missing');
 console.log('✓ Used: all eight categories, actual receipt rules/evidence, separate entities/access, uncertainty, manual reason, search/sort and unknown activity dates');
+
+const privateAccount={accountRef:'private',accountMasked:'p…@example.invalid',email:'Full.Name+tag@example.invalid',orderCount:5,lastOrderAt:now};
+const searchModel=buildUsedActivity([privateAccount],[{...promo('search-offer',0),accountRef:'private',title:'Weekend special'}]);
+for(const query of [' full.name+TAG@example.invalid ','Weekend special','£12 off £15'])assert.equal(activityResults(searchModel,{status:'used',query}).length,1,query);
+const tied={buckets:{used:[{key:'b',account:{accountRef:'same'},at:null},{key:'a',account:{accountRef:'same'},at:null}]}};
+assert.deepEqual(activityResults(tied,{status:'used'}).map(r=>r.key),['a','b']);
+console.log('✓ Used full-email/punctuation/whitespace and offer search, stable missing-date sort');

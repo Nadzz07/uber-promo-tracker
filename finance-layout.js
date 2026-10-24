@@ -12,6 +12,10 @@ const paths = {
   'chevron-down': '<path d="m5 9 7 7 7-7"/>',
   more: '<circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="20" cy="12" r="1" fill="currentColor"/>',
 
+  'menu-import':'<path d="M12 2v13m-5-5 5 5 5-5M3 14v7h18v-7"/>',
+  'menu-book':'<path d="M12 5c-3-3-7-3-10-1v16c3-2 7-2 10 1 3-3 7-3 10-1V4c-3-2-7-2-10 1Zm0 0v16"/>',
+  'menu-receipt':'<path d="M3 2l3 2 3-2 3 2 3-2 3 2 3-2v20l-3-2-3 2-3-2-3 2-3-2-3 2V2ZM7 14l3-4 3 2 4-5M7 17h10"/>',
+  'menu-calendar-history':'<path d="M21 10V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6M7 1v5M17 1v5M3 9h18"/><circle cx="17" cy="17" r="5"/><path d="M17 14v3l2 1"/>',
   'menu-coins': '<ellipse cx="15" cy="5" rx="6" ry="3"/><path d="M9 5v5c0 4 12 4 12 0V5M15 13v4c3 0 6-1 6-3v-4"/><ellipse cx="8" cy="13" rx="6" ry="3"/><path d="M2 13v5c0 4 12 4 12 0v-5M2 17v3c0 4 12 4 12 0v-3"/>',
   'menu-calendar': '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18"/>',
   'menu-sync': '<path d="M20 8a8 8 0 0 0-14-4L3 7M3 2v5h5M4 16a8 8 0 0 0 14 4l3-3M21 22v-5h-5"/>',

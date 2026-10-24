@@ -121,19 +121,11 @@ try {
     });
     assert.equal(header.overlap, false, `Title and last sync timestamp must not overlap at ${width}px`);
     assert.equal(header.filter, 'none'); assert.ok(header.stampSize >= 11);
-    const glider = await page.locator('.nav-glider').evaluate(el => ({
-      width: el.getBoundingClientRect().width,
-      height: el.getBoundingClientRect().height,
-      transform: getComputedStyle(el).transform
-    }));
-    assert.ok(glider.width > 0 && glider.height > 0, `Liquid nav glider should be sized at ${width}px`);
-    assert.notEqual(glider.transform, 'none', `Liquid nav glider should be positioned at ${width}px`);
-    assert.equal(await page.locator('.nav-glider').evaluate(el => getComputedStyle(el).transitionDuration), '0s', 'Physical springs own the glider; CSS timing must not override them');
-    assert.equal(await page.locator('#mainNav').getAttribute('data-material'), 'matte');
+    assert.equal(await page.locator('.nav-glider').count(),0,'Shared navigation has no sliding pill');
     // Resize transitions settle before checking exact geometry below.
     if (width < 980) {
       const nav = await page.locator('#mainNav').evaluate(el => ({ bottom: innerHeight-el.getBoundingClientRect().bottom, radius: getComputedStyle(el).borderRadius, position: getComputedStyle(el).position, height: el.offsetHeight }));
-      assert.equal(nav.position, 'fixed'); assert.equal(nav.radius, '999px');
+      assert.equal(nav.position, 'fixed'); assert.equal(nav.radius, '28px');
       assert.ok(nav.bottom >= 7 && nav.bottom <= 9, 'Floating nav must sit 8px above the browser safe area');
       assert.ok(nav.height < 75, 'Floating nav must stay a compact capsule');
     }
@@ -217,7 +209,7 @@ try {
   await page.mouse.move(moreTab.x+moreTab.width/2, moreTab.y+moreTab.height/2, { steps: 8 });
   assert.equal(await page.locator('#mainNav').evaluate(el => el.classList.contains('dragging')), true);
   await page.mouse.up(); assert.equal(await page.locator('#view-more').isVisible(), true);
-  await page.waitForFunction(() => { const nav = document.getElementById('mainNav'), a = nav.querySelector('.active').getBoundingClientRect(), g = nav.querySelector('.nav-glider').getBoundingClientRect(); return Math.abs(a.left-g.left) < 1 && Math.abs(a.top-g.top) < 1; });
+  assert.equal(await page.locator('#mainNav [aria-current=page]').getAttribute('data-view'),'more');
   await page.keyboard.press('ArrowLeft'); assert.equal(await page.locator('#view-used').isVisible(), true);
   await page.keyboard.press('End'); assert.equal(await page.locator('#view-more').isVisible(), true);
 
@@ -302,7 +294,7 @@ try {
   assert.equal((await page.locator('#recommendation').innerText()).includes(privateEmail), false);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.locator('[data-view="more"]').click();
-  assert.ok(parseFloat(await page.locator('.nav-glider').evaluate(el => getComputedStyle(el).transitionDuration)) < .01);
+  assert.equal(await page.locator('.nav-glider').count(),0);
   await page.setViewportSize({ width: 1280, height: 900 });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   assert.deepEqual(errors, []);
