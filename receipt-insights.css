@@ -164,10 +164,8 @@ html[data-layout=mobile]:has(#view-receipts.active) { scroll-padding-bottom:var(
 .ri-combined-values { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 .ri-combined-values > div { min-width:0; }
 .ri-combined-values > div + div { border-left:1px solid var(--rich-border); padding-left:16px; }
-.ri-combined-values span,.ri-receipt-breakdown span { display:block; color:var(--rich-secondary); font-size:12px; }
+.ri-combined-values span { display:block; color:var(--rich-secondary); font-size:12px; }
 .ri-combined-values strong { display:block; font-size:25px; font-weight:600; margin-top:4px; overflow-wrap:anywhere; }
-.ri-receipt-breakdown { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; padding:13px 15px; margin-bottom:12px; }
-.ri-receipt-breakdown strong { display:block; margin-top:4px; font-size:17px; overflow-wrap:anywhere; }
 .savings-hero .ri-paid-total { font-size:42px; }
 .savings-support strong { font-size:29px; }
 .savings-ranking { padding:14px 15px 0; margin-bottom:10px; }
@@ -189,3 +187,14 @@ html:has(#view-receipts.active),body:has(#view-receipts.active) { background:var
 
 .ri-page-head,.ri-page-head::before { background:var(--color-insights-header); }
 .ri-page-head::before { inset:calc(-10px - env(safe-area-inset-top,0px)) -18px 0; }
+
+.savings-unattributed { display:flex; align-items:center; gap:12px; min-height:64px; padding:13px 0; border-top:1px solid var(--rich-border); }
+.savings-unattributed > svg { width:25px; height:28px; color:var(--color-icon); flex:none; }
+.savings-unattributed > span { flex:1; min-width:0; }
+.savings-unattributed strong { font-size:15px; font-weight:550; }
+.savings-unattributed > strong { font-size:21px; max-width:45%; overflow-wrap:anywhere; text-align:right; }
+
+.ri-recent-list { overflow:hidden; padding:0; }
+.ri-recent-list .ri-receipt-row { margin:0; border:0; border-radius:0; background:transparent; box-shadow:none; }
+.ri-recent-list .ri-receipt-row + .ri-receipt-row { border-top:1px solid var(--rich-border); }
+.ri-payment-caption { border-top:1px solid var(--rich-border); padding-top:9px; color:var(--rich-secondary); }

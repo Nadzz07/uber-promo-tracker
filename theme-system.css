@@ -388,7 +388,7 @@ html[data-layout=mobile] .sheet-body { overscroll-behavior:contain; -webkit-over
 /* Accounts: compact filters, shared Used-card scale, no page-wide chip overflow. */
 #view-accounts .account-preferred-chips { flex-wrap:nowrap; gap:4px; overflow-x:auto; max-width:100%; min-width:0; overscroll-behavior-inline:contain; scrollbar-width:none; padding-block:2px; margin:4px 0 6px; }
 #view-accounts .account-preferred-chips::-webkit-scrollbar { display:none; }
-#view-accounts .account-preferred-chips button { flex:0 0 auto; white-space:nowrap; font-size:12.5px; padding:5px 7px; min-height:40px; }
+#view-accounts .account-preferred-chips button { flex:0 0 auto; white-space:nowrap; font-size:12.5px; padding:5px 4px; min-height:40px; }
 #view-accounts .account-login-tabs { margin-bottom:6px; }
 #view-accounts .account-login-tabs button { min-height:40px; font-size:15px; }
 #view-accounts .search-wrap { margin-bottom:6px; }
