@@ -84,6 +84,7 @@ export function paletteProperties(hue=DEFAULT_HUE){
  // Account reference materials keep the chosen hue, with deeper chroma than
  // the general-purpose selected pill. No fixed blue or picker override.
  '--theme-account-page':`linear-gradient(180deg,${hslColour(hue,45,9)},${hslColour(hue,40,5)})`,
+ '--theme-account-panel':`linear-gradient(145deg,${hslColour(hue,28,13)},${hslColour(hue,30,9)})`,
  '--theme-account-selected':`linear-gradient(145deg,${hslColour(hue,64,22)},${hslColour(hue,64,10)})`,
  '--theme-account-primary':`linear-gradient(180deg,${accountButtons[0]},${accountButtons[1]})`};
 }

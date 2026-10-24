@@ -298,3 +298,45 @@ html[data-motion="reduced"] .usage-segment { transition:none; }
 .sheet[data-screen="Account details"] .usage-receipt-footer .account-receipt-toggle { width:auto; min-height:36px; margin:0; padding:4px 0; font-size:13px; }
 
 .usage-slot-amount { white-space:nowrap; overflow-wrap:normal; width:max-content; max-width:none; }
+
+/* Latest compact Account details reference, rendered by the shared sheet. */
+.sheet[data-screen="Account details"] .sheet-head { padding:8px 16px 12px; }
+.sheet[data-screen="Account details"] .sheet-title { font-size:24px; }
+.sheet[data-screen="Account details"] .account-sheet-hero { background:var(--theme-account-panel); padding:12px; }
+.sheet[data-screen="Account details"] .account-detail-provider svg { color:var(--color-accent); }
+.sheet[data-screen="Account details"] .account-sheet-actions .account-secondary { background:transparent; border-color:var(--color-accent-line); color:var(--color-accent); }
+.sheet[data-screen="Account details"] .account-sheet-actions .account-primary > svg { display:none; }
+.sheet[data-screen="Account details"] .account-offers-heading { margin:14px 0 8px; }
+.sheet[data-screen="Account details"] .account-detail-offer[open]:not(.past-offer) { border-color:var(--color-accent-line); }
+.sheet[data-screen="Account details"] .account-offer-meta { margin-left:34px; }
+.sheet[data-screen="Account details"] .usage-slots .use-line { padding-top:7px; border-top:1px solid var(--color-selected-divider); margin-bottom:8px; font-weight:500; }
+.sheet[data-screen="Account details"] .usage-slot-control { font-size:13px; }
+.usage-marker { width:25px; height:25px; }
+.usage-marker svg { width:17px; height:17px; }
+.usage-segment { height:9px; margin-bottom:8px; }
+.usage-slot.manual .usage-segment { border:1px dashed var(--color-soft-accent); }
+.usage-slot.manual .usage-marker { border-style:dashed; }
+.sheet[data-screen="Account details"] .usage-slot-amount { font-size:13px; }
+.sheet[data-screen="Account details"] .slotted-receipts { margin-top:0; }
+.sheet[data-screen="Account details"] .slotted-receipts .usage-receipt-footer > span { display:none; }
+.sheet[data-screen="Account details"] .slotted-receipts .account-receipt-toggle { margin-left:auto; min-height:28px; }
+.sheet[data-screen="Account details"] :is(.account-cash-entry,.account-calculator-panel,.account-management,.offer-history) { background:var(--theme-account-panel); }
+.sheet[data-screen="Account details"] .cash-entry-balance { font-size:22px; }
+.sheet[data-screen="Account details"] .account-calculator-panel > h3 { font-size:17px; margin-bottom:10px; }
+.sheet[data-screen="Account details"] .account-calculator-cash { border-left:1px solid var(--color-border); padding-left:10px; }
+.sheet[data-screen="Account details"] .account-calculator-controls.without-cash { grid-template-columns:minmax(0,1fr); }
+.sheet[data-screen="Account details"] .account-calculator-helper { margin-bottom:0; }
+.account-notes { padding:10px 0; border-bottom:1px solid var(--color-border); }
+.account-notes > div:first-child,.account-notes [data-account-note-editor] > div { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.account-notes p { margin:4px 0; color:var(--color-secondary); white-space:pre-wrap; overflow-wrap:anywhere; }
+.account-notes textarea { width:100%; min-height:88px; font-size:16px; resize:vertical; }
+@media(max-width:369px) { .sheet[data-screen="Account details"] .account-calculator-cash { padding:0; border-left:0; }.sheet[data-screen="Account details"] .account-offer-meta { margin-left:0; } }
+body:has(#view-used.active) { background:var(--theme-account-page); }
+.used-summary,.used-record,.used-info-link,.used-more { background:var(--theme-account-panel); }
+.used-filters > button[aria-pressed=true] { background:var(--theme-account-primary); }
+.used-sort select { background:none; border:0; padding:4px 0 4px 6px; }
+:is(.bottom-nav,html[data-layout=desktop] .bottom-nav) { background:var(--theme-account-panel); }
+/* Match the specificity of the retired flat-material rule in ui-refinements. */
+.sheet[data-screen="Account details"] :is(section.account-sheet-hero,details.account-cash-entry,div.account-calculator-panel,section.account-management,details.offer-history) { background:var(--theme-account-panel); }
+.sheet[data-screen="Account details"] .account-offer-meta { margin-bottom:4px; }
+.sheet[data-screen="Account details"] .usage-slot-grid { row-gap:8px; }

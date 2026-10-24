@@ -2578,6 +2578,7 @@
 
     import {
       accountWithManualState,
+      accountManualRecord,
       saveAccountManualRecord,
       confirmedUses,
       consumeManualUse,
@@ -3923,10 +3924,10 @@
     function accountUsageMarkup(promo,knownLimit){
       const e=escapeHtml,key=promoStateKey(promo),model=offerUsageSlots(financeVault.data,promo,manualStore,financeVault.status,knownLimit),{confirmed,manual,total}=model;
       const known=confirmed!=null;
-      const label=known?(manual?`${confirmed} receipt-confirmed · <span class="account-manual-usage">${manual} manually recorded</span>`:`${confirmed}${total!=null?' of '+total:''} uses confirmed`):'<span class="account-usage-unknown" data-usage-state="unknown">Confirmed usage unknown</span>';
+      const label=known?(manual?`${confirmed} confirmed · <span class="account-manual-usage">${manual} manual</span>`:`${confirmed}${total!=null?' of '+total:''} uses confirmed`):'<span class="account-usage-unknown" data-usage-state="unknown">Confirmed usage unknown</span>';
       const line=`<div class="${known?'use-line':'usage-unknown-line'}" aria-live="polite"><span>${label}</span>${model.remaining!=null?`<span>Up to ${model.remaining} left</span>`:''}</div>`;
       const marker=(slot)=>{const date=slot.at?formatDate(slot.at):null,kind=slot.kind,receipt=kind==='confirmed'&&slot.receiptId,manualSlot=kind==='manual';
-        const content=`<span class="usage-segment" aria-hidden="true"></span><span class="usage-marker" aria-hidden="true">${kind==='confirmed'?financeIcon('check'):manualSlot?financeIcon('plus'):kind==='unknown'?'?':slot.number}</span><span class="usage-slot-date">${e(date||(kind==='unused'?'—':kind==='unknown'?'Unknown':'—'))}</span>${kind==='confirmed'?`<strong class="usage-slot-amount">${e(slot.total!=null?money(slot.total):'—')}</strong>`:manualSlot?'<small class="usage-slot-kind">Manual</small>':''}`;
+        const content=`<span class="usage-segment" aria-hidden="true"></span><span class="usage-marker" aria-hidden="true">${kind==='confirmed'?financeIcon('check'):manualSlot?financeIcon('edit'):kind==='unknown'?'?':slot.number}</span><span class="usage-slot-date">${e(date||(kind==='unused'?'—':kind==='unknown'?'Unknown':'—'))}</span>${kind==='confirmed'?`<strong class="usage-slot-amount">${e(slot.total!=null?money(slot.total):'—')}</strong>`:manualSlot?'<small class="usage-slot-kind">Manual</small>':''}`;
         const name=`Use ${slot.number}: ${kind==='manual'?'manually recorded':kind==='unknown'?'confirmation unknown':kind}${date?', '+date:''}${slot.total!=null?', receipt total '+money(slot.total):''}`;
         return `<div role="listitem" class="usage-slot ${kind}"${receipt||manualSlot?'':` aria-label="${e(name)}"`}>${receipt||manualSlot?`<button class="usage-slot-control" ${receipt?`data-account-receipt="${e(slot.receiptId)}" data-receipt-offer="${e(key)}"`:`data-manual-slot="${e(key)}" aria-controls="manage-${e(key)}"`} aria-label="${e(name)}">${content}</button>`:`<div class="usage-slot-control">${content}</div>`}</div>`;
       };
@@ -3967,7 +3968,7 @@
       const e=escapeHtml,ref=context.accountRef,items=allPromosForAccount(ref).filter(p=>p.discountType!=='uberCash'),cash=accountCashState(ref,context.promoKey),id=planner?'plannerAccountPromo':'accountCalcPromo';
       const hasCash=Number(cash.wallet?.remaining)>0,selected=items.find(p=>promoStateKey(p)===context.promoKey),validPromo=selected&&isPromoActive(selected),cashOn=context.includeCash&&cash.usable;
       const options=items.filter(p=>isPromoActive(p)||promoStateKey(p)===context.promoKey).map(p=>`<option value="${e(promoStateKey(p))}"${promoStateKey(p)===context.promoKey?' selected':''}${!isPromoActive(p)?' disabled':''}>${e(accountOfferTitle(p))}${!isPromoActive(p)?' · unavailable':''}</option>`).join('');
-      return `<div class="account-calculator-controls"><label class="account-calculator-promo" for="${id}">${financeIcon('promo-tag')}<select id="${id}" aria-label="Selected promo for calculation">${hasCash||!options?`<option value=""${!context.promoKey?' selected':''}>${hasCash?'No promo / cash only':'No available promo'}</option>`:''}${options}</select>${financeIcon('chevron-down')}</label><label class="account-calculator-cash"><span>Include Uber Cash</span><input id="${planner?'plannerAccountCash':'accountCalcCash'}" type="checkbox" role="switch"${cashOn?' checked':''}${!cash.usable?' disabled':''}><small>${e(cash.description)}</small></label></div>${planner?'':`<button class="account-calculate" data-account-calculate="true"${!accounts.find(a=>a.accountRef===ref)?.canLogin||!validPromo&&!cashOn?' disabled':''}>${financeIcon('calculator')}Calculate what I’ll pay</button><p class="account-calculator-helper">Opens Order Planner with these choices.</p>`}`;
+      return `<div class="account-calculator-controls${!hasCash&&!cash.usable&&cash.description!=='Balance needs checking'?' without-cash':''}"><label class="account-calculator-promo" for="${id}">${financeIcon('promo-tag')}<select id="${id}" aria-label="Selected promo for calculation">${hasCash||!options?`<option value=""${!context.promoKey?' selected':''}>${hasCash?'No promo / cash only':'No available promo'}</option>`:''}${options}</select>${financeIcon('chevron-down')}</label>${hasCash||cash.usable||cash.description==='Balance needs checking'?`<label class="account-calculator-cash"><span>Include Uber Cash</span><input id="${planner?'plannerAccountCash':'accountCalcCash'}" type="checkbox" role="switch"${cashOn?' checked':''}${!cash.usable?' disabled':''}><small>${e(cash.description)}</small></label>`:''}</div>${planner?'':`<button class="account-calculate" data-account-calculate="true"${!accounts.find(a=>a.accountRef===ref)?.canLogin||!validPromo&&!cashOn?' disabled':''}>${financeIcon('calculator')}Calculate what I’ll pay</button><p class="account-calculator-helper">Opens Order Planner with these choices.</p>`}`;
     }
 
     const accountReceiptChildStates=new Map();
@@ -4095,14 +4096,16 @@
     function accountSheetClockKey() {
       return allPromosForAccount(openAccountRef).map(p=>promoStateKey(p)+'|'+offerCountdown(p)).join(';');
     }
-    function accountManagementMarkup(account) {
+    function accountManagementMarkup(account,receiptRule='') {
       const e = escapeHtml;
+      const note=accountManualRecord(manualStore,account).note??account.notes??account.note??'';
       const methods = [...new Set((Array.isArray(account.loginMethods) ? account.loginMethods : account.loginMethod === 'Both' ? ['iCloud','Google'] : [account.loginMethod]).filter(value => ['iCloud','Google'].includes(value)))];
       const access = account.canLogin === true && account.accessStatus !== 'pending' ? 'Can log in' : account.canLogin === false ? 'Can’t log in' : 'Not recorded';
       const archived = accountArchived(currentAccountState(account)), deactivated = account.deactivated || account.accountStatus === 'deactivated';
       return `<section class="account-management" data-disclosure-key="manage-account" data-expanded="false"><h3><button type="button" class="account-management-toggle" id="accountManagementToggle" data-account-management-toggle aria-expanded="false" aria-controls="accountManagementBody">${financeIcon('menu-sliders')}<span>Manage account</span>${financeIcon('chevron-down')}</button></h3><div id="accountManagementBody" class="account-management-body" hidden>
         <dl class="account-record-summary"><div><dt>Login access</dt><dd class="account-record-access${access === 'Can log in' ? ' positive' : ''}">${access === 'Can log in' ? '<span class="status-dot" aria-hidden="true"></span>' : ''}${e(access)}</dd></div><div><dt>Login method</dt><dd class="account-record-methods">${methods.length ? methods.map(method => `<span>${financeIcon(method === 'iCloud' ? 'cloud' : 'google')}${method}</span>`).join('') : 'Not recorded'}</dd></div></dl>
-        <p class="account-record-source">From your account records.</p>
+        ${receiptRule}<p class="account-record-source">From your account records.</p>
+        <section class="account-notes"><div><span>Notes</span><button type="button" class="account-management-action" data-edit-account-note="true">Edit</button></div><p data-account-note-text>${e(note||'No notes')}</p><div data-account-note-editor hidden><label class="sr-only" for="accountNote">Account notes</label><textarea id="accountNote" maxlength="10000" rows="3">${e(note)}</textarea><div><button type="button" class="account-management-action" data-save-account-note="true">Save</button><button type="button" class="account-management-action" data-cancel-account-note="true">Cancel</button></div></div></section>
         <p class="account-management-feedback" role="status" aria-live="polite" hidden></p><div class="account-archive-row">${financeIcon('archive')}<div><span>${archived ? 'Archived account' : 'Archive account'}</span><small>Keeps receipts and history.</small></div><button type="button" class="account-management-action" data-account-archive="${!archived}"${deactivated ? ' disabled' : ''}>${archived ? 'Unarchive' : 'Archive'}</button></div>
       </div></section>`;
     }
@@ -4133,7 +4136,8 @@
         invalidateAccountProjection(); renderAll(); renderAccountSheet();
         document.querySelector('[data-account-archive]')?.focus({preventScroll:true});
         const feedback = document.querySelector('.account-management-feedback');
-        feedback.hidden = false; feedback.textContent = patch.archived ? 'Account archived.' : 'Account unarchived.';
+        feedback.hidden = false; feedback.textContent = 'note' in patch?'Notes saved.':patch.archived ? 'Account archived.' : 'Account unarchived.';
+        if('note' in patch)document.querySelector('[data-edit-account-note]')?.focus({preventScroll:true});
         return true;
       } catch (error) {
         const feedback = document.querySelector('.account-management-feedback');
@@ -4145,6 +4149,9 @@
       const panel = event.target.closest('.account-management'); if (!panel) return;
       if (event.target.closest('[data-account-management-toggle]')) { setAccountManagementOpen(panel, panel.dataset.expanded !== 'true',true); return; }
       const account = accounts.find(row => row.accountRef === openAccountRef); if (!account) return;
+      if(event.target.closest('[data-edit-account-note]')){panel.querySelector('[data-account-note-editor]').hidden=false;panel.querySelector('[data-account-note-text]').hidden=true;panel.querySelector('#accountNote').focus();return;}
+      if(event.target.closest('[data-cancel-account-note]')){panel.querySelector('[data-account-note-editor]').hidden=true;panel.querySelector('[data-account-note-text]').hidden=false;panel.querySelector('#accountNote').value=accountManualRecord(manualStore,account).note??account.notes??account.note??'';panel.querySelector('[data-edit-account-note]').focus();return;}
+      if(event.target.closest('[data-save-account-note]')){commitAccountManagement({note:panel.querySelector('#accountNote').value});return;}
       const archive = event.target.closest('[data-account-archive]'); if (archive && !archive.disabled) commitAccountManagement({archived:archive.dataset.accountArchive === 'true'});
     });
     function renderAccountSheet() {
@@ -4172,7 +4179,7 @@
       const access=account.canLogin===true?'Can log in':account.canLogin===false?'Can’t log in':'Access pending';
       accountSheetClock=accountSheetClockKey();
       const calc=accountCalculator?.accountRef===account.accountRef?accountCalculator:(accountCalculator=initialiseAccountCalculator(account.accountRef,accountOfferToOpen));
-      host.innerHTML=`<div data-account-sheet="${escapeHtml(account.accountRef)}"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">${accountProviderIcon(account)}</span><div class="account-identity-copy"><div class="account-sheet-email">${escapeHtml(accountDisplay(account))}</div><div class="account-login-route">${escapeHtml(loginRouteText(account))}</div></div><span class="account-login-badge${account.canLogin===true?' positive':''}"><span class="status-dot"></span>${escapeHtml(access)}</span></div><div class="account-sheet-actions">${deviceEmail(deviceAccounts,account)?`<button class="account-secondary" data-copy-email="${escapeHtml(account.accountRef)}">${financeIcon('copy')}Copy email</button>`:`<button class="account-secondary" data-copy-import="true">${financeIcon('copy')}Copy email</button>`}<button class="account-primary" data-use-this-account="${escapeHtml(account.accountRef)}"${currentAccountState(account).recommendationEligible?'':' disabled'}>${financeIcon('external')}Use this account</button></div>${receiptMet?`<details class="account-rule-note" data-disclosure-key="receipt-rule"><summary>${financeIcon('check-circle')}Account receipt rule met${financeIcon('chevron-down')}</summary><p>${escapeHtml(receiptHistoryText(account))}. Offers can still be available. Login access and offer completion are independent.</p></details>`:''}</section>${receiptReviewAction(account)}<section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>${summaryCount}</span></div>${!liveItems.length?'<p class="account-no-offers">'+(preferredGroups.other.length?'Other offers are in Past &amp; other offers.':'No current promos.')+'</p>':''}${liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}${currentCash?cashEntry:''}${liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}</section>${reviewItems.length||cashEntry&&!currentCash?`<section class="account-review-offers"><h3>Needs checking</h3>${!currentCash?cashEntry:''}${reviewItems.map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):accountOfferToOpen===promoStateKey(p)})).join('')}</section>`:''}${accountHistoryMarkup(historyGroups,expanded,activeExpanded)}<section class="account-calculator"><div class="account-calculator-panel"><h3>Calculate with</h3>${accountCalculatorMarkup(calc)}</div></section>${accountManagementMarkup(account)}</div>`;
+      host.innerHTML=`<div data-account-sheet="${escapeHtml(account.accountRef)}"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">${accountProviderIcon(account)}</span><div class="account-identity-copy"><div class="account-sheet-email">${escapeHtml(accountDisplay(account))}</div><div class="account-login-route">${escapeHtml(loginRouteText(account))}</div></div><span class="account-login-badge${account.canLogin===true?' positive':''}"><span class="status-dot"></span>${escapeHtml(access)}</span></div><div class="account-sheet-actions">${deviceEmail(deviceAccounts,account)?`<button class="account-secondary" data-copy-email="${escapeHtml(account.accountRef)}">${financeIcon('copy')}Copy email</button>`:`<button class="account-secondary" data-copy-import="true">${financeIcon('copy')}Copy email</button>`}<button class="account-primary" data-use-this-account="${escapeHtml(account.accountRef)}"${currentAccountState(account).recommendationEligible?'':' disabled'}>${financeIcon('external')}Use this account</button></div></section>${receiptReviewAction(account)}<section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>${summaryCount}</span></div>${!liveItems.length?'<p class="account-no-offers">'+(preferredGroups.other.length?'Other offers are in Past &amp; other offers.':'No current promos.')+'</p>':''}${liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}${currentCash?cashEntry:''}${liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}</section>${reviewItems.length||cashEntry&&!currentCash?`<section class="account-review-offers"><h3>Needs checking</h3>${!currentCash?cashEntry:''}${reviewItems.map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):accountOfferToOpen===promoStateKey(p)})).join('')}</section>`:''}${accountHistoryMarkup(historyGroups,expanded,activeExpanded)}<section class="account-calculator"><div class="account-calculator-panel"><h3>Calculate with</h3>${accountCalculatorMarkup(calc)}</div></section>${accountManagementMarkup(account,receiptMet?`<details class="account-rule-note" data-disclosure-key="receipt-rule"><summary>${financeIcon('check-circle')}Account receipt rule met${financeIcon('chevron-down')}</summary><p>${escapeHtml(receiptHistoryText(account))}. Offers can still be available.</p></details>`:'')}</div>`;
       if(previous){restoreAccountDisclosureState({expanded:[...expanded],scroll});}
       if(accountOfferToOpen){
         const credit=[...host.querySelectorAll('[data-credit-offers]')].find(row=>JSON.parse(row.dataset.creditOffers).includes(accountOfferToOpen));
@@ -4518,10 +4525,13 @@
       if (next !== manualStore) { manualStore = next; saveManualStore(); }
     }
 
+    const recentUsageWrites=new Map();
     function commitManualUsage(promo,undo=false){
+      const key=promoStateKey(promo),stamp=performance.now();if(!undo&&stamp-(recentUsageWrites.get(key)||-Infinity)<450)return false;
       let next;
       try{const raw=localStorage.getItem(STATE_KEY),latest=raw?normaliseManualStore(JSON.parse(raw)):manualStore;next=undo?undoManualUse(latest,promo):consumeManualUse(latest,promo);localStorage.setItem(STATE_KEY,JSON.stringify(next));}
       catch{const card=[...document.querySelectorAll('[data-offer-key]')].find(el=>el.dataset.offerKey===promoStateKey(promo));if(card){let alert=card.querySelector('[data-usage-save-error]');if(!alert){alert=document.createElement('p');alert.dataset.usageSaveError='';alert.className='usage-save-error';alert.setAttribute('role','alert');card.querySelector('.account-offer-actions').append(alert);}alert.textContent='Could not save this change. Your recorded uses are unchanged. Try again.';}else showLocalNotice();return false;}
+      if(undo)recentUsageWrites.delete(key);else recentUsageWrites.set(key,stamp);
       manualStore=next;invalidateAccountProjection();renderAll();if(openSheetType==='account')renderAccountSheet();return true;
     }
 
