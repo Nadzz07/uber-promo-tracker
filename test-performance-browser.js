@@ -35,7 +35,7 @@ try {
  assert.equal(await page.locator('#accountsList .account-card').count(),0,'Closed account screen is deferred');
  assert.equal(await page.locator('#usedRecords .used-record').count(),0);
  assert.equal(await page.evaluate(()=>window.__runtime.model()===window.__runtime.model()),true,'Repeated projections reuse derived accounts');
- await page.evaluate(()=>window.originalPlan=window.__runtime.planner());await openHomeDetail(page,'offers');await page.locator('#view-offers [data-home-detail="planner"]').click();assert.equal(await page.evaluate(()=>window.__runtime.planner()===window.originalPlan),true,'Opening detail views reuses unchanged planner calculations');await page.locator('[data-view="home"]').click();
+ await page.evaluate(()=>window.originalPlan=window.__runtime.planner());await openHomeDetail(page,'offers');await page.locator('[data-view=home]').click();await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.evaluate(()=>window.__runtime.planner()===window.originalPlan),true,'Opening detail views reuses unchanged planner calculations');await page.locator('[data-view="home"]').click();
  const renders=await page.evaluate(()=>window.__runtime.renders);await page.clock.fastForward(4*60000);
  assert.equal(await page.evaluate(()=>window.__runtime.renders),renders,'Unchanged minute checks do not reconstruct visible DOM');
  await page.evaluate(async()=>await Promise.all([window.__runtime.reload(),window.__runtime.reload()]));

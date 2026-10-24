@@ -2395,59 +2395,6 @@
           <section id="homeAnalytics" class="home-analytics" aria-label="Receipt activity and savings"></section>
         </section>
       </section>
-<section id="view-offers" class="view home-detail" aria-labelledby="offersTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span></button><h1 id="offersTitle" tabindex="-1">Find an offer</h1><button class="detail-switch" data-home-detail="planner">Order Planner <span aria-hidden="true">›</span></button></div><div id="finderContext" class="finder-context" hidden></div><p class="offer-scope-summary"><span id="offerScopeSummary"></span><button class="metric-help inline-help" data-metric-help="accounts" data-metric-label="Ready to Use" aria-label="Explain offer readiness">i</button></p>        <section class="discovery-column glass offer-browser" aria-labelledby="offersTitle">
-        <div class="search-wrap"><span class="search-icon" data-icon="search" aria-hidden="true"></span><input id="homeOfferSearch" class="search-input" type="search" aria-label="Search offers and accounts" placeholder="Search accounts or offers…" autocomplete="off"></div>
-        <div class="offer-controls"><div class="offer-scope-row"><span data-icon="settings" aria-hidden="true"></span><label for="offerScope">Offer access</label><span id="offerScopeValue" aria-hidden="true">Ready to use</span><svg class="offer-scope-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg><select id="offerScope" class="account-scope" aria-controls="homeAccounts"><option value="ready">Ready to use</option><option value="all">All eligible offers</option><option value="archived">Archived accounts with offers</option><option value="attention">Accounts requiring attention</option></select></div><button class="offer-filter-toggle" aria-controls="offerFilterPanel" aria-expanded="true" data-offer-filters="true"><span data-icon="filter" aria-hidden="true"></span> Filters</button></div>
-
-        <div id="offerFilterPanel"><div id="quickGrid" class="quick-grid">
-          <button class="quick-card active" data-intent="best" aria-pressed="true" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon" data-icon="star"></span><span id="bestCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">Preferred</div></div>
-          </button>
-          <button class="quick-card" data-intent="15off15" aria-pressed="false" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon" data-icon="bag"></span><span id="fifteenCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">£15 off £15</div></div>
-          </button>
-          <button class="quick-card" data-intent="12off15" aria-pressed="false" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon" data-icon="bag"></span><span id="twelveCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">£12 off £15</div></div>
-          </button>
-          <button class="quick-card" data-intent="cash" aria-pressed="false" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon" data-icon="wallet"></span><span id="cashCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">Uber Cash</div></div>
-          </button>
-          <button class="quick-card" data-intent="10off15" aria-pressed="false" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon" aria-hidden="true" data-icon="history"></span><span id="tenCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">£10 off £15</div></div>
-          </button>
-          <button class="quick-card" data-intent="cash-promo" aria-pressed="false" aria-controls="homeAccounts">
-            <div class="quick-top"><span class="quick-icon" aria-hidden="true" data-icon="wallet"></span><span id="cashPromoCount" class="quick-count">0</span></div>
-            <div><div class="quick-title">Cash + promo</div></div>
-          </button>
-        </div><details class="finder-progress-filter"><summary>Promotion progress</summary><button data-intent="unfinished" aria-pressed="false">Not finished <span id="unfinishedCount">0</span></button></details></div>
-
-        <div class="finder-offer-type"><label for="finderOfferType">Offer type</label><select id="finderOfferType" aria-label="Offer type"></select><button data-preferred-default="true">Use preferred defaults</button></div>
-        <section class="best-section" aria-labelledby="homeAccountsTitle">
-        <div class="section-head">
-          <div>
-            <div id="accountsKicker" class="eyebrow">Best deal</div>
-            <h2 id="homeAccountsTitle" class="section-title">Best matches</h2>
-          </div>
-          <div id="homeAccountMeta" class="section-meta" role="status" aria-live="polite" aria-atomic="true"></div>
-        </div>
-
-        <div id="homeAccounts" class="account-list"></div>
-        <div class="results-tools"><button id="resetQuickFind" class="text-btn" data-reset-intent="true" hidden>All available offers <span aria-hidden="true">↗</span></button></div>
-        <details class="offer-matching-help"><summary><span data-icon="info" aria-hidden="true"></span><span><strong>Check offer eligibility in Uber</strong><small>Confirm offers and remaining uses in Uber.</small></span></summary><p id="homeResultsHelp"></p><details class="offer-filter-help"><summary>About offer filters</summary><dl><dt>Best deal</dt><dd>Strongest available account right now.</dd><dt>£15 off £15</dt><dd>Full-value minimum-spend offers.</dd><dt>£12 off £15</dt><dd>£12 discount with a £15 minimum spend.</dd><dt>Uber Cash</dt><dd>Current email offers. Confirm your wallet balance in Uber.</dd><dt>Not finished</dt><dd>Started promos with at least one use remaining.</dd><dt>Uber Cash + promo</dt><dd>Both offer types recorded on the same account. Combining them depends on Uber.</dd></dl></details></details>
-        <div id="homeResultsFooter" class="results-footer"></div>
-
-        <details id="weakWrap" class="weak-wrap">
-          <summary id="weakSummary">Other available accounts</summary>
-          <div id="weakAccounts" class="weak-inner account-list"></div>
-        </details>
-        </section>
-        </section>
-</section>
 <section id="view-planner" class="view home-detail" aria-labelledby="plannerTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span></button><h1 id="plannerTitle" tabindex="-1">Order Planner</h1><button class="detail-switch" data-home-detail="offers">Find an offer <span aria-hidden="true">›</span></button></div>        <div class="planner-column">
         <section class="hero-card glass">
           <div class="basket-editor">
@@ -2485,13 +2432,13 @@
         <div id="receiptInsightsBody"></div>
       </section>
       <section id="view-accounts" class="view">
-        <header class="accounts-head"><h1 id="accountsTitle" tabindex="-1">Accounts</h1><button class="accounts-find" data-directory-find="true"><span data-icon="search" aria-hidden="true"></span>Find an offer <span aria-hidden="true">›</span></button></header>
+        <header class="accounts-head"><h1 id="accountsTitle" tabindex="-1">Accounts</h1></header>
         <div class="accounts-summary" aria-label="Account totals">
-          <div class="accounts-stat"><div><span>Total accounts</span><strong id="accountsTotal">0</strong></div><button class="metric-help" data-metric-help="Total Accounts" data-metric-label="Total accounts" aria-label="Explain Total accounts">i</button></div>
-          <div class="accounts-stat"><div><span><i class="accounts-login-dot" aria-hidden="true"></i>Can log in</span><strong id="accountsAccessible">0</strong></div><button class="metric-help" data-metric-help="Accessible" data-metric-label="Can log in" aria-label="Explain Can log in">i</button></div>
+          <div class="accounts-stat"><div><span>Total accounts</span><strong id="accountsTotal">0</strong></div><button class="metric-help" data-metric-help="Total Accounts" data-metric-label="Total accounts" aria-label="Explain Total accounts"><span data-icon="info" aria-hidden="true"></span></button></div>
+          <div class="accounts-stat"><div><span><i class="accounts-login-dot" aria-hidden="true"></i>Can log in</span><strong id="accountsAccessible">0</strong></div><button class="metric-help" data-metric-help="Accessible" data-metric-label="Can log in" aria-label="Explain Can log in"><span data-icon="info" aria-hidden="true"></span></button></div>
         </div>
         <div class="search-wrap"><span class="search-icon" data-icon="search" aria-hidden="true"></span><input id="accountSearch" class="search-input" type="search" aria-label="Search accounts" placeholder="Search accounts" autocomplete="off"></div>
-        <div id="accountLoginTabs" class="account-login-tabs" role="group" aria-label="Login access"><button data-login-filter="all" aria-pressed="true">All</button><button data-login-filter="login" aria-pressed="false">Can log in</button><button data-login-filter="locked" aria-pressed="false">Can’t log in</button></div>
+        <div id="accountLoginTabs" class="account-login-tabs" role="group" aria-label="Login access"><button data-login-filter="login" aria-pressed="false">Can log in</button><button data-login-filter="locked" aria-pressed="false">Can’t log in</button><button data-login-filter="all" aria-pressed="true">All</button></div>
         <div class="account-control-row"><label class="directory-select"><select id="accountProvider" aria-label="Login provider"><option value="all">All providers</option></select><span data-icon="chevron-down" aria-hidden="true"></span></label><label class="directory-select"><select id="accountSort" aria-label="Sort accounts"><option value="best">Best offer</option><option value="email">Email</option></select><span data-icon="chevron-down" aria-hidden="true"></span></label></div>
         <div class="account-type-picker"><div class="account-picker-label"><label id="accountTypeLabel">Offer type</label><button id="clearAccountType" type="button">Clear</button></div><button id="accountTypeTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="accountTypeOptions" aria-labelledby="accountTypeLabel accountTypeValue"><span data-icon="tag" aria-hidden="true"></span><span id="accountTypeValue">All offers</span><span class="account-picker-chevron" aria-hidden="true">⌄</span></button><div id="accountTypeOptions" role="listbox" aria-labelledby="accountTypeLabel" hidden></div></div>
         <div id="accountPreferredChips" class="account-preferred-chips" role="group" aria-label="Preferred offer filters"></div>
@@ -2638,11 +2585,10 @@
     const snapshotCache = new Map();
     let loadError = false;
     let currentView = "home";
-    let currentIntent = "best";
-    let currentOfferScope = "ready";
+
+
     let accountOfferScope = "any";
     let accountLoginFilter = "all", accountProviderFilter = "all", accountSort = "best", accountTypeFilter = selectedOfferScope(offerPreferences);
-    let finderFilters = {accountRef:null, type:offerPreferences.defaultView, login:"all", provider:"all", followsDefault:true};
     let usedState={status:"used",query:"",sort:"latest",full:false,limit:24};
     let usedRecordIndex=new Map();
     let accountFilter = "all";
@@ -2683,7 +2629,7 @@
       requestAnimationFrame(updateNavGlider);
       queueDetailViewport();
       if (previous !== root.dataset.layout) requestAnimationFrame(() => {
-        if (accounts.length) renderHomeAccounts();
+        if (accounts.length) renderAccounts();
       });
     }
 
@@ -2949,19 +2895,12 @@
 
     function discoveryAccess(account,scope){return matchesOfferScope({...account,hasEligibleOffers:account.hasEligibleOffers||hasCurrentCash(account),recommendationEligible:account.recommendationEligible||hasCurrentCash(account)&&account.canLogin===true&&!account.archived},scope);}
     function saveOfferState(next){try{offerPreferences=saveOfferPreferences(localStorage,next);return true;}catch{document.getElementById('localNotice').hidden=false;document.getElementById('localNotice').textContent='Offer preferences could not be saved. Browser storage is unavailable.';return false;}}
-    function applyOfferScope(value,explicit=true,context=currentView==='accounts'?'directory':'finder'){
-      if(context==='directory'){
-        if(!saveOfferState({...offerPreferences,selection:explicit?value:null}))return;
-        accountTypeFilter=selectedOfferScope(offerPreferences);accountDisplayLimit=48;
-      }else{
-        finderFilters.type=explicit?value:offerPreferences.defaultView;finderFilters.followsDefault=!explicit;
-        const intents={'preferred':'best','fixed:10:15':'10off15','fixed:12:15':'12off15','fixed:15:15':'15off15','cash':'cash','cash-promo':'cash-promo'};
-        currentIntent=intents[finderFilters.type]||'best';
-      }
-      renderAll();
+    function applyOfferScope(value,explicit=true){
+      if(!saveOfferState({...offerPreferences,selection:explicit?value:null}))return;
+      accountTypeFilter=selectedOfferScope(offerPreferences);accountDisplayLimit=48;renderAll();
     }
     function offerCatalogueChoices(){return [...new Map([...DEFAULT_PREFERRED_PROMOS.map(key=>({key,label:offerScopeLabel(key)})),...mainOfferChoices(offerPreferences).filter(c=>/^(fixed|percent):/.test(c.key)), ...accountOfferChoices([{promos}]).map(c=>({key:c.key,label:offerScopeLabel(c.key)}))].map(c=>[c.key,c])).values()];}
-    function chooseOtherOffers(opener){closeAccountPicker();openOfferCatalogue({choices:offerCatalogueChoices().filter(c=>!mainOfferChoices(offerPreferences).some(m=>m.key===c.key)),selected:[currentView==='accounts'?accountTypeFilter:finderFilters.type],opener,onApply:value=>applyOfferScope(value)});}
+    function chooseOtherOffers(opener){closeAccountPicker();openOfferCatalogue({choices:offerCatalogueChoices().filter(c=>!mainOfferChoices(offerPreferences).some(m=>m.key===c.key)),selected:[accountTypeFilter],opener,onApply:value=>applyOfferScope(value)});}
     function decisionPromos() {
       if(privateMigrationPending)return [];
       const eligible = new Set(accounts.map(currentAccountState).filter(a => a.recommendationEligible).map(a => a.accountRef));
@@ -3091,52 +3030,6 @@
 
     function enrichedAvailableAccounts() {
       return enrichedLoginAccounts().filter(account => account.recommendationEligible);
-    }
-
-    function homeAccountsByIntent() {
-      let list = finderAccounts().filter(account => discoveryAccess(account, currentOfferScope));
-      const search = document.getElementById("homeOfferSearch").value.trim().toLowerCase();
-      if (search) list = list.filter(account => [accountDisplay(account), account.accountRef, loginMethodLabel(account), ...account.promos.map(offerTitle)].join(" ").toLowerCase().includes(search));
-
-      if (currentIntent === "10off15") {list=list.filter(a=>a.promos.some(p=>accountOfferKey(p)==='fixed:10:15'&&p.minimumSpendVerified!==false));
-      } else if (currentIntent === "15off15") {
-        list = list.filter(account => account.has15off15);
-      } else if (currentIntent === "12off15") {
-        list = list.filter(account => account.has12off15);
-      } else if (currentIntent === "cash") {
-        list = list.filter(account => account.hasCash);
-      } else if (currentIntent === "unfinished") {
-        list = list.filter(account => account.promos.some(promo => offerInProgress(promo)));
-      } else if (currentIntent === "cash-promo") {
-        list = list.filter(account => account.hasCashAndPromo);
-      }
-
-      return list.sort((a, b) => {
-        const readiness = offerReadinessRank(a) - offerReadinessRank(b);
-        if (readiness) return readiness;
-        if (currentIntent === "cash" && a.hasCash !== b.hasCash) return Number(b.hasCash) - Number(a.hasCash);
-        if (a.accountRef === selectedAccountRef && b.accountRef !== selectedAccountRef) return -1;
-        if (b.accountRef === selectedAccountRef && a.accountRef !== selectedAccountRef) return 1;
-
-        const saveA = a.bestNow?.calculation?.saving || 0;
-        const saveB = b.bestNow?.calculation?.saving || 0;
-
-        if (saveB !== saveA) return saveB - saveA;
-        if (b.promoCount !== a.promoCount) return b.promoCount - a.promoCount;
-
-        return String(b.lastPromoAt || "").localeCompare(String(a.lastPromoAt || ""));
-      });
-    }
-
-    function weakAccount(account, strongest) {
-      if (account.accountRef === selectedAccountRef) return false;
-      if (currentIntent !== "best" || !strongest) return false;
-      if (account.has15off15 || account.hasCash || account.hasMultiUse || account.promoCount > 1) return false;
-
-      const best = Number(account.bestNow?.calculation?.saving || 0);
-      const strongestSaving = Number(strongest.bestNow?.calculation?.saving || 0);
-
-      return best <= 4 || (strongestSaving > 0 && best < strongestSaving * .45);
     }
 
     document.getElementById('editBasket').addEventListener('click', () => {
@@ -3376,177 +3269,10 @@
     function missingDetailsCount() {const local=privateReceiptReview(),published=Number(payload.summary?.financialBreakdown?.missing||0);return local?.version===1?local.summary.missing:Math.max(local?.summary.missing||0,published);}
     function receiptReviewAction(account) {const count=receiptReviewCount(account);return count?'<button class="sheet-action-row receipt-review-action" data-open-sheet="finance" data-finance-target="receipt" data-finance-missing="true" data-finance-account="'+escapeHtml(account.accountRef)+'">'+financeIcon('receipt')+'<span>Missing details · '+count+' receipt'+(count===1?'':'s')+'<small>Refund or adjustment · check final amounts</small></span></button>':'';}
 
-    function accountCard(account, index = 0, context = "accounts", preview = false) {
-      const current = account.promos || activePromosForAccount(account.accountRef);
-      const scoped = plannerOffersForScope(current,[account],finderFilters.type,offerPreferences);
-      const eligibleOffers = scoped.filter(p=>p.discountType!=='uberCash');
-      const best = rankPromosForSpend(eligibleOffers,currentBasket(),{service:"Uber Eats",accountRef:account.accountRef,accessibleOnly:false})[0] || null;
-      const cashOnly = finderFilters.type==='cash'||!eligibleOffers.length&&hasCurrentCash(account);
-      const cashOffer = cashOnly ? current.find(p=>p.discountType==='uberCash')||account.cashHistory?.[0] : null;
-      const displayedOffer = cashOffer || (context==='unfinished'?current.find(p=>offerInProgress(p)):null) || best?.promo || eligibleOffers[0];
-      const pills = [];
-      const readiness = offerReadinessLabel(account);
-      /* Cash activation is explained once as text below the offer. */
-
-      if (account.accountRef === selectedAccountRef) {
-        pills.push('<span class="pill good">Chosen account</span>');
-      } else if (context === "best" && index === 0 && currentIntent === "best" && best && currentAccountState(account).recommendationEligible) {
-        pills.push('<span class="pill good">Best now</span>');
-      }
-
-      const multi = displayedOffer && Number(displayedOffer.uses || 1) > 1 ? displayedOffer : null;
-      const ending = displayedOffer && expiryEndTime(displayedOffer) != null ? displayedOffer : null;
-      if (ending) pills.push('<span class="pill expiry-pill' + (isExpiringSoon(ending) ? ' warn' : '') + '">' + escapeHtml(offerCountdown(ending) + ' · ' + new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short' }).format(expiryEndTime(ending))) + '</span>');
-      if (multi) pills.push(offerUsePill(multi));
-
-      const headline =
-        displayedOffer?.title ||
-        "No promos available";
-
-      const save =
-        cashOffer
-          ? '<div class="save-now">' + escapeHtml(money(cashOffer.discount)) + '<small>offer value</small></div>'
-          : best
-          ? '<div class="save-now">-' + escapeHtml(money(best.calculation.saving)) +
-              '<small>on ' + escapeHtml(money(currentBasket())) + '</small></div>'
-          : '<div class="save-now" style="color:var(--muted)">—<small>no eligible saving</small></div>';
-
-      if (preview) {
-        const offer = displayedOffer;
-        const isCash = offer?.discountType === 'uberCash';
-        const primary = isCash?money(account.cashPosition?.remaining??offer.discount)+' Uber Cash':!offer ? 'No promos available' : promoLabel(offer) +
-          (!isCash&&accountOfferKey(offer)?.endsWith(':unknown')?' · minimum not shown':!isCash && Number(offer.minimumSpend) > 0 ? ' ' + money(offer.minimumSpend) : '');
-        const chosen = account.accountRef === selectedAccountRef;
-        const bestNow = !chosen && context === 'best' && index === 0 && best && currentAccountState(account).recommendationEligible;
-        const description = isCash ? (account.cashPosition?.status==='verified'?'Manually verified balance':'Estimated remaining · based on recorded usage') : offer &&
-          (Number(offer.uses || 1) > 1 || useCountNeedsReview(offer)) ? offerTitle(offer) : '';
-        const cap = offer?.discountType === 'percent' ? offer.perUseCap ?? offer.maxSaving : null;
-        const expiry = ending ? offerCountdown(ending) + ' · ' + new Intl.DateTimeFormat('en-GB', {timeZone:'Europe/London',day:'numeric',month:'short'}).format(expiryEndTime(ending)) : '';
-        const allowance = multi ? offerUseSummary(multi) : '';
-        const uses = allowance.split(' · ')[0];
-        const meta = [ending ? '<time class="expiry-pill" datetime="' + escapeHtml(new Date(expiryEndTime(ending)).toISOString()) + '" title="' + escapeHtml(expiry) + '" aria-label="' + escapeHtml(expiry) + '">' + escapeHtml(offerCountdown(ending)) + '</time>' : '', multi ? '<span class="pill-row"><span class="pill" role="note" title="' + escapeHtml(allowance) + '" aria-label="' + escapeHtml(allowance) + '">' + escapeHtml(uses) + '</span></span>' : ''].filter(Boolean).join('<span aria-hidden="true">·</span>');
-        return '<article class="account-card offer-preview-card' + (chosen ? ' picked' : '') + '" data-card-account="' + escapeHtml(account.accountRef) + '">' +
-          '<div class="account-top"><div class="account-identity"><span class="app-icon-surface account-provider" aria-hidden="true">' + accountProviderIcon(account) + '</span><div class="account-identity-copy"><div class="account-email">' + escapeHtml(accountDisplay(account)) + '</div><div class="account-login-route">' + escapeHtml(loginRouteText(account)) + '</div></div></div><span class="pill account-access-pill' + (account.canLogin === true ? ' good' : '') + '">' + (account.canLogin === true ? 'Can log in' : account.canLogin === false ? 'Can’t log in' : 'Access pending') + '</span><button class="offer-preview-open" data-account-offers="' + escapeHtml(account.accountRef) + '" data-account-offer="' + escapeHtml(offer?.id || '') + '" aria-label="View account ' + escapeHtml(accountDisplay(account)) + '"><span aria-hidden="true">›</span></button></div>' +
-          '<div class="offer-preview-content"><div class="offer-preview-primary"><div class="account-offer">' + escapeHtml(primary) + '</div>' +
-          (chosen || bestNow ? '<span class="offer-preview-best">' + (chosen ? 'Chosen' : 'Best now') + '</span>' : '') + '</div>' +
-          (description ? '<div class="offer-preview-description">' + escapeHtml(description) + '</div>' : '') +
-          (cap != null ? '<div class="offer-preview-description">Up to ' + escapeHtml(money(cap)) + ' per order</div>' : '') +
-          (meta ? '<div class="offer-preview-meta">' + financeIcon('calendar') + '<span class="offer-preview-meta-items">' + meta + '</span></div>' : '') +
-          (!currentAccountState(account).recommendationEligible ? '<div class="offer-preview-restriction account-readiness needs-attention">' + escapeHtml(readiness) + '</div>' : '') +
-          '</div>' + receiptReviewAction(account) + '</article>';
-      }
-
-      return (
-        '<article class="account-card' + (account.accountRef === selectedAccountRef ? ' picked' : '') + '" data-card-account="' + escapeHtml(account.accountRef) + '">' +
-          '<div class="account-top">' +
-            '<div class="account-identity"><span class="app-icon-surface account-provider" aria-hidden="true">' + accountProviderIcon(account) + '</span><div class="account-identity-copy">' +
-              '<div class="account-email">' + escapeHtml(accountDisplay(account)) + '</div>' +
-              '<div class="account-login-route">' + escapeHtml(loginRouteText(account)) + '</div>' +
-            '</div></div>' +
-            '<span class="pill account-access-pill' + (account.canLogin === true ? ' good' : '') + '">' + (account.canLogin === true ? 'Can log in' : account.canLogin === false ? 'Can’t log in' : 'Access pending') + '</span>' +
-          '</div>' +
-          '<div class="account-offer">' + escapeHtml(headline) + '</div>' +
-          '<div class="account-saving-summary">' + save + '</div>' +
-          (pills.length ? '<div class="pill-row">' + pills.join("") + '</div>' : '') +
-          (current.some(p => p.discountType === 'uberCash') ? '<div class="account-cash-note">Cash offer · wallet unverified. Confirm in Uber.</div>' : '') +
-          '<div class="account-readiness' + (account.recommendationEligible ? '' : ' needs-attention') + '">' + escapeHtml(readiness) + '</div>' +
-          '<div class="account-progress-note">' + escapeHtml(context === 'best' || ['15off15','12off15','cash','cash-promo','unfinished'].includes(context) ? '' : accountStatusLabel(currentAccountState(account)) + ' · ' + receiptHistoryText(account)) + '</div>' +
-          receiptReviewAction(account) +
-          '<div class="account-actions">' +
-            '<button class="ghost-btn" data-account-offers="' + escapeHtml(account.accountRef) + '">View account</button>' +
-          '</div>' +
-        '</article>'
-      );
-    }
-
-    function renderQuickCounts() {
-      const list = enrichedAccounts().filter(account => discoveryAccess(account, currentOfferScope));
-      const counts = eligibleAccountCounts(enrichedAccounts());
-      document.getElementById('homeReadyCount').textContent = counts.ready.toLocaleString('en-GB') + ' ready to use';
-      document.getElementById('offerScopeSummary').textContent = 'All offers · ' + counts.ready + ' ready · ' + counts.attention + ' need attention';
-      document.getElementById('offerScope').value = currentOfferScope;
-      document.getElementById('offerScopeValue').textContent = document.getElementById('offerScope').selectedOptions[0].textContent;
-      setAnimatedText("bestCount", list.filter(a=>matchesDiscoveryScope(a,'preferred',offerPreferences)).length);
-      setAnimatedText("fifteenCount", list.filter(account => account.has15off15).length);
-      setAnimatedText("twelveCount", list.filter(account => account.has12off15).length);
-      setAnimatedText("cashCount", list.filter(account => account.hasCash).length);
-      const unfinished = list.filter(account => account.promos.some(promo => offerInProgress(promo))).length;
-      setAnimatedText("unfinishedCount",unfinished);
-      const cashAndPromo = list.filter(account => account.hasCashAndPromo).length;
-      setAnimatedText("tenCount", list.filter(a=>a.promos.some(p=>accountOfferKey(p)==='fixed:10:15'&&p.minimumSpendVerified!==false)).length);
-      setAnimatedText("cashPromoCount", cashAndPromo);
-    }
-
-    function renderHomeAccounts() {
-      if(currentIntent!=='unfinished')currentIntent=({preferred:'best','fixed:10:15':'10off15','fixed:12:15':'12off15','fixed:15:15':'15off15',cash:'cash','cash-promo':'cash-promo'})[finderFilters.type]||'best';
-      if(privateMigrationPending){document.getElementById("homeAccounts").innerHTML='<div class="empty">Import the updated private login file to restore your saved promotion decisions. Recommendations are paused until then.<button class="advanced-btn" data-open-sheet="device">Import private file</button></div>';return;}
-      const previewLimit = document.documentElement.dataset.layout === 'mobile' ? 2 : window.innerWidth >= 1280 ? 3 : 2;
-      renderQuickCounts();
-      renderFinderContext();
-      const shortChoices=mainOfferChoices(offerPreferences);document.getElementById('finderOfferType').innerHTML=shortChoices.map(c=>'<option value="'+c.key+'">'+escapeHtml(c.label)+'</option>').join('');document.getElementById('finderOfferType').value=shortChoices.some(c=>c.key===finderFilters.type)?finderFilters.type:'other';
-
-      const all = homeAccountsByIntent();
-      const strongest = all[0] || null;
-      const weak = [];
-      const strong = all;
-      document.getElementById("homeAccounts").dataset.count = Math.min(strong.length, previewLimit);
-
-      const names = {
-        best: offerScopeLabel(finderFilters.type),
-        "10off15":"£10 off £15",
-        "15off15": "£15 off £15",
-        "12off15": "£12 off £15",
-        cash: "Uber Cash",
-        unfinished: "Not finished",
-        "cash-promo": "Uber Cash + promo"
-      };
-
-      document.getElementById("accountsKicker").textContent = names[currentIntent];
-      document.getElementById("homeAccountMeta").textContent = all.length + (all.length === 1 ? ' account' : ' accounts');
-      const help = { best: 'Estimate for this basket.', '15off15': 'Full-value offers with a £15 minimum spend.', '12off15': '£12 off £15 · before fees.', cash: 'Estimated or privately verified remaining Cash.', unfinished: 'Started promotions with uses remaining.', 'cash-promo': 'Positive remaining Cash and an available promo on the same account. Compatibility needs confirmation.' };
-      document.getElementById('homeAccountsTitle').textContent = 'Best matches';
-      document.getElementById('homeResultsHelp').textContent = (help[currentIntent]||'Match actual discount and minimum-spend terms.') + (currentOfferScope === 'ready' ? ' Ready to use only.' : ' Check login access before use.') + ' Confirm availability in Uber.';
-      document.getElementById('resetQuickFind').hidden = finderFilters.type==='all'&&currentIntent!=='unfinished';
-      document.querySelectorAll('[data-intent]').forEach(button => {
-        const selected = button.dataset.intent === currentIntent && (currentIntent!=='best'||finderFilters.type==='preferred');
-        button.classList.toggle('active', selected);
-        button.setAttribute('aria-pressed', String(selected));
-      });
-      document.getElementById('homeAccounts').innerHTML = strong.length
-        ? strong.slice(0, previewLimit).map((account, index) => accountCard(account, index, currentIntent, true)).join('')
-        : '<div class="empty">' + (preferredScopeEmpty(finderFilters.type)?emptyPreferredNotice():currentIntent === 'unfinished' ? 'No confirmed started promos in this group. Offers with no confirmed usage are in Best deal; expired offers stay in Activity.' : 'No account matches this category right now.') + '</div>';
-      const targetFilter = currentIntent === 'best' ? 'offers' : currentIntent;
-      document.getElementById('homeResultsFooter').innerHTML = strong.length > previewLimit
-        ? '<button class="advanced-btn" aria-label="View all ' + strong.length + ' matching accounts; showing ' + previewLimit + '" data-jump-accounts="true" data-target-filter="' + targetFilter + '" data-target-scope="' + currentOfferScope + '">View all ' + strong.length + ' accounts <span aria-hidden="true">›</span></button>'
-        : '';
-
-      const wrap = document.getElementById("weakWrap");
-      wrap.style.display = weak.length ? "block" : "none";
-      document.getElementById("weakSummary").textContent =
-        "Other available accounts · " + weak.length;
-      document.getElementById("weakAccounts").innerHTML =
-        weak.slice(0, 16).map(account => accountCard(account)).join("") +
-        (weak.length > 16
-          ? '<button class="ghost-btn" style="width:100%;margin-top:8px;text-align:center" data-jump-accounts="true">View all available accounts</button>'
-          : "");
-    }
-
     function preferredScopeEmpty(selection=accountTypeFilter){return selection==='preferred'&&!offerPreferences.preferredPromos.length&&!offerPreferences.includeCash;}
     function emptyPreferredNotice(){return 'No preferred offer categories are enabled. Choose Preferred promos or enable Uber Cash in Settings.';}
     function accountTypeChoices(){return mainOfferChoices(offerPreferences);}
     function accountTypeLabel(key){return key==='preferred'?'Preferred offers':offerScopeLabel(key);}
-    function finderAccounts() {
-      return enrichedAccounts().filter(a=>(!finderFilters.accountRef || a.accountRef===finderFilters.accountRef) && matchesDiscoveryScope(a,finderFilters.type,offerPreferences) && accountMatchesLogin(a,finderFilters.login) && accountMatchesProvider(a,finderFilters.provider));
-    }
-    function renderFinderContext() {
-      const account=enrichedAccounts().find(a=>a.accountRef===finderFilters.accountRef), bits=[];
-      if(account)bits.push('<span>Account: '+escapeHtml(accountDisplay(account))+'<button data-clear-finder-account="true" aria-label="Clear account filter">×</button></span>');
-      if(finderFilters.type!=='all')bits.push('<span>'+escapeHtml(accountTypeLabel(finderFilters.type))+'</span>');
-      if(finderFilters.login!=='all')bits.push('<span>'+ (finderFilters.login==='login'?'Can log in':'Can’t log in')+'</span>');
-      if(finderFilters.provider!=='all')bits.push('<span>'+escapeHtml(finderFilters.provider)+'</span>');
-      if(bits.length)bits.push('<button data-clear-finder-filters="true">Clear filters</button>');
-      const node=document.getElementById('finderContext');node.hidden=!bits.length;node.innerHTML=bits.join('');
-    }
     function directoryCard(account) {
       const offers=account.directoryOffers||account.promos||[],selected=accountTypeFilter==='cash'?null:offers.find(p=>p.discountType!=='uberCash');
       const wallet=account.cashPosition,cash=hasCurrentCash(account);
@@ -3554,12 +3280,12 @@
       const status=account.canLogin===true&&account.accessStatus!=='pending'?'Can log in':account.canLogin===false?'Can’t log in':'Access pending';
       const usage=selected?offerUsageEvidence(financeVault.data,selected,financeVault.status):null,pending=selected?pendingManualUses(manualStore,selected):0;
       const knownLimit=selected?.usesVerified===true&&Number.isInteger(Number(selected.uses))&&Number(selected.uses)>0;
-      const usageText=selected?.hiddenByPromoUse?'Hidden · another promo used':usage?.confirmed!=null?(usage.confirmed+(knownLimit?'/'+selected.uses:'')+' confirmed'+(knownLimit&&!usage.partial?' · Up to '+Math.max(0,Number(selected.uses)-usage.confirmed-pending)+' left':'')):'';
+      const usageText=selected?.hiddenByPromoUse?'Hidden · another promo used':usage?.confirmed!=null?(usage.confirmed+' confirmed'+(pending?' · '+pending+' manual':'')+(knownLimit&&!usage.partial?' · Up to '+Math.max(0,Number(selected.uses)-usage.confirmed-pending)+' left':'')):'Usage not checked'+(pending?' · '+pending+' manual':'');
       const minimum=selected&&(selected.minimumSpend==null||selected.minimumSpendVerified===false)?'Minimum spend unknown':selected&&Number(selected.minimumSpend)>0?money(selected.minimumSpend)+' minimum':'No minimum';
       const cashExpiry=wallet?.grants?.map(g=>g.expiresAt).filter(Boolean).sort()[0];
-      const promo=selected?'<div class="directory-offer-row">'+financeIcon('tag')+'<div><strong>'+escapeHtml(accountOfferTitle(selected))+'</strong><small>'+escapeHtml(minimum+' · '+accountOfferExpiry(selected))+'</small>'+(usageText?'<small class="directory-use-limit">'+escapeHtml(usageText)+'</small>':'')+(pending?'<small>'+pending+' manual '+(pending===1?'use':'uses')+'</small>':'')+'</div></div>':'';
+      const promo=selected?'<div class="directory-offer-row">'+financeIcon('tag')+'<div><strong>'+escapeHtml(accountOfferTitle(selected))+'</strong><small>'+escapeHtml(minimum+' · '+accountOfferExpiry(selected))+'</small>'+(usageText?'<small class="directory-use-limit">'+escapeHtml(usageText)+'</small>':'')+'</div></div>':'';
       const credit=cash?'<div class="directory-offer-row directory-cash">'+financeIcon('wallet')+'<div><strong>'+escapeHtml(money(wallet.remaining))+' Uber Cash</strong><small>'+escapeHtml(walletLabel+(!selected&&cashExpiry?' · '+offerCountdown({expiresAt:cashExpiry,expiryStatus:'exact'}):''))+'</small></div></div>':'';
-      return '<article class="account-card directory-card" data-card-account="'+escapeHtml(account.accountRef)+'"><button class="directory-account-head" data-account-offers="'+escapeHtml(account.accountRef)+'" data-account-offer="'+escapeHtml(selected?.id||(accountTypeFilter==='cash'?'cash':''))+'" aria-label="View account '+escapeHtml(accountDisplay(account))+'"><span class="directory-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="directory-identity"><span class="account-email">'+escapeHtml(accountDisplay(account))+'</span><span class="account-login-route">'+escapeHtml(loginRouteText(account))+'</span></span><span class="account-access-pill '+(status==='Can log in'?'positive':'')+'">'+escapeHtml(status)+'</span><span class="directory-chevron" aria-hidden="true">›</span></button>'+
+      return '<article class="account-card directory-card'+(selectedAccountRef===account.accountRef?' picked':'')+'" data-card-account="'+escapeHtml(account.accountRef)+'"><button class="directory-account-head" data-account-offers="'+escapeHtml(account.accountRef)+'" data-account-offer="'+escapeHtml(selected?.id||(accountTypeFilter==='cash'?'cash':''))+'" aria-label="View account '+escapeHtml(accountDisplay(account))+'"><span class="directory-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="directory-identity"><span class="account-email">'+escapeHtml(accountDisplay(account))+'</span><span class="account-login-route">'+escapeHtml(loginRouteText(account))+'</span>'+(selectedAccountRef===account.accountRef?'<small class="directory-selected">Chosen account</small>':'')+'</span><span class="account-access-pill '+(status==='Can log in'?'positive':'')+'">'+escapeHtml(status)+'</span><span class="directory-chevron" aria-hidden="true">›</span></button>'+
         '<div class="directory-offers'+(selected&&cash?' has-cash':'')+'">'+promo+credit+'</div>'+(!selected&&!cash?'<p class="directory-no-offer">No current offers</p>':'')+(account.archived?'<small class="directory-account-status">Archived</small>':'')+receiptReviewAction(account)+'<button class="directory-view-offers" data-directory-offers="'+escapeHtml(account.accountRef)+'">View offers <span aria-hidden="true">›</span></button></article>';
     }
     function closeAccountPicker(restore=false) {
@@ -3763,7 +3489,7 @@
 
     function refreshOfferPreferences(next){
       if(!saveOfferState(next))return false;
-      accountTypeFilter=selectedOfferScope(offerPreferences);if(finderFilters.followsDefault)finderFilters.type=offerPreferences.defaultView;closeAccountPicker();
+      accountTypeFilter=selectedOfferScope(offerPreferences);closeAccountPicker();
       invalidateAccountProjection();plannerComparisonCache=null;selectedPlannerKey=null;renderAll();return true;
     }
     function drawColourWheel(wheel) {
@@ -4275,24 +4001,6 @@
           : '<div class="empty">No account matches that search.</div>';
     }
 
-    function renderSavingsSheet() {
-      const summary=payload.summary||{}, financial=summary.financialBreakdown||{}, categories=financial.categories||{};
-      const labels={eatsPromotions:'Eats promotions',ridePromotions:'Ride promotions',combinedUberOnePromotions:'Combined Uber One & promotions',explicitUberOne:'Explicit Uber One',schedule:'Schedule savings',other:'Other verified / unallocated savings'};
-      const row=(title,value)=>'<div class="sheet-row"><div class="sheet-row-title">'+escapeHtml(title)+'</div><div class="sheet-row-value">'+escapeHtml(value)+'</div></div>';
-      setSheetHeading('Savings', '');
-      document.getElementById('sheetBody').innerHTML=financeHero('Total savings',money(summary.totalSaved||0),'Receipt savings & corrections')+
-        '<div class="savings-metrics sheet-section insight-grid">'+
-        financeMetric('wallet','Uber Cash used',money(financial.cashUsed??summary.uberCashUsed??0),'Payment, not savings')+
-        financeMetric('bag','Out of pocket',financial.paymentKnown?money(financial.outOfPocket):'Unknown',Number(financial.paymentKnown||0)+' known payments')+
-        financeMetric('calendar','Last 30 days',money(summary.recentConfirmedSaved||0),'Supported savings')+
-        financeMetric('receipt','Missing details',missingDetailsCount(),'Review receipts',{panel:'receipt',missing:true})+'</div>'+
-        '<details class="disclosure-card"><summary>'+financeIcon('chart')+'<span><strong>Savings breakdown</strong><small>Receipt-supported amounts</small></span></summary><div class="disclosure-body sheet-list">'+Object.entries(labels).map(([key,title])=>row(title,money(categories[key]||0))).join('')+'<p class="sheet-help">Each amount contributes once to the total.</p></div></details>'+
-        '<details class="disclosure-card"><summary>'+financeIcon('receipt')+'<span><strong>Evidence & estimates</strong><small>Missing figures and historical accounts</small></span></summary><div class="disclosure-body"><div class="sheet-list">'+row('Archived accounts · included in total',money(summary.archivedConfirmedSaved||0))+row('Manual corrections · included',String(financial.manual||0))+row('Email/manual differences requiring review',String(financial.conflicting||0))+row('Estimated missing Uber One',summary.uberOneEstimateModel?.sampleSize?money(summary.estimatedUberOneSavings||0):'Unavailable')+'</div><p class="sheet-help">'+escapeHtml(summary.uberOneEstimateModel?.explanation||'An estimate needs reliable receipt evidence. Missing savings are unknown, not proof of £0.')+'</p><p class="sheet-help">Combined Uber One and promotional amounts stay combined until reliable itemized evidence identifies their components. Archived history is included, not added again.</p></div></details>'+
-        '<div class="savings-navigation"><button class="sheet-action-row" data-open-sheet="finance" data-finance-target="receipt">'+financeIcon('shield')+'<span>Private receipt corrections<small>Adjust and review amounts</small></span></button>'+
-        '<button class="sheet-action-row" data-open-sheet="finance" data-finance-target="cash">'+financeIcon('wallet')+'<span>Cash balances<small>Balances verified in Uber</small></span></button>'+
-        '<button class="sheet-action-row finance-help-row" data-open-guide="savings">'+financeIcon('info')+'<span>How savings work</span></button></div>';
-    }
-
     function renderHomeAnalytics() {
       const target = document.getElementById('homeAnalytics');
       if (!target.firstElementChild) target.innerHTML = '<button class="home-action-row" data-open-sheet="receipts">' + financeIcon('insights') + '<span><strong>Receipt insights</strong><small>Savings &amp; receipts</small></span><span class="row-chevron" aria-hidden="true">›</span></button>';
@@ -4300,19 +4008,19 @@
 
     function renderReceiptsPage() {
       receiptInsightsView ||= createReceiptInsights({host:document.getElementById('receiptInsightsBody'),detailHost:document.getElementById('sheetBody'),
-        getSource:()=>({data:financeVault.data,storeStatus:financeVault.status,corrections:financeVault.current().corrections,payload,offers:promos}),
+        getSource:()=>({data:financeVault.data,storeStatus:financeVault.status,corrections:financeVault.current().corrections,payload,offers:[...promos,...history]}),
         getScroll:()=>window.scrollY,setScroll:top=>window.scrollTo({top,behavior:'instant'}),
         onHeading:(title,state)=>{
-          if(!state.receiptId)return;
+          if(!state.receiptId){document.getElementById('receiptInsightsTitle').textContent=title;document.getElementById('receiptInsightsInfo').textContent=state.page==='savings'?'Recorded promo discounts only. Uber Cash is a payment source, not promo savings. Averages use orders or rides with a positive recorded promo discount; zero and unknown discounts are excluded. Totals are in GBP; other currencies stay separate. Offers are attributed only by confirmed account and receipt links.':'Out-of-pocket spend uses recorded non-credit payments, or compatible receipt totals minus recorded Uber Cash. Receipt totals include credit; they are not your bank or card spending. Missing amounts are not zero. GBP totals exclude other currencies.';return;}
           setSheetHeading(title,'');
           const sheet=document.querySelector('.sheet'),head=sheet.querySelector('.sheet-head');sheet.dataset.receiptInsights='detail';
-          const back=document.createElement('button');back.type='button';back.className='ri-back';back.setAttribute('aria-label','Back to Receipt insights');back.innerHTML=financeIcon('chevron-left');back.onclick=()=>closeSheet();head.prepend(back);
+          const back=document.createElement('button');back.type='button';back.className='ri-back';back.setAttribute('aria-label',state.page==='savings'?'Back to Savings receipts':'Back to Receipt insights');back.innerHTML=financeIcon('chevron-left');back.onclick=()=>closeSheet();head.prepend(back);
         },
         onOpenReceipt:id=>{
           openSheetType='receipt-detail';receiptInsightsView.openReceipt(id);showSheet();document.querySelector('.ri-back').focus({preventScroll:true});
         }
       });
-      if(openSheetType!=='receipt-detail'){receiptInsightsView.state.receiptId=null;receiptInsightsView.render();}
+      if(openSheetType!=='receipt-detail'){if(receiptInsightsView.state.page!==currentView){receiptInsightsView.state.savingsList=false;receiptInsightsView.state.savingsOffer=null;}receiptInsightsView.state.page=currentView;receiptInsightsView.state.receiptId=null;receiptInsightsView.render();}
     }
 
     function renderAboutSheet() {
@@ -4328,9 +4036,9 @@
 
     function privateDataUpdated(){
       privateWallets=financeVault.current().wallets;invalidateAccountProjection();reconcileLocalEvidence();reviewData=reviewView=null;
-      renderAccounts();renderHomeAccounts();renderUsed();renderRecommendation();
+      renderAccounts();renderUsed();renderRecommendation();
       if(openSheetType==='account')renderAccountSheet();
-      if(currentView==='receipts'||openSheetType==='receipt-detail')receiptInsightsView?.refresh();
+      if(['receipts','savings'].includes(currentView)||openSheetType==='receipt-detail')receiptInsightsView?.refresh();
     }
     function mountPrivateDataTools(){
       const host=document.getElementById('privateDataTools');if(!host)return;
@@ -4412,7 +4120,7 @@
     }
 
     function showSheet() {
-      if (!routeRestoring && ['offers','planner','used','accounts','receipts'].includes(currentView)) {
+      if (!routeRestoring && ['offers','planner','used','accounts','receipts','savings'].includes(currentView)) {
         const state = window.history.state;
         if (routeEntries.has(state?.trackerEntry)) routeEntries.get(state.trackerEntry).scroll = window.scrollY;
         const entry = ++routeSerial;
@@ -4456,9 +4164,9 @@
     function renderUsedInformation(){setSheetHeading('How statuses work','Accounts and offers are counted separately.');document.getElementById('sheetBody').innerHTML='<div class="setting-card"><p>Fully used accounts have at least one Eats and one Ride receipt, or five Eats receipts. Login and archive status stay independent.</p><p>Needs checking counts accounts with uncertain offer or receipt evidence. The record explains the uncertainty.</p><p>Expired offers counts promotions in Finished · Expired and Expired · Unused. Summary values count different categories; they are not a partition and must not be added together.</p><p>Completed promotions require every permitted use to be verified. Partial use, manual finish and ignore states stay separate.</p></div><button class="advanced-btn" data-open-guide="verification">Read the full status guide ›</button>';}
 
     function openUtilitySheet(type, financeTarget = null, financeMissing = false, financeAccount = null, financeReceipt = null) {
-      if(type==='receipts'){
-        switchView('receipts');const entry=currentRouteEntry;
-        requestAnimationFrame(()=>{if(currentView==='receipts'&&currentRouteEntry===entry){document.getElementById('receiptInsightsTitle').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}});
+      if(type==='receipts'||type==='savings'){
+        switchView(type);const entry=currentRouteEntry;
+        requestAnimationFrame(()=>{if(['receipts','savings'].includes(currentView)&&currentRouteEntry===entry){document.getElementById('receiptInsightsTitle').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}});
         return;
       }
       if(type==='appearance'){switchView('settings');document.getElementById('settingsTitle').focus({preventScroll:true});return;}
@@ -4471,7 +4179,6 @@
       if (type === 'about') renderAboutSheet();
       if (type === "advanced") renderAdvancedSheet();
       if (type === "locked") renderLockedSheet();
-      if (type === "savings") renderSavingsSheet();
       if (type === "health") renderHealthSheet();
       if (type === "history") renderHistorySheet();
       if(type==='theme'){renderLegacyAppearanceControls();setSheetHeading('Theme colour & layout','Saved on this device.');}
@@ -4544,13 +4251,12 @@
     }
 
     function renderAll() {
-      if(currentView==='receipts')renderReceiptsPage();
+      if(['receipts','savings'].includes(currentView))renderReceiptsPage();
       renderStatus();
       if (['home','offers','planner'].includes(currentView)) {
         renderStats();
         renderRecommendation();
-        renderQuickCounts();
-        renderHomeAccounts();
+        document.getElementById('homeReadyCount').textContent=eligibleAccountCounts(enrichedAccounts()).ready.toLocaleString('en-GB')+' ready to use';
       } else if (currentView === 'accounts') renderAccounts();
       else if (currentView === 'used') renderUsed();
       else if (currentView === 'settings') renderSettingsPage();
@@ -4579,8 +4285,24 @@
 
     let routeRestoring = false, routeSerial = 0, currentRouteEntry = 0, pendingPreferredPop = null;
     const routeEntries = new Map([[0, {scroll: 0}]]);
-    const initialView = ['offers','planner','receipts'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
-    window.history.replaceState({trackerView: initialView, trackerEntry: 0}, '', initialView === 'home' ? location.href : '#' + initialView);
+    const routeName=location.hash.slice(1).split(/[?&]/)[0];
+    const legacyOfferEntry=['offers','find-offer','find-an-offer'].includes(routeName);
+    const initialView=legacyOfferEntry?'accounts':['accounts','planner','receipts','savings'].includes(routeName)?routeName:'home';
+    let pendingOfferEntry=legacyOfferEntry;
+    function applyDirectoryRouteParams(){
+      const params=new URLSearchParams(location.search);new URLSearchParams(location.hash.replace(/^#[^?&]*[?&]?/,'')).forEach((value,key)=>params.set(key,value));
+      const offered=params.get('offer')||params.get('type')||params.get('offerType'),aliases={'10off15':'fixed:10:15','12off15':'fixed:12:15','15off15':'fixed:15:15',best:'preferred'};
+      const type=aliases[offered]||offered;
+      if(type&&(['all','preferred','cash','cash-promo'].includes(type)||/^(fixed|percent):\d+(?:\.\d+)?:(?:\d+(?:\.\d+)?|unknown)$/.test(type))){accountTypeFilter=type;saveOfferState({...offerPreferences,selection:type});}
+      const login=params.get('login');if(['all','login','locked'].includes(login))accountLoginFilter=login;
+      const provider=params.get('provider');if(['all','iCloud','Google','Both'].includes(provider))accountProviderFilter=provider;
+      const sort=params.get('sort');if(['best','email'].includes(sort))accountSort=sort;
+      const availability=params.get('availability')||params.get('offerScope');if(['any','ready','all','archived','attention'].includes(availability))accountOfferScope=availability;
+      const management=params.get('scope');if([...document.getElementById('accountScope').options].some(o=>o.value===management))accountFilter=management;
+      document.getElementById('accountSearch').value=params.get('q')||params.get('search')||params.get('accountRef')||'';
+    }
+    if(legacyOfferEntry||routeName==='accounts')applyDirectoryRouteParams();
+    window.history.replaceState({trackerView: initialView, trackerEntry: 0}, '', initialView === 'home' ? location.href : '#' + initialView+(initialView==='accounts'&&location.hash.includes('?')?'?'+location.hash.split('?')[1]:''));
     window.history.scrollRestoration = 'manual';
     function recordViewRoute(view,{preserveSheet=false,navigationParent=null}={}) {
       if (routeRestoring || (window.history.state?.trackerView === view && !window.history.state?.trackerSheet)) return;
@@ -4597,25 +4319,27 @@
       routeEntries.get(entry).position=position??window.history.length-1;
       if(method==='pushState'&&routeEntries.has(old))routeEntries.get(old).position=position-1;
     }
-    let moreScrollPosition=0;
+    let moreScrollPosition=0,accountsScrollPosition=0;
     function switchView(view,routeOptions) {
+      const findOffer=view==='offers'||routeOptions?.offerSelector;if(view==='offers')view='accounts';
+      if(currentView==='accounts'){accountsScrollPosition=window.scrollY;if(view!=='accounts')closeAccountPicker();}
       if(currentView==='more'&&view!=='more')moreScrollPosition=window.scrollY;
       if(preferredEditor.active&&!preferredViews.has(view)&&preferredEditor.dirty&&!routeRestoring){preferredEditor.requestDiscard(()=>switchView(view));return;}
       if(preferredViews.has(view)&&!preferredEditor.active)preferredEditor.start();
       if(!preferredViews.has(view))preferredEditor.end();
       recordViewRoute(view,routeOptions);
       currentView = view;updateBrowserTheme();
-      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used','settings','more','preferred-promos','preferred-catalogue','receipts'].includes(view));
+      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used','settings','more','preferred-promos','preferred-catalogue','receipts','savings'].includes(view));
       renderAll();
       let activeSection = null;
 
       document.querySelectorAll(".view").forEach(section => {
-        const isActive = section.id === "view-" + view;
+        const isActive = section.id === "view-" + view || view==='savings' && section.id==='view-receipts';
         section.classList.toggle("active", isActive);
         if (isActive) activeSection = section;
       });
 
-      const navParent=["help","settings","preferred-promos","preferred-catalogue","receipts"].includes(view)?"more":["offers","planner"].includes(view)?routeEntries.get(currentRouteEntry)?.navigationParent||"home":view;
+      const navParent=["help","settings","preferred-promos","preferred-catalogue","receipts","savings"].includes(view)?"more":["offers","planner"].includes(view)?routeEntries.get(currentRouteEntry)?.navigationParent||"home":view;
       document.querySelectorAll("[data-view]").forEach(button => {
         button.classList.toggle("active",button.dataset.view===navParent);
         if(button.dataset.view===navParent)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");
@@ -4629,7 +4353,9 @@
         activeSection.classList.add("motion-enter");
         window.setTimeout(() => activeSection.classList.remove("motion-enter"), 560);
       }
-      window.scrollTo({ top: view==='more'?moreScrollPosition:0, behavior: "instant" });
+      window.scrollTo({ top: view==='more'?moreScrollPosition:view==='accounts'?accountsScrollPosition:0, behavior: "instant" });
+      if(findOffer)openAccountsOffers();
+      if(view==='accounts')requestAnimationFrame(()=>{if(currentView==='accounts'&&!findOffer)window.scrollTo({top:accountsScrollPosition,behavior:'instant'});});
       if(view==='more')requestAnimationFrame(()=>{if(currentView==='more')window.scrollTo({top:moreScrollPosition,behavior:'instant'});});
     }
 
@@ -4637,6 +4363,13 @@
       if (routeEntries.get(window.history.state?.trackerEntry)?.navigationParent==='more'||routeEntries.get(window.history.state?.trackerEntry)?.opener?.closest('#view-home')) window.history.back();
       else { const detail = currentView; switchView('home'); document.querySelector('#view-home [data-home-detail="' + detail + '"]')?.focus({preventScroll:true}); }
     }
+    window.addEventListener('hashchange',()=>{
+      const name=location.hash.slice(1).split(/[?&]/)[0];if(!['offers','find-offer','find-an-offer'].includes(name))return;
+      applyDirectoryRouteParams();const old=currentRouteEntry;routeEntries.get(old).scroll=window.scrollY;currentRouteEntry=++routeSerial;
+      routeEntries.set(currentRouteEntry,{scroll:0,opener:document.activeElement,position:window.history.length-1});
+      window.history.replaceState({trackerView:'accounts',trackerEntry:currentRouteEntry},'','#accounts'+(location.hash.includes('?')?'?'+location.hash.split('?')[1]:''));
+      routeRestoring=true;switchView('accounts');routeRestoring=false;openAccountsOffers();
+    });
     window.addEventListener('popstate', event => {
       const leaving = routeEntries.get(currentRouteEntry), state = event.state;
       if (!state?.trackerView) return;
@@ -4652,15 +4385,15 @@
         window.history.pushState({trackerView:currentView,trackerEntry:currentRouteEntry},'','#'+currentView);
         preferredEditor.requestDiscard(()=>window.history.back());return;
       }
-      if(openSheetType==='receipt-detail'&&state.trackerView==='receipts'&&!state.trackerSheet){
+      if(openSheetType==='receipt-detail'&&['receipts','savings'].includes(state.trackerView)&&!state.trackerSheet){
         routeRestoring=true;closeSheet(true);currentRouteEntry=state.trackerEntry;receiptInsightsView.back();routeRestoring=false;return;
       }
-      if(currentView==='receipts'&&state.trackerView==='receipts'&&!state.trackerSheet){
+      if(['receipts','savings'].includes(currentView)&&currentView===state.trackerView&&!state.trackerSheet){
         routeRestoring=true;closeSheet(true);currentRouteEntry=state.trackerEntry;window.scrollTo({top:routeEntries.get(state.trackerEntry)?.scroll||0,behavior:'instant'});if(leaving?.opener?.isConnected)leaving.opener.focus({preventScroll:true});routeRestoring=false;return;
       }
       if(state.trackerSheet==='receipt-detail'){
         routeRestoring=true;currentRouteEntry=state.trackerEntry;
-        if(currentView!=='receipts')switchView('receipts');
+        if(currentView!==state.trackerView)switchView(state.trackerView);
         openSheetType='receipt-detail';receiptInsightsView.openReceipt(state.trackerReceipt);showSheet();document.querySelector('.ri-back')?.focus({preventScroll:true});routeRestoring=false;return;
       }
       if(accountReceiptReturn&&state.trackerSheet==='account'){const saved=accountReceiptReturn;financeView?.destroy();accountReceiptReturn=null;currentRouteEntry=state.trackerEntry;routeRestoring=true;openAccountSheet(saved.accountRef,state.trackerOffer,saved);routeRestoring=false;return;}
@@ -4686,7 +4419,7 @@
         const scroll=routeEntries.get(state.trackerEntry)?.scroll||0;
         requestAnimationFrame(()=>{if(currentRouteEntry!==state.trackerEntry||!['accounts','used'].includes(currentView))return;
           if(state.trackerView==='used'&&leaving?.opener?.dataset.activityRecord)document.querySelector('[data-activity-record="'+CSS.escape(leaving.opener.dataset.activityRecord)+'"]')?.focus({preventScroll:true});
-          if(leaving?.fromDirectory){const action=leaving.directoryAccount?document.querySelector('#accountsList [data-directory-offers="'+CSS.escape(leaving.directoryAccount)+'"]'):document.querySelector('[data-directory-find]');action?.focus({preventScroll:true});}
+
           window.scrollTo({top:scroll,behavior:'instant'});
         });
       }
@@ -4810,6 +4543,7 @@
         rebuildAccountIndex();
         reconcileLocalEvidence();
         renderAll();
+        if(pendingOfferEntry){pendingOfferEntry=false;openAccountsOffers();}
         if (openSheetType === "account") renderAccountSheet();
       } catch (error) {
         loadError = true;
@@ -4820,7 +4554,7 @@
           '<span>Data could not be loaded. Check your connection.</span><button class="ghost-btn" data-retry-load="true">Try again</button>';
         if (!promos.length) {
           document.getElementById("recommendation").innerHTML = '<div class="empty">Offers will appear after the next successful data sync.</div>';
-          document.getElementById("homeAccounts").innerHTML = '<div class="empty">Your accounts will appear once data loads.</div>';
+          document.getElementById("accountsList").innerHTML = '<div class="empty">Your accounts will appear once data loads.</div>';
         }
       } finally { loadInProgress = false; lastSnapshotCheckedAt = Date.now(); refreshTimedViews(); }
     }
@@ -4832,35 +4566,11 @@
     setupDraggableNavigation({ nav: mainNav, onSelect: switchView, onRestore: updateNavGlider });
 
     if (initialView !== 'home') { routeRestoring = true; switchView(initialView); routeRestoring = false; }
-    document.getElementById('finderOfferType').addEventListener('change',e=>{if(e.target.value==='other')chooseOtherOffers(e.target);else applyOfferScope(e.target.value);});
-    document.querySelector('[data-preferred-default]').addEventListener('click',()=>applyOfferScope('preferred'));
-    document.getElementById('homeOfferSearch').addEventListener('input', renderHomeAccounts);
-    document.getElementById('offerScope').addEventListener('change', event => {
-      currentOfferScope = event.target.value;
-      renderHomeAccounts();
-    });
     document.getElementById('accountOfferScope').addEventListener('change', event => {
       accountOfferScope = event.target.value;
       accountDisplayLimit = 48;
       renderAccounts();
     });
-    document.getElementById("offerFilterPanel").addEventListener("click", event => {
-      const button = event.target.closest("[data-intent]");
-      if (!button) return;
-
-      const wantedIntent=button.dataset.intent;currentIntent = wantedIntent;
-      applyOfferScope(({best:'preferred','10off15':'fixed:10:15','12off15':'fixed:12:15','15off15':'fixed:15:15',cash:'cash','cash-promo':'cash-promo'})[currentIntent]||(wantedIntent==='unfinished'?finderFilters.type:'preferred'));if(wantedIntent==='unfinished')currentIntent='unfinished';
-
-      document.querySelectorAll("[data-intent]").forEach(item => {
-        item.classList.toggle("active", item === button);
-      });
-
-      renderHomeAccounts();
-      animateRegion("homeAccounts");
-      animateRegion("weakAccounts");
-      if (document.documentElement.dataset.layout === "mobile") requestAnimationFrame(() => document.querySelector(".best-section").scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth"}));
-    });
-
     let basketTimer;
     document.getElementById('plannerOfferScope').addEventListener('change',e=>{saveOfferState({...offerPreferences,plannerSelection:e.target.value});selectedPlannerKey=null;plannerComparisonCache=null;renderRecommendation();});
     document.getElementById('plannerFulfilment').addEventListener('change', event=>{selectedPlannerKey=null;plannerSettings.fulfilment=event.target.value;savePlannerSettings();renderRecommendation();});
@@ -4870,7 +4580,6 @@
       basketTimer = setTimeout(() => {
         renderAll();
         animateRegion("recommendation");
-        animateRegion("homeAccounts");
         animateRegion("accountsList");
       }, 120);
     });
@@ -4922,23 +4631,22 @@
     document.addEventListener('pointerdown',e=>{if(!e.target.closest('.account-type-picker'))closeAccountPicker();});
     document.addEventListener('focusin',e=>{if(!e.target.closest('.account-type-picker'))closeAccountPicker();});
     function resetDirectory() {accountFilter='all';accountOfferScope='any';accountTypeFilter='all';saveOfferState({...offerPreferences,selection:'all'});accountProviderFilter='all';accountLoginFilter='all';accountSort='best';document.getElementById('accountSearch').value='';accountDisplayLimit=48;renderAccounts();}
-    function openDirectoryFinder(accountRef=null) {finderFilters={accountRef,type:accountTypeFilter,login:accountLoginFilter,provider:accountProviderFilter,followsDefault:false};currentIntent='best';currentOfferScope=accountOfferScope==='any'?'all':accountOfferScope;document.getElementById('homeOfferSearch').value=accountRef?'':document.getElementById('accountSearch').value;switchView('offers');Object.assign(routeEntries.get(currentRouteEntry),{fromDirectory:true,directoryAccount:accountRef});document.getElementById('offersTitle').focus({preventScroll:true});}
+    function openAccountsOffers(){
+      if(currentView!=='accounts'){switchView('accounts',{offerSelector:true});return;}
+      const trigger=document.getElementById('accountTypeTrigger');trigger.scrollIntoView({block:'center',behavior:'instant'});openAccountPicker();
+    }
 
     document.getElementById("app").addEventListener("click", event => {
-      if(event.target.closest('[data-directory-find]')){openDirectoryFinder();return;}
-      const directoryOffers=event.target.closest('[data-directory-offers]');if(directoryOffers){openDirectoryFinder(directoryOffers.dataset.directoryOffers);return;}
-      if(event.target.closest('[data-clear-finder-account]')){finderFilters.accountRef=null;renderHomeAccounts();document.getElementById('offersTitle').focus({preventScroll:true});return;}
-      if(event.target.closest('[data-clear-finder-filters]')){finderFilters={accountRef:null,type:offerPreferences.defaultView,login:'all',provider:'all',followsDefault:true};applyOfferScope(offerPreferences.defaultView,false);renderHomeAccounts();document.getElementById('offersTitle').focus({preventScroll:true});return;}
+      const directoryOffers=event.target.closest('[data-directory-offers]');if(directoryOffers){const account=enrichedAccounts().find(a=>a.accountRef===directoryOffers.dataset.directoryOffers);const card=directoryOffers.closest('[data-card-account]');openAccountSheet(account?.accountRef,card?.querySelector('[data-account-offers]')?.dataset.accountOffer);return;}
       if(event.target.closest('[data-reset-directory]')){resetDirectory();document.getElementById('accountSearch').focus();return;}
       if(event.target.closest('[data-reset-secondary]')){accountFilter='all';accountOfferScope='any';accountDisplayLimit=48;renderAccounts();return;}
       const clearSecondary=event.target.closest('[data-clear-secondary]');if(clearSecondary){if(clearSecondary.dataset.clearSecondary==='management')accountFilter='all';else accountOfferScope='any';accountDisplayLimit=48;renderAccounts();document.getElementById('accountSecondaryFilters').querySelector('summary').focus();return;}
       const chosenPlan = event.target.closest('[data-select-plan]');
       if (chosenPlan) { selectedPlannerKey = chosenPlan.dataset.selectPlan; renderRecommendation(); document.querySelector('#recommendation .recommendation-title').setAttribute('tabindex','-1'); document.querySelector('#recommendation .recommendation-title').focus(); return; }
-      const filters = event.target.closest('[data-offer-filters]');
-      if (filters) { const panel = document.getElementById('offerFilterPanel'); panel.hidden = !panel.hidden; filters.setAttribute('aria-expanded', String(!panel.hidden)); return; }
       if (event.target.closest('[data-home-back]')) { returnHome(); return; }
-      if(event.target.closest('[data-planner-matches]')) { switchView('offers'); document.getElementById('offersTitle').focus({preventScroll:true}); return; }
+      if(event.target.closest('[data-planner-matches]')) { openAccountsOffers(); return; }
       const homeDetail = event.target.closest('[data-home-detail]');
+      if(homeDetail?.dataset.homeDetail==='offers'){openAccountsOffers();return;}
       if (homeDetail) { switchView(homeDetail.dataset.homeDetail); routeEntries.get(currentRouteEntry).opener = homeDetail; document.getElementById(homeDetail.dataset.homeDetail + 'Title').focus({preventScroll:true}); return; }
       if (event.target.closest('[data-jump-planner]')) { event.target.closest('[data-jump-planner]').focus({preventScroll:true});switchView('planner',{navigationParent:'more'}); requestAnimationFrame(() => { document.getElementById('basketInput').focus({preventScroll:true}); document.querySelector('.hero-card').scrollIntoView({block:'start',behavior:motionReduced()?'instant':'smooth'}); }); return; }
       if (event.target.closest("[data-retry-load]")) { load(); return; }
@@ -4956,7 +4664,7 @@
         accountFilter=['15off15','12off15','cash','cash-promo'].includes(target)?'all':['used-login','used-locked'].includes(target)?'used':['archived-login','archived-locked'].includes(target)?'archived':['login','locked'].includes(target)?'all':target;
         accountLoginFilter=target.endsWith('-login')||target==='login'?'login':target.endsWith('-locked')||target==='locked'?'locked':'all';
         accountTypeFilter=target==='15off15'?'fixed:15:15':target==='12off15'?'fixed:12:15':['cash','cash-promo'].includes(target)?target:'all';
-        accountProviderFilter=jumpAccounts.closest('#view-offers')?finderFilters.provider:'all';if(jumpAccounts.closest('#view-offers')){accountLoginFilter=finderFilters.login;if(finderFilters.type!=='all')accountTypeFilter=finderFilters.type;}accountOfferScope=jumpAccounts.dataset.targetScope || 'any';saveOfferState({...offerPreferences,selection:accountTypeFilter});finderFilters.type=accountTypeFilter;
+        accountProviderFilter='all';accountOfferScope=jumpAccounts.dataset.targetScope || 'any';saveOfferState({...offerPreferences,selection:accountTypeFilter});
         document.getElementById('accountSearch').value='';accountDisplayLimit=48;
         switchView("accounts");
         return;
@@ -5041,15 +4749,8 @@
         const account = accounts.find(a => a.accountRef === useThisAccount.dataset.useThisAccount);
         if (!account || !currentAccountState(account).recommendationEligible) return;
         selectedAccountRef = useThisAccount.dataset.useThisAccount;
-        currentOfferScope = "ready";
-        currentIntent = "best";
-        document.getElementById('homeOfferSearch').value = '';
-        document.querySelectorAll("[data-intent]").forEach(item => {
-          item.classList.toggle("active", item.dataset.intent === "best");
-        });
         closeSheet(true);
-        renderHomeAccounts();
-        switchView("offers");
+        switchView('accounts');
         requestAnimationFrame(() => {
           const card = document.querySelector('[data-card-account="' + CSS.escape(selectedAccountRef) + '"]');
           card?.scrollIntoView({ behavior: motionReduced() ? "instant" : "smooth", block: "center" });
@@ -5154,7 +4855,7 @@
     });
 
     window.addEventListener("storage", event => {
-      if(event.key===OFFER_PREFERENCES_KEY||event.key===null){offerPreferences=readOfferPreferences(localStorage);accountTypeFilter=selectedOfferScope(offerPreferences);if(finderFilters.followsDefault)finderFilters.type=offerPreferences.defaultView;renderAll();}
+      if(event.key===OFFER_PREFERENCES_KEY||event.key===null){offerPreferences=readOfferPreferences(localStorage);accountTypeFilter=selectedOfferScope(offerPreferences);renderAll();}
       if(event.key==='uber-tracker-finance-encrypted-v1'||event.key===null){financeVault.hydrate();privateDataUpdated();financeView?.render();}
       if (event.key === LAYOUT_KEY || event.key === null) { layoutPreference = readLayoutPreference(); applyLayoutPreference(); if (openSheetType === 'theme') renderLegacyAppearanceControls(); if(currentView==='settings')renderSettingsPage(); }
       if (event.key === STATE_KEY || event.key === null) { manualStore = readManualStore(); reconcileLocalEvidence(); invalidateAccountProjection(); renderAll(); if (openSheetType === "account") renderAccountSheet(); }

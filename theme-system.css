@@ -385,3 +385,36 @@ body:has(#view-more.active) { background:var(--theme-menu-page); background-atta
 }
 html[data-layout=mobile] :is(.view,.sheet-body) { overflow-wrap:break-word; }
 html[data-layout=mobile] .sheet-body { overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+/* Accounts: compact filters, shared Used-card scale, no page-wide chip overflow. */
+#view-accounts .account-preferred-chips { flex-wrap:nowrap; gap:4px; overflow-x:auto; max-width:100%; min-width:0; overscroll-behavior-inline:contain; scrollbar-width:none; padding-block:2px; margin:4px 0 6px; }
+#view-accounts .account-preferred-chips::-webkit-scrollbar { display:none; }
+#view-accounts .account-preferred-chips button { flex:0 0 auto; white-space:nowrap; font-size:12.5px; padding:5px 7px; min-height:40px; }
+#view-accounts .account-login-tabs { margin-bottom:6px; }
+#view-accounts .account-login-tabs button { min-height:40px; font-size:15px; }
+#view-accounts .search-wrap { margin-bottom:6px; }
+#view-accounts .search-input { height:46px; min-height:46px; font-size:16px; }
+#view-accounts .account-control-row { margin-bottom:4px; }
+#view-accounts .directory-select,#view-accounts #accountTypeTrigger { min-height:44px; font-size:16px; }
+#view-accounts .account-secondary > summary { min-height:44px; font-size:14px; }
+#view-accounts .accounts-results-head { margin-top:10px; }
+#view-accounts .directory-card { padding:12px 12px 2px; }
+#view-accounts .directory-account-head { grid-template-columns:28px minmax(0,1fr) auto 12px; gap:8px; }
+#view-accounts .directory-provider,#view-accounts .directory-provider svg { width:26px; height:26px; }
+#view-accounts .account-email { font-size:15px; }
+#view-accounts .account-login-route { font-size:12px; }
+#view-accounts .directory-offer-row strong { font-size:16px; }
+#view-accounts .directory-offer-row small { font-size:12px; }
+#view-accounts .directory-view-offers { min-height:40px; padding-block:2px; font-size:14px; }
+#view-accounts .account-access-pill { max-width:100px; font-size:11px; padding:3px 5px; }
+#view-accounts .accounts-stat .metric-help { display:grid; place-items:center; width:36px; min-width:36px; height:44px; right:2px; top:50%; transform:translateY(-50%); }
+#view-accounts .accounts-stat .metric-help::after { content:none; }
+#view-accounts .accounts-stat .metric-help svg { display:block; width:17px; height:17px; }
+#view-accounts .accounts-stat > div > span { padding-right:24px; }
+.used-evidence { grid-template-columns:24px minmax(0,1fr) auto; }
+.used-evidence-icon { width:24px; height:24px; display:flex; align-items:center; justify-content:center; border-radius:50%; flex-shrink:0; }
+.used-evidence-icon svg { width:17px; height:17px; padding:0; border:0; border-radius:0; }
+.used-record:has(.receipt-rule-badge) .used-evidence-icon { background:var(--color-accent); color:var(--color-on-accent); }
+.used-record:has(.receipt-rule-badge) .used-evidence-icon svg { background:none; color:var(--color-on-accent); border:0; }
+@media(max-width:370px) { .used-evidence { grid-template-columns:24px minmax(0,1fr); } }
+
+#view-accounts .directory-selected { display:block; font-size:12px; color:var(--color-soft-accent); margin-top:2px; }

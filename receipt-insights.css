@@ -157,3 +157,35 @@ html[data-layout=mobile]:has(#view-receipts.active) { scroll-padding-bottom:var(
 .ri-tile-component > strong { text-align:left; font-size:21px; margin:2px 0 0; }
 .ri-tile-component > small { grid-column:1/-1; }
 .ri-two-cards .ri-tile-component > .ri-unknown { font-size:19px; }
+/* Distinct purposes, shared receipt data and theme tokens. */
+.ri-combined { padding:14px 16px; margin:12px 0 10px; }
+.ri-combined h2 { display:flex; align-items:center; gap:8px; margin:0 0 11px; font-size:15px; font-weight:550; }
+.ri-combined h2 svg { width:22px; height:22px; color:var(--rich-soft-accent); }
+.ri-combined-values { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.ri-combined-values > div { min-width:0; }
+.ri-combined-values > div + div { border-left:1px solid var(--rich-border); padding-left:16px; }
+.ri-combined-values span,.ri-receipt-breakdown span { display:block; color:var(--rich-secondary); font-size:12px; }
+.ri-combined-values strong { display:block; font-size:25px; font-weight:600; margin-top:4px; overflow-wrap:anywhere; }
+.ri-receipt-breakdown { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; padding:13px 15px; margin-bottom:12px; }
+.ri-receipt-breakdown strong { display:block; margin-top:4px; font-size:17px; overflow-wrap:anywhere; }
+.savings-hero .ri-paid-total { font-size:42px; }
+.savings-support strong { font-size:29px; }
+.savings-ranking { padding:14px 15px 0; margin-bottom:10px; }
+.savings-ranking h2 { margin:0 0 10px; font-size:19px; font-weight:600; }
+.savings-ranking button { display:flex; align-items:center; gap:12px; width:100%; padding:13px 0; min-height:64px; border:0; border-top:1px solid var(--rich-border); background:transparent; color:var(--color-text); text-align:left; font:inherit; cursor:pointer; }
+.savings-ranking button > svg { width:25px; height:28px; flex:none; color:var(--color-icon); }
+.savings-ranking button > span { flex:1; min-width:0; }
+.savings-ranking button strong { font-size:15px; font-weight:550; }
+.savings-ranking button > strong { font-size:21px; text-align:right; overflow-wrap:anywhere; max-width:45%; font-variant-numeric:tabular-nums; }
+.savings-ranking small { display:block; font-size:12px; color:var(--rich-secondary); margin-top:3px; }
+.savings-page .ri-more { display:flex; align-items:center; gap:5px; }
+.savings-page .ri-more svg { width:18px; height:18px; }
+.ri-activity-row strong { max-width:110px; overflow-wrap:anywhere; }
+
+html:has(#view-receipts.active),body:has(#view-receipts.active) { background:var(--theme-menu-page); background-attachment:fixed; }
+.ri-page .ri-card { background:var(--theme-menu-panel); }
+.ri-page .ri-paid-card { background:var(--theme-insights-hero); }
+.ri-activity-row strong { font-weight:550; }
+
+.ri-page-head,.ri-page-head::before { background:var(--color-insights-header); }
+.ri-page-head::before { inset:calc(-10px - env(safe-area-inset-top,0px)) -18px 0; }
