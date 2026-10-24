@@ -156,6 +156,7 @@ export function pendingManualEntries(store, promo, limit=12) {
 export function accountPromoUseProjection(store, promos = []) {
   const used = new Set(promos.filter(p => p.discountType !== 'uberCash' &&
     ((!p.usageEvidenceUnavailable && !p.usageEvidenceConflict && Number(p.receiptConfirmedUses) > 0) ||
+      (p.usageEvidenceUnavailable && !p.usageEvidenceConflict && getOfferManualState(store,p).receiptConfirmedBaseline > 0) ||
       pendingManualUses(store,p) > 0)).map(promoStateKey));
   return promos.map(p => ({...p, promoInUse:used.has(promoStateKey(p)),
     hiddenByPromoUse:p.discountType !== 'uberCash' && used.size > 0 && !used.has(promoStateKey(p)) && !getOfferManualState(store,p).competitionRestored}));
@@ -208,7 +209,7 @@ function rebaseOfferState(store, promo) {
   safe.offers[key] = {
     ...current,
     manualUsesConsumed: pending,
-    receiptConfirmedBaseline: confirmedUses(promo),
+    receiptConfirmedBaseline: promo.usageEvidenceUnavailable ? current.receiptConfirmedBaseline : confirmedUses(promo),
     history:[...legacy,...current.history]
   };
 
