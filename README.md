@@ -16,7 +16,7 @@ ellipsis and are never uploaded.
   Archive status is independent of login access and receipt usage.
 - **Available Offers:** accounts with an eligible current promotion, regardless of access or archive status. Each account counts once.
 - **Ready to Use:** eligible, accessible and not archived. The planner uses this group only.
-- **Needs Attention:** eligible but archived, inaccessible or pending. Find an offer can browse these independently.
+- **Needs Attention:** eligible but archived, inaccessible or pending. Accounts → More filters can browse these independently.
 - **Fully used accounts:** five unique Eats receipts, or at least one Eats plus one Ride receipt.
   Lime journeys are included in Rides. Archived accounts are excluded from recommendations. Fully used accounts can
   still have eligible offers; usage does not change access or archive status.
@@ -184,6 +184,12 @@ Private financial corrections use an encrypted device ledger and an owner-only M
 
 Used accounts is an activity view with search, eight status categories and paged records. Fully used still means at least one Eats plus one Ride receipt, or five Eats receipts. Promotion completion, expiry, manual finish, ignore state, login and archive status remain separate. Summary categories count different entities and must not be added together.
 
-Discovery defaults to exact £10, £12 and £15 off £15 offers, plus eligible Cash. Settings saves preferred promos and Cash inclusion on this device; explicit selections are preserved when defaults change. Accounts and Find an offer keep separate selections except explicit handoffs. Other offers remain in a separate searchable picker. Planner uses the same preferences, with an All offers override, and charges the saved fee to every order including the first (£1 by default). It compares estimated out-of-pocket payments, applying Cash after discounts and fees. Unknown Cash/promo compatibility is conditional.
+Discovery defaults to exact £10, £12 and £15 off £15 offers, plus eligible Cash. Settings saves preferred promos and Cash inclusion on this device; explicit selections are preserved when defaults change. Find an offer on Home opens the Accounts offer selector. Account search, offer filters, results and saved selection use one shared implementation; normal tab navigation restores the list position. Other offers remain in a separate searchable picker. Planner uses the same preferences, with an All offers override, and charges the saved fee to every order including the first (£1 by default). It compares estimated out-of-pocket payments, applying Cash after discounts and fees. Unknown Cash/promo compatibility is conditional.
 
 Cash grant reconstruction deduplicates original emails/reminders and receipt payments, allocates payments chronologically once, follows source expiry terms and keeps uncertain credit amounts unresolved. When the application date is absent, the tracker uses the first credit email plus 35 days as an estimated cutoff. Explicit expiry terms and later verified wallet balances take priority; reminders do not restart the cutoff. Sanitised issued/remaining estimates and dates can appear in the masked public snapshot. Original source identifiers, allocation traces, receipts, verified wallet balances and financial corrections stay private. Cash payments never increase promotional savings. Manual balances reconcile only against complete newer receipt evidence; an outdated private export, unknown credit allocation or later grant expiry requires checking.
+
+### Savings and receipt activity
+
+Savings shows recorded promo discounts, averages across orders or rides with a positive recorded discount, the best recorded discount, a promo-only activity chart and historical offer rankings. Only confirmed account/receipt links attribute savings to an offer; otherwise the known discount stays under Unmatched promos. Manual usage alone creates no monetary saving.
+
+Receipt insights shows non-credit payments, one combined Promos & Uber Cash card, receipt subtotals/fees/totals and receipt-count activity. Both pages share date/service filtering, receipt deduplication and amount projections. Missing credit is not zero; unresolved refunds do not establish final payment. GBP totals exclude receipts explicitly denominated in other currencies, whose detail screens retain their own currency. Safe public aggregates can show totals, but cannot establish an individual best saving or offer ranking without corresponding receipt records.

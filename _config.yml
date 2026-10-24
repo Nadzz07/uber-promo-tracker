@@ -119,3 +119,4 @@ exclude:
   - test-receipt-amounts.js
   - test-usage-slots-browser.js
   - test-used-reference-browser.js
+  - test-savings-purpose.js

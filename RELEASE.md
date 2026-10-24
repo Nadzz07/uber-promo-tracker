@@ -483,3 +483,9 @@ Browser checks cover three accent colours, all main/detail/settings/data screens
 inline terms/history/management, forms, empty/error states, fixed statuses and
 rendered text contrast. Screenshots use synthetic or sanitized records only.
 Physical iPhone and native browser chrome testing must be reported separately.
+
+## Promo Savings, receipt spending and unified Accounts
+
+Savings now uses filtered recorded promo amounts instead of a mixed spending/savings sheet. Its average/best figures use contributing receipts; historical offer rankings require explicit receipt links. Receipt insights leads with supported non-credit payments, keeps promo discounts and Cash inside one labelled card, and reserves its chart for activity/receipt totals. Unknown, partial, refunded and foreign-currency data retain their distinct meanings. No ledger, private-store schema or original receipt changes are required.
+
+Home and Planner Find an offer actions open the existing Accounts selector directly. The obsolete finder renderer is removed; old offer bookmarks retain recognised filter parameters. Accounts keeps its full-dataset filtering and pagination, reordered login tabs, single scrollable preferred-chip row and compact previews. The Used receipt-rule check has a larger disc and an inset outline tick. Shared themes, custom colours, private identities, account-sheet state and safe-area scrolling remain supported.

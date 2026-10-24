@@ -66,7 +66,7 @@ try{
   assert.match(await page.locator('.ri-empty').innerText(),/not imported/,'Do not invent individual receipts from lifetime totals');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.locator('[data-receipts-back]').click();await page.locator('#view-more [data-open-sheet="savings"]').click();
-  const heroColours=await page.locator('.finance-hero').evaluate(el=>({surface:getComputedStyle(el).backgroundImage,reflection:getComputedStyle(el,'::before').content}));
+  const heroColours=await page.locator('.savings-hero').evaluate(el=>({surface:getComputedStyle(el).backgroundImage,reflection:getComputedStyle(el,'::before').content}));
   assert.ok(heroColours.surface.includes('gradient'));assert.equal(heroColours.reflection,'none','Savings shares the hue fade without a curved reflection');
   await page.keyboard.press('Escape');await page.locator('[data-view="home"]').click();
   assert.ok(await page.locator('.total-saved-card').evaluate(el=>getComputedStyle(el).backgroundImage.includes('gradient')&&getComputedStyle(el,'::before').content==='none'),'Home shares the Savings material');

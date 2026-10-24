@@ -41,7 +41,7 @@ assert.equal(html.includes("Mark account done"), false, "manual account-done con
 assert.equal(html.includes("Accounts marked done"), false, "Used view should not duplicate promo completion with account-done status");
 assert.equal(html.includes("Done accounts"), false, "Used summary should focus on promo activity");
 assert.ok(html.includes("Not finished"));
-assert.ok(html.includes("Other available accounts"));
+assert.ok(html.includes("Matching accounts"));assert.equal(html.includes('id="view-offers"'),false,"The duplicate finder page is removed");
 assert.ok(html.includes("Total saved"));
 assert.ok(html.includes('id="loginStat"') && html.includes('id="archivedStat"'));
 assert.ok(html.includes("Overview"));
@@ -54,10 +54,10 @@ assert.ok(html.includes('id="availableStatCard"'), "Accounts available should be
 assert.ok(html.includes("Accounts with an eligible offer now."), "Available Offers explains account eligibility");
 assert.ok(html.includes("Current eligible promotions."));
 assert.ok(html.includes('availableAccounts / totalAccounts) <= 0.1'), "Low-account warning should be proportional to the tracked account pool");
-assert.ok(html.includes("Evidence &amp; estimates") || html.includes("Evidence & estimates"), "Estimates remain separate from supported savings");
+assert.ok(fs.readFileSync("receipt-insights.js","utf8").includes("Saved with promos"), "Savings projects recorded promos separately from spending");
 assert.equal(html.includes('Estimated missing Uber One</div><div class="insight-value" style="color:var(--green)"'), false, "Estimated savings must not use confirmed green styling");
 assert.ok(html.includes("createReceiptInsights"),"Receipt Insights reads imported records through the shared ledger projection");
-assert.ok(html.includes("Estimated missing Uber One"));
+assert.ok(fs.readFileSync("savings-intelligence.js","utf8").includes("uberOneEstimateModel"));
 assert.ok(html.includes("Missing details"));
 assert.ok(html.includes("financeHero"));
 assert.ok(html.includes("grid-template-columns: auto minmax(0,1fr) 36px"));
@@ -104,7 +104,6 @@ assert.equal(
 
 const actionWiring = [
   ['data-view=', 'setupDraggableNavigation'],
-  ['data-intent=', 'closest("[data-intent]")'],
   ['data-login-filter=', "closest('[data-login-filter]')"],
   ['data-open-sheet=', 'closest("[data-open-sheet]")'],
   ['data-account-offers=', 'closest("[data-account-offers]")'],
@@ -115,7 +114,7 @@ const actionWiring = [
   ['data-toggle-ignore=', 'closest("[data-toggle-ignore]")'],
   ['data-mark-offer-done=', 'closest("[data-mark-offer-done]")'],
   ['data-show-more-accounts=', 'closest("[data-show-more-accounts]")'],
-  ['data-jump-accounts=', 'closest("[data-jump-accounts]")']
+  ['data-home-detail=', 'openAccountsOffers']
 ];
 
 for (const [controlMarker, handlerMarker] of actionWiring) {
@@ -144,7 +143,7 @@ assert.ok(
   "inaccessible-account search must be wired"
 );
 
-for (const sheetType of ["advanced", "locked", "savings", "health", "history"]) {
+for (const sheetType of ["advanced", "locked", "health", "history"]) {
   assert.ok(
     html.includes(`type === "${sheetType}"`),
     `sheet route ${sheetType} must render a real panel`

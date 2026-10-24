@@ -3,7 +3,8 @@ export async function openHomeDetail(page,name) {
   if (await page.locator('#view-'+name+'.active').count()) return;
   if (!await page.locator('#view-home.active').count()) await page.locator('[data-view="home"]').click();
   await page.locator('#view-home [data-home-detail="'+name+'"]').click();
-  await page.locator('#view-'+name+'.active').waitFor();
+  await page.locator('#view-'+(name==='offers'?'accounts':name)+'.active').waitFor();
+  if(name==='offers'&&await page.locator('#accountTypeOptions').isVisible())await page.keyboard.press('Escape');
 }
 
 export async function leaveReceiptEditor(page) {
@@ -27,7 +28,7 @@ export async function directoryStatus(page,value) {
  const panel=page.locator('#accountSecondaryFilters');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await page.locator('#accountScope').selectOption(value);
 }
 export async function directoryType(page,value) {
- await page.locator('#accountTypeTrigger').click();const main=page.locator('[data-offer-type="'+value+'"]');if(await main.count())await main.click();else{await page.locator('[data-offer-type="other"]').click();await page.locator('[data-catalogue-value="'+value+'"]').click();}
+ if(!await page.locator('#accountTypeOptions').isVisible())await page.locator('#accountTypeTrigger').click();const main=page.locator('[data-offer-type="'+value+'"]');if(await main.count())await main.click();else{await page.locator('[data-offer-type="other"]').click();await page.locator('[data-catalogue-value="'+value+'"]').click();}
 }
 export async function directoryReset(page) {
  await page.locator('#accountSearch').fill('');await page.locator('[data-login-filter="all"]').click();await page.locator('#accountProvider').selectOption('all');
@@ -53,7 +54,7 @@ export async function scrollAboveDock(page,selector) {
 
 export async function usedStatus(page,value){await page.locator('#usedStatus').click();await page.locator('[data-status-option="'+value+'"]').click();}
 
-export async function finderAllOffers(page){await page.locator('#finderOfferType').selectOption('other');await page.locator('[data-catalogue-value="all"]').click();}
+export async function finderAllOffers(page){await directoryType(page,'all');}
 
 export async function openOfferManagement(page, key = null) {
  const card=key?page.locator('[data-offer-key="'+key+'"]'):page.locator('.offer-card').first();
