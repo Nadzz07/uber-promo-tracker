@@ -147,7 +147,7 @@ body:has(#view-receipts.active) .nav-glider { background:var(--theme-active-tab)
 
 .ri-activity-row .ri-unknown { font-size:15px; }
 @media(max-width:979px) { .app-shell:has(#view-receipts.active) { padding-inline:18px; } }
-body:has(#view-receipts.active)::before { content:''; display:block; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); background:var(--rich-screen); opacity:1; z-index:26; pointer-events:none; filter:none; }
+body:has(#view-receipts.active)::before { content:''; display:block; position:fixed; inset:0 0 auto; width:auto; max-width:none; height:env(safe-area-inset-top,0px); border-radius:0; background:var(--color-insights-header); opacity:1; z-index:26; pointer-events:none; filter:none; box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
 html[data-layout=mobile] body:has(#view-receipts.active) { padding-bottom:var(--receipts-nav-clearance,calc(100px + env(safe-area-inset-bottom))); }
 html[data-layout=mobile]:has(#view-receipts.active) { scroll-padding-bottom:var(--receipts-nav-clearance,100px); }
 

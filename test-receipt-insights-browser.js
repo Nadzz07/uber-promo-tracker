@@ -75,6 +75,18 @@ try{
   assert.equal(await page.locator('.ri-paid-total').innerText(),'£40.00');assert.equal(await page.locator('.ri-cash-value').innerText(),'£4.00');assert.equal(await page.locator('.ri-promo-value').innerText(),'£31.00');assert.equal(await page.locator('.ri-amount-status').count(),0);assert.equal(await page.locator('[data-ri-receipt]').count(),0);
   assert.ok(await page.locator('.ri-metric-select').evaluate(e=>e.getBoundingClientRect().width<115),'Orders picker is compact');if(width===390)assert.ok(await page.locator('.ri-paid-card').evaluate(e=>e.getBoundingClientRect().height<215),'Compact populated hero');
   assert.equal(await page.locator('.ri-payment-caption').innerText(),'Paid by other methods');assert.equal(await page.locator('.ri-receipt-breakdown').count(),0);assert.equal(await page.locator('.ri-recent-list').count(),1);
+  // Desktop engines report zero top inset: emulate only its geometry, retaining
+  // the production layer's computed colour, shape and inherited dimensions.
+  const safeArea=await page.addStyleTag({content:'body:has(#view-receipts.active)::before { height:59px; } .app-shell:has(#view-receipts.active) { padding-top:69px; } .ri-page-head { top:59px; } .ri-page-head::before { top:-69px; }'});
+  for(const hue of [283,210,24,338,160]){
+   await page.evaluate(h=>document.documentElement.style.setProperty('--color-insights-header',`hsl(${h} 70% 19%)`),hue);
+   for(const y of [0,240]){
+    await page.evaluate(y=>scrollTo(0,y),y);
+    const layer=await page.evaluate(()=>{const s=getComputedStyle(document.body,'::before'),h=getComputedStyle(document.querySelector('.ri-page-head'));return {width:parseFloat(s.width),radius:s.borderRadius,background:s.backgroundColor,header:h.backgroundColor,shadow:s.boxShadow,filter:s.filter,height:s.height};});
+    assert.equal(layer.width,width,'Safe-area background spans the viewport');assert.equal(layer.radius,'0px');assert.equal(layer.background,layer.header,'Status area and sticky header share the live theme colour');assert.equal(layer.shadow,'none');assert.equal(layer.filter,'none');assert.equal(layer.height,'59px');if(output&&hue===283)await page.screenshot({path:output+'/'+engine+'-'+width+'-safe-area-'+y+'.png'});
+   }
+  }
+  await safeArea.evaluate(e=>e.remove());await page.evaluate(()=>{document.documentElement.style.removeProperty('--color-insights-header');scrollTo(0,0);});
   if(output)await page.screenshot({path:output+'/'+engine+'-'+width+'-populated-source.png'});
   await page.reload();await page.locator('.ri-paid-card').waitFor();assert.equal(await page.locator('.ri-paid-total').innerText(),'£40.00');assert.equal(await page.evaluate(()=>localStorage.getItem('uber-tracker-finance-encrypted-v1')),null,'No forced import or hidden private ledger created');
   await page.locator('[data-ri-service=rides]').click();assert.equal(await page.locator('.ri-paid-total').innerText(),'£20.50');await page.locator('[data-ri-service=all]').click();assert.equal(await page.locator('.ri-paid-total').innerText(),'£60.50');await page.locator('.ri-metric-select').selectOption('paid');assert.equal((await page.locator('.ri-activity-row strong').allTextContents()).reduce((n,v)=>n+Number(v.replace(/[^0-9.]/g,'')),0),64.5);
