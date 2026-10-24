@@ -340,3 +340,8 @@ body:has(#view-used.active) { background:var(--theme-account-page); }
 .sheet[data-screen="Account details"] :is(section.account-sheet-hero,details.account-cash-entry,div.account-calculator-panel,section.account-management,details.offer-history) { background:var(--theme-account-panel); }
 .sheet[data-screen="Account details"] .account-offer-meta { margin-bottom:4px; }
 .sheet[data-screen="Account details"] .usage-slot-grid { row-gap:8px; }
+#usedSort { background:transparent; border:0; border-radius:0; }
+.used-record { padding:12px; }
+.used-record-head { padding-bottom:9px; }
+.used-provider { display:flex; }
+.used-evidence { padding-top:9px; }
