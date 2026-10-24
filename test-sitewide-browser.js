@@ -21,7 +21,7 @@ const server=http.createServer((req,res)=>{
 });server.listen(0,'127.0.0.1');await once(server,'listening');
 const name=process.env.TRACKER_BROWSER_ENGINE||'chromium',browser=await{chromium,webkit,firefox}[name].launch();
 try{
- for(const width of [320,390,1440]){
+ for(const width of [320,390,440,1440]){
   const page=await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
   const saved=await page.locator('#savedStat').innerText();

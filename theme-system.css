@@ -346,3 +346,42 @@ body:has(#view-used.active) { background:var(--theme-account-page); }
 .used-provider { display:flex; }
 .used-evidence { padding-top:9px; }
 :is(.bottom-nav,html[data-layout=desktop] .bottom-nav) { background-color:var(--color-panel); }
+
+/* More: the live grouped menu, using the existing hue-derived navy materials. */
+body:has(#view-more.active) { background:var(--theme-menu-page); background-attachment:fixed; }
+#view-more .screen-head { display:block; margin:0 0 22px; padding:0; text-align:left; }
+#view-more .screen-title,html[data-layout=desktop] #view-more .screen-title { font-size:32px; line-height:1.2; font-weight:650; }
+#view-more .more-intro { margin:8px 0 0; color:var(--color-secondary); font-size:16px; line-height:1.5; }
+#view-more .more-grid,html[data-layout=desktop] #view-more .more-grid { gap:22px; }
+#view-more .more-group h2 { margin:0 6px 8px; color:var(--color-secondary); font-size:12px; font-weight:550; letter-spacing:.06em; }
+#view-more .more-group-list { padding:0; border:1px solid var(--color-menu-border); border-radius:16px; background:var(--theme-menu-panel); overflow:hidden; }
+#view-more .more-card,html[data-layout=desktop] #view-more .more-card { display:flex; min-height:52px; padding:12px 16px; gap:18px; }
+#view-more .more-card + .more-card { border-color:var(--color-menu-border); }
+#view-more .more-icon,#view-more .more-icon svg { width:24px; height:24px; flex:0 0 24px; color:var(--color-text); }
+#view-more .more-icon { padding:0; background:none; border:0; border-radius:0; }
+#view-more .more-title { font-size:16px; line-height:1.5; font-weight:500; }
+#view-more .more-content { flex:1; min-width:0; flex-wrap:nowrap; gap:10px; }
+#view-more .more-count { flex:none; font-size:16px; color:var(--color-secondary); }
+#view-more .row-chevron { color:var(--color-soft-accent); }
+#view-more .more-card:focus-visible { outline-offset:-4px; }
+@media(max-width:359px) { #view-more .more-card { padding-inline:12px; gap:12px; } }
+
+/* Roomier phone controls without changing desktop or the approved layouts. */
+@media(min-width:400px) and (max-width:480px) {
+ html[data-layout=mobile] .app-shell { padding-inline:20px; }
+ #view-accounts .account-email { font-size:15px; }
+ #view-accounts .account-login-route { font-size:12px; }
+ #view-accounts .directory-offer-row strong { font-size:16px; }
+ #view-accounts .directory-offer-row small { font-size:12px; }
+ #view-accounts .account-access-pill { font-size:11px; }
+ #view-accounts .accounts-results-head h2 { font-size:20px; }
+ #view-accounts .directory-card { padding:12px 12px 4px; }
+ #view-accounts .directory-view-offers { min-height:44px; font-size:13px; }
+ #view-accounts .account-preferred-chips button { min-height:40px; font-size:12px; padding-inline:10px; }
+ #view-accounts .directory-select,#view-accounts #accountTypeTrigger,#view-accounts .account-secondary > summary { min-height:44px; }
+ #view-home .home-action-row { min-height:64px; }
+ #view-home .home-action-row strong { font-size:16px; }
+ #view-home .home-action-row small,#view-home .home-sync { font-size:13px; }
+}
+html[data-layout=mobile] :is(.view,.sheet-body) { overflow-wrap:break-word; }
+html[data-layout=mobile] .sheet-body { overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
