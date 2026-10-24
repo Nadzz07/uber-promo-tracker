@@ -74,7 +74,7 @@ try{
   const homeHeroHeight=await page.locator('.total-saved-card').evaluate(el=>el.getBoundingClientRect().height);
   assert.ok(homeHeroHeight<=170,'Home savings keeps compact preview proportions: '+name+' / '+width+' / '+homeHeroHeight);
   await page.locator('[data-view="used"]').click();
-  assert.equal(await page.locator('.activity-card,#view-used > details').count(),0,'Old metric and category-menu presentation is removed');assert.equal(await page.locator('#usedStatusOptions [role=option]').count(),8,'Every existing status group remains available');assert.ok(await page.locator('.used-summary').evaluate(e=>e.scrollWidth<=e.clientWidth+1));
+  assert.equal(await page.locator('.activity-card,#view-used > details').count(),0,'Old metric and category-menu presentation is removed');assert.equal(await page.locator('#usedStatusOptions [role=option]').count(),9,'Every existing status group remains available');assert.ok(await page.locator('.used-summary').evaluate(e=>e.scrollWidth<=e.clientWidth+1));
   await page.locator('[data-view="more"]').click();
   await page.keyboard.press('Escape');await page.locator('#view-more [data-open-sheet="device"]').click();
   await page.locator('#deviceAccountsFile').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{}')});await page.waitForFunction(()=>document.getElementById('deviceImportStatus').textContent.includes('Choose a tracker'));assert.match(await page.locator('#deviceImportStatus').innerText(),/Choose a tracker/);
