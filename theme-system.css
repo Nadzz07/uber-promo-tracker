@@ -345,3 +345,4 @@ body:has(#view-used.active) { background:var(--theme-account-page); }
 .used-record-head { padding-bottom:9px; }
 .used-provider { display:flex; }
 .used-evidence { padding-top:9px; }
+:is(.bottom-nav,html[data-layout=desktop] .bottom-nav) { background-color:var(--color-panel); }
