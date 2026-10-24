@@ -10,7 +10,7 @@ export const ACTIVITY_STATUSES=[
 const latest=values=>values.filter(v=>v&&Number.isFinite(Date.parse(v))).sort((a,b)=>Date.parse(b)-Date.parse(a))[0]||null;
 export function receiptUsageEvidence(account){
  const eats=Math.max(0,Number(account.orderCount)||0),rides=Math.max(0,Number(account.rideCount)||0);
- return rides>0&&eats>0?eats+' Eats + '+rides+' Ride':eats>0?eats+' Eats '+(eats===1?'receipt':'receipts'):rides+' Ride '+(rides===1?'receipt':'receipts');
+ return rides>0&&eats>0?eats+' Eats + '+rides+' Ride':eats>0?eats+' Eats '+(eats===1?'order':'orders'):rides+' Ride '+(rides===1?'receipt':'receipts');
 }
 function uncertainty(promo,activity){
  if(activity.verificationConflict)return activity.verificationConflict;
@@ -18,6 +18,8 @@ function uncertainty(promo,activity){
  return (promo.reviewReasons||[]).map(r=>labels[r]).filter(Boolean).join(' · ')||'Offer evidence needs checking';
 }
 export function buildUsedActivity(accounts=[],promos=[],store={},reviewCount=()=>0){
+ const offerText=new Map();
+ for(const p of promos){const label=p.discountType==='uberCash'?'Uber Cash':p.discountType==='percent'?p.discount+'% off':'£'+p.discount+' off £'+p.minimumSpend;offerText.set(p.accountRef,[offerText.get(p.accountRef),p.title,p.code,label].filter(Boolean).join(' '));}
  const buckets=Object.fromEntries(ACTIVITY_STATUSES.map(s=>[s.key,[]])),byRef=new Map(accounts.map(a=>[a.accountRef,a])),review=new Map();
  const addReview=(account,text,at)=>{if(!account)return;if(!review.has(account.accountRef))review.set(account.accountRef,{key:'review:'+account.accountRef,account,entity:'account',evidence:[],at:null});const r=review.get(account.accountRef);r.evidence.push(text);r.at=latest([r.at,at]);};
  for(const account of accounts){
@@ -41,9 +43,10 @@ export function buildUsedActivity(accounts=[],promos=[],store={},reviewCount=()=
  }
  buckets.needs_checking=[...review.values()].map(r=>({...r,evidence:[...new Set(r.evidence)].join(' · ')}));
  buckets.expired=[...buckets.finished_expired,...buckets.expired_unused];
+ for(const rows of Object.values(buckets))for(const r of rows)r.searchText=[r.account.email,r.account.accountEmail,r.account.fullEmail,r.account.loginMethod,r.promo?[r.promo.title,r.promo.code,r.promo.discountType==='percent'?r.promo.discount+'% off':'£'+r.promo.discount+' off £'+r.promo.minimumSpend].join(' '):offerText.get(r.account.accountRef)].filter(Boolean).join(' ');
  return {buckets,summary:{used:buckets.used.length,needs_checking:buckets.needs_checking.length,expired:buckets.expired.length}};
 }
 export function activityResults(model,{status='used',query='',sort='latest'}={},identity=a=>a.accountMasked||a.accountRef){
  const needle=query.trim().toLowerCase();
- return (model.buckets[status]||[]).filter(r=>!needle||[identity(r.account),r.account.accountRef,r.account.loginMethod,r.promo?.title,r.evidence].filter(Boolean).join(' ').toLowerCase().includes(needle)).slice().sort((a,b)=>sort==='email'?identity(a.account).localeCompare(identity(b.account)):(Date.parse(b.at)||-Infinity)-(Date.parse(a.at)||-Infinity)||identity(a.account).localeCompare(identity(b.account)));
+ return (model.buckets[status]||[]).filter(r=>!needle||[identity(r.account),r.account.accountRef,r.account.loginMethod,r.promo?.title,r.evidence,r.searchText].filter(Boolean).join(' ').toLowerCase().includes(needle)).slice().sort((a,b)=>sort==='email'?identity(a.account).localeCompare(identity(b.account))||a.key.localeCompare(b.key):(Date.parse(b.at)||-Infinity)-(Date.parse(a.at)||-Infinity)||identity(a.account).localeCompare(identity(b.account))||a.key.localeCompare(b.key));
 }

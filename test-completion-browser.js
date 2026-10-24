@@ -35,7 +35,7 @@ try{
  await page.locator('[data-view="home"]').click();await openHomeDetail(page,'offers');await page.locator('#homeOfferSearch').fill('A908');assert.equal(await page.locator('#homeAccounts [data-card-account="A908"]').count(),1,'Current eligible offer survives another finished offer');
  const badges=await page.locator('.account-card .pill-row').allTextContents();assert.ok(badges.every(text=>!/Login:|Partial account usage|promos available|Available/.test(text)),'Cards repeat secondary badges');
  await page.emulateMedia({reducedMotion:'reduce'});await page.locator('[data-view="more"]').click();await page.waitForTimeout(50);
- assert.ok(await page.locator('.nav-glider').evaluate(el=>!getComputedStyle(el).transform.includes('NaN')));
+ assert.equal(await page.locator('.nav-glider').count(),0);
  const navSurface=await page.locator('#mainNav').evaluate(el=>({background:getComputedStyle(el).backgroundColor,filter:getComputedStyle(el).backdropFilter}));
  assert.equal(navSurface.filter,'none','Matte navigation avoids backdrop/refraction work');assert.equal(await page.locator('#tracker-liquid-lens').count(),0);assert.notEqual(navSurface.background,'rgba(0, 0, 0, 0)','Navigation has an opaque, readable surface');
 

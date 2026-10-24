@@ -2324,7 +2324,6 @@
     <div id="localNotice" class="sync-strip local-notice" role="status" hidden></div>
 
     <nav id="mainNav" class="bottom-nav" aria-label="Main navigation">
-      <span class="nav-glider" aria-hidden="true"></span>
       <button class="nav-btn active" data-view="home" aria-current="page">
         <svg viewBox="0 0 24 24" stroke-width="1.7" aria-hidden="true" focusable="false"><path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9"/></svg>
         Home
@@ -2334,7 +2333,7 @@
         Accounts
       </button>
       <button class="nav-btn" data-view="used">
-        <svg viewBox="0 0 24 24" stroke-width="1.7" aria-hidden="true" focusable="false"><path d="m5 12.5 4.1 4.1L19.5 6.8"/></svg>
+        <svg viewBox="0 0 24 24" stroke-width="1.7" aria-hidden="true" focusable="false"><circle class="nav-used-ring" cx="12" cy="12" r="9.5"/><path d="m7.5 12 3 3 6-6"/></svg>
         Used
       </button>
       <button class="nav-btn" data-view="more">
@@ -2503,13 +2502,13 @@
       </section>
 
       <section id="view-used" class="view" aria-labelledby="usedTitle">
-        <header class="used-head"><h1 id="usedTitle" tabindex="-1">Used accounts</h1><button class="icon-control" data-used-info="true" aria-label="How statuses are decided"><span data-icon="info" aria-hidden="true"></span></button></header>
+        <header class="used-head"><h1 id="usedTitle" tabindex="-1">Used accounts</h1><button class="icon-control" data-used-info="true" aria-label="How statuses work"><span data-icon="info" aria-hidden="true"></span></button></header>
         <div class="used-summary" aria-label="Activity summaries"><button data-used-status="used"><strong id="usedAccountCount">0</strong><span>Fully used</span></button><button data-used-status="needs_checking"><strong id="needsCheckCount">0</strong><span>Needs checking</span></button><button data-used-status="expired"><strong id="expiredCount">0</strong><span>Expired offers</span></button></div>
         <div class="used-search"><span data-icon="search" aria-hidden="true"></span><input id="usedSearch" type="search" placeholder="Search accounts or offers" aria-label="Search accounts or offers" autocomplete="off"></div>
         <div class="used-filters"><button data-used-status="used" aria-pressed="true">Fully used <span id="usedQuickCount">0</span></button><button data-used-status="needs_checking" aria-pressed="false">Needs checking <span id="usedReviewQuickCount">0</span></button><div class="used-status-control"><button id="usedStatus" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="usedStatusOptions" aria-label="Activity status"><span data-icon="filter" aria-hidden="true"></span><span id="usedStatusLabel">Status</span><span aria-hidden="true">⌄</span></button><div id="usedStatusOptions" role="listbox" aria-label="Activity status" hidden></div></div></div>
-        <div class="used-results-head"><div><h2 id="usedResultsTitle">Fully used</h2><label class="used-sort"><span class="sr-only">Sort results</span><select id="usedSort"><option value="latest">Latest activity</option><option value="email">Account email</option></select></label></div><span id="usedResultsCount" role="status" aria-live="polite"></span></div>
+        <div class="used-results-head"><div><h2 id="usedResultsTitle">Fully used</h2><span id="usedResultsCount" role="status" aria-live="polite"></span></div><label class="used-sort"><span class="sr-only">Sort results</span><select id="usedSort"><option value="latest">Latest activity</option><option value="email">Account email</option></select></label></div>
         <div id="usedRecords" class="used-records"></div><div id="usedPagination"></div>
-        <button class="used-info-link" data-used-info="true"><span data-icon="info" aria-hidden="true"></span><span>How statuses are decided</span><span aria-hidden="true">›</span></button>
+        <button class="used-info-link" data-used-info="true"><span data-icon="info" aria-hidden="true"></span><span>How statuses work</span><span aria-hidden="true">›</span></button>
       </section>
 
       <section id="view-settings" class="view" aria-labelledby="settingsTitle"><header class="settings-head"><button data-settings-back="true"><span aria-hidden="true">‹</span> More</button><h1 id="settingsTitle" tabindex="-1">Settings</h1><span aria-hidden="true"></span></header><div id="settingsContent" class="compact-settings"></div></section>
@@ -2565,7 +2564,6 @@
     import { offerFinishedReason, offerClosureLabel, classifyOfferCompletion } from "./offer-state.js";
     import {PrivateFinanceVault} from './private-finance-vault.js';
     import {accountHistoryGroups,preferredAccountOffers,offerReceiptAvailability,offerUsageEvidence,directoryAccounts,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
-    import { createLiquidNavigation } from "./liquid-glass.js";
     import { setupDraggableNavigation } from "./nav-gestures.js";
     import { DEVICE_ACCOUNTS_KEY, parseDeviceAccounts, deviceEmail } from "./device-accounts.js";
     import { classifyAccount, accountStatusLabel, accountUsageDescription, accountUnfinished, accountProgressDescription, offerInProgress, accountArchived, matchesAccountFilter, eligibleAccountCounts, matchesOfferScope, offerReadinessRank, offerReadinessLabel, accountOfferKey, accountOfferChoices, accountMatchesOfferType, accountMatchesLogin, accountMatchesProvider } from "./account-state.js";
@@ -3626,22 +3624,22 @@
       if(!usedActivityCache||usedActivityCache.clock!==projectionClock||usedActivityCache.manual!==manualStore||usedActivityCache.data!==payload||usedActivityCache.privateData!==financeVault.data)usedActivityCache={clock:projectionClock,manual:manualStore,data:payload,privateData:financeVault.data,model:buildUsedActivity(rows,promos.map(receiptAwarePromo),manualStore,receiptReviewCount)};
       const model=usedActivityCache.model;
       for(const [id,value]of Object.entries({usedAccountCount:model.summary.used,needsCheckCount:model.summary.needs_checking,expiredCount:model.summary.expired,usedQuickCount:model.summary.used,usedReviewQuickCount:model.summary.needs_checking}))document.getElementById(id).textContent=value.toLocaleString('en-GB');
-      const categories=[...ACTIVITY_STATUSES,{key:'expired',label:'Expired offers · all',entity:'promotions'}];
+      const categories=[...ACTIVITY_STATUSES,{key:'expired',label:'Expired offers',entity:'promotions'}];
       const category=categories.find(s=>s.key===usedState.status)||categories[0];
-      document.getElementById('usedStatusOptions').innerHTML=ACTIVITY_STATUSES.map(s=>'<button type="button" role="option" tabindex="-1" aria-selected="'+(s.key===usedState.status)+'" data-status-option="'+s.key+'"><span>'+escapeHtml(s.label)+'</span><span aria-hidden="true">'+(s.key===usedState.status?'✓':'')+'</span></button>').join('');
+      document.getElementById('usedStatusOptions').innerHTML=categories.map(s=>'<button type="button" role="option" tabindex="-1" aria-selected="'+(s.key===usedState.status)+'" data-status-option="'+s.key+'"><span>'+escapeHtml(s.label)+'</span><span aria-hidden="true">'+(s.key===usedState.status?'✓':'')+'</span></button>').join('');
       document.getElementById('usedStatusLabel').textContent=['used','needs_checking'].includes(usedState.status)?'Status':category.label;
       document.querySelectorAll('.used-filters [data-used-status]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.usedStatus===usedState.status)));
       document.querySelector('.used-filters').classList.toggle('large-text',parseFloat(getComputedStyle(document.querySelector('.used-filters > button')).fontSize)>16);
-      const list=activityResults(model,usedState,accountDisplay),shown=list.slice(0,usedState.full?usedState.limit:2);
+      const list=activityResults(model,usedState,accountDisplay),shown=list.slice(0,usedState.limit);
       usedRecordIndex=new Map(list.map(r=>[r.key,r]));
       document.getElementById('usedResultsTitle').textContent=usedState.status==='used'?'Fully used':category.label;
       document.getElementById('usedResultsCount').textContent=list.length.toLocaleString('en-GB')+' '+(list.length===1?category.entity.slice(0,-1):category.entity);
       document.getElementById('usedRecords').innerHTML=shown.length?shown.map(r=>{
         const account=r.account,access=account.canLogin===true?'Can log in':account.canLogin===false?'Can’t log in':'Access pending';
         const when=r.expiry?'Expired '+(formatDate(r.expiry)||'date unknown'):r.at?(r.entity==='account'&&usedState.status==='used'?'Last used ':'Activity ')+(formatDate(r.at)||''):'';
-        return '<article class="used-record" data-used-record="'+escapeHtml(r.key)+'"><button class="used-record-head" data-activity-record="'+escapeHtml(r.key)+'" aria-label="View '+escapeHtml(accountDisplay(account))+'"><span class="used-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="used-identity"><strong>'+escapeHtml(accountDisplay(account))+'</strong><span>'+escapeHtml(loginRouteText(account))+'</span></span><span class="used-access '+(account.canLogin===true?'positive':'')+'"><i aria-hidden="true"></i>'+access+'</span><span class="used-chevron" aria-hidden="true">›</span></button><div class="used-evidence"><span class="used-evidence-icon">'+financeIcon(r.receiptRuleMet?'check':usedState.status==='needs_checking'?'alert':'receipt')+'</span><div><p>'+escapeHtml(r.promo?promoLabel(r.promo)+' · '+r.evidence:r.evidence)+'</p>'+(when?'<small>'+financeIcon('calendar')+escapeHtml(when)+'</small>':'')+'</div>'+(r.receiptRuleMet?'<span class="receipt-rule-badge">Receipt rule met</span>':'')+'</div></article>';
+        return '<button type="button" class="used-record" data-used-record="'+escapeHtml(r.key)+'" data-activity-record="'+escapeHtml(r.key)+'" aria-label="View '+escapeHtml(accountDisplay(account))+'"><span class="used-record-head"><span class="used-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="used-identity"><strong>'+escapeHtml(accountDisplay(account))+'</strong><span>'+escapeHtml(loginRouteText(account))+'</span></span><span class="used-access '+(account.canLogin===true?'positive':'')+'"><i aria-hidden="true"></i>'+access+'</span><span class="used-chevron" aria-hidden="true">›</span></span><span class="used-evidence"><span class="used-evidence-icon">'+financeIcon(r.receiptRuleMet?'check':usedState.status==='needs_checking'?'alert':'receipt')+'</span><span><span class="used-evidence-text">'+escapeHtml(r.promo?promoLabel(r.promo)+' · '+r.evidence:r.evidence)+'</span>'+(when?'<small>'+financeIcon('calendar')+escapeHtml(when)+'</small>':'')+'</span>'+(r.receiptRuleMet?'<span class="receipt-rule-badge">Receipt rule met</span>':'')+'</span></button>';
       }).join(''):'<div class="used-empty"><p>No matching '+category.entity+'.</p><button data-reset-used="true">Clear search and show fully used</button></div>';
-      document.getElementById('usedPagination').innerHTML=list.length>shown.length?'<button class="used-more" data-used-more="true">'+(usedState.full?'Show '+Math.min(24,list.length-shown.length)+' more · '+shown.length+' of '+list.length:'View all '+list.length.toLocaleString('en-GB')+' '+category.entity)+'<span aria-hidden="true">›</span></button>':'';
+      document.getElementById('usedPagination').innerHTML=list.length>shown.length?'<button class="used-more" data-used-more="true">Show more '+category.entity+'<span aria-hidden="true">⌄</span></button>':'';
     }
 
     let guideModule, guideLoading;
@@ -4417,7 +4415,7 @@
       openAccountRef = null;
     }
 
-    function renderUsedInformation(){setSheetHeading('How statuses are decided','Accounts and promotions are counted separately.');document.getElementById('sheetBody').innerHTML='<div class="setting-card"><p>Fully used accounts have at least one Eats and one Ride receipt, or five Eats receipts. Login and archive status stay independent.</p><p>Needs checking counts accounts with uncertain offer or receipt evidence. The record explains the uncertainty.</p><p>Expired offers counts promotions in Finished · Expired and Expired · Unused. Summary values count different categories; they are not a partition and must not be added together.</p><p>Completed promotions require every permitted use to be verified. Partial use, manual finish and ignore states stay separate.</p></div><button class="advanced-btn" data-open-guide="verification">Read the full status guide ›</button>';}
+    function renderUsedInformation(){setSheetHeading('How statuses work','Accounts and offers are counted separately.');document.getElementById('sheetBody').innerHTML='<div class="setting-card"><p>Fully used accounts have at least one Eats and one Ride receipt, or five Eats receipts. Login and archive status stay independent.</p><p>Needs checking counts accounts with uncertain offer or receipt evidence. The record explains the uncertainty.</p><p>Expired offers counts promotions in Finished · Expired and Expired · Unused. Summary values count different categories; they are not a partition and must not be added together.</p><p>Completed promotions require every permitted use to be verified. Partial use, manual finish and ignore states stay separate.</p></div><button class="advanced-btn" data-open-guide="verification">Read the full status guide ›</button>';}
 
     function openUtilitySheet(type, financeTarget = null, financeMissing = false, financeAccount = null, financeReceipt = null) {
       if(type==='receipts'){
@@ -4777,9 +4775,9 @@
 
     const mainNav = document.getElementById('mainNav');
     mainNav.dataset.motion=motionSetting;
-    liquidNavigation = createLiquidNavigation(mainNav);
+
     updateNavGlider();
-    setupDraggableNavigation({ nav: mainNav, onSelect: switchView, onRestore: updateNavGlider, onGliderMove: next => liquidNavigation.dragTo(next) });
+    setupDraggableNavigation({ nav: mainNav, onSelect: switchView, onRestore: updateNavGlider });
 
     if (initialView !== 'home') { routeRestoring = true; switchView(initialView); routeRestoring = false; }
     document.getElementById('finderOfferType').addEventListener('change',e=>{if(e.target.value==='other')chooseOtherOffers(e.target);else applyOfferScope(e.target.value);});
@@ -4835,7 +4833,7 @@
     document.getElementById('accountSort').addEventListener('change',e=>{accountSort=e.target.value;accountDisplayLimit=48;renderAccounts();});
     document.getElementById('accountLoginTabs').addEventListener('click',e=>{const b=e.target.closest('[data-login-filter]');if(b){accountLoginFilter=b.dataset.loginFilter;accountDisplayLimit=48;renderAccounts();}});
     function chooseUsedStatus(status){closeUsedPicker();usedState={...usedState,status,full:false,limit:24};renderUsed();}
-    document.getElementById('usedSearch').addEventListener('input',e=>{usedState.query=e.target.value;usedState.full=false;renderUsed();});
+    document.getElementById('usedSearch').addEventListener('input',e=>{usedState.query=e.target.value;usedState.full=false;usedState.limit=24;renderUsed();});
     function closeUsedPicker(restore=false){document.getElementById('usedStatusOptions').hidden=true;document.getElementById('usedStatus').setAttribute('aria-expanded','false');if(restore)document.getElementById('usedStatus').focus({preventScroll:true});}
     function openUsedPicker(last=false){
       const menu=document.getElementById('usedStatusOptions'),trigger=document.getElementById('usedStatus');
@@ -4855,10 +4853,10 @@
     document.getElementById('usedStatusOptions').addEventListener('click',e=>{const b=e.target.closest('[data-status-option]');if(b){closeUsedPicker(true);chooseUsedStatus(b.dataset.statusOption);}});
     document.getElementById('usedStatusOptions').addEventListener('keydown',e=>{const options=[...e.currentTarget.children],i=options.indexOf(document.activeElement);if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeUsedPicker(true);}else if(e.key==='Tab'){closeUsedPicker();}else if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){e.preventDefault();options[e.key==='Home'?0:e.key==='End'?options.length-1:(i+(e.key==='ArrowDown'?1:-1)+options.length)%options.length].focus();}});
     document.addEventListener('click',e=>{if(!e.target.closest('.used-status-control'))closeUsedPicker();});
-    document.getElementById('usedSort').addEventListener('change',e=>{usedState.sort=e.target.value;renderUsed();});
+    document.getElementById('usedSort').addEventListener('change',e=>{usedState.sort=e.target.value;usedState.limit=24;renderUsed();});
     document.getElementById('view-used').addEventListener('click',e=>{
       const status=e.target.closest('[data-used-status]');if(status){chooseUsedStatus(status.dataset.usedStatus);return;}
-      if(e.target.closest('[data-used-more]')){if(usedState.full)usedState.limit+=24;else{usedState.full=true;usedState.limit=24;}renderUsed();(document.querySelector('[data-used-more]')||document.querySelector('.used-info-link'))?.focus({preventScroll:true});return;}
+      if(e.target.closest('[data-used-more]')){usedState.full=true;usedState.limit+=24;renderUsed();(document.querySelector('[data-used-more]')||document.querySelector('.used-info-link'))?.focus({preventScroll:true});return;}
       if(e.target.closest('[data-reset-used]')){usedState={status:'used',query:'',sort:'latest',full:false,limit:24};document.getElementById('usedSearch').value='';document.getElementById('usedSort').value='latest';renderUsed();return;}
       if(e.target.closest('[data-used-info]')){e.target.closest('button').focus({preventScroll:true});openUtilitySheet('used-info');return;}
       const target=e.target.closest('[data-activity-record]');if(target){const r=usedRecordIndex.get(target.dataset.activityRecord);if(r){target.focus({preventScroll:true});openAccountSheet(r.account.accountRef,r.promo?promoStateKey(r.promo):null);if(r.promo)revealOfferHistory(r.promo);}}
