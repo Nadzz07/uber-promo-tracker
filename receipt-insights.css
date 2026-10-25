@@ -248,3 +248,5 @@ body:has(#sheetBackdrop.open .sheet[data-receipt-check]) #mainNav { visibility:h
 @media(max-width:380px) { .check-grid { grid-template-columns:minmax(0,1fr); gap:0; } }
 
 .check-warning.resolved { border-color:var(--rich-border); background:var(--theme-menu-panel); color:var(--rich-secondary); }
+
+.check-final.resolved { border-color:var(--rich-border); color:var(--rich-secondary); }.check-final.resolved strong { color:var(--color-text); }
