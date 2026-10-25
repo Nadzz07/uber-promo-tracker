@@ -2499,7 +2499,8 @@
     import { financeIcon, financeHero, financeMetric } from "./finance-layout.js";
     import {createReceiptInsights} from "./receipt-insights.js";
     import { PALETTE } from './theme-palette.js';
-    import { financialSummary, receiptFinancials } from "./receipt-financials.js";
+    import {dedupeReceipts} from "./receipt-identity.js";
+    import { financialSummary, receiptFinancials, receiptReviewState } from "./receipt-financials.js";
     document.querySelectorAll('[data-icon]').forEach(element => { element.innerHTML = financeIcon(element.dataset.icon); element.setAttribute('aria-hidden','true'); });
     document.querySelectorAll('.metric-help').forEach(button => { button.innerHTML = financeIcon('info'); });
     import {OFFER_PREFERENCES_KEY,DEFAULT_PREFERRED_PROMOS,readOfferPreferences,saveOfferPreferences,selectedOfferScope,offerScopeLabel,mainOfferChoices,matchesDiscoveryScope,plannerOffersForScope,hasCurrentCash,isPreferredPromo} from "./offer-preferences.js";
@@ -3262,12 +3263,12 @@
     function privateReceiptReview() {
       const data=financeVault.data;
       if(!data)return null;
-      if(data!==reviewData){const corrections=financeVault.current().corrections;const counts=new Map(),refs=new Set(data.accounts.map(a=>a.accountRef));for(const r of data.receipts)if(receiptFinancials(r,corrections[r.receiptId]).needsAdjustmentReview)counts.set(r.accountRef,(counts.get(r.accountRef)||0)+1);reviewData=data;reviewView={counts,refs,version:data.receiptReviewVersion,summary:financialSummary(data.receipts,corrections)};}
+      if(data!==reviewData){const corrections=financeVault.current().corrections;const counts=new Map(),refs=new Set(data.accounts.map(a=>a.accountRef));for(const r of dedupeReceipts(data.receipts))if(receiptReviewState(r,corrections[r.receiptId]).needsChecking)counts.set(r.accountRef,(counts.get(r.accountRef)||0)+1);reviewData=data;reviewView={counts,refs,version:data.receiptReviewVersion,summary:financialSummary(data.receipts,corrections)};}
       return reviewView;
     }
-    function receiptReviewCount(account) {const local=privateReceiptReview();return local?.version===1&&local.refs.has(account.accountRef)?local.counts.get(account.accountRef)||0:Number(account.receiptReviewCount||0);}
+    function receiptReviewCount(account) {const local=privateReceiptReview();return local&&local.refs.has(account.accountRef)&&(local.version===1||financeVault.data.receipts.some(r=>r.accountRef===account.accountRef))?local.counts.get(account.accountRef)||0:Number(account.receiptReviewCount||0);}
     function missingDetailsCount() {const local=privateReceiptReview(),published=Number(payload.summary?.financialBreakdown?.missing||0);return local?.version===1?local.summary.missing:Math.max(local?.summary.missing||0,published);}
-    function receiptReviewAction(account) {const count=receiptReviewCount(account);return count?'<button class="sheet-action-row receipt-review-action" data-open-sheet="finance" data-finance-target="receipt" data-finance-missing="true" data-finance-account="'+escapeHtml(account.accountRef)+'">'+financeIcon('receipt')+'<span>Missing details · '+count+' receipt'+(count===1?'':'s')+'<small>Refund or adjustment · check final amounts</small></span></button>':'';}
+    function receiptReviewAction(account) {const count=receiptReviewCount(account);return count?'<button class="sheet-action-row receipt-review-action" data-open-sheet="finance" data-finance-target="check" data-finance-missing="true" data-finance-account="'+escapeHtml(account.accountRef)+'">'+financeIcon('receipt')+'<span>'+count+' receipt'+(count===1?' needs':'s need')+' checking<small>Check recorded amounts and payments</small></span></button>':'';}
 
     function preferredScopeEmpty(selection=accountTypeFilter){return selection==='preferred'&&!offerPreferences.preferredPromos.length&&!offerPreferences.includeCash;}
     function emptyPreferredNotice(){return 'No preferred offer categories are enabled. Choose Preferred promos or enable Uber Cash in Settings.';}
@@ -3707,9 +3708,9 @@
       for(const el of host.querySelectorAll('details,div.manage-offer,.account-management')){if(!keys.has(el.dataset.offerKey||el.dataset.disclosureKey||el.id))continue;if(el.matches('.account-management'))setAccountManagementOpen(el,true);else if(el.matches('div.manage-offer')){el.hidden=false;el.setAttribute('open','');el.closest('.account-offer-actions').querySelector('[data-manage-toggle]')?.setAttribute('aria-expanded','true');}else el.open=true;}
       host.scrollTop=saved.scroll||0;if(saved.receiptId)host.querySelector('[data-account-receipt="'+CSS.escape(saved.receiptId)+'"]')?.focus({preventScroll:true});
     }
-    function openAccountReceipt(receiptId=null,offerKey=null){
-      if(!openAccountRef)return;accountReceiptReturn=accountDisclosureSnapshot(receiptId);accountReceiptReturn.offerKey=offerKey;
-      openUtilitySheet('finance','receipt',false,accountReceiptReturn.accountRef,receiptId);
+    function openAccountReceipt(receiptId=null,offerKey=null,review=false){
+      if(!openAccountRef)return;accountReceiptReturn=accountDisclosureSnapshot(receiptId);accountReceiptReturn.offerKey=offerKey;accountReceiptReturn.review=review;
+      openUtilitySheet('finance',review?'check':'receipt',false,accountReceiptReturn.accountRef,receiptId);
     }
     function updateAccountReceiptList(key){
       const target=document.querySelector('[data-match-key="'+CSS.escape(key)+'"]'),promo=promoByKey(key);if(!target||!promo)return;
@@ -4016,6 +4017,7 @@
           const sheet=document.querySelector('.sheet'),head=sheet.querySelector('.sheet-head');sheet.dataset.receiptInsights='detail';
           const back=document.createElement('button');back.type='button';back.className='ri-back';back.setAttribute('aria-label',state.page==='finance'?'Back to Finances':state.page==='savings'?'Back to Savings receipts':'Back to Receipt insights');back.innerHTML=financeIcon('chevron-left');back.onclick=()=>closeSheet();head.prepend(back);
         },
+        onReviewReceipt:id=>openUtilitySheet('finance','check',false,null,id),
         onOpenReceipt:id=>{
           openSheetType='receipt-detail';receiptInsightsView.openReceipt(id);showSheet();document.querySelector('.ri-back').focus({preventScroll:true});
         }
@@ -4107,7 +4109,7 @@
       const sheet = document.querySelector('.sheet');
       sheet.dataset.screen = title;
       sheet.toggleAttribute('data-planner-fees',title==='Fee settings'&&currentView==='planner');
-      delete sheet.dataset.receiptInsights;sheet.querySelectorAll('.ri-range-wrap,.ri-back').forEach(e=>e.remove());
+      delete sheet.dataset.receiptCheck;delete sheet.dataset.receiptInsights;sheet.querySelectorAll('.ri-range-wrap,.ri-back').forEach(e=>e.remove());
       const financeLayout = title === 'Savings' || title === 'Private finances';
       sheet.toggleAttribute('data-finance-layout', financeLayout);
       let icon = sheet.querySelector('.finance-heading-icon');
@@ -4164,6 +4166,14 @@
     function renderUsedInformation(){setSheetHeading('How statuses work','Accounts and offers are counted separately.');document.getElementById('sheetBody').innerHTML='<div class="setting-card"><p>Fully used accounts have at least one Eats and one Ride receipt, or five Eats receipts. Login and archive status stay independent.</p><p>Needs checking counts accounts with uncertain offer or receipt evidence. The record explains the uncertainty.</p><p>Expired offers counts promotions in Finished · Expired and Expired · Unused. Summary values count different categories; they are not a partition and must not be added together.</p><p>Completed promotions require every permitted use to be verified. Partial use, manual finish and ignore states stay separate.</p></div><button class="advanced-btn" data-open-guide="verification">Read the full status guide ›</button>';}
 
     function openUtilitySheet(type, financeTarget = null, financeMissing = false, financeAccount = null, financeReceipt = null) {
+      if(type==='finance'&&financeTarget==='check'){
+        const corrections=financeVault.current().corrections,flagged=dedupeReceipts(financeVault.data?.receipts||[]).filter(r=>(!financeAccount||r.accountRef===financeAccount)&&receiptReviewState(r,corrections[r.receiptId]).needsChecking);
+        if(!financeReceipt&&flagged.length===1)financeReceipt=flagged[0].receiptId;
+        if(!financeReceipt&&flagged.length>1){closeSheet(true);switchView('receipts',{preserveSheet:true});const state=receiptInsightsView.state;state.reviewContext={range:state.range,service:state.service,full:state.full,reviewOnly:state.reviewOnly};state.reviewOnly=true;state.reviewAccountRef=financeAccount;state.full=true;state.range='all';state.service='all';receiptInsightsView.render();window.scrollTo({top:0,behavior:'instant'});return;}
+        if(openSheetType==='account'&&financeReceipt&&!accountReceiptReturn){openAccountReceipt(financeReceipt,null,true);return;}
+        if(openSheetType==='receipt-detail')receiptInsightsView.state.receiptId=null;
+      }
+
       if(type==='receipts'||type==='savings'||type==='finance'&&!financeTarget){
         switchView(type);const entry=currentRouteEntry;
         requestAnimationFrame(()=>{if(['receipts','savings','finance'].includes(currentView)&&currentRouteEntry===entry){document.getElementById('receiptInsightsTitle').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}});
@@ -4184,12 +4194,13 @@
       if(type==='theme'){renderLegacyAppearanceControls();setSheetHeading('Theme colour & layout','Saved on this device.');}
       if (type === "device") renderDeviceSheet();
       if (type === 'finance') {
-        setSheetHeading('Private finances', 'Receipt corrections & Cash balances.');
+        setSheetHeading(financeTarget==='check'?'Check receipt':'Private finances',financeTarget==='check'?'':'Receipt corrections & Cash balances.');if(financeTarget==='check')document.querySelector('.sheet').dataset.receiptCheck='true';
         const host=document.getElementById('sheetBody');
         host.innerHTML='<p class="sheet-help" role="status">Loading private finances…</p>';
         financeModule ||= import('./private-finance-ui.js');
         financeModule.then(module=>{
           if(openSheetType!=='finance'||financeRevision!==financeOpenRevision)return;
+          if(financeTarget==='check'){financeView=module.receiptReviewInterface({host,vault:financeVault,receiptId:financeReceipt,onUpdate:privateDataUpdated,onCancel:()=>closeSheet()});return;}
           financeView=module.financeInterface({host,vault:financeVault,initialPanel:financeTarget,missingOnly:financeMissing,initialAccountRef:financeAccount,initialReceiptId:financeReceipt,publishedReviewCount:accounts.reduce((n,a)=>n+Number(a.receiptReviewCount||0),0),
             accountLabel:ref=>accountDisplay(accounts.find(a=>a.accountRef===ref)||{accountRef:ref}),
             accountUsage:ref=>{const a=accounts.find(a=>a.accountRef===ref);return a?Number(a.orderCount||0)+Number(a.rideCount||0):null;},
@@ -4327,6 +4338,7 @@
       if(preferredEditor.active&&!preferredViews.has(view)&&preferredEditor.dirty&&!routeRestoring){preferredEditor.requestDiscard(()=>switchView(view));return;}
       if(preferredViews.has(view)&&!preferredEditor.active)preferredEditor.start();
       if(!preferredViews.has(view))preferredEditor.end();
+      if(currentView==='receipts'&&view!=='receipts'&&receiptInsightsView?.state.reviewContext){Object.assign(receiptInsightsView.state,receiptInsightsView.state.reviewContext,{reviewAccountRef:null,reviewContext:null});}
       recordViewRoute(view,routeOptions);
       currentView = view;updateBrowserTheme();
       document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used','settings','more','preferred-promos','preferred-catalogue','receipts','savings','finance'].includes(view));
@@ -4397,7 +4409,7 @@
         openSheetType='receipt-detail';receiptInsightsView.openReceipt(state.trackerReceipt);showSheet();document.querySelector('.ri-back')?.focus({preventScroll:true});routeRestoring=false;return;
       }
       if(accountReceiptReturn&&state.trackerSheet==='account'){const saved=accountReceiptReturn;financeView?.destroy();accountReceiptReturn=null;currentRouteEntry=state.trackerEntry;routeRestoring=true;openAccountSheet(saved.accountRef,state.trackerOffer,saved);routeRestoring=false;return;}
-      if(state.accountReceiptChild&&accountReceiptChildStates.has(state.trackerEntry)){accountReceiptReturn=accountReceiptChildStates.get(state.trackerEntry);currentRouteEntry=state.trackerEntry;routeRestoring=true;openUtilitySheet('finance','receipt',false,accountReceiptReturn.accountRef,accountReceiptReturn.receiptId);routeRestoring=false;return;}
+      if(state.accountReceiptChild&&accountReceiptChildStates.has(state.trackerEntry)){accountReceiptReturn=accountReceiptChildStates.get(state.trackerEntry);currentRouteEntry=state.trackerEntry;routeRestoring=true;openUtilitySheet('finance',accountReceiptReturn.review?'check':'receipt',false,accountReceiptReturn.accountRef,accountReceiptReturn.receiptId);routeRestoring=false;return;}
       accountReceiptReturn=null;
       routeRestoring = true;
       closeSheet(true);
@@ -4672,7 +4684,7 @@
 
       const sheetButton = event.target.closest("[data-open-sheet]");
       if (sheetButton) {
-        openUtilitySheet(sheetButton.dataset.openSheet, sheetButton.dataset.financeTarget, sheetButton.dataset.financeMissing === 'true', sheetButton.dataset.financeAccount);
+        openUtilitySheet(sheetButton.dataset.openSheet, sheetButton.dataset.financeTarget, sheetButton.dataset.financeMissing === 'true', sheetButton.dataset.financeAccount,sheetButton.dataset.financeReceipt);
         return;
       }
 
@@ -4727,7 +4739,7 @@
       const archivedAccount = event.target.closest('[data-account-offers]');
       if (archivedAccount) { openAccountSheet(archivedAccount.dataset.accountOffers); return; }
       const sheetButton = event.target.closest('[data-open-sheet]');
-      if (sheetButton) { openUtilitySheet(sheetButton.dataset.openSheet, sheetButton.dataset.financeTarget, sheetButton.dataset.financeMissing === 'true', sheetButton.dataset.financeAccount); return; }
+      if (sheetButton) { openUtilitySheet(sheetButton.dataset.openSheet, sheetButton.dataset.financeTarget, sheetButton.dataset.financeMissing === 'true', sheetButton.dataset.financeAccount,sheetButton.dataset.financeReceipt); return; }
       const colourButton = event.target.closest('[data-theme-colour]');
       if (colourButton) { chooseTheme(colourButton.dataset.themeColour); return; }
       if (event.target.id === 'resetTheme') { chooseTheme(DEFAULT_COLOUR); return; }

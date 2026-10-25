@@ -225,3 +225,26 @@ html:has(#view-receipts.active),body:has(#view-receipts.active) { background:var
 .fi-transaction:has(.ri-green) > svg:first-child { color:var(--rich-positive); }
 
 .finance-page select { min-height:44px; }
+
+body:has(#sheetBackdrop.open .sheet[data-receipt-check]) #mainNav { visibility:hidden; }
+.sheet[data-receipt-check] { width:min(100%,540px); background:var(--theme-menu-page); border-color:var(--rich-border); max-height:calc(100dvh - env(safe-area-inset-top,0px)); }
+.sheet[data-receipt-check] .finance-heading-icon { display:none; }
+.sheet[data-receipt-check] .sheet-body { scroll-padding-bottom:110px; }
+.check-receipt-form { display:grid; gap:14px; }
+.check-warning { display:flex; align-items:center; gap:12px; border:1px solid var(--color-warning-border); background:var(--color-warning-fill); padding:13px 14px; border-radius:16px; color:var(--color-warning-text); }
+.check-warning > svg { width:26px; height:28px; flex:none; }
+.check-warning small,.check-identity small { display:block; font-size:14px; margin-top:4px; }
+.check-card { border:1px solid var(--rich-border); background:var(--theme-menu-panel); border-radius:16px; padding:16px; min-width:0; }
+.check-card h3 { display:flex; align-items:center; gap:9px; margin:0 0 12px; font-size:18px; }
+.check-card h3 svg { width:23px; height:23px; }
+.check-identity { display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; border-bottom:1px solid var(--rich-border); padding-bottom:14px; margin-bottom:12px; overflow-wrap:anywhere; }
+.check-identity small { color:var(--rich-secondary); }.check-identity a { display:inline-flex; align-items:center; gap:4px; color:var(--color-accent); font-size:13px; }.check-identity a svg { width:16px;height:16px; }
+.check-breakdown-row,.check-final { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-block:7px; font-size:15px; color:var(--rich-secondary); }.check-breakdown-row strong { color:var(--color-text); font-weight:500; font-variant-numeric:tabular-nums; }.check-breakdown-row .check-positive { color:var(--rich-positive); }
+.check-final { margin-top:10px; padding:11px; border:1px solid var(--color-warning-border); color:var(--color-warning-text); border-radius:10px; }
+.check-field { display:flex; flex-direction:column; justify-content:flex-end; gap:7px; margin:12px 0; font-size:14px; color:var(--rich-secondary); min-width:0; }.check-field input,.check-field select { width:100%; min-height:46px; font-size:16px; padding:10px; border:1px solid var(--rich-border); border-radius:10px; background:var(--theme-menu-panel); color:var(--color-text); }.check-field select { appearance:auto; }
+.check-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; }.check-grid[hidden] { display:none; }
+.check-manual-note { display:flex; gap:8px; align-items:center; color:var(--rich-secondary); border:1px solid var(--rich-border); padding:11px; border-radius:10px; font-size:14px; }.check-manual-note svg { width:20px; height:20px; flex:none; }
+.check-actions { display:flex; gap:10px; position:sticky; bottom:0; padding-block:10px; background:var(--theme-menu-panel); }.check-actions button { flex:1; min-height:46px; font-size:16px; }.check-reset { border:0; background:transparent; color:var(--color-accent); min-height:44px; text-decoration:underline; font:inherit; }.check-error { color:var(--color-warning-text); font-size:14px; margin:0; }
+@media(max-width:380px) { .check-grid { grid-template-columns:minmax(0,1fr); gap:0; } }
+
+.check-warning.resolved { border-color:var(--rich-border); background:var(--theme-menu-panel); color:var(--rich-secondary); }
