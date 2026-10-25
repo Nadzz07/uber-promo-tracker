@@ -4011,10 +4011,10 @@
         getSource:()=>({data:financeVault.data,storeStatus:financeVault.status,corrections:financeVault.current().corrections,payload,offers:[...promos,...history]}),
         getScroll:()=>window.scrollY,setScroll:top=>window.scrollTo({top,behavior:'instant'}),
         onHeading:(title,state)=>{
-          if(!state.receiptId){document.getElementById('receiptInsightsTitle').textContent=title;document.getElementById('receiptInsightsInfo').textContent=state.page==='savings'?'Recorded promo discounts only. Uber Cash is a payment source, not promo savings. Averages use orders or rides with a positive recorded promo discount; zero and unknown discounts are excluded. Totals are in GBP; other currencies stay separate. Offers are attributed only by confirmed account and receipt links.':'Out-of-pocket spend uses recorded non-credit payments, or compatible receipt totals minus recorded Uber Cash. Receipt totals include credit; they are not your bank or card spending. Missing amounts are not zero. GBP totals exclude other currencies.';return;}
+          if(!state.receiptId){document.getElementById('receiptInsightsTitle').textContent=title;document.getElementById('receiptInsightsInfo').textContent=state.page==='finance'?'Payments and refunds are shown in their recorded currency. Uber Cash is separate. Unknown payment methods and refund destinations are not assumed to be cards. Reviewed net amounts are not reduced by their refund twice. Dates use recorded payment/refund dates, falling back to the receipt date. Gross and refunds remain unknown where only an adjusted net payment is supported.':state.page==='savings'?'Recorded promo discounts only. Uber Cash is a payment source, not promo savings. Averages use orders or rides with a positive recorded promo discount; zero and unknown discounts are excluded. Totals are in GBP; other currencies stay separate. Offers are attributed only by confirmed account and receipt links.':'Out-of-pocket spend uses recorded non-credit payments, or compatible receipt totals minus recorded Uber Cash. Receipt totals include credit; they are not your bank or card spending. Missing amounts are not zero. GBP totals exclude other currencies.';return;}
           setSheetHeading(title,'');
           const sheet=document.querySelector('.sheet'),head=sheet.querySelector('.sheet-head');sheet.dataset.receiptInsights='detail';
-          const back=document.createElement('button');back.type='button';back.className='ri-back';back.setAttribute('aria-label',state.page==='savings'?'Back to Savings receipts':'Back to Receipt insights');back.innerHTML=financeIcon('chevron-left');back.onclick=()=>closeSheet();head.prepend(back);
+          const back=document.createElement('button');back.type='button';back.className='ri-back';back.setAttribute('aria-label',state.page==='finance'?'Back to Finances':state.page==='savings'?'Back to Savings receipts':'Back to Receipt insights');back.innerHTML=financeIcon('chevron-left');back.onclick=()=>closeSheet();head.prepend(back);
         },
         onOpenReceipt:id=>{
           openSheetType='receipt-detail';receiptInsightsView.openReceipt(id);showSheet();document.querySelector('.ri-back').focus({preventScroll:true});
@@ -4038,7 +4038,7 @@
       privateWallets=financeVault.current().wallets;invalidateAccountProjection();reconcileLocalEvidence();reviewData=reviewView=null;
       renderAccounts();renderUsed();renderRecommendation();
       if(openSheetType==='account')renderAccountSheet();
-      if(['receipts','savings'].includes(currentView)||openSheetType==='receipt-detail')receiptInsightsView?.refresh();
+      if(['receipts','savings','finance'].includes(currentView)||openSheetType==='receipt-detail')receiptInsightsView?.refresh();
     }
     function mountPrivateDataTools(){
       const host=document.getElementById('privateDataTools');if(!host)return;
@@ -4120,7 +4120,7 @@
     }
 
     function showSheet() {
-      if (!routeRestoring && ['offers','planner','used','accounts','receipts','savings'].includes(currentView)) {
+      if (!routeRestoring && ['offers','planner','used','accounts','receipts','savings','finance'].includes(currentView)) {
         const state = window.history.state;
         if (routeEntries.has(state?.trackerEntry)) routeEntries.get(state.trackerEntry).scroll = window.scrollY;
         const entry = ++routeSerial;
@@ -4164,9 +4164,9 @@
     function renderUsedInformation(){setSheetHeading('How statuses work','Accounts and offers are counted separately.');document.getElementById('sheetBody').innerHTML='<div class="setting-card"><p>Fully used accounts have at least one Eats and one Ride receipt, or five Eats receipts. Login and archive status stay independent.</p><p>Needs checking counts accounts with uncertain offer or receipt evidence. The record explains the uncertainty.</p><p>Expired offers counts promotions in Finished · Expired and Expired · Unused. Summary values count different categories; they are not a partition and must not be added together.</p><p>Completed promotions require every permitted use to be verified. Partial use, manual finish and ignore states stay separate.</p></div><button class="advanced-btn" data-open-guide="verification">Read the full status guide ›</button>';}
 
     function openUtilitySheet(type, financeTarget = null, financeMissing = false, financeAccount = null, financeReceipt = null) {
-      if(type==='receipts'||type==='savings'){
+      if(type==='receipts'||type==='savings'||type==='finance'&&!financeTarget){
         switchView(type);const entry=currentRouteEntry;
-        requestAnimationFrame(()=>{if(['receipts','savings'].includes(currentView)&&currentRouteEntry===entry){document.getElementById('receiptInsightsTitle').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}});
+        requestAnimationFrame(()=>{if(['receipts','savings','finance'].includes(currentView)&&currentRouteEntry===entry){document.getElementById('receiptInsightsTitle').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}});
         return;
       }
       if(type==='appearance'){switchView('settings');document.getElementById('settingsTitle').focus({preventScroll:true});return;}
@@ -4251,7 +4251,7 @@
     }
 
     function renderAll() {
-      if(['receipts','savings'].includes(currentView))renderReceiptsPage();
+      if(['receipts','savings','finance'].includes(currentView))renderReceiptsPage();
       renderStatus();
       if (['home','offers','planner'].includes(currentView)) {
         renderStats();
@@ -4287,7 +4287,7 @@
     const routeEntries = new Map([[0, {scroll: 0}]]);
     const routeName=location.hash.slice(1).split(/[?&]/)[0];
     const legacyOfferEntry=['offers','find-offer','find-an-offer'].includes(routeName);
-    const initialView=legacyOfferEntry?'accounts':['accounts','planner','receipts','savings'].includes(routeName)?routeName:'home';
+    const initialView=legacyOfferEntry?'accounts':['accounts','planner','receipts','savings','finance'].includes(routeName)?routeName:'home';
     let pendingOfferEntry=legacyOfferEntry;
     function applyDirectoryRouteParams(){
       const params=new URLSearchParams(location.search);new URLSearchParams(location.hash.replace(/^#[^?&]*[?&]?/,'')).forEach((value,key)=>params.set(key,value));
@@ -4329,17 +4329,17 @@
       if(!preferredViews.has(view))preferredEditor.end();
       recordViewRoute(view,routeOptions);
       currentView = view;updateBrowserTheme();
-      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used','settings','more','preferred-promos','preferred-catalogue','receipts','savings'].includes(view));
+      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used','settings','more','preferred-promos','preferred-catalogue','receipts','savings','finance'].includes(view));
       renderAll();
       let activeSection = null;
 
       document.querySelectorAll(".view").forEach(section => {
-        const isActive = section.id === "view-" + view || view==='savings' && section.id==='view-receipts';
+        const isActive = section.id === "view-" + view || ['savings','finance'].includes(view) && section.id==='view-receipts';
         section.classList.toggle("active", isActive);
         if (isActive) activeSection = section;
       });
 
-      const navParent=["help","settings","preferred-promos","preferred-catalogue","receipts","savings"].includes(view)?"more":["offers","planner"].includes(view)?routeEntries.get(currentRouteEntry)?.navigationParent||"home":view;
+      const navParent=["help","settings","preferred-promos","preferred-catalogue","receipts","savings","finance"].includes(view)?"more":["offers","planner"].includes(view)?routeEntries.get(currentRouteEntry)?.navigationParent||"home":view;
       document.querySelectorAll("[data-view]").forEach(button => {
         button.classList.toggle("active",button.dataset.view===navParent);
         if(button.dataset.view===navParent)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");
@@ -4385,10 +4385,10 @@
         window.history.pushState({trackerView:currentView,trackerEntry:currentRouteEntry},'','#'+currentView);
         preferredEditor.requestDiscard(()=>window.history.back());return;
       }
-      if(openSheetType==='receipt-detail'&&['receipts','savings'].includes(state.trackerView)&&!state.trackerSheet){
+      if(openSheetType==='receipt-detail'&&['receipts','savings','finance'].includes(state.trackerView)&&!state.trackerSheet){
         routeRestoring=true;closeSheet(true);currentRouteEntry=state.trackerEntry;receiptInsightsView.back();routeRestoring=false;return;
       }
-      if(['receipts','savings'].includes(currentView)&&currentView===state.trackerView&&!state.trackerSheet){
+      if(['receipts','savings','finance'].includes(currentView)&&currentView===state.trackerView&&!state.trackerSheet){
         routeRestoring=true;closeSheet(true);currentRouteEntry=state.trackerEntry;window.scrollTo({top:routeEntries.get(state.trackerEntry)?.scroll||0,behavior:'instant'});if(leaving?.opener?.isConnected)leaving.opener.focus({preventScroll:true});routeRestoring=false;return;
       }
       if(state.trackerSheet==='receipt-detail'){

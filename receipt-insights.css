@@ -198,3 +198,30 @@ html:has(#view-receipts.active),body:has(#view-receipts.active) { background:var
 .ri-recent-list .ri-receipt-row { margin:0; border:0; border-radius:0; background:transparent; box-shadow:none; }
 .ri-recent-list .ri-receipt-row + .ri-receipt-row { border-top:1px solid var(--rich-border); }
 .ri-payment-caption { border-top:1px solid var(--rich-border); padding-top:9px; color:var(--rich-secondary); }
+
+.fi-subtitle { margin:-3px 0 16px; color:var(--rich-secondary); font-size:16px; }
+.fi-summary { padding:16px; margin-bottom:20px; }
+.fi-main-amount { display:block; font-size:36px; line-height:1.3; }
+.fi-summary span { color:var(--rich-secondary); font-size:14px; }
+.fi-summary-pair { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--rich-border); margin-top:12px; padding-top:12px; }
+.fi-summary-pair > div + div { border-left:1px solid var(--rich-border); padding-left:16px; }
+.fi-summary-pair strong { display:block; font-size:24px; }
+.fi-methods,.fi-transactions { overflow:hidden; margin:8px 0 20px; }
+.fi-method,.fi-transaction { display:flex; align-items:center; gap:12px; width:100%; min-height:60px; padding:12px 16px; border:0; background:transparent; color:var(--color-text); text-align:left; font:inherit; }
+.fi-method + .fi-method,.fi-transaction + .fi-transaction,.fi-transactions > .fi-method { border-top:1px solid var(--rich-border); }
+.fi-method > svg,.fi-transaction > svg { flex:none; width:24px; height:24px; color:var(--color-icon); }
+.fi-method > svg:last-child,.fi-transaction > svg:last-child { width:16px; color:var(--color-accent); }
+.fi-method > span,.fi-transaction > span { flex:1; min-width:0; }
+.fi-method strong,.fi-transaction strong { font-size:15px; font-weight:550; font-variant-numeric:tabular-nums; }
+.fi-transaction small { display:block; color:var(--rich-secondary); font-size:14px; overflow-wrap:anywhere; margin-top:3px; }
+.fi-method[aria-pressed=true] { background:var(--theme-selected); }
+.fi-currency + .fi-currency { border-top:1px solid var(--rich-border); margin-top:14px; padding-top:14px; }
+.finance-page .ri-caption { margin:10px 0; padding-inline:2px; }
+@media(max-width:350px) { .fi-method,.fi-transaction { padding-inline:12px; gap:8px; }.fi-transaction strong { font-size:14px; } }
+
+.ri-page:has(.finance-page) .ri-page-head h1 { font-size:28px; }
+
+.fi-method > strong { max-width:55%; overflow-wrap:anywhere; text-align:right; }
+.fi-transaction:has(.ri-green) > svg:first-child { color:var(--rich-positive); }
+
+.finance-page select { min-height:44px; }
