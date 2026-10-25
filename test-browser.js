@@ -252,7 +252,7 @@ try {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForFunction(() => document.documentElement.dataset.layout === 'mobile');
   assert.equal(await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:manual-state:v3')), manualBeforeLayout, 'Layout choices must preserve manual usage');
-  assert.equal(await page.locator('#savedStat').innerText(), '£3,382.60', 'Layout choices must preserve financial totals');
+  await page.keyboard.press('Escape');await page.locator('[data-view=home]').click();assert.equal(await page.locator('#savedStat').innerText(), '£3,382.60', 'Layout choices must preserve financial totals on the actual Home view');await page.locator('[data-view=more]').click();await page.locator('[data-open-sheet=appearance]').click();await page.locator('[data-open-sheet=theme]').click();
   await page.locator('[data-theme-colour="#c5a0ff"]').click();
   const chosen = await page.evaluate(() => ({ stored: localStorage.getItem('uber-eats-promo-tracker:theme:v1'), colour: getComputedStyle(document.documentElement).getPropertyValue('--green') }));
   assert.equal(chosen.stored, '#c5a0ff'); assert.notEqual(chosen.colour.trim(), '#9bea72');

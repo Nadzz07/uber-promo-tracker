@@ -3750,7 +3750,7 @@
       return `<details class="account-credit-history" data-credit-history data-disclosure-key="cash-evidence"><summary>${financeIcon('history')}<span>Credit history</span><small>${grants.length} credits</small>${financeIcon('chevron-down')}</summary><div class="credit-history-list">${checked}${grants.map(accountCreditRecord).join('')}${!grants.length?'<p class="sheet-help">Credit emails are unavailable in this import.</p>':''}</div></details>`;
     }
     function accountCashEntry(account,cashItems) {
-      const cash=enrichedAccounts().find(a=>a.accountRef===account.accountRef)?.cashPosition;
+      const cash=sheetCashPosition(account);
       const positive=cashCalculationState(cash).usable,review=cash?.status==='needs_checking';
 
       const e=escapeHtml,status=!positive&&!review&&!privateWallets[account.accountRef]?'Balance not recorded':review?'Cash needs checking':cash.status==='verified'?'Manually checked balance':cash.status==='verified_reconciled'?'Estimated from balance check':'Estimated remaining';
@@ -3758,8 +3758,13 @@
       return `<details class="account-cash-entry" data-cash-entry data-cash-state="${e(cash.status)}" data-disclosure-key="cash"><summary>${financeIcon('wallet')}<span class="account-cash-copy"><span class="account-cash-title"><strong>Uber Cash</strong><span class="cash-balance-badge">Balance</span></span><small>${e(status+(expiry?' · '+expiry:''))}</small></span><strong class="cash-entry-balance${cash?.remaining!=null&&['verified','verified_reconciled','estimated'].includes(cash.status)?'':' cash-balance-unknown'}">${e(cash?.remaining!=null&&['verified','verified_reconciled','estimated'].includes(cash.status)?cashMoney(cash.remaining):'Unknown')}</strong>${financeIcon('chevron-down')}</summary><div class="account-cash-body">${accountCreditHistory(account,cashItems)}<div data-account-balance-editor="${e(account.accountRef)}"></div></div></details>`;
     }
 
+    function accountSheetRecord(ref){
+      const current=accounts.find(a=>a.accountRef===ref);if(current)return current;
+      const stored=financeVault.data?.accounts.find(a=>a.accountRef===ref);return stored?{...stored,accountRef:ref,accountMasked:stored.accountMasked||ref,canLogin:null,privateHistoryOnly:true}:null;
+    }
+    function sheetCashPosition(account){return enrichedAccounts().find(a=>a.accountRef===account.accountRef)?.cashPosition||currentCashPosition(account,[],privateWallets[account.accountRef],financeVault.data?.receipts||[],{completeEvidence:false});}
     function openAccountSheet(accountRef, offerKey = null, restore = null) {
-      const account = accounts.find(item=>item.accountRef===accountRef);
+      const account = accountSheetRecord(accountRef);
       if (!account) return;
       document.getElementById('sheetBody').replaceChildren();
       accountCalculator=restore?.calculator||initialiseAccountCalculator(accountRef,offerKey);
@@ -3824,6 +3829,7 @@
       return allPromosForAccount(openAccountRef).map(p=>promoStateKey(p)+'|'+offerCountdown(p)).join(';');
     }
     function accountManagementMarkup(account,receiptRule='') {
+      if(account.privateHistoryOnly)return '<section class="account-management"><p class="sheet-help">This stored account is not in the current account list. Its private balance history remains available; login details are not recorded here.</p></section>';
       const e = escapeHtml;
       const note=accountManualRecord(manualStore,account).note??account.notes??account.note??'';
       const methods = [...new Set((Array.isArray(account.loginMethods) ? account.loginMethods : account.loginMethod === 'Both' ? ['iCloud','Google'] : [account.loginMethod]).filter(value => ['iCloud','Google'].includes(value)))];
@@ -3883,7 +3889,7 @@
     });
     function renderAccountSheet() {
       if(!openAccountRef)return;
-      const account=accounts.find(a=>a.accountRef===openAccountRef);if(!account)return;
+      const account=accountSheetRecord(openAccountRef);if(!account)return;
       setSheetHeading('Account details','');
       const host=document.getElementById('sheetBody'),previous=host.querySelector('[data-account-sheet="'+CSS.escape(account.accountRef)+'"]');
       const scroll=previous?host.scrollTop:0,focusKey=previous&&document.activeElement?.dataset,focusId=previous&&document.activeElement?.id;
@@ -3906,7 +3912,7 @@
       const access=account.canLogin===true?'Can log in':account.canLogin===false?'Can’t log in':'Access pending';
       accountSheetClock=accountSheetClockKey();
       const calc=accountCalculator?.accountRef===account.accountRef?accountCalculator:(accountCalculator=initialiseAccountCalculator(account.accountRef,accountOfferToOpen));
-      host.innerHTML=`<div data-account-sheet="${escapeHtml(account.accountRef)}"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">${accountProviderIcon(account)}</span><div class="account-identity-copy"><div class="account-sheet-email">${escapeHtml(accountDisplay(account))}</div><div class="account-login-route">${escapeHtml(loginRouteText(account))}</div></div><span class="account-login-badge${account.canLogin===true?' positive':''}"><span class="status-dot"></span>${escapeHtml(access)}</span></div><div class="account-sheet-actions">${deviceEmail(deviceAccounts,account)?`<button class="account-secondary" data-copy-email="${escapeHtml(account.accountRef)}">${financeIcon('copy')}Copy email</button>`:`<button class="account-secondary" data-copy-import="true">${financeIcon('copy')}Copy email</button>`}<button class="account-primary" data-use-this-account="${escapeHtml(account.accountRef)}"${currentAccountState(account).recommendationEligible?'':' disabled'}>${financeIcon('external')}Use this account</button></div></section>${receiptReviewAction(account)}<section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>${summaryCount}</span></div>${!liveItems.length?'<p class="account-no-offers">'+(preferredGroups.other.length?'Other offers are in Past &amp; other offers.':'No current promos.')+'</p>':''}${liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}${cashEntry}${liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}</section>${reviewItems.length?`<section class="account-review-offers"><h3>Needs checking</h3>${reviewItems.map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):accountOfferToOpen===promoStateKey(p)})).join('')}</section>`:''}${accountHistoryMarkup(historyGroups,expanded,activeExpanded)}<section class="account-calculator"><div class="account-calculator-panel"><h3>Calculate with</h3>${accountCalculatorMarkup(calc)}</div></section>${accountManagementMarkup(account,receiptMet?`<details class="account-rule-note" data-disclosure-key="receipt-rule"><summary>${financeIcon('check-circle')}Account receipt rule met${financeIcon('chevron-down')}</summary><p>${escapeHtml(receiptHistoryText(account))}. Offers can still be available.</p></details>`:'')}</div>`;
+      host.innerHTML=`<div data-account-sheet="${escapeHtml(account.accountRef)}"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">${accountProviderIcon(account)}</span><div class="account-identity-copy"><div class="account-sheet-email">${escapeHtml(accountDisplay(account))}</div><div class="account-login-route">${escapeHtml(loginRouteText(account))}</div></div><span class="account-login-badge${account.canLogin===true?' positive':''}"><span class="status-dot"></span>${escapeHtml(access)}</span></div><div class="account-sheet-actions">${deviceEmail(deviceAccounts,account)?`<button class="account-secondary" data-copy-email="${escapeHtml(account.accountRef)}">${financeIcon('copy')}Copy email</button>`:`<button class="account-secondary" data-copy-import="true">${financeIcon('copy')}Copy email</button>`}<button class="account-primary" data-use-this-account="${escapeHtml(account.accountRef)}"${!account.privateHistoryOnly&&currentAccountState(account).recommendationEligible?'':' disabled'}>${financeIcon('external')}Use this account</button></div></section>${receiptReviewAction(account)}<section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>${summaryCount}</span></div>${!liveItems.length?'<p class="account-no-offers">'+(preferredGroups.other.length?'Other offers are in Past &amp; other offers.':'No current promos.')+'</p>':''}${liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}${cashEntry}${liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}</section>${reviewItems.length?`<section class="account-review-offers"><h3>Needs checking</h3>${reviewItems.map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):accountOfferToOpen===promoStateKey(p)})).join('')}</section>`:''}${accountHistoryMarkup(historyGroups,expanded,activeExpanded)}${account.privateHistoryOnly?'':`<section class="account-calculator"><div class="account-calculator-panel"><h3>Calculate with</h3>${accountCalculatorMarkup(calc)}</div></section>`}${accountManagementMarkup(account,receiptMet?`<details class="account-rule-note" data-disclosure-key="receipt-rule"><summary>${financeIcon('check-circle')}Account receipt rule met${financeIcon('chevron-down')}</summary><p>${escapeHtml(receiptHistoryText(account))}. Offers can still be available.</p></details>`:'')}</div>`;
       if(previous){restoreAccountDisclosureState({expanded:[...expanded],scroll});}
       if(accountOfferToOpen){
         const credit=[...host.querySelectorAll('[data-credit-offers]')].find(row=>JSON.parse(row.dataset.creditOffers).includes(accountOfferToOpen));
@@ -3917,7 +3923,7 @@
       observeUsageSlots(host);
       cashBalanceView?.destroy();cashBalanceView=null;
       const balanceHost=host.querySelector('[data-account-balance-editor]');
-      if(balanceHost){financeModule ||= import('./private-finance-ui.js');financeModule.then(module=>{if(!balanceHost.isConnected||openAccountRef!==account.accountRef)return;cashBalanceView=module.cashBalanceInterface({host:balanceHost,vault:financeVault,accountRef:account.accountRef,accountUsage:()=>Number(account.orderCount||0)+Number(account.rideCount||0),getPosition:()=>enrichedAccounts().find(a=>a.accountRef===account.accountRef)?.cashPosition,onUpdate:privateDataUpdated});if(expanded.has('cash-update'))balanceHost.querySelector('details').open=true;});}
+      if(balanceHost){financeModule ||= import('./private-finance-ui.js');financeModule.then(module=>{if(!balanceHost.isConnected||openAccountRef!==account.accountRef)return;cashBalanceView=module.cashBalanceInterface({host:balanceHost,vault:financeVault,accountRef:account.accountRef,accountUsage:()=>account.privateHistoryOnly?null:Number(account.orderCount||0)+Number(account.rideCount||0),getPosition:()=>sheetCashPosition(account),onUpdate:privateDataUpdated});if(expanded.has('cash-update'))balanceHost.querySelector('details').open=true;});}
       accountOfferToOpen=null;
       if(['accountCalcPromo','accountCalcCash'].includes(focusId))document.getElementById(focusId)?.focus({preventScroll:true});
       if(focusKey){for(const name of ['useOne','undoUse','toggleIgnore','markOfferDone'])if(focusKey[name])host.querySelector('[data-'+name.replace(/[A-Z]/g,c=>'-'+c.toLowerCase())+'="'+CSS.escape(focusKey[name])+'"]')?.focus({preventScroll:true});}
@@ -4003,6 +4009,9 @@
               ? '<button class="advanced-btn" data-show-more-archived="true">Show more archived accounts (' + shown.length + ' of ' + list.length + ')</button>'
               : "")
           : '<div class="empty">No account matches that search.</div>';
+      const stored=[...new Set((financeVault.data?.events||[]).filter(e=>e.kind==='cash').map(e=>e.accountRef))].filter(ref=>!accounts.some(a=>a.accountRef===ref)).map(accountSheetRecord).filter(a=>a&&(!term||[a.accountRef,a.accountMasked].join(' ').toLowerCase().includes(term)));
+      if(stored.length)target.insertAdjacentHTML('beforeend','<section class="sheet-section"><h2>Other stored accounts</h2><p class="sheet-help">Balance history retained outside the current account list.</p>'+stored.map(a=>'<button class="sheet-action-row" data-account-offers="'+escapeHtml(a.accountRef)+'">'+financeIcon('wallet')+'<span>'+escapeHtml(accountDisplay(a))+'<small>Stored balance history</small></span>'+financeIcon('chevron-right')+'</button>').join('')+'</section>');
+
     }
 
     function renderHomeAnalytics() {
