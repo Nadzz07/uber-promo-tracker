@@ -97,7 +97,7 @@ try {
   assert.match(await page.locator('#recommendation').innerText(), /Promo discounts\s*−£10\.00/);
   failPromos = true;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Attention');
-  assert.equal(await page.locator('[data-retry-load]').isVisible(), true);
+  await page.locator('[data-view=home]').click();assert.equal(await page.locator('[data-retry-load]').isVisible(), true);
   failPromos = false;
   await page.locator('[data-retry-load]').click();
   await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
