@@ -117,7 +117,7 @@ export function financeInterface({host,onUpdate=()=>{},accountLabel=ref=>ref,acc
  '<div class="savings-metrics insight-grid">'+financeMetric('wallet','Uber Cash used',money(summary.cashUsed),'Receipt payments')+
  financeMetric('bag','Out of pocket',summary.paymentKnown?money(summary.outOfPocket):'Unknown',summary.paymentKnown+' known payments')+
  financeMetric('shield','Corrections',summary.manual,'Applied once to savings')+
- financeMetric('receipt','Missing details',summary.missing,'Review receipts',{local:true,panel:'receipt',missing:true})+'</div>')+
+ financeMetric('receipt','Missing details',data.receipts.filter(r=>receiptReviewState(r,current.corrections[r.receiptId]).needsChecking).length,'Review receipts',{local:true,panel:'receipt',missing:true})+'</div>')+
  message()+(empty ? '' :
   '<details'+panel('receipt',' finance-receipt-panel')+'><summary>'+financeIcon('shield')+'<span><strong>Private receipt corrections</strong><small>Edit or undo a correction</small></span></summary><div class="disclosure-body"><form data-finance-form="receipt">'+receiptMarkup(opened,receipts,options,data)+'</form></div></details>'+
  '<details'+panel('cash',' finance-cash-panel')+'><summary>'+financeIcon('wallet')+'<span><strong>Cash balances</strong><small>Record a balance checked in Uber</small></span></summary><div class="disclosure-body"><form data-finance-form="cash">'+cashMarkup(opened,data)+'</form></div></details>'+
