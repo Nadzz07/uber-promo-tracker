@@ -149,7 +149,7 @@ export function financeLedger(source={},state={}){
  const add=t=>{if(inRange(t.day,range,now))transactions.push(t);};
  for(const row of model.rows||[]){
   const r=row.receipt,f=r.financialEvidence||{},currency=String(r.currency||'GBP').toUpperCase(),method=/uber[ _-]?cash/i.test(String(r.paymentMethod||f.paymentMethod||''))?'Other payment methods':String(r.paymentMethod||f.paymentMethod||'Other payment methods'),cash=number(r.uberCashUsed),refund=(r.refundAmount??f.refund)==null?null:number(Math.abs(Number(r.refundAmount??f.refund))),adjusted=Boolean(row.unverifiedAdjustment||row.f.needsAdjustmentReview||refund>0),payment=row.payment;
-  const common={receiptId:row.id,account:r.accountMasked||source.data?.accounts?.find(a=>a.accountRef===r.accountRef)?.accountMasked||r.accountRef||'Account not recorded',currency,service:row.service,when:receiptWhen(r)?.includes('T')?Date.parse(r.paymentAt||receiptWhen(r)):null};
+  const common={receiptId:row.id,account:r.accountMasked||source.data?.accounts?.find(a=>a.accountRef===r.accountRef)?.accountMasked||r.accountRef||'Account not recorded',currency,service:row.service,when:(r.paymentAt||receiptWhen(r))?.includes('T')?Date.parse(r.paymentAt||receiptWhen(r)):null};
   const day=r.paymentDate||(r.paymentAt&&Number.isFinite(Date.parse(r.paymentAt))?ukDateKey(new Date(r.paymentAt)):receiptDay(r));
   if(inRange(day,range,now))cashRecords.push({currency,value:cash});
   if(payment!=null)add({...common,id:row.id+':payment',day,type:'payment',method,value:payment,netOnly:adjusted,title:(row.service==='eats'?'Eats':'Ride')+(adjusted?' net payment':' payment')});
