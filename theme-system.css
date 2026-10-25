@@ -424,7 +424,7 @@ html[data-layout=mobile] .sheet-body { overscroll-behavior:contain; -webkit-over
 .used-filters { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) auto; gap:6px; margin-bottom:12px; }
 .used-filters > button { gap:4px; min-height:44px; padding:7px; font-size:15px; line-height:1.25; white-space:nowrap; }
 .used-filters > button > span { display:inline-flex; align-items:center; justify-content:center; min-width:22px; padding:2px 4px; border-radius:7px; background:var(--color-selected); color:var(--color-text); font-size:12px; line-height:1.2; }
-.used-filters > button[aria-pressed=true] > span { background:color-mix(in srgb,var(--color-on-accent) 12%,transparent); color:inherit; }
+.used-filters > button[aria-pressed=true] > span { background:var(--color-bright); color:var(--color-on-accent); }
 .used-status-control { min-width:0; width:auto; }
 .used-status-control #usedStatus { gap:5px; padding:8px; font-size:15px; white-space:nowrap; }
 #usedStatusLabel { white-space:nowrap; }

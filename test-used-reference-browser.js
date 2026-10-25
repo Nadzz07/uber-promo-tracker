@@ -24,7 +24,7 @@ try{
  if(width===440&&!large){const row=await p.locator('.used-filters').evaluate(e=>[...e.children].map(c=>c.getBoundingClientRect().top));assert.ok(Math.max(...row)-Math.min(...row)<1,'Both pills and Status share one row at 440 CSS pixels');assert.ok(await p.locator('.used-filters').evaluate(e=>e.getBoundingClientRect().height<=48));}
  await p.locator('.used-head [data-used-info]').click();assert.match(await p.locator('#sheetBody').innerText(),/Lime rides count as Ride/);assert.match(await p.locator('#sheetBody').innerText(),/does not mean every promo is exhausted/);await p.keyboard.press('Escape');await p.waitForFunction(()=>!history.state?.trackerSheet);await settle(p);
 
- const prefix=width+(large?'-large':'');await shot(p,prefix+'-used-reference');
+ await p.mouse.click(width-70,65);const prefix=width+(large?'-large':'');await shot(p,prefix+'-used-reference');
  await p.locator('#usedStatus').click();await shot(p,prefix+'-status-reference');await p.keyboard.press('Escape');
  await p.locator('[data-used-more]').click();assert.equal(await p.locator('.used-record').count(),33);
  await p.locator('#usedSort').selectOption('email');assert.equal(await p.locator('.used-record').count(),24);
