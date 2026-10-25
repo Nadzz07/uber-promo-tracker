@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "generatedAt": "2026-10-25T18:48:34.219Z",
+  "generatedAt": "2026-10-25T19:30:55.799Z",
   "source": "apple-mail-sqlite",
   "demo": false,
   "sync": {
@@ -82,8 +82,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -166,8 +166,8 @@
               "total": 3
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 3,
               "total": 3
             },
             "saved": {
@@ -502,8 +502,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -586,8 +586,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -670,8 +670,8 @@
               "total": 3
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 3
             },
             "saved": {
@@ -754,8 +754,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -922,8 +922,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -1594,8 +1594,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -2014,8 +2014,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -2098,8 +2098,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -2182,8 +2182,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -2266,8 +2266,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -2350,8 +2350,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -2434,8 +2434,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -2518,8 +2518,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -2686,8 +2686,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -2770,8 +2770,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -3274,8 +3274,8 @@
               "total": 4
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 3,
               "total": 4
             },
             "saved": {
@@ -3526,8 +3526,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -3610,8 +3610,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -3694,8 +3694,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -3778,8 +3778,8 @@
               "total": 3
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 3,
               "total": 3
             },
             "saved": {
@@ -3862,8 +3862,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -3946,8 +3946,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -5122,8 +5122,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -5206,8 +5206,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -5374,8 +5374,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -5458,8 +5458,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -5542,8 +5542,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -5710,8 +5710,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -5794,8 +5794,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -5878,8 +5878,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -5962,8 +5962,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -6130,8 +6130,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -6214,8 +6214,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -6298,8 +6298,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -6382,8 +6382,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -6550,8 +6550,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -6970,8 +6970,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -7054,8 +7054,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -7138,8 +7138,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -7222,8 +7222,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -7306,8 +7306,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -7642,8 +7642,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -7810,8 +7810,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -7978,8 +7978,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -8314,8 +8314,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -8398,8 +8398,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -8482,8 +8482,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -8650,8 +8650,8 @@
               "total": 3
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 3
             },
             "saved": {
@@ -8734,8 +8734,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -8818,8 +8818,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -8902,8 +8902,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -8986,8 +8986,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -9070,8 +9070,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -9154,8 +9154,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -9238,8 +9238,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -11674,8 +11674,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -12178,8 +12178,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -12262,8 +12262,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -12346,8 +12346,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -12430,8 +12430,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -12514,8 +12514,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -12682,8 +12682,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -12850,8 +12850,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -12934,8 +12934,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -13102,8 +13102,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -13186,8 +13186,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -13354,8 +13354,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -13522,8 +13522,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -13606,8 +13606,8 @@
               "total": 3
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 3
             },
             "saved": {
@@ -13690,8 +13690,8 @@
               "total": 4
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 3,
               "total": 4
             },
             "saved": {
@@ -13774,8 +13774,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -13858,8 +13858,8 @@
               "total": 4
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 4
             },
             "saved": {
@@ -13942,8 +13942,8 @@
               "total": 4
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 4
             },
             "saved": {
@@ -14026,8 +14026,8 @@
               "total": 3
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 3
             },
             "saved": {
@@ -14194,8 +14194,8 @@
               "total": 4
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 3,
               "total": 4
             },
             "saved": {
@@ -14278,8 +14278,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -14362,8 +14362,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -14446,8 +14446,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -14530,8 +14530,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -14614,8 +14614,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -14782,8 +14782,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -14866,8 +14866,8 @@
               "total": 3
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 3
             },
             "saved": {
@@ -15034,8 +15034,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -15454,8 +15454,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -15538,8 +15538,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -15622,8 +15622,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -15706,8 +15706,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -15790,8 +15790,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -15958,8 +15958,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -16042,8 +16042,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -16294,8 +16294,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -16546,8 +16546,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -16630,8 +16630,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -16882,8 +16882,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -16966,8 +16966,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -17050,8 +17050,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -17134,8 +17134,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -17302,8 +17302,8 @@
               "total": 4
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 4
             },
             "saved": {
@@ -17386,8 +17386,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -17554,8 +17554,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -17722,8 +17722,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 2
             },
             "saved": {
@@ -17806,8 +17806,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -17974,8 +17974,8 @@
               "total": 1
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 1
             },
             "saved": {
@@ -18058,8 +18058,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -18226,8 +18226,8 @@
               "total": 2
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 2
             },
             "saved": {
@@ -18310,8 +18310,8 @@
               "total": 3
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 3
             },
             "saved": {
@@ -19404,8 +19404,8 @@
               "total": 25
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 11,
               "total": 25
             },
             "saved": {
@@ -19488,8 +19488,8 @@
               "total": 10
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 5,
               "total": 10
             },
             "saved": {
@@ -19572,8 +19572,8 @@
               "total": 20
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 9,
               "total": 20
             },
             "saved": {
@@ -19656,8 +19656,8 @@
               "total": 5
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 5
             },
             "saved": {
@@ -19740,8 +19740,8 @@
               "total": 41
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 23,
               "total": 41
             },
             "saved": {
@@ -19824,8 +19824,8 @@
               "total": 20
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 15,
               "total": 20
             },
             "saved": {
@@ -19908,8 +19908,8 @@
               "total": 18
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 18
             },
             "saved": {
@@ -20076,8 +20076,8 @@
               "total": 17
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 14,
               "total": 17
             },
             "saved": {
@@ -20160,8 +20160,8 @@
               "total": 22
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 17,
               "total": 22
             },
             "saved": {
@@ -20244,8 +20244,8 @@
               "total": 23
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 16,
               "total": 23
             },
             "saved": {
@@ -20328,8 +20328,8 @@
               "total": 3
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 2,
               "total": 3
             },
             "saved": {
@@ -20496,8 +20496,8 @@
               "total": 23
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 18,
               "total": 23
             },
             "saved": {
@@ -20580,8 +20580,8 @@
               "total": 9
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 9,
               "total": 9
             },
             "saved": {
@@ -20664,8 +20664,8 @@
               "total": 4
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 1,
               "total": 4
             },
             "saved": {
@@ -20748,8 +20748,8 @@
               "total": 18
             },
             "outOfPocket": {
-              "value": null,
-              "known": 0,
+              "value": 0,
+              "known": 11,
               "total": 18
             },
             "saved": {
@@ -20809,7 +20809,7 @@
       "conflicting": 0,
       "cashUsed": 998.78,
       "outOfPocket": 128.59,
-      "paymentKnown": 87,
+      "paymentKnown": 242,
       "receipts": 445,
       "manual": 1
     },
