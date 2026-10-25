@@ -70,3 +70,8 @@ const {validateCashEntry}=await import('./receipt-financials.js');
 assert.equal(validateCashEntry({balance:12,receiptCount:2}).receiptCount,2);
 assert.throws(()=>validateCashEntry({balance:12,receiptCount:'2'}),/Invalid receipt evidence count/);
 assert.throws(()=>validateCashEntry({balance:12,receiptCount:-1}),/Invalid receipt evidence count/);
+
+const freshMap=new Map(),freshVault=new PrivateFinanceVault({getItem:k=>freshMap.get(k)||null,setItem:(k,v)=>freshMap.set(k,v)});
+await assert.rejects(()=>freshVault.append({kind:'cash',recordId:'NEW1',accountRef:'NEW1',action:'set',value:{balance:0}}));
+await freshVault.append({kind:'cash',recordId:'NEW1',accountRef:'NEW1',action:'set',value:{balance:0}},{knownAccountRef:'NEW1'});
+assert.deepEqual(freshVault.data.accounts,[{accountRef:'NEW1'}]);assert.equal(freshVault.current().wallets.NEW1.balance,0);assert.equal(freshVault.data.events.length,1);

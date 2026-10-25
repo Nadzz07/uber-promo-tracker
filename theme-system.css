@@ -87,8 +87,6 @@ html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion
 input[role=switch]:checked { background:var(--color-toggle)!important; border-color:var(--color-toggle)!important; }
 :root { --button-text:var(--color-on-accent); --status-success:var(--color-positive); }
 .plan-subtotal { color:var(--color-label)!important; }
-.receipt-editor-actions > button[type=submit],.finance-save-balance { background:var(--theme-primary); color:var(--color-on-accent); border-color:var(--color-accent); }
-.receipt-editor-actions > button,.receipt-history-actions > button { border-radius:var(--control-radius); }
 :root { --space-5:20px; --space-6:24px; --space-8:32px; --type-caption:12px; --type-body:14px; --type-control:16px; --type-title:24px; }
 #view-home .home-overview { background:transparent; }
 :is(input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]),textarea,select,.search-input,.account-picker-trigger) { border-radius:var(--control-radius); }
@@ -437,3 +435,24 @@ html[data-layout=mobile] .sheet-body { overscroll-behavior:contain; -webkit-over
 
 @media(max-width:389px) { .used-filters > button { white-space:normal; } }
 .used-filters.large-text > button { white-space:normal; }
+
+/* Scoped review and account wallet controls share the current theme. */
+.fi-review {text-align:left;min-height:68px;gap:12px}
+.fi-review span {flex:1;min-width:0}
+.fi-review strong,.fi-review small {display:block}
+.fi-review small {font-size:13px;color:var(--color-secondary);margin-top:4px;line-height:1.4}
+.cash-balance-editor>summary {display:flex;align-items:center;gap:10px;min-height:44px;cursor:pointer}
+.cash-balance-editor>summary>span {flex:1}
+.cash-balance-editor .check-field input,.cash-balance-editor .check-field select,.check-correction-history input,.check-correction-history textarea {font-size:16px;min-width:0;width:100%;box-sizing:border-box}
+.cash-balance-editor .check-actions {margin:12px 0}
+.cash-balance-editor .check-actions button {min-height:44px;min-width:0}
+.check-correction-history .disclosure-body {display:grid;gap:10px}
+.ri-review-filters {flex-wrap:wrap}
+
+.finance-page .fi-subtitle {margin-inline-start:48px;margin-bottom:16px}
+.finance-page .ri-period {border:1px solid var(--color-border);border-radius:12px;background:var(--color-panel);padding:0 10px;min-height:46px}
+.finance-page .fi-range {border:0;background:transparent}
+.fi-review strong {font-size:16px;font-weight:600}
+.fi-review small {font-size:13px;font-weight:400}
+
+.cash-entry-balance.cash-balance-unknown {color:var(--color-secondary);font-size:16px;font-weight:400}

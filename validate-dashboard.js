@@ -59,7 +59,7 @@ assert.equal(html.includes('Estimated missing Uber One</div><div class="insight-
 assert.ok(html.includes("createReceiptInsights"),"Receipt Insights reads imported records through the shared ledger projection");
 assert.ok(fs.readFileSync("savings-intelligence.js","utf8").includes("uberOneEstimateModel"));
 assert.ok(html.includes('data-finance-target="check"'));
-assert.ok(html.includes("financeHero"));
+assert.ok(html.includes("cashBalanceInterface"),"Account details owns balance controls");assert.ok(fs.readFileSync("receipt-insights.js","utf8").includes("Review &amp; corrections"),"Finances links the shared review flow");
 assert.ok(html.includes("grid-template-columns: auto minmax(0,1fr) 36px"));
 assert.ok(html.includes("Archived accounts"));
 assert.ok(html.includes("Needs checking"));
