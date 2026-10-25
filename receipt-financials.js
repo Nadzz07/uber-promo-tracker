@@ -15,21 +15,56 @@ const rounded=value=>Math.round((value+Number.EPSILON)*100)/100;
 
 export function validateFinancialCorrection(value) {
   const total=moneyAmount(value?.total);
-  if(total==null)throw new Error('Enter the total savings shown in Uber.');
+  if(total==null&&value?.reviewKind!=='receipt-review-v1')throw new Error('Enter the total savings shown in Uber.');
   const breakdown={};
   for(const key of financialCategories)if(value.breakdown?.[key]!=null&&value.breakdown[key]!=='')breakdown[key]=moneyAmount(value.breakdown[key]);
   const itemized=Object.values(breakdown).reduce((n,v)=>n+v,0);
-  if(itemized>total+.011)throw new Error('The breakdown exceeds the total savings.');
-  if(Object.keys(breakdown).length&&Math.abs(itemized-total)>.011)throw new Error('The itemized breakdown must equal the total. Leave it blank if unavailable.');
+  if(total!=null&&itemized>total+.011)throw new Error('The breakdown exceeds the total savings.');
+  if(total!=null&&Object.keys(breakdown).length&&Math.abs(itemized-total)>.011)throw new Error('The itemized breakdown must equal the total. Leave it blank if unavailable.');
   if(value.reviewedReceiptRevision!=null&&!/^[a-f0-9]{64}$/.test(value.reviewedReceiptRevision))throw Error('Invalid receipt review revision.');
-  return {total,breakdown,...(value.outOfPocket!=null?{outOfPocket:moneyAmount(value.outOfPocket)}:{}),...(value.reviewedReceiptRevision?{reviewedReceiptRevision:value.reviewedReceiptRevision}:{}),source:'manually_reported_from_uber',note:String(value.note||'').slice(0,500)};
+  const review={};
+  if(value?.reviewKind==='receipt-review-v1'){
+    review.reviewKind=value.reviewKind;review.currency=String(value.currency||'GBP').toUpperCase();if(!/^[A-Z]{3}$/.test(review.currency))throw Error('Choose a valid receipt currency.');
+    for(const key of ['receiptTotal','cashUsed','promoDiscount','refundAmount','refundToOther','refundToCash'])if(value[key]!=null&&value[key]!=='')review[key]=moneyAmount(value[key]);
+    if(value.refundDestination!=null){if(!['unknown','other','uber_cash','split'].includes(value.refundDestination))throw Error('Choose a recorded refund destination.');review.refundDestination=value.refundDestination;}
+    if(review.refundDestination==='split'&&review.refundAmount!=null&&review.refundToOther!=null&&review.refundToCash!=null&&Math.abs(review.refundAmount-review.refundToOther-review.refundToCash)>.011)throw Error('Refund components must equal the refund amount.');
+    const cashRefund=review.refundDestination==null&&review.refundAmount==null?0:review.refundDestination==='uber_cash'?review.refundAmount:review.refundDestination==='split'?review.refundToCash:review.refundDestination==='other'?0:null;
+    if(cashRefund!=null&&review.cashUsed!=null&&cashRefund>review.cashUsed+.011)throw Error('The Cash refund exceeds the Cash payment.');
+    if(review.receiptTotal!=null&&review.cashUsed!=null&&value.outOfPocket!=null&&value.outOfPocket!==''&&cashRefund!=null&&Math.abs(moneyAmount(value.outOfPocket)+review.cashUsed-cashRefund-review.receiptTotal)>.011)throw Error('Final payment components do not match the final receipt charge. Check the amounts or leave uncertain fields blank.');
+    if(total==null&&!['receiptTotal','cashUsed','promoDiscount','refundAmount','refundToOther','refundToCash'].some(k=>review[k]!=null)&&(value.outOfPocket==null||value.outOfPocket===''))throw Error('Enter at least one amount to correct.');
+  }
+  return {...(total!=null?{total}:{}),...review,breakdown,...(value.outOfPocket!=null?{outOfPocket:moneyAmount(value.outOfPocket)}:{}),...(value.reviewedReceiptRevision?{reviewedReceiptRevision:value.reviewedReceiptRevision}:{}),source:'manually_reported_from_uber',note:String(value.note||'').slice(0,500)};
 }
 
 export function validateCashEntry(value={}) {
  if(value.receiptCount!=null&&(!Number.isInteger(value.receiptCount)||value.receiptCount<0||value.receiptCount>1000000))throw Error('Invalid receipt evidence count.');const balance=moneyAmount(value.balance);if(balance==null)throw Error('Enter the current balance shown in Uber. An email Cash offer is not a balance.');const stacking=value.stacking||'unknown';if(!['unknown','supported','unsupported'].includes(stacking))throw Error('Invalid stacking evidence.');const fees=moneyAmount(value.checkoutFees),basket=moneyAmount(value.basketSubtotal);if((fees!=null||basket!=null)&&(fees==null||basket==null||basket<=0||basket>1000))throw Error('Record both the checkout fees and the matching basket subtotal.');return {balance,stacking,...(value.receiptCount!=null?{receiptCount:value.receiptCount}:{}),source:'manually_verified_in_uber',note:String(value.note||'').slice(0,500),...(fees!=null?{checkoutFees:fees,basketSubtotal:basket}:{})};
 }
 
+// Read-only overrides. Original imported records remain unchanged.
+export function correctedReceipt(receipt={},correction=receipt.financialCorrection){
+ if(correction?.reviewKind!=='receipt-review-v1')return receipt;
+ const result={...receipt};for(const [key,target]of [['receiptTotal','total'],['cashUsed','uberCashUsed'],['promoDiscount','promotionDiscount'],['refundAmount','refundAmount']])if(correction[key]!=null)result[target]=correction[key];
+ if(correction.refundDestination){result.refundMethod={other:'Other payment methods',uber_cash:'Uber Cash',split:'Split payment methods',unknown:''}[correction.refundDestination];if(correction.refundDestination==='other')result.cashRefundRestored=0;if(correction.refundDestination==='uber_cash'&&correction.refundAmount!=null)result.cashRefundRestored=correction.refundAmount;}
+ return result;
+}
+export function receiptRefundParts(receipt={},correction=receipt.financialCorrection){
+ const r=correctedReceipt(receipt,correction),refund=(r.refundAmount??r.financialEvidence?.refund)==null?null:observed(Math.abs(Number(r.refundAmount??r.financialEvidence?.refund))),restored=observed(r.cashRefundRestored),target=String(correction?.reviewKind==='receipt-review-v1'&&correction.refundDestination==='unknown'?'':r.refundMethod||r.financialEvidence?.refundMethod||''),cash=/^(?:uber[ _-]?(?:cash|credit)|account[ _-]?credit)$/i.test(target),other=!/uber[ _-]?cash|account[ _-]?credit/i.test(target)&&/visa|mastercard|amex|paypal|apple pay|google pay|bank|debit|card|non[ _-]?(?:cash|credit)|other payment methods/i.test(target);
+ if(correction?.reviewKind==='receipt-review-v1'&&correction.refundDestination==='split')return [{method:'Other payment methods',value:observed(correction.refundToOther),cash:false,unallocated:correction.refundToOther==null},{method:'Uber Cash',value:observed(correction.refundToCash),cash:true,unallocated:correction.refundToCash==null}];
+ const parts=[];if(restored>0)parts.push({method:'Uber Cash',value:cash&&refund!=null&&Math.abs(refund-restored)>.011?null:restored,cash:true,unallocated:false});
+ if(refund!=null&&refund>0&&!(cash&&restored>0))parts.push({method:cash?'Uber Cash':target||'Refund method not recorded',value:!cash&&!other&&restored>0?null:refund,cash,unallocated:!cash&&!other});
+ if(!parts.length&&receipt.financialReview?.reasons?.includes('refund'))parts.push({method:'Refund method not recorded',value:refund===0?0:null,cash:false,unallocated:refund!==0});
+ return parts;
+}
+export function receiptReviewState(receipt={},correction=receipt.financialCorrection){
+ const r=correctedReceipt(receipt,correction),f=receiptFinancials(receipt,correction),parts=receiptRefundParts(receipt,correction),issues=[];
+ if(parts.some(p=>p.value==null))issues.push('Refund amount missing');if(parts.some(p=>p.unallocated&&p.value!==0))issues.push('Refund destination unknown');
+ if(observed(r.total)==null)issues.push('Receipt charge missing');if(receiptPaymentAmount(receipt,correction)==null)issues.push('Final payment needs checking');if(observed(r.uberCashUsed)==null)issues.push('Uber Cash payment unknown');if(observed(r.promotionDiscount)==null&&f.incomplete)issues.push('Promo amount missing');
+ if(f.needsAdjustmentReview&&!issues.length)issues.push('Adjustment needs checking');
+ return {needsChecking:issues.length>0,issues,refund:parts.length>0,manuallyCorrected:Boolean(correction),receipt:r,financial:f};
+}
+
 export function receiptFinancials(receipt={},correction=receipt.financialCorrection||null) {
+  receipt=correctedReceipt(receipt,correction);
   const categories=Object.fromEntries(financialCategories.map(k=>[k,0]));
   const metadata=receipt.financialEvidence||{};
   const promo=amount(receipt.promotionDiscount),one=amount(receipt.uberOneSavings),cashSaving=amount(receipt.uberCashSavings),schedule=amount(metadata.scheduleSavings??receipt.scheduleSavings);
@@ -50,7 +85,7 @@ export function receiptFinancials(receipt={},correction=receipt.financialCorrect
   const result={total:stated?total:null,categories,source:stated?'email_reported':'incomplete',incomplete:!stated,needsAdjustmentReview,conflict,cashUsed:cash??0,outOfPocket};
   if(!correction)return result;
   const manual=validateFinancialCorrection(correction);
-  return {...result,total:manual.total,categories:Object.keys(manual.breakdown).length?{...Object.fromEntries(financialCategories.map(k=>[k,0])),...manual.breakdown}:{...Object.fromEntries(financialCategories.map(k=>[k,0])),other:manual.total},source:manual.source,outOfPocket:manual.outOfPocket??result.outOfPocket,incomplete:false,needsAdjustmentReview:needsAdjustmentReview&&(manual.reviewedReceiptRevision!==receipt.financialReview.revision||manual.outOfPocket==null),conflict:stated&&Math.abs(total-manual.total)>.011,emailTotal:result.total,manualUpdatedAt:correction.at||null};
+  return {...result,total:manual.total??result.total,categories:manual.total==null?result.categories:Object.keys(manual.breakdown).length?{...Object.fromEntries(financialCategories.map(k=>[k,0])),...manual.breakdown}:{...Object.fromEntries(financialCategories.map(k=>[k,0])),other:manual.total},source:manual.source,outOfPocket:manual.outOfPocket??result.outOfPocket,incomplete:manual.total==null?result.incomplete:false,needsAdjustmentReview:needsAdjustmentReview&&(manual.reviewedReceiptRevision!==receipt.financialReview.revision||manual.outOfPocket==null),conflict:manual.total!=null&&stated&&Math.abs(total-manual.total)>.011,emailTotal:result.total,manualUpdatedAt:correction.at||null};
 }
 
 // Availability for receipt projections, without changing the stored ledger or

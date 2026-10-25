@@ -1,6 +1,6 @@
 // Public dashboard calculations use derived receipt totals and actual sync times.
 import { expiryEndTime, ukDateKey } from './offer-time.js';
-import {receiptFinancials,receiptPaymentAmount,moneyAmount} from './receipt-financials.js';
+import {receiptFinancials,receiptPaymentAmount,correctedReceipt,moneyAmount} from './receipt-financials.js';
 
 // Numeric projections only: no receipt IDs, identities, source text or events.
 // The same mapping feeds the device ledger view and sanitized activity totals.
@@ -10,12 +10,13 @@ const observed=v=>{try{return moneyAmount(v);}catch{return null;}};
 export function unknownReceiptAmounts(total=0){return Object.fromEntries(RECEIPT_AMOUNT_KEYS.map(key=>[key,{value:total?null:0,known:0,total,...(key==='fees'?{complete:0}:{})}]));}
 export function receiptAmountSummary(receipts=[],corrections={}){
  const result=unknownReceiptAmounts(receipts.length);
- for(const r of receipts){
+ for(const original of receipts){
+  const r=correctedReceipt(original,corrections[original.receiptId||original.id]??original.financialCorrection);
   const correction=corrections[r.receiptId||r.id]??r.financialCorrection,f=receiptFinancials(r,correction);
   const feeParts=[r.deliveryFee,r.serviceFee,r.smallOrderFee].map(observed),knownFees=feeParts.filter(v=>v!=null);
   const promoKey=r.service==='Uber'?'ridePromotions':'eatsPromotions';
   const values={paid:observed(r.total),subtotal:observed(r.subtotal),fees:knownFees.length?rounded(knownFees.reduce((n,v)=>n+v,0)):null,
-   promos:correction?observed(correction.breakdown?.[promoKey]):observed(r.promotionDiscount),cash:observed(r.uberCashUsed),outOfPocket:receiptPaymentAmount(r,correction),saved:f.total};
+   promos:correction?.reviewKind==='receipt-review-v1'&&(correction.promoDiscount!=null||correction.total==null)?observed(r.promotionDiscount):correction?observed(correction.breakdown?.[promoKey]):observed(r.promotionDiscount),cash:observed(r.uberCashUsed),outOfPocket:receiptPaymentAmount(r,correction),saved:f.total};
   for(const key of RECEIPT_AMOUNT_KEYS)if(values[key]!=null){result[key].value=rounded((result[key].value??0)+values[key]);result[key].known++;}
   if(knownFees.length===feeParts.length)result.fees.complete++;
  }

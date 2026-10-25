@@ -69,5 +69,5 @@ export async function importPrivateFinance(page,file){
  await page.locator('[data-finance-import]').setInputFiles(file);
  await page.waitForFunction(()=>document.querySelector('#privateDataTools [role="status"]')?.textContent.includes('receipts on this device'));
  await page.locator('#sheetClose').click();await page.locator('#sheetBackdrop.open').waitFor({state:'hidden'});
- await page.locator('#view-more [data-open-sheet="finance"]').click();await page.locator('#financeReceipt').waitFor({state:'attached'});
+ await page.locator('[data-view=more]').click();await page.locator('#view-more [data-open-sheet="finance"]').click();await page.locator('.finance-page [data-finance-target=history]').click();await page.locator('#financeReceipt').waitFor({state:'attached'});
 }

@@ -58,7 +58,7 @@ assert.ok(fs.readFileSync("receipt-insights.js","utf8").includes("Saved with pro
 assert.equal(html.includes('Estimated missing Uber One</div><div class="insight-value" style="color:var(--green)"'), false, "Estimated savings must not use confirmed green styling");
 assert.ok(html.includes("createReceiptInsights"),"Receipt Insights reads imported records through the shared ledger projection");
 assert.ok(fs.readFileSync("savings-intelligence.js","utf8").includes("uberOneEstimateModel"));
-assert.ok(html.includes("Missing details"));
+assert.ok(html.includes('data-finance-target="check"'));
 assert.ok(html.includes("financeHero"));
 assert.ok(html.includes("grid-template-columns: auto minmax(0,1fr) 36px"));
 assert.ok(html.includes("Archived accounts"));
