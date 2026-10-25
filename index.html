@@ -4391,7 +4391,10 @@
       else { const detail = currentView; switchView('home'); document.querySelector('#view-home [data-home-detail="' + detail + '"]')?.focus({preventScroll:true}); }
     }
     window.addEventListener('hashchange',()=>{
-      const name=location.hash.slice(1).split(/[?&]/)[0];if(!['offers','find-offer','find-an-offer'].includes(name))return;
+      const name=location.hash.slice(1).split(/[?&]/)[0],alias=['private-finances','private-finance','finances'].includes(name),direct=['home','accounts','used','more','settings','planner','receipts','savings','finance'].includes(name);
+      if(direct&&window.history.state?.trackerView===name)return;
+      if(alias||direct){const target=alias?'finance':name;if(target==='accounts'&&location.hash.includes('?'))applyDirectoryRouteParams();const old=currentRouteEntry;if(routeEntries.has(old))routeEntries.get(old).scroll=window.scrollY;closeSheet(true);currentRouteEntry=++routeSerial;routeEntries.set(currentRouteEntry,{scroll:0,opener:document.activeElement,position:window.history.length-1});window.history.replaceState({trackerView:target,trackerEntry:currentRouteEntry},'','#'+target);routeRestoring=true;switchView(target);routeRestoring=false;window.scrollTo({top:0,behavior:'instant'});return;}
+      if(!['offers','find-offer','find-an-offer'].includes(name))return;
       applyDirectoryRouteParams();const old=currentRouteEntry;routeEntries.get(old).scroll=window.scrollY;currentRouteEntry=++routeSerial;
       routeEntries.set(currentRouteEntry,{scroll:0,opener:document.activeElement,position:window.history.length-1});
       window.history.replaceState({trackerView:'accounts',trackerEntry:currentRouteEntry},'','#accounts'+(location.hash.includes('?')?'?'+location.hash.split('?')[1]:''));
