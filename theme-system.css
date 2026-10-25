@@ -456,3 +456,7 @@ html[data-layout=mobile] .sheet-body { overscroll-behavior:contain; -webkit-over
 .fi-review small {font-size:13px;font-weight:400}
 
 .cash-entry-balance.cash-balance-unknown {color:var(--color-secondary);font-size:16px;font-weight:400}
+
+/* Only the receipt review’s main Save row is sticky. Inline history and
+   wallet actions must stay in the flow so they cannot cover each other. */
+.cash-balance-editor .check-actions,.check-correction-history .check-actions {position:static;bottom:auto;background:transparent}
