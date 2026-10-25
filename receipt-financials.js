@@ -80,7 +80,10 @@ export function receiptFinancials(receipt={},correction=receipt.financialCorrect
   for(const k of financialCategories)categories[k]=rounded(categories[k]);
   const cash=observed(receipt.uberCashUsed),paid=observed(receipt.total);
   const explicitPayment=observed(metadata.outOfPocket);
-  const outOfPocket=explicitPayment??(paid!=null&&cash!=null&&paid>=cash?rounded(paid-cash):null);
+  // A confirmed zero charge needs no payment allocation. Positive charges
+  // still require Cash evidence; adjustment review is enforced by the caller.
+  const zeroCharge=paid===0&&(cash==null||cash===0)&&!receipt.financialReview?.reasons?.length&&!([receipt.refundAmount,metadata.refund].some(v=>observed(v)!=null&&Number(v)!==0))&&!(observed(receipt.previousTotal??metadata.previousTotal)>0);
+  const outOfPocket=explicitPayment??(zeroCharge?0:paid!=null&&cash!=null&&paid>=cash?rounded(paid-cash):null);
   const needsAdjustmentReview=Boolean(receipt.financialReview?.reasons?.length&&receipt.financialReview?.revision);
   const result={total:stated?total:null,categories,source:stated?'email_reported':'incomplete',incomplete:!stated,needsAdjustmentReview,conflict,cashUsed:cash??0,outOfPocket};
   if(!correction)return result;

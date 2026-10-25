@@ -47,6 +47,10 @@ const paymentCases=[
  [{...base,total:8,uberCashUsed:3},5],
  [{...base,total:2,uberCashUsed:3},null],
  [{...base,total:0,uberCashUsed:0},0],
+ [{...base,total:0,uberCashUsed:null},0],
+ [{...base,total:0,uberCashUsed:undefined},0],
+ [{...base,total:0,uberCashUsed:2},null],
+ [{...base,total:0,uberCashUsed:null,financialEvidence:{refund:4,previousTotal:4}},null],
  [{...base,uberCashUsed:null,financialEvidence:{outOfPocket:2.75}},2.75],
  [{...base,total:0,uberCashUsed:0,financialEvidence:{refund:4,previousTotal:4}},null],
  [{...base,total:1,uberCashUsed:0,financialReview:{reasons:['refund'],revision:'a'.repeat(64)}},null]
@@ -57,7 +61,17 @@ assert.equal(receiptPaymentAmount(adjusted,{total:12,outOfPocket:1,reviewedRecei
 assert.equal(receiptPaymentAmount(adjusted,{total:12,outOfPocket:4,reviewedReceiptRevision:'b'.repeat(64)}),null);
 assert.equal(receiptFinancials(adjusted).total,12,'Payment availability cannot alter original savings');
 const mixed=receiptAmountSummary(paymentCases.map(([r],i)=>({...r,receiptId:'mixed-'+i})));
-assert.equal(mixed.outOfPocket.value,7.75);assert.equal(mixed.outOfPocket.known,3);assert.equal(mixed.outOfPocket.total,8);
+assert.equal(mixed.outOfPocket.value,7.75);assert.equal(mixed.outOfPocket.known,5);assert.equal(mixed.outOfPocket.total,12);
 assert.doesNotMatch(missingMarkup,/ri-paid-bottom/,'Do not reserve an empty basket/fees band');
 assert.match(markup,/Known out-of-pocket spend/);assert.match(markup,/ri-coverage-info/);
 console.log('✓ Non-credit payment evidence: complete mixed payments, explicit payments with unknown Cash, missing/incompatible totals, true zero, refunds, stale and reviewed corrections. Ledger savings unchanged.');
+
+const freeRide={receiptId:'zero-no-allocation',service:'Uber',orderDate:'2026-10-02',total:0,promotionDiscount:9.95};
+const {receiptInsightRecord,receiptDetailMarkup,financeLedger}=await import('./receipt-insights.js');
+const freeRecord=receiptInsightRecord(freeRide);
+assert.equal(freeRecord.payment,0);
+const detail=receiptDetailMarkup(freeRecord,{data:{receipts:[freeRide]}});
+assert.match(detail,/You paid<\/span>[\s\S]*?£0.00/);
+assert.match(detail,/Total paid<\/dt><dd[^>]*>£0.00/);
+assert.equal(financeLedger({data:{receipts:[freeRide]}},{financeRange:'all',now}).transactions[0].value,0);
+assert.equal(receiptPaymentAmount({...freeRide,total:null}),null);
