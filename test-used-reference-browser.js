@@ -19,6 +19,11 @@ try{
  await p.goto('http://127.0.0.1:'+server.address().port);await p.locator('[data-view=used]').click();await settle(p);
  if(large)await p.addStyleTag({content:'#view-used :is(button,input,select,span,p,small,strong){font-size:21px!important}.nav-btn{font-size:20px!important}'});
  assert.equal(await p.locator('#usedResultsCount').innerText(),'33 accounts');assert.equal(await p.locator('.used-record').count(),24);
+ assert.equal(await p.locator('.used-summary > button').count(),2);assert.equal(await p.locator('#expiredCount').count(),0);assert.doesNotMatch(await p.locator('.used-summary').innerText(),/Expired/);assert.match(await p.locator('.used-summary').innerText(),/Fully used accounts/);assert.equal(await p.locator('#usedAccountCount').innerText(),'33');assert.equal(await p.locator('#usedQuickCount').innerText(),'33');assert.equal(await p.locator('.receipt-rule-badge').first().innerText(),'Usage complete');
+ await p.locator('.used-filters [data-used-status=needs_checking]').click();assert.equal(Number((await p.locator('#usedResultsCount').innerText()).replace(/[^0-9]/g,'')),Number((await p.locator('#needsCheckCount').innerText()).replace(/[^0-9]/g,'')));await p.locator('.used-filters [data-used-status=used]').click();await settle(p);
+ if(width===440&&!large){const row=await p.locator('.used-filters').evaluate(e=>[...e.children].map(c=>c.getBoundingClientRect().top));assert.ok(Math.max(...row)-Math.min(...row)<1,'Both pills and Status share one row at 440 CSS pixels');assert.ok(await p.locator('.used-filters').evaluate(e=>e.getBoundingClientRect().height<=48));}
+ await p.locator('.used-head [data-used-info]').click();assert.match(await p.locator('#sheetBody').innerText(),/Lime rides count as Ride/);assert.match(await p.locator('#sheetBody').innerText(),/does not mean every promo is exhausted/);await p.keyboard.press('Escape');await p.waitForFunction(()=>!history.state?.trackerSheet);await settle(p);
+
  const prefix=width+(large?'-large':'');await shot(p,prefix+'-used-reference');
  await p.locator('#usedStatus').click();await shot(p,prefix+'-status-reference');await p.keyboard.press('Escape');
  await p.locator('[data-used-more]').click();assert.equal(await p.locator('.used-record').count(),33);
