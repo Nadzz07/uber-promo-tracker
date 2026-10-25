@@ -93,6 +93,7 @@ try {
   await page.keyboard.press('Escape');
   failHistory = true;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
+  await openHomeDetail(page,'planner');await page.waitForFunction(()=>document.getElementById('recommendation').textContent.includes('Promo discounts'));
   assert.match(await page.locator('#recommendation').innerText(), /Promo discounts\s*−£10\.00/);
   failPromos = true;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Attention');

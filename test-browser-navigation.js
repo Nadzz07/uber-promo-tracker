@@ -7,23 +7,6 @@ export async function openHomeDetail(page,name) {
   if(name==='offers'&&await page.locator('#accountTypeOptions').isVisible())await page.keyboard.press('Escape');
 }
 
-export async function leaveReceiptEditor(page) {
- const back=page.locator('[data-finance-action="receipt-overview"]:visible').first();
- if(await back.isVisible()) await back.click();
-}
-
-export async function openReceiptPayments(page) {
- const panel=page.locator('.receipt-payment-card');
- if(await panel.count()&&await panel.getAttribute('open')===null)await panel.locator('summary').click();
-}
-
-export async function openFinanceHistory(page) {
- const panel=page.locator('[data-finance-panel="history"]');
- if(await panel.getAttribute('open')===null)await panel.locator('summary').first().click();
- const more=page.locator('[data-finance-action="history-more"]');
- if(await more.isVisible())await more.click();
-}
-
 export async function directoryStatus(page,value) {
  const panel=page.locator('#accountSecondaryFilters');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await page.locator('#accountScope').selectOption(value);
 }
@@ -68,6 +51,5 @@ export async function importPrivateFinance(page,file){
  await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="health"]').click();
  await page.locator('[data-finance-import]').setInputFiles(file);
  await page.waitForFunction(()=>document.querySelector('#privateDataTools [role="status"]')?.textContent.includes('receipts on this device'));
- await page.locator('#sheetClose').click();await page.locator('#sheetBackdrop.open').waitFor({state:'hidden'});
- await page.locator('[data-view=more]').click();await page.locator('#view-more [data-open-sheet="finance"]').click();await page.locator('.finance-page [data-finance-target=history]').click();await page.locator('#financeReceipt').waitFor({state:'attached'});
+ // Leave Sync & data open; callers return through its actual Close action.
 }

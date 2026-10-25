@@ -1,4 +1,3 @@
-const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const paths = {
   archive:'<path d="M3 3h18v5H3zM5 8v13h14V8M9 12h6"/>',
   google:'<path d="M20.5 10.5H12v4h4.8a5.6 5.6 0 1 1-1.5-7.8l3-3a10 10 0 1 0 2.2 6.8Z"/>',
@@ -65,12 +64,4 @@ const paths = {
 };
 export function financeIcon(name) {
   return '<svg class="finance-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+(paths[name] || paths.receipt)+'</svg>';
-}
-export function financeHero(label, value, detail) {
-  return '<div class="savings-hero finance-hero"><div class="finance-hero-heading"><span class="finance-icon-surface">'+financeIcon('savings')+'</span><span class="savings-hero-label">'+escape(label)+'</span></div><div class="savings-hero-value">'+escape(value)+'</div><p class="finance-confirmation">'+financeIcon('check')+escape(detail)+'</p></div>';
-}
-export function financeMetric(icon, label, value, detail = '', target = null) {
-  const tag = target ? 'button' : 'div';
-  const attributes = target ? ' type="button" '+(target.local ? 'data-finance-open="'+escape(target.panel)+'"' : 'data-open-sheet="finance" data-finance-target="'+escape(target.panel)+'"')+(target.missing ? ' data-finance-missing="true"' : '') : '';
-  return '<'+tag+' class="insight'+(target ? ' metric-action' : '')+'"'+attributes+'>'+financeIcon(icon)+'<span class="insight-label">'+escape(label)+'</span><span class="insight-value">'+escape(value)+'</span>'+(detail ? '<span class="sheet-help">'+escape(detail)+(target ? ' ›' : '')+'</span>' : '')+'</'+tag+'>';
 }
