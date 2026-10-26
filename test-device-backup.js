@@ -23,3 +23,5 @@ assert.equal(syncReportModel({lastSuccessfulMailScanAt:at,...report},Date.parse(
 console.log('✓ Device backup: encrypted round-trip, notes/manual usage/corrections/zero balance/preferences, repeat restore, stale preview, validation, scoped export, quota rollback and recovery; real sync stats/idempotence/privacy/unknown states.');
 
 const legacy=memory(),legacyVault=new PrivateFinanceVault(legacy);legacy.setItem('uber-eats-promo-finder:promo-state:v2',JSON.stringify({'old-offer':'used'}));assert.equal(JSON.parse(deviceBackup(legacyVault).deviceBackup.values[prefix+'manual-state:v3']).offers['old-offer'].forceDone,true);
+
+const partial=memory(),partialVault=new PrivateFinanceVault(partial);partial.setItem(prefix+'offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'}));partial.setItem(prefix+'planner-settings:v1',JSON.stringify({maxOrders:'3',extraOrderFee:'0'}));assert.ok(deviceBackup(partialVault).deviceBackup);await applyDeviceRestore(partialVault,prepareDeviceRestore(partialVault,decoded));assert.equal(partialVault.data.events.length,2,'Older supported preference shapes cannot block receipt imports');

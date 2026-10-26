@@ -126,3 +126,4 @@ exclude:
   - test-device-backup.js
   - test-sync-data-browser.js
   - test-sync-report.js
+  - sync-report.js

@@ -14,12 +14,12 @@ function validateValues(values){
   if(key.endsWith('motion:v1')){if(!['system','reduced'].includes(raw))throw Error('Invalid saved motion.');continue;}
   const value=JSON.parse(raw);if(!object(value))throw Error('Invalid backup settings.');badKeys(value);
   if(key.endsWith('manual-state:v3')){
-   if(value.version!==3||!object(value.offers)||value.accountRecords&&!object(value.accountRecords))throw Error('Unsupported manual usage version.');
+   if(value.version!=null&&value.version!==3||!object(value.offers)||value.accountRecords&&!object(value.accountRecords))throw Error('Unsupported manual usage version.');
    for(const state of Object.values(value.offers))if(!object(state)||state.manualUsesConsumed!=null&&(!Number.isInteger(state.manualUsesConsumed)||state.manualUsesConsumed<0)||state.history!=null&&!Array.isArray(state.history))throw Error('Invalid manual usage.');
    for(const r of Object.values(value.accountRecords||{}))if(!object(r)||r.note!=null&&(typeof r.note!=='string'||r.note.length>10000)||r.archived!=null&&typeof r.archived!=='boolean')throw Error('Invalid saved account change.');
   }
-  if(key.endsWith('planner-settings:v1')&&(value.maxOrders!=null&&![1,2,3,4].includes(value.maxOrders)||value.extraOrderFee!=null&&(!Number.isFinite(value.extraOrderFee)||value.extraOrderFee<0)||value.fulfilment!=null&&!['delivery','pickup'].includes(value.fulfilment)||value.feeTouched!=null&&typeof value.feeTouched!=='boolean'))throw Error('Invalid planner preferences.');
-  if(key.endsWith('offer-preferences:v1')&&(value.version!==1||!Array.isArray(value.preferredPromos)||value.preferredPromos.some(v=>typeof v!=='string')||['includeCash','anyPromoWithCash'].some(k=>value[k]!=null&&typeof value[k]!=='boolean')))throw Error('Invalid offer preferences.');
+  if(key.endsWith('planner-settings:v1')&&(value.maxOrders!=null&&![1,2,3,4].includes(Number(value.maxOrders))||value.extraOrderFee!=null&&(!Number.isFinite(Number(value.extraOrderFee))||Number(value.extraOrderFee)<0)||value.fulfilment!=null&&!['delivery','pickup'].includes(value.fulfilment)||value.feeTouched!=null&&typeof value.feeTouched!=='boolean'))throw Error('Invalid planner preferences.');
+  if(key.endsWith('offer-preferences:v1')&&(value.version!=null&&value.version!==1||value.preferredPromos!=null&&(!Array.isArray(value.preferredPromos)||value.preferredPromos.some(v=>typeof v!=='string'))||['includeCash','anyPromoWithCash'].some(k=>value[k]!=null&&typeof value[k]!=='boolean')))throw Error('Invalid offer preferences.');
   if(key.endsWith('device-accounts:v1'))for(const [ref,r] of Object.entries(value))if(!object(r)||!deviceEmail(value,{accountRef:ref,accountMasked:r.accountMasked})||typeof r.email!=='string'||r.email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email)||typeof r.accountMasked!=='string')throw Error('Invalid saved account identity.');
  }
  return values;
@@ -53,5 +53,10 @@ export function prepareDeviceRestore(vault,incoming){
  const changes={newReceipts:finance.receipts.filter(r=>!beforeReceipts.has(r.receiptId)).length,updatedReceipts:finance.receipts.filter(r=>beforeReceipts.has(r.receiptId)&&JSON.stringify(r)!==JSON.stringify(beforeReceipts.get(r.receiptId))).length,historyEntries:finance.events.filter(e=>!beforeEvents.has(e.id)).length,offerRecords:changed(manual.offers,prior.offers),accountChanges:changed(manual.accountRecords,prior.accountRecords),preferences:Object.entries(values).filter(([k,v])=>!k.endsWith('manual-state:v3')&&!k.endsWith('device-accounts:v1')&&v!==vault.storage.getItem(k)).length};
  return {finance,values,changes,revision:vault.saved,baseline:Object.fromEntries(DEVICE_BACKUP_KEYS.map(k=>[k,vault.storage.getItem(k)])),preview:{receipts:finance.receipts.length,corrections:finance.events.filter(e=>e.kind==='receipt').length,accounts:finance.accounts.length,manualOffers:Object.keys(incoming.deviceBackup?.values?.[prefix+'manual-state:v3']?JSON.parse(incoming.deviceBackup.values[prefix+'manual-state:v3']).offers:{}).length,preferences:Object.keys(values).length,deviceBackup:Boolean(incoming.deviceBackup)}};
 }
-export async function applyDeviceRestore(vault,plan){if(vault.saved!==plan.revision||Object.entries(plan.baseline).some(([k,v])=>vault.storage.getItem(k)!==v))throw Error('Device data changed. Review the backup again.');const manual='uber-eats-promo-tracker:manual-state:v3',effective=deviceBackup(vault).deviceBackup.values[manual];return commitDeviceRestore(vault,plan.finance,plan.values,DEVICE_BACKUP_KEYS,vault.storage.getItem(manual)===null&&effective?{[manual]:effective}:{});}
+export async function applyDeviceRestore(vault,plan){
+ if(vault.saved!==plan.revision||Object.entries(plan.baseline).some(([k,v])=>vault.storage.getItem(k)!==v))throw Error('Device data changed. Review the backup again.');
+ const manual=prefix+'manual-state:v3',overrides={};
+ if(vault.storage.getItem(manual)===null){const old=JSON.parse(vault.storage.getItem('uber-eats-promo-finder:promo-state:v2')||'{}'),offers={};for(const [id,state]of Object.entries(old)){if(state==='ignored')offers[id]={ignored:true};if(state==='used')offers[id]={forceDone:true};}if(Object.keys(offers).length)overrides[manual]=JSON.stringify({version:3,offers});}
+ return commitDeviceRestore(vault,plan.finance,plan.values,DEVICE_BACKUP_KEYS,overrides);
+}
 export {FINANCE_STORAGE_KEY};
