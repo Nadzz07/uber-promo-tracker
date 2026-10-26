@@ -4391,11 +4391,7 @@
       activeSection?.querySelector('[data-home-back]')?.setAttribute('aria-label',navParent==='more'?'Back to More':'Back to Home');
       updateNavGlider();
       queueDetailViewport();
-      if (activeSection && !motionReduced()) {
-        activeSection.classList.remove("motion-enter");
-        activeSection.classList.add("motion-enter");
-        window.setTimeout(() => activeSection.classList.remove("motion-enter"), 560);
-      }
+      if (activeSection) replayMotion(activeSection, 'motion-page');
       window.scrollTo({ top: view==='more'?moreScrollPosition:view==='accounts'?accountsScrollPosition:0, behavior: "instant" });
       if(findOffer)openAccountsOffers();
       if(view==='accounts')requestAnimationFrame(()=>{if(currentView==='accounts'&&!findOffer)window.scrollTo({top:accountsScrollPosition,behavior:'instant'});});
