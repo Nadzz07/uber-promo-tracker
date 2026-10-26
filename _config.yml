@@ -122,3 +122,4 @@ exclude:
   - test-savings-purpose.js
   - test-finance-controls-browser.js
   - test-finance-controls.js
+  - test-motion-browser.js

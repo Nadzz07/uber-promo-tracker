@@ -8,7 +8,7 @@
  --surface-rgb:var(--color-panel-rgb); --accent-rgb:var(--color-accent-rgb); --account-accent:var(--color-accent); --account-tint:var(--color-selected); --account-outline:var(--color-selected-border);
  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px;
  --card-radius:12px; --panel-radius:12px; --control-radius:10px; --radius-xl:16px; --radius-lg:12px; --radius-md:10px; --radius-sm:8px;
- --motion-fast:180ms; --motion-normal:260ms; --motion-slow:320ms; --motion-ease:cubic-bezier(.2,.8,.2,1); --transition-fast:var(--motion-fast); --transition-panel:var(--motion-slow);
+ --motion-press:100ms; --motion-fast:160ms; --motion-normal:240ms; --motion-slow:280ms; --motion-ease:cubic-bezier(.2,.8,.2,1); --transition-fast:var(--motion-fast); --transition-panel:var(--motion-slow);
 }
 html,body { background:var(--theme-background); background-attachment:fixed; color:var(--color-text); }
 body::before,body::after,.bottom-nav::before,.nav-glider::after { content:none; }
