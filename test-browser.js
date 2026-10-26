@@ -67,9 +67,13 @@ try {
   if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('[data-account-offers="A001"]:visible').first().click();
   assert.equal(await page.evaluate(() => document.activeElement.id), 'sheetClose');
   await page.locator('.offer-terms > summary').first().click();assert.match(await page.locator('.account-offer-expiry').first().getAttribute('aria-label'), /Ends 31 Dec at 23:59 UK/, 'An explicit Uber deadline takes priority over the fallback window');
-  assert.equal(await page.locator('.sheet').evaluate(el => getComputedStyle(el).animationName), 'liquidSheetOpen');
-  const sheetAnimation = await page.locator('.sheet').evaluate(el => parseFloat(getComputedStyle(el).animationDuration));
-  assert.ok(sheetAnimation >= .2 && sheetAnimation <= .4, 'Sheets should use a short, purposeful transition');
+  const sheetMotion = await page.locator('.sheet').evaluate(el => {
+    const style=getComputedStyle(el);
+    return {animation:style.animationName,properties:style.transitionProperty,durations:style.transitionDuration.split(',').map(Number.parseFloat)};
+  });
+  assert.equal(sheetMotion.animation,'none','A competing entrance animation must not prevent reversible sheet transitions');
+  assert.match(sheetMotion.properties,/transform/);assert.match(sheetMotion.properties,/opacity/);
+  assert.ok(sheetMotion.durations.every(value=>value>=.2&&value<=.3),'Sheets use short, purposeful transitions');
   assert.equal(await page.locator('#app').evaluate(e => e.inert), true);
   await page.keyboard.press('Shift+Tab');
   assert.equal(await page.evaluate(() => document.getElementById('sheetBackdrop').contains(document.activeElement)), true);
