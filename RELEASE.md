@@ -493,3 +493,21 @@ Home and Planner Find an offer actions open the existing Accounts selector direc
 ## Payment and refund Finances view
 
 The existing Finances destination now opens a compact payments ledger in the shared mobile page shell. It reuses deduplicated receipt/payment calculations, keeps currencies and Uber Cash separate, labels partial coverage, and preserves unsupported gross/refund allocations as unknown. Filters combine without writing transactions. Receipt detail links preserve period, method, type and list state; existing correction and balance controls remain accessible. The shared full-width themed safe-area cover also applies to Finances.
+
+## Shared motion refinement — 26 October 2026
+
+The current browser implementation keeps its approved layouts, custom colour wheel
+and slim navigation. Shared timings use 100ms press feedback, 160ms controls,
+240ms sheets/pages and 280ms larger surfaces. Sheet transitions are reversible
+CSS transitions without a competing entrance animation or permanent compositor
+layer. Selection, status and number bounce effects were removed. Region refreshes
+use a cancellable opacity animation without forced layout; usage slots animate
+only after a successful persisted record/undo. Reduced Motion remains immediate.
+Navigation reuses countdown calculations within a minute while projection changes,
+exact expiry deadlines and backward clock correction still invalidate them.
+
+`test-motion-browser.js` records actual mobile browser interactions and samples
+frame intervals, checks rapid navigation, menus, sheet dismissal, search, overflow
+and the reduced-motion alternative. These measurements describe desktop browser
+emulation only; occasional long tasks remain during initial screen construction
+and are not a guarantee of physical-device frame rates.

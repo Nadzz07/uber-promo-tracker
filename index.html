@@ -2029,7 +2029,7 @@
 
 
 
-    /* Liquid-glass motion layer */
+    /* Shared motion: short, reversible transitions; no permanent list layers. */
     .bottom-nav { isolation: isolate; overflow: hidden; }
     .nav-glider {
       position: absolute;
@@ -2059,7 +2059,7 @@
       animation: liquidViewIn var(--motion-normal) cubic-bezier(.22,1,.36,1) both;
     }
     @keyframes liquidViewIn {
-      from { opacity: 0; transform: translateY(14px) scale(.992); filter: none; }
+      from { opacity: .85; transform: translateY(5px); }
       to { opacity: 1; transform: translateY(0) scale(1); filter: none; }
     }
 
@@ -2079,10 +2079,10 @@
     .sheet {
       animation: none;
       opacity: 0;
-      transform: translateY(34px) scale(.965);
+      transform: translateY(18px);
       filter: none;
-      transition: transform var(--motion-fast) cubic-bezier(.22,1,.36,1), opacity var(--motion-fast) ease, filter var(--motion-fast) ease;
-      will-change: transform, opacity;
+      transition: transform var(--motion-normal) var(--motion-ease), opacity var(--motion-normal) ease;
+      will-change: auto;
     }
     .sheet-backdrop.open .sheet {
       opacity: 1;
@@ -2099,9 +2099,9 @@
       }
     }
 
-    /* Complete motion system: spring continuity for every meaningful interaction. */
+    /* Shared control feedback; larger surfaces use the same non-overshooting easing. */
     :root {
-      --spring: cubic-bezier(.34, 1.56, .64, 1);
+      --spring: var(--motion-ease);
       --smooth-spring: cubic-bezier(.22, 1, .36, 1);
     }
     .nav-glider {
@@ -2116,57 +2116,40 @@
     .quick-card:active,
     .account-card:active,
     .more-card:active {
-      transform: scale(.955);
-      transition-duration: var(--motion-fast);
+      transform: scale(.985);
+      transition-duration: var(--motion-press);
     }
     .quick-card.active, .filter-btn.active {
-      animation: liquidSelect var(--motion-normal) var(--spring);
+      animation: none;
     }
-    @keyframes liquidSelect {
-      0% { transform: scale(.96); }
-      62% { transform: scale(1.025); }
-      100% { transform: scale(1); }
-    }
+
     .motion-refresh {
       animation: liquidRefresh var(--motion-normal) var(--smooth-spring) both;
     }
     @keyframes liquidRefresh {
-      from { opacity: .25; transform: translateY(9px) scale(.992); filter: none; }
+      from { opacity: .85; transform: none; }
       to { opacity: 1; transform: translateY(0) scale(1); filter: none; }
     }
     .motion-value {
-      animation: valueSpring var(--motion-normal) var(--spring);
+      animation: none;
     }
-    @keyframes valueSpring {
-      0% { opacity: .45; transform: translateY(5px) scale(.94); }
-      65% { opacity: 1; transform: translateY(-1px) scale(1.055); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
-    }
+
     .scan-pill.live, .scan-pill.setup, .scan-pill.stale {
-      animation: statusArrive var(--motion-normal) var(--spring);
+      animation: none;
     }
-    @keyframes statusArrive {
-      0% { opacity: .45; transform: scale(.92); }
-      70% { opacity: 1; transform: scale(1.035); }
-      100% { transform: scale(1); }
-    }
+
     .sheet-backdrop { transition: opacity var(--motion-fast) ease, visibility 0s linear var(--motion-fast); }
     .sheet-backdrop.open { transition-delay: 0s; }
     .sheet-backdrop.open .sheet {
-      animation: liquidSheetOpen var(--motion-normal) var(--smooth-spring) both;
+      animation: none;
     }
-    @keyframes liquidSheetOpen {
-      0% { opacity: 0; transform: translateY(42px) scale(.955); filter: none; }
-      68% { opacity: 1; transform: translateY(-5px) scale(1.008); filter: none; }
-      84% { transform: translateY(2px) scale(.998); }
-      100% { opacity: 1; transform: translateY(0) scale(1); filter: none; }
-    }
+
     .sheet-close {
       transition: transform var(--motion-fast) var(--spring), background-color var(--motion-fast) ease, border-color var(--motion-fast) ease;
     }
-    .sheet-close:hover { transform: rotate(8deg) scale(1.04); }
+    .sheet-close:hover { transform: none; }
     .filter-row, .quick-grid, .account-list, .recommendation, .activity-list, .more-grid {
-      transform: translateZ(0);
+      transform: none;
     }
     .empty, .local-notice, .sync-strip {
       transition: opacity var(--motion-fast) ease, transform var(--motion-fast) var(--smooth-spring);
@@ -3052,12 +3035,22 @@
       return reducedMotion.matches;
     }
 
+    const regionMotions = new WeakMap();
+    function controlMotionDuration() {
+      const value=getComputedStyle(document.documentElement).getPropertyValue('--motion-fast').trim();
+      return parseFloat(value)*(value.endsWith('ms')?1:1000)||160;
+    }
     function replayMotion(element, className) {
-      if (!element || motionReduced()) return;
-      element.classList.remove(className);
-      void element.offsetWidth;
-      element.classList.add(className);
-      window.setTimeout(() => element.classList.remove(className), 700);
+      if (!element || motionReduced() || className === 'motion-value') return;
+      regionMotions.get(element)?.cancel();
+      // One interruptible fade per region; no forced layout or queued timeouts.
+      const animation = element.animate([{opacity:.85},{opacity:1}], {
+        duration:controlMotionDuration(), easing:'ease-out'
+      });
+      regionMotions.set(element, animation);
+      animation.finished.then(() => {
+        if (regionMotions.get(element) === animation) regionMotions.delete(element);
+      }).catch(() => {});
     }
 
     function animateRegion(id) {
@@ -4272,7 +4265,16 @@
       try{const raw=localStorage.getItem(STATE_KEY),latest=raw?normaliseManualStore(JSON.parse(raw)):manualStore;next=undo?undoManualUse(latest,promo):consumeManualUse(latest,promo);localStorage.setItem(STATE_KEY,JSON.stringify(next));}
       catch{const card=[...document.querySelectorAll('[data-offer-key]')].find(el=>el.dataset.offerKey===promoStateKey(promo));if(card){let alert=card.querySelector('[data-usage-save-error]');if(!alert){alert=document.createElement('p');alert.dataset.usageSaveError='';alert.className='usage-save-error';alert.setAttribute('role','alert');card.querySelector('.account-offer-actions').append(alert);}alert.textContent='Could not save this change. Your recorded uses are unchanged. Try again.';}else showLocalNotice();return false;}
       if(undo)recentUsageWrites.delete(key);else recentUsageWrites.set(key,stamp);
-      manualStore=next;invalidateAccountProjection();renderAll();if(openSheetType==='account')renderAccountSheet();return true;
+      manualStore=next;invalidateAccountProjection();renderAll();
+      if(openSheetType==='account'){
+        renderAccountSheet();
+        if(!motionReduced()){
+          const card=[...document.querySelectorAll('[data-offer-key]')].find(el=>el.dataset.offerKey===key);
+          const slot=undo?card?.querySelector('.usage-slot.unused .usage-segment,.usage-slot.unknown .usage-segment'):[...card?.querySelectorAll('.usage-slot.manual .usage-segment')||[]].at(-1);
+          slot?.animate([{opacity:.55,transform:'scaleX(.94)'},{opacity:1,transform:'scaleX(1)'}],{duration:controlMotionDuration(),easing:'ease-out'});
+        }
+      }
+      return true;
     }
 
     function refreshAfterStateChange() {
@@ -4297,12 +4299,17 @@
       renderedClockKey = timedViewKey();
     }
 
+    let countdownMotionCache=null;
     function timedViewKey() {
       ensureAccountProjection();
-      const now = Date.now();
-      const countdowns = promos.filter(promo => expiryEndTime(promo) > now)
-        .map(promo => offerCountdown(promo, now)).join('|');
-      return currentView + '|' + projectionClock + '|' + syncState(payload.sync).className + '|' + countdowns + '|' + JSON.stringify(plannerCheckoutFees());
+      const now = Date.now(),minute=Math.floor(now/60000);
+      // Navigation does not need to rescan every historical offer in the same minute.
+      // Projection invalidation still handles source changes and exact expiry deadlines.
+      if(!countdownMotionCache||countdownMotionCache.clock!==projectionClock||countdownMotionCache.minute!==minute){
+        const value=promos.filter(promo=>expiryEndTime(promo)>now).map(promo=>offerCountdown(promo,now)).join('|');
+        countdownMotionCache={clock:projectionClock,minute,value};
+      }
+      return currentView + '|' + projectionClock + '|' + syncState(payload.sync).className + '|' + countdownMotionCache.value + '|' + JSON.stringify(plannerCheckoutFees());
     }
 
     function updateNavGlider() {
@@ -4384,11 +4391,7 @@
       activeSection?.querySelector('[data-home-back]')?.setAttribute('aria-label',navParent==='more'?'Back to More':'Back to Home');
       updateNavGlider();
       queueDetailViewport();
-      if (activeSection && !motionReduced()) {
-        activeSection.classList.remove("motion-enter");
-        activeSection.classList.add("motion-enter");
-        window.setTimeout(() => activeSection.classList.remove("motion-enter"), 560);
-      }
+      if (activeSection) replayMotion(activeSection, 'motion-page');
       window.scrollTo({ top: view==='more'?moreScrollPosition:view==='accounts'?accountsScrollPosition:0, behavior: "instant" });
       if(findOffer)openAccountsOffers();
       if(view==='accounts')requestAnimationFrame(()=>{if(currentView==='accounts'&&!findOffer)window.scrollTo({top:accountsScrollPosition,behavior:'instant'});});
