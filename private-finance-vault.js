@@ -7,7 +7,7 @@ const decode=value=>Uint8Array.from(atob(value),c=>c.charCodeAt(0));
 // Serialize the version check and write across browser tabs. IndexedDB provides
 // the same exclusion on older browsers without Web Locks; it stores no ledger.
 const revisionFor=async value=>value===null?null:encode(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)));
-async function withFinanceLock(storage,previous,next,action){
+async function withFinanceLock(storage,previous,next,action,rollback=()=>{}){
  if(storage!==globalThis.localStorage)return action();
  if(!globalThis.indexedDB)throw Error('This browser cannot safely coordinate private edits. Use a current browser.');
  const [expectedRevision,nextRevision]=await Promise.all([revisionFor(previous),revisionFor(next)]);
@@ -18,7 +18,7 @@ async function withFinanceLock(storage,previous,next,action){
   open.onsuccess=()=>{
    const db=open.result,transaction=db.transaction('mutex','readwrite');let result;
    transaction.oncomplete=()=>{db.close();resolve(result);};
-   transaction.onabort=()=>{db.close();reject(transaction.error||Error('Private storage update failed.'));};
+   transaction.onabort=()=>{try{rollback();}catch{}db.close();reject(transaction.error||Error('Private storage update failed.'));};
    const request=transaction.objectStore('mutex').get('save');
    request.onsuccess=()=>{try{
     // localStorage caches can lag across Firefox processes even under Web
@@ -41,6 +41,8 @@ export function validateFinanceData(data){if(data?.kind!=='uber-tracker-private-
 export const FINANCE_STORAGE_KEY=KEY;
 export const LEGACY_RECOVERY_KEY=KEY+'-legacy-recovery';
 const emptyData=()=>({kind:'uber-tracker-private-finance',schemaVersion:1,accounts:[],receipts:[],events:[]});
+
+export function mergeFinanceData(current,data){validateFinanceData(data);const incoming=new Map(data.events.map(e=>[e.id,e]));for(const e of current.events){if(incoming.has(e.id)&&JSON.stringify(incoming.get(e.id))!==JSON.stringify(e))throw Error('Conflicting history. Both originals remain unchanged.');incoming.set(e.id,e);}const receipts=new Map(data.receipts.map(r=>[r.receiptId,r]));for(const r of current.receipts){if(!receipts.has(r.receiptId))receipts.set(r.receiptId,r);else if(data.receiptReviewVersion!==1&&current.receiptReviewVersion===1&&r.financialReview)receipts.set(r.receiptId,{...receipts.get(r.receiptId),financialReview:r.financialReview});}const accounts=new Map(data.accounts.map(a=>[a.accountRef,a]));for(const a of current.accounts)if(!accounts.has(a.accountRef))accounts.set(a.accountRef,a);const merged=validateFinanceData({...data,...mergeOfferReceiptLinks(current,data),...(current.receiptReviewVersion===1?{receiptReviewVersion:1}:{}),accounts:[...accounts.values()],receipts:[...receipts.values()],events:[...incoming.values()]});return merged;}
 export class PrivateFinanceVault{
  constructor(storage=localStorage){this.storage=storage;this.data=null;this.queue=Promise.resolve();this.saved=null;this.status='loading';this.error=null;this.hydrate();}
  hasSaved(){return Boolean(this.storage.getItem(KEY));}
@@ -74,11 +76,29 @@ export class PrivateFinanceVault{
    this.storage.setItem(KEY,next);this.saved=next;this.data=data;this.status='ready';this.error=null;return data;
   }).catch(error=>{if(error.financeConflict)this.hydrate();throw error;});
  }
- async import(data){if(!this.data)throw Error(this.status==='migration_required'?'Migrate existing private data in Sync & data first.':'Private data could not load. Original storage retained.');validateFinanceData(data);const incoming=new Map(data.events.map(e=>[e.id,e]));for(const e of this.data.events){if(incoming.has(e.id)&&JSON.stringify(incoming.get(e.id))!==JSON.stringify(e))throw Error('Conflicting history. Both originals remain unchanged.');incoming.set(e.id,e);}const receipts=new Map(data.receipts.map(r=>[r.receiptId,r]));for(const r of this.data.receipts){if(!receipts.has(r.receiptId))receipts.set(r.receiptId,r);else if(data.receiptReviewVersion!==1&&this.data.receiptReviewVersion===1&&r.financialReview)receipts.set(r.receiptId,{...receipts.get(r.receiptId),financialReview:r.financialReview});}const accounts=new Map(data.accounts.map(a=>[a.accountRef,a]));for(const a of this.data.accounts)if(!accounts.has(a.accountRef))accounts.set(a.accountRef,a);const merged=validateFinanceData({...data,...mergeOfferReceiptLinks(this.data,data),...(this.data.receiptReviewVersion===1?{receiptReviewVersion:1}:{}),accounts:[...accounts.values()],receipts:[...receipts.values()],events:[...incoming.values()]});return this.persist(merged);}
+ async import(data){if(!this.data)throw Error(this.status==='migration_required'?'Migrate existing private data in Sync & data first.':'Private data could not load. Original storage retained.');return this.persist(mergeFinanceData(this.data,data));}
  append(input,{knownAccountRef=null}={}){const execute=async()=>{if(!this.data)throw Error(this.status==='migration_required'?'Migrate existing private data in Sync & data first.':'Private data could not load. Original storage retained.');const last=this.data.events.reduce((n,e)=>Math.max(n,Date.parse(e.at)),0);const value=input.action==='undo'?{}:input.kind==='receipt'?validateFinancialCorrection(input.value):validateCashEntry(input.value);const event={...input,value,id:crypto.randomUUID(),at:new Date(Math.max(Date.now(),last+1)).toISOString()};const accounts=input.kind==='cash'&&knownAccountRef===input.accountRef&&input.recordId===input.accountRef&&!this.data.accounts.some(a=>a.accountRef===knownAccountRef)?[...this.data.accounts,{accountRef:knownAccountRef}]:this.data.accounts;const next=validateFinanceData({...this.data,accounts,events:[...this.data.events,event]});await this.persist(next);return event;};const result=this.queue.then(execute);this.queue=result.catch(()=>{});return result;}
  resetReceiptCorrections(){const execute=async()=>{if(!this.data)throw Error(this.status==='migration_required'?'Migrate existing private data in Sync & data first.':'Private data could not load. Original storage retained.');await this.persist(validateFinanceData({...this.data,events:this.data.events.filter(e=>e.kind!=='receipt')}));};const result=this.queue.then(execute);this.queue=result.catch(()=>{});return result;}
  editHistory(kind,recordId){return financialEditHistory(this.data?.events||[],kind,recordId);}
  changeHistory(kind,recordId,direction){const execute=async()=>{if(!this.data)throw Error(this.status==='migration_required'?'Migrate existing private data in Sync & data first.':'Private data could not load. Original storage retained.');if(!['undo','redo'].includes(direction))throw Error('Invalid history action.');const change=this.editHistory(kind,recordId)[direction];if(!change)throw Error('Nothing to '+direction+'.');const value=direction==='undo'?change.before:change.after,last=this.data.events.reduce((n,e)=>Math.max(n,Date.parse(e.at)),0);const event={id:crypto.randomUUID(),at:new Date(Math.max(Date.now(),last+1)).toISOString(),kind,recordId,accountRef:change.event.accountRef,action:value===null?'undo':'set',value:value??{},historyAction:direction,historyTargetId:change.event.id,...(value===null?{}:{historyValueAt:direction==='undo'?change.beforeAt:change.afterAt})};await this.persist(validateFinanceData({...this.data,events:[...this.data.events,event]}));};const result=this.queue.then(execute);this.queue=result.catch(()=>{});return result;}
  recoveryBackup(){const value=this.storage.getItem(LEGACY_RECOVERY_KEY)||this.storage.getItem(KEY);if(!value||JSON.parse(value).kind!=='uber-tracker-encrypted-finance')throw Error('No legacy recovery original.');return value;}
  async encryptedBackup(password){if(!this.data)throw Error('Private data is unavailable.');return JSON.stringify(await encryptFinance(this.data,password));}
+}
+
+// The existing cross-tab finance mutex also coordinates a device restore.
+// Validate before entry; retain a pre-restore copy and roll back a failed batch.
+export const DEVICE_RECOVERY_KEY='uber-tracker-device-backup-recovery:v1';
+export async function commitDeviceRestore(vault,data,values,allKeys=Object.keys(values),recoveryOverrides={}){
+ validateFinanceData(data);const storage=vault.storage,previous=storage.getItem(KEY),next=JSON.stringify({kind:'uber-tracker-local-finance',schemaVersion:2,data});
+ if(previous!==vault.saved)throw Error('Private records changed. Review the backup again.');
+ const changes={...values,[KEY]:next},before=Object.fromEntries([...new Set([...allKeys,...Object.keys(changes)])].map(k=>[k,storage.getItem(k)]));let wrote=false;const applied=[];
+ const rollback=()=>{if(!wrote)return;for(const key of applied.slice().reverse()){if(storage.getItem(key)===before[key])continue;if(before[key]===null)storage.removeItem(key);else storage.setItem(key,before[key]);}wrote=false;vault.hydrate();};
+ try{
+  await withFinanceLock(storage,previous,next,()=>{
+   for(const [key,value]of Object.entries(before))if(storage.getItem(key)!==value)throw Error('Device data changed. Review the backup again.');
+   storage.setItem(DEVICE_RECOVERY_KEY,JSON.stringify({kind:'uber-tracker-device-recovery',schemaVersion:1,createdAt:new Date().toISOString(),values:{...before,...recoveryOverrides}}));
+   try{wrote=true;for(const [key,value]of Object.entries(changes)){storage.setItem(key,value);applied.push(key);if(storage.getItem(key)!==value)throw Error('Restore could not be verified.');}}catch(error){rollback();throw error;}
+  },rollback);
+  vault.hydrate();return data;
+ }catch(error){rollback();throw error;}
 }

@@ -1,9 +1,10 @@
+import {validateSyncReport} from './sync-report.js';
 import { classifyOfferCompletion } from "./offer-state.js";
 import { classifyAccount } from "./account-state.js";
 import { publicOfferTitle } from "./public-promo.js";
 import {RECEIPT_AMOUNT_KEYS,mergeReceiptAmounts} from './dashboard-data.js';
 
-const forbidden = /^(?:offerReceiptMatches|receiptMatchVersion|receiptMatchExportedAt|alias|email|accountAlias|code|promo_code|promoCode|recipient|sender|subject|body|bodyText|body_text|evidence|evidence_json|merchant|orderId|tripId|messageId|messageKey|mailbox|sourceMailbox|financialCorrection|financialEvents|financialEvidence|financialReview|financial_evidence_json|wallet|wallets|balance|currentCashBalance|manualNote|recordId|eventId|note)$/i;
+const forbidden = /^(?:deviceBackup|deviceRecovery|recoveryBackup|ciphertext|credentials|accessToken|apiKey|authorization|password|offerReceiptMatches|receiptMatchVersion|receiptMatchExportedAt|alias|email|accountAlias|code|promo_code|promoCode|recipient|sender|subject|body|bodyText|body_text|evidence|evidence_json|merchant|orderId|tripId|messageId|messageKey|mailbox|sourceMailbox|financialCorrection|financialEvents|financialEvidence|financialReview|financial_evidence_json|wallet|wallets|balance|currentCashBalance|manualNote|recordId|eventId|note)$/i;
 const email = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
 const masked = /[a-z0-9._%+-]{0,2}…[a-z0-9._%+-]{0,2}@[a-z0-9.-]+\.[a-z]{2,}/gi;
 
@@ -41,6 +42,7 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     throw new Error("Invalid public snapshot structure.");
   }
   visit(payload); visit(history);
+  validateSyncReport({...(payload.sync?.runs?{runs:payload.sync.runs}:{}),...(payload.sync?.scheduler?{scheduler:payload.sync.scheduler}:{})});
   for(const account of payload.accounts)if(account.cashSummary){const c=account.cashSummary;cashKeys(c,['status','remaining','expiresAt','hasUncertainty','grants']);if(!['estimated','exhausted','expired','needs_checking','none'].includes(c.status)||!Array.isArray(c.grants)||typeof c.hasUncertainty!=='boolean')throw Error('Invalid Cash summary.');c.grants.forEach(g=>cashEstimate(g,true));const total=Math.round(c.grants.filter(g=>g.status==='estimated').reduce((n,g)=>n+g.remaining,0)*100)/100;if(c.remaining!==(total>0?total:c.hasUncertainty?null:0))throw Error('Cash summary disagrees with grants.');}
   if ([1, 2].includes(payload.summary?.accountStatusVersion)) {
     const independent = payload.summary.accountStatusVersion === 2;

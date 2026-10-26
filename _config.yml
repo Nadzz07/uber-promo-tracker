@@ -123,3 +123,6 @@ exclude:
   - test-finance-controls-browser.js
   - test-finance-controls.js
   - test-motion-browser.js
+  - test-device-backup.js
+  - test-sync-data-browser.js
+  - test-sync-report.js

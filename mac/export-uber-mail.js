@@ -185,7 +185,7 @@ function bulkMailboxIndex(box, range = null) {
   }
 }
 
-function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, knownMessages = {}, calendarRange = null, audit = null, captureReceiptHeaders = false) {
+function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, knownMessages = {}, calendarRange = null, audit = null, captureReceiptHeaders = false, checkedKeys = null) {
   const range = calendarRange || dateRange(daysBack, olderThanDays, scanAt);
 
   stderr("Reading Mail metadata: " + sourceMailbox + "...");
@@ -218,6 +218,7 @@ function scanMailbox(box, role, daysBack, olderThanDays, sourceMailbox, scanAt, 
     const addresses = (row.recipients || []).map(address => String(address).trim().toLowerCase()).filter(Boolean);
     const unique = addresses.filter((address, index) => addresses.indexOf(address) === index);
     const cachedAlias = unique.length === 1 ? unique[0] : '';
+    if(checkedKeys)checkedKeys.add(row.messageId?row.messageId+'|'+unique.slice().sort().join(','):sourceMailbox+'|'+row.id);
     if (cachedAlias && row.messageId && knownMessages[mailEvidenceKey(row.messageId, cachedAlias)] === isoDate(row.receivedAt)) {
       skipped++;
       continue;
@@ -319,6 +320,7 @@ function run(argv) {
   const calendarRange = argv[8] || argv[9] ? dateRange(0,0,scanAt,argv[8],argv[9]) : null;
   const captureReceiptHeaders = argv[10] === 'true';
   const scanAudit = [];
+  const checkedKeys = new Set();
   const Mail = Application("Mail");
   Mail.includeStandardAdditions = false;
 
@@ -345,7 +347,7 @@ function run(argv) {
           promoOlderThanDays,
           promoMailboxName,
           scanAt,
-          knownMessages, calendarRange, scanAudit, captureReceiptHeaders
+          knownMessages, calendarRange, scanAudit, captureReceiptHeaders, checkedKeys
         )
       );
       scannedMailboxes.push({
@@ -377,7 +379,7 @@ function run(argv) {
           receiptOlderThanDays,
           receiptMailboxName,
           scanAt,
-          knownMessages, calendarRange, scanAudit, captureReceiptHeaders
+          knownMessages, calendarRange, scanAudit, captureReceiptHeaders, checkedKeys
         )
       );
       scannedMailboxes.push({
@@ -395,6 +397,7 @@ function run(argv) {
     exportedAt: new Date().toISOString(),
     mailboxes: scannedMailboxes,
     scanAudit,
+    scanStats:{emailsChecked:checkedKeys.size,checkedKeys:Array.from(checkedKeys)},
     ...(calendarRange ? {calendarRange:{start:calendarRange.start.toISOString(),end:calendarRange.end.toISOString()}} : {}),
     messages: dedupeMessages(messages)
   }, null, 2);

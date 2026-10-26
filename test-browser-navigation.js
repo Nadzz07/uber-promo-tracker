@@ -49,7 +49,8 @@ export async function openOfferManagement(page, key = null) {
 export async function importPrivateFinance(page,file){
  if(await page.locator('#sheetBackdrop.open').count()) {await page.locator('#sheetClose').click();await page.locator('#sheetBackdrop.open').waitFor({state:'hidden'});}
  await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="health"]').click();
- await page.locator('[data-finance-import]').setInputFiles(file);
+ await page.locator('.sd-transfer').evaluate(e=>e.open=true);await page.locator('[data-finance-import]').setInputFiles(file);
+ await page.locator('[data-finance-action=confirm-import]').click();
  await page.waitForFunction(()=>document.querySelector('#privateDataTools [role="status"]')?.textContent.includes('receipts on this device'));
  // Leave Sync & data open; callers return through its actual Close action.
 }

@@ -2287,6 +2287,7 @@
   <link rel="stylesheet" href="./theme-system.css">
   <link rel="stylesheet" href="./receipt-insights.css">
   <link rel="stylesheet" href="./planner-design.css">
+  <link rel="stylesheet" href="sync-data.css">
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -2446,6 +2447,7 @@
       <section id="view-preferred-promos" class="view preferred-page" aria-labelledby="preferredTitle"></section>
       <section id="view-preferred-catalogue" class="view preferred-page" aria-labelledby="preferredCatalogueTitle"></section>
       <section id="view-more" class="view"><div class="screen-head"><h1 id="moreTitle" class="screen-title" tabindex="-1">More</h1><p class="more-intro">Your tools, history and settings.</p></div><div class="more-grid"><section class="more-group" aria-labelledby="more-group-0"><h2 id="more-group-0" class="eyebrow">Offers & history</h2><div class="more-group-list"><button class="more-card" data-jump-planner="true"><span class="more-icon" data-icon="bag" aria-hidden="true"></span><span class="more-content"><span class="more-title">Order Planner</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="history"><span class="more-icon" data-icon="menu-calendar-history" aria-hidden="true"></span><span class="more-content"><span class="more-title">Promo history</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="locked"><span class="more-icon" data-icon="archive" aria-hidden="true"></span><span class="more-content"><span class="more-title">Archived accounts</span><span class="more-count" id="lockedCardCopy"></span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-1"><h2 id="more-group-1" class="eyebrow">Savings & receipts</h2><div class="more-group-list"><button class="more-card" data-open-sheet="savings"><span class="more-icon" data-icon="menu-coins" aria-hidden="true"></span><span class="more-content"><span class="more-title">Savings</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="receipts"><span class="more-icon" data-icon="menu-receipt" aria-hidden="true"></span><span class="more-content"><span class="more-title">Receipt insights</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="finance"><span class="more-icon" data-icon="wallet" aria-hidden="true"></span><span class="more-content"><span class="more-title">Finances</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-2"><h2 id="more-group-2" class="eyebrow">Accounts & data</h2><div class="more-group-list"><button class="more-card" data-open-sheet="device"><span class="more-icon" data-icon="menu-import" aria-hidden="true"></span><span class="more-content"><span class="more-title">Import accounts</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="health"><span class="more-icon" data-icon="menu-sync" aria-hidden="true"></span><span class="more-content"><span class="more-title">Sync & data</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-3"><h2 id="more-group-3" class="eyebrow">Settings & help</h2><div class="more-group-list"><button class="more-card" data-open-sheet="appearance"><span class="more-icon" data-icon="menu-sliders" aria-hidden="true"></span><span class="more-content"><span class="more-title">Settings</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-guide="overview"><span class="more-icon" data-icon="menu-book" aria-hidden="true"></span><span class="more-content"><span class="more-title">Help & guide</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="about"><span class="more-icon" data-icon="info" aria-hidden="true"></span><span class="more-content"><span class="more-title">About this tracker</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section></div></section>
+      <section id="view-sync" class="view"><div id="syncDataPage" class="sync-page"></div></section>
       <section id="view-help" class="view" aria-labelledby="guideTitle">
         <button class="advanced-btn" data-guide-back="true">‹ Back to More</button>
         <div class="screen-head"><div class="eyebrow">Help &amp; Guide</div><h1 id="guideTitle" class="screen-title" tabindex="-1">Understand your tracker</h1>
@@ -2493,6 +2495,7 @@
     import { offerTitle, useCountNeedsReview, effectiveDiscountPercent } from "./offer-details.js";
     import { THEME_KEY, DEFAULT_COLOUR, applyThemeTokens, THEME_PRESETS, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
     import { offerFinishedReason, offerClosureLabel, classifyOfferCompletion } from "./offer-state.js";
+    import {createSyncData} from './sync-data.js';
     import {PrivateFinanceVault} from './private-finance-vault.js';
     import {accountHistoryGroups,preferredAccountOffers,offerReceiptAvailability,offerUsageEvidence,offerUsageSlots,directoryAccounts,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
     import { setupDraggableNavigation } from "./nav-gestures.js";
@@ -2564,7 +2567,7 @@
     let history = [];
     let historyUnavailable = false;
     let sheetOpener = null;
-    let loadInProgress = false;
+    let loadInProgress = false,loadPromise=null;
     let lastSnapshotCheckedAt = 0;
     const snapshotCache = new Map();
     let loadError = false;
@@ -4050,43 +4053,20 @@
     function mountPrivateDataTools(){
       const host=document.getElementById('privateDataTools');if(!host)return;
       financeModule ||= import('./private-finance-ui.js');
-      financeModule.then(module=>{if(host.isConnected&&openSheetType==='health')financeView=module.syncDataInterface({host,vault:financeVault,onUpdate:privateDataUpdated});}).catch(()=>{if(host.isConnected)host.textContent='Private data controls could not load. Refresh to retry.';});
+      financeModule.then(module=>{if(host.isConnected&&(currentView==='sync'||openSheetType==='health')){const view=module.syncDataInterface({host,vault:financeVault,onUpdate:privateDataUpdated});if(currentView==='sync')syncTransferView=view;else financeView=view;}}).catch(()=>{if(host.isConnected)host.textContent='Private data controls could not load. Refresh to retry.';});
     }
-    function renderHealthSheet() {
-      const summary = payload.summary || {};
-      const generated = payload.generatedAt ? new Date(payload.generatedAt) : null;
-
-      setSheetHeading("Sync & data", "Snapshot and private data.");
-
-      document.getElementById("sheetBody").innerHTML =
-        '<div id="privateDataTools"></div><p class="sheet-help">' + Number(summary.receiptSourcesNeedingReview||0) + ' historical receipt sources await independent original verification. Their records are preserved privately; unverified sources do not create confirmed usage or savings.</p>' +
-        '<div class="sheet-section"><div class="insight-grid">' +
-          '<div class="insight"><div class="insight-label">Total accounts</div><div class="insight-value">' + accounts.length.toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Can log in</div><div class="insight-value">' + accounts.filter(a=>a.canLogin).length.toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Accounts available</div><div class="insight-value">' + eligibleAccountCounts(enrichedAccounts()).available.toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Archived</div><div class="insight-value">' + accounts.map(currentAccountState).filter(accountArchived).length.toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Tracked receipts</div><div class="insight-value">' + Number(Number(summary.trackedOrders||0)+Number(summary.trackedRides||0)).toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Deactivated · part of Archived</div><div class="insight-value">' + Number(summary.deactivatedAccounts||0) + '</div></div>' +
-        '</div></div>' +
-        '<div class="sheet-section"><div class="sheet-list">' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Snapshot prepared</div><div class="sheet-row-meta">Receipt processing time. Last Mail scan appears in the header.</div></div>' +
-          '<div class="sheet-row-value">' +
-            (generated && !Number.isNaN(generated.getTime())
-              ? escapeHtml(generated.toLocaleString("en-GB", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit", timeZone:"Europe/London" }))
-              : "Not synced yet") +
-          '</div></div>' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Private source</div><div class="sheet-row-meta">Full accounts, receipts, Mail evidence and usage history</div></div><div class="sheet-row-value">Private</div></div>' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Phone & web data</div><div class="sheet-row-meta">Masked accounts, promo details and savings totals</div></div><div class="sheet-row-value">Safe sync</div></div>' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Changes on this device</div><div class="sheet-row-meta">Used, ignore, done and split settings update immediately</div></div><div class="sheet-row-value">Saved locally</div></div>' +
-        '</div></div>' +
-        '<div class="sheet-section">' +
-          '<div class="settings-explainer">' +
-            '<strong>How syncing works</strong>' +
-            '<span>The website shows an imported snapshot. Up to date means a successful Mail scan within two hours. Update due means the scan is older; your Mac needs to import and publish a newer snapshot. Snapshot means its scan time is unknown. Syncing appears only for a reported scan in progress.</span>' +
-            '<span>Total accounts includes every account. Can log in includes all accessible accounts. Archived means outside active rotation and can include accessible accounts. Available Offers counts accessible accounts in active rotation with an eligible current offer. Fully used accounts meet the receipt rule and may still have offers. Completed promotions require every use to be confirmed; expiry and manual completion remain separate.</span>' +
-          '</div>' +
-        '</div>';
+    let syncDataView=null,syncTransferView=null,syncScrollPosition=0;
+    function renderHealthSheet(){ switchView('sync'); }
+    function renderSyncPage(){
+      if(syncDataView){syncDataView.refreshStatus();return;}
+      const host=document.getElementById('syncDataPage');
+      syncDataView=createSyncData({host,getSync:()=>payload.sync||{},vault:financeVault,
+        onBack:()=>{if(routeEntries.get(window.history.state?.trackerEntry)?.opener?.closest('#view-more,#view-home'))window.history.back();else switchView('more');},
+        onInfo:()=>openUtilitySheet('sync-info'),
+        refresh:async()=>{const result=await load();if(result==='failed')throw Error('Could not refresh published data. Your saved changes are unchanged.');if(result==='partial')throw Error('Published data was partly refreshed. Promo history could not load. Your saved changes are unchanged.');return result;},
+        onRestore:()=>{manualStore=readManualStore();deviceAccounts=readDeviceAccounts();offerPreferences=readOfferPreferences(localStorage);plannerSettings=readPlannerSettings();motionSetting=localStorage.getItem(MOTION_KEY)==='reduced'?'reduced':'system';document.documentElement.dataset.motion=motionSetting;mainNav.dataset.motion=motionSetting;liquidNavigation?.refreshMotion();accountTypeFilter=selectedOfferScope(offerPreferences);applyTheme(readThemeColour());layoutPreference=readLayoutPreference();applyLayoutPreference();privateDataUpdated();renderAll();}});
       mountPrivateDataTools();
+      if(financeVault.status==='migration_required')host.querySelector('.sd-transfer').open=true;
     }
 
     function renderHistorySheet() {
@@ -4197,6 +4177,7 @@
         requestAnimationFrame(()=>{if(['receipts','savings','finance'].includes(currentView)&&currentRouteEntry===entry){document.getElementById('receiptInsightsTitle').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}});
         return;
       }
+      if(type==='health'){switchView('sync');document.getElementById('syncTitle').focus({preventScroll:true});return;}
       if(type==='appearance'){switchView('settings');document.getElementById('settingsTitle').focus({preventScroll:true});return;}
       if (financeView) {financeView.destroy();financeView=null;}
       openSheetType = type;
@@ -4207,6 +4188,7 @@
       if (type === 'about') renderAboutSheet();
       if (type === "advanced") renderAdvancedSheet();
       if (type === "locked") renderLockedSheet();
+      if (type === "sync-info") {setSheetHeading('Sync & data','About updates and backups.');document.getElementById('sheetBody').innerHTML='<p class="sheet-help">The Mac reads Apple Mail and publishes a separate sanitised snapshot. Times and schedule status come from the last published report; this page cannot tell whether your Mac is online. Latest-run counts refer to that run, not lifetime totals. Emails checked means distinct Uber-related messages inspected, including unchanged messages.</p><p class="sheet-help">Refresh this device only fetches published data. Backups include the saved records accessible in this browser profile, not your Mac database or Mail archive. Restoring merges receipt histories by stable ID and uses backup values for matching saved decisions and preferences. A recoverable pre-restore copy stays on this device.</p>';}
       if (type === "health") renderHealthSheet();
       if (type === "history") renderHistorySheet();
       if(type==='theme'){renderLegacyAppearanceControls();setSheetHeading('Theme colour & layout','Saved on this device.');}
@@ -4294,6 +4276,7 @@
         document.getElementById('homeReadyCount').textContent=eligibleAccountCounts(enrichedAccounts()).ready.toLocaleString('en-GB')+' ready to use';
       } else if (currentView === 'accounts') renderAccounts();
       else if (currentView === 'used') renderUsed();
+      else if (currentView === 'sync') renderSyncPage();
       else if (currentView === 'settings') renderSettingsPage();
       else if (currentView === 'more') renderMore();
       renderedClockKey = timedViewKey();
@@ -4328,7 +4311,7 @@
     const routeName=location.hash.slice(1).split(/[?&]/)[0];
     const legacyOfferEntry=['offers','find-offer','find-an-offer'].includes(routeName);
     const financeAlias=['private-finances','private-finance','finances'].includes(routeName);
-    const initialView=financeAlias?'finance':legacyOfferEntry?'accounts':['home','accounts','used','more','settings','planner','receipts','savings','finance'].includes(routeName)?routeName:'home';
+    const initialView=['health','sync-data'].includes(routeName)?'sync':financeAlias?'finance':legacyOfferEntry?'accounts':['home','accounts','used','more','settings','planner','receipts','savings','finance','sync'].includes(routeName)?routeName:'home';
     let pendingOfferEntry=legacyOfferEntry;
     function applyDirectoryRouteParams(){
       const params=new URLSearchParams(location.search);new URLSearchParams(location.hash.replace(/^#[^?&]*[?&]?/,'')).forEach((value,key)=>params.set(key,value));
@@ -4363,6 +4346,7 @@
     let moreScrollPosition=0,accountsScrollPosition=0;
     function switchView(view,routeOptions) {
       const findOffer=view==='offers'||routeOptions?.offerSelector;if(view==='offers')view='accounts';
+      if(currentView==='sync')syncScrollPosition=window.scrollY;
       if(currentView==='accounts'){accountsScrollPosition=window.scrollY;if(view!=='accounts')closeAccountPicker();}
       if(currentView==='more'&&view!=='more')moreScrollPosition=window.scrollY;
       if(preferredEditor.active&&!preferredViews.has(view)&&preferredEditor.dirty&&!routeRestoring){preferredEditor.requestDiscard(()=>switchView(view));return;}
@@ -4372,7 +4356,7 @@
       recordViewRoute(view,routeOptions);
       if(view==='receipts'&&routeRestoring&&routeEntries.get(currentRouteEntry)?.reviewState)Object.assign(receiptInsightsView.state,routeEntries.get(currentRouteEntry).reviewState);
       currentView = view;updateBrowserTheme();
-      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used','settings','more','preferred-promos','preferred-catalogue','receipts','savings','finance'].includes(view));
+      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used','settings','more','preferred-promos','preferred-catalogue','receipts','savings','finance','sync'].includes(view));
       renderAll();
       let activeSection = null;
 
@@ -4382,7 +4366,7 @@
         if (isActive) activeSection = section;
       });
 
-      const navParent=["help","settings","preferred-promos","preferred-catalogue","receipts","savings","finance"].includes(view)?"more":["offers","planner"].includes(view)?routeEntries.get(currentRouteEntry)?.navigationParent||"home":view;
+      const navParent=["help","settings","preferred-promos","preferred-catalogue","receipts","savings","finance","sync"].includes(view)?"more":["offers","planner"].includes(view)?routeEntries.get(currentRouteEntry)?.navigationParent||"home":view;
       document.querySelectorAll("[data-view]").forEach(button => {
         button.classList.toggle("active",button.dataset.view===navParent);
         if(button.dataset.view===navParent)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");
@@ -4392,7 +4376,7 @@
       updateNavGlider();
       queueDetailViewport();
       if (activeSection) replayMotion(activeSection, 'motion-page');
-      window.scrollTo({ top: view==='more'?moreScrollPosition:view==='accounts'?accountsScrollPosition:0, behavior: "instant" });
+      window.scrollTo({ top: view==='more'?moreScrollPosition:view==='accounts'?accountsScrollPosition:view==='sync'?syncScrollPosition:0, behavior: "instant" });
       if(findOffer)openAccountsOffers();
       if(view==='accounts')requestAnimationFrame(()=>{if(currentView==='accounts'&&!findOffer)window.scrollTo({top:accountsScrollPosition,behavior:'instant'});});
       if(view==='more')requestAnimationFrame(()=>{if(currentView==='more')window.scrollTo({top:moreScrollPosition,behavior:'instant'});});
@@ -4403,9 +4387,9 @@
       else { const detail = currentView; switchView('home'); document.querySelector('#view-home [data-home-detail="' + detail + '"]')?.focus({preventScroll:true}); }
     }
     window.addEventListener('hashchange',()=>{
-      const name=location.hash.slice(1).split(/[?&]/)[0],alias=['private-finances','private-finance','finances'].includes(name),direct=['home','accounts','used','more','settings','planner','receipts','savings','finance'].includes(name);
+      const name=location.hash.slice(1).split(/[?&]/)[0],alias=['private-finances','private-finance','finances','health','sync-data'].includes(name),direct=['home','accounts','used','more','settings','planner','receipts','savings','finance','sync'].includes(name);
       if(direct&&window.history.state?.trackerView===name)return;
-      if(alias||direct){const target=alias?'finance':name;if(target==='accounts'&&location.hash.includes('?'))applyDirectoryRouteParams();const old=currentRouteEntry;if(routeEntries.has(old))routeEntries.get(old).scroll=window.scrollY;closeSheet(true);currentRouteEntry=++routeSerial;routeEntries.set(currentRouteEntry,{scroll:0,opener:document.activeElement,position:window.history.length-1});window.history.replaceState({trackerView:target,trackerEntry:currentRouteEntry},'','#'+target);routeRestoring=true;switchView(target);routeRestoring=false;window.scrollTo({top:0,behavior:'instant'});return;}
+      if(alias||direct){const target=['health','sync-data'].includes(name)?'sync':alias?'finance':name;if(target==='accounts'&&location.hash.includes('?'))applyDirectoryRouteParams();const old=currentRouteEntry;if(routeEntries.has(old))routeEntries.get(old).scroll=window.scrollY;closeSheet(true);currentRouteEntry=++routeSerial;routeEntries.set(currentRouteEntry,{scroll:0,opener:document.activeElement,position:window.history.length-1});window.history.replaceState({trackerView:target,trackerEntry:currentRouteEntry},'','#'+target);routeRestoring=true;switchView(target);routeRestoring=false;window.scrollTo({top:0,behavior:'instant'});return;}
       if(!['offers','find-offer','find-an-offer'].includes(name))return;
       applyDirectoryRouteParams();const old=currentRouteEntry;routeEntries.get(old).scroll=window.scrollY;currentRouteEntry=++routeSerial;
       routeEntries.set(currentRouteEntry,{scroll:0,opener:document.activeElement,position:window.history.length-1});
@@ -4549,14 +4533,15 @@
         const etag = response.headers.get('etag');
         const cached = snapshotCache.get(url);
         if (etag && cached?.etag === etag) return cached.value;
-        const value = await response.json();
-        if (etag) snapshotCache.set(url, {etag,value});
-        else snapshotCache.delete(url);
+        const text=await response.text();
+        if(cached?.text===text)return cached.value;
+        const value=JSON.parse(text);snapshotCache.set(url,{etag,value,text});
         return value;
       } finally { clearTimeout(timer); }
     }
 
-    async function load() {
+    function load(){if(!loadPromise)loadPromise=performLoad().finally(()=>{loadPromise=null;});return loadPromise;}
+    async function performLoad() {
       if (loadInProgress) return;
       loadInProgress = true;
       try {
@@ -4567,7 +4552,7 @@
           throw new Error("Tracker data unavailable");
         }
         const sameHistory = previous.status === 'fulfilled' && previous.value.records === history;
-        if (current.value === payload && sameHistory && !loadError) { renderStatus(); return; }
+        if (current.value === payload && sameHistory && !loadError) { renderStatus(); return 'current'; }
         loadError = false;
         payload = current.value;
         historyUnavailable = previous.status !== "fulfilled" || !Array.isArray(previous.value?.records) ||
@@ -4587,6 +4572,7 @@
         renderAll();
         if(pendingOfferEntry){pendingOfferEntry=false;openAccountsOffers();}
         if (openSheetType === "account") renderAccountSheet();
+        return historyUnavailable?'partial':'updated';
       } catch (error) {
         loadError = true;
         document.getElementById("scanLabel").textContent = "Attention";
@@ -4598,6 +4584,7 @@
           document.getElementById("recommendation").innerHTML = '<div class="empty">Offers will appear after the next successful data sync.</div>';
           document.getElementById("accountsList").innerHTML = '<div class="empty">Your accounts will appear once data loads.</div>';
         }
+        return 'failed';
       } finally { loadInProgress = false; lastSnapshotCheckedAt = Date.now(); refreshTimedViews(); }
     }
 

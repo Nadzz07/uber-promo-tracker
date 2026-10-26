@@ -25,6 +25,7 @@ const scan = known => ctx.scanMailbox(box, 'receipt', 90, 0, 'INBOX', '2026-10-0
 assert.equal(scan({}).length, 1); assert.equal(reads, 1);
 const key = mailEvidenceKey('<native@uber.com>', 'alpha@example.invalid');
 assert.equal(scan({ [key]: date }).length, 0); assert.equal(reads, 1, 'Committed unchanged evidence avoids body downloads');
+const checkedKeys=new Set();ctx.scanMailbox(box,'receipt',90,0,'INBOX','2026-10-08T12:00:00Z',{[key]:date},null,null,false,checkedKeys);ctx.scanMailbox(box,'promo',35,0,'INBOX','2026-10-08T12:00:00Z',{[key]:date},null,null,false,checkedKeys);assert.equal(checkedKeys.size,1,'Cached messages count as checked once across overlapping scans');assert.equal(reads,1);
 assert.equal(scan({ [key]: '2026-10-06T10:00:00Z' }).length, 1, 'A changed delivery date must be reread');
 collection.toRecipients.address = () => [['alpha@example.invalid', 'beta@example.invalid']];
 assert.throws(() => scan({}), /Multiple recipient/);
