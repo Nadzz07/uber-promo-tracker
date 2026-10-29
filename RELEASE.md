@@ -533,3 +533,11 @@ Financial history merges; matching saved decisions/preferences use backup values
 records absent from the file remain. Old private receipt transfers and encrypted
 recovery remain under a secondary inline disclosure. No private backup or source
 scan identifiers enter the public bundle or sanitised run reports.
+
+Main-screen wording follows the latest approved references. Extra explanatory
+footers and helper paragraphs are removed from the main views; definitions,
+privacy scope and transfer details stay behind information/help controls. Genuine
+missing/error states and restore preflight/confirmation remain concise. The Sync
+page uses the reference's header, card labels, captions and privacy note. Private
+receipt transfers and legacy recovery remain reachable through its information
+button; normal restore/import uses the single backup review flow.

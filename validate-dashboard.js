@@ -151,7 +151,7 @@ for (const sheetType of ["advanced", "locked", "health", "history"]) {
 }
 
 assert.ok(
-  fs.readFileSync('sync-data.js','utf8').includes('Published updates use a sanitised export.'),
+  fs.readFileSync('sync-data.js','utf8').includes('Public updates use a separate, sanitised export.'),
   "sync-and-data sheet must explain the private-to-app data path"
 );
 

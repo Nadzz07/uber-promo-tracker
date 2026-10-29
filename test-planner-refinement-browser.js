@@ -62,7 +62,7 @@ try {for(const [width,height,large] of [[320,568,false],[390,844,false],[393,852
  assert.equal(await page.locator('#basketInput').evaluate(e=>getComputedStyle(e).outlineStyle),'solid','Actual input retains visible focus');
  await page.locator('#editBasket').click();assert.equal(await page.evaluate(()=>document.activeElement.id),'basketInput');
  assert.ok(await page.locator('.plan-account').first().getAttribute('title'),'Full identity remains available on the account action');
- assert.match(await page.locator('.planner-privacy').innerText(),/Private account details stay on your device/);
+ assert.equal(await page.locator('.planner-privacy').count(),0,'Main planner omits unrequested explanatory copy');
  const discountBefore=await page.locator('.plan-cost-line.discount strong').evaluate(e=>getComputedStyle(e).color);
  await page.evaluate(()=>document.documentElement.style.setProperty('--green','#ff8800'));
  assert.equal(await page.locator('.plan-cost-line.discount strong').evaluate(e=>getComputedStyle(e).color),discountBefore,'Discount colour is semantic across themes');
@@ -70,7 +70,7 @@ try {for(const [width,height,large] of [[320,568,false],[390,844,false],[393,852
  await page.locator('#plannerOtherOptions > summary').focus();await page.keyboard.press('Space');assert.equal(await page.locator('#plannerOtherOptions').getAttribute('open'),null);await page.keyboard.press('Enter');assert.equal(await page.locator('#plannerOtherOptions').getAttribute('open'),'');
  await page.locator('[data-open-sheet="advanced"]:visible').scrollIntoViewIfNeeded();await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));
  if(width<980){
-  const clearance=await page.locator('.planner-privacy').evaluate(e=>({footer:e.getBoundingClientRect().bottom,dock:document.querySelector('.bottom-nav').getBoundingClientRect().top,scroll:scrollY,height:document.documentElement.scrollHeight}));
+  const clearance=await page.locator('#view-planner .hero-footer').evaluate(e=>({footer:e.getBoundingClientRect().bottom,dock:document.querySelector('.bottom-nav').getBoundingClientRect().top,scroll:scrollY,height:document.documentElement.scrollHeight}));
   assert.ok(clearance.footer<=clearance.dock,'Last content clears the dock at '+width+' large '+large+' '+JSON.stringify(clearance));
  }
  await page.locator('[data-open-sheet="advanced"]:visible').click();assert.equal(await page.locator('#sheetTitle').innerText(),'Fee settings');assert.equal(await page.locator('#sheetFeeInput').inputValue(),'1.00');if(!large)await shot(page,width,'fee-settings');await page.locator('#sheetFeeInput').fill('13');await dismiss(page);assert.equal(await page.locator('.recommendation-title').innerText(),'Use 1 account');

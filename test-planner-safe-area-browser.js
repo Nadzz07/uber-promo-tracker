@@ -86,7 +86,7 @@ try{
      if(width<980)assert.ok(await control.evaluate(e=>{const r=e.getBoundingClientRect();return r.top>=0&&r.bottom<=document.querySelector('.bottom-nav').getBoundingClientRect().top-15;}),'Control can scroll above the dock: '+selector+' '+JSON.stringify({width,height,large,top,bottom,expanded}));
     }
     await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));
-    if(width<980){const end=await page.locator('.planner-privacy').evaluate(e=>({footer:e.getBoundingClientRect().bottom,dock:document.querySelector('.bottom-nav').getBoundingClientRect().top,padding:getComputedStyle(document.body).paddingBottom,scroll:scrollY,height:document.documentElement.scrollHeight}));assert.ok(end.footer<=end.dock-15,'Final content clears the actual dock and safe area '+JSON.stringify({width,height,large,top,bottom,expanded,...end}));}
+    if(width<980){const end=await page.locator('#view-planner .hero-footer').evaluate(e=>({footer:e.getBoundingClientRect().bottom,dock:document.querySelector('.bottom-nav').getBoundingClientRect().top,padding:getComputedStyle(document.body).paddingBottom,scroll:scrollY,height:document.documentElement.scrollHeight}));assert.ok(end.footer<=end.dock-15,'Final content clears the actual dock and safe area '+JSON.stringify({width,height,large,top,bottom,expanded,...end}));}
    }
    checked++;
   }
