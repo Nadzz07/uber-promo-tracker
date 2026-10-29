@@ -2488,13 +2488,13 @@
     import { offerTitle, useCountNeedsReview, effectiveDiscountPercent } from "./offer-details.js";
     import { THEME_KEY, DEFAULT_COLOUR, applyThemeTokens, THEME_PRESETS, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
     import { offerFinishedReason, offerClosureLabel, classifyOfferCompletion } from "./offer-state.js";
-    import {createSyncData,syncHistoryMarkup} from './sync-data.js';
+    import {createSyncData,syncHistoryMarkup,reportedSyncState as syncState} from './sync-data.js';
     import {PrivateFinanceVault} from './private-finance-vault.js';
     import {accountHistoryGroups,preferredAccountOffers,offerReceiptAvailability,offerUsageEvidence,offerUsageSlots,directoryAccounts,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
     import { setupDraggableNavigation } from "./nav-gestures.js";
     import { DEVICE_ACCOUNTS_KEY, parseDeviceAccounts, deviceEmail } from "./device-accounts.js";
     import { classifyAccount, accountStatusLabel, accountUsageDescription, accountUnfinished, accountProgressDescription, offerInProgress, accountArchived, matchesAccountFilter, eligibleAccountCounts, matchesOfferScope, offerReadinessRank, offerReadinessLabel, accountOfferKey, accountOfferChoices, accountMatchesOfferType, accountMatchesLogin, accountMatchesProvider } from "./account-state.js";
-    import { syncState, offerCountdown } from "./dashboard-data.js";
+    import { offerCountdown } from "./dashboard-data.js";
     import { classifyOfferTrackingState } from "./offer-state.js";
     import { isOfferExpired, expiryEndTime, applyOfferExpiryPolicy } from "./offer-time.js";
     import {
@@ -3090,7 +3090,7 @@
       const generated = new Date(payload.sync?.lastSuccessfulMailScanAt || payload.generatedAt || '');
       pill.classList.add(state.className);
       label.textContent = state.label;
-      pill.title = state.className === 'stale' ? 'Update due: the last successful Mail import is over two hours old. Open Sync & data for details.' : 'Last successful Mail import shown below. This is an imported snapshot, with expiry checked as time passes.';
+      pill.title = state.className === 'stale' ? 'Update due. Open Sync & data for the last scan and reported schedule.' : 'Last successful Mail import shown below. This is an imported snapshot, with expiry checked as time passes.';
       pill.setAttribute('aria-label', state.label + '. ' + pill.title);
       time.textContent =
         generated && !Number.isNaN(generated.getTime())

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {PrivateFinanceVault,DEVICE_RECOVERY_KEY} from './private-finance-vault.js';
 import {deviceBackup,exportDeviceBackup,readDeviceBackup,prepareDeviceRestore,applyDeviceRestore,DEVICE_BACKUP_KEYS} from './device-backup.js';
 import {recordSyncRun,validateSyncReport} from './sync-report.js';
-import {syncReportModel,syncDataMarkup} from './sync-data.js';
+import {syncReportModel,syncDataMarkup,reportedSyncState} from './sync-data.js';
 const memory=()=>{const m=new Map();return{getItem:k=>m.get(k)??null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),values:()=>Object.fromEntries(m)};};
 const source=memory(),vault=new PrivateFinanceVault(source),prefix='uber-eats-promo-tracker:';
 await vault.import({kind:'uber-tracker-private-finance',schemaVersion:1,accounts:[{accountRef:'A1'}],receipts:[{receiptId:'r1',accountRef:'A1',service:'Uber Eats',total:4}],events:[]});
@@ -32,3 +32,6 @@ for(const [state,interval,label] of [['enabled',86400,'Enabled'],['disabled',864
 }
 assert.match(syncDataMarkup({scheduler:{state:'enabled',intervalSeconds:86400,reportedAt:'2020-01-01T00:00:00Z'}}),/Daily schedule<\/span><span>Not confirmed/,'Stale scheduler reports cannot establish current daily availability');
 console.log('✓ Latest Sync: daily-only reported status, stale/unknown/disabled states, actual successful timestamp, one refresh and no remote controls.');
+
+const dailyNow=Date.parse('2026-10-29T14:00:00Z'),dailySync={lastSuccessfulMailScanAt:'2026-10-28T15:00:00Z',scheduler:{state:'enabled',intervalSeconds:86400,reportedAt:'2026-10-28T15:00:00Z'}};
+assert.equal(reportedSyncState(dailySync,{now:dailyNow}).label,'Up to date');assert.equal(reportedSyncState(dailySync,{now:dailyNow+4*3600000}).label,'Update due');assert.equal(reportedSyncState({...dailySync,state:'failed'},{now:dailyNow}).label,'Attention');assert.equal(reportedSyncState({...dailySync,scheduler:{...dailySync.scheduler,state:'unknown'}},{now:dailyNow}).label,'Update due');

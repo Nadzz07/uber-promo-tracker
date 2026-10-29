@@ -1,3 +1,4 @@
+import {syncState} from './dashboard-data.js';
 import {financeIcon} from './finance-layout.js';
 import {exportDeviceBackup,readDeviceBackup,prepareDeviceRestore,applyDeviceRestore} from './device-backup.js';
 import {DEVICE_RECOVERY_KEY,PrivateFinanceVault,encryptFinance} from './private-finance-vault.js';
@@ -10,6 +11,12 @@ export function syncReportModel(sync={},now=Date.now()){
  const latest=runs[0]||null;
  const running=sync.state==='syncing'&&Number.isFinite(Date.parse(sync.startedAt))&&now-Date.parse(sync.startedAt)>=0&&now-Date.parse(sync.startedAt)<1800000;
  return {label:running?'Sync running':sync.state==='failed'||latest?.status==='failed'?'Last sync failed':sync.state==='syncing'?'Sync status unavailable':valid?'Last sync successful':'Sync status unavailable',at:running?sync.startedAt:latest?.status==='failed'?latest.at:valid?sync.lastSuccessfulMailScanAt:null,latest,runs,scheduler:sync.scheduler&&Number.isFinite(Date.parse(sync.scheduler.reportedAt))?sync.scheduler:null};
+}
+// Daily reports carry their observed cadence into the Home status too.
+export function reportedSyncState(sync={},options={}){
+ const state=syncState(sync,options),now=options.now??Date.now(),s=sync.scheduler;
+ const reportAge=now-Date.parse(s?.reportedAt),scanAge=now-Date.parse(sync.lastSuccessfulMailScanAt);
+ return state.label==='Update due'&&s?.state==='enabled'&&s.intervalSeconds===86400&&reportAge>=-300000&&reportAge<=172800000&&scanAge>=0&&scanAge<=93600000?{label:'Up to date',className:'live'}:state;
 }
 export function syncDataMarkup(sync={}){
  const m=syncReportModel(sync),s=m.scheduler,chevron=financeIcon('chevron-right');
