@@ -1,0 +1,43 @@
+/* Shared leading-icon alignment. Heading glyphs and multiline alerts retain
+   their own semantic layout; no positional nudges or palette changes. */
+:is(#view-home .stat-card,#view-home .home-action-row,#view-home .home-needs-checking,
+ #view-accounts .directory-account-head,#view-accounts .directory-offer-row,
+ .used-record-head,.used-evidence,#view-more .more-card,.compact-setting-row,
+ .account-sheet-top,.account-offer-toggle,.account-cash-entry > summary,
+ .account-management > summary,.account-sheet-link,.offer-history > summary,
+ #view-planner .recommendation-choice,
+ .sd-scan,.sd-refresh-heading,.sd-row,.fi-method,.fi-transaction,
+ .ri-receipt-row,.ri-receipt-heading,.ri-applied-offer,.ri-breakdown,
+ .savings-ranking button,.savings-unattributed,.icon-content-row) {
+ align-items:center;
+}
+:is(#view-home .stat-card,#view-home .home-action-row,#view-home .home-needs-checking,
+ #view-accounts .directory-account-head,#view-accounts .directory-offer-row,
+ .used-record-head,.used-evidence,#view-more .more-card,.compact-setting-row,
+ .account-sheet-top,.account-offer-toggle,.account-cash-entry > summary,
+ .account-management > summary,.account-sheet-link,.offer-history > summary,
+ #view-planner .recommendation-choice,#view-planner .plan-row,
+ .sd-scan,.sd-refresh-heading,.sd-row,.fi-method,.fi-transaction,
+ .ri-receipt-row,.ri-receipt-heading,.ri-applied-offer,.ri-breakdown,
+ .savings-ranking button,.savings-unattributed,.icon-content-row)
+ > :is(svg,.finance-icon,[data-icon],.overview-icon,.directory-provider,
+ .used-provider,.used-evidence-icon,.account-detail-provider,.more-icon,.plan-order-number) {
+ align-self:center;
+ flex-shrink:0;
+ margin-block:0;
+}
+/* A summary icon is a sibling of its complete copy, never a child of its title. */
+.ri-page .ri-paid-card { display:grid; grid-template-columns:minmax(0,1fr) 48px; column-gap:12px; align-items:center; }
+.ri-paid-card > .ri-hero-copy { min-width:0; }
+.ri-page .ri-paid-card > svg { position:static; align-self:center; width:48px; height:48px; margin:0; }
+.ri-hero-copy .ri-paid-total { padding-right:0; }
+.ri-hero-copy > p { margin:0; color:var(--rich-secondary); font-size:12px; line-height:1.45; }
+.ri-paid-card > :is(.ri-amount-status,.ri-caption) { grid-column:1 / -1; }
+.ri-paid-card[data-long-amount] { grid-template-columns:minmax(0,1fr); }
+.ri-two-cards > .icon-content-row { display:flex; flex-direction:row; align-items:center; gap:6px; }
+.icon-content-copy { display:flex; flex-direction:column; gap:6px; min-width:0; flex:1; }
+.savings-support .icon-content-copy h2 { min-height:20px; }
+.savings-support .icon-content-row > svg { width:18px; height:20px; flex:0 0 18px; color:var(--color-icon); }
+
+/* Keep the existing schedule badge at the top; its own glyph stays centred. */
+.sd-scan > .sd-daily { align-self:flex-start; }

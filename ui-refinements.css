@@ -1343,7 +1343,7 @@ html[data-layout="desktop"] #view-planner .basket-editor,
 #view-planner .plan-status svg { width:16px; height:16px; flex:0 0 16px; }
 #view-planner .recommendation { padding:var(--space-4); background: var(--color-selected); border: 1px solid var(--tint-color-accent-65-0-transparent); box-shadow: none; }
 #view-planner .recommendation-top { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:var(--space-3); }
-#view-planner .recommendation-choice { display:flex; align-items:flex-start; gap:var(--space-2); flex:1 1 160px; min-width:min(100%,160px); }
+#view-planner .recommendation-choice { display:flex; gap:var(--space-2); flex:1 1 160px; min-width:min(100%,160px); }
 #view-planner .recommendation-choice > svg { width:28px; height:28px; flex:0 0 28px; color: var(--green); }
 #view-planner .recommendation-choice > div { min-width:0; }
 #view-planner .recommendation-title { margin:0; font-size:18px; line-height:1.4; color: var(--text); }
@@ -1596,9 +1596,9 @@ html[data-layout="mobile"] #view-offers :is(button,input,select,summary) { scrol
 #view-accounts .account-access-pill.positive { color: var(--status-success,var(--color-soft-accent)); border-color: var(--color-accent); background: var(--color-accent); }
 #view-accounts .account-access-pill.positive::before { content:''; width:6px; height:6px; flex:0 0 6px; border-radius: 50%; background: currentColor; }
 #view-accounts .directory-chevron { font-size:25px; color: var(--muted); }
-#view-accounts .directory-offer-row { display:flex; align-items:flex-start; gap:var(--space-3); min-height:42px; padding:var(--space-2) 0; border: 0; font-size:15px; line-height:1.5; }
+#view-accounts .directory-offer-row { display:flex; gap:var(--space-3); min-height:42px; padding:var(--space-2) 0; border: 0; font-size:15px; line-height:1.5; }
 #view-accounts .directory-offer-row + .directory-offer-row { border-top: 1px solid var(--line-soft); }
-#view-accounts .directory-offer-row > svg { color: var(--green); width:21px; height:21px; flex:0 0 21px; margin-top:1px; }
+#view-accounts .directory-offer-row > svg { color: var(--green); width:21px; height:21px; flex:0 0 21px; }
 #view-accounts .directory-offer-row > div { flex:1; min-width:0; }
 #view-accounts .directory-offer-row strong { font-weight:550; }
 #view-accounts .directory-offer-row small { display:block; font-size:12px; color: var(--muted); margin-top:2px; }
@@ -1684,7 +1684,7 @@ body:has(#view-used.active) { padding-bottom:var(--used-nav-clearance,calc(90px 
 .used-access i { width:6px; height:6px; border-radius: 50%; background: var(--muted); flex-shrink:0; }
 .used-access.positive i { background: var(--color-accent); }
 .used-chevron { font-size:24px; color: var(--muted); text-align:right; }
-.used-evidence { display:grid; grid-template-columns:24px minmax(0,1fr) auto; align-items:start; gap:var(--space-2); padding-top:var(--space-3); }
+.used-evidence { display:grid; grid-template-columns:24px minmax(0,1fr) auto; gap:var(--space-2); padding-top:var(--space-3); }
 .used-evidence-icon svg { width:18px; height:18px; color: var(--green); border: 1px solid currentColor; border-radius: 50%; padding:2px; }
 .used-evidence p { margin:0; font-size:14px; line-height:1.5; overflow-wrap:anywhere; }
 .used-evidence small { color: var(--muted); display:flex; gap:var(--space-1); align-items:center; margin-top:3px; line-height:1.4; font-size:12px; font-weight:400; }

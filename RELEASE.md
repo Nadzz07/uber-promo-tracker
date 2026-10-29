@@ -583,3 +583,13 @@ hidden competitors retain their existing eligibility rules. Empty/custom saved
 preferences, cross-tab edits, exhaustion, archive changes and uncertain offers
 are verified without changing the independent Can log in count. Shared detail
 header rules remain intact during the Home-only style cleanup.
+
+## Shared leading-icon alignment — 29 October 2026
+
+Leading icons use one shared flex/grid alignment rule against the complete
+text block. Accounts previews, Used activity, Planner rows and Sync scan rows
+no longer use title-aligned nudges. Savings support and receipt/savings heroes
+group their existing copy beside their icon. Home keeps Accounts ready and its
+green count without a subtitle. Navigation, palette, padding, data models and
+intentional top-aligned multiline explanations remain unchanged. Geometry checks
+cover mobile, desktop and enlarged/wrapped text in all three browser engines.
