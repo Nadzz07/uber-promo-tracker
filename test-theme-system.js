@@ -4,7 +4,7 @@ import {PALETTE,ACCENT_TOKENS,cssToken,colourRgb,basePaletteCss,palettePropertie
 import {applyThemeTokens,DEFAULT_COLOUR,themeTokens,hslColour} from './appearance.js';
 import {contrastRatio} from './liquid-glass.js';
 const html=fs.readFileSync('index.html','utf8');
-for(const file of ['ui-refinements.css','liquid-glass.css','desktop-layout.css','theme-system.css','receipt-insights.css','planner-design.css','index.html','parser-test.html','processor-test.html']){
+for(const file of ['icon-layout.css','ui-refinements.css','liquid-glass.css','desktop-layout.css','theme-system.css','receipt-insights.css','planner-design.css','index.html','parser-test.html','processor-test.html']){
  const source=fs.readFileSync(file,'utf8'),css=file.endsWith('.html')?[...source.matchAll(/<style>([\s\S]*?)<\/style>/g)].map(m=>m[1]).join('\n'):source;
  assert.equal(/#[\da-f]{3,8}\b|rgba?\(|hsla?\(/i.test(css),false,'Rendered CSS must use only shared colour tokens: '+file);
  for(const gradient of css.matchAll(/(?:linear|radial|conic)-gradient\(([^;]+)/gi))assert.ok(gradient[1].includes('var('),'Fades use theme tokens: '+file);
