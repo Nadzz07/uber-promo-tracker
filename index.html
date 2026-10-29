@@ -3146,7 +3146,7 @@
       expiry:['expiry','Expired promotions in the Finished · Expired and Expired · Unused buckets. Other primary statuses remain in their own sections.']
     };
     async function openGuide(topic = 'overview') {
-      closeSheet();
+      closeSheet(true);
       switchView('help');
       document.getElementById('guideSearch').value = '';
       if (!guideModule) {

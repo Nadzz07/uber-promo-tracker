@@ -568,3 +568,9 @@ Overview counts use the same deduplicated directory filters as their destination
 normal navigation and Find an offer retain their existing state behavior.
 Obsolete Home-only markup/styles and amount replay code are removed. Shared
 hue surfaces, navigation, safe-area spacing and reduced motion are preserved.
+
+The Sync page uses the same existing hue-derived navy page/card materials as
+Home, with a corrected shared pale-accent badge token. Obsolete prior Sync
+status-card styles are removed; current Email updates, Refresh, Backups and
+About updates remain the only main layout. The existing help transition now
+replaces its sheet route without racing a history-back event or losing focus.
