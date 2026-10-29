@@ -127,3 +127,4 @@ exclude:
   - test-sync-data-browser.js
   - test-sync-report.js
   - sync-report.js
+  - test-icon-alignment-browser.js
