@@ -83,12 +83,18 @@ const inbox = JSON.parse(fs.readFileSync(inboxPath));
 const unique = new Map();
 for (const message of [...main.messages, ...inbox.messages]) unique.set(messageKey(message), message);
 main.messages = [...unique.values()];
+if(Number.isFinite(Date.parse(main.exportedAt))&&Number.isFinite(Date.parse(inbox.exportedAt)))main.exportedAt=new Date(Math.max(Date.parse(main.exportedAt),Date.parse(inbox.exportedAt))).toISOString();
+if(main.scanStats?.checkedKeys&&inbox.scanStats?.checkedKeys){const keys=[...new Set([...main.scanStats.checkedKeys,...inbox.scanStats.checkedKeys])];main.scanStats={emailsChecked:keys.length,checkedKeys:keys};}
 fs.writeFileSync(mainPath + '.tmp', JSON.stringify(main));
 fs.renameSync(mainPath + '.tmp', mainPath);
 JS
   if [[ "${TRACKER_DISCOVER_RECEIPT_ACCOUNTS:-false}" == true ]]; then
     node mac/register-receipt-accounts.js "$TMP_DIR/emails.json" "$PRIVATE_DB" "$TRACKER_ACCOUNT_ACCESS"
   fi
+  node mac/report-sync-schedule.js > "$TMP_DIR/scheduler-report.json"
+  node --input-type=module - "$TMP_DIR/emails.json" "$TMP_DIR/scheduler-report.json" <<'JS'
+import fs from 'node:fs';const file=process.argv[2],scan=JSON.parse(fs.readFileSync(file));scan.schedulerReport=JSON.parse(fs.readFileSync(process.argv[3]));fs.writeFileSync(file,JSON.stringify(scan));
+JS
   cp "$TMP_DIR/emails.json" emails.local.json.tmp
   mv emails.local.json.tmp emails.local.json
 }

@@ -28,7 +28,7 @@ const name=process.env.TRACKER_BROWSER_ENGINE||'chromium',browser=await {chromiu
 if(out)fs.mkdirSync(out,{recursive:true});
 const stateKey='uber-eats-promo-tracker:manual-state:v3',results=[];
 async function start(page){await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');await page.locator('[data-view=accounts]').click();await directoryReset(page);}
-async function open(page,ref='A970'){await page.locator('#accountsList [data-account-offers="'+ref+'"]').click();await page.locator('.sheet[data-screen="Account details"]').waitFor();}
+async function open(page,ref='A970'){await page.locator('#accountsList [data-account-offers="'+ref+'"]').click();await page.locator('.sheet[data-screen="Account details"]').waitFor();if(await page.locator('[data-account-balance-editor]').count())await page.locator('.cash-balance-editor').waitFor({state:'attached'});await settlePageLayout(page);}
 async function close(page){await page.keyboard.press('Escape');await page.locator('#sheetBackdrop.open').waitFor({state:'hidden'});await settlePageLayout(page);}
 async function expand(page){const button=page.locator('[data-account-management-toggle]');if(await button.getAttribute('aria-expanded')==='false')await button.click();}
 async function shot(page,state,width,height,large){if(out){await page.locator('.account-management').evaluate(e=>e.scrollIntoView({block:'end',behavior:'instant'}));await page.screenshot({path:`${out}/${name}-${width}x${height}${large?'-large':''}-${state}.png`});}}

@@ -511,3 +511,43 @@ frame intervals, checks rapid navigation, menus, sheet dismissal, search, overfl
 and the reduced-motion alternative. These measurements describe desktop browser
 emulation only; occasional long tasks remain during initial screen construction
 and are not a guarantee of physical-device frame rates.
+
+## Sync & data, run reports and device backups — 26 October 2026
+
+More → Sync & data and the Home sync-status action now use one full page, with
+More active in the shared navigation. Legacy health/sync-data links route there.
+The page reports completed Mail scan times and bounded, sanitised per-run counts;
+older snapshots show unknown statistics. Read-only launchd inspection reports the
+loaded scheduler's interval/state and observation time. No scheduler is installed
+or changed. There is no authorised browser-to-Mac trigger, so no Request sync
+button is presented. Refresh this device fetches the published snapshots only,
+coalesces concurrent loads and distinguishes current, updated and failed results.
+
+Encrypted browser backups use the existing crypto and private ledger. They now
+include supported saved account changes/identities, notes, manual offer decisions,
+corrections, balances and preferences available on that device. They are not Mac
+database or Mail-archive backups. Restore validates and previews the input before
+one confirmation, reuses the vault's stable-ID merge rules, checks for intervening
+edits, retains a downloadable pre-restore copy, and rolls back a failed batch.
+Financial history merges; matching saved decisions/preferences use backup values;
+records absent from the file remain. Old private receipt transfers and encrypted
+recovery remain under a secondary inline disclosure. No private backup or source
+scan identifiers enter the public bundle or sanitised run reports.
+
+Main-screen wording follows the latest approved references. Extra explanatory
+footers and helper paragraphs are removed from the main views; definitions,
+privacy scope and transfer details stay behind information/help controls. Genuine
+missing/error states and restore preflight/confirmation remain concise. The Sync
+page uses the reference's header, card labels, captions and privacy note. Private
+receipt transfers and legacy recovery remain reachable through its information
+button; normal restore/import uses the single backup review flow.
+
+## Latest Sync & data — 29 October 2026
+
+Replaces the prior latest-run/automatic-sync layout with Email updates, a separate
+Refresh tracker data card, encrypted Backups and compact About updates rows. Run
+history and reported schedule time remain behind Information. The existing Mac
+agent is reconfigured in place to a daily 86400-second interval; its command,
+source processing, overlap locks and publishing gates are preserved. The installer
+reuses that same agent, and a dated read-only report establishes its loaded
+schedule. Unknown, stale or non-daily reports cannot claim Daily is enabled.

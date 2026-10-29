@@ -151,7 +151,7 @@ for (const sheetType of ["advanced", "locked", "health", "history"]) {
 }
 
 assert.ok(
-  html.includes("The website shows an imported snapshot."),
+  fs.readFileSync('sync-data.js','utf8').includes('A separate sanitised export.'),
   "sync-and-data sheet must explain the private-to-app data path"
 );
 

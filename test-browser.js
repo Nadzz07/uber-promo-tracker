@@ -163,15 +163,14 @@ try {
     const overview = document.querySelector('.home-overview').getBoundingClientRect();
     const navStyle = getComputedStyle(document.getElementById('mainNav'));
     const widths = [...document.querySelectorAll('.home-overview .stat-card')].map(el => el.getBoundingClientRect().width);
-    const privacy = document.querySelector('.privacy').getBoundingClientRect();
-    return { navBottom: nav.bottom, mainTop: main.top, overviewWidth: overview.width, overviewTop: overview.top, privacyTop: privacy.top, mainBottom: main.bottom, navColumns: navStyle.gridTemplateColumns.split(' ').length, widths };
+    return { navBottom: nav.bottom, mainTop: main.top, overviewWidth: overview.width, overviewTop: overview.top, mainBottom: main.bottom, navColumns: navStyle.gridTemplateColumns.split(' ').length, widths };
   });
   assert.equal(desktopLayout.navColumns, 4, 'Desktop navigation should use four horizontal tabs');
   assert.ok(desktopLayout.navBottom <= desktopLayout.mainTop, 'Desktop navigation belongs in the header above the dashboard');
   assert.ok(Math.max(...desktopLayout.widths)-Math.min(...desktopLayout.widths) < 1, 'Desktop summary cards should be equal width');
   assert.ok(desktopLayout.overviewWidth > 1000, 'Desktop should use the full workspace width');
   assert.ok(desktopLayout.overviewTop < 220, 'Privacy footer must not create a blank row above the desktop dashboard');
-  assert.ok(desktopLayout.privacyTop >= desktopLayout.mainBottom, 'Privacy copy belongs below the dashboard');
+  assert.equal(await page.locator('.privacy').count(),0,'Unrequested explanatory footer stays off the main screens');
   const desktopHome = await page.locator('[data-view="home"]').boundingBox(), desktopAccounts = await page.locator('[data-view="accounts"]').boundingBox();
   await page.mouse.move(desktopHome.x+desktopHome.width/2, desktopHome.y+desktopHome.height/2); await page.mouse.down();
   await page.mouse.move(desktopAccounts.x+desktopAccounts.width/2, desktopAccounts.y+desktopAccounts.height/2, { steps: 6 });

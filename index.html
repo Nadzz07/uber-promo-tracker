@@ -2287,6 +2287,7 @@
   <link rel="stylesheet" href="./theme-system.css">
   <link rel="stylesheet" href="./receipt-insights.css">
   <link rel="stylesheet" href="./planner-design.css">
+  <link rel="stylesheet" href="sync-data.css">
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -2406,7 +2407,6 @@
 
           </div>
 
-          <p class="planner-privacy">Private account details stay on your device.</p>
         </div>
 </section>
       <section id="view-receipts" class="view home-detail ri-page" aria-labelledby="receiptInsightsTitle">
@@ -2446,6 +2446,7 @@
       <section id="view-preferred-promos" class="view preferred-page" aria-labelledby="preferredTitle"></section>
       <section id="view-preferred-catalogue" class="view preferred-page" aria-labelledby="preferredCatalogueTitle"></section>
       <section id="view-more" class="view"><div class="screen-head"><h1 id="moreTitle" class="screen-title" tabindex="-1">More</h1><p class="more-intro">Your tools, history and settings.</p></div><div class="more-grid"><section class="more-group" aria-labelledby="more-group-0"><h2 id="more-group-0" class="eyebrow">Offers & history</h2><div class="more-group-list"><button class="more-card" data-jump-planner="true"><span class="more-icon" data-icon="bag" aria-hidden="true"></span><span class="more-content"><span class="more-title">Order Planner</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="history"><span class="more-icon" data-icon="menu-calendar-history" aria-hidden="true"></span><span class="more-content"><span class="more-title">Promo history</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="locked"><span class="more-icon" data-icon="archive" aria-hidden="true"></span><span class="more-content"><span class="more-title">Archived accounts</span><span class="more-count" id="lockedCardCopy"></span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-1"><h2 id="more-group-1" class="eyebrow">Savings & receipts</h2><div class="more-group-list"><button class="more-card" data-open-sheet="savings"><span class="more-icon" data-icon="menu-coins" aria-hidden="true"></span><span class="more-content"><span class="more-title">Savings</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="receipts"><span class="more-icon" data-icon="menu-receipt" aria-hidden="true"></span><span class="more-content"><span class="more-title">Receipt insights</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="finance"><span class="more-icon" data-icon="wallet" aria-hidden="true"></span><span class="more-content"><span class="more-title">Finances</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-2"><h2 id="more-group-2" class="eyebrow">Accounts & data</h2><div class="more-group-list"><button class="more-card" data-open-sheet="device"><span class="more-icon" data-icon="menu-import" aria-hidden="true"></span><span class="more-content"><span class="more-title">Import accounts</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="health"><span class="more-icon" data-icon="menu-sync" aria-hidden="true"></span><span class="more-content"><span class="more-title">Sync & data</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-3"><h2 id="more-group-3" class="eyebrow">Settings & help</h2><div class="more-group-list"><button class="more-card" data-open-sheet="appearance"><span class="more-icon" data-icon="menu-sliders" aria-hidden="true"></span><span class="more-content"><span class="more-title">Settings</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-guide="overview"><span class="more-icon" data-icon="menu-book" aria-hidden="true"></span><span class="more-content"><span class="more-title">Help & guide</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="about"><span class="more-icon" data-icon="info" aria-hidden="true"></span><span class="more-content"><span class="more-title">About this tracker</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section></div></section>
+      <section id="view-sync" class="view"><div id="syncDataPage" class="sync-page"></div></section>
       <section id="view-help" class="view" aria-labelledby="guideTitle">
         <button class="advanced-btn" data-guide-back="true">‹ Back to More</button>
         <div class="screen-head"><div class="eyebrow">Help &amp; Guide</div><h1 id="guideTitle" class="screen-title" tabindex="-1">Understand your tracker</h1>
@@ -2455,13 +2456,7 @@
       </section>
     </main>
 
-    <div class="privacy">
-      <span class="home-privacy">Masked accounts and safe totals. Private data stays on your device.</span>
-      <span class="full-privacy">
-      Published data contains masked accounts and safe totals. Full login emails can be imported privately on your device;
-      they are never uploaded. Raw Mail, receipts and promo codes remain private.
-      </span>
-    </div>
+
   </div>
 
   <div id="sheetBackdrop" class="sheet-backdrop" aria-hidden="true">
@@ -2493,12 +2488,13 @@
     import { offerTitle, useCountNeedsReview, effectiveDiscountPercent } from "./offer-details.js";
     import { THEME_KEY, DEFAULT_COLOUR, applyThemeTokens, THEME_PRESETS, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
     import { offerFinishedReason, offerClosureLabel, classifyOfferCompletion } from "./offer-state.js";
+    import {createSyncData,syncHistoryMarkup,reportedSyncState as syncState} from './sync-data.js';
     import {PrivateFinanceVault} from './private-finance-vault.js';
     import {accountHistoryGroups,preferredAccountOffers,offerReceiptAvailability,offerUsageEvidence,offerUsageSlots,directoryAccounts,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
     import { setupDraggableNavigation } from "./nav-gestures.js";
     import { DEVICE_ACCOUNTS_KEY, parseDeviceAccounts, deviceEmail } from "./device-accounts.js";
     import { classifyAccount, accountStatusLabel, accountUsageDescription, accountUnfinished, accountProgressDescription, offerInProgress, accountArchived, matchesAccountFilter, eligibleAccountCounts, matchesOfferScope, offerReadinessRank, offerReadinessLabel, accountOfferKey, accountOfferChoices, accountMatchesOfferType, accountMatchesLogin, accountMatchesProvider } from "./account-state.js";
-    import { syncState, offerCountdown } from "./dashboard-data.js";
+    import { offerCountdown } from "./dashboard-data.js";
     import { classifyOfferTrackingState } from "./offer-state.js";
     import { isOfferExpired, expiryEndTime, applyOfferExpiryPolicy } from "./offer-time.js";
     import {
@@ -2564,7 +2560,7 @@
     let history = [];
     let historyUnavailable = false;
     let sheetOpener = null;
-    let loadInProgress = false;
+    let loadInProgress = false,loadPromise=null;
     let lastSnapshotCheckedAt = 0;
     const snapshotCache = new Map();
     let loadError = false;
@@ -2625,14 +2621,9 @@
       try { localStorage.setItem(LAYOUT_KEY, layoutPreference); } catch { saved = false; }
       document.querySelectorAll('[name="layoutPreference"]').forEach(input => { input.checked = input.value === layoutPreference; });
       const status = document.getElementById('layoutStatus');
-      if (status) status.textContent = saved ? layoutDescription() : 'Applied for this visit. Browser storage is unavailable.';
+      if (status) status.textContent = saved ? 'Saved' : 'Couldn’t save on this device.';
     }
 
-    function layoutDescription() {
-      return layoutPreference === 'auto' ? 'Auto follows your screen size. Your choice is saved on this device.'
-        : layoutPreference === 'mobile' ? 'Mobile keeps the phone design, even on a larger screen. Saved on this device.'
-        : 'Desktop uses the wider dashboard and adapts to smaller windows. Saved on this device.';
-    }
 
     function readDeviceAccounts() {
       try { return JSON.parse(localStorage.getItem(DEVICE_ACCOUNTS_KEY) || '{}') || {}; }
@@ -2677,7 +2668,7 @@
       document.querySelectorAll('[data-theme-colour]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.themeColour === themeColour)));
       const currentLabel=document.getElementById('currentThemeLabel');if(currentLabel)currentLabel.textContent=themeColourLabel();
       const status = document.getElementById('themeStatus');
-      if (status) status.textContent = saved ? 'Saved on this device. Your colour is applied across the app.' : 'Applied for this visit. Browser storage is unavailable.';
+      if (status) status.textContent = saved ? 'Saved' : 'Couldn’t save on this device.';
     }
 
     function readManualStore() {
@@ -3099,7 +3090,7 @@
       const generated = new Date(payload.sync?.lastSuccessfulMailScanAt || payload.generatedAt || '');
       pill.classList.add(state.className);
       label.textContent = state.label;
-      pill.title = state.className === 'stale' ? 'Update due: the last successful Mail import is over two hours old. Open Sync & data for details.' : 'Last successful Mail import shown below. This is an imported snapshot, with expiry checked as time passes.';
+      pill.title = state.className === 'stale' ? 'Update due. Open Sync & data for the last scan and reported schedule.' : 'Last successful Mail import shown below. This is an imported snapshot, with expiry checked as time passes.';
       pill.setAttribute('aria-label', state.label + '. ' + pill.title);
       time.textContent =
         generated && !Number.isNaN(generated.getTime())
@@ -3447,9 +3438,8 @@
           [['auto','Auto'],['mobile','Mobile'],['desktop','Desktop']].map(([value,label]) =>
             '<label class="layout-option"><input type="radio" name="layoutPreference" value="' + value + '"' + (layoutPreference === value ? ' checked' : '') + '><span>' + label + '</span></label>'
           ).join('') +
-        '</div><p id="layoutStatus" role="status">' + layoutDescription() + '</p></fieldset>' +
+        '</div><p id="layoutStatus" role="status"></p></fieldset>' +
         '<div class="setting-card"><div class="setting-title">Theme colour</div>' +
-        '<div class="setting-copy">Drag around the wheel, or choose an exact colour.</div>' +
         '<div class="colour-controls" style="margin-top:22px">' +
           '<div id="colourWheel" class="colour-wheel" role="slider" tabindex="0" aria-label="Theme colour wheel" aria-valuemin="0" aria-valuemax="360" aria-valuenow="0"><span class="colour-thumb"></span></div>' +
           '<div class="colour-fields"><label for="themeColour">Custom colour</label><input id="themeColour" type="color" value="' + themeColour + '">' +
@@ -3515,9 +3505,9 @@
         '<label class="compact-setting-row">'+financeIcon('list')+'<span>Default offer view</span><select id="defaultOfferView" aria-label="Default offer view"><option value="preferred">Preferred offers</option><option value="all">All offers</option></select>'+chevron+'</label>'+
         '<button id="preferredPromosButton" class="compact-setting-row">'+financeIcon('tag')+'<span>Preferred promos<small>'+escapeHtml(preferredPromosSummary())+'</small></span>'+chevron+'</button>'+
         '<label class="compact-setting-row">'+financeIcon('wallet')+'<span>Include Uber Cash</span><input id="includeCashPreference" type="checkbox" role="switch"'+(offerPreferences.includeCash?' checked':'')+'></label>'+
-        '<label class="compact-setting-row">'+financeIcon('gift')+'<span>Any promo with Uber Cash'+(!offerPreferences.includeCash?'<small>Enable Include Uber Cash to use this saved preference.</small>':'')+'</span><input id="anyCashPromoPreference" type="checkbox" role="switch"'+(offerPreferences.anyPromoWithCash?' checked':'')+(!offerPreferences.includeCash?' disabled':'')+'></label></div><p class="settings-group-note">Other offers stay available in a separate searchable picker.</p>'+
+        '<label class="compact-setting-row">'+financeIcon('gift')+'<span>Any promo with Uber Cash</span><input id="anyCashPromoPreference" type="checkbox" role="switch"'+(offerPreferences.anyPromoWithCash?' checked':'')+(!offerPreferences.includeCash?' disabled':'')+'></label></div>'+
         (offerPreferences.selection&&offerPreferences.selection!=='preferred'||offerPreferences.plannerSelection&&offerPreferences.plannerSelection!=='preferred'?'<button class="settings-default-action" id="returnPreferredDefaults">Return to preferred offers</button>':'')+'</section>'+
-        '<section class="settings-group"><h2>Fees</h2><div class="settings-group-panel"><button class="compact-setting-row" data-open-sheet="advanced">'+financeIcon('settings')+'<span>Fee settings<small id="settingsFeeHelper">'+escapeHtml(money(effectiveFee()))+' estimated per order</small></span>'+chevron+'</button></div><p class="settings-group-note">Applied to every order, including the first.</p></section>';
+        '<section class="settings-group"><h2>Fees</h2><div class="settings-group-panel"><button class="compact-setting-row" data-open-sheet="advanced">'+financeIcon('settings')+'<span>Fee settings<small id="settingsFeeHelper">'+escapeHtml(money(effectiveFee()))+' estimated per order</small></span>'+chevron+'</button></div></section>';
       const defaults=host.querySelector('#defaultOfferView');defaults.value=offerPreferences.defaultView;
       defaults.addEventListener('change',e=>{refreshOfferPreferences({...offerPreferences,defaultView:e.target.value});document.getElementById('defaultOfferView').focus({preventScroll:true});});
       for(const [id,key]of [['includeCashPreference','includeCash'],['anyCashPromoPreference','anyPromoWithCash']])host.querySelector('#'+id).addEventListener('change',e=>{refreshOfferPreferences({...offerPreferences,[key]:e.target.checked});document.getElementById(id).focus({preventScroll:true});});
@@ -3534,10 +3524,8 @@
       setSheetHeading('Private account import', 'Full login emails on your device.');
       const count = accounts.filter(account => deviceEmail(deviceAccounts, account)).length;
       document.getElementById('sheetBody').innerHTML =
-        '<div class="settings-explainer icon-explainer">' + financeIcon('shield') + '<div><strong>Stored on your device</strong><span>Full emails stay private. Login access comes from your Mac registry.</span></div></div>' +
-        '<section class="setting-card"><h3 class="setting-title">Import accounts</h3><p class="sheet-help">Choose the private device-accounts export from your Mac. Review matching entries before applying.</p><label class="device-import" for="deviceAccountsFile">Choose private file<input id="deviceAccountsFile" type="file" accept="application/json,.json"></label></section>' +
+        '<section class="setting-card"><h3 class="setting-title">Import accounts</h3><p class="sheet-help">Choose an account file.</p><label class="device-import" for="deviceAccountsFile">Choose private file<input id="deviceAccountsFile" type="file" accept="application/json,.json"></label></section>' +
         '<div id="deviceImportStatus" class="sheet-help" role="status">' + count + ' full login emails available in this browser.</div>' +
-        '<div class="settings-explainer icon-explainer">' + financeIcon('info') + '<div><strong>What gets imported</strong><span>Matching login emails and saved offer references. No passwords or recovery details. Access status stays independent.</span></div></div>' +
         '<div class="sheet-section"><button id="forgetDeviceAccounts" class="action-btn"' + (Object.keys(deviceAccounts).length ? '' : ' disabled') + '>Forget login emails on this device</button></div>';
     }
 
@@ -3548,7 +3536,7 @@
       const added = entries.filter(([ref]) => !deviceAccounts[ref]).length;
       document.getElementById('sheetBody').innerHTML =
         '<div class="import-summary"><div><span>New entries</span><strong>' + added + '</strong></div><div><span>Existing entries</span><strong>' + (entries.length - added) + '</strong></div><div><span>Matched</span><strong>' + entries.length + '</strong></div></div>' +
-        '<p class="sheet-help">This replaces the saved login list. Removed or unmatched tracker accounts are excluded. Offer decisions are reconnected without changing receipt evidence.</p><div class="import-entries">' +
+        '<p class="sheet-help">Replace saved login emails with the matching accounts below.</p><div class="import-entries">' +
         entries.slice(0, limit).map(([ref, row]) => {
           const account = accounts.find(a => a.accountRef === ref);
           const access = account.accessStatus === 'pending' || account.canLogin == null ? 'Access pending verification' : account.canLogin ? 'Can log in' : 'Can’t log in';
@@ -3682,7 +3670,7 @@
       const progress=accountUsageMarkup(promo,knownLimit);
       const history=activity.history.length||activity.verificationConflict?`<details class="account-action-history" data-disclosure-key="history-${e(key)}"><summary>Saved action history${financeIcon('chevron-down')}</summary>${activity.verificationConflict?`<p role="status">${e(activity.verificationConflict)}</p><button data-review-evidence="${e(key)}"${promo.reviewReasons?.includes('ambiguous_receipt_match')?' disabled':''}>Accept current confirmed count</button>`:''}<ol>${activity.history.map(event=>`<li>${e(({manual_use_recorded:'Manual use recorded',manual_use_undone:'Manual use undone',manually_finished:'Marked finished manually',manual_finish_undone:'Manual finish undone',completion_verified:'Completion verified from receipts',evidence_reviewed:'Evidence reviewed',offer_terms_corrected:'Source terms corrected'})[event.type]||'Manual action')} · ${e(formatEvidenceTime(event.at)||'Date unknown')}</li>`).join('')}</ol></details>`:'';
       const row=(icon,label,helper,attribute,disabled=false,kind='')=>`<button class="account-manage-row ${kind}" ${attribute}${disabled?' disabled':''}>${financeIcon(icon)}<span><strong>${label}</strong><small>${helper}</small></span></button>`;
-      return `<details class="offer-card account-detail-offer${historic?' past-offer':''}" data-offer-key="${e(key)}"${historic?` data-history-key="${e(key)}"`:''}${open?' open':''}><summary class="account-offer-toggle">${financeIcon('promo-tag')}<span class="account-offer-heading"><span class="account-offer-titleline"><strong class="offer-name">${e(promo.discountType==='percent'?promoLabel(promo):accountOfferTitle(promo))}</strong>${accountCalculator?.promoKey===key?'<span class="account-selected-badge">Selected</span>':''}</span><small class="offer-details">${e(subtitle)}</small><small class="compact-offer-expiry">${e(historic?accountHistoricalMeta(promo,lifecycle):minimum+' · '+accountOfferExpiry(promo))}</small></span>${historic?`<span class="history-record-status ${e(lifecycle.bucket==='ignored'?'ignored':lifecycle.consumed?'completed':isExpired(promo)?'expired':'other')}">${historyCategoryIcon(lifecycle.bucket==='ignored'?'ignored':lifecycle.consumed?'completed':isExpired(promo)?'expired':'other')}<span>${e(lifecycle.bucket==='ignored'?'Ignored':lifecycle.consumed?'Completed':isExpired(promo)?'Expired':lifecycle.bucket==='manual'?'Manually finished':'History')}</span></span>`:''}${financeIcon('chevron-down')}</summary><div class="account-offer-body">${promo.hiddenByPromoUse||lifecycle.bucket!=='available'&&lifecycle.bucket!=='partial'?`<span class="account-offer-state">${e(promo.hiddenByPromoUse?'Hidden · another promo used':lifecycle.status)}</span>`:''}<div class="account-offer-meta"><span class="account-offer-expiry" tabindex="0" aria-label="${e(accountOfferDeadline(promo))}" title="${e(accountOfferDeadline(promo))}">${financeIcon('menu-calendar')}${e(accountOfferExpiry(promo))}</span><details class="offer-terms" data-disclosure-key="terms-${e(key)}"><summary><span>More terms</span>${financeIcon('chevron-down')}</summary><div class="disclosure-body"><dl class="terms-grid">${terms}</dl><p class="sheet-help">Eligibility and remaining uses require confirmation in Uber.</p></div></details></div>${promo.hiddenByPromoUse||promo.hiddenByPreference?`<button class="account-restore-promo" data-restore-competing="${e(key)}">${promo.hiddenByPromoUse?'Restore promo':'Show in current offers'}</button>`:''}${progress}${accountReceiptMarkup(promo,usage)}<div class="account-offer-actions"><button class="account-record-use" data-use-one="${e(key)}"${disabled?' disabled':''}>${financeIcon('plus')}Record use</button><button class="account-manage-toggle" aria-label="Manage offer" data-manage-toggle="${e(key)}" aria-expanded="false" aria-controls="manage-${e(key)}">${financeIcon('more')}Manage${financeIcon('chevron-down')}</button><div class="manage-offer" id="manage-${e(key)}" data-disclosure-key="manage-${e(key)}" hidden>${row('undo','Undo manual use','Remove the latest manual entry',`data-undo-use="${e(key)}"`,pending<=0||promo.usageEvidenceConflict)}${row('ignored',activity.ignored?'Restore offer':'Ignore offer',activity.ignored?'Restore this offer to recommendations':'Exclude from recommendations',`data-toggle-ignore="${e(key)}" data-ignore="${!activity.ignored}"`,false,'warning')}${row('history',activity.forceDone?'Reopen offer':lifecycle.consumed?'Completed · verified':'Mark finished manually',activity.forceDone?'Remove manual finish':'Keep as manually finished, not verified',`data-mark-offer-done="${e(key)}" data-done="${!activity.forceDone}"`,lifecycle.consumed&&!activity.forceDone,'danger')}<p class="account-manage-footer">Applies to this offer only.</p>${history}</div></div></div></details>`;
+      return `<details class="offer-card account-detail-offer${historic?' past-offer':''}" data-offer-key="${e(key)}"${historic?` data-history-key="${e(key)}"`:''}${open?' open':''}><summary class="account-offer-toggle">${financeIcon('promo-tag')}<span class="account-offer-heading"><span class="account-offer-titleline"><strong class="offer-name">${e(promo.discountType==='percent'?promoLabel(promo):accountOfferTitle(promo))}</strong>${accountCalculator?.promoKey===key?'<span class="account-selected-badge">Selected</span>':''}</span><small class="offer-details">${e(subtitle)}</small><small class="compact-offer-expiry">${e(historic?accountHistoricalMeta(promo,lifecycle):minimum+' · '+accountOfferExpiry(promo))}</small></span>${historic?`<span class="history-record-status ${e(lifecycle.bucket==='ignored'?'ignored':lifecycle.consumed?'completed':isExpired(promo)?'expired':'other')}">${historyCategoryIcon(lifecycle.bucket==='ignored'?'ignored':lifecycle.consumed?'completed':isExpired(promo)?'expired':'other')}<span>${e(lifecycle.bucket==='ignored'?'Ignored':lifecycle.consumed?'Completed':isExpired(promo)?'Expired':lifecycle.bucket==='manual'?'Manually finished':'History')}</span></span>`:''}${financeIcon('chevron-down')}</summary><div class="account-offer-body">${promo.hiddenByPromoUse||lifecycle.bucket!=='available'&&lifecycle.bucket!=='partial'?`<span class="account-offer-state">${e(promo.hiddenByPromoUse?'Hidden · another promo used':lifecycle.status)}</span>`:''}<div class="account-offer-meta"><span class="account-offer-expiry" tabindex="0" aria-label="${e(accountOfferDeadline(promo))}" title="${e(accountOfferDeadline(promo))}">${financeIcon('menu-calendar')}${e(accountOfferExpiry(promo))}</span><details class="offer-terms" data-disclosure-key="terms-${e(key)}"><summary><span>More terms</span>${financeIcon('chevron-down')}</summary><div class="disclosure-body"><dl class="terms-grid">${terms}</dl><p class="sheet-help">Eligibility and remaining uses require confirmation in Uber.</p></div></details></div>${promo.hiddenByPromoUse||promo.hiddenByPreference?`<button class="account-restore-promo" data-restore-competing="${e(key)}">${promo.hiddenByPromoUse?'Restore promo':'Show in current offers'}</button>`:''}${progress}${accountReceiptMarkup(promo,usage)}<div class="account-offer-actions"><button class="account-record-use" data-use-one="${e(key)}"${disabled?' disabled':''}>${financeIcon('plus')}Record use</button><button class="account-manage-toggle" aria-label="Manage offer" data-manage-toggle="${e(key)}" aria-expanded="false" aria-controls="manage-${e(key)}">${financeIcon('more')}Manage${financeIcon('chevron-down')}</button><div class="manage-offer" id="manage-${e(key)}" data-disclosure-key="manage-${e(key)}" hidden>${row('undo','Undo manual use','Remove the latest manual entry',`data-undo-use="${e(key)}"`,pending<=0||promo.usageEvidenceConflict)}${row('ignored',activity.ignored?'Restore offer':'Ignore offer',activity.ignored?'Restore this offer to recommendations':'Exclude from recommendations',`data-toggle-ignore="${e(key)}" data-ignore="${!activity.ignored}"`,false,'warning')}${row('history',activity.forceDone?'Reopen offer':lifecycle.consumed?'Completed · verified':'Mark finished manually',activity.forceDone?'Remove manual finish':'Keep as manually finished, not verified',`data-mark-offer-done="${e(key)}" data-done="${!activity.forceDone}"`,lifecycle.consumed&&!activity.forceDone,'danger')}${history}</div></div></div></details>`;
     }
     function accountCalculatorMarkup(context,planner=false){
       const e=escapeHtml,ref=context.accountRef,items=allPromosForAccount(ref).filter(p=>p.discountType!=='uberCash'),cash=accountCashState(ref,context.promoKey),id=planner?'plannerAccountPromo':'accountCalcPromo';
@@ -4050,43 +4038,19 @@
     function mountPrivateDataTools(){
       const host=document.getElementById('privateDataTools');if(!host)return;
       financeModule ||= import('./private-finance-ui.js');
-      financeModule.then(module=>{if(host.isConnected&&openSheetType==='health')financeView=module.syncDataInterface({host,vault:financeVault,onUpdate:privateDataUpdated});}).catch(()=>{if(host.isConnected)host.textContent='Private data controls could not load. Refresh to retry.';});
+      financeModule.then(module=>{if(host.isConnected&&openSheetType==='sync-info')financeView=module.syncDataInterface({host,vault:financeVault,onUpdate:privateDataUpdated});}).catch(()=>{if(host.isConnected)host.textContent='Private data controls could not load. Refresh to retry.';});
     }
-    function renderHealthSheet() {
-      const summary = payload.summary || {};
-      const generated = payload.generatedAt ? new Date(payload.generatedAt) : null;
+    let syncDataView=null,syncScrollPosition=0;
+    function renderHealthSheet(){ switchView('sync'); }
+    function renderSyncPage(){
+      if(syncDataView){syncDataView.refreshStatus();return;}
+      const host=document.getElementById('syncDataPage');
+      syncDataView=createSyncData({host,getSync:()=>payload.sync||{},vault:financeVault,
+        onBack:()=>{if(routeEntries.get(window.history.state?.trackerEntry)?.opener?.closest('#view-more,#view-home'))window.history.back();else switchView('more');},
+        onInfo:()=>openUtilitySheet('sync-info'),
+        refresh:async()=>{const result=await load();if(result==='failed')throw Error('Could not refresh published data. Your saved changes are unchanged.');if(result==='partial')throw Error('Published data was partly refreshed. Promo history could not load. Your saved changes are unchanged.');return result;},
+        onRestore:()=>{manualStore=readManualStore();deviceAccounts=readDeviceAccounts();offerPreferences=readOfferPreferences(localStorage);plannerSettings=readPlannerSettings();motionSetting=localStorage.getItem(MOTION_KEY)==='reduced'?'reduced':'system';document.documentElement.dataset.motion=motionSetting;mainNav.dataset.motion=motionSetting;liquidNavigation?.refreshMotion();accountTypeFilter=selectedOfferScope(offerPreferences);applyTheme(readThemeColour());layoutPreference=readLayoutPreference();applyLayoutPreference();privateDataUpdated();renderAll();}});
 
-      setSheetHeading("Sync & data", "Snapshot and private data.");
-
-      document.getElementById("sheetBody").innerHTML =
-        '<div id="privateDataTools"></div><p class="sheet-help">' + Number(summary.receiptSourcesNeedingReview||0) + ' historical receipt sources await independent original verification. Their records are preserved privately; unverified sources do not create confirmed usage or savings.</p>' +
-        '<div class="sheet-section"><div class="insight-grid">' +
-          '<div class="insight"><div class="insight-label">Total accounts</div><div class="insight-value">' + accounts.length.toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Can log in</div><div class="insight-value">' + accounts.filter(a=>a.canLogin).length.toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Accounts available</div><div class="insight-value">' + eligibleAccountCounts(enrichedAccounts()).available.toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Archived</div><div class="insight-value">' + accounts.map(currentAccountState).filter(accountArchived).length.toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Tracked receipts</div><div class="insight-value">' + Number(Number(summary.trackedOrders||0)+Number(summary.trackedRides||0)).toLocaleString("en-GB") + '</div></div>' +
-          '<div class="insight"><div class="insight-label">Deactivated · part of Archived</div><div class="insight-value">' + Number(summary.deactivatedAccounts||0) + '</div></div>' +
-        '</div></div>' +
-        '<div class="sheet-section"><div class="sheet-list">' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Snapshot prepared</div><div class="sheet-row-meta">Receipt processing time. Last Mail scan appears in the header.</div></div>' +
-          '<div class="sheet-row-value">' +
-            (generated && !Number.isNaN(generated.getTime())
-              ? escapeHtml(generated.toLocaleString("en-GB", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit", timeZone:"Europe/London" }))
-              : "Not synced yet") +
-          '</div></div>' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Private source</div><div class="sheet-row-meta">Full accounts, receipts, Mail evidence and usage history</div></div><div class="sheet-row-value">Private</div></div>' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Phone & web data</div><div class="sheet-row-meta">Masked accounts, promo details and savings totals</div></div><div class="sheet-row-value">Safe sync</div></div>' +
-          '<div class="sheet-row"><div><div class="sheet-row-title">Changes on this device</div><div class="sheet-row-meta">Used, ignore, done and split settings update immediately</div></div><div class="sheet-row-value">Saved locally</div></div>' +
-        '</div></div>' +
-        '<div class="sheet-section">' +
-          '<div class="settings-explainer">' +
-            '<strong>How syncing works</strong>' +
-            '<span>The website shows an imported snapshot. Up to date means a successful Mail scan within two hours. Update due means the scan is older; your Mac needs to import and publish a newer snapshot. Snapshot means its scan time is unknown. Syncing appears only for a reported scan in progress.</span>' +
-            '<span>Total accounts includes every account. Can log in includes all accessible accounts. Archived means outside active rotation and can include accessible accounts. Available Offers counts accessible accounts in active rotation with an eligible current offer. Fully used accounts meet the receipt rule and may still have offers. Completed promotions require every use to be confirmed; expiry and manual completion remain separate.</span>' +
-          '</div>' +
-        '</div>';
-      mountPrivateDataTools();
     }
 
     function renderHistorySheet() {
@@ -4197,6 +4161,7 @@
         requestAnimationFrame(()=>{if(['receipts','savings','finance'].includes(currentView)&&currentRouteEntry===entry){document.getElementById('receiptInsightsTitle').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}});
         return;
       }
+      if(type==='health'){switchView('sync');document.getElementById('syncTitle').focus({preventScroll:true});return;}
       if(type==='appearance'){switchView('settings');document.getElementById('settingsTitle').focus({preventScroll:true});return;}
       if (financeView) {financeView.destroy();financeView=null;}
       openSheetType = type;
@@ -4207,6 +4172,7 @@
       if (type === 'about') renderAboutSheet();
       if (type === "advanced") renderAdvancedSheet();
       if (type === "locked") renderLockedSheet();
+      if (type === "sync-info") {setSheetHeading('Sync & data','About updates and backups.');document.getElementById('sheetBody').innerHTML='<p class="sheet-help">The Mac reads Apple Mail and publishes a separate sanitised snapshot. Times and schedule status come from the last published report; this page cannot tell whether your Mac is online. Latest-run counts refer to that run, not lifetime totals. Emails checked means distinct Uber-related messages inspected, including unchanged messages.</p><p class="sheet-help">Refresh this device only fetches published data. Backups include the saved records accessible in this browser profile, not your Mac database or Mail archive. Restoring merges receipt histories by stable ID and uses backup values for matching saved decisions and preferences. A recoverable pre-restore copy stays on this device.</p>'+syncHistoryMarkup(payload.sync||{})+'<details class="sd-transfer"><summary class="sheet-action-row">Private receipt transfers</summary><div id="privateDataTools"></div></details>';mountPrivateDataTools();if(financeVault.status==='migration_required')document.querySelector('.sd-transfer').open=true;}
       if (type === "health") renderHealthSheet();
       if (type === "history") renderHistorySheet();
       if(type==='theme'){renderLegacyAppearanceControls();setSheetHeading('Theme colour & layout','Saved on this device.');}
@@ -4294,6 +4260,7 @@
         document.getElementById('homeReadyCount').textContent=eligibleAccountCounts(enrichedAccounts()).ready.toLocaleString('en-GB')+' ready to use';
       } else if (currentView === 'accounts') renderAccounts();
       else if (currentView === 'used') renderUsed();
+      else if (currentView === 'sync') renderSyncPage();
       else if (currentView === 'settings') renderSettingsPage();
       else if (currentView === 'more') renderMore();
       renderedClockKey = timedViewKey();
@@ -4328,7 +4295,7 @@
     const routeName=location.hash.slice(1).split(/[?&]/)[0];
     const legacyOfferEntry=['offers','find-offer','find-an-offer'].includes(routeName);
     const financeAlias=['private-finances','private-finance','finances'].includes(routeName);
-    const initialView=financeAlias?'finance':legacyOfferEntry?'accounts':['home','accounts','used','more','settings','planner','receipts','savings','finance'].includes(routeName)?routeName:'home';
+    const initialView=['health','sync-data'].includes(routeName)?'sync':financeAlias?'finance':legacyOfferEntry?'accounts':['home','accounts','used','more','settings','planner','receipts','savings','finance','sync'].includes(routeName)?routeName:'home';
     let pendingOfferEntry=legacyOfferEntry;
     function applyDirectoryRouteParams(){
       const params=new URLSearchParams(location.search);new URLSearchParams(location.hash.replace(/^#[^?&]*[?&]?/,'')).forEach((value,key)=>params.set(key,value));
@@ -4363,6 +4330,7 @@
     let moreScrollPosition=0,accountsScrollPosition=0;
     function switchView(view,routeOptions) {
       const findOffer=view==='offers'||routeOptions?.offerSelector;if(view==='offers')view='accounts';
+      if(currentView==='sync')syncScrollPosition=window.scrollY;
       if(currentView==='accounts'){accountsScrollPosition=window.scrollY;if(view!=='accounts')closeAccountPicker();}
       if(currentView==='more'&&view!=='more')moreScrollPosition=window.scrollY;
       if(preferredEditor.active&&!preferredViews.has(view)&&preferredEditor.dirty&&!routeRestoring){preferredEditor.requestDiscard(()=>switchView(view));return;}
@@ -4372,7 +4340,7 @@
       recordViewRoute(view,routeOptions);
       if(view==='receipts'&&routeRestoring&&routeEntries.get(currentRouteEntry)?.reviewState)Object.assign(receiptInsightsView.state,routeEntries.get(currentRouteEntry).reviewState);
       currentView = view;updateBrowserTheme();
-      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used','settings','more','preferred-promos','preferred-catalogue','receipts','savings','finance'].includes(view));
+      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used','settings','more','preferred-promos','preferred-catalogue','receipts','savings','finance','sync'].includes(view));
       renderAll();
       let activeSection = null;
 
@@ -4382,7 +4350,7 @@
         if (isActive) activeSection = section;
       });
 
-      const navParent=["help","settings","preferred-promos","preferred-catalogue","receipts","savings","finance"].includes(view)?"more":["offers","planner"].includes(view)?routeEntries.get(currentRouteEntry)?.navigationParent||"home":view;
+      const navParent=["help","settings","preferred-promos","preferred-catalogue","receipts","savings","finance","sync"].includes(view)?"more":["offers","planner"].includes(view)?routeEntries.get(currentRouteEntry)?.navigationParent||"home":view;
       document.querySelectorAll("[data-view]").forEach(button => {
         button.classList.toggle("active",button.dataset.view===navParent);
         if(button.dataset.view===navParent)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");
@@ -4392,7 +4360,7 @@
       updateNavGlider();
       queueDetailViewport();
       if (activeSection) replayMotion(activeSection, 'motion-page');
-      window.scrollTo({ top: view==='more'?moreScrollPosition:view==='accounts'?accountsScrollPosition:0, behavior: "instant" });
+      window.scrollTo({ top: view==='more'?moreScrollPosition:view==='accounts'?accountsScrollPosition:view==='sync'?syncScrollPosition:0, behavior: "instant" });
       if(findOffer)openAccountsOffers();
       if(view==='accounts')requestAnimationFrame(()=>{if(currentView==='accounts'&&!findOffer)window.scrollTo({top:accountsScrollPosition,behavior:'instant'});});
       if(view==='more')requestAnimationFrame(()=>{if(currentView==='more')window.scrollTo({top:moreScrollPosition,behavior:'instant'});});
@@ -4403,9 +4371,9 @@
       else { const detail = currentView; switchView('home'); document.querySelector('#view-home [data-home-detail="' + detail + '"]')?.focus({preventScroll:true}); }
     }
     window.addEventListener('hashchange',()=>{
-      const name=location.hash.slice(1).split(/[?&]/)[0],alias=['private-finances','private-finance','finances'].includes(name),direct=['home','accounts','used','more','settings','planner','receipts','savings','finance'].includes(name);
+      const name=location.hash.slice(1).split(/[?&]/)[0],alias=['private-finances','private-finance','finances','health','sync-data'].includes(name),direct=['home','accounts','used','more','settings','planner','receipts','savings','finance','sync'].includes(name);
       if(direct&&window.history.state?.trackerView===name)return;
-      if(alias||direct){const target=alias?'finance':name;if(target==='accounts'&&location.hash.includes('?'))applyDirectoryRouteParams();const old=currentRouteEntry;if(routeEntries.has(old))routeEntries.get(old).scroll=window.scrollY;closeSheet(true);currentRouteEntry=++routeSerial;routeEntries.set(currentRouteEntry,{scroll:0,opener:document.activeElement,position:window.history.length-1});window.history.replaceState({trackerView:target,trackerEntry:currentRouteEntry},'','#'+target);routeRestoring=true;switchView(target);routeRestoring=false;window.scrollTo({top:0,behavior:'instant'});return;}
+      if(alias||direct){const target=['health','sync-data'].includes(name)?'sync':alias?'finance':name;if(target==='accounts'&&location.hash.includes('?'))applyDirectoryRouteParams();const old=currentRouteEntry;if(routeEntries.has(old))routeEntries.get(old).scroll=window.scrollY;closeSheet(true);currentRouteEntry=++routeSerial;routeEntries.set(currentRouteEntry,{scroll:0,opener:document.activeElement,position:window.history.length-1});window.history.replaceState({trackerView:target,trackerEntry:currentRouteEntry},'','#'+target);routeRestoring=true;switchView(target);routeRestoring=false;window.scrollTo({top:0,behavior:'instant'});return;}
       if(!['offers','find-offer','find-an-offer'].includes(name))return;
       applyDirectoryRouteParams();const old=currentRouteEntry;routeEntries.get(old).scroll=window.scrollY;currentRouteEntry=++routeSerial;
       routeEntries.set(currentRouteEntry,{scroll:0,opener:document.activeElement,position:window.history.length-1});
@@ -4447,7 +4415,7 @@
       switchView(state.trackerView);
       if (state.trackerSheet === 'advanced') openUtilitySheet('advanced');
       else if (state.trackerSheet === 'account') openAccountSheet(state.trackerAccount,state.trackerOffer,routeEntries.get(state.trackerEntry)?.accountSnapshot);
-      else if(['used-info','theme'].includes(state.trackerSheet))openUtilitySheet(state.trackerSheet);
+      else if(['used-info','theme','sync-info'].includes(state.trackerSheet))openUtilitySheet(state.trackerSheet);
       routeRestoring = false;
       window.scrollTo({top:routeEntries.get(state.trackerEntry)?.scroll || 0,behavior:'instant'});
       const opener = leaving?.opener;
@@ -4472,10 +4440,10 @@
       detailViewportFrame = requestAnimationFrame(() => {
         detailViewportFrame = 0;
         const root = document.documentElement;
-        const view = document.querySelector('#view-planner.active, #view-offers.active, #view-accounts.active, #view-used.active, #view-settings.active, #view-more.active, #view-preferred-promos.active, #view-preferred-catalogue.active, #view-receipts.active');
+        const view = document.querySelector('#view-planner.active, #view-offers.active, #view-accounts.active, #view-used.active, #view-settings.active, #view-more.active, #view-preferred-promos.active, #view-preferred-catalogue.active, #view-receipts.active, #view-sync.active');
         const active = Boolean(view);
         const prefix = view?.id?.slice(5) || 'planner';
-        for(const name of ['planner','offers','accounts','used','settings','more','receipts'])if(name!==prefix)root.style.removeProperty('--'+name+'-nav-clearance');
+        for(const name of ['planner','offers','accounts','used','settings','more','receipts','sync'])if(name!==prefix)root.style.removeProperty('--'+name+'-nav-clearance');
         const rootStyle = active ? getComputedStyle(root) : null;
         updateBrowserTheme();
         const nav = document.getElementById('mainNav');
@@ -4549,14 +4517,15 @@
         const etag = response.headers.get('etag');
         const cached = snapshotCache.get(url);
         if (etag && cached?.etag === etag) return cached.value;
-        const value = await response.json();
-        if (etag) snapshotCache.set(url, {etag,value});
-        else snapshotCache.delete(url);
+        const text=await response.text();
+        if(cached?.text===text)return cached.value;
+        const value=JSON.parse(text);snapshotCache.set(url,{etag,value,text});
         return value;
       } finally { clearTimeout(timer); }
     }
 
-    async function load() {
+    function load(){if(!loadPromise)loadPromise=performLoad().finally(()=>{loadPromise=null;});return loadPromise;}
+    async function performLoad() {
       if (loadInProgress) return;
       loadInProgress = true;
       try {
@@ -4567,7 +4536,7 @@
           throw new Error("Tracker data unavailable");
         }
         const sameHistory = previous.status === 'fulfilled' && previous.value.records === history;
-        if (current.value === payload && sameHistory && !loadError) { renderStatus(); return; }
+        if (current.value === payload && sameHistory && !loadError) { renderStatus(); return 'current'; }
         loadError = false;
         payload = current.value;
         historyUnavailable = previous.status !== "fulfilled" || !Array.isArray(previous.value?.records) ||
@@ -4587,6 +4556,7 @@
         renderAll();
         if(pendingOfferEntry){pendingOfferEntry=false;openAccountsOffers();}
         if (openSheetType === "account") renderAccountSheet();
+        return historyUnavailable?'partial':'updated';
       } catch (error) {
         loadError = true;
         document.getElementById("scanLabel").textContent = "Attention";
@@ -4598,6 +4568,7 @@
           document.getElementById("recommendation").innerHTML = '<div class="empty">Offers will appear after the next successful data sync.</div>';
           document.getElementById("accountsList").innerHTML = '<div class="empty">Your accounts will appear once data loads.</div>';
         }
+        return 'failed';
       } finally { loadInProgress = false; lastSnapshotCheckedAt = Date.now(); refreshTimedViews(); }
     }
 

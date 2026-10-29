@@ -1,3 +1,4 @@
+import {recordSyncRun,validateSyncReport} from './sync-report.js';
 import fs from "node:fs/promises";
 import { backupPrivateDb, compressPrivateBackup } from "./private-backup.js";
 import path from "node:path";
@@ -59,7 +60,7 @@ const allowUnknownAccounts =
   /^(?:1|true|yes)$/i.test(process.env.TRACKER_ALLOW_UNKNOWN_ACCOUNTS || "");
 const rebuildOfferSources =
   /^(?:1|true|yes)$/i.test(process.env.TRACKER_REBUILD_OFFER_SOURCES || "");
-let successfulMailScanAt = null;
+let successfulMailScanAt = null,completedScanReport=null;
 
 function isExpired(promo) {
   return isOfferExpired(promo);
@@ -119,6 +120,8 @@ async function loadMessages(path) {
     const at = Date.parse(raw.exportedAt);
     if (!Number.isFinite(at) || at > Date.now() + 5 * 60000) throw new Error('Invalid completed Mail scan time.');
     successfulMailScanAt = new Date(at).toISOString();
+    completedScanReport={emailsChecked:Array.isArray(raw.scanStats?.checkedKeys)?new Set(raw.scanStats.checkedKeys).size:Number.isSafeInteger(raw.scanStats?.emailsChecked)?raw.scanStats.emailsChecked:null,scheduler:raw.schedulerReport||null};
+    if(completedScanReport.scheduler)validateSyncReport({scheduler:completedScanReport.scheduler});
   }
 
   if (!Array.isArray(messages)) {
@@ -178,6 +181,9 @@ async function generatePromos() {
   try {
     db.exec("BEGIN IMMEDIATE");
     transaction = true;
+    const beforeReceiptIds=new Set([...getReceipts(db),...getTransportReceipts(db)].map(r=>r.receiptId));
+    const offerSignature=row=>JSON.stringify(Object.fromEntries(Object.entries(row).filter(([k])=>k!=='last_seen_at')));
+    const beforeOffers=new Map(db.prepare('SELECT * FROM offers').all().map(row=>[row.offer_id,offerSignature(row)]));
     if (accountAllowlist) {
       resetAccountAccess(db);
       for (const record of accountAllowlist.values()) setAccountAccess(db, record.email, record.canLogin, record.loginMethod, record.accountStatus);
@@ -508,12 +514,18 @@ async function generatePromos() {
       receipt.smallOrderFee != null
     ).length;
 
+    let publicSyncReport=JSON.parse(db.prepare("SELECT value FROM meta WHERE key='sync_report_v1'").get()?.value||'{}');
+    validateSyncReport(publicSyncReport);
+    if(successfulMailScanAt&&completedScanReport){
+      publicSyncReport=recordSyncRun(publicSyncReport,successfulMailScanAt,{emailsChecked:completedScanReport.emailsChecked,newReceipts:[...receipts,...transportReceipts].filter(r=>!beforeReceiptIds.has(r.receiptId)).length,offersUpdated:db.prepare('SELECT * FROM offers').all().filter(row=>beforeOffers.get(row.offer_id)!==offerSignature(row)).length},completedScanReport.scheduler);
+      db.prepare("INSERT INTO meta(key,value)VALUES('sync_report_v1',?)ON CONFLICT(key)DO UPDATE SET value=excluded.value").run(JSON.stringify(publicSyncReport));
+    }
     const payload = {
       schemaVersion: 3,
       generatedAt,
       source: "apple-mail-sqlite",
       demo: false,
-      sync: { state: 'snapshot', lastSuccessfulMailScanAt },
+      sync: { state: 'snapshot', lastSuccessfulMailScanAt, ...publicSyncReport },
       receiptActivity: receiptActivity(receipts, transportReceipts, confirmedReceiptSaving,{includeAmounts:true}),
       summary: {
         ...summary,

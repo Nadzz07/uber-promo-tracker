@@ -1,4 +1,7 @@
 const paths = {
+  laptop:'<rect x="4" y="3" width="16" height="13" rx="1"/><path d="m4 16-2 4h20l-2-4"/>',
+  upload:'<path d="M12 16V2m-5 5 5-5 5 5M3 14v7h18v-7"/>',
+  mail:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 5 9 7 9-7"/>',
   archive:'<path d="M3 3h18v5H3zM5 8v13h14V8M9 12h6"/>',
   google:'<path d="M20.5 10.5H12v4h4.8a5.6 5.6 0 1 1-1.5-7.8l3-3a10 10 0 1 0 2.2 6.8Z"/>',
   plus:'<path d="M12 4v16M4 12h16"/>',
