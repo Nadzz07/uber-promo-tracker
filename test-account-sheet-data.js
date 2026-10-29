@@ -205,3 +205,20 @@ console.log('✓ Incomplete compact receipts never manufacture zero; preference 
  const undone=undoManualUse(recorded,p);assert.equal(undone.offers[p.id].manualUsesConsumed,1);assert.equal(undone.offers[p.id].receiptConfirmedBaseline,3);
  assert.equal(pendingManualUses(undone,{...p,usageEvidenceUnavailable:false,receiptConfirmedUses:3}),1,'Restoring the same receipts must not erase unrelated manual entries');
 }
+
+{
+ const {normaliseOfferPreferences}=await import('./offer-preferences.js');
+ const now=Date.parse('2026-10-29T12:00:00Z');
+ const promo=(id,extra={})=>({id,service:'Uber Eats',discountType:'fixed',discount:12,minimumSpend:15,minimumSpendVerified:true,uses:5,usesVerified:true,usesRemaining:3,receiptConfirmedUses:0,trackingState:'available',firstEmailSentAt:'2026-10-01T12:00:00Z',expiresAt:'2099-12-31T23:59:59Z',expiryStatus:'exact',...extra});
+ const row=(accountRef,offers,extra={})=>({accountRef,accountMasked:accountRef+'@example.invalid',canLogin:true,archived:false,accountStatus:'active',promos:offers,allOffers:offers,...extra});
+ const records=[row('valid',[promo('valid-a'),promo('valid-b')]),row('other',[promo('other',{discount:8,minimumSpend:20})]),row('locked',[promo('locked')],{canLogin:false}),row('archived',[promo('archived')],{archived:true,accountStatus:'archived'}),row('expired',[promo('expired',{expiresAt:'2026-10-28T12:00:00Z'})]),row('exhausted',[promo('exhausted',{usesRemaining:0})]),row('ignored',[promo('ignored',{ignored:true})]),row('finished',[promo('finished',{forceDone:true})]),row('hidden',[promo('hidden',{hiddenByPromoUse:true})]),row('unknown',[promo('unknown',{trackingState:'needs_checking',sourceEvidenceStatus:'missing'})]),row('cash',[],{cashPosition:{remaining:5,status:'verified'}}),row('unknown-cash',[],{cashPosition:{remaining:null,status:'needs_checking'}})];
+ const filters={type:'preferred',management:'tracked',login:'all',provider:'all',availability:'ready'};
+ const list=preferences=>directoryAccounts([...records,records[0]],filters,normaliseOfferPreferences(preferences),{now}).map(a=>a.accountRef).sort();
+ assert.deepEqual(list({preferredPromos:['fixed:12:15'],includeCash:false}),['valid'],'One account once; uncertain, hidden, expired, ignored, exhausted, finished and inaccessible offers are not ready');
+ assert.deepEqual(list({preferredPromos:['fixed:8:20'],includeCash:false}),['other'],'Custom saved preferences replace the match set');
+ assert.deepEqual(list({preferredPromos:[],includeCash:false}),[],'An empty saved preference list does not fall back to hardcoded offers');
+ assert.deepEqual(list({preferredPromos:['fixed:12:15'],includeCash:true}),['cash','valid'],'Cash follows its existing saved inclusion setting, with unknown balances excluded');
+ const login=()=>directoryAccounts(records,{...filters,type:'all',login:'login',availability:'any'},{preferredPromos:[],includeCash:false},{now}).length;
+ const before=login();records[0].promos=records[0].promos.map(p=>({...p,usesRemaining:0}));assert.deepEqual(list({preferredPromos:['fixed:12:15'],includeCash:false}),[]);assert.equal(login(),before,'Can log in remains independent of preferred-offer availability');
+}
+console.log('✓ Preferred Home scope: saved custom/empty choices, unique accounts, remaining use, expiry, ignore/manual finish, hidden competitors, uncertain evidence, Cash setting and independent login counts.');

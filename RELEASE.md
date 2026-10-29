@@ -574,3 +574,12 @@ Home, with a corrected shared pale-accent badge token. Obsolete prior Sync
 status-card styles are removed; current Email updates, Refresh, Backups and
 About updates remain the only main layout. The existing help transition now
 replaces its sheet route without racing a history-back event or losing focus.
+
+Home’s green Overview metric is now Preferred offers / Accounts ready. It uses
+the directory’s actual preferred + ready scope, derived from saved preferred
+types and existing Cash inclusion settings, with one account per stable ID.
+Accessible/archived state, remaining uses, expiry, ignore/manual finish and
+hidden competitors retain their existing eligibility rules. Empty/custom saved
+preferences, cross-tab edits, exhaustion, archive changes and uncertain offers
+are verified without changing the independent Can log in count. Shared detail
+header rules remain intact during the Home-only style cleanup.

@@ -1839,6 +1839,17 @@
     :where(html[data-layout="mobile"]) .hero-title { font-size: 22px; }
 
     :where(html[data-layout="mobile"]) .stat-sub { font-size:12px; }
+    .home-sync {
+      flex: 0 1 430px;
+      margin: 0;
+      padding: var(--space-2) var(--space-3);
+      border-color: var(--color-soft-accent);
+      border-radius: var(--card-radius);
+      background: var(--color-panel);
+      box-shadow: none;
+      font-size:12px;
+    }
+    .home-sync strong { white-space: nowrap; }
     .local-notice { margin: var(--space-2) 0 var(--space-3); }
     .basket-editor:focus-within {
       border-color: var(--color-outline);
@@ -1851,6 +1862,10 @@
       box-shadow: none !important;
       background: transparent !important;
     }
+
+    :where(html[data-layout="mobile"]) .home-sync { max-width: 360px; }
+
+    :where(html[data-layout="mobile"]) .home-sync { margin-top: var(--space-3); max-width: none; }
     .insight-value.estimated-value {
       color: var(--muted);
     }
@@ -2197,7 +2212,7 @@
           <div id="syncStrip" class="sync-strip home-sync" role="status" hidden></div>
           <div class="stats-row">
             <button class="stat-card" data-home-list="total"><span class="overview-icon" data-icon="users" aria-hidden="true"></span><span class="home-stat-copy"><span class="stat-label">Total accounts</span><strong id="usableStat" class="stat-value">—</strong></span></button>
-            <button id="availableStatCard" class="stat-card available-stat-card" data-home-list="ready"><span class="overview-icon" data-icon="star" aria-hidden="true"></span><span class="home-stat-copy"><span class="stat-label accounts-available-label">Accounts available</span><strong id="activeStat" class="stat-value available">—</strong><span id="availableStatSub" class="stat-sub">Ready to use</span></span></button>
+            <button id="availableStatCard" class="stat-card available-stat-card" data-home-list="ready"><span class="overview-icon" data-icon="star" aria-hidden="true"></span><span class="home-stat-copy"><span class="stat-label accounts-available-label">Preferred offers</span><strong id="activeStat" class="stat-value available">—</strong><span id="availableStatSub" class="stat-sub">Accounts ready</span></span></button>
             <button class="stat-card" data-home-list="login"><span class="overview-icon" data-icon="user-check" aria-hidden="true"></span><span class="home-stat-copy"><span class="stat-label">Can log in</span><strong id="loginStat" class="stat-value">—</strong></span></button>
             <button class="stat-card" data-home-list="archived"><span class="overview-icon" data-icon="archive" aria-hidden="true"></span><span class="home-stat-copy"><span class="stat-label">Archived</span><strong id="archivedStat" class="stat-value">—</strong></span></button>
           </div>
@@ -2890,7 +2905,7 @@
       strip.hidden=!loadError;strip.style.display=loadError?'flex':'none';if(loadError)strip.innerHTML='<span>Couldn’t refresh data.</span><button class="ghost-btn" data-retry-load="true">Try again</button>';
     }
 
-    function homeDirectoryFilters(kind){return {search:'',login:kind==='login'?'login':'all',provider:'all',type:'all',management:kind==='archived'?'archived':'tracked',availability:kind==='ready'?'ready':'any',sort:accountSort};}
+    function homeDirectoryFilters(kind){return {search:'',login:kind==='login'?'login':'all',provider:'all',type:kind==='ready'?'preferred':'all',management:kind==='archived'?'archived':'tracked',availability:kind==='ready'?'ready':'any',sort:accountSort};}
     function homeDirectoryRows(kind){return directoryAccounts(enrichedAccounts(),homeDirectoryFilters(kind),offerPreferences);}
     function homeSavingsSelection(){
       if(receiptInsightsView)return {range:receiptInsightsView.state.range,service:receiptInsightsView.state.service};

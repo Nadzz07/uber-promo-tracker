@@ -32,6 +32,8 @@ html[data-layout="desktop"] .nav-btn svg { width: 18px; height: 18px; margin: 0;
 html[data-layout="desktop"] .nav-glider { border-radius: 999px; }
 html[data-layout="desktop"] main { grid-column: 1 / -1; grid-row: 3; min-width: 0; }
 html[data-layout="desktop"] .local-notice { grid-column: 1 / -1; grid-row: 2; margin: var(--space-4) 0 0; }
+html[data-layout="desktop"] .home-sync { flex: 0 1 350px; margin: 0; padding: var(--space-3) var(--space-3); font-size:12px; }
+html[data-layout="desktop"] .home-workspace { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(0,.95fr); gap: var(--space-6); align-items: start; }
 html[data-layout="desktop"] .planner-column { min-width: 0; position: static; }
 html[data-layout="desktop"] .discovery-column { min-width: 0; }
 html[data-layout="desktop"] .hero-card { padding: var(--space-6); border-radius: var(--card-radius); }
@@ -89,6 +91,8 @@ html[data-layout="desktop"] .sheet { width: min(100%,620px); border-bottom: 1px 
 @media (max-width: 900px) {
   html[data-layout="desktop"] .app-shell { display: block; padding: var(--space-6); }
   html[data-layout="desktop"] .bottom-nav { width: min(100%,480px); margin: var(--space-5) 0; }
+  html[data-layout="desktop"] .home-workspace { grid-template-columns: 1fr; }
+  html[data-layout="desktop"] .home-sync { margin-top: var(--space-3); }
   html[data-layout="desktop"] .more-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
 @media (max-width: 600px) {

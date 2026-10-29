@@ -272,9 +272,11 @@ html[data-layout="desktop"] .bottom-nav {
 @media (prefers-reduced-motion: reduce) { .scan-pill .scan-dot { animation: none !important; } }
 @media (min-width: 980px) {
   html[data-layout="desktop"] .app-shell { width: min(1440px,100%); max-width: 1440px; margin: auto; padding: var(--space-6) var(--space-8) 36px; gap: 0 var(--space-6); }
+  html[data-layout="desktop"] .home-workspace { grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: var(--space-5); }
   html[data-layout="desktop"] .hero-card { padding: var(--space-5); }
 }
 @media (max-width: 979px) {
+  .home-workspace { display: contents; }
   .discovery-column { order: 2; }
   .best-section { order: 3; }
   .planner-column { order: 4; }
@@ -344,6 +346,8 @@ html[data-layout="desktop"] .bottom-nav {
 #view-used .activity-section { max-width: none; }
 @media (min-width: 980px) {
   html[data-layout="desktop"] .insights-panels { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  html[data-layout="desktop"] .home-workspace { align-items: start; margin-top: var(--space-5); }
+  html[data-layout="desktop"] .home-workspace .section-head { margin-top: 0; }
   html[data-layout="desktop"] .activity-summary { grid-template-columns: repeat(4,minmax(0,1fr)); }
   html[data-layout="desktop"] #homeAccounts[data-count="1"] { grid-template-columns: minmax(0,1fr); }
   html[data-layout="desktop"] #homeAccounts[data-count="2"] { grid-template-columns: repeat(2,minmax(0,1fr)); }
@@ -450,6 +454,7 @@ html[data-layout="desktop"] .bottom-nav {
 .insights-panels .analytics-panel { background: var(--color-panel); border: 1px solid var(--line-soft); border-radius: var(--card-radius); box-shadow: none; }
 @keyframes disclosure-enter { from { opacity:.65; transform:translateY(-3px); } to { opacity:1; transform:none; } }
 @media (min-width:980px) {
+ html[data-layout="desktop"] .home-workspace { grid-template-columns:minmax(0,.85fr) minmax(0,1.45fr); align-items:start; }
  html[data-layout="desktop"] .offer-browser { padding:var(--space-5); }
  html[data-layout="desktop"] .offer-browser .quick-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
  html[data-layout="desktop"] .offer-browser .quick-card:last-child { grid-column:span 2; }
@@ -466,6 +471,7 @@ html[data-layout="desktop"] .bottom-nav {
  html[data-layout="desktop"] .fee-note { text-align:left; }
 }
 @media (max-width:979px) {
+ .home-workspace { display:flex; flex-direction:column; gap:var(--space-4); margin-top:var(--space-4); }
  .offer-browser { order:1; padding:var(--space-4); }
  .planner-column { order:2; margin-top:0; }
  .offer-browser > .section-head { display:flex; margin-bottom:var(--space-3); }
@@ -736,6 +742,7 @@ body::before, body::after { display: none; }
 .metric-help::after { display:none; }
 .metric-help > .finance-icon { width:18px; height:18px; flex-basis:18px; color: var(--muted); }
 .inline-help { position:static; vertical-align:middle; }
+.home-workspace, .home-analytics { margin-top:var(--section-gap); }
 .offer-browser { padding:var(--space-5); border-radius: var(--card-radius); }
 .quick-grid, .offer-browser .quick-grid { gap:var(--space-3); }
 .quick-card, .offer-browser .quick-card, html[data-layout="desktop"] .quick-card { border-radius: var(--card-radius); padding:var(--space-3); min-height:92px; }
@@ -978,6 +985,8 @@ body::before, body::after { display: none; }
 .detail-back, .detail-switch { min-height:44px; display:flex; align-items:center; gap:var(--space-2); background: none; border: 0; color: var(--muted); font:inherit; font-size:14px; cursor:pointer; padding:0 var(--space-1); }
 .detail-back > span { font-size:28px; }
 .detail-switch { margin-left:auto; color: var(--green); }
+.home-detail .hero-card { margin-top:0; }
+.home-detail .planner-column, .home-detail .offer-browser { max-width:100%; }
 #view-offers .search-wrap { margin-bottom:var(--space-4); }
 #view-offers .offer-browser > .section-head { display:none; }
 #view-planner .hero-heading { display:none; }
@@ -998,6 +1007,10 @@ body::before, body::after { display: none; }
 .app-shell.detail-mode > .topbar { display:none; }
 .app-shell.detail-mode { padding-top:max(var(--space-3),env(safe-area-inset-top)); }
 .app-shell.detail-mode > .privacy { margin-top:var(--space-5); font-size:12px; }
+.home-detail .detail-view-head { display:grid; grid-template-columns:36px minmax(0,1fr) auto; gap:var(--space-2); margin:0 0 var(--space-5); }
+.home-detail .detail-view-head h1 { order:initial; width:auto; font-size:19px; line-height:1.4; letter-spacing:-.025em; }
+.home-detail .detail-back { min-height:44px; justify-content:center; padding:0; }
+.home-detail .detail-switch { padding:var(--space-1) 0 var(--space-1) var(--space-2); font-size:12px; line-height:1.4; max-width:140px; text-align:right; }
 #view-offers .offer-browser { border: 0; background: none; box-shadow: none; padding:0; }
 #view-offers .search-wrap { margin-bottom:var(--space-3); }
 #view-offers .search-input { min-height:52px; border-radius: var(--card-radius); }
@@ -1093,10 +1106,13 @@ body::before, body::after { display: none; }
   #view-planner .plan-row { grid-template-columns:18px minmax(0,1fr); }
   .plan-payment { grid-column:2; display:flex; max-width:none; text-align:left; align-items:center; gap:var(--space-2); }
   .plan-payment small { margin:0; }
+  .home-detail .detail-switch { max-width:105px; }
 }
 @media (min-width:980px) {
   html[data-layout="desktop"] .app-shell.detail-mode { padding-top:var(--space-6); }
   html[data-layout="desktop"] .home-detail .detail-view-head, html[data-layout="desktop"] #view-offers .offer-browser { max-width:1000px; margin-inline:auto; }
+  html[data-layout="desktop"] .home-detail .detail-view-head h1 { font-size:22px; }
+  html[data-layout="desktop"] .home-detail .detail-switch { max-width:none; font-size:14px; }
   html[data-layout="desktop"] #view-planner .detail-view-head { max-width:900px; }
 }
 [data-finance-form="receipt"] { gap:var(--space-3); }#financeRefundEvidence > h3{ display:flex; align-items:center; gap:var(--space-2); font-size:15px; line-height:1.5; margin:0 0 var(--space-2); }#financeRefundEvidence > h3 .finance-icon{ width:22px; height:22px; flex:0 0 22px; }
@@ -1242,6 +1258,13 @@ body::before, body::after { display: none; }
 }
 @media (max-width:370px) {
 }
+
+/* The supplied detail views use a Home row above a full-size page title. */
+.home-detail .detail-view-head { grid-template-columns:minmax(0,1fr) auto; gap:0 var(--space-2); margin-bottom:var(--space-4); }
+.home-detail .detail-back { grid-column:1; grid-row:1; justify-content:flex-start; gap:var(--space-2); font-size:14px; }
+.home-detail .detail-switch { grid-column:2; grid-row:1; font-size:13px; max-width:none; }
+.home-detail .detail-view-head h1,html[data-layout="desktop"] .home-detail .detail-view-head h1 { grid-column:1 / -1; grid-row:2; margin:var(--space-3) 0 0; font-size:30px; line-height:1.2; font-weight:600; }
+.home-detail .detail-intro { grid-column:1 / -1; grid-row:3; margin:var(--space-2) 0 0; font-size:16px; line-height:1.5; color: var(--muted); }
 #view-offers .offer-scope-summary { margin:0 0 var(--space-3); }
 #view-planner .hero-card { padding:var(--space-4); }
 #view-planner .basket-editor-copy strong,#view-planner .planner-mode label { font-size:15px; font-weight:600; }
@@ -1254,6 +1277,7 @@ body::before, body::after { display: none; }
 #view-planner .recommendation-save { font-weight:600; }
 #view-planner .recommendation-save small { max-width:150px; }
 @media (max-width:370px) {
+ .home-detail .detail-view-head h1 { font-size:28px; }
  #view-planner .basket-value-wrap,#view-planner .planner-mode select { flex-basis:100%; }
 }
 

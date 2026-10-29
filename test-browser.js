@@ -51,7 +51,7 @@ try {
   await openHomeDetail(page,'planner');const recommendation = await page.locator('#recommendation').innerText();
   assert.match(recommendation, /Promo discounts\s*−£10\.00/); // At £15, one £10-off offer is the optimal single-order result.
   assert.equal(await page.locator('#usableStat').innerText(), '7');
-  assert.equal(await page.locator('#activeStat').innerText(), '3', 'Ready accounts exclude inaccessible accounts');
+  assert.equal(await page.locator('#activeStat').innerText(), '2', 'Preferred ready accounts exclude inaccessible and nonpreferred accounts');
   assert.equal(await page.locator('#homeReadyCount').innerText(),'Search offers in Accounts');
   assert.equal(await page.locator('#savedStat').innerText(), '£0.00');
   assert.equal(await page.locator('#savedStatSub').count(),0,'No Uber One estimate is mixed into Home promo savings');
@@ -143,7 +143,7 @@ try {
       fits: el.scrollWidth <= el.clientWidth
     }));
 
-    assert.equal(availableLabelFits.fits, true, `Accounts available should fit its card at ${width}px (scroll ${availableLabelFits.scrollWidth}px / client ${availableLabelFits.clientWidth}px)`);
+    assert.equal(availableLabelFits.fits, true, `Preferred offers should fit its card at ${width}px (scroll ${availableLabelFits.scrollWidth}px / client ${availableLabelFits.clientWidth}px)`);
     if (width <= 600) {
       const cardWidths = await page.locator('.home-overview .stat-card').evaluateAll(cards => cards.map(card => card.getBoundingClientRect().width));
       assert.ok(Math.max(...cardWidths) - Math.min(...cardWidths) < 1, `Home stat cards should remain equal width at ${width}px`);
@@ -365,7 +365,7 @@ try {
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
   await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts','One remaining use does not finish an account');
   await directoryReset(filterPage);await directoryType(filterPage,'cash-promo');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'1 account');await filterPage.locator('[data-view=home]').click();
-  assert.equal(await filterPage.locator('#activeStat').innerText(), '8', 'One use left preserves ready eligibility, excluding inaccessible accounts');
+  const preferredReady=Number(await filterPage.locator('#activeStat').innerText());await filterPage.locator('.stats-row [data-home-list=ready]').click();assert.equal(await filterPage.locator('#accountTypeValue').innerText(),'Preferred offers');assert.equal(Number((await filterPage.locator('#accountsMeta').innerText()).replace(/[^0-9]/g,'')),preferredReady);await filterPage.goBack();await filterPage.locator('#view-home.active').waitFor();
   assert.equal(await filterPage.locator('#homeReadyCount').innerText(),'Search offers in Accounts');
   filterOffers.splice(filterOffers.findIndex(p => p.id === 'another-single-102'), 1);
   filterOffers.push({ ...cashOffer, cashEstimate:{...cashOffer.cashEstimate,status:'estimated',remaining:7},id: 'cash-102', accountRef: 'A102', accountMasked: 'si…le@example.invalid', usesRemaining: 1 });
