@@ -5,7 +5,7 @@
  .used-record-head,.used-evidence,#view-more .more-card,.compact-setting-row,
  .account-sheet-top,.account-offer-toggle,.account-cash-entry > summary,
  .account-management > summary,.account-sheet-link,.offer-history > summary,
- #view-planner .recommendation-choice,#view-planner .plan-row,
+ #view-planner .recommendation-choice,
  .sd-scan,.sd-refresh-heading,.sd-row,.fi-method,.fi-transaction,
  .ri-receipt-row,.ri-receipt-heading,.ri-applied-offer,.ri-breakdown,
  .savings-ranking button,.savings-unattributed,.icon-content-row) {
@@ -38,3 +38,6 @@
 .icon-content-copy { display:flex; flex-direction:column; gap:6px; min-width:0; flex:1; }
 .savings-support .icon-content-copy h2 { min-height:20px; }
 .savings-support .icon-content-row > svg { width:18px; height:20px; flex:0 0 18px; color:var(--color-icon); }
+
+/* Keep the existing schedule badge at the top; its own glyph stays centred. */
+.sd-scan > .sd-daily { align-self:flex-start; }
