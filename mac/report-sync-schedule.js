@@ -5,7 +5,7 @@ if(process.platform==='darwin')try{
  const file=path.join(os.homedir(),'Library/LaunchAgents/com.nadzz07.uber-promo-tracker.plist');
  if(fs.existsSync(file)){
   const parsed=spawnSync('plutil',['-convert','json','-o','-',file],{encoding:'utf8'});if(parsed.status!==0)throw Error();const config=JSON.parse(parsed.stdout);
-  const root=path.dirname(import.meta.dirname);if(config.WorkingDirectory!==root||!config.ProgramArguments?.some(p=>p===path.join(root,'hourly-sync.local.sh')))throw Error();
+  const root=path.dirname(import.meta.dirname);if(config.WorkingDirectory!==root||!config.ProgramArguments?.some(p=>[path.join(root,'hourly-sync.local.sh'),path.join(root,'mac/update-promos.sh')].includes(p)))throw Error();
   const domain='gui/'+process.getuid(),job=spawnSync('launchctl',['print',domain+'/'+config.Label],{encoding:'utf8'}),disabled=spawnSync('launchctl',['print-disabled',domain],{encoding:'utf8'});
   const explicitDisabled=disabled.status===0&&disabled.stdout.includes('"'+config.Label+'" => true');
   report.state=explicitDisabled?'disabled':job.status===0?'enabled':'unknown';

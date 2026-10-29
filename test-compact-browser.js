@@ -25,8 +25,8 @@ const name=process.env.TRACKER_BROWSER_ENGINE||'chromium',browser=await{chromium
   await page.locator('[data-receipts-back]').click();
   await page.locator('[data-view=more]').click();await page.locator('#view-more [data-open-sheet="finance"]').click();await page.locator('.fi-review').waitFor();assert.equal(await page.locator('[data-finance-action=lock]').count(),0);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.locator('[data-receipts-back]').click();
   await page.keyboard.press('Escape');await page.locator('[data-view=more]').click();await page.locator('#view-more [data-open-sheet="device"]').click();
-  assert.equal(await page.locator('.settings-explainer strong').first().evaluate(e=>getComputedStyle(e).visibility),'visible','Reduced-motion sheet text must appear immediately, without nested visibility transitions');
-  assert.equal(await page.locator('.settings-explainer strong').first().evaluate(e=>getComputedStyle(e).transitionProperty),'none');
+  assert.equal(await page.locator('.device-import').first().evaluate(e=>getComputedStyle(e).visibility),'visible','Reduced-motion sheet text must appear immediately, without nested visibility transitions');
+  assert.equal(await page.locator('.device-import').first().evaluate(e=>getComputedStyle(e).transitionProperty),'none');
   assert.deepEqual(errors,[]);await page.close();
  }
  assert.equal(uploads,0);console.log('✓ Expanded comparison, long private emails, account terms, large savings and fresh vault at six widths ('+name+')');

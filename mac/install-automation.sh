@@ -7,6 +7,7 @@ source mac/common.sh
 require_runtime
 PLIST="$HOME/Library/LaunchAgents/com.nadzz07.uber-promo-tracker.plist"
 LOG_DIR="$HOME/Library/Logs/UberPromoTracker"
+if [[ -f "$PLIST" ]]; then exec bash mac/set-sync-schedule.sh --daily; fi
 
 mkdir -p "$HOME/Library/LaunchAgents" "$LOG_DIR"
 
@@ -44,7 +45,7 @@ cat > "$PLIST" <<EOF
   </dict>
 
   <key>StartInterval</key>
-  <integer>3600</integer>
+  <integer>86400</integer>
 
   <key>RunAtLoad</key>
   <true/>
@@ -69,6 +70,6 @@ chmod 600 "$LOG_DIR/output.log" "$LOG_DIR/error.log"
 launchctl bootout "gui/$(id -u)" "$PLIST" 2>/dev/null || true
 launchctl bootstrap "gui/$(id -u)" "$PLIST"
 
-echo "Hourly Uber Eats Promo Tracker automation installed."
+echo "Daily Uber Eats Promo Tracker automation installed."
 echo "Logs: $LOG_DIR"
 echo "PATH used by launchd: $AUTOMATION_PATH"

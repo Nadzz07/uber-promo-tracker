@@ -541,3 +541,13 @@ missing/error states and restore preflight/confirmation remain concise. The Sync
 page uses the reference's header, card labels, captions and privacy note. Private
 receipt transfers and legacy recovery remain reachable through its information
 button; normal restore/import uses the single backup review flow.
+
+## Latest Sync & data — 29 October 2026
+
+Replaces the prior latest-run/automatic-sync layout with Email updates, a separate
+Refresh tracker data card, encrypted Backups and compact About updates rows. Run
+history and reported schedule time remain behind Information. The existing Mac
+agent is reconfigured in place to a daily 86400-second interval; its command,
+source processing, overlap locks and publishing gates are preserved. The installer
+reuses that same agent, and a dated read-only report establishes its loaded
+schedule. Unknown, stale or non-daily reports cannot claim Daily is enabled.
