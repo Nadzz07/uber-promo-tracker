@@ -551,3 +551,20 @@ agent is reconfigured in place to a daily 86400-second interval; its command,
 source processing, overlap locks and publishing gates are preserved. The installer
 reuses that same agent, and a dated read-only report establishes its loaded
 schedule. Unknown, stale or non-daily reports cannot claim Daily is enabled.
+
+## Combined Home — 29 October 2026
+
+The actual Home route now uses one horizontal promo-savings card, four equal
+Overview links, grouped Quick tools and the shared Used Needs checking count.
+The header shows only Updated and the actual dataset publication time; Mail scan
+time is separately labelled in its accessible details and remains in Sync & data.
+It makes no freshness claim and offers no Mac sync trigger.
+
+Home promo savings use Receipt insights' shared receipt projection with the
+Savings page's current period/service. Unknown and partial coverage are retained;
+Cash and unrelated lifetime/estimated totals are excluded. Financial updates now
+refresh visible Home totals, including corrections received from another tab.
+Overview counts use the same deduplicated directory filters as their destinations;
+normal navigation and Find an offer retain their existing state behavior.
+Obsolete Home-only markup/styles and amount replay code are removed. Shared
+hue surfaces, navigation, safe-area spacing and reduced motion are preserved.

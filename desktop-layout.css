@@ -32,30 +32,6 @@ html[data-layout="desktop"] .nav-btn svg { width: 18px; height: 18px; margin: 0;
 html[data-layout="desktop"] .nav-glider { border-radius: 999px; }
 html[data-layout="desktop"] main { grid-column: 1 / -1; grid-row: 3; min-width: 0; }
 html[data-layout="desktop"] .local-notice { grid-column: 1 / -1; grid-row: 2; margin: var(--space-4) 0 0; }
-html[data-layout="desktop"] .home-overview {
-  display: block; margin: var(--space-8) 0 var(--space-6); padding: 0; min-height: 0;
-  overflow: visible; border: 0; border-radius: 0; background: none;
-  box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none;
-}
-html[data-layout="desktop"] .home-overview::after { display: none; }
-html[data-layout="desktop"] .home-intro { display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); margin: 0; }
-html[data-layout="desktop"] .home-intro .eyebrow { display: none; }
-html[data-layout="desktop"] .home-title { margin: 0; font-size: 30px; line-height: 1.2; letter-spacing: -.04em; }
-html[data-layout="desktop"] .home-intro-copy { max-width: 670px; margin-top: var(--space-2); font-size: 13px; line-height: 1.6; text-align: left; }
-html[data-layout="desktop"] .home-sync { flex: 0 1 350px; margin: 0; padding: var(--space-3) var(--space-3); font-size:12px; }
-html[data-layout="desktop"] .home-overview .stats-row {
-  max-width: none; display: grid; grid-template-columns: repeat(3,minmax(0,1fr));
-  grid-template-rows: auto; gap: var(--space-4); margin: var(--space-5) 0 0;
-}
-html[data-layout="desktop"] .home-overview .stat-card {
-  display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
-  grid-row: auto; grid-column: auto; min-height: 152px; padding: var(--space-6);
-  border-radius: var(--card-radius);
-}
-html[data-layout="desktop"] .home-overview .stat-label { font-size: 12px; font-weight: 600; }
-html[data-layout="desktop"] .home-overview .stat-value { margin-top: var(--space-3); font-size: clamp(30px, 3vw, 40px); line-height: 1.15; }
-html[data-layout="desktop"] .home-overview .stat-sub { margin-top: var(--space-2); font-size:12px; }
-html[data-layout="desktop"] .home-workspace { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(0,.95fr); gap: var(--space-6); align-items: start; }
 html[data-layout="desktop"] .planner-column { min-width: 0; position: static; }
 html[data-layout="desktop"] .discovery-column { min-width: 0; }
 html[data-layout="desktop"] .hero-card { padding: var(--space-6); border-radius: var(--card-radius); }
@@ -103,7 +79,6 @@ html[data-layout="desktop"] .sheet { width: min(100%,620px); border-bottom: 1px 
 @media (max-width: 1100px) {
   html[data-layout="desktop"] .app-shell { grid-template-columns: minmax(0,1fr) 380px; gap: 0 var(--space-6); padding: var(--space-6); }
   html[data-layout="desktop"] .brand-title { font-size: 26px; }
-  html[data-layout="desktop"] .home-overview .stat-card { padding: var(--space-5); }
   html[data-layout="desktop"] .account-list { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
 /* Native fallback fonts can be wider than the Mac system font. Preserve the
@@ -114,9 +89,6 @@ html[data-layout="desktop"] .sheet { width: min(100%,620px); border-bottom: 1px 
 @media (max-width: 900px) {
   html[data-layout="desktop"] .app-shell { display: block; padding: var(--space-6); }
   html[data-layout="desktop"] .bottom-nav { width: min(100%,480px); margin: var(--space-5) 0; }
-  html[data-layout="desktop"] .home-workspace { grid-template-columns: 1fr; }
-  html[data-layout="desktop"] .home-intro { display: block; }
-  html[data-layout="desktop"] .home-sync { margin-top: var(--space-3); }
   html[data-layout="desktop"] .more-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
 @media (max-width: 600px) {
@@ -124,10 +96,6 @@ html[data-layout="desktop"] .sheet { width: min(100%,620px); border-bottom: 1px 
   html[data-layout="desktop"] .brand-title { font-size: 24px; }
   html[data-layout="desktop"] .nav-btn { flex-direction: column; gap: var(--space-1); min-height: 56px; padding: var(--space-1) var(--space-1); font-size:12px; }
   html[data-layout="desktop"] .nav-btn svg { width: 20px; height: 20px; }
-  html[data-layout="desktop"] .home-overview { margin-top: var(--space-6); }
-  html[data-layout="desktop"] .home-overview .stats-row { grid-template-columns: 1fr; gap: var(--space-2); }
-  html[data-layout="desktop"] .home-overview .stat-card { min-height: 116px; }
-  html[data-layout="desktop"] .home-overview .stat-value { font-size: 32px; }
   html[data-layout="desktop"] .hero-card { padding: var(--space-4); }
   html[data-layout="desktop"] .hero-title { font-size: 22px; }
   html[data-layout="desktop"] .account-list { grid-template-columns: 1fr; }

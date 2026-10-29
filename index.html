@@ -242,10 +242,6 @@
       font-weight:600;
     }
 
-    .home-overview .stat-label.accounts-available-label {
-      white-space: nowrap;
-    }
-
     .stat-value {
       margin-top: var(--space-2);
       overflow: hidden;
@@ -1232,23 +1228,6 @@
       letter-spacing: -.04em;
     }
 
-    /* Round 3: stronger app hierarchy and clearer touch controls */
-    .home-intro {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-3);
-      margin: var(--space-3) 2px var(--space-2);
-    }
-
-    .home-intro-copy {
-      max-width: 245px;
-      color: var(--muted);
-      font-size:12px;
-      line-height: 1.4;
-      text-align: right;
-    }
-
     .brand-kicker {
       color: var(--green-strong);
     }
@@ -1796,7 +1775,7 @@
     .topbar { padding: var(--space-3) 0 var(--space-5); gap: var(--space-4); }
     .brand-kicker, .eyebrow { font-size:12px; font-weight:600; letter-spacing: .12em; }
     .brand-title { font-weight:600; letter-spacing: -.045em; }
-    .home-intro-copy, .screen-copy { font-size: 13px; line-height: 1.6; }
+    .screen-copy { font-size: 13px; line-height: 1.6; }
     .glass, .stat-card, .account-card, .quick-card, .more-card {
       background: var(--color-panel);
       border: 1px solid var(--color-accent);
@@ -1860,29 +1839,6 @@
     :where(html[data-layout="mobile"]) .hero-title { font-size: 22px; }
 
     :where(html[data-layout="mobile"]) .stat-sub { font-size:12px; }
-
-
-
-    /* Premium dashboard hierarchy: compact status, stronger home title, calm basket editing. */
-    .home-title {
-      margin: var(--space-1) 0 0;
-      font-size: clamp(34px, 4vw, 52px);
-      line-height: .96;
-      font-weight:600;
-      letter-spacing: -.055em;
-    }
-    .home-intro-main { min-width: 0; }
-    .home-sync {
-      flex: 0 1 430px;
-      margin: 0;
-      padding: var(--space-2) var(--space-3);
-      border-color: var(--color-soft-accent);
-      border-radius: var(--card-radius);
-      background: var(--color-panel);
-      box-shadow: none;
-      font-size:12px;
-    }
-    .home-sync strong { white-space: nowrap; }
     .local-notice { margin: var(--space-2) 0 var(--space-3); }
     .basket-editor:focus-within {
       border-color: var(--color-outline);
@@ -1895,91 +1851,6 @@
       box-shadow: none !important;
       background: transparent !important;
     }
-
-
-    :where(html[data-layout="mobile"]) .home-intro { align-items: flex-start; }
-
-    :where(html[data-layout="mobile"]) .home-sync { max-width: 360px; }
-
-
-
-    :where(html[data-layout="mobile"]) .home-intro { display: block; margin-top: var(--space-4); }
-
-    :where(html[data-layout="mobile"]) .home-title { font-size: 36px; }
-
-    :where(html[data-layout="mobile"]) .home-intro-copy { max-width: none; margin-top: var(--space-2); text-align: left; font-size: 12px; }
-
-    :where(html[data-layout="mobile"]) .home-sync { margin-top: var(--space-3); max-width: none; }
-
-    :where(html[data-layout="mobile"]) .home-overview { padding-left: var(--space-4); padding-right: var(--space-4); }
-
-    :where(html[data-layout="mobile"]) .home-overview .stats-row {
-        grid-template-columns: 1fr;
-        gap: var(--space-2);
-      }
-
-    :where(html[data-layout="mobile"]) .home-overview .stat-card {
-        min-height: 72px;
-        padding: var(--space-3) var(--space-3);
-      }
-
-    :where(html[data-layout="mobile"]) .home-overview .stat-label {
-        font-size:12px;
-        letter-spacing: 0;
-      }
-
-
-
-
-    /* Phone overview; the independent desktop layout lives in desktop-layout.css. */
-    .home-overview {
-      position: relative;
-      overflow: hidden;
-      margin: var(--space-4) 0 var(--space-6);
-      padding: var(--space-5);
-      border-radius: var(--card-radius);
-      background: var(--color-selected);
-    }
-    .home-overview::after {
-      content: "";
-      position: absolute;
-      width: 260px;
-      height: 260px;
-      right: -130px;
-      top: -150px;
-      border-radius: 50%;
-      background: var(--color-accent);
-      filter: none;
-      pointer-events: none;
-    }
-    .home-overview .home-intro { margin: 0; }
-    .home-overview .stats-row { position: relative; z-index: 1; margin: var(--space-5) 0 0; }
-    .home-overview .stat-card {
-      background: var(--color-screen);
-      border-color: var(--color-outline);
-    }
-    .home-overview .stat-card:first-child {
-      background: var(--color-selected);
-    }
-    .home-overview .available-stat-card {
-      border-color: var(--tint-color-accent-22-0-transparent);
-      background: var(--color-selected);
-      box-shadow: none;
-    }
-    .home-overview .available-stat-card .stat-value {
-      color: var(--green-strong);
-      text-shadow: none;
-    }
-    .home-overview .available-stat-card.watch {
-      border-color: var(--color-soft-accent);
-      background: var(--color-panel);
-    }
-    .home-overview .available-stat-card.watch .stat-value { color: var(--color-soft-accent); }
-    .home-overview .available-stat-card.empty-state {
-      border-color: var(--color-soft-accent);
-      background: var(--color-panel);
-    }
-    .home-overview .available-stat-card.empty-state .stat-value { color: var(--color-soft-accent); }
     .insight-value.estimated-value {
       color: var(--muted);
     }
@@ -1995,9 +1866,6 @@
 
 
     @media (max-width: 370px) {
-      .home-overview { padding: var(--space-2); }
-      .home-overview .stats-row { gap: var(--space-1); }
-      .home-overview .stat-card { padding: var(--space-3) var(--space-3); }
     }
 
     /* Product lockup: compact brand hierarchy without competing with the page title. */
@@ -2288,6 +2156,7 @@
   <link rel="stylesheet" href="./receipt-insights.css">
   <link rel="stylesheet" href="./planner-design.css">
   <link rel="stylesheet" href="sync-data.css">
+  <link rel="stylesheet" href="home-design.css">
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -2296,13 +2165,7 @@
         <div class="brand-kicker">Uber Eats</div>
         <div class="brand-title">Promo Tracker</div>
       </div>
-      <div class="scan-wrap">
-        <button id="scanPill" class="scan-pill" type="button" data-open-sheet="health" aria-label="View sync status">
-          <span class="scan-dot"></span>
-          <span id="scanLabel">OPENING</span>
-        </button>
-        <div id="scanTime" class="scan-time">Loading…</div>
-      </div>
+      <div class="scan-wrap"><button id="scanPill" class="home-update" type="button" data-open-sheet="health" aria-label="View update details"><span id="scanLabel">Loading</span><time id="scanTime" class="scan-time">—</time></button></div>
     </header>
 
     <div id="localNotice" class="sync-strip local-notice" role="status" hidden></div>
@@ -2327,57 +2190,24 @@
     </nav>
 
     <main>
-      <section id="view-home" class="view active">
-        <section class="home-overview glass">
-          <button class="total-saved-card" data-open-sheet="savings"><span class="app-icon-surface" data-icon="savings"></span>
-            <span><span class="stat-label">Total saved</span><strong id="savedStat">£0</strong><span id="homeReceiptCount">0 receipts</span><span id="savedStatSub" class="stat-sub" hidden>confirmed receipts</span></span>
-            <span class="saved-support"><span id="homeUberOne" hidden>Uber One estimate unavailable</span><span class="saved-link">View savings ›</span></span>
-          </button>
-          <div class="home-intro">
-            <div class="home-intro-main">
-              <h1 class="home-title">Overview</h1>
-
-            </div>
-            <div id="syncStrip" class="sync-strip home-sync" role="status">
-              <strong>Waiting for first update</strong>
-              <span>Accounts appear after the first successful sync.</span>
-            </div>
-          </div>
-
+      <section id="view-home" class="view active" aria-label="Home">
+        <section class="home-overview">
+          <button class="total-saved-card" data-open-sheet="savings"><span class="home-savings-icon" data-icon="promo-tag" aria-hidden="true"></span><span class="home-saved-copy"><span class="stat-label">Total saved</span><strong id="savedStat">—</strong><span id="homeReceiptCount">From promo discounts</span></span><span class="saved-link">View savings <span aria-hidden="true">›</span></span></button>
+          <div class="home-intro"><h1 class="home-title">Overview</h1><button class="home-view-accounts" data-home-list="total">View accounts <span aria-hidden="true">›</span></button></div>
+          <div id="syncStrip" class="sync-strip home-sync" role="status" hidden></div>
           <div class="stats-row">
-            <div class="stat-card">
-              <span class="overview-icon" data-icon="user"></span><div class="stat-label">Total accounts</div>
-              <button class="metric-help" data-metric-help="accounts" data-metric-label="Total Accounts" aria-label="Explain Total Accounts">i</button>
-              <div id="usableStat" class="stat-value">0</div>
-              <div class="stat-sub">All tracked accounts.</div>
-            </div>
-            <div id="availableStatCard" class="stat-card available-stat-card" title="Accounts with an eligible offer now. Expired offers and accounts outside active rotation are excluded. Account receipt usage is independent.">
-              <span class="overview-icon" data-icon="star"></span><div class="stat-label accounts-available-label">Accounts available</div>
-              <button class="metric-help" data-metric-help="accounts" data-metric-label="Available Offers" aria-label="Explain Available Offers">i</button>
-              <div id="activeStat" class="stat-value available">0</div>
-              <div id="availableStatSub" class="stat-sub">Current eligible promotions.</div>
-            </div>
-            <div class="stat-card">
-              <span class="overview-icon" data-icon="key"></span><div class="stat-label">Can log in</div>
-              <button class="metric-help" data-metric-help="accounts" data-metric-label="Accessible" aria-label="Explain Accessible">i</button>
-              <div id="loginStat" class="stat-value">0</div>
-              <div class="stat-sub">Can still log in.</div>
-            </div>
-            <div class="stat-card">
-              <span class="overview-icon" data-icon="receipt"></span><div class="stat-label">Archived</div>
-              <button class="metric-help" data-metric-help="accounts" data-metric-label="Archived" aria-label="Explain Archived">i</button>
-              <div id="archivedStat" class="stat-value">0</div>
-              <div class="stat-sub">Not in active rotation.</div>
-            </div>
+            <button class="stat-card" data-home-list="total"><span class="overview-icon" data-icon="users" aria-hidden="true"></span><span class="home-stat-copy"><span class="stat-label">Total accounts</span><strong id="usableStat" class="stat-value">—</strong></span></button>
+            <button id="availableStatCard" class="stat-card available-stat-card" data-home-list="ready"><span class="overview-icon" data-icon="star" aria-hidden="true"></span><span class="home-stat-copy"><span class="stat-label accounts-available-label">Accounts available</span><strong id="activeStat" class="stat-value available">—</strong><span id="availableStatSub" class="stat-sub">Ready to use</span></span></button>
+            <button class="stat-card" data-home-list="login"><span class="overview-icon" data-icon="user-check" aria-hidden="true"></span><span class="home-stat-copy"><span class="stat-label">Can log in</span><strong id="loginStat" class="stat-value">—</strong></span></button>
+            <button class="stat-card" data-home-list="archived"><span class="overview-icon" data-icon="archive" aria-hidden="true"></span><span class="home-stat-copy"><span class="stat-label">Archived</span><strong id="archivedStat" class="stat-value">—</strong></span></button>
           </div>
         </section>
-
-        <section class="home-quick-actions" aria-labelledby="quickActionsTitle">
-          <h2 id="quickActionsTitle">Quick actions</h2>
-          <button class="home-action-row" data-home-detail="offers"><span data-icon="star"></span><span><strong>Find an offer</strong><small id="homeReadyCount">Loading offers…</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
-          <button class="home-action-row" data-home-detail="planner"><span data-icon="bag"></span><span><strong>Order Planner</strong><small id="homePlannerSummary">Loading planner…</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
-          <section id="homeAnalytics" class="home-analytics" aria-label="Receipt activity and savings"></section>
-        </section>
+        <section class="home-quick-actions" aria-labelledby="quickActionsTitle"><h2 id="quickActionsTitle">Quick tools</h2><div class="home-tools-card">
+          <button class="home-action-row" data-home-detail="offers"><span data-icon="search" aria-hidden="true"></span><span><strong>Find an offer</strong><small id="homeReadyCount">Search offers in Accounts</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
+          <button class="home-action-row" data-home-detail="planner"><span data-icon="calculator" aria-hidden="true"></span><span><strong>Order Planner</strong><small id="homePlannerSummary">Work out what you’ll pay</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
+          <div id="homeAnalytics"><button class="home-action-row" data-open-sheet="receipts"><span data-icon="chart" aria-hidden="true"></span><span><strong>Receipt insights</strong><small>Spending and activity</small></span><span class="row-chevron" aria-hidden="true">›</span></button></div>
+        </div></section>
+        <button class="home-needs-checking" data-home-review="true"><span data-icon="alert" aria-hidden="true"></span><span><strong>Needs checking</strong><small>Review accounts</small></span><strong id="homeNeedsChecking">—</strong><span class="row-chevron" aria-hidden="true">›</span></button>
       </section>
 <section id="view-planner" class="view home-detail" aria-labelledby="plannerTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span></button><h1 id="plannerTitle" tabindex="-1">Order Planner</h1><button class="detail-switch" data-home-detail="offers">Find an offer <span aria-hidden="true">›</span></button></div>        <div class="planner-column">
         <section class="hero-card glass">
@@ -2475,7 +2305,7 @@
 
   <script type="module">
     import { financeIcon } from "./finance-layout.js";
-    import {receiptDetailMarkup,receiptInsightRecord,receiptInsightsModel,createReceiptInsights} from "./receipt-insights.js";
+    import {receiptDetailMarkup,receiptInsightRecord,receiptInsightsModel,createReceiptInsights,RECEIPT_RANGES} from "./receipt-insights.js";
     import { PALETTE } from './theme-palette.js';
     import {dedupeReceipts} from "./receipt-identity.js";
     import { financialSummary, receiptFinancials, receiptReviewState } from "./receipt-financials.js";
@@ -2493,7 +2323,7 @@
     import {accountHistoryGroups,preferredAccountOffers,offerReceiptAvailability,offerUsageEvidence,offerUsageSlots,directoryAccounts,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
     import { setupDraggableNavigation } from "./nav-gestures.js";
     import { DEVICE_ACCOUNTS_KEY, parseDeviceAccounts, deviceEmail } from "./device-accounts.js";
-    import { classifyAccount, accountStatusLabel, accountUsageDescription, accountUnfinished, accountProgressDescription, offerInProgress, accountArchived, matchesAccountFilter, eligibleAccountCounts, matchesOfferScope, offerReadinessRank, offerReadinessLabel, accountOfferKey, accountOfferChoices, accountMatchesOfferType, accountMatchesLogin, accountMatchesProvider } from "./account-state.js";
+    import { classifyAccount, accountStatusLabel, accountUsageDescription, accountUnfinished, accountProgressDescription, offerInProgress, accountArchived, matchesAccountFilter, matchesOfferScope, offerReadinessRank, offerReadinessLabel, accountOfferKey, accountOfferChoices, accountMatchesOfferType, accountMatchesLogin, accountMatchesProvider } from "./account-state.js";
     import { offerCountdown } from "./dashboard-data.js";
     import { classifyOfferTrackingState } from "./offer-state.js";
     import { isOfferExpired, expiryEndTime, applyOfferExpiryPolicy } from "./offer-time.js";
@@ -3048,87 +2878,33 @@
       replayMotion(document.getElementById(id), "motion-refresh");
     }
 
-    function setAnimatedText(id, value) {
-      const element = document.getElementById(id);
-      if (!element) return;
-      const next = String(value);
-      const changed = element.textContent !== next;
-      if (changed) { element.textContent = next; replayMotion(element, "motion-value"); }
-    }
-
+    function publishedTime(value){const date=new Date(value||'');return Number.isFinite(date.getTime())?date.toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/London'}):'Time unavailable';}
     function renderStatus() {
-      const pill = document.getElementById("scanPill");
-      const label = document.getElementById("scanLabel");
-      const time = document.getElementById("scanTime");
-      const syncStrip = document.getElementById("syncStrip");
-      const waitingForFirstSync =
-        payload.configured === false ||
-        (!payload.generatedAt && accounts.length === 0 && promos.length === 0);
-
-      pill.classList.remove("live", "setup", "stale", "syncing");
-      if (loadError) {
-        label.textContent = "Attention";
-        pill.classList.add('stale');
-        time.textContent = "Unable to refresh data";
-        syncStrip.innerHTML = '<strong>Update unavailable</strong><span>The last loaded snapshot stays on this device.</span><button class="ghost-btn" data-retry-load="true">Try again</button>';
-        syncStrip.style.display = "flex";
-        return;
-      }
-
-      if (waitingForFirstSync) {
-        pill.classList.add("setup");
-        syncStrip.innerHTML = "<strong>Waiting for first update</strong><span>Accounts appear after the first successful sync.</span>";
-        label.textContent = "READY";
-        time.textContent = "Waiting for first update";
-        syncStrip.style.display = "flex";
-        return;
-      }
-
-      syncStrip.style.display = "none";
-
-      const state = syncState(payload.sync);
-      const generated = new Date(payload.sync?.lastSuccessfulMailScanAt || payload.generatedAt || '');
-      pill.classList.add(state.className);
-      label.textContent = state.label;
-      pill.title = state.className === 'stale' ? 'Update due. Open Sync & data for the last scan and reported schedule.' : 'Last successful Mail import shown below. This is an imported snapshot, with expiry checked as time passes.';
-      pill.setAttribute('aria-label', state.label + '. ' + pill.title);
-      time.textContent =
-        generated && !Number.isNaN(generated.getTime())
-          ? generated.toLocaleString("en-GB", {
-              day: "numeric",
-              month: "short",
-              timeZone: "Europe/London",
-              hour: "2-digit",
-              minute: "2-digit"
-            })
-          : "Waiting for sync";
+      const pill=document.getElementById('scanPill'),label=document.getElementById('scanLabel'),time=document.getElementById('scanTime'),strip=document.getElementById('syncStrip');
+      const waiting=payload.configured===false||(!payload.generatedAt&&!accounts.length&&!promos.length);
+      const published=publishedTime(payload.generatedAt),mail=publishedTime(payload.sync?.lastSuccessfulMailScanAt);
+      label.textContent=waiting?'No update':loadError?'Saved update':'Updated';
+      pill.classList.remove('live','setup','stale','syncing');pill.classList.add(waiting?'setup':loadError?'stale':'live');
+      time.textContent=waiting?'No published update':published;time.setAttribute('data-published-at',payload.generatedAt||'');if(payload.generatedAt)time.dateTime=payload.generatedAt;else time.removeAttribute('datetime');
+      pill.title='Published update: '+published+'. Last successful Mail scan: '+mail+'.';pill.setAttribute('aria-label',label.textContent+'. '+pill.title+' Open Sync & data.');
+      strip.hidden=!loadError;strip.style.display=loadError?'flex':'none';if(loadError)strip.innerHTML='<span>Couldn’t refresh data.</span><button class="ghost-btn" data-retry-load="true">Try again</button>';
     }
 
+    function homeDirectoryFilters(kind){return {search:'',login:kind==='login'?'login':'all',provider:'all',type:'all',management:kind==='archived'?'archived':'tracked',availability:kind==='ready'?'ready':'any',sort:accountSort};}
+    function homeDirectoryRows(kind){return directoryAccounts(enrichedAccounts(),homeDirectoryFilters(kind),offerPreferences);}
+    function homeSavingsSelection(){
+      if(receiptInsightsView)return {range:receiptInsightsView.state.range,service:receiptInsightsView.state.service};
+      let saved={};try{saved=JSON.parse(sessionStorage.getItem('uber-tracker-receipt-view:v1')||'{}');}catch{}
+      return {range:RECEIPT_RANGES.some(([k])=>k===saved.range)?saved.range:'month',service:['eats','rides','all'].includes(saved.service)?saved.service:'eats'};
+    }
     function renderStats() {
-      const summary = payload.summary || {};
-      const totalAccounts = accounts.length;
-      const eligibility = eligibleAccountCounts(enrichedAccounts());
-      const availableAccounts = eligibility.available;
-
-      setAnimatedText("savedStat", money(summary.totalSaved ?? 0));
-      document.getElementById("savedStatSub").textContent = (Number(summary.financialBreakdown?.manual||0)>0?summary.financialBreakdown.manual+" manual correction"+(summary.financialBreakdown.manual===1?"":"s"):"confirmed receipts") + (Number(summary.estimatedUberOneSavings || 0) > 0 ? " · +" + money(summary.estimatedUberOneSavings) + " estimated" : "");
-      setAnimatedText("usableStat", totalAccounts.toLocaleString("en-GB"));
-      setAnimatedText("activeStat", availableAccounts.toLocaleString("en-GB"));
-      setAnimatedText('loginStat', accounts.filter(a=>a.canLogin).length.toLocaleString('en-GB'));
-      setAnimatedText('archivedStat', accounts.map(currentAccountState).filter(accountArchived).length.toLocaleString('en-GB'));
-      document.getElementById('homeReceiptCount').textContent = Number(Number(summary.trackedOrders||0)+Number(summary.trackedRides||0)).toLocaleString('en-GB') + ' receipts';
-      document.getElementById('homeUberOne').textContent = Number(summary.estimatedUberOneSavings||0)>0 ? '+ ' + money(summary.estimatedUberOneSavings) + ' estimated Uber One' : Number(summary.uberOneConfirmedSavings||0)>0 ? money(summary.uberOneConfirmedSavings) + ' explicit Uber One' : 'Uber One estimate unavailable';
-      renderHomeAnalytics();
-
-      const availableCard = document.getElementById("availableStatCard");
-      const availableSub = document.getElementById("availableStatSub");
-      const lowAvailability = totalAccounts > 0 && availableAccounts > 0 && (availableAccounts / totalAccounts) <= 0.1;
-      availableCard?.classList.toggle("watch", lowAvailability);
-      availableCard?.classList.toggle("empty-state", availableAccounts === 0);
-      if (availableSub) {
-        availableSub.textContent = eligibility.ready + " ready · " + eligibility.attention + " to check";
-      }
-
+      const selection=homeSavingsSelection(),model=receiptInsightsModel({data:financeVault.data,corrections:financeVault.current().corrections,payload,...selection}),promo=model.amounts.promos;
+      const amount=document.getElementById('savedStat');amount.textContent=promo.value==null?'—':new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP'}).format(promo.value);amount.classList.toggle('unknown',promo.value==null);
+      const period=RECEIPT_RANGES.find(([key])=>key===selection.range)?.[1]||'',service={eats:'Eats',rides:'Rides',all:'All'}[selection.service];
+      document.getElementById('homeReceiptCount').textContent=(promo.value==null?'Amounts unavailable':promo.known<model.count?'Known promo discounts · '+promo.known+'/'+model.count+' receipts':'From promo discounts')+' · '+period+' · '+service;
+      document.getElementById('savedStat').setAttribute('aria-label',(promo.value==null?'Amount unavailable':money(promo.value))+' in promo discounts, '+period+', '+service);
+      for(const [id,kind]of [['usableStat','total'],['activeStat','ready'],['loginStat','login'],['archivedStat','archived']])document.getElementById(id).textContent=homeDirectoryRows(kind).length.toLocaleString('en-GB');
+      document.getElementById('homeNeedsChecking').textContent=usedActivityModel().summary.needs_checking.toLocaleString('en-GB');
       const fee = effectiveFee();
       document.getElementById("feeNote").textContent =
         hasFeeEstimate()
@@ -3170,7 +2946,6 @@
       return Object.fromEntries(Object.entries(privateWallets).filter(([ref,w]) => w.basketSubtotal === currentBasket() && w.checkoutFees != null && Date.parse(w.at) <= now && now-Date.parse(w.at) < 2*3600000 && !accounts.some(a => a.accountRef === ref && Date.parse(a.lastOrderAt) > Date.parse(w.at))).map(([ref,w]) => [ref,w.checkoutFees]));
     }
     function renderRecommendation() {
-      document.getElementById("homePlannerSummary").textContent = "Basket " + money(currentBasket()) + " · " + (plannerSettings.fulfilment === "pickup" ? "Pickup" : "Delivery");
       document.getElementById('plannerFulfilment').value = plannerSettings.fulfilment || 'delivery';
       const target = document.getElementById("recommendation");
       const scopeHost=document.querySelector('.planner-offer-scope'),scopeNote=document.getElementById('plannerScopeLabel'),matchesAction=document.querySelector('[data-planner-matches]');
@@ -3332,10 +3107,13 @@
     }
 
     let usedActivityCache=null;
-    function renderUsed() {
+    function usedActivityModel() {
       const rows=enrichedAccounts();
       if(!usedActivityCache||usedActivityCache.clock!==projectionClock||usedActivityCache.manual!==manualStore||usedActivityCache.data!==payload||usedActivityCache.privateData!==financeVault.data)usedActivityCache={clock:projectionClock,manual:manualStore,data:payload,privateData:financeVault.data,model:buildUsedActivity(rows,promos.map(receiptAwarePromo),manualStore,receiptReviewCount)};
-      const model=usedActivityCache.model;
+      return usedActivityCache.model;
+    }
+    function renderUsed() {
+      const model=usedActivityModel();
       for(const [id,value]of Object.entries({usedAccountCount:model.summary.used,needsCheckCount:model.summary.needs_checking,usedQuickCount:model.summary.used,usedReviewQuickCount:model.summary.needs_checking}))document.getElementById(id).textContent=value.toLocaleString('en-GB');
       const categories=[...ACTIVITY_STATUSES,{key:'expired',label:'Expired offers',entity:'promotions'}];
       const category=categories.find(s=>s.key===usedState.status)||categories[0];
@@ -3995,11 +3773,6 @@
 
     }
 
-    function renderHomeAnalytics() {
-      const target = document.getElementById('homeAnalytics');
-      if (!target.firstElementChild) target.innerHTML = '<button class="home-action-row" data-open-sheet="receipts">' + financeIcon('insights') + '<span><strong>Receipt insights</strong><small>Savings &amp; receipts</small></span><span class="row-chevron" aria-hidden="true">›</span></button>';
-    }
-
     function renderReceiptsPage() {
       receiptInsightsView ||= createReceiptInsights({host:document.getElementById('receiptInsightsBody'),detailHost:document.getElementById('sheetBody'),
         getSource:()=>({data:financeVault.data,storeStatus:financeVault.status,corrections:financeVault.current().corrections,payload,offers:[...promos,...history]}),
@@ -4031,7 +3804,7 @@
 
     function privateDataUpdated(){
       privateWallets=financeVault.current().wallets;invalidateAccountProjection();reconcileLocalEvidence();reviewData=reviewView=null;
-      renderAccounts();renderUsed();renderRecommendation();
+      renderAccounts();renderUsed();renderRecommendation();if(currentView==='home')renderStats();
       if(openSheetType==='account')renderAccountSheet();
       if(['receipts','savings','finance'].includes(currentView)||openSheetType==='receipt-detail')receiptInsightsView?.refresh();
     }
@@ -4257,7 +4030,6 @@
       if (['home','offers','planner'].includes(currentView)) {
         renderStats();
         renderRecommendation();
-        document.getElementById('homeReadyCount').textContent=eligibleAccountCounts(enrichedAccounts()).ready.toLocaleString('en-GB')+' ready to use';
       } else if (currentView === 'accounts') renderAccounts();
       else if (currentView === 'used') renderUsed();
       else if (currentView === 'sync') renderSyncPage();
@@ -4359,7 +4131,7 @@
       activeSection?.querySelector('[data-home-back]')?.setAttribute('aria-label',navParent==='more'?'Back to More':'Back to Home');
       updateNavGlider();
       queueDetailViewport();
-      if (activeSection) replayMotion(activeSection, 'motion-page');
+      if (activeSection&&view!=='home') replayMotion(activeSection, 'motion-page');
       window.scrollTo({ top: view==='more'?moreScrollPosition:view==='accounts'?accountsScrollPosition:view==='sync'?syncScrollPosition:0, behavior: "instant" });
       if(findOffer)openAccountsOffers();
       if(view==='accounts')requestAnimationFrame(()=>{if(currentView==='accounts'&&!findOffer)window.scrollTo({top:accountsScrollPosition,behavior:'instant'});});
@@ -4440,10 +4212,10 @@
       detailViewportFrame = requestAnimationFrame(() => {
         detailViewportFrame = 0;
         const root = document.documentElement;
-        const view = document.querySelector('#view-planner.active, #view-offers.active, #view-accounts.active, #view-used.active, #view-settings.active, #view-more.active, #view-preferred-promos.active, #view-preferred-catalogue.active, #view-receipts.active, #view-sync.active');
+        const view = document.querySelector('#view-planner.active, #view-offers.active, #view-accounts.active, #view-used.active, #view-settings.active, #view-more.active, #view-preferred-promos.active, #view-preferred-catalogue.active, #view-receipts.active, #view-sync.active, #view-home.active');
         const active = Boolean(view);
         const prefix = view?.id?.slice(5) || 'planner';
-        for(const name of ['planner','offers','accounts','used','settings','more','receipts','sync'])if(name!==prefix)root.style.removeProperty('--'+name+'-nav-clearance');
+        for(const name of ['planner','offers','accounts','used','settings','more','receipts','sync','home'])if(name!==prefix)root.style.removeProperty('--'+name+'-nav-clearance');
         const rootStyle = active ? getComputedStyle(root) : null;
         updateBrowserTheme();
         const nav = document.getElementById('mainNav');
@@ -4658,6 +4430,9 @@
       if (chosenPlan) { selectedPlannerKey = chosenPlan.dataset.selectPlan; renderRecommendation(); document.querySelector('#recommendation .recommendation-title').setAttribute('tabindex','-1'); document.querySelector('#recommendation .recommendation-title').focus(); return; }
       if (event.target.closest('[data-home-back]')) { returnHome(); return; }
       if(event.target.closest('[data-planner-matches]')) { openAccountsOffers(); return; }
+      const homeList=event.target.closest('[data-home-list]');
+      if(homeList){const f=homeDirectoryFilters(homeList.dataset.homeList);accountFilter=f.management;accountLoginFilter=f.login;accountProviderFilter=f.provider;accountTypeFilter=f.type;accountOfferScope=f.availability;document.getElementById('accountSearch').value='';accountDisplayLimit=48;switchView('accounts');routeEntries.get(currentRouteEntry).opener=homeList;window.scrollTo({top:0,behavior:'instant'});return;}
+      if(event.target.closest('[data-home-review]')){usedState={...usedState,status:'needs_checking',query:'',full:false,limit:24};document.getElementById('usedSearch').value='';switchView('used');return;}
       const homeDetail = event.target.closest('[data-home-detail]');
       if(homeDetail?.dataset.homeDetail==='offers'){openAccountsOffers();return;}
       if (homeDetail) { switchView(homeDetail.dataset.homeDetail); routeEntries.get(currentRouteEntry).opener = homeDetail; document.getElementById(homeDetail.dataset.homeDetail + 'Title').focus({preventScroll:true}); return; }

@@ -19,7 +19,7 @@ const destinations=['planner','history','locked','savings','receipts','finance',
 try {for(const [width,height,large] of [[320,568,false],[440,956,false],[430,932,false],[1440,1000,false],[390,844,true]]){
  const context=await browser.newContext({viewport:{width,height},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await context.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:theme:v1','#4da3ff'));
- await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');await page.locator('[data-view="more"]').click();
+ await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Updated');await page.locator('[data-view="more"]').click();
  if(large)await page.addStyleTag({content:'#view-more .more-title,#view-more .eyebrow{font-size:24px!important}#view-more .more-count{font-size:20px!important}'});
  assert.deepEqual(await page.locator('#view-more .more-group h2').allTextContents(),groups.map(g=>g[0]));
  for(let i=0;i<groups.length;i++)assert.deepEqual(await page.locator('#view-more .more-group').nth(i).locator('.more-title').allTextContents(),groups[i][1]);
