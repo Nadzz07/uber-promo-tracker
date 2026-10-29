@@ -30,7 +30,7 @@ const server=http.createServer((req,res)=>{
 const engine={chromium,webkit,firefox}[process.env.TRACKER_BROWSER_ENGINE||'chromium'],browser=await engine.launch();
 try {
  const page=await browser.newPage({viewport:{width:390,height:844},timezoneId:'Europe/London',reducedMotion:'reduce'});const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.clock.install({time});await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto('http://127.0.0.1:'+server.address().port);
+ await page.clock.install({time});await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all',preferredPromos:['percent:50:unknown','percent:25:unknown'],includeCash:false})));await page.goto('http://127.0.0.1:'+server.address().port);
  await page.waitForFunction(()=>window.__runtime?.model().length===1);
  assert.equal(await page.locator('#accountsList .account-card').count(),0,'Closed account screen is deferred');
  assert.equal(await page.locator('#usedRecords .used-record').count(),0);
