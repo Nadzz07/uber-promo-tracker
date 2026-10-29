@@ -1,6 +1,7 @@
 import {openHomeDetail,directoryStatus,directoryType,directoryReset,directoryAvailability,usedStatus,openOfferManagement} from './test-browser-navigation.js';
 // Synthetic data is intercepted in the test browser only, never written to public JSON.
 import assert from 'node:assert/strict';
+import {receiptAmountSummary} from './dashboard-data.js';
 import fs from 'node:fs';
 import http from 'node:http';
 import { chromium, webkit, firefox } from 'playwright';
@@ -26,7 +27,7 @@ try {
   // First-sync behaviour must not depend on the user's checked-in live data.
   await page.route('**/promos.json?*', route => route.fulfill({ json: { schemaVersion: 3, configured: false, generatedAt: null, accounts: [], promos: [], summary: {} } }));
   await page.route('**/history.json?*', route => route.fulfill({ json: { updatedAt: null, records: [] } }));
-  await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto(url); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'READY');
+  await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto(url); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'No update');
   assert.equal(await page.locator('#usableStat').innerText(), '0');
   assert.equal(await page.locator('.account-card').count(), 0);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
@@ -45,15 +46,15 @@ try {
   await page.route('**/promos.json?*', route => failPromos ? route.abort() : route.fulfill({ json: payload }));
   await page.route('**/history.json?*', route => failHistory ? route.abort() : route.fulfill({ json: { updatedAt: time, records: [] } }));
   await page.evaluate(() => localStorage.setItem('uber-eats-promo-tracker:planner-settings:v1', JSON.stringify({ maxOrders: 3, extraOrderFee: null, feeTouched: false })));
-  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
+  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   assert.equal(await page.locator('#basketInput').inputValue(), '15.00', 'Default basket subtotal should be £15');
   await openHomeDetail(page,'planner');const recommendation = await page.locator('#recommendation').innerText();
   assert.match(recommendation, /Promo discounts\s*−£10\.00/); // At £15, one £10-off offer is the optimal single-order result.
   assert.equal(await page.locator('#usableStat').innerText(), '7');
-  assert.equal(await page.locator('#activeStat').innerText(), '4', 'Available Offers includes a current offer on an inaccessible account');
-  assert.match(await page.locator('#homeReadyCount').innerText(),/3 ready to use/);
-  assert.equal(await page.locator('#savedStat').innerText(), '£10');
-  assert.match(await page.locator('#savedStatSub').innerText(), /£5 estimated/);
+  assert.equal(await page.locator('#activeStat').innerText(), '2', 'Preferred ready accounts exclude inaccessible and nonpreferred accounts');
+  assert.equal(await page.locator('#homeReadyCount').innerText(),'Search offers in Accounts');
+  assert.equal(await page.locator('#savedStat').innerText(), '£0.00');
+  assert.equal(await page.locator('#savedStatSub').count(),0,'No Uber One estimate is mixed into Home promo savings');
   await page.locator('[data-view="accounts"]').click();
   await directoryType(page,'all');await directoryStatus(page,'used');
   assert.equal(await page.locator('#accountsList .account-card').count(), 1);
@@ -83,7 +84,7 @@ try {
   await page.keyboard.press('Escape');
   assert.equal(await page.locator('#app').evaluate(e => e.inert), false);
   offer.receiptConfirmedUses = 2; offer.usesRemaining = 3;
-  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
+  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('[data-account-offers="A001"]:visible').first().click();
   assert.match(await page.locator('#sheetBody').innerText(), /Up to 3 left/);
   await page.keyboard.press('Escape');
@@ -96,7 +97,7 @@ try {
   assert.doesNotMatch(await page.locator('#sheetBody').innerText(), /96 left|of 96/);
   await page.keyboard.press('Escape');
   failHistory = true;
-  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
+  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   await openHomeDetail(page,'planner');await page.waitForFunction(()=>document.getElementById('recommendation').textContent.includes('Promo discounts'));
   assert.match(await page.locator('#recommendation').innerText(), /Promo discounts\s*−£10\.00/);
   failPromos = true;
@@ -104,7 +105,7 @@ try {
   await page.locator('[data-view=home]').click();assert.equal(await page.locator('[data-retry-load]').isVisible(), true);
   failPromos = false;
   await page.locator('[data-retry-load]').click();
-  await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
+  await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   for (const width of [320, 360, 375, 390, 414, 430, 600, 768, 980, 1120, 1440, 1920]) {
     await page.setViewportSize({ width, height: 900 });
     await page.waitForFunction(expected => document.documentElement.dataset.layout === expected, width < 980 ? 'mobile' : 'desktop');
@@ -142,7 +143,7 @@ try {
       fits: el.scrollWidth <= el.clientWidth
     }));
 
-    assert.equal(availableLabelFits.fits, true, `Accounts available should fit its card at ${width}px (scroll ${availableLabelFits.scrollWidth}px / client ${availableLabelFits.clientWidth}px)`);
+    assert.equal(availableLabelFits.fits, true, `Preferred offers should fit its card at ${width}px (scroll ${availableLabelFits.scrollWidth}px / client ${availableLabelFits.clientWidth}px)`);
     if (width <= 600) {
       const cardWidths = await page.locator('.home-overview .stat-card').evaluateAll(cards => cards.map(card => card.getBoundingClientRect().width));
       assert.ok(Math.max(...cardWidths) - Math.min(...cardWidths) < 1, `Home stat cards should remain equal width at ${width}px`);
@@ -179,8 +180,9 @@ try {
 
   // A real-sized savings total must fit its desktop card, not hide behind ellipsis.
   payload.summary.totalSaved = 3382.60;
+  payload.receiptActivity={amountVersion:1,months:[{period:time.slice(0,7),eats:1,rides:0,saved:3382.60,amounts:{eats:receiptAmountSummary([{receiptId:'large-saving',service:'Uber Eats',promotionDiscount:3382.60,total:0,uberCashUsed:0}]),rides:receiptAmountSummary([])}}],days:[]};
   await page.reload();
-  await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
+  await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   assert.equal(await page.locator('#savedStat').innerText(), '£3,382.60');
   for (const width of [390, 980, 1280, 1440]) {
     await page.setViewportSize({ width, height: 900 });
@@ -201,7 +203,7 @@ try {
   await page.waitForFunction(() => document.getElementById('recommendation').textContent.includes('£1,000'));
   // The requested £1 default is an estimate even without receipt fee samples.
   payload.summary.feeModel = { sampleSize: 0, averageExtraOrderFees: 0 };
-  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
+  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   await openHomeDetail(page,'planner');await page.locator('#basketInput').fill('30');
   await page.waitForFunction(() => document.querySelector('.plan-cost-line strong')?.textContent === '£30.00');
   assert.match(await page.locator('#recommendation').innerText(), /Use 2 accounts/);assert.match(await page.locator('#feeNote').innerText(), /£1 estimated per order/);
@@ -226,7 +228,7 @@ try {
   assert.ok((await page.locator('#app').boundingBox()).width <= 480);
   const phoneDock = await page.locator('#mainNav').evaluate(el => ({ width: el.offsetWidth, position: getComputedStyle(el).position }));
   assert.equal(phoneDock.position, 'fixed'); assert.ok(phoneDock.width <= 452);
-  await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
+  await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   assert.equal(await page.locator('html').getAttribute('data-layout'), 'mobile', 'Layout override must survive reload');
   await page.locator('[data-view="more"]').click();
   assert.equal(await page.locator('#view-more .screen-title').innerText(), 'More');
@@ -267,7 +269,7 @@ try {
   const wheelColour = await page.locator('#themeColour').inputValue();
   await page.keyboard.press('Escape');
   offers.find(p => p.accountRef === 'A005').discount = 9; // Make the imported account the clear best recommendation.
-  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
+  await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   assert.equal(await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:theme:v1')), wheelColour);
 
   await page.locator('[data-view="more"]').click(); await page.locator('[data-open-sheet="device"]').click();
@@ -288,7 +290,7 @@ try {
   if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('#accountsList [data-account-offers="A001"]').click();
   await page.locator('[data-copy-email="A001"]').click();
   assert.equal(await page.evaluate(() => window.testCopiedEmail), privateEmail);
-  await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');
+  await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   await openHomeDetail(page,'planner');assert.match(await page.locator('#recommendation').innerText(), /alot\.extralong\+login\.alpha/);
   assert.equal(requests.some(r => r.url.includes(privateEmail) || r.method !== 'GET'), false);
   await page.locator('[data-view="more"]').click(); await page.locator('[data-open-sheet="device"]').click();
@@ -333,7 +335,7 @@ try {
   const filterPayload = { schemaVersion: 3, generatedAt: time, accounts: filterAccounts, promos: filterOffers, summary: { totalSaved: 40 }, receiptActivity:{months:[{period:'2026-06',eats:1,rides:0,saved:1},{period:'2026-07',eats:0,rides:1,saved:39},{period:'2026-10',eats:1,rides:0,saved:0}],days:[{period:'2026-10-09',eats:1,rides:0,saved:0}]} };
   await filterPage.route('**/promos.json?*', route => route.fulfill({ json: filterPayload }));
   await filterPage.route('**/history.json?*', route => route.fulfill({ json: { updatedAt: time, records: [] } }));
-  await filterPage.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await filterPage.goto(url); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');await openHomeDetail(filterPage,'offers');
+  await filterPage.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await filterPage.goto(url); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
 
   await directoryStatus(filterPage,'unfinished');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'8 accounts','All-access status keeps the inaccessible started account');await directoryAvailability(filterPage,'ready');
   assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts');
@@ -351,7 +353,7 @@ try {
   assert.equal(await filterPage.locator('#accountsList .account-card').count(), 2);
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A101"]').count(), 1, 'Same-account cash and discount are required; expired, consumed, review and archived offers must not qualify');
 
-  assert.equal(await filterPage.locator('#savedStat').innerText(), '£40');
+  assert.equal(await filterPage.locator('#savedStat').innerText(), '—','Home does not substitute an unrelated lifetime summary for selected-period promo receipts');
   assert.match(await filterPage.locator('#recommendation').innerText(), /Promo discounts\s*−£0\.00/, 'Finder changes preserve the cash-only Planner scope; Cash cannot become a promo discount');assert.equal(await filterPage.locator('#plannerOfferScope').inputValue(),'cash');
   await filterPage.locator('[data-view="accounts"]').click();
   await directoryType(filterPage,'cash-promo');
@@ -360,23 +362,23 @@ try {
   // A single remaining order is still available, but is no longer a repeat-order option.
   repeatOffer.usesRemaining = 1; repeatOffer.receiptConfirmedUses = 4;
   for (const promo of filterOffers.filter(p => p.accountRef === 'A101' && p.discountType === 'uberCash')) {promo.usesRemaining=0;promo.cashEstimate={...promo.cashEstimate,status:'exhausted',remaining:0};}
-  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');await openHomeDetail(filterPage,'offers');
+  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
   await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts','One remaining use does not finish an account');
   await directoryReset(filterPage);await directoryType(filterPage,'cash-promo');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'1 account');await filterPage.locator('[data-view=home]').click();
-  assert.equal(await filterPage.locator('#activeStat').innerText(), '9', 'One use left preserves eligibility, including an inaccessible account');
-  assert.match(await filterPage.locator('#homeReadyCount').innerText(),/8 ready to use/);
+  const preferredReady=Number(await filterPage.locator('#activeStat').innerText());await filterPage.locator('.stats-row [data-home-list=ready]').click();assert.equal(await filterPage.locator('#accountTypeValue').innerText(),'Preferred offers');assert.equal(Number((await filterPage.locator('#accountsMeta').innerText()).replace(/[^0-9]/g,'')),preferredReady);await filterPage.goBack();await filterPage.locator('#view-home.active').waitFor();
+  assert.equal(await filterPage.locator('#homeReadyCount').innerText(),'Search offers in Accounts');
   filterOffers.splice(filterOffers.findIndex(p => p.id === 'another-single-102'), 1);
   filterOffers.push({ ...cashOffer, cashEstimate:{...cashOffer.cashEstimate,status:'estimated',remaining:7},id: 'cash-102', accountRef: 'A102', accountMasked: 'si…le@example.invalid', usesRemaining: 1 });
-  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');await openHomeDetail(filterPage,'offers');
+  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
   await directoryReset(filterPage);await directoryType(filterPage,'cash-promo');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'2 accounts','Percentage discounts also match with active cash');
   await openHomeDetail(filterPage,'offers');await directoryReset(filterPage);await directoryType(filterPage,'cash-promo');await directoryAvailability(filterPage,'ready');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A102"]').count(), 1);
   filterAccounts.find(a => a.accountRef === 'A109').orderCount = 5;
-  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');await openHomeDetail(filterPage,'offers');
+  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
   await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts','Receipt completion cannot hide a remaining offer');
   filterOffers.find(p => p.accountRef === 'A109').usesRemaining = 0;
   filterOffers.find(p => p.accountRef === 'A109').receiptConfirmedUses = 5;
-  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Snapshot');await openHomeDetail(filterPage,'offers');
+  await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
   await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'6 accounts','Completed receipt usage leaves the unfinished group');
   await openHomeDetail(filterPage,'offers');await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A109"]').count(), 0);
@@ -398,7 +400,7 @@ try {
   const clockNow=Date.now();
   repeatOffer.expiresAt=new Date(clockNow+2*86400000).toISOString();repeatOffer.expiryStatus='exact';
   await filterPage.clock.install({time:clockNow});
-  await filterPage.reload();await filterPage.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Snapshot');
+  await filterPage.reload();await filterPage.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Updated');
   await filterPage.locator('[data-view="accounts"]').click();await directoryStatus(filterPage,'expiring');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A101"]').count(),1);
   const activeBefore=Number(await filterPage.locator('#activeStat').innerText());

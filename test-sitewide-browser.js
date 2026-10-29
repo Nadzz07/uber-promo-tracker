@@ -23,7 +23,7 @@ const name=process.env.TRACKER_BROWSER_ENGINE||'chromium',browser=await{chromium
 try{
  for(const width of [320,390,440,1440]){
   const page=await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'}),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
+  await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Updated');
   const saved=await page.locator('#savedStat').innerText();
   await openHomeDetail(page,'planner');await page.locator('[data-open-sheet="advanced"]:visible').click();
   assert.equal(await page.locator('#sheetFeeInput').inputValue(),'1.00','Default extra-order estimate remains £1');
@@ -92,7 +92,7 @@ try{
    days:Array.from({length:5},(_,i)=>({period:'2026-10-0'+(9-i),eats:i===0?1:0,rides:1,saved:i*3,dateFallbacks:i===4?1:0}))}};
   const populatedPage=await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'});
   await populatedPage.route('**/promos.json*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(populated)}));
-  await populatedPage.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await populatedPage.goto('http://127.0.0.1:'+server.address().port);await populatedPage.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
+  await populatedPage.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await populatedPage.goto('http://127.0.0.1:'+server.address().port);await populatedPage.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Updated');
   await populatedPage.locator('[data-view="accounts"]').click();
   assert.equal(await populatedPage.locator('#accountsTotal').innerText(),'8');assert.equal(await populatedPage.locator('#accountsAccessible').innerText(),'8');
   await populatedPage.locator('.accounts-stat [data-metric-label="Total accounts"]').click();

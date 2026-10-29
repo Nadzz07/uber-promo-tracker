@@ -16,8 +16,8 @@ try{
  offers.unshift({...offers[0],id:'weaker-first',discount:10,uses:2,usesRemaining:2,title:'£10 off on 2 orders',expiresAt:new Date(now+2*86400000).toISOString()});
  const page=await browser.newPage({viewport:{width:390,height:844},timezoneId:'America/Los_Angeles'});const errors=[];page.on('pageerror',error=>errors.push(error.message));
  await page.route('**/promos.json?*',r=>r.fulfill({json:{accounts,promos:offers,generatedAt:time,sync:{lastSuccessfulMailScanAt:time},summary:{totalSaved:12}}}));await page.route('**/history.json?*',r=>r.fulfill({json:{updatedAt:time,records:offers}}));
- await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Up to date');
- assert.deepEqual(await page.locator('.home-overview .stats-row .stat-label').allTextContents(),['Total accounts','Accounts available','Can log in','Archived']);
+ await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Updated');
+ assert.deepEqual(await page.locator('.home-overview .stats-row .stat-label').allTextContents(),['Total accounts','Preferred offers','Can log in','Archived']);
  for(const [id,count] of [['usableStat',8],['activeStat',2],['loginStat',5],['archivedStat',2]])assert.equal(await page.locator('#'+id).innerText(),String(count));
  await openHomeDetail(page,'offers');const firstCard=page.locator('#accountsList [data-card-account="A901"]');
  assert.equal(await firstCard.locator('.directory-offer-row strong').innerText(),'£12 off £15');assert.match(await firstCard.locator('.directory-offer-row').innerText(),/£15 minimum/);

@@ -49,11 +49,11 @@ assert.ok(html.includes("Total accounts"));
 assert.ok(html.includes("Matching receipts"));
 assert.ok(html.includes("Account receipt rule met"));
 assert.ok(html.includes("Manage offer"));
-assert.ok(html.includes("Accounts available"));
+assert.ok(html.includes("Preferred offers"));
 assert.ok(html.includes('id="availableStatCard"'), "Accounts available should be a dedicated visual KPI");
-assert.ok(html.includes("Accounts with an eligible offer now."), "Available Offers explains account eligibility");
-assert.ok(html.includes("Current eligible promotions."));
-assert.ok(html.includes('availableAccounts / totalAccounts) <= 0.1'), "Low-account warning should be proportional to the tracked account pool");
+assert.ok(html.includes('data-home-list="ready"'), "Available accounts open their exact ready scope");
+assert.ok(html.includes("Accounts ready"));
+assert.ok(html.includes("usedActivityModel().summary.needs_checking"), "Home review count uses the destination model");
 assert.ok(fs.readFileSync("receipt-insights.js","utf8").includes("Saved with promos"), "Savings projects recorded promos separately from spending");
 assert.equal(html.includes('Estimated missing Uber One</div><div class="insight-value" style="color:var(--green)"'), false, "Estimated savings must not use confirmed green styling");
 assert.ok(html.includes("createReceiptInsights"),"Receipt Insights reads imported records through the shared ledger projection");
@@ -155,7 +155,7 @@ assert.ok(
   "sync-and-data sheet must explain the private-to-app data path"
 );
 
-assert.ok(html.includes("Waiting for first update"));
+assert.ok(html.includes("No published update"));
 assert.ok(html.includes("Sync & data"));
 
 assert.ok(

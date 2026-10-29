@@ -551,3 +551,35 @@ agent is reconfigured in place to a daily 86400-second interval; its command,
 source processing, overlap locks and publishing gates are preserved. The installer
 reuses that same agent, and a dated read-only report establishes its loaded
 schedule. Unknown, stale or non-daily reports cannot claim Daily is enabled.
+
+## Combined Home — 29 October 2026
+
+The actual Home route now uses one horizontal promo-savings card, four equal
+Overview links, grouped Quick tools and the shared Used Needs checking count.
+The header shows only Updated and the actual dataset publication time; Mail scan
+time is separately labelled in its accessible details and remains in Sync & data.
+It makes no freshness claim and offers no Mac sync trigger.
+
+Home promo savings use Receipt insights' shared receipt projection with the
+Savings page's current period/service. Unknown and partial coverage are retained;
+Cash and unrelated lifetime/estimated totals are excluded. Financial updates now
+refresh visible Home totals, including corrections received from another tab.
+Overview counts use the same deduplicated directory filters as their destinations;
+normal navigation and Find an offer retain their existing state behavior.
+Obsolete Home-only markup/styles and amount replay code are removed. Shared
+hue surfaces, navigation, safe-area spacing and reduced motion are preserved.
+
+The Sync page uses the same existing hue-derived navy page/card materials as
+Home, with a corrected shared pale-accent badge token. Obsolete prior Sync
+status-card styles are removed; current Email updates, Refresh, Backups and
+About updates remain the only main layout. The existing help transition now
+replaces its sheet route without racing a history-back event or losing focus.
+
+Home’s green Overview metric is now Preferred offers / Accounts ready. It uses
+the directory’s actual preferred + ready scope, derived from saved preferred
+types and existing Cash inclusion settings, with one account per stable ID.
+Accessible/archived state, remaining uses, expiry, ignore/manual finish and
+hidden competitors retain their existing eligibility rules. Empty/custom saved
+preferences, cross-tab edits, exhaustion, archive changes and uncertain offers
+are verified without changing the independent Can log in count. Shared detail
+header rules remain intact during the Home-only style cleanup.
