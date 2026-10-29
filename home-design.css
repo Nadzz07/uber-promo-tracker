@@ -68,3 +68,4 @@ body:has(#view-home.active) .home-update .scan-time { font-size:12px; margin-top
 body:has(#view-home.active) .home-update.stale { color:var(--color-warning-text); }
 html[data-layout=desktop] .app-shell:has(#view-home.active) { max-width:1400px; }
 html[data-layout=desktop] #view-home { max-width:none; }
+.app-shell:has(#view-home.active) { padding-left:max(18px,env(safe-area-inset-left,0px)); padding-right:max(18px,env(safe-area-inset-right,0px)); }
