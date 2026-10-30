@@ -53,3 +53,17 @@ const restoredCredit=receipt('cash-return','2026-10-04',0,{total:7,uberCashUsed:
 console.log('✓ Shared receipt review: partial/full/manual distinction, originals, split refund validation, source revisions, projections and stored Cash-return evidence.');
 
 assert.equal(receiptReviewState({...needsReview,refundAmount:1.5,financialEvidence:{refundMethod:'Visa'}},partialReview).needsChecking,true,'Explicit Unknown overrides any prior destination');
+
+// Missing optional coverage does not turn every compact receipt into an action.
+const compactUnallocated={receiptId:'compact-unallocated',accountRef:'A1',service:'Uber Eats',total:4};
+const compactState=receiptReviewState(compactUnallocated);
+assert.equal(compactState.needsChecking,false);
+assert.deepEqual(compactState.missingDetails,['Final payment not recorded','Uber Cash payment not recorded','Promo amount not recorded']);
+assert.equal(receiptPaymentAmountForTest(compactUnallocated),null,'Unknown allocation remains unknown');
+assert.equal(receiptReviewState({...compactUnallocated,total:0}).needsChecking,false,'A zero charge is not a missing-payment review');
+assert.equal(receiptPaymentAmountForTest({...compactUnallocated,total:0}),0);
+assert.equal(receiptReviewState({...compactUnallocated,total:null}).needsChecking,true,'A missing main charge remains actionable');
+assert.equal(receiptReviewState({...compactUnallocated,total:1,uberCashUsed:2}).needsChecking,true,'Contradictory recorded payments remain actionable');
+assert.equal(receiptReviewState({...compactUnallocated,promotionDiscount:12,reportedSavings:5}).needsChecking,true,'Conflicting recorded savings remain actionable');
+assert.equal(receiptReviewState({...compactUnallocated,total:2.5,previousTotal:4}).needsChecking,true,'An unresolved changed charge is still reviewable');
+console.log('✓ Receipt coverage is separate from actionable review; unknowns stay null, zero stays zero, refunds/adjustments/conflicts still require review');

@@ -14,7 +14,7 @@ export function receiptUsageEvidence(account){
 }
 function uncertainty(promo,activity){
  if(activity.verificationConflict)return activity.verificationConflict;
- const labels={ambiguous_receipt_match:'Receipt could match more than one promotion',unverified_use_count:'Order allowance needs verification',unconfirmed_discount_scope:'Order or product scope needs checking',missing_offer_source:'Original offer evidence needs verification',missing_discount_terms:'Discount terms need checking',unknown_expiry:'Expiry is unknown',cash_balance_or_expiry_uncertain:'Cash remaining or expiry needs checking'};
+ const labels={ambiguous_receipt_match:'Receipt could match more than one promotion',unverified_use_count:'Order allowance needs verification',unconfirmed_discount_scope:'Order or product scope needs checking',missing_offer_source:'Original offer evidence needs verification',conflicting_offer_terms:'Offer terms conflict',missing_discount_terms:'Discount terms need checking',unknown_expiry:'Expiry is unknown',cash_balance_or_expiry_uncertain:'Cash remaining or expiry needs checking'};
  return (promo.reviewReasons||[]).map(r=>labels[r]).filter(Boolean).join(' · ')||'Offer evidence needs checking';
 }
 export function buildUsedActivity(accounts=[],promos=[],store={},reviewCount=()=>0){
@@ -25,7 +25,7 @@ export function buildUsedActivity(accounts=[],promos=[],store={},reviewCount=()=
  for(const account of accounts){
   if(accountUsage(account).accountUsed)buckets.used.push({key:'used:'+account.accountRef,account,entity:'account',evidence:receiptUsageEvidence(account),receiptRuleMet:true,at:latest([account.lastOrderAt,account.lastRideAt])});
   if(Number(account.sourceReviewCount)>0)addReview(account,account.sourceReviewCount+' receipt sources need original verification',null);
-  const financial=reviewCount(account);if(financial>0)addReview(account,financial+' refunded or adjusted '+(financial===1?'receipt needs':'receipts need')+' final amounts checked',latest([account.lastOrderAt,account.lastRideAt]));
+  const financial=reviewCount(account);if(financial>0)addReview(account,financial+' '+(financial===1?'receipt needs':'receipts need')+' checking',latest([account.lastOrderAt,account.lastRideAt]));
  }
  for(const promo of promos){
   const account=byRef.get(promo.accountRef);if(!account)continue;
