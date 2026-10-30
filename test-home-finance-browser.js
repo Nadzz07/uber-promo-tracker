@@ -48,7 +48,7 @@ try{for(const [width,height,largeText] of [[440,956,false],[390,844,false],[430,
  assert.equal(await page.locator('#view-home #basketInput').count(),0);
  assert.equal(await page.locator('#view-home #quickGrid').count(),0);
  assert.deepEqual(await page.locator('#view-home .stat-label').allTextContents(),['Total saved','Total accounts','Accounts ready','Can log in','Archived']);
- assert.equal(await page.locator('.home-overview .home-title').innerText(),'Overview');
+ assert.equal(await page.locator('.home-overview .home-title').innerText(),'Accounts Overview');
  assert.equal(await page.locator('#availableStatCard .stat-sub').count(),0);
  assert.equal(await page.locator('#homeReadyCount').innerText(),'Search offers in Accounts');
  if(width===440&&!largeText){
