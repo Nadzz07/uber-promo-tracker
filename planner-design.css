@@ -24,13 +24,13 @@ body:has(#view-planner.active)::before { background:var(--rich-screen); }
 #view-planner .recommendation-copy { color:var(--rich-secondary); font-size:13px; }
 #view-planner .recommendation-save { margin:0; width:auto; flex:0 0 auto; max-width:100%; text-align:right; color:var(--color-text); font-size:30px; font-weight:700; line-height:1.2; }
 #view-planner .recommendation-save small { max-width:none; white-space:nowrap; font-size:11px; line-height:1.5; color:var(--rich-secondary); font-weight:400; margin-top:3px; }
-#view-planner .plan-costs { border-color:var(--rich-selected-divider); gap:9px; margin-top:16px; padding-top:14px; }
+#view-planner .plan-costs { border-color:var(--rich-selected-divider); gap:5px; margin-top:14px; padding-top:12px; }
 #view-planner .plan-cost-line { display:flex; gap:10px; color:var(--rich-secondary); font-size:14px; font-weight:400; }
 #view-planner .plan-cost-line > svg { display:none; }
 #view-planner .plan-cost-line > span { flex:1; }
 #view-planner .plan-cost-line strong { margin-left:auto; text-align:right; color:var(--color-text); font-weight:500; }
 #view-planner .plan-cost-line.discount strong { color:var(--rich-positive); }
-#view-planner .plan-accounts { border-color:var(--rich-selected-divider); margin-top:15px; padding-top:12px; }
+#view-planner .plan-accounts { border-color:var(--rich-selected-divider); margin-top:12px; padding-top:10px; }
 #view-planner .plan-accounts h4 { color:var(--color-text); font-weight:600; font-size:15px; margin:0 0 8px; }
 #view-planner .plan-row { grid-template-columns:28px minmax(0,1fr) auto; align-items:center; gap:10px; padding:10px 0 13px; border-top:1px solid var(--rich-selected-divider); }
 #view-planner .plan-row + .plan-row { border-color:var(--rich-selected-divider); }
@@ -91,7 +91,7 @@ body:has(#view-planner.active) .nav-glider { background:var(--rich-selected-bott
 #view-planner .recommendation-card { padding:16px 16px; background:radial-gradient(ellipse at 100% 0%,var(--color-planner-spot),color-mix(in srgb,var(--color-accent) 10%,transparent) 32%,transparent 65%),var(--theme-panel); }
 #view-planner .recommendation-top { align-items:center; justify-content:space-between; flex-wrap:nowrap; }
 #view-planner .recommendation-estimate { min-width:0; color:var(--rich-secondary); font-size:15px; }
-#view-planner .recommendation-save { margin:5px 0 0; text-align:left; font-size:48px; }
+#view-planner .recommendation-save { margin:3px 0 0; text-align:left; font-size:48px; line-height:1.1; }
 #view-planner .recommendation-save small { white-space:normal; text-align:left; font-size:13px; }
 #view-planner .recommendation-choice { flex:0 0 auto; display:flex; align-items:center; gap:8px; }
 #view-planner .recommendation-choice>svg { width:24px; height:24px; }
@@ -100,7 +100,7 @@ body:has(#view-planner.active) .nav-glider { background:var(--rich-selected-bott
 #view-planner .recommendation-copy { font-size:14px; }
 #view-planner .plan-cost-line { font-size:15px; }
 #view-planner .plan-accounts h4 { font-size:16px; }
-#view-planner .plan-row { display:grid; grid-template-columns:28px minmax(0,1fr) 18px; gap:10px; width:100%; margin:8px 0 0; padding:12px; border:1px solid var(--rich-border); border-radius:12px; background:color-mix(in srgb,var(--theme-panel) 75%,transparent); color:var(--color-text); font:inherit; text-align:left; cursor:pointer; }
+#view-planner .plan-row { display:grid; grid-template-columns:28px minmax(0,1fr) 18px; gap:10px; width:100%; margin:8px 0 0; padding:10px 12px; border:1px solid var(--rich-border); border-radius:12px; background:color-mix(in srgb,var(--theme-panel) 75%,transparent); color:var(--color-text); font:inherit; text-align:left; cursor:pointer; }
 #view-planner .plan-provider { display:flex; align-items:center; justify-content:center; }
 #view-planner .plan-provider svg { width:28px; height:28px; }
 #view-planner .plan-row>.finance-icon:last-child { width:18px; height:18px; color:var(--color-secondary); }
@@ -146,3 +146,9 @@ html[data-layout=desktop] #view-planner .detail-view-head h1 { font-size:22px; }
 #view-planner .recommendation-title,#view-planner .recommendation-copy { font-size:13px; }
 #view-planner .recommendation-copy::before { content:'· '; }
 @media(max-width:370px) { #view-planner .detail-view-head h1 { font-size:20px; } }
+
+#view-planner .plan-cost-line { line-height:1.3; }
+#view-planner .plan-accounts h4 { line-height:1.25; }
+#view-planner .plan-account { line-height:1.25; }
+#view-planner .plan-promo,#view-planner .plan-subtotal { line-height:1.3; }
+#view-planner .recommendation-save small { line-height:1.4; }
