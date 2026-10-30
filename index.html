@@ -2233,12 +2233,12 @@
             </span>
             <span class="basket-value-wrap">
               <span class="basket-currency">£</span>
-              <input id="basketInput" class="basket-input" type="number" max="1000" min="0" step="0.01" value="15.00" inputmode="decimal" aria-label="Basket subtotal">
+              <input id="basketInput" class="basket-input" type="number" max="1000" min="0" step="0.01" value="15.00" inputmode="decimal" aria-label="Basket subtotal"><span class="planner-edit-hint" data-icon="edit" aria-hidden="true"></span>
             </span>
           </div>
 
           <div class="planner-mode"><div class="planner-mode-copy"><label for="plannerFulfilment"><span data-icon="delivery" aria-hidden="true"></span>Order type</label></div><span class="planner-select-wrap"><select id="plannerFulfilment"><option value="delivery">Delivery</option><option value="pickup">Collection</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></div>
-          <div class="planner-fee-row"><label for="plannerFeeInput"><span data-icon="settings" aria-hidden="true"></span>Fee per order</label><span class="basket-value-wrap"><span class="basket-currency">£</span><input id="plannerFeeInput" type="number" min="0" max="1000" step="0.01" inputmode="decimal" aria-label="Fee per order" value="1.00"></span></div>
+          <div class="planner-fee-row"><label for="plannerFeeInput"><span data-icon="settings" aria-hidden="true"></span>Fee per order</label><span class="basket-value-wrap"><span class="basket-currency">£</span><input id="plannerFeeInput" type="number" min="0" max="1000" step="0.01" inputmode="decimal" aria-label="Fee per order" value="1.00"><span class="planner-edit-hint" data-icon="edit" aria-hidden="true"></span></span></div>
         </section>
         <div class="planner-offer-scope"><label for="plannerOfferScope">Offer view</label><select id="plannerOfferScope"><option value="preferred">All preferred offers</option><option value="all">All offers</option></select></div><p id="plannerScopeLabel" class="planner-scope-label"></p><div id="plannerAccountContext" hidden></div><div class="planner-section-head"><h2>Suggested plan</h2><span id="plannerStatus" class="plan-status" hidden></span></div>
           <div id="plannerSecondaryControls" hidden></div><div id="recommendation" class="recommendation" aria-live="polite">
@@ -2952,6 +2952,7 @@
       document.getElementById('plannerFulfilment').value = plannerSettings.fulfilment || 'delivery';
       if(document.activeElement?.id!=='plannerFeeInput')document.getElementById('plannerFeeInput').value=effectiveFee().toFixed(2);
       const target = document.getElementById("recommendation");
+      const priorBadge=document.getElementById("plannerStatus");if(priorBadge&&target.contains(priorBadge))document.querySelector(".planner-section-head").append(priorBadge);
       const scopeHost=document.querySelector('.planner-offer-scope'),scopeNote=document.getElementById('plannerScopeLabel'),matchesAction=document.querySelector('[data-planner-matches]');
       const controls=document.getElementById('plannerSecondaryControls');
       for(const control of [scopeHost,scopeNote,matchesAction])if(control)controls.append(control);
@@ -2994,10 +2995,10 @@
       const line = (icon,label,value,cls='') => '<div class="plan-cost-line ' + cls + '">' + financeIcon(icon) + '<span>' + label + '</span><strong>' + value + '</strong></div>';
       const alternatives = comparison.plans.filter(p => p.key !== selected.key).sort((a,b) => a.estimatedPay-b.estimatedPay);
       status.innerHTML = financeIcon('bolt') + '<span>' + (selected.conditional ? 'Confirm Cash + promo compatibility' : lowest ? 'Lowest cost' : 'Your selected option') + '</span>';
-      status.hidden = false;
-      target.innerHTML = '<div class="recommendation-card"><div class="recommendation-top"><div class="recommendation-estimate"><span>Estimated total</span>'+
+      status.hidden = selected.conditional || !lowest;
+      target.innerHTML = '<div class="recommendation-card"><div class="plan-feature-head"><div class="plan-badge-slot"></div>'+financeIcon('bag')+'</div><div class="recommendation-top"><div class="recommendation-estimate"><span>Estimated total</span>'+
         '<div class="recommendation-save" aria-label="Estimated out of pocket">'+escapeHtml(plannerMoney(selected.estimatedPay))+'<small>Including estimated fees</small></div></div>'+
-        '<div class="recommendation-choice">'+financeIcon('users')+'<div><h3 class="recommendation-title">'+selected.orderCount+(selected.orderCount===1?' order':' orders')+'</h3>'+
+        '<div class="recommendation-choice"><div><h3 class="recommendation-title">'+selected.orderCount+(selected.orderCount===1?' order':' orders')+'</h3>'+
         '<div class="recommendation-copy">'+selected.accountCount+(selected.accountCount===1?' account':' accounts')+'</div></div></div></div>' +
         '<div class="plan-costs">' + line('bag','Basket subtotal',escapeHtml(plannerMoney(selected.subtotal))) +
         line('star','Promo discount','−' + escapeHtml(plannerMoney(selected.grossSaving)), 'discount') +
@@ -3012,6 +3013,7 @@
           '<button class="plan-select" data-select-plan="' + escapeHtml(plan.key) + '">View accounts for this plan <span aria-hidden="true">›</span></button></article>').join('') : '<p>No other eligible ordering strategy fits this basket.</p>') + '</div></details>' +
         (selected.conditional ? '<p class="plan-conditional-note">Estimated payment assumes Uber accepts Cash with this promo.</p>' : '') +
         (Object.keys(privateWallets).length ? '<button class="planner-matching-action" data-open-sheet="finance" data-finance-target="cash">Manage Cash in Accounts <span aria-hidden="true">›</span></button>' : '');
+      target.querySelector('.plan-badge-slot').append(status);
       const otherPlans=target.querySelector('.planner-alternatives');if(scopeHost)otherPlans.append(scopeHost);if(scopeNote)otherPlans.append(scopeNote);if(matchesAction)otherPlans.append(matchesAction);
       target.querySelector('#plannerOtherOptions').addEventListener('toggle', event => { otherOptionsOpen = event.target.open; });
     }

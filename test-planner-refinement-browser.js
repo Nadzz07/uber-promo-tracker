@@ -45,9 +45,9 @@ try {for(const [width,height,large] of [[320,568,false],[390,844,false],[393,852
  if(!large)await shot(page,width,'planner-default');
  await page.locator('#plannerOtherOptions > summary').click();assert.equal(await page.locator('.plan-alternative').count(),1);assert.equal(await page.locator('.plan-alternative-price > strong').innerText(),'£19.00');assert.match(await page.locator('.plan-alternative-price').innerText(),/\+£11.00 vs suggested/);
  if(!large)await shot(page,width,'planner-options');
- await page.locator('[data-select-plan]').click();assert.equal(await page.locator('.plan-status').innerText(),'Your selected option');assert.equal(await page.locator('.plan-accounts .plan-row').count(),1);
+ await page.locator('[data-select-plan]').click();assert.equal(await page.locator('.plan-status').isVisible(),false);assert.equal(await page.locator('.plan-accounts .plan-row').count(),1);
  await page.locator('#view-planner [data-home-detail="offers"]').click();assert.equal(await page.locator('#accountSearch').inputValue(),'second');assert.equal(await page.locator('#accountOfferScope').inputValue(),'all');
- await page.locator('[data-view=home]').click();await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.locator('.plan-status').innerText(),'Your selected option');assert.equal(await page.locator('#plannerOtherOptions').getAttribute('open'),'');await page.locator('[data-select-plan]').click();assert.equal(await page.locator('.plan-status').innerText(),'Lowest cost');
+ await page.locator('[data-view=home]').click();await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.locator('.plan-status').isVisible(),false);assert.equal(await page.locator('#plannerOtherOptions').getAttribute('open'),'');await page.locator('[data-select-plan]').click();assert.equal(await page.locator('.plan-status').innerText(),'Lowest cost');
 
  const layout=await page.evaluate(()=>{
   const rect=s=>{const r=document.querySelector(s).getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom};};
@@ -55,7 +55,7 @@ try {for(const [width,height,large] of [[320,568,false],[390,844,false],[393,852
   return{viewport:innerWidth,dpr:devicePixelRatio,header:rect('#view-planner .detail-view-head'),title:rect('#plannerTitle'),badge:rect('#plannerStatus'),section:rect('.planner-section-head h2'),card:rect('.recommendation-card'),caption:rect('.recommendation-save small'),captionLine:parseFloat(style.lineHeight),amount:rect('.basket-value-wrap'),type:rect('.planner-select-wrap')};
  });
  assert.ok(!await page.locator('#view-planner .detail-intro').count(),'No repeated page subtitle');
- if(!large&&width>=390){assert.ok(layout.header.height>=44&&layout.header.height<=60);assert.equal(layout.badge.y<layout.card.y,true);if(width===440)assert.ok(Math.abs(layout.section.y-layout.badge.y)<10,'Heading and badge share the target iPhone row');else assert.ok(Math.abs(layout.section.y-layout.badge.y)<10||layout.badge.y>=layout.section.bottom,'Badge either fits beside the heading or wraps below without overlap');assert.ok(layout.caption.height<=layout.captionLine+1,'Price caption is one line at '+width);}
+ if(!large&&width>=390){assert.ok(layout.header.height>=44&&layout.header.height<=60);assert.ok(layout.badge.y>=layout.card.y&&layout.badge.y>=layout.section.bottom,'Badge sits inside the Suggested plan card');assert.ok(layout.caption.height<=layout.captionLine+1,'Price caption is one line at '+width);}
  assert.ok(Math.abs(layout.amount.width-layout.type.width)<1);assert.ok(Math.abs(layout.amount.right-layout.type.right)<1);assert.ok(Math.abs(layout.amount.height-layout.type.height)<1,'Both fields have the same height');
  await page.locator('#basketInput').focus();
  assert.equal(await page.locator('.basket-editor').evaluate(e=>getComputedStyle(e).boxShadow),'none');
