@@ -2230,16 +2230,15 @@
           <div class="basket-editor">
             <span class="basket-editor-copy">
               <label for="basketInput"><span data-icon="bag" aria-hidden="true"></span>Basket subtotal</label>
-              <small id="basketHelp">Enter your order amount</small>
             </span>
             <span class="basket-value-wrap">
               <span class="basket-currency">£</span>
-              <input id="basketInput" class="basket-input" type="number" max="1000" min="0" step="0.01" value="15.00" inputmode="decimal" aria-label="Basket subtotal" aria-describedby="basketHelp">
-              <button id="editBasket" class="basket-edit-icon" type="button" aria-label="Edit basket subtotal"><span data-icon="edit" aria-hidden="true"></span></button>
+              <input id="basketInput" class="basket-input" type="number" max="1000" min="0" step="0.01" value="15.00" inputmode="decimal" aria-label="Basket subtotal">
             </span>
           </div>
 
-          <div class="planner-mode"><div class="planner-mode-copy"><label for="plannerFulfilment"><span data-icon="delivery" aria-hidden="true"></span>Order type</label><small>Choose how you’ll order</small></div><span class="planner-select-wrap"><select id="plannerFulfilment"><option value="delivery">Delivery</option><option value="pickup">Pickup</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></div>
+          <div class="planner-mode"><div class="planner-mode-copy"><label for="plannerFulfilment"><span data-icon="delivery" aria-hidden="true"></span>Order type</label></div><span class="planner-select-wrap"><select id="plannerFulfilment"><option value="delivery">Delivery</option><option value="pickup">Collection</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></div>
+          <div class="planner-fee-row"><label for="plannerFeeInput"><span data-icon="settings" aria-hidden="true"></span>Fee per order</label><span class="basket-value-wrap"><span class="basket-currency">£</span><input id="plannerFeeInput" type="number" min="0" max="1000" step="0.01" inputmode="decimal" aria-label="Fee per order" value="1.00"></span></div>
         </section>
         <div class="planner-offer-scope"><label for="plannerOfferScope">Offer view</label><select id="plannerOfferScope"><option value="preferred">All preferred offers</option><option value="all">All offers</option></select></div><p id="plannerScopeLabel" class="planner-scope-label"></p><div id="plannerAccountContext" hidden></div><div class="planner-section-head"><h2>Suggested plan</h2><span id="plannerStatus" class="plan-status" hidden></span></div>
           <div id="plannerSecondaryControls" hidden></div><div id="recommendation" class="recommendation" aria-live="polite">
@@ -2248,10 +2247,6 @@
 
           <p class="planner-final-fees"><span data-icon="info" aria-hidden="true"></span>Final fees are confirmed in Uber.</p>
           <button class="planner-matching-action" data-planner-matches="true">Find more matching accounts <span aria-hidden="true">›</span></button>
-          <div class="hero-footer">
-            <button class="advanced-btn" data-open-sheet="advanced"><span data-icon="settings" aria-hidden="true"></span><span><strong>Fee settings</strong><small id="feeNote"></small></span><span aria-hidden="true">›</span></button>
-
-          </div>
 
         </div>
 </section>
@@ -2423,6 +2418,8 @@
     let selectedAccountRef = null;
     let manualStore = readManualStore();
     let plannerSettings = readPlannerSettings();
+    document.getElementById("basketInput").value=plannerSettings.basketSubtotal.toFixed(2);
+    document.getElementById("plannerFeeInput").value=effectiveFee().toFixed(2);
     let openSheetType = null;
     let financeView = null;
     let cashBalanceView = null;
@@ -2550,6 +2547,7 @@
       try {
         const stored = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
         return {
+          basketSubtotal: stored.basketSubtotal!==''&&stored.basketSubtotal!=null&&Number.isFinite(Number(stored.basketSubtotal))&&Number(stored.basketSubtotal)>=0&&Number(stored.basketSubtotal)<=1000?Number(stored.basketSubtotal):15,
           maxOrders: [1,2,3,4].includes(Number(stored.maxOrders))
             ? Number(stored.maxOrders)
             : 3,
@@ -2561,7 +2559,7 @@
           feeTouched: Boolean(stored.feeTouched)
         };
       } catch {
-        return { maxOrders: 3, extraOrderFee: null, feeTouched: false, fulfilment: 'delivery' };
+        return { basketSubtotal:15, maxOrders: 3, extraOrderFee: null, feeTouched: false, fulfilment: 'delivery' };
       }
     }
 
@@ -2854,11 +2852,6 @@
       return enrichedLoginAccounts().filter(account => account.recommendationEligible);
     }
 
-    document.getElementById('editBasket').addEventListener('click', () => {
-      const input = document.getElementById('basketInput');
-      input.focus();
-      input.select();
-    });
 
     function effectiveFee() {
       if (plannerSettings.feeTouched && plannerSettings.extraOrderFee != null) return Math.max(0, Number(plannerSettings.extraOrderFee));
@@ -2922,10 +2915,7 @@
       for(const [id,kind]of [['usableStat','total'],['activeStat','ready'],['loginStat','login'],['archivedStat','archived']])document.getElementById(id).textContent=homeDirectoryRows(kind).length.toLocaleString('en-GB');
       document.getElementById('homeNeedsChecking').textContent=usedActivityModel().summary.needs_checking.toLocaleString('en-GB');
       const fee = effectiveFee();
-      document.getElementById("feeNote").textContent =
-        hasFeeEstimate()
-          ? money(fee) + " estimated per order"
-          : "£1 estimated per order";
+
     }
 
     let selectedPlannerKey = null, otherOptionsOpen = false, plannerComparisonCache = null;
@@ -2935,17 +2925,14 @@
       return offerScopeLabel(accountOfferKey(promo));
     }
     function plannerAccountRows(plan) {
-      return plan.orders.map((order, index) => {
-        const account = accounts.find(a => a.accountRef === order.accountRef) || order;
-        return '<div class="plan-row" data-plan-account="' + escapeHtml(order.accountRef) + '">' +
-          '<span class="plan-order-number">' + (index + 1) + '</span><div class="plan-body">' +
-          '<button class="plan-account" title="'+escapeHtml(accountDisplay(account))+'" data-account-offers="' + escapeHtml(order.accountRef) + '" data-account-offer="' + escapeHtml(order.promoId || order.promo?.id || (order.cashApplied>0?'cash':'')) + '">' + escapeHtml(accountDisplay(account)) + '</button>' +
-          '<div class="plan-promo">' + escapeHtml(plannerOfferSummary(order.promo)) + '</div>' +
-          '<div class="plan-subtotal">' + escapeHtml(money(order.subtotal))+' basket' +
-          (order.checkoutFees == null ? ' · ' + escapeHtml(money(order.extraFee))+' fee' : '') +
-          (order.checkoutFees != null ? ' · ' + escapeHtml(money(order.checkoutFees))+' recorded fees' : '') + '</div>' +
-          (order.cashUsed>0 ? '<div class="plan-subtotal">'+(order.cashBasis==='verified'?'Verified Cash ':'Estimated Cash ') + escapeHtml(plannerMoney(order.cashUsed)) + ' · remaining ' + escapeHtml(plannerMoney(order.cashRemaining)) + '</div>' : '') +
-          '</div><div class="plan-payment"><strong>' + escapeHtml(plannerMoney(order.estimatedPay)) + '</strong><span class="sr-only"> estimated payment</span></div></div>';
+      return plan.orders.map((order,index)=>{
+        const account=accounts.find(a=>a.accountRef===order.accountRef)||order;
+        return '<button class="plan-row" data-plan-account="'+escapeHtml(order.accountRef)+'" data-account-offers="'+escapeHtml(order.accountRef)+'" data-account-offer="'+escapeHtml(order.promoId||order.promo?.id||(order.cashUsed>0?'cash':''))+'" title="'+escapeHtml(accountDisplay(account))+'">'+
+          '<span class="plan-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="plan-body"><span class="plan-account">'+escapeHtml(accountDisplay(account))+'</span>'+
+          '<span class="plan-promo">'+escapeHtml(plannerOfferSummary(order.promo))+(order.cashUsed>0?' · Uber Cash '+escapeHtml(plannerMoney(order.cashUsed)):'')+'</span>'+
+          '<span class="plan-subtotal">'+escapeHtml(money(order.subtotal))+' basket · '+escapeHtml(money(order.checkoutFees??order.extraFee))+(order.checkoutFees!=null?' recorded fees':' fee')+'</span>'+
+          (plan.orders.filter(o=>o.accountRef===order.accountRef).length>1?'<span class="plan-subtotal">Order '+(index+1)+'</span>':'')+
+          '</span><span class="plan-payment sr-only"><strong>'+escapeHtml(plannerMoney(order.estimatedPay))+'</strong> estimated payment</span>'+financeIcon('chevron-right')+'</button>';
       }).join('');
     }
     function plannerAllocation(plan) {
@@ -2963,6 +2950,7 @@
     }
     function renderRecommendation() {
       document.getElementById('plannerFulfilment').value = plannerSettings.fulfilment || 'delivery';
+      if(document.activeElement?.id!=='plannerFeeInput')document.getElementById('plannerFeeInput').value=effectiveFee().toFixed(2);
       const target = document.getElementById("recommendation");
       const scopeHost=document.querySelector('.planner-offer-scope'),scopeNote=document.getElementById('plannerScopeLabel'),matchesAction=document.querySelector('[data-planner-matches]');
       const controls=document.getElementById('plannerSecondaryControls');
@@ -2972,6 +2960,10 @@
       status.hidden = true;
       if(privateMigrationPending){target.innerHTML='<div class="empty">Import your updated private login file to reconnect saved offer decisions after the security update. Your previous actions remain saved.<button class="advanced-btn" data-open-sheet="device">Import private login file</button></div>';return;}
       const basket = currentBasket();
+      const basketField=document.getElementById('basketInput'),feeField=document.getElementById('plannerFeeInput');
+      if(basketField.value===''||!basketField.validity.valid||feeField.value===''||!feeField.validity.valid){
+        target.innerHTML='<div class="empty">Enter a valid basket (£0.01–£1,000) and fee (£0–£1,000).</div>';return;
+      }
       const fees=plannerCheckoutFees(),scope=selectedOfferScope(offerPreferences,'planner');
       const scopedCash=plannerAccountContext?accountCashState(plannerAccountContext.accountRef,plannerAccountContext.promoKey):null;
       const choices=plannerAccountContext?plannerAccountChoices({...plannerAccountContext,includeCash:plannerAccountContext.includeCash&&scopedCash.usable},decisionPromos(),enrichedAccounts(),scopedCash.wallet?{[plannerAccountContext.accountRef]:scopedCash.wallet}:{}):{offers:plannerOffersForScope(decisionPromos(),enrichedAccounts(),scope,offerPreferences),accounts,wallets:plannerCashWallets(scope)};
@@ -3001,17 +2993,17 @@
       const lowest = selected.key === suggested.key;
       const line = (icon,label,value,cls='') => '<div class="plan-cost-line ' + cls + '">' + financeIcon(icon) + '<span>' + label + '</span><strong>' + value + '</strong></div>';
       const alternatives = comparison.plans.filter(p => p.key !== selected.key).sort((a,b) => a.estimatedPay-b.estimatedPay);
-      status.innerHTML = financeIcon('bolt') + '<span>' + (selected.conditional ? 'Confirm Cash + promo compatibility' : lowest ? 'Lowest estimated cost' : 'Your selected option') + '</span>';
+      status.innerHTML = financeIcon('bolt') + '<span>' + (selected.conditional ? 'Confirm Cash + promo compatibility' : lowest ? 'Lowest cost' : 'Your selected option') + '</span>';
       status.hidden = false;
-      target.innerHTML = '<div class="recommendation-card"><div class="recommendation-top"><div class="recommendation-choice">' + financeIcon('star') + '<div>' +
-        '<h3 class="recommendation-title">Use ' + selected.accountCount + (selected.accountCount === 1 ? ' account' : ' accounts') + '</h3>' +
-        '<div class="recommendation-copy">' + escapeHtml(plannerAllocation(selected)) + '</div></div></div>' +
-        '<div class="recommendation-save" aria-label="Estimated out of pocket">' + escapeHtml(plannerMoney(selected.estimatedPay)) + '<small>Including estimated fees</small></div></div>' +
+      target.innerHTML = '<div class="recommendation-card"><div class="recommendation-top"><div class="recommendation-estimate"><span>Estimated total</span>'+
+        '<div class="recommendation-save" aria-label="Estimated out of pocket">'+escapeHtml(plannerMoney(selected.estimatedPay))+'<small>Including estimated fees</small></div></div>'+
+        '<div class="recommendation-choice">'+financeIcon('users')+'<div><h3 class="recommendation-title">'+selected.orderCount+(selected.orderCount===1?' order':' orders')+'</h3>'+
+        '<div class="recommendation-copy">'+selected.accountCount+(selected.accountCount===1?' account':' accounts')+'</div></div></div></div>' +
         '<div class="plan-costs">' + line('bag','Basket subtotal',escapeHtml(plannerMoney(selected.subtotal))) +
-        line('star','Promo discounts','−' + escapeHtml(plannerMoney(selected.grossSaving)), 'discount') +
-        line('receipt',selected.checkoutFees != null ? 'Recorded checkout fees' : 'Order fee estimate','+' + escapeHtml(plannerMoney(selected.checkoutFees ?? selected.extraFees))) +
+        line('star','Promo discount','−' + escapeHtml(plannerMoney(selected.grossSaving)), 'discount') +
+        line('receipt',selected.checkoutFees != null ? 'Recorded checkout fees' : 'Estimated fees','+' + escapeHtml(plannerMoney(selected.checkoutFees ?? selected.extraFees))) +
         (selected.cashUsed>0?line('receipt','Total after promos and fees',escapeHtml(plannerMoney(selected.totalAfterPromosAndFees??(selected.subtotal-selected.grossSaving+(selected.checkoutFees??selected.extraFees)))))+line('wallet',selected.cashEstimated?'Cash applied · estimated':'Cash applied · verified','−'+escapeHtml(plannerMoney(selected.cashUsed))):'')+'</div>' +
-        '<div class="plan-accounts"><h4>Accounts to use</h4>' + plannerAccountRows(selected) + '</div></div>' +
+        '<div class="plan-accounts"><h4>'+ (selected.accountCount===1?'Account to use':'Accounts to use')+'</h4>' + plannerAccountRows(selected) + '</div></div>' +
         '<details id="plannerOtherOptions" class="planner-other-options"' + (otherOptionsOpen ? ' open' : '') + '><summary>' + financeIcon('chart') + '<span>Other options<small>Compare plans</small></span></summary><div class="planner-alternatives">' +
         (alternatives.length ? alternatives.map(plan => '<article class="plan-alternative"><div class="plan-alternative-head"><div><strong>Use ' + plan.accountCount + (plan.accountCount === 1 ? ' account' : ' accounts') + '</strong><small>' + escapeHtml(plannerAllocation(plan)) + (plan.cashUsed > 0 ? (plan.cashEstimated?' · estimated Cash':' · verified Cash') : '') + (plan.conditional ? ' · confirm compatibility' : '') + '</small></div><div class="plan-alternative-price"><strong>' + escapeHtml(plannerMoney(plan.estimatedPay)) + '</strong><small>' + (plan.estimatedPay === suggested.estimatedPay ? 'Same as suggested' : (plan.estimatedPay > suggested.estimatedPay ? '+' : '−') + escapeHtml(plannerMoney(Math.abs(plan.estimatedPay-suggested.estimatedPay))) + ' vs suggested') + '</small></div></div>' +
           '<p>Basket subtotal ' + escapeHtml(plannerMoney(plan.subtotal)) + ' − promo discounts ' + escapeHtml(plannerMoney(plan.grossSaving)) +
@@ -3838,7 +3830,7 @@
         onBack:()=>{if(routeEntries.get(window.history.state?.trackerEntry)?.opener?.closest('#view-more,#view-home'))window.history.back();else switchView('more');},
         onInfo:()=>openUtilitySheet('sync-info'),
         refresh:async()=>{const result=await load();if(result==='failed')throw Error('Could not refresh published data. Your saved changes are unchanged.');if(result==='partial')throw Error('Published data was partly refreshed. Promo history could not load. Your saved changes are unchanged.');return result;},
-        onRestore:()=>{manualStore=readManualStore();deviceAccounts=readDeviceAccounts();offerPreferences=readOfferPreferences(localStorage);plannerSettings=readPlannerSettings();motionSetting=localStorage.getItem(MOTION_KEY)==='reduced'?'reduced':'system';document.documentElement.dataset.motion=motionSetting;mainNav.dataset.motion=motionSetting;liquidNavigation?.refreshMotion();accountTypeFilter=selectedOfferScope(offerPreferences);applyTheme(readThemeColour());layoutPreference=readLayoutPreference();applyLayoutPreference();privateDataUpdated();renderAll();}});
+        onRestore:()=>{manualStore=readManualStore();deviceAccounts=readDeviceAccounts();offerPreferences=readOfferPreferences(localStorage);plannerSettings=readPlannerSettings();document.getElementById('basketInput').value=plannerSettings.basketSubtotal.toFixed(2);motionSetting=localStorage.getItem(MOTION_KEY)==='reduced'?'reduced':'system';document.documentElement.dataset.motion=motionSetting;mainNav.dataset.motion=motionSetting;liquidNavigation?.refreshMotion();accountTypeFilter=selectedOfferScope(offerPreferences);applyTheme(readThemeColour());layoutPreference=readLayoutPreference();applyLayoutPreference();privateDataUpdated();renderAll();}});
 
     }
 
@@ -4244,9 +4236,9 @@
         const bottom = parseFloat(style.bottom);
         const gap = parseFloat(rootStyle.getPropertyValue('--' + prefix + '-nav-gap')) || 16;
         const rect=nav.getBoundingClientRect();
-        if(prefix==='home'&&(rect.height<=0||style.visibility==='hidden'))return;
+        if(['home','sync'].includes(prefix)&&(rect.height<=0||style.visibility==='hidden'))return;
         const occupied=rect.height+(Number.isFinite(bottom)?bottom:0);
-        const clearance = Math.ceil((prefix==='home'?Math.max(occupied,innerHeight-rect.top):occupied)+gap)+'px';
+        const clearance = Math.ceil((['home','sync'].includes(prefix)?Math.max(occupied,innerHeight-rect.top):occupied)+gap)+'px';
         if (root.style.getPropertyValue('--' + prefix + '-nav-clearance') !== clearance) root.style.setProperty('--' + prefix + '-nav-clearance', clearance);
       });
     }
@@ -4380,14 +4372,19 @@
     document.getElementById('plannerFulfilment').addEventListener('change', event=>{selectedPlannerKey=null;plannerSettings.fulfilment=event.target.value;savePlannerSettings();renderRecommendation();});
     document.getElementById("basketInput").addEventListener("input", () => {
       selectedPlannerKey = null;
+      const input=document.getElementById('basketInput');if(input.value!==''&&input.validity.valid){plannerSettings.basketSubtotal=Number(input.value);savePlannerSettings();}
       clearTimeout(basketTimer);
       basketTimer = setTimeout(() => {
-        renderAll();
+        renderRecommendation();
         animateRegion("recommendation");
-        animateRegion("accountsList");
       }, 120);
     });
 
+    document.getElementById('plannerFeeInput').addEventListener('input',event=>{
+      const input=event.target;selectedPlannerKey=null;
+      if(input.value!==''&&input.validity.valid){plannerSettings.extraOrderFee=Number(input.value);plannerSettings.feeTouched=true;savePlannerSettings();}
+      renderRecommendation();animateRegion('recommendation');
+    });
     document.getElementById("accountSearch").addEventListener("input", () => {
       accountDisplayLimit = 48;
       renderAccounts();
@@ -4626,6 +4623,7 @@
       if (event.target.id === "resetPlannerSettings") {
         selectedPlannerKey = null;
         plannerSettings = {
+          basketSubtotal:currentBasket(),
           maxOrders: 3,
           extraOrderFee: null,
           feeTouched: false,

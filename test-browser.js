@@ -49,7 +49,7 @@ try {
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   assert.equal(await page.locator('#basketInput').inputValue(), '15.00', 'Default basket subtotal should be £15');
   await openHomeDetail(page,'planner');const recommendation = await page.locator('#recommendation').innerText();
-  assert.match(recommendation, /Promo discounts\s*−£10\.00/); // At £15, one £10-off offer is the optimal single-order result.
+  assert.match(recommendation, /Promo discount\s*−£10\.00/); // At £15, one £10-off offer is the optimal single-order result.
   assert.equal(await page.locator('#usableStat').innerText(), '7');
   assert.equal(await page.locator('#activeStat').innerText(), '2', 'Preferred ready accounts exclude inaccessible and nonpreferred accounts');
   assert.equal(await page.locator('#homeReadyCount').innerText(),'Search offers in Accounts');
@@ -98,8 +98,8 @@ try {
   await page.keyboard.press('Escape');
   failHistory = true;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
-  await openHomeDetail(page,'planner');await page.waitForFunction(()=>document.getElementById('recommendation').textContent.includes('Promo discounts'));
-  assert.match(await page.locator('#recommendation').innerText(), /Promo discounts\s*−£10\.00/);
+  await openHomeDetail(page,'planner');await page.waitForFunction(()=>document.getElementById('recommendation').textContent.includes('Promo discount'));
+  assert.match(await page.locator('#recommendation').innerText(), /Promo discount\s*−£10\.00/);
   failPromos = true;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Attention');
   await page.locator('[data-view=home]').click();assert.equal(await page.locator('[data-retry-load]').isVisible(), true);
@@ -206,7 +206,7 @@ try {
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   await openHomeDetail(page,'planner');await page.locator('#basketInput').fill('30');
   await page.waitForFunction(() => document.querySelector('.plan-cost-line strong')?.textContent === '£30.00');
-  assert.match(await page.locator('#recommendation').innerText(), /Use 2 accounts/);assert.match(await page.locator('#feeNote').innerText(), /£1 estimated per order/);
+  assert.match(await page.locator('#recommendation').innerText(), /2 orders/);assert.equal(await page.locator('#plannerFeeInput').inputValue(),'1.00');
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator('[data-view="home"]').click();
@@ -354,7 +354,7 @@ try {
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A101"]').count(), 1, 'Same-account cash and discount are required; expired, consumed, review and archived offers must not qualify');
 
   assert.equal(await filterPage.locator('#savedStat').innerText(), '—','Home does not substitute an unrelated lifetime summary for selected-period promo receipts');
-  assert.match(await filterPage.locator('#recommendation').innerText(), /Promo discounts\s*−£0\.00/, 'Finder changes preserve the cash-only Planner scope; Cash cannot become a promo discount');assert.equal(await filterPage.locator('#plannerOfferScope').inputValue(),'cash');
+  assert.match(await filterPage.locator('#recommendation').innerText(), /Promo discount\s*−£0\.00/, 'Finder changes preserve the cash-only Planner scope; Cash cannot become a promo discount');assert.equal(await filterPage.locator('#plannerOfferScope').inputValue(),'cash');
   await filterPage.locator('[data-view="accounts"]').click();
   await directoryType(filterPage,'cash-promo');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A101"]').count(), 1);

@@ -27,10 +27,10 @@ const legacy=memory(),legacyVault=new PrivateFinanceVault(legacy);legacy.setItem
 const partial=memory(),partialVault=new PrivateFinanceVault(partial);partial.setItem(prefix+'offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'}));partial.setItem(prefix+'planner-settings:v1',JSON.stringify({maxOrders:'3',extraOrderFee:'0'}));assert.ok(deviceBackup(partialVault).deviceBackup);await applyDeviceRestore(partialVault,prepareDeviceRestore(partialVault,decoded));assert.equal(partialVault.data.events.length,2,'Older supported preference shapes cannot block receipt imports');
 
 const currentStamp=new Date().toISOString();
-for(const [state,interval,label] of [['enabled',86400,'Enabled'],['disabled',86400,'Disabled'],['enabled',3600,'Not confirmed'],['unknown',null,'Not confirmed']]){
- const page=syncDataMarkup({lastSuccessfulMailScanAt:currentStamp,scheduler:{state,intervalSeconds:interval,reportedAt:currentStamp}});assert.match(page,new RegExp('Daily schedule</span><span>'+label));assert.doesNotMatch(page,/Latest sync|Automatic sync|Request sync|Sync now/);
+for(const [state,interval,label] of [['enabled',86400,'Enabled'],['disabled',86400,'Not confirmed'],['enabled',3600,'Not confirmed'],['unknown',null,'Not confirmed']]){
+ const page=syncDataMarkup({lastSuccessfulMailScanAt:currentStamp,scheduler:{state,intervalSeconds:interval,reportedAt:currentStamp}});assert.match(page,new RegExp('Schedule</span><span>'+label));assert.doesNotMatch(page,/Latest sync|Automatic sync|Request sync|Sync now/);
 }
-assert.match(syncDataMarkup({scheduler:{state:'enabled',intervalSeconds:86400,reportedAt:'2020-01-01T00:00:00Z'}}),/Daily schedule<\/span><span>Not confirmed/,'Stale scheduler reports cannot establish current daily availability');
+assert.match(syncDataMarkup({scheduler:{state:'enabled',intervalSeconds:86400,reportedAt:'2020-01-01T00:00:00Z'}}),/Schedule<\/span><span>Not confirmed/,'Stale scheduler reports cannot establish current daily availability');
 console.log('✓ Latest Sync: daily-only reported status, stale/unknown/disabled states, actual successful timestamp, one refresh and no remote controls.');
 
 const dailyNow=Date.parse('2026-10-29T14:00:00Z'),dailySync={lastSuccessfulMailScanAt:'2026-10-28T15:00:00Z',scheduler:{state:'enabled',intervalSeconds:86400,reportedAt:'2026-10-28T15:00:00Z'}};
