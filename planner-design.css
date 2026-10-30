@@ -88,7 +88,7 @@ body:has(#view-planner.active) .nav-glider { background:var(--rich-selected-bott
 #view-planner :is(.basket-input,#plannerFeeInput) { width:100%; min-width:0; font:inherit; font-size:18px; color:var(--color-text); background:transparent; border:0; padding:0; }
 #view-planner #plannerFeeInput:focus-visible { outline:2px solid var(--color-accent); outline-offset:3px; }
 #view-planner input::-webkit-inner-spin-button { appearance:none; }
-#view-planner .recommendation-card { padding:16px 16px; background:radial-gradient(ellipse at 100% 0%,color-mix(in srgb,var(--color-accent) 44%,transparent),color-mix(in srgb,var(--color-accent) 10%,transparent) 32%,transparent 65%),var(--theme-panel); }
+#view-planner .recommendation-card { padding:16px 16px; background:radial-gradient(ellipse at 100% 0%,color-mix(in srgb,var(--color-accent-line) 64%,transparent),color-mix(in srgb,var(--color-accent) 10%,transparent) 32%,transparent 65%),var(--theme-panel); }
 #view-planner .recommendation-top { align-items:center; justify-content:space-between; flex-wrap:nowrap; }
 #view-planner .recommendation-estimate { min-width:0; color:var(--rich-secondary); font-size:15px; }
 #view-planner .recommendation-save { margin:5px 0 0; text-align:left; font-size:42px; }
