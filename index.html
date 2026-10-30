@@ -2962,7 +2962,7 @@
       const basket = currentBasket();
       const basketField=document.getElementById('basketInput'),feeField=document.getElementById('plannerFeeInput');
       if(basketField.value===''||!basketField.validity.valid||feeField.value===''||!feeField.validity.valid){
-        target.innerHTML='<div class="empty">Enter a valid basket subtotal and fee.</div>';return;
+        target.innerHTML='<div class="empty">Enter a valid basket (£0.01–£1,000) and fee (£0–£1,000).</div>';return;
       }
       const fees=plannerCheckoutFees(),scope=selectedOfferScope(offerPreferences,'planner');
       const scopedCash=plannerAccountContext?accountCashState(plannerAccountContext.accountRef,plannerAccountContext.promoKey):null;

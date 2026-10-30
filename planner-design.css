@@ -88,7 +88,7 @@ body:has(#view-planner.active) .nav-glider { background:var(--rich-selected-bott
 #view-planner :is(.basket-input,#plannerFeeInput) { width:100%; min-width:0; font:inherit; font-size:18px; color:var(--color-text); background:transparent; border:0; padding:0; }
 #view-planner #plannerFeeInput:focus-visible { outline:2px solid var(--color-accent); outline-offset:3px; }
 #view-planner input::-webkit-inner-spin-button { appearance:none; }
-#view-planner .recommendation-card { padding:16px 14px; background:linear-gradient(135deg,color-mix(in srgb,var(--color-accent) 9%,transparent),transparent 75%),var(--theme-panel); }
+#view-planner .recommendation-card { padding:16px 14px; background:linear-gradient(135deg,color-mix(in srgb,var(--color-accent) 14%,transparent),transparent 75%),var(--theme-panel); }
 #view-planner .recommendation-top { align-items:center; justify-content:space-between; flex-wrap:nowrap; }
 #view-planner .recommendation-estimate { min-width:0; color:var(--rich-secondary); font-size:15px; }
 #view-planner .recommendation-save { margin:5px 0 0; text-align:left; font-size:34px; }
@@ -117,3 +117,9 @@ body:has(#view-planner.active) .nav-glider { background:var(--rich-selected-bott
  #view-planner .recommendation-save { margin-left:0; }
  #view-planner .plan-row { grid-template-columns:26px minmax(0,1fr) 16px; padding:10px; gap:8px; }
 }
+
+#view-planner .recommendation-card {
+ border-color:color-mix(in srgb,var(--color-accent) 75%,var(--color-outline));
+ box-shadow:0 6px 18px rgb(0 0 0 / .16),inset 0 1px 0 color-mix(in srgb,var(--color-accent) 16%,transparent);
+}
+#view-planner .recommendation-estimate>span { color:var(--rich-soft-accent); }
