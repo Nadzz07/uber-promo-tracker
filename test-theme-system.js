@@ -27,3 +27,11 @@ for(let hue=0;hue<360;hue++){
  for(const stop of stops)assert.ok(contrastRatio(colourRgb(stop),colourRgb(paletteForHue(hue).onAccent))>=4.5,'Reference button contrast across the complete wheel at '+hue);
 }
 console.log('✓ One hue registry, default 283; five hue families; shared fades/components; fixed neutral/status roles; text, selected-card, chip and gradient-button contrast.');
+
+// A bright recommendation corner must retain small-label and monetary contrast
+// throughout the complete wheel, including high-luminance yellows and greens.
+for(let hue=0;hue<360;hue++){
+ const tokens=paletteProperties(hue),p=paletteForHue(hue),spot=colourRgb(tokens['--color-planner-spot']);
+ for(const ink of [p.secondary,p.positive])assert.ok(contrastRatio(colourRgb(ink),spot)>=4.6,'Planner corner contrast at hue '+hue);
+}
+console.log('✓ Planner focal gradient: readable secondary labels and green amounts across all 360 wheel hues.');

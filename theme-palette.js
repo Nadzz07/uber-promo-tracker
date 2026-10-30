@@ -26,9 +26,9 @@ function accountButtonStops(hue,ink) {
  return [hslColour(hue,94,Math.max(65,lightness+5)),hslColour(hue,90,lightness)];
 }
 // Keep small hero labels and fixed green savings readable at every wheel hue.
-function insightsHeroStop(hue){
+function insightsHeroStop(hue,maxLightness=27){
  const luminance=hex=>colourRgb(hex).map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);
- let lightness=27;while(lightness>12&&[FIXED.secondary,FIXED.positive].some(ink=>(luminance(ink)+.05)/(luminance(hslColour(hue,64,lightness))+.05)<4.6))lightness--;
+ let lightness=maxLightness;while(lightness>12&&[FIXED.secondary,FIXED.positive].some(ink=>(luminance(ink)+.05)/(luminance(hslColour(hue,64,lightness))+.05)<4.6))lightness--;
  return hslColour(hue,64,lightness);
 }
 // Shared material tints used by the existing component layouts.
@@ -91,6 +91,7 @@ export function paletteProperties(hue=DEFAULT_HUE){
  // the general-purpose selected pill. No fixed blue or picker override.
  '--theme-account-page':`linear-gradient(180deg,${hslColour(hue,45,9)},${hslColour(hue,40,5)})`,
  '--color-insights-header':hslColour(hue,70,19),
+ '--color-planner-spot':insightsHeroStop(hue,42),
  '--theme-insights-hero':`linear-gradient(140deg,${insightsHeroStop(hue)},${hslColour(hue,68,12)})`,
  '--theme-menu-page':`linear-gradient(180deg,${hslColour(hue,70,19)},${hslColour(hue,65,10)} 50%,${hslColour(hue,52,6)})`,
  '--theme-menu-panel':`linear-gradient(150deg,${hslColour(hue,55,13)},${hslColour(hue,50,9)})`,
