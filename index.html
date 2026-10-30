@@ -3050,7 +3050,7 @@
         const label=slot.kind==='confirmed'?'Receipt-confirmed use':slot.kind==='manual'?'Manually recorded use':slot.kind==='unused'?'Remaining use':'Usage unknown';
         return '<span class="directory-usage-box '+slot.kind+'" role="listitem" aria-label="'+label+' '+slot.number+'">'+(slot.kind==='confirmed'?financeIcon('check'):slot.kind==='manual'?financeIcon('edit'):slot.kind==='unknown'?'<span aria-hidden="true">?</span>':'')+'</span>';
       }).join('')+'</div>';
-      return '<div class="directory-usage"><p>'+escapeHtml(summary)+'</p>'+boxes+'</div>';
+      return '<div class="directory-usage"><p class="directory-use-limit">'+escapeHtml(summary)+'</p>'+boxes+'</div>';
     }
     function directoryCard(account) {
       const offers=account.directoryOffers||account.promos||[],selected=accountTypeFilter==='cash'?null:offers.find(p=>p.discountType!=='uberCash');
