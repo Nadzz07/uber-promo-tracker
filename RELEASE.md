@@ -593,3 +593,19 @@ group their existing copy beside their icon. Home keeps Accounts ready and its
 green count without a subtitle. Navigation, palette, padding, data models and
 intentional top-aligned multiline explanations remain unchanged. Geometry checks
 cover mobile, desktop and enlarged/wrapped text in all three browser engines.
+
+## Compact Home and actionable account review — 30 October 2026
+
+Home removes the inherited empty header height, uses equal compact overview
+tiles and keeps Accounts ready with its count only. Its savings caption uses
+known receipt coverage and the selected Savings period; the calculation and
+service/period selection remain unchanged. Floating-navigation clearance is
+measured and reserved inside Home content, with the safe-area inset counted once.
+
+Ordinary omitted payment-allocation and discount fields remain unknown coverage,
+not automatic account-review tasks. Missing main charges, unresolved refunds or
+adjustments, and conflicting recorded values remain actionable. All receipt
+entry points share that derived state. Saved corrections, review/undo history,
+manual offer usage, preferred-offer eligibility and financial values are retained.
+Read-only comparison against the supported private receipt export confirmed
+unchanged financial calculations and source records.

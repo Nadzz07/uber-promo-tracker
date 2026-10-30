@@ -25,3 +25,10 @@ for(const query of [' full.name+TAG@example.invalid ','Weekend special','£12 of
 const tied={buckets:{used:[{key:'b',account:{accountRef:'same'},at:null},{key:'a',account:{accountRef:'same'},at:null}]}};
 assert.deepEqual(activityResults(tied,{status:'used'}).map(r=>r.key),['a','b']);
 console.log('✓ Used full-email/punctuation/whitespace and offer search, stable missing-date sort');
+
+const unused={...promo('no-recorded-use',0),trackingState:'available',receiptConfirmedUses:null};
+assert.equal(buildUsedActivity(accounts,[unused],{}).summary.needs_checking,0,'No receipt confirmation alone is not an account review');
+const repeatedReview=buildUsedActivity(accounts,[{...unused,id:'conflict-a',trackingState:'needs_checking',reviewReasons:['conflicting_offer_terms']},{...unused,id:'conflict-b',trackingState:'needs_checking',reviewReasons:['conflicting_offer_terms']}],{},a=>a.accountRef==='A1'?2:0);
+assert.equal(repeatedReview.summary.needs_checking,1,'Multiple real issues on one account count once');
+assert.match(repeatedReview.buckets.needs_checking[0].evidence,/Offer terms conflict/);
+console.log('✓ Account review is actionable, deduplicated and independent of missing optional receipt confirmation');

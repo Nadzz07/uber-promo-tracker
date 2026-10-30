@@ -56,11 +56,24 @@ export function receiptRefundParts(receipt={},correction=receipt.financialCorrec
  return parts;
 }
 export function receiptReviewState(receipt={},correction=receipt.financialCorrection){
- const r=correctedReceipt(receipt,correction),f=receiptFinancials(receipt,correction),parts=receiptRefundParts(receipt,correction),issues=[];
- if(parts.some(p=>p.value==null))issues.push('Refund amount missing');if(parts.some(p=>p.unallocated&&p.value!==0))issues.push('Refund destination unknown');
- if(observed(r.total)==null)issues.push('Receipt charge missing');if(receiptPaymentAmount(receipt,correction)==null)issues.push('Final payment needs checking');if(observed(r.uberCashUsed)==null)issues.push('Uber Cash payment unknown');if(observed(r.promotionDiscount)==null&&f.incomplete)issues.push('Promo amount missing');
- if(f.needsAdjustmentReview&&!issues.length)issues.push('Adjustment needs checking');
- return {needsChecking:issues.length>0,issues,refund:parts.length>0,manuallyCorrected:Boolean(correction),receipt:r,financial:f};
+ const r=correctedReceipt(receipt,correction),f=receiptFinancials(receipt,correction),parts=receiptRefundParts(receipt,correction),issues=[],missingDetails=[];
+ const paid=observed(r.total),cash=observed(r.uberCashUsed),payment=receiptPaymentAmount(receipt,correction),previous=observed(r.previousTotal??r.financialEvidence?.previousTotal);
+ // Ordinary compact receipts omit payment allocation and sometimes discounts.
+ // Keep those values unknown in totals; absent optional fields are coverage,
+ // not a request to correct every otherwise unremarkable order.
+ if(paid==null)issues.push('Receipt charge missing');
+ if(payment==null)missingDetails.push('Final payment not recorded');
+ if(cash==null)missingDetails.push('Uber Cash payment not recorded');
+ if(observed(r.promotionDiscount)==null&&f.incomplete)missingDetails.push('Promo amount not recorded');
+ if(parts.some(p=>p.value==null))issues.push('Refund amount missing');
+ if(parts.some(p=>p.unallocated&&p.value!==0))issues.push('Refund destination unknown');
+ const adjustment=parts.length>0||r.financialReview?.reasons?.length||previous!=null&&paid!=null&&Math.abs(previous-paid)>.011;
+ if(payment==null&&adjustment)issues.push('Final payment needs checking');
+ if(f.needsAdjustmentReview)issues.push('Adjustment needs checking');
+ if(f.conflict&&!correction)issues.push('Recorded savings conflict');
+ const returnedCash=parts.filter(p=>p.cash).reduce((sum,p)=>sum+(p.value??0),0);
+ if(paid!=null&&cash!=null&&cash-returnedCash>paid+.011)issues.push('Payment amounts conflict');
+ return {needsChecking:issues.length>0,issues,missingDetails,refund:parts.length>0,manuallyCorrected:Boolean(correction),receipt:r,financial:f};
 }
 
 export function receiptFinancials(receipt={},correction=receipt.financialCorrection||null) {

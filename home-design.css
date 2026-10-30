@@ -1,10 +1,10 @@
 /* One Home layout, using the existing shared palette and navigation. */
 html:has(#view-home.active),body:has(#view-home.active) { background:var(--theme-account-page); background-attachment:fixed; }
 body:has(#view-home.active)::before { display:none; }
-html[data-layout=mobile] body:has(#view-home.active) { padding-bottom:var(--home-nav-clearance,calc(110px + env(safe-area-inset-bottom,0px))); }
+html[data-layout=mobile] body:has(#view-home.active) { padding-bottom:0; }
 html[data-layout=mobile]:has(#view-home.active) { scroll-padding-bottom:var(--home-nav-clearance,calc(110px + env(safe-area-inset-bottom,0px))); }
 .app-shell:has(#view-home.active) { padding:calc(20px + env(safe-area-inset-top,0px)) 18px 16px; max-width:760px; margin-inline:auto; }
-.app-shell:has(#view-home.active)>.topbar { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:0; margin:0 0 22px; min-width:0; border:0; background:none; box-shadow:none; backdrop-filter:none; }
+.app-shell:has(#view-home.active)>.topbar { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:0; margin:0 0 12px; min-height:0; min-width:0; border:0; background:none; box-shadow:none; backdrop-filter:none; }
 body:has(#view-home.active) .brand-kicker { color:var(--color-soft-accent); font-size:11px; font-weight:550; letter-spacing:.23em; margin-bottom:5px; }
 body:has(#view-home.active) .brand-title { font-size:27px; line-height:1.15; letter-spacing:-.035em; font-weight:600; }
 body:has(#view-home.active) .scan-wrap { text-align:right; flex:none; max-width:45%; }
@@ -28,7 +28,7 @@ body:has(#view-home.active) .scan-time { margin-top:5px; color:var(--color-secon
 #view-home .home-title,#view-home .home-quick-actions h2 { font-size:24px; line-height:1.2; font-weight:600; letter-spacing:-.025em; margin:0; }
 #view-home .home-view-accounts { min-height:44px; background:none; border:0; padding:0; color:var(--color-accent); font:inherit; font-size:13px; font-weight:500; }
 #view-home .stats-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin:0; }
-#view-home .stat-card { display:flex; align-items:center; gap:12px; min-width:0; min-height:106px; width:100%; margin:0; padding:16px 14px; text-align:left; background:var(--theme-account-panel); border:1px solid var(--color-border); border-radius:15px; box-shadow:none; color:var(--color-text); }
+#view-home .stat-card { display:flex; align-items:center; gap:12px; min-width:0; min-height:92px; width:100%; margin:0; padding:12px 14px; text-align:left; background:var(--theme-account-panel); border:1px solid var(--color-border); border-radius:15px; box-shadow:none; color:var(--color-text); }
 #view-home .overview-icon { display:flex; align-items:center; flex:none; color:var(--color-soft-accent); padding:0; }
 #view-home .overview-icon svg { width:27px; height:27px; }
 #view-home .home-stat-copy { display:flex; flex-direction:column; gap:5px; min-width:0; }
@@ -52,7 +52,7 @@ body:has(#view-home.active) .scan-time { margin-top:5px; color:var(--color-secon
 #view-home button { cursor:pointer; touch-action:manipulation; transition:transform var(--motion-press) var(--motion-ease),border-color var(--motion-fast) var(--motion-ease); }
 #view-home button:active { transform:scale(.985); }
 #view-home button:focus-visible,.topbar #scanPill:focus-visible { outline:2px solid var(--color-accent); outline-offset:3px; }
-@media(max-width:360px){body:has(#view-home.active) .brand-title{font-size:23px}#view-home .total-saved-card{grid-template-columns:22px minmax(0,1fr);gap:10px;padding:16px}#view-home .saved-link{grid-column:2;border:0;padding:3px 0 0}#view-home #savedStat{font-size:32px}#view-home .stat-card{gap:8px;padding:13px 10px}#view-home .overview-icon svg{width:22px;height:22px}#view-home .stat-label{font-size:13px}#view-home .stat-value{font-size:28px}}
+@media(max-width:360px){body:has(#view-home.active) .brand-title{font-size:23px}#view-home .total-saved-card{grid-template-columns:22px minmax(0,1fr);gap:10px;padding:16px}#view-home .saved-link{grid-column:2;border:0;padding:3px 0 0}#view-home #savedStat{font-size:32px}#view-home .stat-card{gap:8px;padding:12px 10px}#view-home .overview-icon svg{width:22px;height:22px}#view-home .stat-label{font-size:13px}#view-home .stat-value{font-size:28px}}
 @media(prefers-reduced-motion:reduce){#view-home button{transition:none}#view-home button:active{transform:none}}
 html[data-motion=reduced] #view-home button{transition:none}html[data-motion=reduced] #view-home button:active{transform:none}
 #view-home .home-overview { margin:0; }
@@ -69,3 +69,9 @@ body:has(#view-home.active) .home-update.stale { color:var(--color-warning-text)
 html[data-layout=desktop] .app-shell:has(#view-home.active) { max-width:1400px; }
 html[data-layout=desktop] #view-home { max-width:none; }
 .app-shell:has(#view-home.active) { padding-left:max(18px,env(safe-area-inset-left,0px)); padding-right:max(18px,env(safe-area-inset-right,0px)); }
+
+/* Keep clearance inside the scrolling content, including the measured dock and
+   its safe-area offset, rather than relying on root/body padding on iOS. */
+html { --home-safe-bottom:env(safe-area-inset-bottom,0px); }
+html[data-layout=mobile] .app-shell:has(#view-home.active) { padding-bottom:calc(var(--home-nav-clearance,calc(110px + var(--home-safe-bottom))) + 16px); }
+html[data-layout=mobile] body:has(#view-home.active) .bottom-nav { bottom:calc(8px + var(--home-safe-bottom)); }

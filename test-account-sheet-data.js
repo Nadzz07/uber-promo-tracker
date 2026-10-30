@@ -218,6 +218,8 @@ console.log('✓ Incomplete compact receipts never manufacture zero; preference 
  assert.deepEqual(list({preferredPromos:['fixed:8:20'],includeCash:false}),['other'],'Custom saved preferences replace the match set');
  assert.deepEqual(list({preferredPromos:[],includeCash:false}),[],'An empty saved preference list does not fall back to hardcoded offers');
  assert.deepEqual(list({preferredPromos:['fixed:12:15'],includeCash:true}),['cash','valid'],'Cash follows its existing saved inclusion setting, with unknown balances excluded');
+ const noUses=promo('no-recorded-uses',{receiptConfirmedUses:null,usesRemaining:5});
+ assert.equal(directoryAccounts([row('unused',[noUses])],filters,normaliseOfferPreferences({preferredPromos:['fixed:12:15'],includeCash:false}),{now}).length,1,'No receipt matching data alone does not disqualify a usable unused preferred offer');
  const login=()=>directoryAccounts(records,{...filters,type:'all',login:'login',availability:'any'},{preferredPromos:[],includeCash:false},{now}).length;
  const before=login();records[0].promos=records[0].promos.map(p=>({...p,usesRemaining:0}));assert.deepEqual(list({preferredPromos:['fixed:12:15'],includeCash:false}),[]);assert.equal(login(),before,'Can log in remains independent of preferred-offer availability');
 }
