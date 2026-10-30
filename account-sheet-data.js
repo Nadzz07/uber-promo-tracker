@@ -3,7 +3,7 @@ import {receiptWhen} from './receipt-date.js';
 import {getOfferManualState,promotionActivity,promoStateKey,pendingManualEntries,pendingManualUses} from './manual-state.js';
 import {classifyOfferTrackingState,classifyOfferCompletion} from './offer-state.js';
 import {accountMatchesLogin,accountMatchesProvider,matchesAccountFilter,accountOfferKey,offerReadinessRank,offerInProgress,offerEligible} from './account-state.js';
-import {hasCurrentCash,matchesDiscoveryScope,isPreferredPromo} from './offer-preferences.js';
+import {hasCurrentCash,isPreferredPromo} from './offer-preferences.js';
 import {expiryEndTime,isOfferExpired} from './offer-time.js';
 
 // Receipt identities and link evidence stay in the encrypted private transfer.
@@ -153,14 +153,14 @@ export function directoryAccounts(accounts,filters,preferences,{emailFor=a=>a.ac
   if(management==='review'&&!accountReview)candidates=candidates.filter(p=>p.trackingState==='needs_checking'||p.needsReview);
   if(management==='unfinished')candidates=candidates.filter(p=>offerInProgress(p,now));
   if(management==='expiring')candidates=candidates.filter(p=>{const end=expiryEndTime(p);return end!=null&&end>now&&end-now<=7*86400000;});
-  candidates=candidates.filter(p=>selections.some(type=>type==='cash-promo'?offerEligible(p,now)&&matchesDiscoveryScope({...account,promos:[p]},'cash-promo',preferences):typeMatches(p,type)));
+  candidates=candidates.filter(p=>selections.some(type=>type==='cash-promo'?cash&&offerEligible(p,now):typeMatches(p,type)));
   const qualifyingCash=cash&&(!historical||management==='review'&&accountReview)&&selections.some(t=>['all','cash','cash-promo'].includes(t)||t==='preferred'&&preferences.includeCash);
   const scoped={...account,promos:candidates,hasEligibleOffers:candidates.some(p=>offerEligible(p,now))||qualifyingCash};
   scoped.recommendationEligible=scoped.hasEligibleOffers&&account.canLogin===true&&account.accessStatus!=='pending'&&!account.archived;
   const cashOnlyMatch=selections.some(type=>type==='cash'&&cash||type==='preferred'&&preferences.includeCash&&cash);
   if(!selections.includes('all')&&!candidates.length&&!cashOnlyMatch)continue;
   if(selections.includes('cash')&&selections.length===1&&!cash&&!historical)continue;
-  if(selections.includes('cash-promo')&&selections.length===1&&!matchesDiscoveryScope(scoped,'cash-promo',preferences))continue;
+  if(selections.includes('cash-promo')&&selections.length===1&&!(cash&&candidates.some(p=>offerEligible(p,now))))continue;
   if(['finished','expired-unused','expired','unfinished','expiring'].includes(management)&&!candidates.length)continue;
   if(management==='review'&&!candidates.length&&!accountReview)continue;
   if(management==='offers'&&!candidates.length&&!cash)continue;

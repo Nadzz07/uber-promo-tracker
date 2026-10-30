@@ -118,6 +118,13 @@ console.log('✓ Promo in use: explicit manual/confirmed evidence, undo, exhaust
  assert.deepEqual(run({search:'name+tag',provider:'Google',login:'login'}).map(a=>a.accountRef),['A']);
  assert.deepEqual(run({type:'fixed:12:15',management:'expiring'}).map(a=>a.accountRef),['B'],'Type and expiry must belong to the same offer');
  assert.deepEqual(run({type:'cash-promo'}).map(a=>a.accountRef),['B']);
+ records[1].cashPosition={...cash,stacking:'unsupported'};
+ records[1].promos[0].restrictions={stacking:'no_other_promotions'};
+ assert.deepEqual(run({type:'cash-promo'}).map(a=>a.accountRef),['B'],'Accounts presence filter does not promise checkout compatibility');
+ records[1].cashPosition={status:'needs_checking',remaining:null};
+ assert.deepEqual(run({type:'cash-promo'}),[],'Unknown Cash is not available Cash');
+ records[1].cashPosition=cash;delete records[1].promos[0].restrictions;
+
  assert.deepEqual(run({type:'cash'}).map(a=>a.accountRef),['B','C']);
  assert.deepEqual(run({type:['fixed:10:15','cash']}).map(a=>a.accountRef),['A','B','C'],'A multi-select group uses OR; independent groups use AND');
  assert.deepEqual(run({search:'locked',login:'login'}),[]);
