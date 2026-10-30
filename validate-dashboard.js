@@ -25,7 +25,8 @@ assert.ok(html.includes('data-view="more"'));
 
 assert.ok(html.includes("Fee settings"));
 assert.ok(html.includes("Suggested plan"));
-assert.ok(html.includes("Enter your order amount"));
+assert.ok(html.includes('id="plannerFeeInput"'));
+assert.equal(html.includes("Enter your order amount"),false);
 assert.ok(html.includes('step="0.01"'));
 assert.ok(html.includes("Estimated fee per order"));
 assert.ok(html.includes("Maximum split orders"));
