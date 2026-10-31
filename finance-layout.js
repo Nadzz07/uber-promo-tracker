@@ -1,6 +1,7 @@
 const paths = {
   users:'<circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3H3ZM16 4a3 3 0 0 1 0 6M17 14a5 5 0 0 1 4 5v2h-3"/>',
   'user-check':'<circle cx="9" cy="7" r="4"/><path d="M2 22v-3a7 7 0 0 1 13-4M14 19l3 3 5-6"/>',
+  'user-plus':'<circle cx="9" cy="7" r="4"/><path d="M2 22v-3a7 7 0 0 1 14 0v3H2ZM20 6v8m-4-4h8"/>',
   laptop:'<rect x="4" y="3" width="16" height="13" rx="1"/><path d="m4 16-2 4h20l-2-4"/>',
   upload:'<path d="M12 16V2m-5 5 5-5 5 5M3 14v7h18v-7"/>',
   mail:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 5 9 7 9-7"/>',
