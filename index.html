@@ -2274,9 +2274,9 @@
 
       <section id="view-used" class="view" aria-labelledby="usedTitle">
         <header class="used-head"><h1 id="usedTitle" tabindex="-1">Used accounts</h1><button class="icon-control" data-used-info="true" aria-label="How statuses work"><span data-icon="info" aria-hidden="true"></span></button></header>
-        <div class="used-summary" aria-label="Activity summaries"><button data-used-status="used"><strong id="usedAccountCount">0</strong><span>Fully used accounts</span></button><button data-used-status="needs_checking"><strong id="needsCheckCount">0</strong><span>Needs checking</span></button></div>
+        <div class="used-summary" aria-label="Activity summaries"><button data-used-status="used"><strong id="usedAccountCount">0</strong><span>Fully used</span></button><button data-used-status="needs_checking"><strong id="needsCheckCount">0</strong><span>Needs checking</span></button></div>
         <div class="used-search"><span data-icon="search" aria-hidden="true"></span><input id="usedSearch" type="search" placeholder="Search accounts or offers" aria-label="Search accounts or offers" autocomplete="off"></div>
-        <div class="used-filters"><button data-used-status="used" aria-pressed="true">Fully used <span id="usedQuickCount">0</span></button><button data-used-status="needs_checking" aria-pressed="false">Needs checking <span id="usedReviewQuickCount">0</span></button><div class="used-status-control"><button id="usedStatus" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="usedStatusOptions" aria-label="Activity status"><span data-icon="filter" aria-hidden="true"></span><span id="usedStatusLabel">Status</span><span aria-hidden="true">⌄</span></button><div id="usedStatusOptions" role="listbox" aria-label="Activity status" hidden></div></div></div>
+        <div class="used-filters"><button data-used-status="used" aria-pressed="true">Fully used <span id="usedQuickCount">0</span></button><button data-used-status="needs_checking" aria-pressed="false">Needs checking <span id="usedReviewQuickCount">0</span></button></div><div class="used-status-control"><button id="usedStatus" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="usedStatusOptions" aria-label="Activity status"><span data-icon="filter" aria-hidden="true"></span><span id="usedStatusLabel">Status</span><span class="used-status-chevron" data-icon="chevron-down" aria-hidden="true"></span></button><div id="usedStatusOptions" role="listbox" aria-label="Activity status" hidden></div></div>
         <div class="used-results-head"><div><h2 id="usedResultsTitle">Fully used</h2><span id="usedResultsCount" role="status" aria-live="polite"></span></div><label class="used-sort"><span class="sr-only">Sort results</span><select id="usedSort"><option value="latest">Latest activity</option><option value="email">Account email</option></select></label></div>
         <div id="usedRecords" class="used-records"></div><div id="usedPagination"></div>
         <button class="used-info-link" data-used-info="true"><span data-icon="info" aria-hidden="true"></span><span>How statuses work</span><span aria-hidden="true">›</span></button>
@@ -3151,7 +3151,7 @@
       document.getElementById('usedRecords').innerHTML=shown.length?shown.map(r=>{
         const account=r.account,access=account.canLogin===true?'Can log in':account.canLogin===false?'Can’t log in':'Access pending';
         const when=r.expiry?'Expired '+(formatDate(r.expiry)||'date unknown'):r.at?(r.entity==='account'&&usedState.status==='used'?'Last used ':'Activity ')+(formatDate(r.at)||''):'';
-        return '<button type="button" class="used-record" data-used-record="'+escapeHtml(r.key)+'" data-activity-record="'+escapeHtml(r.key)+'" aria-label="View '+escapeHtml(accountDisplay(account))+'"><span class="used-record-head"><span class="used-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="used-identity"><strong>'+escapeHtml(accountDisplay(account))+'</strong><span>'+escapeHtml(loginRouteText(account))+'</span></span><span class="used-access '+(account.canLogin===true?'positive':'')+'"><i aria-hidden="true"></i>'+access+'</span><span class="used-chevron" aria-hidden="true">›</span></span><span class="used-evidence"><span class="used-evidence-icon">'+financeIcon(r.receiptRuleMet?'check':usedState.status==='needs_checking'?'alert':'receipt')+'</span><span><span class="used-evidence-text">'+escapeHtml(r.promo?promoLabel(r.promo)+' · '+r.evidence:r.evidence)+'</span>'+(when?'<small>'+financeIcon('calendar')+escapeHtml(when)+'</small>':'')+'</span>'+(r.receiptRuleMet?'<span class="receipt-rule-badge">Usage complete</span>':'')+'</span></button>';
+        return '<button type="button" class="used-record'+(usedState.status==='needs_checking'?' needs-checking':'')+'" data-used-record="'+escapeHtml(r.key)+'" data-activity-record="'+escapeHtml(r.key)+'" aria-label="View '+escapeHtml(accountDisplay(account))+'"><span class="used-record-head"><span class="used-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="used-identity"><strong>'+escapeHtml(accountDisplay(account))+'</strong><span>'+escapeHtml(loginRouteText(account))+'</span><span class="used-access '+(account.canLogin===true?'positive':'')+'"><i aria-hidden="true"></i>'+access+'</span></span><span class="used-chevron" aria-hidden="true">›</span></span><span class="used-evidence"><span class="used-evidence-icon">'+financeIcon(r.receiptRuleMet?'check':usedState.status==='needs_checking'?'alert':'receipt')+'</span><span><span class="used-evidence-text">'+escapeHtml(r.promo?promoLabel(r.promo)+' · '+r.evidence:r.evidence)+'</span>'+(when?'<small>'+financeIcon('calendar')+escapeHtml(when)+'</small>':'')+'</span>'+(r.receiptRuleMet?'<span class="receipt-rule-badge">Usage complete</span>':'')+'</span></button>';
       }).join(''):'<div class="used-empty"><p>No matching '+category.entity+'.</p><button data-reset-used="true">Clear search and show fully used</button></div>';
       document.getElementById('usedPagination').innerHTML=list.length>shown.length?'<button class="used-more" data-used-more="true">Show more '+category.entity+'<span aria-hidden="true">⌄</span></button>':'';
     }
@@ -4251,9 +4251,9 @@
         const bottom = parseFloat(style.bottom);
         const gap = parseFloat(rootStyle.getPropertyValue('--' + prefix + '-nav-gap')) || 16;
         const rect=nav.getBoundingClientRect();
-        if(['home','sync','accounts'].includes(prefix)&&(rect.height<=0||style.visibility==='hidden'))return;
+        if(['home','sync','accounts','used'].includes(prefix)&&(rect.height<=0||style.visibility==='hidden'))return;
         const occupied=rect.height+(Number.isFinite(bottom)?bottom:0);
-        const clearance = Math.ceil((['home','sync','accounts'].includes(prefix)?Math.max(occupied,innerHeight-rect.top):occupied)+gap)+'px';
+        const clearance = Math.ceil((['home','sync','accounts','used'].includes(prefix)?Math.max(occupied,innerHeight-rect.top):occupied)+gap)+'px';
         if (root.style.getPropertyValue('--' + prefix + '-nav-clearance') !== clearance) root.style.setProperty('--' + prefix + '-nav-clearance', clearance);
       });
     }
@@ -4414,14 +4414,8 @@
     function closeUsedPicker(restore=false){document.getElementById('usedStatusOptions').hidden=true;document.getElementById('usedStatus').setAttribute('aria-expanded','false');if(restore)document.getElementById('usedStatus').focus({preventScroll:true});}
     function openUsedPicker(last=false){
       const menu=document.getElementById('usedStatusOptions'),trigger=document.getElementById('usedStatus');
-      // Measure the viewport and anchor before exposing the popup. A temporary
-      // overflowing popup can expand a mobile browser's layout viewport.
-      const width=document.documentElement.clientWidth,anchor=trigger.parentElement.getBoundingClientRect(),menuWidth=Math.min(320,width-40);
-      menu.style.width=menuWidth+'px';menu.style.right='auto';
-      menu.style.left=(Math.max(20,Math.min(anchor.left,width-20-menuWidth))-anchor.left-trigger.parentElement.clientLeft)+'px';
       menu.hidden=false;trigger.setAttribute('aria-expanded','true');
-      if(innerHeight-trigger.getBoundingClientRect().bottom<240)trigger.scrollIntoView({block:'start',behavior:'instant'});
-      menu.style.maxHeight=Math.max(100,Math.min(360,innerHeight-trigger.getBoundingClientRect().bottom-16))+'px';
+      replayMotion(menu,'motion-refresh');
       (last?menu.lastElementChild:menu.querySelector('[aria-selected="true"]')||menu.firstElementChild)?.focus({preventScroll:true});
     }
 
