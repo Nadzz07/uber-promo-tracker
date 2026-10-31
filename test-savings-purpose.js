@@ -83,3 +83,5 @@ console.log('✓ Savings full-month/future buckets, proportional amounts, daily 
 const legacyFilled=receiptActivityBuckets({...gaps,amountVersion:undefined},{range:'all',metric:'promos',now,completeRange:true});assert.ok(legacyFilled.buckets.every(b=>b.value===null),'Missing promo amounts do not become zero in added calendar buckets');
 
 const zeroSavings=receiptInsightsModel({data:{receipts:[receipt('known-zero','2026-10-02',0)]},...state});assert.equal(savingsModel(zeroSavings).best,0,'A recorded zero discount is a known zero best saving');assert.equal(savingsModel(zeroSavings).average,null,'No positive qualifying discounts means no average denominator');
+
+const incompleteGaps=receiptActivityBuckets({...gaps,coverageIncomplete:true},{range:'all',metric:'promos',now,completeRange:true});assert.equal(incompleteGaps.buckets[1].value,null,'An uncovered month stays unknown when the source is incomplete');
