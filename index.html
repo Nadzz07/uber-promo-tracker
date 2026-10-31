@@ -2209,7 +2209,7 @@
       <section id="view-home" class="view active" aria-label="Home">
         <section class="home-overview">
           <button class="total-saved-card" data-open-sheet="savings"><span class="home-savings-icon" data-icon="promo-tag" aria-hidden="true"></span><span class="home-saved-copy"><span class="stat-label">Total saved</span><strong id="savedStat">—</strong><span id="homeReceiptCount">From promo discounts</span></span><span class="saved-link">View savings <span aria-hidden="true">›</span></span></button>
-          <div class="home-intro"><h1 class="home-title">Accounts Overview</h1><button class="home-view-accounts" data-home-list="total">View accounts <span aria-hidden="true">›</span></button></div>
+          <div class="home-intro"><h1 class="home-title">Overview</h1><button class="home-view-accounts" data-home-list="total">View accounts <span aria-hidden="true">›</span></button></div>
           <div id="syncStrip" class="sync-strip home-sync" role="status" hidden></div>
           <div class="stats-row">
             <button class="stat-card" data-home-list="total"><span class="overview-icon" data-icon="users" aria-hidden="true"></span><span class="home-stat-copy"><span class="stat-label">Total accounts</span><strong id="usableStat" class="stat-value">—</strong></span></button>
@@ -2223,7 +2223,7 @@
           <button class="home-action-row" data-home-detail="planner"><span data-icon="calculator" aria-hidden="true"></span><span><strong>Order Planner</strong><small id="homePlannerSummary">Work out what you’ll pay</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
           <div id="homeAnalytics"><button class="home-action-row" data-open-sheet="receipts"><span data-icon="chart" aria-hidden="true"></span><span><strong>Receipt insights</strong><small>Spending and activity</small></span><span class="row-chevron" aria-hidden="true">›</span></button></div>
         </div></section>
-        <button class="home-needs-checking" data-home-review="true"><span data-icon="alert" aria-hidden="true"></span><span><strong>Needs checking</strong><small>Review accounts</small></span><strong id="homeNeedsChecking">—</strong><span class="row-chevron" aria-hidden="true">›</span></button>
+        <button class="home-needs-checking" data-home-review="true"><span data-icon="alert-circle" aria-hidden="true"></span><span><strong>Needs checking</strong><small>Review accounts</small></span><strong id="homeNeedsChecking">—</strong><span class="row-chevron" aria-hidden="true">›</span></button>
       </section>
 <section id="view-planner" class="view home-detail" aria-labelledby="plannerTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span></button><h1 id="plannerTitle" tabindex="-1">Order Planner</h1><button class="detail-switch" data-home-detail="offers">Find an offer <span aria-hidden="true">›</span></button></div>        <div class="planner-column">
         <section class="hero-card glass">
@@ -2563,10 +2563,16 @@
       }
     }
 
+    function renderHomePlannerSummary() {
+      const basket=new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP',minimumFractionDigits:0,maximumFractionDigits:2}).format(plannerSettings.basketSubtotal);
+      document.getElementById('homePlannerSummary').textContent=basket+' basket · '+(plannerSettings.fulfilment==='pickup'?'Collection':'Delivery');
+    }
+
     function savePlannerSettings() {
       const helper=document.getElementById('settingsFeeHelper');if(helper)helper.textContent=money(effectiveFee())+' estimated per order';
       try {
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(plannerSettings));
+        renderHomePlannerSummary();
       } catch { showLocalNotice(); }
     }
 
@@ -2914,8 +2920,7 @@
       document.getElementById('savedStat').setAttribute('aria-label',(promo.value==null?'Amount unavailable':money(promo.value))+' in promo discounts, '+period+', '+service);
       for(const [id,kind]of [['usableStat','total'],['activeStat','ready'],['loginStat','login'],['archivedStat','archived']])document.getElementById(id).textContent=homeDirectoryRows(kind).length.toLocaleString('en-GB');
       document.getElementById('homeNeedsChecking').textContent=usedActivityModel().summary.needs_checking.toLocaleString('en-GB');
-      const fee = effectiveFee();
-
+      renderHomePlannerSummary();
     }
 
     let selectedPlannerKey = null, otherOptionsOpen = false, plannerComparisonCache = null;

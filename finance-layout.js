@@ -63,6 +63,7 @@ const paths = {
   grid: '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
   ignored: '<path d="m3 3 18 18M10 5c6-1 10 7 10 7a19 19 0 0 1-3 4M6 6a20 20 0 0 0-4 6s4 7 10 7c2 0 3-1 4-2"/><path d="M9 9a4 4 0 0 0 6 6"/>',
   partial: '<circle cx="12" cy="12" r="9"/><path d="M12 3v9h9"/>',
+  'alert-circle': '<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/>',
   alert: '<path d="m12 3 10 18H2L12 3ZM12 9v5M12 17h.01"/>',
   star: '<path d="m12 2 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6Z"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>'

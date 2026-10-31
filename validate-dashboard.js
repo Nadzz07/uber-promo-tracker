@@ -45,7 +45,7 @@ assert.ok(html.includes("Not finished"));
 assert.ok(html.includes("Matching accounts"));assert.equal(html.includes('id="view-offers"'),false,"The duplicate finder page is removed");
 assert.ok(html.includes("Total saved"));
 assert.ok(html.includes('id="loginStat"') && html.includes('id="archivedStat"'));
-assert.ok(html.includes("Accounts Overview"));
+assert.ok(html.includes('<h1 class="home-title">Overview</h1>'));
 assert.ok(html.includes("Total accounts"));
 assert.ok(html.includes("Matching receipts"));
 assert.ok(html.includes("Account receipt rule met"));
