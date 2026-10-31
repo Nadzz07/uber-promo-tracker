@@ -394,7 +394,7 @@ try {
   await filterPage.locator('.ri-range').selectOption('all');await filterPage.locator('[data-ri-service=all]').click();await filterPage.locator('.ri-metric-select').selectOption('orders');
   assert.equal(await filterPage.locator('.ri-activity-row').count(),3);
   assert.deepEqual(await filterPage.locator('.ri-activity-row strong').allTextContents(),['1','1','1']);
-  await filterPage.locator('.ri-breakdown').click();assert.deepEqual(await filterPage.locator('.ri-activity-row strong').allTextContents(),['—','—','—'],'Legacy combined savings do not establish promo discounts');await filterPage.locator('[data-receipts-back]').click();
+  await filterPage.locator('.ri-breakdown').click();assert.deepEqual(await filterPage.locator('.ri-activity-row strong').allTextContents(),['—','—','—','—','—'],'Legacy combined savings do not establish promo discounts in any calendar bucket');await filterPage.locator('[data-receipts-back]').click();
   await filterPage.locator('[data-receipts-back]').click();
   // A published available state cannot survive its deadline, even without a new import.
   const clockNow=Date.now();
