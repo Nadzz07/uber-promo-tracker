@@ -48,7 +48,11 @@ try{for(const [width,height,largeText] of [[440,956,false],[390,844,false],[430,
  assert.equal(await page.locator('#view-home #basketInput').count(),0);
  assert.equal(await page.locator('#view-home #quickGrid').count(),0);
  assert.deepEqual(await page.locator('#view-home .stat-label').allTextContents(),['Total saved','Total accounts','Accounts ready','Can log in','Archived']);
- assert.equal(await page.locator('.home-overview .home-title').innerText(),'Accounts Overview');
+ assert.equal(await page.locator('.home-overview .home-title').innerText(),'Overview');
+ assert.equal(await page.locator('#scanTime').getAttribute('data-published-at'),stamp);
+ assert.equal(await page.locator('#homePlannerSummary').innerText(),'£15 basket · Delivery');
+ assert.equal(await page.locator('.stats-row .stat-sub').count(),0);
+ assert.ok(await page.locator('.stat-card').evaluateAll(cards=>cards.every(c=>{const icon=c.querySelector('.overview-icon').getBoundingClientRect(),copy=c.querySelector('.home-stat-copy').getBoundingClientRect();return Math.abs(icon.top+icon.height/2-copy.top-copy.height/2)<1;})),'Icons centre on the complete title and count');
  assert.equal(await page.locator('#availableStatCard .stat-sub').count(),0);
  assert.equal(await page.locator('#homeReadyCount').innerText(),'Search offers in Accounts');
  if(width===440&&!largeText){
@@ -93,7 +97,7 @@ try{for(const [width,height,largeText] of [[440,956,false],[390,844,false],[430,
 
  // Reserved scrollbars reduce the usable canvas; system fonts may wrap a caption.
  if(width===430&&!largeText){const canvas=await page.evaluate(()=>document.documentElement.clientWidth);assert.ok(copy.every(c=>Math.abs(c.width-(canvas-45)/2)<3&&c.height>=90&&c.height<=100&&c.offset[0]>=45),'Home metrics retain the reference width and inset without clipping wrapped text: '+JSON.stringify({canvas,copy}));}
- if(output&&!largeText&&[430,1440].includes(width))await page.screenshot({path:output+'/'+name+'-'+width+'-home.png',fullPage:width>=980});
+ if(output&&!largeText&&[440,430,320,1440].includes(width))await page.screenshot({path:output+'/'+name+'-'+width+'-home.png',fullPage:width>=980});
  if(width===390&&!largeText){assert.ok(await page.locator('#homeAnalytics').evaluate(e=>e.getBoundingClientRect().bottom<innerHeight+100),'Overview allows little natural scrolling on typical iPhone viewport');}
  const find=page.locator('[data-home-detail="offers"]').first();await find.focus();await page.keyboard.press('Enter');await page.locator('#view-accounts.active').waitFor();
  assert.equal(await page.locator('[data-view="accounts"]').getAttribute('aria-current'),'page');
@@ -101,11 +105,11 @@ try{for(const [width,height,largeText] of [[440,956,false],[390,844,false],[430,
  await directoryAvailability(page,'all');await directoryType(page,'fixed:12:15');
  await page.goBack();await page.locator('#view-home.active').waitFor();assert.ok(await find.evaluate(e=>e===document.activeElement),'Back restores the opening row');
  await find.click();assert.equal(await page.locator('#accountSearch').inputValue(),'second');assert.equal(await page.locator('#accountOfferScope').inputValue(),'all');assert.equal(await page.locator('[data-preferred-filter="fixed:12:15"]').getAttribute('aria-pressed'),'true');await page.keyboard.press('Escape');
- await page.locator('[data-view=home]').click();await page.locator('#view-home [data-home-detail="planner"]').click();await page.locator('#basketInput').fill('30');await page.locator('#plannerFulfilment').selectOption('pickup');assert.equal(await page.locator('#homePlannerSummary').innerText(),'Work out what you’ll pay');
+ await page.locator('[data-view=home]').click();await page.locator('#view-home [data-home-detail="planner"]').click();await page.locator('#basketInput').fill('30');await page.locator('#plannerFulfilment').selectOption('pickup');assert.equal(await page.locator('#homePlannerSummary').innerText(),'£30 basket · Collection');
  const result=await page.locator('#recommendation').innerText();assert.equal(await page.locator('#plannerFeeInput').inputValue(),'1.00');
  await page.goBack();await page.locator('#view-home.active').waitFor();await page.goForward();await page.locator('#view-planner.active').waitFor();assert.equal(await page.locator('#basketInput').inputValue(),'30');assert.equal(await page.locator('#plannerFulfilment').inputValue(),'pickup');assert.equal(await page.locator('#recommendation').innerText(),result);
  if(output&&!largeText&&[430,1440].includes(width))await page.screenshot({path:output+'/'+name+'-'+width+'-planner.png',fullPage:true});
- await page.locator('#view-planner [data-home-back]').click();await page.locator('#view-home.active').waitFor();assert.equal(await page.locator('#homePlannerSummary').innerText(),'Work out what you’ll pay');
+ await page.locator('#view-planner [data-home-back]').click();await page.locator('#view-home.active').waitFor();assert.equal(await page.locator('#homePlannerSummary').innerText(),'£30 basket · Collection');
  await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.locator('#recommendation').innerText(),result);
  // Explicitly choosing an account resets discovery filters so a previous
  // search cannot hide that chosen account; ordinary view switches retain it.
@@ -122,6 +126,16 @@ try{for(const [width,height,largeText] of [[440,956,false],[390,844,false],[430,
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  if(width<980){assert.ok((await page.locator('input,select,textarea').evaluateAll(fields=>fields.map(e=>parseFloat(getComputedStyle(e).fontSize)))).every(n=>n>=16));assert.ok(!/maximum-scale|user-scalable=no/.test(await page.locator('meta[name="viewport"]').getAttribute('content')));}
  if(width===440&&!largeText){ await page.locator('[data-view=home]').click();await page.locator('.total-saved-card').click();await page.locator('.ri-range').selectOption('all');await page.locator('[data-ri-service=all]').click();await page.locator('[data-receipts-back]').click();await page.evaluate(async()=>{const {PrivateFinanceVault}=await import('./private-finance-vault.js');const v=new PrivateFinanceVault();await v.append({kind:'receipt',recordId:'receipt-original',accountRef:'A901',action:'set',value:{total:3,breakdown:{ridePromotions:3},outOfPocket:0}});window.dispatchEvent(new StorageEvent('storage',{key:'uber-tracker-finance-encrypted-v1'}));});await page.waitForFunction(()=>document.getElementById('savedStat').textContent==='£3.00');await page.locator('.total-saved-card').click();assert.equal(await page.locator('.savings-hero .ri-paid-total').innerText(),'£3.00');await page.evaluate(async()=>{const {PrivateFinanceVault}=await import('./private-finance-vault.js');const v=new PrivateFinanceVault();await v.append({kind:'receipt',recordId:'receipt-original',accountRef:'A901',action:'undo'});window.dispatchEvent(new StorageEvent('storage',{key:'uber-tracker-finance-encrypted-v1'}));});await page.locator('.ri-range').selectOption('month');await page.locator('[data-ri-service=eats]').click();await page.locator('[data-receipts-back]').click();}
+ if(width===440&&!largeText){
+  await page.locator('[data-view=home]').click();
+  const background=await page.locator('body').evaluate(e=>getComputedStyle(e).backgroundImage);
+  await page.evaluate(()=>{localStorage.setItem('uber-eats-promo-tracker:theme:v1','#1b8a82');dispatchEvent(new StorageEvent('storage',{key:'uber-eats-promo-tracker:theme:v1'}));});
+  assert.notEqual(await page.locator('body').evaluate(e=>getComputedStyle(e).backgroundImage),background,'Home fades follow a custom wheel colour');
+  await page.reload();await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Updated');
+  assert.equal(await page.locator('#homePlannerSummary').innerText(),'£30 basket · Delivery');
+  assert.equal(await page.evaluate(()=>localStorage.getItem('uber-eats-promo-tracker:theme:v1')),'#1b8a82');
+  assert.equal(await page.locator('#scanTime').getAttribute('datetime'),stamp);
+ }
  assert.deepEqual(errors,[]);await context.close();
 }assert.equal(writes,0);console.log('✓ Compact Home, Back/Forward/focus and persistent filters/planner; private Cash blank/zero, account drafts, explicit coverage, fees, save/reopen/undo/redo/history and encrypted transfer roundtrip; 6 sizes/text configurations; exact Overview/review destinations and correction-driven Savings parity ('+name+')');
 }finally{await browser.close();server.close();}
