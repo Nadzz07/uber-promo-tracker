@@ -65,6 +65,7 @@ const paths = {
   partial: '<circle cx="12" cy="12" r="9"/><path d="M12 3v9h9"/>',
   'alert-circle': '<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/>',
   alert: '<path d="m12 3 10 18H2L12 3ZM12 9v5M12 17h.01"/>',
+  trophy: '<path d="M8 3h8v6a4 4 0 0 1-8 0V3ZM8 5H3v3a4 4 0 0 0 5 4M16 5h5v3a4 4 0 0 1-5 4M12 13v8M8 21h8"/>',
   star: '<path d="m12 2 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6Z"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>'
 };

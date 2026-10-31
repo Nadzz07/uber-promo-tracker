@@ -12,7 +12,7 @@ assert.equal(model.amounts.outOfPocket.value,32,'No unknown-credit or unresolved
 assert.equal(stats.contributing.length,4);assert.equal(stats.average,6.5);assert.equal(stats.best,12);
 assert.equal(stats.top.find(g=>g.key==='unmatched').value,18,'Equal advertised amount does not attribute an offer');assert.equal(stats.top.find(g=>g.key!=='unmatched').value,8,'Only confirmed receipt/account link attributes savings');
 const savings=receiptOverviewMarkup(model,{...state,page:'savings',source}),insights=receiptOverviewMarkup(model,state);
-assert.match(savings,/Savings over time/);assert.match(savings,/Your top offers/);assert.doesNotMatch(savings,/Out-of-pocket|Basket subtotal|Uber Cash used|Recent receipts/);
+assert.match(savings,/Savings over time/);assert.match(savings,/Top offers/);assert.doesNotMatch(savings,/Out-of-pocket|Basket subtotal|Uber Cash used|Recent receipts/);
 assert.match(insights,/Known out-of-pocket spend/);assert.equal((insights.match(/ri-card ri-combined/g)||[]).length,1);assert.doesNotMatch(insights,/Your top offers|Best saving|Average saving/);
 const buckets=receiptActivityBuckets(model,{...state,metric:'promos'});assert.equal(buckets.buckets.reduce((n,b)=>n+(b.value??0),0),26);const max=Math.max(...buckets.buckets.map(b=>b.value??0));for(const b of buckets.buckets)assert.equal(b.width,(b.value??0)/max*100);
 for(const service of ['eats','rides','all']){const filtered=receiptInsightsModel({data,...state,service});assert.equal(savingsModel(filtered,source).promo.value,filtered.amounts.promos.value);}
@@ -28,7 +28,7 @@ const cashOffer={...offer,id:'cash-only-link',discountType:'uberCash'};const cas
 
 const sparse={...model,imported:false,coverageIncomplete:true,amountVersion:1,service:'all',groups:[{day:'2026-10-02',count:1,amounts:model.amounts}],publicMonths:[]};const sparseBars=receiptActivityBuckets(sparse,{...state,metric:'promos'}).buckets;assert.ok(sparseBars.every(b=>b.partial));assert.equal(sparseBars[1].value,null,'Missing daily coverage cannot establish a zero savings bucket');
 
-const publicSingle={...model,imported:false,rows:undefined,groups:[],coverageIncomplete:true,amountVersion:1,amounts:{...model.amounts,promos:{value:14.85,known:1,total:13}}};assert.equal(savingsModel(publicSingle).average,14.85);assert.equal(savingsModel(publicSingle).best,14.85);const publicMarkup=receiptOverviewMarkup(publicSingle,{...state,page:'savings'});assert.match(publicMarkup,/Other promos/);assert.match(publicMarkup,/Across 1 receipt with/);assert.match(publicMarkup,/Known average saving/);assert.equal((publicMarkup.match(/data-ri-top-offer=/g)||[]).length,0,'An aggregate does not invent receipt links');
+const publicSingle={...model,imported:false,rows:undefined,groups:[],coverageIncomplete:true,amountVersion:1,amounts:{...model.amounts,promos:{value:14.85,known:1,total:13}}};assert.equal(savingsModel(publicSingle).average,14.85);assert.equal(savingsModel(publicSingle).best,14.85);const publicMarkup=receiptOverviewMarkup(publicSingle,{...state,page:'savings'});assert.match(publicMarkup,/Other promos/);assert.match(publicMarkup,/Across 1 receipt with/);assert.match(publicMarkup,/Known average per order\/trip/);assert.equal((publicMarkup.match(/data-ri-top-offer=/g)||[]).length,0,'An aggregate does not invent receipt links');
 
 assert.doesNotMatch(insights,/ri-receipt-breakdown|aria-label="Receipt breakdown"/);
 
@@ -67,3 +67,21 @@ assert.equal(receiptReviewState({...compactUnallocated,total:1,uberCashUsed:2}).
 assert.equal(receiptReviewState({...compactUnallocated,promotionDiscount:12,reportedSavings:5}).needsChecking,true,'Conflicting recorded savings remain actionable');
 assert.equal(receiptReviewState({...compactUnallocated,total:2.5,previousTotal:4}).needsChecking,true,'An unresolved changed charge is still reviewable');
 console.log('✓ Receipt coverage is separate from actionable review; unknowns stay null, zero stays zero, refunds/adjustments/conflicts still require review');
+
+// Savings shows the whole month without pretending future discounts are known.
+const midNow=new Date('2026-10-15T12:00:00Z'),midModel=receiptInsightsModel({data,range:'month',service:'all',now:midNow});
+const fullMonth=receiptActivityBuckets(midModel,{range:'month',metric:'promos',now:midNow,completeRange:true});
+assert.equal(fullMonth.buckets.length,5);assert.equal(fullMonth.buckets.at(-1).end,'2026-10-31');assert.equal(fullMonth.grouping,'Weekly');
+assert.ok(fullMonth.buckets.filter(b=>b.future).every(b=>b.value===null&&b.width===0));assert.equal(fullMonth.buckets.reduce((n,b)=>n+(b.value??0),0),midModel.amounts.promos.value);
+const oldMonth=receiptActivityBuckets(model,{range:'lastMonth',metric:'promos',now,completeRange:true});assert.equal(oldMonth.buckets.at(-1).end,'2026-09-30');
+const dailyModel=receiptInsightsModel({data:{receipts:rows.slice(0,2)},range:'all',service:'all',now:midNow});assert.equal(receiptActivityBuckets(dailyModel,{range:'all',metric:'promos',now:midNow,completeRange:true}).grouping,'Daily');
+const gaps={imported:false,service:'all',amountVersion:1,publicMonths:[{period:'2026-08',eats:1,rides:0,saved:12},{period:'2026-10',eats:1,rides:0,saved:8}],publicAmounts:r=>({promos:{value:r.saved,known:r.eats+r.rides}})};
+const filled=receiptActivityBuckets(gaps,{range:'all',metric:'promos',now,completeRange:true});assert.equal(filled.buckets.length,3);assert.equal(filled.buckets[1].value,0);
+const tabOrder=[...savings.matchAll(/data-ri-service="([^"]+)"/g)].map(m=>m[1]);assert.deepEqual(tabOrder,['all','eats','rides']);
+console.log('✓ Savings full-month/future buckets, proportional amounts, daily grouping, empty months and service value ordering.');
+
+const legacyFilled=receiptActivityBuckets({...gaps,amountVersion:undefined},{range:'all',metric:'promos',now,completeRange:true});assert.ok(legacyFilled.buckets.every(b=>b.value===null),'Missing promo amounts do not become zero in added calendar buckets');
+
+const zeroSavings=receiptInsightsModel({data:{receipts:[receipt('known-zero','2026-10-02',0)]},...state});assert.equal(savingsModel(zeroSavings).best,0,'A recorded zero discount is a known zero best saving');assert.equal(savingsModel(zeroSavings).average,null,'No positive qualifying discounts means no average denominator');
+
+const incompleteGaps=receiptActivityBuckets({...gaps,coverageIncomplete:true},{range:'all',metric:'promos',now,completeRange:true});assert.equal(incompleteGaps.buckets[1].value,null,'An uncovered month stays unknown when the source is incomplete');

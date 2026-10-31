@@ -2316,7 +2316,7 @@
 
   <script type="module">
     import { financeIcon } from "./finance-layout.js";
-    import {receiptDetailMarkup,receiptInsightRecord,receiptInsightsModel,createReceiptInsights,RECEIPT_RANGES} from "./receipt-insights.js";
+    import {receiptDetailMarkup,receiptInsightRecord,receiptInsightsModel,createReceiptInsights,RECEIPT_RANGES,DEFAULT_SAVINGS_SERVICE} from "./receipt-insights.js";
     import { PALETTE } from './theme-palette.js';
     import {dedupeReceipts} from "./receipt-identity.js";
     import { financialSummary, receiptFinancials, receiptReviewState } from "./receipt-financials.js";
@@ -2908,9 +2908,9 @@
     function homeDirectoryFilters(kind){return {search:'',login:kind==='login'?'login':'all',provider:'all',type:kind==='ready'?'preferred':'all',management:kind==='archived'?'archived':'tracked',availability:kind==='ready'?'ready':'any',sort:accountSort};}
     function homeDirectoryRows(kind){return directoryAccounts(enrichedAccounts(),homeDirectoryFilters(kind),offerPreferences);}
     function homeSavingsSelection(){
-      if(receiptInsightsView)return {range:receiptInsightsView.state.range,service:receiptInsightsView.state.service};
+      if(receiptInsightsView)return {range:receiptInsightsView.state.range,service:receiptInsightsView.state.serviceSaved?receiptInsightsView.state.service:DEFAULT_SAVINGS_SERVICE};
       let saved={};try{saved=JSON.parse(sessionStorage.getItem('uber-tracker-receipt-view:v1')||'{}');}catch{}
-      return {range:RECEIPT_RANGES.some(([k])=>k===saved.range)?saved.range:'month',service:['eats','rides','all'].includes(saved.service)?saved.service:'eats'};
+      return {range:RECEIPT_RANGES.some(([k])=>k===saved.range)?saved.range:'month',service:['eats','rides','all'].includes(saved.service)?saved.service:DEFAULT_SAVINGS_SERVICE};
     }
     function renderStats() {
       const selection=homeSavingsSelection(),model=receiptInsightsModel({data:financeVault.data,corrections:financeVault.current().corrections,payload,...selection}),promo=model.amounts.promos;
@@ -3809,7 +3809,7 @@
           openSheetType='receipt-detail';receiptInsightsView.openReceipt(id);showSheet();document.querySelector('.ri-back').focus({preventScroll:true});
         }
       });
-      if(openSheetType!=='receipt-detail'){if(receiptInsightsView.state.page!==currentView){receiptInsightsView.state.savingsList=false;receiptInsightsView.state.savingsOffer=null;}receiptInsightsView.state.page=currentView;receiptInsightsView.state.receiptId=null;receiptInsightsView.render();}
+      if(openSheetType!=='receipt-detail'){if(currentView==='savings'&&!receiptInsightsView.state.serviceSaved)receiptInsightsView.state.service=DEFAULT_SAVINGS_SERVICE;if(receiptInsightsView.state.page!==currentView){receiptInsightsView.state.savingsList=false;receiptInsightsView.state.savingsOffer=null;}receiptInsightsView.state.page=currentView;receiptInsightsView.state.receiptId=null;receiptInsightsView.render();}
     }
 
     function renderAboutSheet() {

@@ -250,3 +250,39 @@ body:has(#sheetBackdrop.open .sheet[data-receipt-check]) #mainNav { visibility:h
 .check-warning.resolved { border-color:var(--rich-border); background:var(--theme-menu-panel); color:var(--rich-secondary); }
 
 .check-final.resolved { border-color:var(--rich-border); color:var(--rich-secondary); }.check-final.resolved strong { color:var(--color-text); }
+/* Final Savings reference: softer materials without changing spending pages. */
+html:has(#view-receipts.active .savings-page),body:has(#view-receipts.active .savings-page) { background:radial-gradient(ellipse at 0% 0%,color-mix(in srgb,var(--color-accent) 12%,transparent),transparent 48%),radial-gradient(ellipse at 100% 75%,color-mix(in srgb,var(--color-accent) 6%,transparent),transparent 55%),var(--theme-account-page); background-attachment:fixed; }
+body:has(#view-receipts.active .savings-page)::before { display:none; }
+.ri-page:has(.savings-page) .ri-page-head { position:relative; top:auto; background:none; margin-bottom:16px; }
+.ri-page:has(.savings-page) .ri-page-head::before { content:none; }
+.ri-page:has(.savings-page) .ri-page-head h1 { font-size:28px; line-height:1.25; font-weight:600; }
+.ri-page:has(.savings-page) .ri-page-head button { width:36px; }
+.savings-page .ri-card { background:radial-gradient(ellipse at 0% 0%,color-mix(in srgb,var(--color-accent) 5%,transparent),transparent 82%),var(--theme-account-panel); border-color:color-mix(in srgb,var(--color-soft-accent) 27%,var(--color-border)); }
+.savings-page .ri-period { margin-bottom:10px; }
+.savings-page .ri-period select { border-radius:12px; background:var(--theme-account-panel); border-color:color-mix(in srgb,var(--color-soft-accent) 27%,var(--color-border)); min-height:44px; }
+.savings-page .ri-filters { border-color:color-mix(in srgb,var(--color-soft-accent) 27%,var(--color-border)); background:var(--theme-account-panel); gap:0; }
+.savings-page .ri-filters button { min-height:40px; }
+.savings-page .savings-hero { min-height:150px; padding:16px; margin-bottom:12px; border-color:color-mix(in srgb,var(--color-accent) 42%,var(--color-border)); background:radial-gradient(ellipse at 95% 10%,color-mix(in srgb,var(--color-accent) 13%,transparent),transparent 76%),var(--theme-account-panel); grid-template-columns:minmax(0,1fr) 52px; }
+.savings-page .savings-hero .ri-paid-label { font-size:17px; font-weight:600; color:var(--color-text); }
+.savings-page .savings-hero .ri-paid-total { font-size:44px; margin:8px 0 4px; }
+.savings-page .savings-hero .ri-hero-copy>p { font-size:13px; line-height:19px; }
+.savings-page .savings-source-caption { display:block; margin-top:14px; font-size:12px; line-height:17px; color:var(--color-secondary); }
+.savings-page .savings-hero>svg { width:48px; height:48px; opacity:1; color:var(--color-soft-accent); }
+.savings-page .savings-support { gap:10px; margin:0 0 12px; }
+.savings-page .savings-support>.icon-content-row { flex-direction:row; flex-wrap:nowrap; gap:12px; padding:12px; min-width:0; }
+.savings-page .savings-support .icon-content-copy { gap:4px; }
+.savings-page .savings-support h2 { font-size:13px; line-height:18px; font-weight:400; min-height:0; }
+.savings-page .savings-support strong { font-size:28px; line-height:1.1; }
+.savings-page .savings-support>.icon-content-row>svg { width:24px; height:26px; flex:0 0 24px; color:var(--color-soft-accent); }
+.savings-page .ri-activity { padding:14px 16px; border-radius:18px; }
+.savings-page .ri-activity-rows { gap:14px; margin:16px 0; }
+.savings-page .ri-activity-track { height:14px; }
+.savings-page .ri-activity-row strong:not(.ri-unknown) { color:var(--color-positive); }
+.savings-page .ri-activity-row .ri-unknown { font-size:12px; }
+.savings-page .savings-ranking { padding:14px 16px 0; }
+.savings-page .savings-ranking button,.savings-page .savings-unattributed { min-height:56px; padding:12px 0; }
+.savings-page .savings-ranking :is(button,.savings-unattributed)>svg { color:var(--color-soft-accent); }
+.savings-page .ri-breakdown { margin-bottom:12px; }
+@media(max-width:370px) { .savings-page .savings-support>.icon-content-row { padding:10px; gap:8px; } .savings-page .savings-support strong { font-size:25px; } .savings-page .savings-hero .ri-paid-total { font-size:39px; } }
+.savings-page .savings-hero .ri-paid-total.ri-unknown { font-size:26px; line-height:1.4; }
+.savings-page .savings-support .ri-unknown { font-size:20px; font-weight:400; }
