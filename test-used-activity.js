@@ -32,3 +32,5 @@ const repeatedReview=buildUsedActivity(accounts,[{...unused,id:'conflict-a',trac
 assert.equal(repeatedReview.summary.needs_checking,1,'Multiple real issues on one account count once');
 assert.match(repeatedReview.buckets.needs_checking[0].evidence,/Offer terms conflict/);
 console.log('✓ Account review is actionable, deduplicated and independent of missing optional receipt confirmation');
+
+const singleEats=buildUsedActivity([{accountRef:'one-eats',orderCount:1,rideCount:0}],[],{});assert.equal(singleEats.summary.used,0,'One Eats alone is not account completion');assert.equal(singleEats.summary.needs_checking,0,'A known unused account is not automatically uncertain');
