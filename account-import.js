@@ -6,10 +6,13 @@ export function accountWithDeviceMetadata(mapping,account){
 export function prepareAccountImport(input,accounts,saved){
  if(input?.kind==='uber-tracker-encrypted-finance')throw Error('Legacy encrypted file: convert it in your trusted Mac environment before importing.');
  if(input?.kind!=='uber-tracker-device-accounts'||input.schemaVersion!==1||!Array.isArray(input.accounts)||input.accounts.length>5000)throw Error('Choose a tracker device-accounts JSON export.');
- const issues=[],groups=new Map(),refs=new Map(),mapping={},notes={},review=[];let unchanged=0,added=0,updated=0;
- input.accounts.forEach((row,index)=>{const id=typeof row?.email==='string'?row.email.trim().toLowerCase():null;if(!id){issues.push({index:index+1,reason:'Missing email address'});return;}const group=groups.get(id)||[];group.push({row,index:index+1});groups.set(id,group);const r=refs.get(row.accountRef)||new Set();r.add(id);refs.set(row.accountRef,r);});
+ const issues=[],groups=new Map(),emailRefs=new Map(),mapping={},notes={},review=[];let unchanged=0,added=0,updated=0;
+ const identity=row=>typeof row?.email==='string'?row.email.trim().toLowerCase():'';
+ const signature=row=>JSON.stringify(Object.fromEntries(Object.keys(row||{}).sort().map(k=>[k,k==='email'?identity(row):row[k]])));
+ input.accounts.forEach((row,index)=>{const email=identity(row),key=row?.accountRef||email||'invalid-'+index,group=groups.get(key)||[];group.push({row,index:index+1});groups.set(key,group);if(email){const refs=emailRefs.get(email)||new Set();refs.add(key);emailRefs.set(email,refs);}});
  for(const group of groups.values()){
-  const {row,index}=group[0];if(group.some(g=>JSON.stringify(g.row)!==JSON.stringify(row))||refs.get(row.accountRef).size>1){issues.push({index,reason:'Conflicting duplicate rows for this account'});continue;}
+  const {row,index}=group[0];if(!identity(row)){issues.push({index,reason:'Missing email address'});continue;}
+  if(group.some(g=>signature(g.row)!==signature(row))||emailRefs.get(identity(row)).size>1){issues.push({index,reason:'Conflicting duplicate rows for this account'});continue;}
   try{const parsed=parseDeviceAccounts({...input,accounts:[{...row,email:row.email.trim()}]},accounts),ref=Object.keys(parsed)[0],value=parsed[ref],account=accounts.find(a=>a.accountRef===ref),prior=saved[ref],fields=[];
    const next={...prior,...value};
    if(!prior)fields.push('Add full email to this account');else if(prior.email.toLowerCase()!==value.email.toLowerCase())fields.push('Email: '+prior.email+' → '+value.email);else next.email=prior.email;

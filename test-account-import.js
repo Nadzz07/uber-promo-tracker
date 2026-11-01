@@ -9,3 +9,7 @@ assert.throws(()=>prepareAccountImport(file([row,{...row,canLogin:true}]),accoun
 const invalid=prepareAccountImport(file([row,{email:'bad'}]),accounts,{});assert.equal(invalid.counts.added,1);assert.equal(invalid.counts.rejected,1);
 const blank=prepareAccountImport(file([{...row,canLogin:'',loginMethod:''}]),accounts,added.mapping);assert.equal(blank.changes,0);
 console.log('✓ Account import: normalized identity, unique mutually exclusive counts, duplicate conflicts, missing/blank fields, reviewed access/provider/note clearing, both providers and safe device-only projection.');
+
+assert.throws(()=>prepareAccountImport(file([row,{...row,email:'teotherst@example.invalid'}]),accounts,{}),/Conflicting duplicate/);
+assert.throws(()=>prepareAccountImport(file([row,{...row,email:''}]),accounts,{}),/Conflicting duplicate/);
+assert.equal(prepareAccountImport(file([row,{...row,email:row.email.toUpperCase()}]),accounts,{}).counts.added,1);
