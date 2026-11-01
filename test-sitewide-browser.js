@@ -34,18 +34,16 @@ try{
   settings=await page.evaluate(()=>Object.keys(localStorage).filter(k=>k.includes('planner')).map(k=>JSON.parse(localStorage.getItem(k))).find(v=>'feeTouched' in v));
   assert.equal(settings.extraOrderFee,0);assert.match(await page.locator('#recommendation').innerText(),/Enter a valid/);await page.locator('#plannerFeeInput').fill('1');
   await page.keyboard.press('Escape');await page.locator('[data-view="more"]').click();
-  await page.locator('#view-more [data-open-sheet="device"]').click();
+  await page.locator('#view-more [data-open-sheet="health"]').click();await page.locator('[data-account-import]').click();
   const file={name:'test.local.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({schemaVersion:1,kind:'uber-tracker-device-accounts',accounts:importAccounts.map((a,i)=>({...a,email:'testing-private-0'+(i+1)+'@example.invalid'}))}))};
   const requests=[];page.on('request',r=>requests.push({url:r.url(),method:r.method()}));
-  await page.locator('#deviceAccountsFile').setInputFiles(file);await page.locator('[data-apply-device-import]').waitFor();
-  assert.match(await page.locator('.import-access').first().innerText(),/Can log in/);
-  assert.equal(await page.locator('.import-entry').count(),6,'A large preview starts with six entries');
-  await page.locator('[data-show-import-entries]').click();assert.equal(await page.locator('.import-entry').count(),8,'Every entry remains available for review');assert.equal(await page.locator('.import-entry').nth(6).evaluate(el=>document.activeElement===el),true,'Keyboard focus follows the first added entry');
+  await page.locator('.receipt-import-dialog[open] [data-receipt-import-file]').setInputFiles(file);await page.locator('.receipt-import-dialog[open] [data-rim-confirm]').waitFor();
+  assert.equal(await page.locator('.rim-change').count(),8,'All proposed entries are accessible');await page.locator('.rim-view-all').click();
   assert.equal(await page.evaluate(()=>localStorage.getItem('uber-eats-promo-tracker:device-accounts:v1')),null,'Preview cannot persist identities');
-  await page.locator('[data-cancel-device-import]').click();
+  await page.getByRole('button',{name:'Cancel',exact:true}).click();
   assert.equal(await page.evaluate(()=>localStorage.getItem('uber-eats-promo-tracker:device-accounts:v1')),null,'Cancel preserves storage');
-  await page.locator('#deviceAccountsFile').setInputFiles(file);await page.locator('[data-apply-device-import]').click();
-  assert.match(await page.locator('#deviceImportStatus').innerText(),/8 emails imported/);assert.equal(requests.length,0,'Review and apply stay entirely local');
+  await page.locator('[data-account-import]').click();await page.locator('.receipt-import-dialog[open] [data-receipt-import-file]').setInputFiles(file);await page.locator('.receipt-import-dialog[open] [data-rim-confirm]').click();
+  await page.getByText('Import accounts complete.',{exact:true}).waitFor();assert.equal(requests.length,0,'Review and apply stay entirely local');
   assert.equal(await page.evaluate(()=>Object.keys(JSON.parse(localStorage.getItem('uber-eats-promo-tracker:device-accounts:v1'))).length),8,'Apply includes entries beyond the visible preview');
   await page.keyboard.press('Escape');await page.locator('[data-view="accounts"]').click();if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('#accountsList [data-account-offers="A001"]').click();
   await openOfferManagement(page);await page.locator('[data-toggle-ignore][data-ignore="true"]').click();await page.locator('[data-cancel-offer-action]').click();
@@ -76,11 +74,11 @@ try{
   await page.locator('[data-view="used"]').click();
   assert.equal(await page.locator('.activity-card,#view-used > details').count(),0,'Old metric and category-menu presentation is removed');assert.equal(await page.locator('#usedStatusOptions [role=option]').count(),9,'Every existing status group remains available');assert.ok(await page.locator('.used-summary').evaluate(e=>e.scrollWidth<=e.clientWidth+1));
   await page.locator('[data-view="more"]').click();
-  await page.keyboard.press('Escape');await page.locator('#view-more [data-open-sheet="device"]').click();
-  await page.locator('#deviceAccountsFile').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{}')});await page.waitForFunction(()=>document.getElementById('deviceImportStatus').textContent.includes('Choose a tracker'));assert.match(await page.locator('#deviceImportStatus').innerText(),/Choose a tracker/);
+  await page.keyboard.press('Escape');await page.locator('#view-more [data-open-sheet="health"]').click();await page.locator('[data-account-import]').click();
+  await page.locator('.receipt-import-dialog[open] [data-receipt-import-file]').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{}')});await page.locator('.rim-error').waitFor();assert.match(await page.locator('.rim-error').innerText(),/Choose a tracker/);
   if(width<768){
    await page.evaluate(()=>{const viewport=window.visualViewport;Object.defineProperty(viewport,'height',{configurable:true,value:420});Object.defineProperty(viewport,'offsetTop',{configurable:true,value:0});viewport.dispatchEvent(new Event('resize'));});
-   assert.ok(await page.locator('.sheet').evaluate(el=>el.getBoundingClientRect().bottom<=421),'Sheet remains above an emulated keyboard viewport');
+   assert.ok(await page.locator('.receipt-import-dialog[open]').evaluate(el=>el.scrollWidth<=el.clientWidth),'Import remains readable without overflow');
   }
   assert.deepEqual(errors,[]);await page.close();
 

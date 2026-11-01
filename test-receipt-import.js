@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {PrivateFinanceVault} from './private-finance-vault.js';
+import {prepareReceiptImport} from './receipt-import.js';
+import {applyDeviceRestore} from './device-backup.js';
+const values=new Map(),storage={getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,v),removeItem:k=>values.delete(k)},vault=new PrivateFinanceVault(storage);
+const source={kind:'uber-tracker-private-finance',schemaVersion:1,accounts:[{accountRef:'A1'}],receipts:[{receiptId:'r1',accountRef:'A1',service:'Uber Eats',total:4}],events:[]};await vault.import(source);await vault.append({kind:'receipt',recordId:'r1',accountRef:'A1',action:'set',value:{outOfPocket:0,total:12}});const events=structuredClone(vault.data.events);
+const mixed={...source,receipts:[{...source.receipts[0],total:5},{receiptId:'r2',accountRef:'A1',service:'Uber',total:0,currency:'GBP'},{receiptId:'bad',accountRef:'missing'}]};
+const preview=await prepareReceiptImport(vault,mixed);assert.deepEqual(preview.counts,{added:1,updated:1,unchanged:0,rejected:1});assert.equal(vault.data.receipts.length,1);assert.match(preview.issues[0].reason,/account/);await applyDeviceRestore(vault,preview.plan);assert.deepEqual(vault.data.events,events);assert.equal(vault.data.receipts.find(r=>r.receiptId==='r2').total,0);
+const repeat=await prepareReceiptImport(vault,mixed);assert.deepEqual(repeat.counts,{added:0,updated:0,unchanged:2,rejected:1});assert.equal(repeat.changes,0);await applyDeviceRestore(vault,repeat.plan);assert.equal(vault.data.events.length,1);
+await assert.rejects(()=>prepareReceiptImport(vault,{kind:'random'}),/private receipts export/);await assert.rejects(()=>prepareReceiptImport(vault,{...source,receipts:[source.receipts[0],{...source.receipts[0],total:6}]}),/Conflicting duplicate/);
+const legacy={kind:'uber-tracker-encrypted-finance',schemaVersion:1};await assert.rejects(()=>prepareReceiptImport(vault,legacy),/convert/);
+const duplicates=await prepareReceiptImport(vault,{...source,receipts:[...vault.data.receipts,...vault.data.receipts]});assert.equal(duplicates.changes,0);assert.equal(duplicates.counts.unchanged,4);
+console.log('✓ Receipt import preview: exclusive new/updated/unchanged/rejected counts, partial identity rejection, zero/currency, no preview writes, preserved corrections, repeated import, conflicting IDs and legacy compatibility.');

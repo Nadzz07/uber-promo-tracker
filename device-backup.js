@@ -1,3 +1,4 @@
+import {encryptDeviceFile,decryptDeviceFile,LEGACY_FILE_MESSAGE} from './device-file-key.js';
 import {validateFinanceData,encryptFinance,decryptFinance,FINANCE_STORAGE_KEY,commitDeviceRestore,mergeFinanceData} from './private-finance-vault.js';
 import {deviceEmail} from './device-accounts.js';
 import {normaliseManualStore} from './manual-state.js';
@@ -31,9 +32,10 @@ export function deviceBackup(vault,storage=vault.storage){
  if(!values[prefix+'manual-state:v3']){const legacy=JSON.parse(storage.getItem('uber-eats-promo-finder:promo-state:v2')||'{}'),offers={};for(const [id,state]of Object.entries(legacy)){if(state==='ignored')offers[id]={ignored:true};if(state==='used')offers[id]={forceDone:true};}if(Object.keys(offers).length)values[prefix+'manual-state:v3']=JSON.stringify({version:3,offers});}
  validateValues(values);return {...vault.data,deviceBackup:{schemaVersion:1,createdAt:new Date().toISOString(),values}};
 }
-export async function exportDeviceBackup(vault,password){const value=JSON.stringify(await encryptFinance(deviceBackup(vault),password));if(value.length>19999000)throw Error('This device backup exceeds the supported 20 MB transfer size. Existing data is unchanged.');return value;}
+export async function exportDeviceBackup(vault,password){const value=JSON.stringify(await (password===undefined?encryptDeviceFile(deviceBackup(vault)):encryptFinance(deviceBackup(vault),password)));if(value.length>19999000)throw Error('This device backup exceeds the supported 20 MB transfer size. Existing data is unchanged.');return value;}
 export async function readDeviceBackup(input,password){
- const data=input?.kind==='uber-tracker-encrypted-finance'?await decryptFinance(input,password):validateFinanceData(input);
+ if(input?.kind==='uber-tracker-encrypted-finance'&&password===undefined)throw Error(LEGACY_FILE_MESSAGE);
+ const data=input?.kind==='uber-tracker-device-encrypted'?await decryptDeviceFile(input):input?.kind==='uber-tracker-encrypted-finance'?await decryptFinance(input,password):validateFinanceData(input);
  validateFinanceData(data);badKeys(data);
  if(data.deviceBackup){if(data.deviceBackup.schemaVersion!==1||!Number.isFinite(Date.parse(data.deviceBackup.createdAt)))throw Error('Unsupported device backup version.');validateValues(data.deviceBackup.values);}
  const ids=new Map();for(const event of data.events){const text=JSON.stringify(event);if(ids.has(event.id)&&ids.get(event.id)!==text)throw Error('Conflicting correction history.');ids.set(event.id,text);}

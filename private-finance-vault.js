@@ -1,5 +1,5 @@
 import {validateOfferReceiptLinks,mergeOfferReceiptLinks} from './account-sheet-data.js';
-// Device-local data only. Transfer files remain passphrase-encrypted. No network access.
+// Device-local data only. Legacy transfer encryption is retained for trusted conversion. No network access.
 import {currentFinancialEvents,financialEditHistory,financialHistoryMetadata,validateFinancialCorrection,validateCashEntry} from './receipt-financials.js';
 const KEY='uber-tracker-finance-encrypted-v1',iterations=310000;
 const encode=bytes=>{const view=new Uint8Array(bytes),parts=[];for(let i=0;i<view.length;i+=32768)parts.push(String.fromCharCode(...view.subarray(i,i+32768)));return btoa(parts.join(''));};

@@ -128,3 +128,6 @@ exclude:
   - test-sync-report.js
   - sync-report.js
   - test-icon-alignment-browser.js
+
+  - test-account-import.js
+  - test-receipt-import.js
