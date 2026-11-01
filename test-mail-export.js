@@ -100,3 +100,10 @@ try {
   }
 } finally { fs.rmSync(graph,{recursive:true,force:true}); }
 console.log('✓ Incremental read-only Mail export: stable IDs, committed evidence, changed receipts and parser invalidation');
+
+// Large exports write directly to the private file instead of returning the
+// entire Mail payload through the AppleScript result bridge.
+let written;ctx.$=value=>({text:String(value),writeToFileAtomicallyEncodingError(file,atomic){written={file:file.text,atomic,text:String(value)};return true;}});ctx.$.NSUTF8StringEncoding=4;ctx.Application=()=>({});ctx.findMailbox=()=>({});ctx.readKnownMessages=()=>({});ctx.scanMailbox=()=>[{messageId:'large-export@example.invalid',recipient:'test@example.invalid',body:'x'.repeat(9*1024*1024)}];
+const fileResult=JSON.parse(ctx.run(['1','INBOX','0','Uber Receipts','0','0',date,'','','','false','/tmp/large-test.local.json']));assert.equal(fileResult.written,true);assert.equal(written.file,'/tmp/large-test.local.json');assert.equal(written.atomic,true);assert.equal(JSON.parse(written.text).messages[0].body.length,9*1024*1024);assert.ok(JSON.stringify(fileResult).length<150);
+ctx.$=()=>({writeToFileAtomicallyEncodingError(){return false;}});ctx.$.NSUTF8StringEncoding=4;assert.throws(()=>ctx.run(['1','INBOX','0','Uber Receipts','0','0',date,'','','','false','/tmp/large-test.local.json']),/could not be saved/);
+console.log('✓ Large private Mail exports use atomic file output; write failure is explicit');

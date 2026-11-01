@@ -67,12 +67,11 @@ export_recent_mail() {
   echo "Exporting recent Mail..."
   node mac/export-known-messages.js "${PRIVATE_DB:-uber-tracker.local.db}" > "$TMP_DIR/known-messages.json"
   osascript -l JavaScript mac/export-uber-mail.js \
-    "$PROMO_DAYS" "$PROMO_FOLDERS" "$RECEIPT_DAYS" "$RECEIPT_FOLDER" 0 0 "" "$TMP_DIR/known-messages.json" "" "" "${TRACKER_DISCOVER_RECEIPT_ACCOUNTS:-false}" \
-    > "$TMP_DIR/emails.json"
+    "$PROMO_DAYS" "$PROMO_FOLDERS" "$RECEIPT_DAYS" "$RECEIPT_FOLDER" 0 0 "" "$TMP_DIR/known-messages.json" "" "" "${TRACKER_DISCOVER_RECEIPT_ACCOUNTS:-false}" "$TMP_DIR/emails.json"
   node --input-type=module -e 'import fs from "node:fs"; const p=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(!Array.isArray(p.messages)) throw new Error("Invalid Mail export"); console.log("Exported messages: " + p.messages.length);' "$TMP_DIR/emails.json"
   # Receipt discovery needs the full receipt window in Inbox too. Previously
   # Inbox ages 35–90 days fell between the promo scan and historical backfill.
-  osascript -l JavaScript mac/export-uber-mail.js "$RECEIPT_DAYS" "INBOX" 0 "$RECEIPT_FOLDER" 0 0 "" "$TMP_DIR/known-messages.json" "" "" "${TRACKER_DISCOVER_RECEIPT_ACCOUNTS:-false}" > "$TMP_DIR/inbox-candidates.json"
+  osascript -l JavaScript mac/export-uber-mail.js "$RECEIPT_DAYS" "INBOX" 0 "$RECEIPT_FOLDER" 0 0 "" "$TMP_DIR/known-messages.json" "" "" "${TRACKER_DISCOVER_RECEIPT_ACCOUNTS:-false}" "$TMP_DIR/inbox-candidates.json"
   node mac/find-inbox-receipts.js "$TMP_DIR/inbox-candidates.json" "$TMP_DIR/inbox-receipt-ids.json" "$TMP_DIR/inbox-receipts.json"
   node --input-type=module - "$TMP_DIR/emails.json" "$TMP_DIR/inbox-receipts.json" <<'JS'
 import fs from 'node:fs';

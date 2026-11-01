@@ -198,7 +198,7 @@ try {
     const recentReceipt = { ...email, sourceMailbox: 'INBOX' };
     const initial = JSON.stringify({ messages: [recentReceipt] });
     const extended = JSON.stringify({ messages: [recentReceipt, oldReceipt] });
-    const shell = 'set -euo pipefail; source mac/common.sh; TMP_DIR="' + dir + '"; PROMO_DAYS=35; PROMO_FOLDERS=INBOX; RECEIPT_DAYS=90; RECEIPT_FOLDER="Uber Receipts"; osascript(){ if [[ "$4" == 90 && "$5" == INBOX ]]; then cat "' + dir + '/extended.json"; else cat "' + dir + '/initial.json"; fi; }; export_recent_mail';
+    const shell = 'set -euo pipefail; source mac/common.sh; TMP_DIR="' + dir + '"; PROMO_DAYS=35; PROMO_FOLDERS=INBOX; RECEIPT_DAYS=90; RECEIPT_FOLDER="Uber Receipts"; osascript(){ if [[ "$4" == 90 && "$5" == INBOX ]]; then cat "' + dir + '/extended.json" > "${@: -1}"; else cat "' + dir + '/initial.json" > "${@: -1}"; fi; }; export_recent_mail';
     fs.writeFileSync(path.join(dir,'initial.json'), initial); fs.writeFileSync(path.join(dir,'extended.json'), extended);
     fs.symlinkSync(path.resolve('mac'), path.join(dir, 'mac'), 'dir');
     fs.symlinkSync(path.resolve('identity.js'), path.join(dir, 'identity.js'));

@@ -81,3 +81,12 @@ for(const action of [setOfferDone,setOfferIgnored]) {
  assert.strictEqual(reconcileManualStore(migrated,[correction],input.sentAt),migrated,'Correction migration is idempotent');
 }
 console.log('✓ Same-source term corrections preserve manual finish/ignore, timestamp and history; different discounts cannot inherit decisions');
+
+// Primary grocery footnote: later item promotions and the bag-fee schedule
+// cannot replace the coupon's deadline, limit or maximum discount.
+const groceryFinePrint={...input,subject:'Save £15 on groceries',body:'Enjoy £15 off your grocery order.* Save £15 on your next grocery order of £25+. Top Up Thursday: 50% off**. £3 treats***. *Offer available until 11:30 pm on 01st November 2026. Valid on one (1) order made via the Uber Eats app from selected grocery stores, when you spend a minimum of £25 on food and drink per order, excluding delivery fee. **50% off offer applies to selected items only, available until 11.59 pm on 29 October 2026. ***Fees apply. Bag fee is up to £0.60 per order for most retail orders.'};
+const groceryParsed=parseUberPromo(groceryFinePrint);
+assert.equal(groceryParsed.discount,15);assert.equal(groceryParsed.minimumSpend,25);assert.equal(groceryParsed.perUseCap,null);assert.equal(groceryParsed.expiresAt,'2026-11-01T23:30:00');assert.equal(groceryParsed.expiryStatus,'exact');assert.equal(groceryParsed.uses,1);assert.equal(groceryParsed.evidence.usesBasis,'explicit_offer_terms');assert.equal(groceryParsed.evidence.termsBasis,'matching_primary_legal_terms');assert.equal(groceryParsed.evidence.termsConflict,false);
+assert.equal(parseUberPromo({...input,subject:'50% off your order',body:'Uber Eats, minimum spend £2. Maximum discount £0.60 per order.'}).perUseCap,.6,'A genuine small discount cap remains valid');
+assert.equal(parseUberPromo({...input,subject:'£12 off your first 5 orders',body:'*Terms and conditions apply. Get £12 off your first 5 orders. Valid until 5 Nov 2026 11:00PM. Offer only applies when you spend £17 or more (excluding delivery and other fees).'}).minimumSpend,17,'The actual £17 fine print is retained');
+console.log('✓ Grocery footnotes isolate order terms from product tiles/fees; explicit clock-before-date expiry and one-order limit; genuine £17 terms retained');

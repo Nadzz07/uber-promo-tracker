@@ -609,3 +609,18 @@ entry points share that derived state. Saved corrections, review/undo history,
 manual offer usage, preferred-offer eligibility and financial values are retained.
 Read-only comparison against the supported private receipt export confirmed
 unchanged financial calculations and source records.
+
+## Account details and fine-print parsing — 1 November 2026
+
+The existing sheet uses a compact combined identity line, neutral unknown-use
+rectangles, a centred Past & other offers disclosure, conditional Cash records,
+and the reference calculator layout. Balance editing remains available from
+Manage account when no Cash record exists; saving the first balance preserves
+its expanded editor. Manual use, reconciliation and private history are retained.
+
+Grocery order footnotes are isolated from later product and fee footnotes.
+A bag fee cannot become a promo-discount cap. The parser reads explicit
+clock-before-date deadlines and “one (1) order” limits. Source-backed £17
+minimums remain £17. Large Mac Mail exports can write atomically to a private
+file, avoiding a large return value through the scripting bridge; routine sync
+uses this path. Original source records and financial corrections are preserved.

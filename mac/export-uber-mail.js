@@ -393,12 +393,19 @@ function run(argv) {
     }
   }
 
-  return JSON.stringify({
+  const payload={
     exportedAt: new Date().toISOString(),
     mailboxes: scannedMailboxes,
     scanAudit,
     scanStats:{emailsChecked:checkedKeys.size,checkedKeys:Array.from(checkedKeys)},
     ...(calendarRange ? {calendarRange:{start:calendarRange.start.toISOString(),end:calendarRange.end.toISOString()}} : {}),
     messages: dedupeMessages(messages)
-  }, null, 2);
+  };
+  const encoded=JSON.stringify(payload,null,2);
+  if(argv[11]){
+    const ok=$(encoded).writeToFileAtomicallyEncodingError($(String(argv[11])),true,$.NSUTF8StringEncoding,null);
+    if(!ok)throw Error('Mail export could not be saved.');
+    return JSON.stringify({written:true,messages:payload.messages.length,emailsChecked:checkedKeys.size});
+  }
+  return encoded;
 }
