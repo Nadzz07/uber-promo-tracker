@@ -24,7 +24,7 @@ async function withFinanceLock(storage,previous,next,action,rollback=()=>{}){
     // localStorage caches can lag across Firefox processes even under Web
     // Locks. IndexedDB serializes this authoritative revision comparison.
     const stored=request.result;
-    if(stored?.revision!==undefined&&stored.revision!==expectedRevision){const error=Error('Private finances changed in another tab. Review the latest copy before saving.');error.financeConflict=true;throw error;}
+    if(stored?.revision!==undefined&&stored.revision!==expectedRevision){const error=Error('Receipt and balance data changed in another tab. Review the latest copy before saving.');error.financeConflict=true;throw error;}
     result=action();transaction.objectStore('mutex').put({revision:nextRevision},'save');
    }catch(error){transaction.abort();reject(error);}};
   };
@@ -72,7 +72,7 @@ export class PrivateFinanceVault{
  async persist(data){
   validateFinanceData(data);const previous=this.saved,next=JSON.stringify({kind:'uber-tracker-local-finance',schemaVersion:2,data});
   return withFinanceLock(this.storage,previous,next,()=>{
-   if(this.storage.getItem(KEY)!==previous){const error=Error('Private finances changed in another tab. Review the latest copy before saving.');error.financeConflict=true;throw error;}
+   if(this.storage.getItem(KEY)!==previous){const error=Error('Receipt and balance data changed in another tab. Review the latest copy before saving.');error.financeConflict=true;throw error;}
    this.storage.setItem(KEY,next);this.saved=next;this.data=data;this.status='ready';this.error=null;return data;
   }).catch(error=>{if(error.financeConflict)this.hydrate();throw error;});
  }

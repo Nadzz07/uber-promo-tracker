@@ -10,3 +10,5 @@ const m=receiptInsightsModel({...source,corrections:partial,correctedOnly:true})
 const html=receiptOverviewMarkup(m,{page:'receipts',full:true,reviewHub:true,correctedOnly:true,reviewOnly:false,range:'month',service:'all',metric:'orders',limit:80,now});assert.match(html,/Corrected · 2/);assert.doesNotMatch(html,/All receipts<\/button>/);assert.doesNotMatch(html,/ri-paid-card|Receipt totals/);
 assert.match(receiptDetailMarkup(receiptInsightRecord(rows[1],corrections.corrected)),/Manually corrected/);
 console.log('✓ Receipt review counts share period/service/dedup scope; corrected and unresolved may overlap; two-view review flow preserves partial corrections.');
+
+for (const correction of [null, corrections.corrected]) { const detail=receiptDetailMarkup(receiptInsightRecord(rows[1],correction)); assert.match(detail,/>Edit details<\/span>/); assert.match(detail,/data-finance-target="check"/); assert.match(detail,/data-finance-receipt="corrected"/); assert.doesNotMatch(detail,/Private finances|Unlock/); }
