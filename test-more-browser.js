@@ -14,8 +14,8 @@ const server=http.createServer((req,res)=>{if(req.method!=='GET')writes++;const 
 server.listen(0,'127.0.0.1');await once(server,'listening');
 const engine=process.env.TRACKER_BROWSER_ENGINE||'chromium',browser=await{chromium,webkit,firefox}[engine].launch(),output=process.env.TRACKER_SCREENSHOT_DIR;
 if(output)fs.mkdirSync(output,{recursive:true,mode:0o700});
-const groups=[['Offers & history',['Order Planner','Promo history','Archived accounts']],['Savings & receipts',['Savings','Receipt insights','Finances']],['Accounts & data',['Import accounts','Sync & data']],['Settings & help',['Settings','Help & guide','About this tracker']]];
-const destinations=['planner','history','locked','savings','receipts','finance','device','health','appearance','guide','about'];
+const groups=[['Offers & history',['Order Planner','Promo history','Archived accounts']],['Savings & receipts',['Savings','Receipt insights','Finances']],['Accounts & data',['Sync & data']],['Settings & help',['Settings','Help & guide','About this tracker']]];
+const destinations=['planner','history','locked','savings','receipts','finance','health','appearance','guide','about'];
 try {for(const [width,height,large] of [[320,568,false],[440,956,false],[430,932,false],[1440,1000,false],[390,844,true]]){
  const context=await browser.newContext({viewport:{width,height},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await context.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:theme:v1','#9b5cff'));
@@ -25,7 +25,7 @@ try {for(const [width,height,large] of [[320,568,false],[440,956,false],[430,932
  for(let i=0;i<groups.length;i++)assert.deepEqual(await page.locator('#view-more .more-group').nth(i).locator('.more-title').allTextContents(),groups[i][1]);
  assert.equal(await page.locator('.more-intro').innerText(),'Tools and settings');
  assert.equal(await page.locator('#lockedCardCopy').innerText(),'1');
- assert.deepEqual(await page.locator('#view-more .more-icon').evaluateAll(es=>es.map(e=>e.dataset.icon)),['calculator','promo-tag','archive','menu-coins','chart','wallet','user-plus','menu-sync','menu-sliders','menu-book','info']);
+ assert.deepEqual(await page.locator('#view-more .more-icon').evaluateAll(es=>es.map(e=>e.dataset.icon)),['calculator','promo-tag','archive','menu-coins','chart','wallet','menu-sync','menu-sliders','menu-book','info']);
  assert.ok(await page.locator('#view-more .more-card').evaluateAll(es=>es.every(e=>{const i=e.querySelector('.more-icon').getBoundingClientRect(),t=e.querySelector('.more-content').getBoundingClientRect();return Math.abs(i.top+i.height/2-t.top-t.height/2)<1;})),'Icons centre beside the entire label/count block');
  assert.equal(await page.evaluate(()=>getComputedStyle(document.body,'::before').display),'none','No isolated top safe-area patch');
 
@@ -47,5 +47,5 @@ try {for(const [width,height,large] of [[320,568,false],[440,956,false],[430,932
  assert.ok(await page.locator('#view-more .more-card').last().evaluate(e=>{const a=e.getBoundingClientRect(),b=document.getElementById('mainNav').getBoundingClientRect();return a.bottom<=b.top||a.top>=b.bottom||a.right<=b.left||a.left>=b.right;}),'Bottom navigation clears the last menu item');
  if(output)await page.screenshot({path:output+'/'+engine+'-'+width+(large?'-large':'')+'-more-bottom.png'});
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.deepEqual(errors,[]);await context.close();
- }assert.equal(writes,0);console.log('✓ Four ordered More groups, 11 destinations, counts, compact aligned icons, Enter/Space activation, focus restoration, 320/430/1440px and larger text, bottom navigation clearance ('+engine+')');
+ }assert.equal(writes,0);console.log('✓ Four ordered More groups, 10 destinations, counts, compact aligned icons, Enter/Space activation, focus restoration, 320/430/1440px and larger text, bottom navigation clearance ('+engine+')');
 }finally{await browser.close();server.close();}

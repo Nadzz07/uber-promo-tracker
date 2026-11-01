@@ -2116,8 +2116,6 @@
     .theme-swatch { width: 44px; height: 44px; padding: var(--space-1); border: 1px solid var(--line); border-radius: 50%; background: transparent; cursor: pointer; }
     .theme-swatch span { display: block; height: 100%; border-radius: 50%; background: var(--swatch); }
     .theme-swatch[aria-pressed="true"] { outline: 2px solid var(--green); outline-offset: 3px; }
-    .device-import { display: block; cursor: pointer; padding: var(--space-3); border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--glass-soft); margin: var(--space-4) 0; }
-    .device-import input { display: block; max-width: 100%; margin-top: var(--space-3); font-size: 12px; }
     #deviceImportStatus { color: var(--muted); font-size: 12px; line-height: 1.6; }
     .layout-settings { margin: 0 0 var(--space-5); padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--glass-soft); }
     .layout-settings legend { padding: 0 var(--space-1); font-size: 14px; font-weight:600; }
@@ -2286,7 +2284,7 @@
 
       <section id="view-preferred-promos" class="view preferred-page" aria-labelledby="preferredTitle"></section>
       <section id="view-preferred-catalogue" class="view preferred-page" aria-labelledby="preferredCatalogueTitle"></section>
-      <section id="view-more" class="view"><div class="screen-head"><h1 id="moreTitle" class="screen-title" tabindex="-1">More</h1><p class="more-intro">Tools and settings</p></div><div class="more-grid"><section class="more-group" aria-labelledby="more-group-0"><h2 id="more-group-0" class="eyebrow">Offers & history</h2><div class="more-group-list"><button class="more-card" data-jump-planner="true"><span class="more-icon" data-icon="calculator" aria-hidden="true"></span><span class="more-content"><span class="more-title">Order Planner</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="history"><span class="more-icon" data-icon="promo-tag" aria-hidden="true"></span><span class="more-content"><span class="more-title">Promo history</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="locked"><span class="more-icon" data-icon="archive" aria-hidden="true"></span><span class="more-content"><span class="more-title">Archived accounts</span><span class="more-count" id="lockedCardCopy"></span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-1"><h2 id="more-group-1" class="eyebrow">Savings & receipts</h2><div class="more-group-list"><button class="more-card" data-open-sheet="savings"><span class="more-icon" data-icon="menu-coins" aria-hidden="true"></span><span class="more-content"><span class="more-title">Savings</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="receipts"><span class="more-icon" data-icon="chart" aria-hidden="true"></span><span class="more-content"><span class="more-title">Receipt insights</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="finance"><span class="more-icon" data-icon="wallet" aria-hidden="true"></span><span class="more-content"><span class="more-title">Finances</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-2"><h2 id="more-group-2" class="eyebrow">Accounts & data</h2><div class="more-group-list"><button class="more-card" data-open-sheet="device"><span class="more-icon" data-icon="user-plus" aria-hidden="true"></span><span class="more-content"><span class="more-title">Import accounts</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="health"><span class="more-icon" data-icon="menu-sync" aria-hidden="true"></span><span class="more-content"><span class="more-title">Sync & data</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-3"><h2 id="more-group-3" class="eyebrow">Settings & help</h2><div class="more-group-list"><button class="more-card" data-open-sheet="appearance"><span class="more-icon" data-icon="menu-sliders" aria-hidden="true"></span><span class="more-content"><span class="more-title">Settings</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-guide="overview"><span class="more-icon" data-icon="menu-book" aria-hidden="true"></span><span class="more-content"><span class="more-title">Help & guide</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="about"><span class="more-icon" data-icon="info" aria-hidden="true"></span><span class="more-content"><span class="more-title">About this tracker</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section></div></section>
+      <section id="view-more" class="view"><div class="screen-head"><h1 id="moreTitle" class="screen-title" tabindex="-1">More</h1><p class="more-intro">Tools and settings</p></div><div class="more-grid"><section class="more-group" aria-labelledby="more-group-0"><h2 id="more-group-0" class="eyebrow">Offers & history</h2><div class="more-group-list"><button class="more-card" data-jump-planner="true"><span class="more-icon" data-icon="calculator" aria-hidden="true"></span><span class="more-content"><span class="more-title">Order Planner</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="history"><span class="more-icon" data-icon="promo-tag" aria-hidden="true"></span><span class="more-content"><span class="more-title">Promo history</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="locked"><span class="more-icon" data-icon="archive" aria-hidden="true"></span><span class="more-content"><span class="more-title">Archived accounts</span><span class="more-count" id="lockedCardCopy"></span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-1"><h2 id="more-group-1" class="eyebrow">Savings & receipts</h2><div class="more-group-list"><button class="more-card" data-open-sheet="savings"><span class="more-icon" data-icon="menu-coins" aria-hidden="true"></span><span class="more-content"><span class="more-title">Savings</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="receipts"><span class="more-icon" data-icon="chart" aria-hidden="true"></span><span class="more-content"><span class="more-title">Receipt insights</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="finance"><span class="more-icon" data-icon="wallet" aria-hidden="true"></span><span class="more-content"><span class="more-title">Finances</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-2"><h2 id="more-group-2" class="eyebrow">Accounts & data</h2><div class="more-group-list"><button class="more-card" data-open-sheet="health"><span class="more-icon" data-icon="menu-sync" aria-hidden="true"></span><span class="more-content"><span class="more-title">Sync & data</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-3"><h2 id="more-group-3" class="eyebrow">Settings & help</h2><div class="more-group-list"><button class="more-card" data-open-sheet="appearance"><span class="more-icon" data-icon="menu-sliders" aria-hidden="true"></span><span class="more-content"><span class="more-title">Settings</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-guide="overview"><span class="more-icon" data-icon="menu-book" aria-hidden="true"></span><span class="more-content"><span class="more-title">Help & guide</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="about"><span class="more-icon" data-icon="info" aria-hidden="true"></span><span class="more-content"><span class="more-title">About this tracker</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section></div></section>
       <section id="view-sync" class="view"><div id="syncDataPage" class="sync-page"></div></section>
       <section id="view-help" class="view" aria-labelledby="guideTitle">
         <button class="advanced-btn" data-guide-back="true">‹ Back to More</button>
@@ -2329,11 +2327,13 @@
     import { offerTitle, useCountNeedsReview, effectiveDiscountPercent } from "./offer-details.js";
     import { THEME_KEY, DEFAULT_COLOUR, applyThemeTokens, THEME_PRESETS, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
     import { offerFinishedReason, offerClosureLabel, classifyOfferCompletion } from "./offer-state.js";
+    import {createReceiptImporter} from './receipt-import.js';
+    import {prepareAccountImport,accountWithDeviceMetadata} from './account-import.js';
     import {createSyncData,syncHistoryMarkup,reportedSyncState as syncState} from './sync-data.js';
     import {PrivateFinanceVault} from './private-finance-vault.js';
     import {accountHistoryGroups,preferredAccountOffers,offerReceiptAvailability,offerUsageEvidence,offerUsageSlots,directoryAccounts,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
     import { setupDraggableNavigation } from "./nav-gestures.js";
-    import { DEVICE_ACCOUNTS_KEY, parseDeviceAccounts, deviceEmail } from "./device-accounts.js";
+    import { DEVICE_ACCOUNTS_KEY, deviceEmail } from "./device-accounts.js";
     import { classifyAccount, accountStatusLabel, accountUsageDescription, accountUnfinished, accountProgressDescription, offerInProgress, accountArchived, matchesAccountFilter, matchesOfferScope, offerReadinessRank, offerReadinessLabel, accountOfferKey, accountOfferChoices, accountMatchesOfferType, accountMatchesLogin, accountMatchesProvider } from "./account-state.js";
     import { offerCountdown } from "./dashboard-data.js";
     import { classifyOfferTrackingState } from "./offer-state.js";
@@ -2689,7 +2689,7 @@
     }
 
     function effectivePromo(promo) {
-      return promoForDecision(manualStore, promo);
+      return accountWithDeviceMetadata(deviceAccounts,promoForDecision(manualStore, promo));
     }
 
     function isPromoActive(promo) {
@@ -3319,62 +3319,18 @@
       queueDetailViewport();
     }
 
-    let pendingDeviceImport = null;
-    function renderDeviceSheet() {
-      pendingDeviceImport = null;
-      setSheetHeading('Private account import', 'Full login emails on your device.');
-      const count = accounts.filter(account => deviceEmail(deviceAccounts, account)).length;
-      document.getElementById('sheetBody').innerHTML =
-        '<section class="setting-card"><h3 class="setting-title">Import accounts</h3><p class="sheet-help">Choose an account file.</p><label class="device-import" for="deviceAccountsFile">Choose private file<input id="deviceAccountsFile" type="file" accept="application/json,.json"></label></section>' +
-        '<div id="deviceImportStatus" class="sheet-help" role="status">' + count + ' full login emails available in this browser.</div>' +
-        '<div class="sheet-section"><button id="forgetDeviceAccounts" class="action-btn"' + (Object.keys(deviceAccounts).length ? '' : ' disabled') + '>Forget login emails on this device</button></div>';
-    }
-
-    function renderDevicePreview(mapping, value, limit = 6) {
-      pendingDeviceImport = {mapping, value, limit};
-      setSheetHeading('Review import', 'Check matching entries before applying.');
-      const entries = Object.entries(mapping);
-      const added = entries.filter(([ref]) => !deviceAccounts[ref]).length;
-      document.getElementById('sheetBody').innerHTML =
-        '<div class="import-summary"><div><span>New entries</span><strong>' + added + '</strong></div><div><span>Existing entries</span><strong>' + (entries.length - added) + '</strong></div><div><span>Matched</span><strong>' + entries.length + '</strong></div></div>' +
-        '<p class="sheet-help">Replace saved login emails with the matching accounts below.</p><div class="import-entries">' +
-        entries.slice(0, limit).map(([ref, row]) => {
-          const account = accounts.find(a => a.accountRef === ref);
-          const access = account.accessStatus === 'pending' || account.canLogin == null ? 'Access pending verification' : account.canLogin ? 'Can log in' : 'Can’t log in';
-          return '<article class="import-entry"><div class="import-entry-head"><span class="app-icon-surface">' + financeIcon('user') + '</span><div><strong>' + escapeHtml(row.email) + '</strong><span class="pill">' + (deviceAccounts[ref] ? 'Existing' : 'New') + '</span></div></div><div class="import-access"><span>Current login status</span><strong>' + escapeHtml(access) + '</strong></div></article>';
-        }).join('') + '</div><p class="sheet-help">Showing ' + Math.min(limit, entries.length) + ' of ' + entries.length + ' matching entries. Applying imports all matching entries.</p>' +
-        (entries.length > limit ? '<button class="advanced-btn" data-show-import-entries="true">Show 20 more entries</button>' : '') + '<p id="deviceImportStatus" class="sheet-help" role="status">Nothing has been saved yet. No information is uploaded.</p><div class="sheet-confirm-actions"><button class="account-primary" data-apply-device-import="true">Apply import</button><button class="account-secondary" data-cancel-device-import="true">Back to import</button></div>';
-    }
-
-    async function importDeviceAccounts(file) {
-      const status = document.getElementById('deviceImportStatus');
-      if (!file) return;
-      try {
-        if (file.size > 2 * 1024 * 1024) throw new Error('Choose a device-accounts export smaller than 2 MB.');
-        let value;
-        try { value = JSON.parse(await file.text()); } catch { throw new Error('Choose a valid JSON device-accounts export.'); }
-        const mapping = parseDeviceAccounts(value, accounts);
-        migratePrivateOfferIds(manualStore, value.offerIdMigrations || []);
-        if (openSheetType !== 'device' || !status?.isConnected) return;
-        renderDevicePreview(mapping, value);
-      } catch (error) { if (status?.isConnected) status.textContent = error.message; }
-    }
-
-    function applyDeviceImport() {
-      if (!pendingDeviceImport) return;
-      const {value} = pendingDeviceImport;
-      let mapping, migrated;
-      try { mapping = parseDeviceAccounts(value, accounts); migrated = migratePrivateOfferIds(manualStore, value.offerIdMigrations || []); }
-      catch (error) { document.getElementById('deviceImportStatus').textContent = error.message; return; }
-      try {
-        const previous = localStorage.getItem(STATE_KEY);
-        localStorage.setItem(STATE_KEY, JSON.stringify(migrated));
-        try { localStorage.setItem(DEVICE_ACCOUNTS_KEY, JSON.stringify(mapping)); }
-        catch (error) { if (previous == null) localStorage.removeItem(STATE_KEY); else localStorage.setItem(STATE_KEY, previous); throw error; }
-        manualStore = migrated; deviceAccounts = mapping;
-        invalidateAccountProjection(); renderAll(); renderDeviceSheet();
-        document.getElementById('deviceImportStatus').textContent = Object.keys(mapping).length + ' emails imported privately. Open an account to copy its full address.';
-      } catch { document.getElementById('deviceImportStatus').textContent = 'Browser storage is unavailable. No import was applied. Enable storage on your own device and try again.'; }
+    let accountImporter=null;
+    function openAccountImporter(){
+      accountImporter ||= createReceiptImporter({mode:'accounts',
+        prepareFile:async value=>{const saved=readDeviceAccounts(),preview=prepareAccountImport(value,accounts.map(a=>({...a,note:accountManualRecord(manualStore,a).note??a.notes??a.note??''})),saved);return {...preview,plan:{mapping:preview.mapping,notes:preview.notes,value,baseline:localStorage.getItem(DEVICE_ACCOUNTS_KEY),stateBaseline:localStorage.getItem(STATE_KEY)}};},
+        savePlan:async plan=>{
+          if(localStorage.getItem(DEVICE_ACCOUNTS_KEY)!==plan.baseline||localStorage.getItem(STATE_KEY)!==plan.stateBaseline)throw Error('Account data changed. Choose the file again to review current changes.');
+          let migrated=migratePrivateOfferIds(manualStore,plan.value.offerIdMigrations||[]);for(const [ref,note]of Object.entries(plan.notes))migrated=saveAccountManualRecord(migrated,accounts.find(a=>a.accountRef===ref),{note});const merged={...readDeviceAccounts(),...plan.mapping};
+          try{localStorage.setItem(STATE_KEY,JSON.stringify(migrated));try{localStorage.setItem(DEVICE_ACCOUNTS_KEY,JSON.stringify(merged));}catch(error){if(plan.stateBaseline==null)localStorage.removeItem(STATE_KEY);else localStorage.setItem(STATE_KEY,plan.stateBaseline);throw error;}}
+          catch{throw Error('Could not save accounts. Existing data is unchanged.');}
+          manualStore=migrated;deviceAccounts=merged;accounts=payload.accounts.map(a=>accountWithDeviceMetadata(deviceAccounts,a));invalidateAccountProjection();renderAll();
+        }});
+      accountImporter.open();
     }
 
     let accountOfferToOpen = null;
@@ -3847,8 +3803,9 @@
       syncDataView=createSyncData({host,getSync:()=>payload.sync||{},vault:financeVault,
         onBack:()=>{if(routeEntries.get(window.history.state?.trackerEntry)?.opener?.closest('#view-more,#view-home'))window.history.back();else switchView('more');},
         onInfo:()=>openUtilitySheet('sync-info'),
+        onAccounts:()=>openUtilitySheet('device'),
         refresh:async()=>{const result=await load();if(result==='failed')throw Error('Could not refresh published data. Your saved changes are unchanged.');if(result==='partial')throw Error('Published data was partly refreshed. Promo history could not load. Your saved changes are unchanged.');return result;},
-        onRestore:()=>{manualStore=readManualStore();deviceAccounts=readDeviceAccounts();offerPreferences=readOfferPreferences(localStorage);plannerSettings=readPlannerSettings();document.getElementById('basketInput').value=plannerSettings.basketSubtotal.toFixed(2);motionSetting=localStorage.getItem(MOTION_KEY)==='reduced'?'reduced':'system';document.documentElement.dataset.motion=motionSetting;mainNav.dataset.motion=motionSetting;liquidNavigation?.refreshMotion();accountTypeFilter=selectedOfferScope(offerPreferences);applyTheme(readThemeColour());layoutPreference=readLayoutPreference();applyLayoutPreference();privateDataUpdated();renderAll();}});
+        onRestore:()=>{manualStore=readManualStore();deviceAccounts=readDeviceAccounts();accounts=payload.accounts.map(a=>accountWithDeviceMetadata(deviceAccounts,a));offerPreferences=readOfferPreferences(localStorage);plannerSettings=readPlannerSettings();document.getElementById('basketInput').value=plannerSettings.basketSubtotal.toFixed(2);motionSetting=localStorage.getItem(MOTION_KEY)==='reduced'?'reduced':'system';document.documentElement.dataset.motion=motionSetting;mainNav.dataset.motion=motionSetting;liquidNavigation?.refreshMotion();accountTypeFilter=selectedOfferScope(offerPreferences);applyTheme(readThemeColour());layoutPreference=readLayoutPreference();applyLayoutPreference();privateDataUpdated();renderAll();}});
 
     }
 
@@ -3918,7 +3875,7 @@
       if(!skipHistory&&accountReceiptReturn&&openSheetType==='finance'&&window.history.state?.accountReceiptChild){window.history.back();return;}
       if (!skipHistory && !routeRestoring && window.history.state?.trackerSheet) window.history.back();
       if(openSheetType==='account'){const entry=routeEntries.get(currentRouteEntry);if(entry)entry.accountSnapshot=accountDisclosureSnapshot();}
-      pendingDeviceImport = null; pendingOfferAction = null;cashBalanceView?.destroy();cashBalanceView=null;
+      pendingOfferAction = null;cashBalanceView?.destroy();cashBalanceView=null;
       if (['finance','health'].includes(openSheetType)) {financeView?.destroy();financeView=null;}
       const backdrop = document.getElementById("sheetBackdrop");
       backdrop.classList.remove("open");
@@ -3934,6 +3891,7 @@
     function renderUsedInformation(){setSheetHeading('How statuses work','Accounts and offers are counted separately.');document.getElementById('sheetBody').innerHTML='<div class="setting-card"><p>Usage is complete with at least one Eats receipt and one Ride receipt, or at least five Eats receipts. Lime rides count as Ride. Login access stays separate; account usage completion does not mean every promo is exhausted.</p><p>Needs checking counts accounts with uncertain offer or receipt evidence. The record explains the uncertainty.</p><p>Expired offers remain available through Status, including Finished · Expired and Expired · Unused. The summary counts accounts; offer categories count promotions.</p><p>Completed promotions require every permitted use to be verified. Partial use, manual finish and ignore states stay separate.</p></div><button class="advanced-btn" data-open-guide="verification">Read the full status guide ›</button>';}
 
     function openUtilitySheet(type, financeTarget = null, financeMissing = false, financeAccount = null, financeReceipt = null) {
+      if(type==='device'){if(currentView!=='sync')switchView('sync');if(openSheetType)closeSheet(true);openAccountImporter();return;}
       if(type==='receipts'&&receiptInsightsView?.state.reviewHub){const state=receiptInsightsView.state;Object.assign(state,state.reviewContext||{reviewOnly:false,correctedOnly:false,full:false},{reviewHub:false,reviewContext:null,reviewAccountRef:null});receiptInsightsView.saveState();}
       if(type==='finance'&&financeTarget==='receipt'&&financeReceipt){
         const r=financeVault.data?.receipts.find(r=>r.receiptId===financeReceipt);financeView?.destroy();financeView=null;cashBalanceView?.destroy();cashBalanceView=null;openSheetType='finance';openAccountRef=null;setSheetHeading('Receipt','');document.getElementById('sheetBody').innerHTML=receiptDetailMarkup(r?receiptInsightRecord(r,financeVault.current().corrections[financeReceipt]):null,{data:financeVault.data,offers:[...promos,...history]});showSheet();return;
@@ -3972,11 +3930,10 @@
       if (type === 'about') renderAboutSheet();
       if (type === "advanced") renderAdvancedSheet();
       if (type === "locked") renderLockedSheet();
-      if (type === "sync-info") {setSheetHeading('Sync & data','About updates and backups.');document.getElementById('sheetBody').innerHTML='<p class="sheet-help">The Mac reads Apple Mail and publishes a separate sanitised snapshot. Times and schedule status come from the last published report; this page cannot tell whether your Mac is online. Latest-run counts refer to that run, not lifetime totals. Emails checked means distinct Uber-related messages inspected, including unchanged messages.</p><p class="sheet-help">Refresh this device only fetches published data. Backups include the saved records accessible in this browser profile, not your Mac database or Mail archive. Restoring merges receipt histories by stable ID and uses backup values for matching saved decisions and preferences. A recoverable pre-restore copy stays on this device.</p>'+syncHistoryMarkup(payload.sync||{})+'<details class="sd-transfer"><summary class="sheet-action-row">Private receipt transfers</summary><div id="privateDataTools"></div></details>';mountPrivateDataTools();if(financeVault.status==='migration_required')document.querySelector('.sd-transfer').open=true;}
+      if (type === "sync-info") {setSheetHeading('Sync & data','About updates and backups.');document.getElementById('sheetBody').innerHTML='<p class="sheet-help">The Mac reads Apple Mail and publishes a separate sanitised snapshot. Times and schedule status come from the last published report; this page cannot tell whether your Mac is online. Latest-run counts refer to that run, not lifetime totals. Emails checked means distinct Uber-related messages inspected, including unchanged messages.</p><p class="sheet-help">Refresh this device only fetches published data. Backups include the saved records accessible in this browser profile, not your Mac database or Mail archive. Restoring merges receipt histories by stable ID and uses backup values for matching saved decisions and preferences. A recoverable pre-restore copy stays on this device.</p>'+syncHistoryMarkup(payload.sync||{})+'<details class="sd-transfer"><summary class="sheet-action-row">Saved account imports</summary><p class="sheet-help">Removes imported emails and login overrides from this device. Keeps receipts, notes and manual uses.</p><button class="advanced-btn" id="forgetDeviceAccounts">Remove imported account details</button><p id="deviceImportStatus" role="status"></p></details><details class="sd-transfer"><summary class="sheet-action-row">Legacy receipt recovery</summary><div id="privateDataTools"></div></details>';mountPrivateDataTools();if(financeVault.status==='migration_required')document.querySelector('.sd-transfer').open=true;}
       if (type === "health") renderHealthSheet();
       if (type === "history") renderHistorySheet();
       if(type==='theme'){renderLegacyAppearanceControls();setSheetHeading('Theme colour & layout','Saved on this device.');}
-      if (type === "device") renderDeviceSheet();
       if (type === 'finance') {
         setSheetHeading('Check receipt','');if(financeTarget==='check')document.querySelector('.sheet').dataset.receiptCheck='true';
         const host=document.getElementById('sheetBody');
@@ -4352,7 +4309,7 @@
           const promo = applyOfferExpiryPolicy(source);
           return { ...promo, title: offerTitle(promo), ...classifyOfferTrackingState(promo, { reviewReasons: promo.reviewReasons || [] }) };
         });
-        accounts = payload.accounts;
+        accounts = payload.accounts.map(a=>accountWithDeviceMetadata(deviceAccounts,a));
         rebuildAccountIndex();
         reconcileLocalEvidence();
         renderAll();
@@ -4523,19 +4480,6 @@
     });
 
     document.getElementById("sheetBody").addEventListener("click", event => {
-      if (event.target.closest('[data-show-import-entries]')) {
-        if (pendingDeviceImport) {
-          const {mapping, value, limit} = pendingDeviceImport;
-          const body = document.getElementById('sheetBody'), scroll = body.scrollTop;
-          renderDevicePreview(mapping, value, limit + 20);
-          body.scrollTop = scroll;
-          const next = body.querySelectorAll('.import-entry')[limit];
-          if (next) { next.tabIndex = -1; next.focus({preventScroll:true}); }
-        }
-        return;
-      }
-      if (event.target.closest('[data-apply-device-import]')) { applyDeviceImport(); return; }
-      if (event.target.closest('[data-cancel-device-import]')) { renderDeviceSheet(); return; }
       if (event.target.closest('[data-show-more-archived]')) {
         archivedDisplayLimit += 80;
         renderLockedSearch(document.getElementById('sheetLockedSearch')?.value || '');
@@ -4548,10 +4492,7 @@
       const colourButton = event.target.closest('[data-theme-colour]');
       if (colourButton) { chooseTheme(colourButton.dataset.themeColour); return; }
       if (event.target.id === 'resetTheme') { chooseTheme(DEFAULT_COLOUR); return; }
-      if (event.target.id === 'forgetDeviceAccounts') {
-        try { localStorage.removeItem(DEVICE_ACCOUNTS_KEY); } catch { document.getElementById('deviceImportStatus').textContent = 'Could not clear browser storage. Clear this site’s data in browser settings.'; return; }
-        deviceAccounts = {}; renderAll(); renderDeviceSheet(); return;
-      }
+      if(event.target.id==='forgetDeviceAccounts'){try{localStorage.removeItem(DEVICE_ACCOUNTS_KEY);deviceAccounts={};accounts=payload.accounts;invalidateAccountProjection();renderAll();event.target.disabled=true;document.getElementById('deviceImportStatus').textContent='Imported account details removed. Receipts and notes kept.';}catch{document.getElementById('deviceImportStatus').textContent='Could not remove imported details.';}return;}
       if(event.target.closest('[data-copy-import]')){openUtilitySheet('device');return;}
       const copyButton = event.target.closest('[data-copy-email]');
       if (copyButton) {
@@ -4668,7 +4609,6 @@
     });
 
     document.getElementById('sheetBody').addEventListener('change', event => {
-      if (event.target.id === 'deviceAccountsFile') importDeviceAccounts(event.target.files[0]);
       if (event.target.name === 'layoutPreference') chooseLayout(event.target.value);
     });
 
@@ -4679,7 +4619,7 @@
       if (event.key === STATE_KEY || event.key === null) { manualStore = readManualStore(); reconcileLocalEvidence(); invalidateAccountProjection(); renderAll(); if (openSheetType === "account") renderAccountSheet(); }
       if (event.key === SETTINGS_KEY) { plannerSettings = readPlannerSettings(); renderRecommendation(); }
       if (event.key === THEME_KEY) { applyTheme(readThemeColour()); if (openSheetType === 'theme') renderLegacyAppearanceControls(); if(currentView==='settings')renderSettingsPage(); }
-      if (event.key === DEVICE_ACCOUNTS_KEY || event.key === null) { deviceAccounts = readDeviceAccounts(); renderAll(); if (openSheetType === 'account') renderAccountSheet(); if (openSheetType === 'device') renderDeviceSheet(); }
+      if (event.key === DEVICE_ACCOUNTS_KEY || event.key === null) { deviceAccounts = readDeviceAccounts(); accounts=payload.accounts.map(a=>accountWithDeviceMetadata(deviceAccounts,a));invalidateAccountProjection();renderAll(); if (openSheetType === 'account') renderAccountSheet(); }
     });
     function refreshTimedViews() {
       if (document.hidden || loadInProgress) return;

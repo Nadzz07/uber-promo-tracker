@@ -624,3 +624,23 @@ clock-before-date deadlines and “one (1) order” limits. Source-backed £17
 minimums remain £17. Large Mac Mail exports can write atomically to a private
 file, avoiding a large return value through the scripting bridge; routine sync
 uses this path. Original source records and financial corrections are preserved.
+
+## Sync hub and reviewed imports — 1 November 2026
+
+Sync & data owns receipt and account imports. Both use a shared compact native
+modal and open the file picker directly, retaining Choose file after picker
+cancellation. Validation and preview precede persistence. Receipt imports retain
+stable correction history; account imports merge private identities and reviewed
+optional access, provider and note changes. Omitted fields remain unchanged;
+blank notes explicitly clear only the reviewed note. CSV and accounts absent
+from the published tracker are not supported by the device-accounts format.
+
+New backup downloads are AES-GCM encrypted with a non-exportable CryptoKey in
+IndexedDB, separate from the file. No file-password form is rendered. These
+backups restore only in the original browser profile and origin while that key
+remains; they are not portable disaster-recovery backups. Clearing browser data
+removes the key. Export explains this limitation and its supported contents.
+Legacy password-encrypted originals stay intact. Trusted Mac conversion uses
+mac/convert-legacy-transfer.js with the original secret supplied in an owner-only
+file; this cannot recover a forgotten secret. Existing inaccessible legacy stores
+are never silently reset or replaced by a fresh receipt transfer.

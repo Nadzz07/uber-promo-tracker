@@ -272,14 +272,14 @@ try {
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   assert.equal(await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:theme:v1')), wheelColour);
 
-  await page.locator('[data-view="more"]').click(); await page.locator('[data-open-sheet="device"]').click();
+  await page.locator('[data-view="more"]').click(); await page.locator('#view-more [data-open-sheet="health"]').click();await page.locator('[data-account-import]').click();
   const privateEmail = 'alot.extralong+login.alpha@example.invalid';
   const requests = []; page.on('request', request => requests.push({ url: request.url(), method: request.method() }));
   await context.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
   await page.evaluate(() => { Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => { window.testCopiedEmail = text; } } }); });
-  await page.locator('#deviceAccountsFile').setInputFiles({ name: 'device-accounts.local.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ schemaVersion: 1, kind: 'uber-tracker-device-accounts', accounts: [{ accountRef: 'A001', accountMasked: offer.accountMasked, email: privateEmail }] })) });
-  await page.locator('[data-apply-device-import]').click();
-  await page.waitForFunction(() => document.getElementById('deviceImportStatus').textContent.includes('1 emails imported'));
+  await page.locator('.receipt-import-dialog[open] [data-receipt-import-file]').setInputFiles({ name: 'device-accounts.local.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ schemaVersion: 1, kind: 'uber-tracker-device-accounts', accounts: [{ accountRef: 'A001', accountMasked: offer.accountMasked, email: privateEmail }] })) });
+  await page.locator('.receipt-import-dialog[open] [data-rim-confirm]').click();
+  await page.getByText('Import accounts complete.',{exact:true}).waitFor();
   assert.deepEqual(requests, [], 'Importing private emails must not make any network request');
   await page.keyboard.press('Escape'); await page.locator('[data-view="accounts"]').click();
   await page.locator('#accountSearch').fill(privateEmail);
@@ -293,7 +293,7 @@ try {
   await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   await openHomeDetail(page,'planner');assert.match(await page.locator('#recommendation').innerText(), /alot\.extralong\+login\.alpha/);
   assert.equal(requests.some(r => r.url.includes(privateEmail) || r.method !== 'GET'), false);
-  await page.locator('[data-view="more"]').click(); await page.locator('[data-open-sheet="device"]').click();
+  await page.locator('[data-view="more"]').click(); await page.locator('#view-more [data-open-sheet="health"]').click();await page.locator('[data-sync-info]').click();await page.getByText('Saved account imports',{exact:true}).click();
   await page.locator('#forgetDeviceAccounts').click();
   assert.equal(await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:device-accounts:v1')), null);
   await page.keyboard.press('Escape'); await page.locator('[data-view="home"]').click();

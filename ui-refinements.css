@@ -861,24 +861,10 @@ body::before, body::after { display: none; }
 .max-order-btn { min-height:72px; border-radius: var(--card-radius); }
 .sheet-confirm-actions { display:grid; gap:var(--space-3); margin:var(--space-6) 0 var(--space-4); }
 .sheet-confirm-actions > button { min-height:48px; padding:var(--space-3) var(--space-4); border-radius: var(--card-radius); font-family:inherit; font-size:14px; font-weight:600; line-height:1.5; cursor:pointer; }
-.confirmation-offer, .import-entry { display:flex; gap:var(--space-4); padding:var(--space-5); border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--surface-gradient); }
+.confirmation-offer { display:flex; gap:var(--space-4); padding:var(--space-5); border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--surface-gradient); }
 .confirmation-offer > div { min-width:0; }
 .confirmation-offer strong { font-size:20px; line-height:1.4; }
 .confirmation-offer p, .confirmation-offer small { color: var(--muted); font-size:13px; line-height:1.55; overflow-wrap:anywhere; }
-.import-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--space-3); border: 1px solid var(--line); border-radius: var(--card-radius); padding:var(--space-5); background: var(--surface-gradient); }
-.import-summary span { display:block; color: var(--muted); font-size:12px; line-height:1.5; }
-.import-summary strong { display:block; margin-top:var(--space-3); font-size:28px; color: var(--green); }
-.import-entries { display:grid; gap:var(--space-3); }
-.import-entry { display:block; }
-.import-entry-head { display:flex; align-items:center; gap:var(--space-4); }
-.import-entry-head > div { min-width:0; }
-.import-entry-head strong { display:block; font-size:16px; line-height:1.5; overflow-wrap:anywhere; }
-.import-entry .pill { display:inline-flex; margin-top:var(--space-2); }
-.import-access { display:flex; justify-content:space-between; flex-wrap:wrap; gap:var(--space-3); margin-top:var(--space-4); padding-top:var(--space-4); border-top: 1px solid var(--line); font-size:12px; line-height:1.6; }
-.import-access span { color: var(--muted); }
-.device-import { display:block; margin:var(--space-4) 0; font-size:14px; }
-.device-import input { display:block; width:100%; margin-top:var(--space-3); font:inherit; color: var(--muted); }
-.device-import input::file-selector-button { padding:var(--space-3) var(--space-4); min-height:44px; margin-right:var(--space-3); border: 1px solid var(--line); border-radius: var(--card-radius); background: var(--surface); color: var(--text); font:inherit; cursor:pointer; }
 .insights-hero { display:flex; align-items:center; gap:var(--space-4); padding:var(--space-4); border: 1px solid var(--tint-color-accent-35-0-transparent); border-radius: var(--card-radius); background: var(--color-selected); }
 .insights-hero > div { min-width:0; }
 .insights-hero > .app-icon-surface { flex:0 0 48px; width:48px; height:48px; border-radius: 50%; color: var(--green); border-color: var(--tint-color-accent-35-0-transparent); background: var(--color-selected); }
@@ -921,7 +907,7 @@ body::before, body::after { display: none; }
 .insights-privacy { text-align:center; }
 .sheet[data-screen="Receipt insights"] .finance-heading-icon { width:38px; height:46px; border: 0; background: none; box-shadow: none; }
 .sheet[data-screen="Receipt insights"] .finance-heading-icon .finance-icon { width:34px; height:34px; }
-.more-icon, .tools-intro > .app-icon-surface, .import-entry-head > .app-icon-surface, .setting-icon, .icon-explainer > .finance-icon { border-radius: 50%; }
+.more-icon, .tools-intro > .app-icon-surface, .setting-icon, .icon-explainer > .finance-icon { border-radius: 50%; }
 .tools-intro > .app-icon-surface { width:42px; height:42px; }
 
 .account-top { flex-wrap:wrap; align-items:center; gap:var(--space-3); }

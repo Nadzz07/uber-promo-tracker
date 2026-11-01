@@ -11,10 +11,11 @@ function emailMask(value) {
 export function parseDeviceAccounts(value, publicAccounts) {
   if (value?.kind !== DEVICE_ACCOUNTS_KIND || value?.schemaVersion !== 1 || !Array.isArray(value.accounts) || value.accounts.length > 5000) throw new Error('Choose a tracker device-accounts export.');
   const known = new Map(publicAccounts.map(a => [a.accountRef, a.accountMasked]));
-  const result = Object.create(null), seen = new Set();
+  const result = Object.create(null), seen = new Set(),emails=new Set();
   for (const row of value.accounts) {
     if (!row || typeof row.accountRef !== 'string' || typeof row.accountMasked !== 'string' || typeof row.email !== 'string' || row.email.length > 254 || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(row.email) || seen.has(row.accountRef)) throw new Error('Invalid or duplicate account in the export.');
     seen.add(row.accountRef);
+    const identity=row.email.trim().toLowerCase();if(emails.has(identity))throw new Error('Duplicate email in the export.');emails.add(identity);
     if (emailMask(row.email) !== row.accountMasked) throw new Error('An email does not match its masked account. Export this file again from your Mac.');
     if (!known.has(row.accountRef)) continue; // Removed accounts cannot return.
     if (known.get(row.accountRef) !== row.accountMasked) throw new Error('This export does not match the current tracker. Export it again from the same private database.');
