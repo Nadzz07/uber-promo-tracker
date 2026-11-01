@@ -104,10 +104,16 @@ export function extractOfferDetails(text, { subject = '' } = {}) {
   // Email templates interleave merchant tiles and membership benefits with the
   // primary coupon. Its matching legal block has priority over those tiles.
   // Never import a minimum, cap or use count from a different advertised value.
-  const boundaries=[...text.matchAll(/(?:\*?terms and conditions apply\.?|offer available until)/gi)].map(m=>m.index);
+  const boundaries=[...text.matchAll(/(?:\*?terms and conditions apply\.?|offer available until|(?<!\*)\*{1,3}(?!\*)\s*(?=(?:fees apply|\d{1,3}\s*%\s*off)))/gi)].map(m=>m.index);
   const legalBlocks=boundaries.map((start,i)=>text.slice(start,boundaries[i+1]??text.length).split(/benefits available only|view the renewable membership/i)[0]);
   const primaryPattern=discountType==='percent'?/(\d{1,3})\s*%\s*(?:off|discount)/i:discountType==='fixed'?/£\s*(\d+(?:\.\d{1,2})?)\s*(?:off|discount)\b/i:null;
   const legal=primaryPattern?legalBlocks.filter(block=>allInText(block,[primaryPattern]).some(m=>number(m[1])===discount)):discountType==='uberCash'?legalBlocks.filter(block=>/\b(?:promotional uber cash|uber cash is valid|uber cash (?:promotion|offer))\b/i.test(block)||allInText(block,[/£\s*(\d+(?:\.\d{1,2})?)\s+(?:in\s+)?uber\s+cash\b/i]).some(m=>number(m[1])===discount)):[];
+  // A numbered grocery footnote can describe the main order coupon without
+  // repeating its headline amount. Keep subsequent product/fee footnotes out.
+  if(!legal.length&&primary?.scope==='order'&&['fixed','percent'].includes(discountType)){
+    const primaryFootnote=legalBlocks.find(block=>/^offer available until/i.test(block)&&/\bvalid on (?:one(?:\s*\(1\))?|1)\s+order\b/i.test(block)&&/\bminimum\s+(?:spend\s+)?(?:of\s+)?£/i.test(block)&&!allInText(block,[/£\s*(\d+(?:\.\d{1,2})?)\s*off\b/i,/(\d{1,3})\s*%\s*off\b/i]).length);
+    if(primaryFootnote)legal.push(primaryFootnote);
+  }
   // Cash emails contain separate restaurant coupons and Uber One minimums.
   // Those amounts are not a minimum on the credited wallet funds. Prefer
   // the Cash legal block; without one, stop at the next unrelated offer/upsell.
@@ -119,7 +125,7 @@ export function extractOfferDetails(text, { subject = '' } = {}) {
   if(legal.length||discountType==='uberCash'){
     minimumSpendMatch=firstMatch(terms,minimumPatterns);
     usesMatch=firstMatch(terms,[/\b(?:your\s+)?(?:next|first)\s+(\d+)\s+(?:eligible\s+)?(?:uber\s+)?(?:trips?|rides?|orders?)\b/i,/\b(?:valid\s+on|on|off)\s+(\d+)\s+(?:eligible\s+)?(?:uber\s+)?(?:trips?|rides?|orders?)\b/i]);
-    singleUseMatch=terms.match(/\b(?:your\s+)?(?:next|first)\s+(?:eligible\s+)?(?:order|ride|trip)\b/i);
+    singleUseMatch=terms.match(/\b(?:your\s+)?(?:next|first)\s+(?:eligible\s+)?(?:order|ride|trip)\b|\bvalid on (?:one(?:\s*\(1\))?|1)\s+(?:eligible\s+)?order\b/i);
     perUseCapMatch=terms.match(/(?:up\s+to|maximum|max\.?)\s*(?:discount\s*)?£\s*(\d+(?:\.\d{1,2})?)\s*(?:off\s*)?(?:per|each)\s*(?:trip|ride|order)/i);
     maxSavingMatch=terms.match(/(?:up\s+to|maximum|max\.?)\s*(?:saving|savings|discount)?\s*(?:is\s*)?£\s*(\d+(?:\.\d{1,2})?)/i);
     codeMatch=terms.match(/(?:promo\s+code|use\s+code|using\s+promo\s+code)\s*(?:is|[:\-])?\s*([A-Z0-9][A-Z0-9_-]{3,31})\b/i);
@@ -133,6 +139,10 @@ export function extractOfferDetails(text, { subject = '' } = {}) {
     excludesAlcoholTobacco:/not valid.{0,70}alcohol|alcohol or tobacco/i.test(terms),
     merchantLimited:/selected restaurants|participating merchant|selected stores/i.test(terms)
   };
+
+  const feeAmount=match=>match&&/\b(?:bag|delivery|service|marketplace|long range|priority|optional)\s+fee\b[^.]{0,50}$/i.test(terms.slice(Math.max(0,match.index-90),match.index));
+  if(feeAmount(perUseCapMatch))perUseCapMatch=null;
+  if(feeAmount(maxSavingMatch))maxSavingMatch=null;
 
   const uses = usesMatch ? number(usesMatch[1]) : 1;
   const safeUses = Number.isSafeInteger(uses) && uses > 0 ? uses : 1;

@@ -3,8 +3,8 @@ import {rankBasketPlans} from './deal-intelligence.js';
 import {currentCashPosition} from './cash-ledger.js';
 import {cashForOrder} from './cash-planner.js';
 import {normaliseOfferPreferences,matchesDiscoveryScope,plannerOffersForScope,mainOfferChoices,selectedOfferScope} from './offer-preferences.js';
-const now='2026-10-17T12:00:00Z';
-const promo=(ref,overrides={})=>({id:'p-'+ref,accountRef:ref,canLogin:true,service:'Uber Eats',discountType:'fixed',discount:12,minimumSpend:15,minimumSpendVerified:true,uses:1,usesRemaining:1,expiresAt:'2026-11-01T12:00:00Z',expiryStatus:'exact',trackingState:'available',...overrides});
+const testTime=Date.now(),at=days=>new Date(testTime+days*86400000).toISOString(),now=at(0);
+const promo=(ref,overrides={})=>({id:'p-'+ref,accountRef:ref,canLogin:true,service:'Uber Eats',discountType:'fixed',discount:12,minimumSpend:15,minimumSpendVerified:true,uses:1,usesRemaining:1,expiresAt:at(15),expiryStatus:'exact',trackingState:'available',...overrides});
 const account=ref=>({accountRef:ref,canLogin:true,accountStatus:'active',orderCount:0,rideCount:0});
 const preferences=normaliseOfferPreferences();
 assert.equal(mainOfferChoices().length,7);
@@ -42,8 +42,8 @@ assert.equal(fractional.suggested.estimatedPay,8,'Fractional remainder goes to t
 
 assert.equal(matchesDiscoveryScope({promos:[{discountType:'fixed',discount:12,minimumSpend:15,minimumSpendVerified:false}]},'fixed:12:15',normaliseOfferPreferences()),false,'An unverified minimum cannot become an exact £12 off £15 match');
 
-const manualZeroAccount={...account('a'),orderCount:1,lastOrderAt:'2026-10-16T12:00:00Z',cashSummary:{grants:[{status:'estimated',remaining:10,issued:10,issuedAt:'2026-10-01T12:00:00Z',expiresAt:'2026-10-31T12:00:00Z'}]}};
-manualZeroAccount.cashPosition=currentCashPosition(manualZeroAccount,[],{balance:0,at:'2026-10-15T12:00:00Z',receiptCount:0},[],{now});
+const manualZeroAccount={...account('a'),orderCount:1,lastOrderAt:at(-1),cashSummary:{grants:[{status:'estimated',remaining:10,issued:10,issuedAt:at(-16),expiresAt:at(14)}]}};
+manualZeroAccount.cashPosition=currentCashPosition(manualZeroAccount,[],{balance:0,at:at(-2),receiptCount:0},[],{now});
 assert.equal(matchesDiscoveryScope({...manualZeroAccount,promos:[promo('a')]},'cash',preferences),false,'Discovery cannot treat an uncertain manual baseline as issued Cash again');
 const manualZeroPlan=rankBasketPlans([promo('a')],15,{accounts:[manualZeroAccount],wallets:{a:manualZeroAccount.cashPosition},now,orderFeeEstimate:1,maxOrders:1}).suggested;
 assert.equal(manualZeroPlan.cashUsed,0);assert.equal(manualZeroPlan.estimatedPay,4,'A stale verified zero must not reduce the payment using the old email estimate');

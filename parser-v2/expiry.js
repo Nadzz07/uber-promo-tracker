@@ -88,6 +88,9 @@ function nextWeekday(receivedAt, weekday) {
 export function extractExpiry(text, receivedAtValue) {
   const receivedAt = asDate(receivedAtValue);
 
+  const clockFirst=text.match(/(?:offer\s+available\s+until|valid\s+until|expires?(?:\s+at)?)\s+(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)\s+on\s+(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})\s+(\d{4})/i);
+  if(clockFirst){const month=MONTHS[clockFirst[5].toLowerCase()],day=number(clockFirst[4]);if(month!=null&&day>=1&&day<=31){const result=explicitResult(text,clockFirst,number(clockFirst[6]),month,day,parseClock(clockFirst[1],clockFirst[2],clockFirst[3]));if(result)return result;}}
+
   const named = firstMatch(text, [
     /(?:expires?|valid\s+(?:until|through|to)|available\s+until|offer\s+(?:is\s+)?available\s+until|offer\s+valid\s+until|ends?|use\s+by|redeem\s+by)\s*(?:(?:on|at)\s*)?(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})(?:\s+(\d{4}))?(?:\s+(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?)?/i,
     /(?:until|before|through)\s+(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})(?:\s+(\d{4}))?(?:\s+(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?)?/i
