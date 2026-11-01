@@ -78,7 +78,7 @@ try{
   await page.locator('.receipt-import-dialog[open] [data-receipt-import-file]').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{}')});await page.locator('.rim-error').waitFor();assert.match(await page.locator('.rim-error').innerText(),/Choose a tracker/);
   if(width<768){
    await page.evaluate(()=>{const viewport=window.visualViewport;Object.defineProperty(viewport,'height',{configurable:true,value:420});Object.defineProperty(viewport,'offsetTop',{configurable:true,value:0});viewport.dispatchEvent(new Event('resize'));});
-   assert.ok(await page.locator('.receipt-import-dialog').evaluate(el=>el.scrollWidth<=el.clientWidth),'Import remains readable without overflow');
+   assert.ok(await page.locator('.receipt-import-dialog[open]').evaluate(el=>el.scrollWidth<=el.clientWidth),'Import remains readable without overflow');
   }
   assert.deepEqual(errors,[]);await page.close();
 
