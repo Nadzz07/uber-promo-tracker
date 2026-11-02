@@ -644,3 +644,12 @@ Legacy password-encrypted originals stay intact. Trusted Mac conversion uses
 mac/convert-legacy-transfer.js with the original secret supplied in an owner-only
 file; this cannot recover a forgotten secret. Existing inaccessible legacy stores
 are never silently reset or replaced by a fresh receipt transfer.
+
+## Import opening and visual finish — 2 November 2026
+
+Opening either import screen now displays only its compact Choose file view.
+Only explicit Choose file or Change activation opens the native picker; mount,
+focus, cancellation and reopening do not trigger it. Import and preview logic
+are unchanged. Initial surfaces use the saved accent fade, compact 130px cards,
+a real Help disclosure, restrained keyboard-only focus and a text Cancel action
+without a separate footer surface.
