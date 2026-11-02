@@ -114,9 +114,9 @@ html[data-motion=reduced] .sync-page button{transition:none;}
 /* Shared import surfaces; select and preview retain the same data flow. */
 body:has(.receipt-import-dialog[open]){overflow:hidden;}
 body:has(.receipt-import-dialog[open]) #mainNav{visibility:hidden;pointer-events:none;}
-.receipt-import-dialog{box-sizing:border-box;width:100%;max-width:440px;inset-block-start:auto;inset-block-end:0;height:fit-content;max-height:calc(100dvh - env(safe-area-inset-top,0px));margin:auto auto 0;padding:0;border:0;border-radius:24px 24px 0 0;color:var(--color-text);background:radial-gradient(ellipse at 95% 0%,color-mix(in srgb,var(--color-accent) 19%,transparent),transparent 58%),var(--theme-account-page);box-shadow:inset 0 0 0 1px var(--color-border);overflow:hidden;}
+.receipt-import-dialog{box-sizing:border-box;width:100%;max-width:440px;inset-block-start:auto;inset-block-end:0;height:calc(100dvh - env(safe-area-inset-top,0px));max-height:calc(100dvh - env(safe-area-inset-top,0px));margin:auto auto 0;padding:0;border:0;border-radius:24px 24px 0 0;color:var(--color-text);background:radial-gradient(ellipse at 95% 0%,color-mix(in srgb,var(--color-accent) 19%,transparent),transparent 58%),var(--theme-account-page);box-shadow:inset 0 0 0 1px var(--color-border);overflow:hidden;}
 .receipt-import-dialog::backdrop{background:rgb(0 0 0/.55);}
-.receipt-import-dialog>div{display:flex;flex-direction:column;min-height:0;max-height:calc(100dvh - env(safe-area-inset-top,0px));}
+.receipt-import-dialog>div{height:100%;display:flex;flex-direction:column;min-height:0;max-height:calc(100dvh - env(safe-area-inset-top,0px));}
 .receipt-import-dialog *{box-sizing:border-box;min-width:0;}
 .rim-header{display:flex;gap:8px;align-items:flex-start;flex:none;padding:16px 18px 12px;min-height:56px;}
 .rim-header>div{flex:1;}
@@ -129,7 +129,7 @@ body:has(.receipt-import-dialog[open]) #mainNav{visibility:hidden;pointer-events
 .receipt-import-dialog :focus-visible{outline:2px solid var(--color-accent);outline-offset:2px;}
 .rim-header button{width:44px;height:44px;padding:10px;border:0;flex:none;background:transparent;box-shadow:none;color:var(--color-icon);}
 .rim-header button svg{width:20px;height:20px;}
-.rim-body{flex:0 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;padding:8px 18px 8px;scroll-padding-bottom:16px;}
+.rim-body{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;padding:8px 18px 8px;scroll-padding-bottom:16px;}
 .rim-card{background:var(--theme-account-panel);border:1px solid color-mix(in srgb,var(--color-accent-line) 40%,var(--color-border));border-radius:18px;padding:16px;margin-bottom:16px;}
 .rim-choose{min-height:0;margin-bottom:10px;}
 .rim-choose>button{width:100%;min-height:48px;margin-top:18px;padding:12px;line-height:1.4;}

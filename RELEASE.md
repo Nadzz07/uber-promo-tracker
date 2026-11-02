@@ -654,10 +654,10 @@ are unchanged. Initial surfaces use the saved accent fade, compact 130px cards,
 a real Help disclosure, restrained keyboard-only focus and a text Cancel action
 without a separate footer surface.
 
-## Content-sized reference import sheets — 2 November 2026
+## Full-height reference import views — 2 November 2026
 
-Remove full-viewport sizing and flex growth from the import sheets. Native dialog
-insets now anchor a content-sized sheet; long previews cap at the safe-area height
-and scroll within the body. Cancel follows the content. Reuse shared surfaces,
-primary material and outline icons for the reference-style upload, supporting
-information and review summaries. Picker activation and import logic are unchanged.
+The owner withdrew the content-sized-sheet instruction. Keep both imports as
+full-height views with compact selectors, reference-style supporting groups,
+shared theme surfaces, document icons and review summaries. Cancel remains near
+the bottom above the safe area; previews scroll within the body. Only explicit
+Choose file or Change activation opens the picker. Import logic is unchanged.
