@@ -111,27 +111,28 @@ html[data-motion=reduced] .sd-about details::details-content { transition:none; 
 .sync-page button:active:not(:disabled){transform:scale(.99);}
 @media(prefers-reduced-motion:reduce){.sync-page button{transition:none;}}
 html[data-motion=reduced] .sync-page button{transition:none;}
-/* Focused import sheet; no simulated status bar and no app navigation. */
+/* Shared import surfaces; select and preview retain the same data flow. */
 body:has(.receipt-import-dialog[open]){overflow:hidden;}
 body:has(.receipt-import-dialog[open]) #mainNav{visibility:hidden;pointer-events:none;}
-.receipt-import-dialog{box-sizing:border-box;width:100%;max-width:440px;height:calc(100dvh - env(safe-area-inset-top,0px));max-height:calc(100dvh - env(safe-area-inset-top,0px));margin:auto auto 0;padding:0;border:1px solid var(--color-border);border-radius:24px 24px 0 0;color:var(--color-text);background:var(--theme-account-page);overflow:hidden;}
+.receipt-import-dialog{box-sizing:border-box;width:100%;max-width:440px;height:calc(100dvh - env(safe-area-inset-top,0px));max-height:calc(100dvh - env(safe-area-inset-top,0px));margin:auto auto 0;padding:0;border:0;border-radius:24px 24px 0 0;color:var(--color-text);background:radial-gradient(ellipse at 95% 0%,color-mix(in srgb,var(--color-accent) 19%,transparent),transparent 58%),var(--theme-account-page);box-shadow:inset 0 0 0 1px var(--color-border);overflow:hidden;}
 .receipt-import-dialog::backdrop{background:rgb(0 0 0/.55);}
 .receipt-import-dialog>div{height:100%;display:flex;flex-direction:column;min-height:0;}
 .receipt-import-dialog *{box-sizing:border-box;min-width:0;}
-.rim-header{display:flex;gap:8px;align-items:flex-start;flex:none;padding:12px 16px;min-height:80px;}
+.rim-header{display:flex;gap:8px;align-items:flex-start;flex:none;padding:12px 16px;min-height:56px;}
 .rim-header>div{flex:1;}
 .rim-header h1{font-size:22px;font-weight:600;line-height:28px;margin:4px 0;}
-.rim-header p{margin:0;font-size:13px;line-height:18px;color:var(--color-secondary);}
+.rim-header p{margin:4px 0 0;font-size:13px;line-height:18px;color:var(--color-secondary);}
 .receipt-import-dialog button{min-height:44px;border:1px solid var(--color-outline);border-radius:12px;color:var(--color-accent);background:transparent;font:inherit;font-size:14px;padding:10px 12px;cursor:pointer;transition:background-color 160ms var(--motion-ease),transform 160ms var(--motion-ease);}
 .receipt-import-dialog button:active:not(:disabled){transform:scale(.99);}
 .receipt-import-dialog button:disabled{opacity:.55;cursor:default;}
-.receipt-import-dialog :focus-visible{outline:2px solid var(--color-accent);outline-offset:3px;}
-.rim-header button{width:44px;padding:10px;border:0;flex:none;color:var(--color-icon);}
+.receipt-import-dialog :focus:not(:focus-visible){outline:none;box-shadow:none;}
+.receipt-import-dialog :focus-visible{outline:2px solid var(--color-accent);outline-offset:2px;}
+.rim-header button{width:44px;height:44px;padding:10px;border:0;flex:none;background:transparent;box-shadow:none;color:var(--color-icon);}
 .rim-header button svg{width:20px;height:20px;}
 .rim-body{flex:1;overflow:auto;overscroll-behavior:contain;padding:4px 16px 20px;scroll-padding-bottom:16px;}
 .rim-card{background:var(--theme-account-panel);border:1px solid var(--color-border);border-radius:18px;padding:14px;margin-bottom:16px;}
-.rim-choose{min-height:126px;}
-.rim-choose>button{width:100%;margin-top:12px;}
+.rim-choose{min-height:130px;margin-bottom:8px;}
+.rim-choose>button{width:100%;min-height:44px;margin-top:12px;padding:10px 12px;line-height:1.4;}
 .rim-identity{display:flex;align-items:center;gap:12px;min-height:72px;}
 .rim-choose>.rim-identity{min-height:39px;}
 .rim-identity>svg{width:24px;height:24px;flex:none;color:var(--color-icon);}
@@ -153,10 +154,12 @@ body:has(.receipt-import-dialog[open]) #mainNav{visibility:hidden;pointer-events
 .rim-issues summary::-webkit-details-marker{display:none;}
 .rim-issues summary>svg:first-child{width:18px;height:18px;flex:none;}.rim-issues summary>svg:last-child{width:16px;height:16px;flex:none;}
 .rim-issues summary>span{flex:1;}.rim-issues small{display:block;font-size:12px;color:var(--color-secondary);}.rim-issues ul{padding-left:20px;overflow-wrap:anywhere;}
-.rim-help{font-size:12px;line-height:18px;color:var(--color-secondary);}.rim-help summary{min-height:44px;display:flex;align-items:center;cursor:pointer;}
-.rim-actions{padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:grid;gap:8px;flex:none;border-top:1px solid var(--color-border);background:var(--theme-account-panel);}
-.rim-actions>button{width:100%;}.rim-actions .rim-primary{min-height:46px;}
-.receipt-import-dialog .rim-primary{background:var(--theme-primary);color:var(--color-on-accent);border-color:var(--color-accent-line);font-weight:600;}
+.rim-help{font-size:12px;line-height:18px;color:var(--color-secondary);border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border);}
+.rim-help summary{min-height:44px;display:flex;align-items:center;gap:12px;cursor:pointer;list-style:none;font-size:13px;}
+.rim-help summary::-webkit-details-marker{display:none;}.rim-help summary span{flex:1;}.rim-help summary svg{width:16px;height:16px;flex:none;color:var(--color-icon);transition:transform 180ms var(--motion-ease);}.rim-help[open] summary svg:last-child{transform:rotate(90deg);}.rim-help p{margin:0 0 12px;line-height:18px;}
+.rim-actions{padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:grid;gap:8px;flex:none;border-top:0;background:transparent;}
+.rim-actions>button{width:100%;}.rim-actions>[data-rim-close]{border:0;background:transparent;border-radius:0;font-size:14px;}.rim-actions .rim-primary{min-height:46px;}
+.receipt-import-dialog .rim-primary{background:linear-gradient(135deg,var(--color-soft-accent),var(--color-accent));color:var(--color-on-accent);border-color:var(--color-accent-line);font-weight:600;}
 .rim-actions p{font-size:14px;margin:0;text-align:center;}
 @media(prefers-reduced-motion:reduce){.receipt-import-dialog button{transition:none;}}
 html[data-motion=reduced] .receipt-import-dialog button{transition:none;}
@@ -176,4 +179,8 @@ html[data-motion=reduced] .receipt-import-dialog button{transition:none;}
 .sync-page .sd-card,.receipt-import-dialog .rim-card{background-image:linear-gradient(120deg,color-mix(in srgb,var(--color-accent) 5%,transparent),transparent 75%);}
 .sync-page .sd-card,.receipt-import-dialog .rim-card{background-image:linear-gradient(120deg,color-mix(in srgb,var(--color-accent) 5%,transparent),transparent 75%),var(--theme-account-panel);}
 .receipt-import-dialog{border:0;box-shadow:inset 0 0 0 1px var(--color-border);}
-.rim-choose{min-height:132px;}
+
+
+.receipt-import-dialog[data-phase=choose] .rim-card{background-image:linear-gradient(130deg,color-mix(in srgb,var(--color-accent) 9%,transparent),transparent 80%),var(--theme-account-panel);}
+@media(prefers-reduced-motion:reduce){.rim-help summary svg{transition:none;}}
+html[data-motion=reduced] .rim-help summary svg{transition:none;}
