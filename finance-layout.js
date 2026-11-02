@@ -1,5 +1,6 @@
 const paths = {
   equal:'<path d="M4 6h16M4 12h16M4 18h16"/>',
+  'file-download':'<path d="M14 2H5v20h14V7l-5-5ZM14 2v5h5M12 10v8m-3-3 3 3 3-3"/>',
   'file-upload':'<path d="M14 2H5v20h14V7l-5-5ZM14 2v5h5M12 18v-7m-3 3 3-3 3 3"/>',
   'file-document':'<path d="M14 2H5v20h14V7l-5-5ZM14 2v5h5M8 11h8M8 15h8M8 18h5"/>',
 

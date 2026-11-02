@@ -219,3 +219,52 @@ html[data-motion=reduced] .receipt-import-dialog button{transition:none;}
 .receipt-import-dialog[data-phase=choose] .rim-card{background-image:linear-gradient(130deg,color-mix(in srgb,var(--color-accent) 9%,transparent),transparent 80%),var(--theme-account-panel);}
 @media(prefers-reduced-motion:reduce){.rim-help summary svg{transition:none;}}
 html[data-motion=reduced] .rim-help summary svg{transition:none;}
+/* Backup sheets share the import material, spacing and focus treatment. */
+.backup-dialog{height:fit-content;}
+.backup-dialog>div{height:auto;}
+.backup-dialog[data-phase=review]{height:min(840px,calc(100dvh - env(safe-area-inset-top,0px)));}
+.backup-dialog[data-phase=review]>div{height:100%;}
+.backup-dialog::backdrop{background:rgb(0 0 0/.55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);}
+.backup-dialog .rim-compact-header{padding-bottom:12px;gap:14px;}
+.backup-dialog .rim-compact-header h1{font-size:22px;line-height:28px;}
+.backup-dialog .rim-compact-header>svg{width:28px;height:28px;}
+.backup-dialog .rim-body h2{font-size:17px;line-height:24px;margin:10px 0 8px;}
+.backup-dialog .rim-body{padding-top:4px;}
+.backup-dialog .bk-group{padding:0 14px;margin-bottom:12px;}
+.bk-row{display:flex;align-items:center;gap:14px;min-height:48px;padding:10px 0;border-bottom:1px solid var(--color-border);font-size:14px;line-height:20px;}
+.bk-row:last-child{border-bottom:0;}
+.bk-row>svg{width:22px;height:22px;flex:none;color:var(--color-soft-accent);}
+.bk-row>span{flex:1;}
+.bk-row>strong{font-size:14px;font-weight:500;color:var(--color-secondary);}
+.bk-caption{font-size:12px;line-height:19px;color:var(--color-secondary);margin:8px 0 12px;}
+.backup-dialog .rim-actions .bk-caption{margin:0;text-align:left;}
+.backup-dialog .rim-actions form{margin:0;}
+.backup-dialog .rim-actions form button{width:100%;min-height:52px;font-size:16px;}
+.backup-dialog .rim-actions>[data-device-cancel]{border:0;color:var(--color-soft-accent);font-size:16px;}
+.backup-dialog .rim-file-row{margin-top:8px;}
+.backup-dialog .bk-file{gap:14px;padding:14px;min-height:72px;margin-bottom:16px;}
+.backup-dialog .bk-file>svg{color:var(--color-soft-accent);}
+.backup-dialog .bk-file strong{font-size:16px;line-height:22px;}
+.bk-changes{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:13px;line-height:19px;}
+.bk-changes>span{padding:6px 10px;border-radius:20px;border:1px solid var(--color-border);}
+.bk-added{color:var(--color-positive-dot);background:color-mix(in srgb,var(--color-positive-dot) 10%,transparent);}
+.bk-updated{color:var(--color-soft-accent);background:color-mix(in srgb,var(--color-accent) 10%,transparent);}
+.bk-changes>details{flex:1;min-width:120px;}
+.bk-changes>details[open]{flex-basis:100%;}
+.backup-dialog summary{cursor:pointer;list-style:none;min-height:44px;display:flex;align-items:center;gap:8px;}
+.backup-dialog summary::-webkit-details-marker{display:none;}
+.backup-dialog summary>svg{width:16px;height:16px;flex:none;color:var(--color-soft-accent);transition:transform 180ms var(--motion-ease);}
+.bk-changes>details>summary{justify-content:flex-end;color:var(--color-soft-accent);}
+.bk-change{border-top:1px solid var(--color-border);}
+.bk-values{font-size:12px;line-height:18px;}
+.bk-values pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0 12px;font:inherit;}
+.bk-warning{border:1px solid color-mix(in srgb,var(--color-warning-text,#f1c66c) 55%,transparent);background:color-mix(in srgb,var(--color-warning-text,#f1c66c) 8%,transparent);border-radius:14px;padding:2px 12px;margin-top:12px;color:var(--color-warning-text,#f1c66c);font-size:13px;line-height:19px;}
+.bk-warning summary>span{flex:1;}
+.bk-conflict{padding:10px 0;border-top:1px solid var(--color-border);color:var(--color-text);overflow-wrap:anywhere;}
+.bk-conflict strong{font-size:13px;font-weight:550;}
+.bk-conflict label{display:grid;gap:6px;margin-top:8px;}
+.bk-conflict select{min-height:44px;width:100%;font:inherit;font-size:16px;border:1px solid var(--color-outline);border-radius:10px;color:var(--color-text);background:var(--color-screen);padding:8px;}
+.bk-status{font-size:13px;line-height:19px;color:var(--color-secondary);margin:0;}
+.bk-status:empty{display:none;}
+@media(prefers-reduced-motion:reduce){.backup-dialog summary>svg{transition:none;}}
+html[data-motion=reduced] .backup-dialog summary>svg{transition:none;}

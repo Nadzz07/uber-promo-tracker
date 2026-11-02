@@ -131,3 +131,5 @@ exclude:
 
   - test-account-import.js
   - test-receipt-import.js
+
+  - BACKUPS.md

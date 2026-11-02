@@ -2398,7 +2398,7 @@
     let projectionClock = 0;
     let nextOfferExpiry = Infinity;
     let renderedClockKey = null;
-    let history = [];
+    let history = [], publishedHistoryRecords = null;
     let historyUnavailable = false;
     let sheetOpener = null;
     let loadInProgress = false,loadPromise=null;
@@ -3328,7 +3328,7 @@
           let migrated=migratePrivateOfferIds(manualStore,plan.value.offerIdMigrations||[]);for(const [ref,note]of Object.entries(plan.notes))migrated=saveAccountManualRecord(migrated,accounts.find(a=>a.accountRef===ref),{note});const merged={...readDeviceAccounts(),...plan.mapping};
           try{localStorage.setItem(STATE_KEY,JSON.stringify(migrated));try{localStorage.setItem(DEVICE_ACCOUNTS_KEY,JSON.stringify(merged));}catch(error){if(plan.stateBaseline==null)localStorage.removeItem(STATE_KEY);else localStorage.setItem(STATE_KEY,plan.stateBaseline);throw error;}}
           catch{throw Error('Could not save accounts. Existing data is unchanged.');}
-          manualStore=migrated;deviceAccounts=merged;accounts=payload.accounts.map(a=>accountWithDeviceMetadata(deviceAccounts,a));invalidateAccountProjection();renderAll();
+          manualStore=migrated;deviceAccounts=merged;accounts=currentAccountSources().map(a=>accountWithDeviceMetadata(deviceAccounts,a));invalidateAccountProjection();renderAll();
         }});
       accountImporter.open();
     }
@@ -3784,7 +3784,16 @@
         '<button class="sheet-action-row" data-open-guide="overview">' + financeIcon('help') + '<span>Open Help & Guide</span></button>';
     }
 
+    function currentAccountSources(){return [...new Map([...(financeVault.data?.trackerSource?.accounts||[]),...(payload.accounts||[])].map(a=>[a.accountRef,a])).values()];}
+    function restoreSourceProjection(){
+      const source=financeVault.data?.trackerSource;if(!source)return;
+      history=[...new Map([...source.history,...history].map(r=>[r.id,r])).values()];
+      const combined=new Map();for(const promo of [...source.history,...history,...source.promos,...(payload.promos||[])])if(promo?.service==='Uber Eats'&&promo.id)combined.set(promo.id,promo);
+      promos=[...combined.values()].map(source=>{const promo=applyOfferExpiryPolicy(source);return {...promo,title:offerTitle(promo),...classifyOfferTrackingState(promo,{reviewReasons:promo.reviewReasons||[]})};});
+      accounts=currentAccountSources().map(a=>accountWithDeviceMetadata(deviceAccounts,a));rebuildAccountIndex();
+    }
     function privateDataUpdated(){
+      restoreSourceProjection();
       privateWallets=financeVault.current().wallets;invalidateAccountProjection();reconcileLocalEvidence();reviewData=reviewView=null;
       renderAccounts();renderUsed();renderRecommendation();if(currentView==='home')renderStats();
       if(openSheetType==='account')renderAccountSheet();
@@ -3800,12 +3809,12 @@
     function renderSyncPage(){
       if(syncDataView){syncDataView.refreshStatus();return;}
       const host=document.getElementById('syncDataPage');
-      syncDataView=createSyncData({host,getSync:()=>payload.sync||{},vault:financeVault,
+      syncDataView=createSyncData({host,getSync:()=>payload.sync||{},vault:financeVault,getBackupSource:()=>({schemaVersion:1,accounts:currentAccountSources(),promos:payload.promos||[],history}),
         onBack:()=>{if(routeEntries.get(window.history.state?.trackerEntry)?.opener?.closest('#view-more,#view-home'))window.history.back();else switchView('more');},
         onInfo:()=>openUtilitySheet('sync-info'),
         onAccounts:()=>openUtilitySheet('device'),
         refresh:async()=>{const result=await load();if(result==='failed')throw Error('Could not refresh published data. Your saved changes are unchanged.');if(result==='partial')throw Error('Published data was partly refreshed. Promo history could not load. Your saved changes are unchanged.');return result;},
-        onRestore:()=>{manualStore=readManualStore();deviceAccounts=readDeviceAccounts();accounts=payload.accounts.map(a=>accountWithDeviceMetadata(deviceAccounts,a));offerPreferences=readOfferPreferences(localStorage);plannerSettings=readPlannerSettings();document.getElementById('basketInput').value=plannerSettings.basketSubtotal.toFixed(2);motionSetting=localStorage.getItem(MOTION_KEY)==='reduced'?'reduced':'system';document.documentElement.dataset.motion=motionSetting;mainNav.dataset.motion=motionSetting;liquidNavigation?.refreshMotion();accountTypeFilter=selectedOfferScope(offerPreferences);applyTheme(readThemeColour());layoutPreference=readLayoutPreference();applyLayoutPreference();privateDataUpdated();renderAll();}});
+        onRestore:()=>{manualStore=readManualStore();deviceAccounts=readDeviceAccounts();accounts=currentAccountSources().map(a=>accountWithDeviceMetadata(deviceAccounts,a));offerPreferences=readOfferPreferences(localStorage);plannerSettings=readPlannerSettings();document.getElementById('basketInput').value=plannerSettings.basketSubtotal.toFixed(2);motionSetting=localStorage.getItem(MOTION_KEY)==='reduced'?'reduced':'system';document.documentElement.dataset.motion=motionSetting;mainNav.dataset.motion=motionSetting;liquidNavigation?.refreshMotion();accountTypeFilter=selectedOfferScope(offerPreferences);applyTheme(readThemeColour());layoutPreference=readLayoutPreference();applyLayoutPreference();privateDataUpdated();renderAll();}});
 
     }
 
@@ -4294,13 +4303,14 @@
         if (current.status !== "fulfilled" || !Array.isArray(current.value?.promos) || !Array.isArray(current.value?.accounts)) {
           throw new Error("Tracker data unavailable");
         }
-        const sameHistory = previous.status === 'fulfilled' && previous.value.records === history;
+        const sameHistory = previous.status === 'fulfilled' && Array.isArray(previous.value?.records) && previous.value.updatedAt === current.value.generatedAt && previous.value.records === publishedHistoryRecords;
         if (current.value === payload && sameHistory && !loadError) { renderStatus(); return 'current'; }
         loadError = false;
         payload = current.value;
         historyUnavailable = previous.status !== "fulfilled" || !Array.isArray(previous.value?.records) ||
           previous.value.updatedAt !== payload.generatedAt;
         history = historyUnavailable ? [] : previous.value.records;
+        publishedHistoryRecords = historyUnavailable ? null : previous.value.records;
         const combined = new Map();
         for (const promo of [...history, ...payload.promos]) {
           if (promo?.service === "Uber Eats" && promo.id) combined.set(promo.id, promo);
@@ -4309,7 +4319,8 @@
           const promo = applyOfferExpiryPolicy(source);
           return { ...promo, title: offerTitle(promo), ...classifyOfferTrackingState(promo, { reviewReasons: promo.reviewReasons || [] }) };
         });
-        accounts = payload.accounts.map(a=>accountWithDeviceMetadata(deviceAccounts,a));
+        accounts = currentAccountSources().map(a=>accountWithDeviceMetadata(deviceAccounts,a));
+        restoreSourceProjection();
         rebuildAccountIndex();
         reconcileLocalEvidence();
         renderAll();
@@ -4619,7 +4630,7 @@
       if (event.key === STATE_KEY || event.key === null) { manualStore = readManualStore(); reconcileLocalEvidence(); invalidateAccountProjection(); renderAll(); if (openSheetType === "account") renderAccountSheet(); }
       if (event.key === SETTINGS_KEY) { plannerSettings = readPlannerSettings(); renderRecommendation(); }
       if (event.key === THEME_KEY) { applyTheme(readThemeColour()); if (openSheetType === 'theme') renderLegacyAppearanceControls(); if(currentView==='settings')renderSettingsPage(); }
-      if (event.key === DEVICE_ACCOUNTS_KEY || event.key === null) { deviceAccounts = readDeviceAccounts(); accounts=payload.accounts.map(a=>accountWithDeviceMetadata(deviceAccounts,a));invalidateAccountProjection();renderAll(); if (openSheetType === 'account') renderAccountSheet(); }
+      if (event.key === DEVICE_ACCOUNTS_KEY || event.key === null) { deviceAccounts = readDeviceAccounts(); accounts=currentAccountSources().map(a=>accountWithDeviceMetadata(deviceAccounts,a));invalidateAccountProjection();renderAll(); if (openSheetType === 'account') renderAccountSheet(); }
     });
     function refreshTimedViews() {
       if (document.hidden || loadInProgress) return;

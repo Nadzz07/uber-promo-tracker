@@ -669,3 +669,8 @@ leading import icon, file row, concise preservation note, inline File help and
 Choose file above Cancel. Selecting a file expands into the existing full review;
 long content scrolls. Opening and focus never invoke the picker. Import logic,
 matching, corrections, deduplication and other pages are unchanged.
+
+### Backup sheets and saved-state recovery
+- Export, restore selection and restore review now use the shared compact themed sheet surfaces, explicit file actions and inspectable changes. Closing and Back preserve navigation; imports and device refresh remain separate.
+- Encrypted backup metadata version 2 declares coverage and retains required offer sources, receipt links, account edits, manual usage, correction/balance history and preferences. Existing version-1 files remain readable. Differing saved values need an explicit choice; incompatible correction histories remain blocked. Restore stages changes with the existing rollback/recovery and cross-tab revision checks.
+- Encryption remains bound to the original browser key: fresh-browser decryption is deliberately rejected. No portable-backup claim, passphrase screen, shared key or plaintext export was added. See BACKUPS.md for the full coverage and compatibility contract.
