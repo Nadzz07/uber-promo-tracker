@@ -128,7 +128,7 @@ export function prepareDeviceRestore(vault,incoming,resolutions={}){
   const original=vault.storage.getItem(key);
   if(key.endsWith('manual-state:v3')||key.endsWith('device-accounts:v1')){
    const before=parsed(original),after=JSON.parse(raw),merged={...before};
-   if(key.endsWith('manual-state:v3')){merged.version=3;for(const bucket of ['offers','accountRecords']){merged[bucket]={...(before[bucket]||{})};for(const [id,value]of Object.entries(after[bucket]||{}))merged[bucket][id]=track(key+':'+bucket+':'+id,bucket,bucket==='offers'?(offerLabels.get(id)||'Saved offer'):'Account changes · '+accountLabel(id),before[bucket]?.[id],value);}}
+   if(key.endsWith('manual-state:v3')){if(original===null){const legacy=parsed(vault.storage.getItem('uber-eats-promo-finder:promo-state:v2'));badKeys(legacy);before.offers=Object.fromEntries(Object.entries(legacy).filter(([,v])=>['used','ignored'].includes(v)).map(([id,v])=>[id,v==='used'?{forceDone:true}:{ignored:true}]));}merged.version=3;for(const bucket of ['offers','accountRecords']){merged[bucket]={...(before[bucket]||{})};for(const [id,value]of Object.entries(after[bucket]||{}))merged[bucket][id]=track(key+':'+bucket+':'+id,bucket,bucket==='offers'?(offerLabels.get(id)||'Saved offer'):'Account changes · '+accountLabel(id),before[bucket]?.[id],value);}}
    else for(const [id,value]of Object.entries(after))merged[id]=track(key+':'+id,'identities','Account identity · '+value.email,before[id],value);
    values[key]=JSON.stringify(merged);
   }else values[key]=track(key,'preferences',({'theme:v1':'Theme','layout:v1':'Layout','motion:v1':'Motion','planner-settings:v1':'Order Planner','offer-preferences:v1':'Preferred offers'})[key.slice(prefix.length)]||'Preference',original??undefined,raw);
