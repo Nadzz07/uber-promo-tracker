@@ -222,8 +222,8 @@ html[data-motion=reduced] .rim-help summary svg{transition:none;}
 /* Backup sheets share the import material, spacing and focus treatment. */
 .backup-dialog{height:fit-content;}
 .backup-dialog>div{height:auto;}
-.backup-dialog[data-phase=review]{height:min(840px,calc(100dvh - env(safe-area-inset-top,0px)));}
-.backup-dialog[data-phase=review]>div{height:100%;}
+.backup-dialog[data-phase=review]{height:fit-content;}
+.backup-dialog[data-phase=review]>div{height:auto;}
 .backup-dialog::backdrop{background:rgb(0 0 0/.55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);}
 .backup-dialog .rim-compact-header{padding-bottom:12px;gap:14px;}
 .backup-dialog .rim-compact-header h1{font-size:22px;line-height:28px;}
