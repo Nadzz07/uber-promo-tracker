@@ -1,3 +1,7 @@
+## Compact Past & other offers — 2 November 2026
+
+The existing Account details history section now uses counted outline category chips, a category heading and working latest/oldest/name sorting, followed by compact expandable rows. Sorting precedes pagination. Existing categories, records, manual actions, receipt links and theme settings are preserved.
+
 ## Offer terms and recent login review — 2 November 2026
 
 Account details now shows a concise source-backed terms table with explicit estimated expiry and usage labels. Field-specific uncertainties link to Needs checking. Login access and method remain independent; private confirmation provenance survives imports and refreshes. The recent chat review updates 20 accounts; historical unresolved methods remain untouched. Private confirmation metadata is excluded from public exports.
