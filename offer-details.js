@@ -32,7 +32,7 @@ export function offerTermsRows(promo={},money=v=>new Intl.NumberFormat('en-GB',{
  const title=amount==null?'Unknown':promo.discountType==='percent'?amount+'% off':money(amount)+' off'+(minimum!=null&&Number(minimum)>0?' '+money(minimum):'');
  add('Offer',title,'discount',promo.termsVerification==='needs_verification','Discount terms need checking');
  add('Orders',(promo.usesVerified===true||promo.evidence?.usesBasis==='explicit_offer_terms')&&Number.isInteger(Number(limit))&&Number(limit)>0?'Up to '+limit+(Number(limit)===1?' order':' orders'):'Unknown','uses',false,'Order allowance is not confirmed');
- add('Minimum spend',minimum==null?'Unknown':Number(minimum)===0?'No minimum spend':money(minimum)+' per order'+(restrictions.excludesFees===true?', excluding fees':''),'minimumSpend',minimum!=null&&promo.minimumSpendVerified===false,'Minimum spend is not confirmed');
+ add('Minimum spend',minimum==null||Number(minimum)===0&&promo.minimumSpendVerified===false?'Unknown':Number(minimum)===0?'No minimum spend':money(minimum)+' per order'+(restrictions.excludesFees===true?', excluding fees':''),'minimumSpend',minimum!=null&&Number(minimum)>0&&promo.minimumSpendVerified===false,'Minimum spend is not confirmed');
  if(restrictions.fulfilment==='delivery_only')add('Order type','Delivery only','fulfilment');
  if(restrictions.fulfilment==='pickup_only')add('Order type','Collection only','fulfilment');
  if(restrictions.merchantLimited===true)add('Merchants','Selected merchants','merchants');

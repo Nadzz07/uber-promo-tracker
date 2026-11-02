@@ -17,3 +17,5 @@ try{
  const rows=offerTermsRows(offer);assert.deepEqual(rows.map(r=>r.label),['Offer','Orders','Minimum spend','Order type','Merchants','Other promos','Expiry date']);assert.equal(rows[0].value,'£12.00 off £15.00');assert.equal(rows.find(r=>r.field==='expiry').estimated,true);assert.equal(rows.find(r=>r.field==='minimumSpend').value,'£15.00 per order, excluding fees');assert.equal(offerFieldReviewReasons(offer).some(r=>r.field==='expiry'),true);assert.equal(offerTermsRows({...offer,expires:null,uses:null}).find(r=>r.field==='expiry').value,'Unknown');assert.equal(offerTermsRows({...offer,restrictions:{}}).some(r=>r.label==='Order type'),false,'Unknown fulfilment is not guessed as delivery-only');
  console.log('✓ Field-specific private login provenance, imported evidence, chat times, pending/permission states, atomic batches, stable identities, stale import protection and source-only simplified terms/estimate review.');
 }finally{db.close();}
+
+assert.equal(offerTermsRows({minimumSpend:0,minimumSpendVerified:false}).find(r=>r.field==='minimumSpend').value,'Unknown');
