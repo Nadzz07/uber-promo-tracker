@@ -1,3 +1,4 @@
+import {auditLoginAccounts} from './account-login-review.js';
 import {recordSyncRun,validateSyncReport} from './sync-report.js';
 import fs from "node:fs/promises";
 import { backupPrivateDb, compressPrivateBackup } from "./private-backup.js";
@@ -186,7 +187,7 @@ async function generatePromos() {
     const beforeOffers=new Map(db.prepare('SELECT * FROM offers').all().map(row=>[row.offer_id,offerSignature(row)]));
     if (accountAllowlist) {
       resetAccountAccess(db);
-      for (const record of accountAllowlist.values()) setAccountAccess(db, record.email, record.canLogin, record.loginMethod, record.accountStatus);
+      for (const record of accountAllowlist.values()) setAccountAccess(db, record.email, record.canLogin, record.loginMethod, record.accountStatus, record.loginReview);
     }
 
     for (const email of messages) {
@@ -379,6 +380,7 @@ async function generatePromos() {
       console.log('Complete receipt identity reconstruction: ' + JSON.stringify(reconcileTransportReceiptIdentities(db,processedMessageKeys,transportSources)));
     }
 
+    auditLoginAccounts(db,accountAllowlist?[...accountAllowlist.values()]:[]);
     const durableOffers = getOffers(db, {
       service: "Uber Eats",
       includeHistorical: false

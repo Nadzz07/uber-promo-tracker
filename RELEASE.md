@@ -1,3 +1,7 @@
+## Offer terms and recent login review — 2 November 2026
+
+Account details now shows a concise source-backed terms table with explicit estimated expiry and usage labels. Field-specific uncertainties link to Needs checking. Login access and method remain independent; private confirmation provenance survives imports and refreshes. The recent chat review updates 20 accounts; historical unresolved methods remain untouched. Private confirmation metadata is excluded from public exports.
+
 ## Estimated Cash cutoff — 23 October 2026
 
 When the credit application date is absent, the owner-approved tracker rule uses

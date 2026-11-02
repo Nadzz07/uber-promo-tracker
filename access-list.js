@@ -25,7 +25,7 @@ export function normaliseLoginMethod(value) {
     .replace(/[’‘]/g, "'")
     .replace(/\s+/g, " ");
 
-  if (!method) return null;
+  if (!method || /^(not confirmed|unknown|pending|awaiting permission)$/.test(method)) return null;
   if (/^(icloud|apple|apple id|hide my email)$/.test(method)) return "iCloud";
   if (/^(google|gmail|google account)$/.test(method)) return "Google";
   if (/^(both|icloud\s*\+\s*google|google\s*\+\s*icloud|icloud\s*&\s*google|google\s*&\s*icloud)$/.test(method)) {
@@ -67,7 +67,7 @@ export function parseAccessList(text) {
       throw new Error("Invalid account email on data row " + (index + 1) + ".");
     }
 
-    let canLogin = true;
+    let canLogin = null;
     if (statusIndex >= 0) {
       const state = String(row[statusIndex] ?? "")
         .trim()
@@ -75,7 +75,7 @@ export function parseAccessList(text) {
         .replace(/[’‘]/g, "'");
       if (/^(true|1|yes|y|can\s*log\s*in|usable)$/.test(state)) canLogin = true;
       else if (/^(false|0|no|n|can't\s*log\s*in|cannot\s*log\s*in|unusable)$/.test(state)) canLogin = false;
-      else if (/^(pending|pending verification|unverified|unknown)$/.test(state)) canLogin = null;
+      else if (/^(pending|pending verification|unverified|unknown|not confirmed|awaiting permission)$/.test(state)) canLogin = null;
       else throw new Error("Unknown login status on data row " + (index + 1) + ".");
     }
 
@@ -103,7 +103,8 @@ export function parseAccessList(text) {
     records.set(email, {
       canLogin,
       accountStatus: accountStatus || previous?.accountStatus || null,
-      loginMethod: loginMethod || previous?.loginMethod || null
+      loginMethod: loginMethod || previous?.loginMethod || null,
+      loginReview:{...(statusIndex>=0&&/awaiting permission/i.test(row[statusIndex]||'')?{access:{status:'pending',raw:row[statusIndex]}}:{}),...(methodIndex>=0&&/awaiting permission/i.test(row[methodIndex]||'')?{method:{status:'pending',raw:row[methodIndex]}}:{})}
     });
   }
 
@@ -113,6 +114,7 @@ export function parseAccessList(text) {
     email,
     canLogin: value.canLogin,
     loginMethod: value.loginMethod,
+    ...(Object.keys(value.loginReview||{}).length?{loginReview:value.loginReview}:{}),
     ...(accountStatusIndex >= 0 ? { accountStatus: value.accountStatus } : {})
   }));
 }

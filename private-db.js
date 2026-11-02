@@ -1,3 +1,4 @@
+import {initLoginReview,recordLoginField,loginField} from './account-login-review.js';
 import {cashAllocationEvidence} from './parser-v2/cash.js';
 import { dedupeReceipts } from "./receipt-identity.js";
 import { createHash } from "node:crypto";
@@ -11,7 +12,7 @@ import { initFinancialLedger } from './financial-ledger.js';
 import {receiptReviewEvidence} from './receipt-review-evidence.js';
 import {receiptFinancials} from './receipt-financials.js';
 
-export const PRIVATE_DB_SCHEMA_VERSION = 13;
+export const PRIVATE_DB_SCHEMA_VERSION = 14;
 export const DEFAULT_PRIVATE_DB = "./uber-tracker.local.db";
 
 // Statements are connection-local and reusable; the weak key lets closed
@@ -187,6 +188,7 @@ function initSchema(db) {
   for (const name of ['promotion_discount', 'uber_cash_used', 'uber_cash_savings', 'reported_savings', 'uber_one_savings']) {
     if (!transportColumns.has(name)) db.exec('ALTER TABLE transport_receipts ADD COLUMN ' + name + ' REAL');
   }
+  initLoginReview(db);
   const accountColumns = new Set(
     prepare(db, "PRAGMA table_info(accounts)").all().map(row => row.name)
   );
@@ -303,9 +305,9 @@ export function ensureAccount(
 
     prepare(db, `
       INSERT INTO accounts(
-        account_ref, alias, masked, can_login,
+        account_ref, alias, masked, can_login, login_access,
         first_seen_at, last_seen_at, last_promo_at, last_receipt_at
-      ) VALUES(?, ?, ?, 1, ?, ?, ?, ?)
+      ) VALUES(?, ?, ?, 0, 'pending', ?, ?, ?, ?)
     `).run(
       ref,
       normalized,
@@ -368,7 +370,7 @@ export function ensureAccount(
   };
 }
 
-export function setAccountAccess(db, alias, canLogin, loginMethod = null, accountStatus = null) {
+export function setAccountAccess(db, alias, canLogin, loginMethod = null, accountStatus = null, review = {}) {
   const normalized = normaliseAlias(alias);
   // Access edits must not look like a new Mail observation or restart offer age.
   const account = getAccountByAlias(db, normalized) || ensureAccount(db, { alias: normalized });
@@ -381,6 +383,8 @@ export function setAccountAccess(db, alias, canLogin, loginMethod = null, accoun
     throw new Error("Invalid account login method.");
   }
 
+  canLogin=recordLoginField(db,account.accountRef,'access',canLogin,{raw:review.access?.raw});
+  if(loginMethod!=null||review.method)loginMethod=recordLoginField(db,account.accountRef,'method',loginMethod,{raw:review.method?.raw});
   prepare(db,
     "UPDATE accounts SET can_login = ?, login_access = ?, login_method = COALESCE(?, login_method), account_status = COALESCE(?, account_status) WHERE alias = ?"
   ).run(canLogin === true ? 1 : 0, canLogin === null ? "pending" : canLogin ? "accessible" : "inaccessible", loginMethod || null, accountStatus || null, normalized);
@@ -389,7 +393,7 @@ export function setAccountAccess(db, alias, canLogin, loginMethod = null, accoun
 }
 
 export function resetAccountAccess(db) {
-  db.exec("UPDATE accounts SET can_login = 0, login_access = 'inaccessible'");
+  db.exec("UPDATE accounts SET can_login = 0, login_access = 'pending' WHERE account_ref NOT IN (SELECT account_ref FROM account_login_fields WHERE field='access' AND (source='codex_chat' OR status IN ('confirmed','imported')))");
 }
 
 function accountFromRow(row) {
@@ -1360,7 +1364,7 @@ export function getPublicAccountInsights(db, {receipts=getReceipts(db),rides=get
     const transport = ridesByAccount.get(account.accountRef)||[];
     const last = rows => rows.map(r => r.orderAt || r.orderDate || r.sentAt || r.receivedAt).filter(Boolean).sort().at(-1) || null;
     return { accountRef: account.accountRef, accountMasked: account.masked, canLogin: account.canLogin,
-      accessStatus: account.accessStatus || (account.canLogin ? "accessible" : "inaccessible"), loginMethod: account.loginMethod, accountStatus: account.accountStatus || (account.canLogin ? 'active' : 'archived'), deactivated: account.deactivated === true, lastSeenAt: account.lastSeenAt, lastPromoAt: account.lastPromoAt,
+      accessStatus: account.accessStatus || (account.canLogin ? "accessible" : "inaccessible"), loginMethod: account.loginMethod, accountStatus: account.accountStatus || (account.canLogin === false ? 'archived' : 'active'), deactivated: account.deactivated === true, lastSeenAt: account.lastSeenAt, lastPromoAt: account.lastPromoAt,
       lastOrderAt: last(orders), lastRideAt: last(transport), orderCount: orders.length, rideCount: transport.length,
       totalSaved: savings.get(account.accountRef)?.confirmedSaved || 0,sourceReviewCount:sourceReviews.get(account.accountRef)||0,
       receiptReviewCount:[...orders,...transport].filter(r=>receiptFinancials(r).needsAdjustmentReview).length,
