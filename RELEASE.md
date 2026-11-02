@@ -653,3 +653,11 @@ focus, cancellation and reopening do not trigger it. Import and preview logic
 are unchanged. Initial surfaces use the saved accent fade, compact 130px cards,
 a real Help disclosure, restrained keyboard-only focus and a text Cancel action
 without a separate footer surface.
+
+## Full-height reference import views — 2 November 2026
+
+The owner withdrew the content-sized-sheet instruction. Keep both imports as
+full-height views with compact selectors, reference-style supporting groups,
+shared theme surfaces, document icons and review summaries. Cancel remains near
+the bottom above the safe area; previews scroll within the body. Only explicit
+Choose file or Change activation opens the picker. Import logic is unchanged.
