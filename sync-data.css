@@ -149,10 +149,10 @@ body:has(.receipt-import-dialog[open]) #mainNav{visibility:hidden;pointer-events
 .rim-filename{overflow-wrap:anywhere;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .rim-handle{width:42px;height:4px;flex:none;border-radius:4px;background:var(--color-icon);opacity:.6;margin:12px auto 6px;}
 .rim-compact-header{gap:16px;padding-top:16px;padding-bottom:22px;}
-.rim-compact-header>svg{width:32px;height:32px;flex:none;margin-top:4px;color:var(--color-soft-accent);}
+.rim-compact-header>svg{width:32px;height:32px;flex:none;align-self:center;color:var(--color-soft-accent);}
 .rim-compact-header h1{margin-top:0;font-size:24px;line-height:30px;}
 .rim-compact-header p{font-size:14px;line-height:20px;}
-.rim-file-row{display:flex;align-items:center;gap:16px;min-height:80px;margin-bottom:16px;}
+.rim-file-row{display:flex;align-items:center;gap:16px;min-height:80px;margin-bottom:16px;background:linear-gradient(125deg,color-mix(in srgb,var(--color-accent) 5%,transparent),transparent 70%),var(--theme-account-panel);}
 .rim-file-row>span{flex:1;}
 .rim-file-row>svg{width:28px;height:28px;flex:none;color:var(--color-soft-accent);}
 .rim-file-row>svg:last-child{width:24px;height:24px;color:var(--color-accent);}
