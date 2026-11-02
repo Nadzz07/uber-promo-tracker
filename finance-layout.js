@@ -1,4 +1,8 @@
 const paths = {
+  equal:'<path d="M4 6h16M4 12h16M4 18h16"/>',
+  'file-upload':'<path d="M14 2H5v20h14V7l-5-5ZM14 2v5h5M12 18v-7m-3 3 3-3 3 3"/>',
+  'file-document':'<path d="M14 2H5v20h14V7l-5-5ZM14 2v5h5M8 11h8M8 15h8M8 18h5"/>',
+
   close:'<path d="m6 6 12 12M18 6 6 18"/>',
   users:'<circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3H3ZM16 4a3 3 0 0 1 0 6M17 14a5 5 0 0 1 4 5v2h-3"/>',
   'user-check':'<circle cx="9" cy="7" r="4"/><path d="M2 22v-3a7 7 0 0 1 13-4M14 19l3 3 5-6"/>',

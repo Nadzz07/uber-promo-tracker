@@ -653,3 +653,11 @@ focus, cancellation and reopening do not trigger it. Import and preview logic
 are unchanged. Initial surfaces use the saved accent fade, compact 130px cards,
 a real Help disclosure, restrained keyboard-only focus and a text Cancel action
 without a separate footer surface.
+
+## Content-sized reference import sheets — 2 November 2026
+
+Remove full-viewport sizing and flex growth from the import sheets. Native dialog
+insets now anchor a content-sized sheet; long previews cap at the safe-area height
+and scroll within the body. Cancel follows the content. Reuse shared surfaces,
+primary material and outline icons for the reference-style upload, supporting
+information and review summaries. Picker activation and import logic are unchanged.
