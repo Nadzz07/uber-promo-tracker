@@ -3405,9 +3405,9 @@
       const at=expired?promo.expiresAt||promo.expires:manual?activity.manualFinishedAt:ignored?getOfferManualState(manualStore,promo).updatedAt:promo.lastUsedAt||privateReceipt?.orderAt||privateReceipt?.orderDate||privateReceipt?.sentAt;
       const date=at&&Number.isFinite(Date.parse(at))?new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'Europe/London'}).format(new Date(at)):'Date unknown';
       if(expired)return 'Expired · '+date;
-      if(promo.hiddenByPromoUse)return 'Hidden · another promo used';
       if(ignored)return 'Ignored · '+(date==='Date unknown'?date:'Updated '+date);
       if(manual)return 'Manually finished · '+date;
+      if(promo.hiddenByPromoUse)return 'Hidden · another promo used';
       if(activity.bucket==='needs_checking')return 'Needs checking';
       const known=Number.isInteger(Number(promo.uses))&&Number(promo.uses)>0&&promo.usesVerified===true;
       return activity.bucket==='completed'?'Used '+activity.confirmedUses+(known?'/'+promo.uses:' receipt-confirmed')+' · '+date:activity.status+' · '+date;

@@ -57,10 +57,10 @@ button:active:not(:disabled) { transform:scale(.985); }
 html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion=reduced] *::after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; }
 @media (forced-colors:active) { :is(button,a,input,textarea,select,summary):focus-visible { outline-color:Highlight; } }
 /* History categories share the same muted card/row system. */
-.sheet[data-screen="Account details"] .offer-history { background:var(--color-dropdown); border-color:var(--color-border); }
+.sheet[data-screen="Account details"] .offer-history { background:radial-gradient(ellipse at 100% 0,color-mix(in srgb,var(--color-accent) 9%,transparent),transparent 65%),var(--color-dropdown); border-color:color-mix(in srgb,var(--color-border) 75%,var(--color-soft-accent)); }
 .offer-history[open] > summary .account-history-legend { display:none; }
 .account-history-tabs { display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 16px; }
-.history-tab { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:6px 12px; border:1px solid var(--color-border); border-radius:12px; background:transparent; color:var(--color-text); font-size:14px; line-height:1.4; font-weight:500; cursor:pointer; }
+.history-tab { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:6px 12px; border:1px solid var(--color-border); border-radius:12px; background:transparent; color:var(--color-text); font-size:15px; line-height:1.4; font-weight:500; cursor:pointer; }
 .history-tab strong { font-weight:400; color:var(--color-secondary); font-variant-numeric:tabular-nums; }
 .history-tab[aria-selected=true] { background:var(--color-selected); border-color:var(--color-soft-accent); color:var(--color-text); }
 .history-review-dot { width:8px; height:8px; border-radius:50%; background:var(--color-warning-icon); flex:none; }
@@ -638,7 +638,7 @@ html[data-layout=mobile] .app-shell:has(#view-accounts.active) { padding-bottom:
 .sheet[data-screen="Account details"] .account-cash-entry>summary>svg:last-child { width:44px; height:44px; padding:14px; flex:none; }
 .sheet[data-screen="Account details"] .offer-history { margin:0 0 16px; border-radius:16px; }
 .sheet[data-screen="Account details"] .offer-history>summary { display:flex; align-items:center; min-height:52px; padding:0 14px; }
-.sheet[data-screen="Account details"] .account-history-title { display:flex; align-items:center; width:100%; min-width:0; font-size:16px; font-weight:600; gap:12px; }
+.sheet[data-screen="Account details"] .account-history-title { display:flex; align-items:center; width:100%; min-width:0; font-size:18px; font-weight:600; gap:12px; }
 .sheet[data-screen="Account details"] .account-history-title>svg:first-child { width:20px; height:20px; flex:none; }
 .sheet[data-screen="Account details"] .account-history-title>svg:last-child { width:16px; height:16px; flex:none; }
 .sheet[data-screen="Account details"] .account-calculator { margin:0 0 16px; }
