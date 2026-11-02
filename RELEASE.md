@@ -661,3 +661,11 @@ full-height views with compact selectors, reference-style supporting groups,
 shared theme surfaces, document icons and review summaries. Cancel remains near
 the bottom above the safe area; previews scroll within the body. Only explicit
 Choose file or Change activation opens the picker. Import logic is unchanged.
+
+## Compact import entry with expanded review — 2 November 2026
+
+Use the latest side-by-side reference for the initial bottom sheets: drag handle,
+leading import icon, file row, concise preservation note, inline File help and
+Choose file above Cancel. Selecting a file expands into the existing full review;
+long content scrolls. Opening and focus never invoke the picker. Import logic,
+matching, corrections, deduplication and other pages are unchanged.
