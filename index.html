@@ -3405,9 +3405,9 @@
       const at=expired?promo.expiresAt||promo.expires:manual?activity.manualFinishedAt:ignored?getOfferManualState(manualStore,promo).updatedAt:promo.lastUsedAt||privateReceipt?.orderAt||privateReceipt?.orderDate||privateReceipt?.sentAt;
       const date=at&&Number.isFinite(Date.parse(at))?new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'Europe/London'}).format(new Date(at)):'Date unknown';
       if(expired)return 'Expired · '+date;
-      if(promo.hiddenByPromoUse)return 'Hidden · another promo used';
       if(ignored)return 'Ignored · '+(date==='Date unknown'?date:'Updated '+date);
       if(manual)return 'Manually finished · '+date;
+      if(promo.hiddenByPromoUse)return 'Hidden · another promo used';
       if(activity.bucket==='needs_checking')return 'Needs checking';
       const known=Number.isInteger(Number(promo.uses))&&Number(promo.uses)>0&&promo.usesVerified===true;
       return activity.bucket==='completed'?'Used '+activity.confirmedUses+(known?'/'+promo.uses:' receipt-confirmed')+' · '+date:activity.status+' · '+date;
@@ -3513,21 +3513,24 @@
       renderAccountSheet();showSheet();if(restore)restoreAccountDisclosureState(restore);
       if(window.history.state?.trackerSheet==='account')window.history.replaceState({...window.history.state,trackerOffer:offerKey},'');
     }
-    const accountHistorySelections = new Map(), accountHistoryModels = new Map();
+    const accountHistorySelections = new Map(), accountHistoryModels = new Map(), accountHistorySorts = new Map();
     const historyCategoryOrder = ['completed','expired','ignored','manual','exhausted','other','review'];
     function historyCategoryIcon(key) { return financeIcon(({completed:'check-circle',expired:'clock',ignored:'ignored',manual:'history',exhausted:'wallet'})[key] || 'info'); }
     function accountHistoryControls(groups, category) {
       const e=escapeHtml;
       const buttons=groups.filter(g=>historyCategoryOrder.slice(0,3).includes(g.key)).sort((a,b)=>historyCategoryOrder.indexOf(a.key)-historyCategoryOrder.indexOf(b.key));
-      const tab=g=>`<button type="button" class="history-tab ${g.key}" id="history-tab-${g.key}" role="tab" aria-selected="${g.key===category}" aria-controls="accountHistoryResults" tabindex="${g.key===category?'0':'-1'}" data-history-category="${g.key}">${historyCategoryIcon(g.key)}<span>${e(g.label)}</span>${historyCategoryOrder.indexOf(g.key)<3?`<strong>${g.records.length.toLocaleString('en-GB')}</strong>`:''}</button>`;
+      const tab=g=>`<button type="button" class="history-tab ${g.key}" id="history-tab-${g.key}" role="tab" aria-selected="${g.key===category}" aria-controls="accountHistoryResults" tabindex="${g.key===category?'0':'-1'}" data-history-category="${g.key}">${g.key==='review'?'<i class="history-review-dot" aria-hidden="true"></i>':''}<span>${e(g.label)}</span><strong>${g.records.length.toLocaleString('en-GB')}</strong></button>`;
       const other=groups.filter(g=>!buttons.includes(g)&&g.records.length);
       return `<div class="account-history-tabs" role="tablist" aria-label="Historical offer status">${buttons.map(tab).join('')}${other.map(tab).join('')}</div>`;
     }
     function accountHistoryResults(groups, category, expanded=new Set()) {
-      const e=escapeHtml,group=groups.find(g=>g.key===category)||groups[0],records=group.records;
+      const e=escapeHtml,group=groups.find(g=>g.key===category)||groups[0],sort=accountHistorySorts.get(openAccountRef)||'latest';
+      const recordTime=r=>{const p=r.kind==='promo'?r.promo:r.grant;return Date.parse((group.key==='expired'?(p.expiresAt||p.expires):null)||p.lastUsedAt||p.emailSentAt||p.issuedAt||p.firstEmailSentAt)||0;};
+      const records=[...group.records].sort((a,b)=>{if(sort==='name')return (a.kind==='promo'?accountOfferTitle(a.promo):'Uber Cash').localeCompare(b.kind==='promo'?accountOfferTitle(b.promo):'Uber Cash')||a.key.localeCompare(b.key);return (sort==='oldest'?1:-1)*(recordTime(a)-recordTime(b))||a.key.localeCompare(b.key);});
+      const heading=({completed:'Completed offers',expired:'Expired offers',ignored:'Ignored offers',manual:'Manually finished',exhausted:'Exhausted credit',other:'Other offers',review:'Needs checking'})[group.key]||group.label;
       const selected=records.find(r=>r.kind==='promo'?promoStateKey(r.promo)===accountOfferToOpen:r.grant.offers.some(p=>promoStateKey(p)===accountOfferToOpen));
       const shown=records.slice(0,accountHistoryLimit);if(selected&&!shown.includes(selected)){shown.pop();shown.push(selected);}
-      return `<h3 class="account-history-label">Offers history</h3><section id="accountHistoryResults" role="tabpanel" aria-labelledby="history-tab-${e(group.key)}" class="account-history-group ${e(group.key)}" aria-label="${e(group.label)}"><h3>${historyCategoryIcon(group.key)}<span>${e(group.label)}</span></h3>${shown.map(r=>r.kind==='cash'?accountCreditRecord(r.grant,true):offerSheetCard(r.promo,{historic:true,open:expanded.has(promoStateKey(r.promo))||promoStateKey(r.promo)===accountOfferToOpen})).join('')}${!records.length?`<p class="account-history-empty">No ${e(group.label.toLowerCase())} offers.</p>`:''}</section>${records.length>shown.length?`<button type="button" class="ghost-btn" data-more-account-history="true">Show ${Math.min(30,records.length-shown.length)} more · ${shown.length} of ${records.length}</button>`:''}`;
+      return `<div class="account-history-results-heading"><h3 class="account-history-label">${e(heading)}</h3><select class="account-history-sort" aria-label="Sort past offers" data-history-sort>${[['latest','Latest first'],['oldest','Oldest first'],['name','Offer name']].map(([value,label])=>`<option value="${value}"${sort===value?' selected':''}>${label}</option>`).join('')}</select></div><section id="accountHistoryResults" role="tabpanel" aria-labelledby="history-tab-${e(group.key)}" class="account-history-group ${e(group.key)}" aria-label="${e(group.label)}">${shown.map(r=>r.kind==='cash'?accountCreditRecord(r.grant,true):offerSheetCard(r.promo,{historic:true,open:expanded.has(promoStateKey(r.promo))||promoStateKey(r.promo)===accountOfferToOpen})).join('')}${!records.length?`<p class="account-history-empty">No ${e(group.label.toLowerCase())} offers.</p>`:''}</section>${records.length>shown.length?`<button type="button" class="ghost-btn" data-more-account-history="true">Show ${Math.min(30,records.length-shown.length)} more · ${shown.length} of ${records.length}</button>`:''}`;
     }
     function accountHistoryMarkup(groups, expanded, activeExpanded=new Set()) {
       const total=groups.reduce((n,g)=>n+g.records.length,0);if(!total)return '';
@@ -3548,13 +3551,14 @@
       if(focus)history.querySelector('[data-history-category="'+category+'"]')?.focus({preventScroll:true});
       document.getElementById('sheetBody').scrollTop=scroll;
     }
+    document.addEventListener('change',event=>{if(!event.target.matches('[data-history-sort]'))return;accountHistorySorts.set(openAccountRef,event.target.value);chooseAccountHistoryCategory(accountHistorySelections.get(openAccountRef));document.querySelector('[data-history-sort]')?.focus({preventScroll:true});});
     document.addEventListener('click',event=>{const tab=event.target.closest('[data-history-category]');if(tab)chooseAccountHistoryCategory(tab.dataset.historyCategory,true);});
     document.addEventListener('keydown',event=>{const tab=event.target.closest('[data-history-category]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const tabs=[...tab.closest('[role="tablist"]').querySelectorAll('[role="tab"]')],index=tabs.indexOf(tab),next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;chooseAccountHistoryCategory(tabs[next].dataset.historyCategory,true);});
     const historyMotions=new WeakMap();
     function toggleAccountHistory(event){
       const summary=event.target.closest('#accountOfferHistory > summary');if(!summary)return false;event.preventDefault();
       const details=summary.parentElement,content=details.querySelector('.account-history-groups'),previous=historyMotions.get(details),opening=previous? !previous.opening:!details.open;
-      if(opening&&!details.open){const first=accountHistoryModels.get(openAccountRef)?.find(g=>g.records.length);if(first)chooseAccountHistoryCategory(first.key);}
+      if(opening&&!details.open){const groups=accountHistoryModels.get(openAccountRef)||[],selected=groups.find(g=>g.key===accountHistorySelections.get(openAccountRef)),first=selected||groups.find(g=>g.records.length);if(first)chooseAccountHistoryCategory(first.key);}
       const from=details.open?content.getBoundingClientRect().height:0,scroll=document.getElementById('sheetBody').scrollTop;
       previous?.animation.cancel();historyMotions.delete(details);content.style.overflow='';
       if(motionReduced()||!content.animate){details.open=opening;document.getElementById('sheetBody').scrollTop=scroll;return true;}

@@ -57,19 +57,28 @@ button:active:not(:disabled) { transform:scale(.985); }
 html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion=reduced] *::after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; }
 @media (forced-colors:active) { :is(button,a,input,textarea,select,summary):focus-visible { outline-color:Highlight; } }
 /* History categories share the same muted card/row system. */
-.sheet[data-screen="Account details"] .offer-history { background:var(--color-dropdown); border-color:var(--color-border); }
+.sheet[data-screen="Account details"] .offer-history { background:radial-gradient(ellipse at 100% 0,color-mix(in srgb,var(--color-accent) 9%,transparent),transparent 65%),var(--color-dropdown); border-color:color-mix(in srgb,var(--color-border) 75%,var(--color-soft-accent)); }
 .offer-history[open] > summary .account-history-legend { display:none; }
-.account-history-tabs { display:flex; flex-wrap:wrap; gap:6px; justify-content:space-between; margin:0 0 12px 32px; }
-.history-tab { display:inline-flex; align-items:center; justify-content:center; gap:5px; min-height:38px; padding:5px 8px; border:1px solid transparent; border-radius:22px; background:transparent; color:var(--color-secondary); font-size:12px; line-height:1.4; font-weight:400; cursor:pointer; }
-.history-tab svg { flex:none; width:17px; height:17px; }
-.history-tab strong { font-weight:400; color:var(--color-label); }
-.history-tab[aria-selected=true] { background:var(--color-selected); border-color:var(--color-border); color:var(--color-soft-accent); }
-.history-tab.completed svg,.history-key.completed > svg,.account-history-group.completed > h3 > svg { color:var(--color-soft-accent); }
-.history-tab.expired svg,.history-key.expired > svg,.account-history-group.expired > h3 > svg { color:var(--color-secondary); }
-.history-tab.ignored svg,.history-key.ignored > svg,.account-history-group.ignored > h3 > svg { color:var(--color-tertiary); }
-.account-history-label { margin:0; padding:10px 0 8px; border-top:1px solid var(--color-border); font-size:14px; font-weight:500; color:var(--color-text); }
-.account-history-group { background:var(--color-panel); border-color:var(--color-border); }
-.account-history-group > h3 { color:var(--color-label); font-weight:400; }
+.account-history-tabs { display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 16px; }
+.history-tab { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:6px 12px; border:1px solid var(--color-border); border-radius:12px; background:transparent; color:var(--color-text); font-size:15px; line-height:1.4; font-weight:500; cursor:pointer; }
+.history-tab strong { font-weight:400; color:var(--color-secondary); font-variant-numeric:tabular-nums; }
+.history-tab[aria-selected=true] { background:var(--color-selected); border-color:var(--color-soft-accent); color:var(--color-text); }
+.history-review-dot { width:8px; height:8px; border-radius:50%; background:var(--color-warning-icon); flex:none; }
+.account-history-results-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 0 6px; border-top:1px solid var(--color-border); }
+.account-history-label { margin:0; padding:0; border:0; font-size:18px; line-height:1.4; font-weight:650; color:var(--color-text); }
+#accountOfferHistory .account-history-sort { flex:0 1 auto; max-width:48%; min-height:44px; padding:4px 20px 4px 4px; border:0; border-radius:0; background:transparent; color:var(--color-secondary); font-size:13px; }
+.sheet[data-screen="Account details"] .account-history-group { margin:0; padding:0; border:0; border-radius:0; background:transparent; }
+.sheet[data-screen="Account details"] .account-history-group .account-offer-toggle { padding:12px 0; min-height:68px; gap:12px; }
+.sheet[data-screen="Account details"] .account-history-group .account-detail-offer { padding:0; }
+.sheet[data-screen="Account details"] .account-history-group .account-detail-offer:first-child { border-top:0; }
+.sheet[data-screen="Account details"] .account-history-group .offer-name,.sheet[data-screen="Account details"] .account-history-group .account-detail-offer[open] .offer-name { font-size:18px; line-height:24px; font-weight:650; }
+.sheet[data-screen="Account details"] .account-history-group .compact-offer-expiry { font-size:13px; line-height:19px; margin-top:3px; }
+.sheet[data-screen="Account details"] .account-history-group .account-offer-toggle > svg:first-child { width:26px; height:26px; flex:0 0 26px; }
+.sheet[data-screen="Account details"] .account-history-group .account-offer-toggle > svg:last-child { width:18px; height:18px; flex:0 0 18px; padding:0; }
+.account-history-group .account-offer-toggle :is(.offer-details,.account-selected-badge,.history-record-status) { display:none; }
+.sheet[data-screen="Account details"] .account-history-title { font-size:16px; line-height:22px; font-weight:600; gap:12px; color:var(--color-text); }
+.account-history-title .account-history-count { color:var(--color-secondary); font-size:15px; }
+.sheet[data-screen="Account details"] .account-history-groups { padding:0 14px 10px; }
 .account-history-empty { margin:0; padding:12px 0; color:var(--color-secondary); font-size:13px; }
 .history-record-status { display:inline-flex; align-items:center; gap:5px; flex:none; max-width:40%; padding:4px 7px; border:1px solid var(--color-border); border-radius:16px; background:var(--color-dropdown); color:var(--color-secondary); font-size:11px; font-weight:400; }
 .history-record-status svg { flex:none; width:14px; height:14px; }
@@ -80,7 +89,7 @@ html[data-motion=reduced] *,html[data-motion=reduced] *::before,html[data-motion
 .account-history-group .past-offer:not([open]),.account-history-group .historical-credit { background:transparent; }
 .account-history-group .cash-source-record > summary > span:first-of-type { flex:1; min-width:0; }
 .account-history-group .cash-source-record > summary .history-record-status { flex:0 1 auto; }
-@media(max-width:369px) { .account-history-tabs { margin-left:0; gap:3px; }.history-tab { padding-inline:5px; font-size:11px; }.history-record-status { padding:4px; gap:3px; }.history-record-status svg { display:none; } }
+@media(max-width:369px) { .account-history-tabs { gap:6px; }.history-tab { padding-inline:9px; font-size:13px; }.history-record-status { padding:4px; gap:3px; }.history-record-status svg { display:none; } }
 /* Positive access is the same fixed green on every page. */
 #view-accounts .account-access-pill.positive,#view-offers .account-access-pill.good,.offer-preview-card .account-access-pill.good { color:var(--color-positive); background:var(--color-positive-fill); border-color:var(--color-positive-border); }
 #view-accounts .account-access-pill.positive::before,#view-offers .account-access-pill.good::before,.used-access.positive i { background:var(--color-positive-dot); }
@@ -629,7 +638,7 @@ html[data-layout=mobile] .app-shell:has(#view-accounts.active) { padding-bottom:
 .sheet[data-screen="Account details"] .account-cash-entry>summary>svg:last-child { width:44px; height:44px; padding:14px; flex:none; }
 .sheet[data-screen="Account details"] .offer-history { margin:0 0 16px; border-radius:16px; }
 .sheet[data-screen="Account details"] .offer-history>summary { display:flex; align-items:center; min-height:52px; padding:0 14px; }
-.sheet[data-screen="Account details"] .account-history-title { display:flex; align-items:center; width:100%; min-width:0; font-size:14px; font-weight:600; gap:12px; }
+.sheet[data-screen="Account details"] .account-history-title { display:flex; align-items:center; width:100%; min-width:0; font-size:18px; font-weight:600; gap:12px; }
 .sheet[data-screen="Account details"] .account-history-title>svg:first-child { width:20px; height:20px; flex:none; }
 .sheet[data-screen="Account details"] .account-history-title>svg:last-child { width:16px; height:16px; flex:none; }
 .sheet[data-screen="Account details"] .account-calculator { margin:0 0 16px; }
