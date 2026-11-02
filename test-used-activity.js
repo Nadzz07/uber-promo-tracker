@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {buildUsedActivity,ACTIVITY_STATUSES,activityResults,receiptUsageEvidence} from './used-activity.js';
 import {normaliseManualStore,setOfferDone,setOfferIgnored} from './manual-state.js';
 const now=new Date().toISOString(),future=new Date(Date.now()+86400000).toISOString(),past=new Date(Date.now()-86400000).toISOString();
-const accounts=[{accountRef:'A1',accountMasked:'aa…bb@example.invalid',orderCount:5,rideCount:0,canLogin:false,lastOrderAt:now},{accountRef:'A2',orderCount:1,rideCount:1,lastRideAt:past},{accountRef:'A3',orderCount:4,rideCount:0}];
+const accounts=[{accountRef:'A1',accountMasked:'aa…bb@example.invalid',orderCount:5,rideCount:0,canLogin:false,lastOrderAt:now},{accountRef:'A2',orderCount:1,rideCount:1,lastRideAt:past},{accountRef:'A3',orderCount:4,rideCount:0}].map(a=>({canLogin:true,loginMethod:'iCloud',...a}));
 const promo=(id,used,expiry=future)=>({id,accountRef:'A1',service:'Uber Eats',discountType:'fixed',discount:12,minimumSpend:15,uses:5,usesVerified:true,usesRemaining:5-used,receiptConfirmedUses:used,expiryStatus:'exact',expiresAt:expiry,emailSentAt:past});
 const offers=[promo('partial',1),promo('completed',5),promo('finished',2,past),promo('expired',0,past),{...promo('review',0),termsVerification:'needs_verification',trackingState:'needs_checking',reviewReasons:['missing_discount_terms']},promo('manual',0),promo('ignored',0)];
 let store=setOfferDone(normaliseManualStore(),offers[5],true,now);store=setOfferIgnored(store,offers[6],true,now);store.offers.manual.manualReason='Owner recorded completion';
@@ -33,4 +33,6 @@ assert.equal(repeatedReview.summary.needs_checking,1,'Multiple real issues on on
 assert.match(repeatedReview.buckets.needs_checking[0].evidence,/Offer terms conflict/);
 console.log('✓ Account review is actionable, deduplicated and independent of missing optional receipt confirmation');
 
-const singleEats=buildUsedActivity([{accountRef:'one-eats',orderCount:1,rideCount:0}],[],{});assert.equal(singleEats.summary.used,0,'One Eats alone is not account completion');assert.equal(singleEats.summary.needs_checking,0,'A known unused account is not automatically uncertain');
+const singleEats=buildUsedActivity([{accountRef:'one-eats',orderCount:1,rideCount:0,canLogin:true,loginMethod:'iCloud'}],[],{});assert.equal(singleEats.summary.used,0,'One Eats alone is not account completion');assert.equal(singleEats.summary.needs_checking,0,'A known unused account is not automatically uncertain');
+
+assert.equal(buildUsedActivity([{accountRef:'historical',accountStatus:'deactivated',deactivated:true,canLogin:false,loginMethod:null}],[],{}).summary.needs_checking,0,'Older deactivated accounts do not enter the recent login review');

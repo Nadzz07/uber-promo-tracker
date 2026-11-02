@@ -48,7 +48,8 @@ export function toPublicPromo(promo) {
     expiryConfidence: promo.expiryConfidence || null,
     accountRef: promo.accountRef || null,
     accountMasked: promo.accountMasked || null,
-    canLogin: Boolean(promo.canLogin),
+    canLogin: promo.canLogin == null ? null : Boolean(promo.canLogin),
+    ...(promo.canLogin==null?{accessStatus:'pending'}:{}),
     loginMethod: ["iCloud", "Google", "Both"].includes(promo.loginMethod)
       ? promo.loginMethod
       : null,

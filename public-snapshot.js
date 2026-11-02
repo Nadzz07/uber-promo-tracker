@@ -4,7 +4,7 @@ import { classifyAccount } from "./account-state.js";
 import { publicOfferTitle } from "./public-promo.js";
 import {RECEIPT_AMOUNT_KEYS,mergeReceiptAmounts} from './dashboard-data.js';
 
-const forbidden = /^(?:deviceBackup|deviceRecovery|recoveryBackup|ciphertext|credentials|accessToken|apiKey|authorization|password|offerReceiptMatches|receiptMatchVersion|receiptMatchExportedAt|alias|email|accountAlias|code|promo_code|promoCode|recipient|sender|subject|body|bodyText|body_text|evidence|evidence_json|merchant|orderId|tripId|messageId|messageKey|mailbox|sourceMailbox|financialCorrection|financialEvents|financialEvidence|financialReview|financial_evidence_json|wallet|wallets|balance|currentCashBalance|manualNote|recordId|eventId|note)$/i;
+const forbidden = /^(?:loginReview|loginEvidence|loginConfirmation|loginAccessConfirmedAt|loginMethodConfirmedAt|deviceBackup|deviceRecovery|recoveryBackup|ciphertext|credentials|accessToken|apiKey|authorization|password|offerReceiptMatches|receiptMatchVersion|receiptMatchExportedAt|alias|email|accountAlias|code|promo_code|promoCode|recipient|sender|subject|body|bodyText|body_text|evidence|evidence_json|merchant|orderId|tripId|messageId|messageKey|mailbox|sourceMailbox|financialCorrection|financialEvents|financialEvidence|financialReview|financial_evidence_json|wallet|wallets|balance|currentCashBalance|manualNote|recordId|eventId|note)$/i;
 const email = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
 const masked = /[a-z0-9._%+-]{0,2}…[a-z0-9._%+-]{0,2}@[a-z0-9.-]+\.[a-z]{2,}/gi;
 

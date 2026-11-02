@@ -1,3 +1,4 @@
+import {offerFieldReviewReasons} from './offer-details.js';
 import {accountUsage} from './account-state.js';
 import {promotionActivity,manualActivity,promoStateKey} from './manual-state.js';
 
@@ -23,13 +24,19 @@ export function buildUsedActivity(accounts=[],promos=[],store={},reviewCount=()=
  const buckets=Object.fromEntries(ACTIVITY_STATUSES.map(s=>[s.key,[]])),byRef=new Map(accounts.map(a=>[a.accountRef,a])),review=new Map();
  const addReview=(account,text,at)=>{if(!account)return;if(!review.has(account.accountRef))review.set(account.accountRef,{key:'review:'+account.accountRef,account,entity:'account',evidence:[],at:null});const r=review.get(account.accountRef);r.evidence.push(text);r.at=latest([r.at,at]);};
  for(const account of accounts){
+  if(account.canLogin==null||account.accessStatus==='pending')addReview(account,'Login access not confirmed',null);
+  if(account.accountStatus!=='deactivated'&&!account.deactivated&&!['iCloud','Google','Both'].includes(account.loginMethod)&&!account.loginMethods?.length)addReview(account,'Login method not confirmed',null);
   if(accountUsage(account).accountUsed)buckets.used.push({key:'used:'+account.accountRef,account,entity:'account',evidence:receiptUsageEvidence(account),receiptRuleMet:true,at:latest([account.lastOrderAt,account.lastRideAt])});
   if(Number(account.sourceReviewCount)>0)addReview(account,account.sourceReviewCount+' receipt sources need original verification',null);
+  if(['estimated','verified_reconciled'].includes(account.cashPosition?.status)&&account.cashPosition?.remaining!=null)addReview(account,'Cash balance is estimated',null);
   const financial=reviewCount(account);if(financial>0)addReview(account,financial+' '+(financial===1?'receipt needs':'receipts need')+' checking',latest([account.lastOrderAt,account.lastRideAt]));
  }
  for(const promo of promos){
   const account=byRef.get(promo.accountRef);if(!account)continue;
   const activity=promotionActivity(store,promo),manual=manualActivity(store,promo);
+  const fields=offerFieldReviewReasons(promo);if(manual.pendingManualUses>0)fields.push({field:'remainingUses',reason:'Remaining uses are estimated after manual recording'});
+  if(fields.length&&!manual.ignored&&!manual.forceDone&&!['completed','finished_expired','expired_unused'].includes(activity.bucket))for(const field of fields)addReview(account,field.reason,null);
+  if(promo.discountType==='uberCash'&&promo.cashEstimate?.status==='estimated'&&promo.cashEstimate?.remaining!=null)addReview(account,'Cash balance is estimated',null);
   if(activity.bucket==='needs_checking'){addReview(account,uncertainty(promo,activity),latest([promo.lastUsedAt,promo.emailSentAt,manual.lastEvidenceUpdate]));continue;}
   if(!buckets[activity.bucket])continue;
   let evidence=activity.confirmedUses+'/'+activity.totalUses+' verified uses';
