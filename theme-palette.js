@@ -77,7 +77,11 @@ export function paletteProperties(hue=DEFAULT_HUE){
  const p=paletteForHue(hue),props=Object.fromEntries(Object.entries(p).map(([k,v])=>[cssToken(k),v]));
  const accountButtons=accountButtonStops(hue,p.onAccent);
  for(const [k,v]of Object.entries(richPalette(p)))props[richCssToken(k)]=v;
- return {...MATERIAL_TINTS,...props,'--accent-hue':String(hue),'--color-panel-rgb':colourRgb(p.panel).join(','),'--color-accent-rgb':colourRgb(p.accent).join(','),
+ return {...MATERIAL_TINTS,...props,
+ '--main-base':'#0b121b','--main-surface':'#1e2a38','--main-surface-bottom':'#161f2a','--main-border':'#495d72',
+ '--main-page':'radial-gradient(ellipse at 0% 0%,color-mix(in srgb,var(--color-accent) 8%,transparent),transparent 48%),linear-gradient(180deg,var(--main-base),var(--main-surface-bottom))',
+ '--main-card':'linear-gradient(135deg,color-mix(in srgb,var(--color-accent) 3%,var(--main-surface)),var(--main-surface-bottom))',
+ '--main-control':'linear-gradient(180deg,var(--main-surface),var(--main-surface-bottom))','--accent-hue':String(hue),'--color-panel-rgb':colourRgb(p.panel).join(','),'--color-accent-rgb':colourRgb(p.accent).join(','),
  '--theme-background':'linear-gradient(180deg,var(--color-screen),var(--color-sheet) 50%,var(--color-background-bottom))',
  '--theme-panel':'linear-gradient(180deg,var(--color-panel),var(--color-panel-bottom))',
  '--theme-primary':'linear-gradient(180deg,var(--color-bright),var(--color-accent-line))',

@@ -1,3 +1,9 @@
+## Unified primary-page appearance — 3 November 2026
+
+Home, Accounts, Used and More now share navy page fades, clearly separated slate cards, fine borders, consistent headings and a single dock treatment. The shared material module is scoped to those four existing views; detail pages and sheets retain their approved designs. Colour-wheel accents and fixed green/amber status roles remain intact. Page-specific legacy fades are removed. No calculation, source-data, filter or navigation logic changes.
+
+Validation includes actual-data four-page comparisons at 440/390/320 CSS pixels, three accents and larger text; 155 contrast/theme states; 35 icon-alignment screens; Accounts combined filters, Used categories/pagination, More destinations, preferences, and navigation gestures. Browser emulation only.
+
 ## Compact Past & other offers — 2 November 2026
 
 The existing Account details history section now uses counted outline category chips, a category heading and working latest/oldest/name sorting, followed by compact expandable rows. Sorting precedes pagination. Existing categories, records, manual actions, receipt links and theme settings are preserved.
