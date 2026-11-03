@@ -251,7 +251,7 @@ body:has(#sheetBackdrop.open .sheet[data-receipt-check]) #mainNav { visibility:h
 
 .check-final.resolved { border-color:var(--rich-border); color:var(--rich-secondary); }.check-final.resolved strong { color:var(--color-text); }
 /* Final Savings reference: softer materials without changing spending pages. */
-html:has(#view-receipts.active .savings-page),body:has(#view-receipts.active .savings-page) { background:radial-gradient(ellipse at 0% 0%,color-mix(in srgb,var(--color-accent) 12%,transparent),transparent 48%),radial-gradient(ellipse at 100% 75%,color-mix(in srgb,var(--color-accent) 6%,transparent),transparent 55%),var(--theme-account-page); background-attachment:fixed; }
+html:has(#view-receipts.active),body:has(#view-receipts.active) { background:radial-gradient(ellipse at 0% 0%,color-mix(in srgb,var(--color-accent) 12%,transparent),transparent 48%),radial-gradient(ellipse at 100% 75%,color-mix(in srgb,var(--color-accent) 6%,transparent),transparent 55%),var(--theme-account-page); background-attachment:fixed; }
 body:has(#view-receipts.active .savings-page)::before { display:none; }
 .ri-page:has(.savings-page) .ri-page-head { position:relative; top:auto; background:none; margin-bottom:16px; }
 .ri-page:has(.savings-page) .ri-page-head::before { content:none; }
@@ -286,3 +286,12 @@ body:has(#view-receipts.active .savings-page)::before { display:none; }
 @media(max-width:370px) { .savings-page .savings-support>.icon-content-row { padding:10px; gap:8px; } .savings-page .savings-support strong { font-size:25px; } .savings-page .savings-hero .ri-paid-total { font-size:39px; } }
 .savings-page .savings-hero .ri-paid-total.ri-unknown { font-size:26px; line-height:1.4; }
 .savings-page .savings-support .ri-unknown { font-size:20px; font-weight:400; }
+
+/* Small additions to the existing money-page layouts, not replacement cards. */
+.ri-title-block { flex:1; min-width:0; }
+.ri-title-block>p { margin:3px 0 0; color:var(--color-secondary); font-size:13px; line-height:18px; }
+.ri-date-range { display:inline-flex; align-items:center; justify-content:flex-end; gap:8px; min-width:0; }
+.ri-date-range>svg { width:18px; height:18px; flex:none; }
+.ri-history-hint { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 12px; padding:4px 0; color:var(--color-secondary); font-size:13px; line-height:18px; }
+.ri-history-hint button { flex:none; min-height:44px; padding:4px; border:0; background:none; color:var(--color-accent); font-size:14px; }
+@media(max-width:370px) { .ri-title-block>p { font-size:12px; } .ri-history-hint { flex-wrap:wrap; } }

@@ -1,3 +1,9 @@
+## Small money-page refinements and empty-period recovery — 3 November 2026
+
+Retains the existing Savings, Receipt insights and Finances layouts and cards. Adds short header subtitles where appropriate, a small calendar cue, consistent existing background fades, and an explicit View all time action when a successful historical receipt import has no records in the selected period. Saved date/service choices are never silently changed. No new monetary values are inferred.
+
+Validated the actual private receipt transfer in a temporary local browser: 458 receipts and its saved correction survive reload; known promo and payment totals agree across the views. Month-rollover, service filters, unknown/zero amounts, corrections, themes and mobile regressions pass. These changes remain local.
+
 ## Unified primary-page appearance — 3 November 2026
 
 Home, Accounts, Used and More now share navy page fades, clearly separated slate cards, fine borders, consistent headings and a single dock treatment. The shared material module is scoped to those four existing views; detail pages and sheets retain their approved designs. Colour-wheel accents and fixed green/amber status roles remain intact. Page-specific legacy fades are removed. No calculation, source-data, filter or navigation logic changes.

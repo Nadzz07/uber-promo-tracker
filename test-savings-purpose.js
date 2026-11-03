@@ -85,3 +85,10 @@ const legacyFilled=receiptActivityBuckets({...gaps,amountVersion:undefined},{ran
 const zeroSavings=receiptInsightsModel({data:{receipts:[receipt('known-zero','2026-10-02',0)]},...state});assert.equal(savingsModel(zeroSavings).best,0,'A recorded zero discount is a known zero best saving');assert.equal(savingsModel(zeroSavings).average,null,'No positive qualifying discounts means no average denominator');
 
 const incompleteGaps=receiptActivityBuckets({...gaps,coverageIncomplete:true},{range:'all',metric:'promos',now,completeRange:true});assert.equal(incompleteGaps.buckets[1].value,null,'An uncovered month stays unknown when the source is incomplete');
+
+// Month rollover must not make a successful historical import look missing.
+const november=new Date('2026-11-03T12:00:00Z'),older={data:{exportedAt:november.toISOString(),receipts:[receipt('october-order','2026-10-31',12,{total:4,uberCashUsed:0})]}};
+const novemberModel=receiptInsightsModel({...older,range:'month',service:'all',now:november});
+for(const page of ['savings','receipts']){const markup=receiptOverviewMarkup(novemberModel,{page,range:'month',service:'all',source:older,now:november});assert.match(markup,/No receipts in this period/);assert.match(markup,/data-ri-show-history/);}
+const allHistory=receiptInsightsModel({...older,range:'all',service:'all',now:november});assert.equal(savingsModel(allHistory,older).promo.value,12);assert.doesNotMatch(receiptOverviewMarkup(allHistory,{page:'savings',range:'all',service:'all',source:older,now:november}),/data-ri-show-history/);
+assert.equal(receiptInsightsModel({...older,range:'lastMonth',service:'all',now:november}).count,1);

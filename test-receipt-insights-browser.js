@@ -131,5 +131,17 @@ try{
   await p.evaluate(async data=>{const{PrivateFinanceVault}=await import('./private-finance-vault.js');await new PrivateFinanceVault().import(data);dispatchEvent(new StorageEvent('storage',{key:'uber-tracker-finance-encrypted-v1'}));},{...reviewTransfer,receipts:[flagged,{...flagged,receiptId:'check-second',orderAt:day(2)+'T12:00:00Z',orderDate:day(2)}]});await p.locator('[data-view=accounts]').click();await directoryReset(p);assert.match(await p.locator('.receipt-review-action').first().innerText(),/2 receipts need checking/);await p.locator('.receipt-review-action').first().click();await p.locator('#view-receipts.active').waitFor();assert.equal(await p.locator('[data-ri-review=needs]').getAttribute('aria-pressed'),'true');assert.equal(await p.locator('[data-ri-receipt]').count(),2);await p.locator('[data-ri-receipt=check-refund]').click();await p.locator('[data-check-form]').waitFor();assert.equal(await p.locator('#sheetTitle').innerText(),'Check receipt');await p.locator('[data-check-cancel]').click();await p.locator('#sheetBackdrop.open').waitFor({state:'hidden'});assert.equal(await p.locator('[data-ri-review=needs]').getAttribute('aria-pressed'),'true');assert.equal(await p.locator('[data-ri-receipt]').count(),2);await context.close();
  }
  assert.equal(requests.some(r=>r.method!=='GET'),false,'No receipt uploads or network writes');if(output)fs.writeFileSync(output+'/'+engine+'-checks.json',JSON.stringify(results,null,2));
+ // An imported previous-month receipt stays available through the explicit empty-period action.
+ {
+  const context=await browser.newContext({viewport:{width:440,height:956},reducedMotion:'reduce'}),p=await context.newPage();
+  const previous=new Date();previous.setUTCDate(1);previous.setUTCDate(0);previous.setUTCHours(12,0,0,0);
+  const archive={schemaVersion:1,kind:'uber-tracker-private-finance',exportedAt:new Date().toISOString(),accounts:[{accountRef:'A901'}],receipts:[{receiptId:'period-rollover',accountRef:'A901',service:'Uber Eats',orderAt:previous.toISOString(),total:4,promotionDiscount:12,uberCashUsed:0}],events:[]};
+  await p.goto(url);await p.evaluate(async data=>{const {PrivateFinanceVault}=await import('./private-finance-vault.js');await new PrivateFinanceVault().import(data);},archive);await p.reload();
+  for(const dest of ['savings','receipts','finance']){
+   await p.locator('[data-view=more]').click();await p.locator('#view-more [data-open-sheet='+dest+']').click();const range=p.locator(dest==='finance'?'.fi-range':'.ri-range');await range.selectOption('month');if(dest!=='finance')await p.locator('[data-ri-service=all]').click();
+   await p.locator('[data-ri-show-history]').click();assert.equal(await range.inputValue(),'all');assert.equal(await p.locator(dest==='finance'?'.fi-main-amount':'.ri-paid-total').first().innerText(),dest==='savings'?'£12.00':'£4.00');
+  }
+  await p.reload();await p.locator('[data-view=more]').click();await p.locator('#view-more [data-open-sheet=savings]').click();assert.equal(await p.locator('.ri-range').inputValue(),'all');assert.equal(await p.locator('.ri-paid-total').innerText(),'£12.00');await context.close();
+ }
  console.log('✓ Latest Receipt Insights: actual paid totals, boxed horizontal activity, metrics/date/service filters, cash separation, direct details, View all, Back/Forward and focus/scroll, reload/cross-tab, five hues, narrow/large/desktop layouts ('+engine+').');
 }finally{await browser.close();server.close();}
