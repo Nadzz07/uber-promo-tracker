@@ -1,3 +1,7 @@
+## November Mail update — 3 November 2026
+
+Reviewed tracker Mail received from 1 November through the scan cutoff on 3 November, including original receipt headers and offer footnotes. Updated the local sanitised snapshots and private transfer files with deduplicated records; existing user-confirmed access and financial corrections remain intact. New login access stays pending until confirmed in chat. No Mail was moved or deleted and no publication was performed. An explicit manual-run option skips the database backup when requested by the owner; the default scheduled policy is unchanged. Public/privacy validation and import/term regressions pass.
+
 ## Small money-page refinements and empty-period recovery — 3 November 2026
 
 Retains the existing Savings, Receipt insights and Finances layouts and cards. Adds short header subtitles where appropriate, a small calendar cue, consistent existing background fades, and an explicit View all time action when a successful historical receipt import has no records in the selected period. Saved date/service choices are never silently changed. No new monetary values are inferred.
