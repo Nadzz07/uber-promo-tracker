@@ -28,7 +28,7 @@ async function audit(page,screen,theme){
  });
  results.push({theme,screen,...result});if(out)fs.writeFileSync(out+'/'+name+'-results.json',JSON.stringify(results,null,2));
  assert.equal(result.accent,themeTokens(await page.evaluate(()=>localStorage.getItem('uber-eats-promo-tracker:theme:v1'))).accent,'Every screen reads the live wheel output');
- assert.deepEqual(result.roleFailures,[],screen+' uses the requested palette roles');assert.equal(result.fixed.panel.toUpperCase(),'#1D2127');assert.equal(result.fixed.positive.toUpperCase(),'#80DC8C');assert.equal(result.fixed.warning.toUpperCase(),'#FFC845');assert.equal(result.noOverflow,true,screen+' overflow');assert.ok(result.gradients>0,screen+' shares soft theme fades');
+ assert.deepEqual(result.roleFailures,[],screen+' uses the requested palette roles');assert.equal(result.fixed.panel.toUpperCase(),'#191D23');assert.equal(result.fixed.positive.toUpperCase(),'#80DC8C');assert.equal(result.fixed.warning.toUpperCase(),'#FFC845');assert.equal(result.noOverflow,true,screen+' overflow');assert.ok(result.gradients>0,screen+' shares soft theme fades');
  if(out)await page.screenshot({path:out+'/'+name+'-'+theme.slice(1)+'-'+screen+'.png'});
 }
 async function close(page){await page.keyboard.press('Escape');await page.locator('#sheetBackdrop.open').waitFor({state:'hidden'});await settlePageLayout(page);}

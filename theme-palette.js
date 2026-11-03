@@ -5,10 +5,10 @@ export function hslColour(hue,saturation,lightness){
  const c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs(h%2-1)),m=l-c/2;
  return '#'+[[c,x,0],[x,c,0],[0,c,x],[0,x,c],[x,0,c],[c,0,x]][Math.floor(h)].map(v=>Math.round((v+m)*255).toString(16).padStart(2,'0')).join('');
 }
-const FIXED=Object.freeze({panel:'#1D2127',panelBottom:'#181C21',border:'#2C3038',outline:'#2C3038',dropdown:'#181C21',dropdownBorder:'#2C3038',close:'#181C21',closeBorder:'#2C3038',text:'#F4F4F8',secondary:'#C0C4CC',tertiary:'#9CA0B0',label:'#C0C4CC',icon:'#C0C4CC',positive:'#80DC8C',positiveFill:'#122A1D',positiveBorder:'#2F6B45',positiveDot:'#80DC8C',warningFill:'#2D230C',warningBorder:'#6B5518',warningIcon:'#FFC845',warningText:'#F0C75E',warningChevron:'#F0C75E',statsBottom:'#1A1D24'});
+const FIXED=Object.freeze({panel:'#191D23',panelBottom:'#14181E',border:'#2C3038',outline:'#2C3038',dropdown:'#181C21',dropdownBorder:'#2C3038',close:'#181C21',closeBorder:'#2C3038',text:'#F4F4F8',secondary:'#C0C4CC',tertiary:'#9CA0B0',label:'#C0C4CC',icon:'#C0C4CC',positive:'#80DC8C',positiveFill:'#122A1D',positiveBorder:'#2F6B45',positiveDot:'#80DC8C',warningFill:'#2D230C',warningBorder:'#6B5518',warningIcon:'#FFC845',warningText:'#F0C75E',warningChevron:'#F0C75E',statsBottom:'#1A1D24'});
 export function paletteForHue(hue=DEFAULT_HUE){
  const h=Number.isFinite(Number(hue))?((Number(hue)%360)+360)%360:DEFAULT_HUE,c=(s,l)=>hslColour(h,s,l);
- return {...FIXED,screen:c(12,6),dimmed:c(14,8),sheet:c(14,8),backgroundBottom:c(22,11),accent:c(96,74),softAccent:c(94,84),bright:c(96,81),accentLine:c(68,66),pale:c(90,91),accentFill:c(24,30),toggle:c(68,66),onAccent:c(60,8),link:c(96,74),selected:c(22,28),selectedBottom:c(20,19),selectedBorder:c(68,66),selectedDivider:c(24,36),termsDivider:c(24,36),track:c(20,19),record:c(22,28),chip:c(24,30),chipText:c(90,91),selectedText:FIXED.secondary,selectedStrong:FIXED.text,selectedSubtitle:FIXED.secondary,selectedNote:FIXED.secondary,manageOutline:c(24,36),selectedChevron:c(94,84),activeTab:c(26,26),activeTabBottom:c(24,19),activeTabBorder:c(24,36),stats:c(20,15),statsBorder:c(18,22)};
+ return {...FIXED,screen:c(12,5),dimmed:c(14,7),sheet:c(14,7),backgroundBottom:c(22,9),accent:c(96,74),softAccent:c(94,84),bright:c(96,81),accentLine:c(68,66),pale:c(90,91),accentFill:c(24,30),toggle:c(68,66),onAccent:c(60,8),link:c(96,74),selected:c(22,28),selectedBottom:c(20,19),selectedBorder:c(68,66),selectedDivider:c(24,36),termsDivider:c(24,36),track:c(20,19),record:c(22,28),chip:c(24,30),chipText:c(90,91),selectedText:FIXED.secondary,selectedStrong:FIXED.text,selectedSubtitle:FIXED.secondary,selectedNote:FIXED.secondary,manageOutline:c(24,36),selectedChevron:c(94,84),activeTab:c(26,26),activeTabBottom:c(24,19),activeTabBorder:c(24,36),stats:c(20,15),statsBorder:c(18,22)};
 }
 export const PALETTE=Object.freeze(paletteForHue());
 export const ACCENT_TOKENS=Object.keys(PALETTE).filter(key=>!(key in FIXED)&&!['selectedText','selectedStrong','selectedSubtitle','selectedNote'].includes(key));
@@ -77,7 +77,11 @@ export function paletteProperties(hue=DEFAULT_HUE){
  const p=paletteForHue(hue),props=Object.fromEntries(Object.entries(p).map(([k,v])=>[cssToken(k),v]));
  const accountButtons=accountButtonStops(hue,p.onAccent);
  for(const [k,v]of Object.entries(richPalette(p)))props[richCssToken(k)]=v;
- return {...MATERIAL_TINTS,...props,'--accent-hue':String(hue),'--color-panel-rgb':colourRgb(p.panel).join(','),'--color-accent-rgb':colourRgb(p.accent).join(','),
+ return {...MATERIAL_TINTS,...props,
+ '--main-base':'#080d14','--main-surface':'#192330','--main-surface-bottom':'#111923','--main-border':'#405267',
+ '--main-page':'radial-gradient(ellipse at 0% 0%,color-mix(in srgb,var(--color-accent) 8%,transparent),transparent 48%),linear-gradient(180deg,var(--main-base),var(--main-surface-bottom))',
+ '--main-card':'linear-gradient(135deg,color-mix(in srgb,var(--color-accent) 3%,var(--main-surface)),var(--main-surface-bottom))',
+ '--main-control':'linear-gradient(180deg,var(--main-surface),var(--main-surface-bottom))','--accent-hue':String(hue),'--color-panel-rgb':colourRgb(p.panel).join(','),'--color-accent-rgb':colourRgb(p.accent).join(','),
  '--theme-background':'linear-gradient(180deg,var(--color-screen),var(--color-sheet) 50%,var(--color-background-bottom))',
  '--theme-panel':'linear-gradient(180deg,var(--color-panel),var(--color-panel-bottom))',
  '--theme-primary':'linear-gradient(180deg,var(--color-bright),var(--color-accent-line))',
@@ -89,14 +93,14 @@ export function paletteProperties(hue=DEFAULT_HUE){
  '--theme-dock-fade':'linear-gradient(180deg,transparent,var(--color-background-bottom) 72%)',
  // Account reference materials keep the chosen hue, with deeper chroma than
  // the general-purpose selected pill. No fixed blue or picker override.
- '--theme-account-page':`linear-gradient(180deg,${hslColour(hue,45,9)},${hslColour(hue,40,5)})`,
+ '--theme-account-page':`linear-gradient(180deg,${hslColour(hue,45,7)},${hslColour(hue,40,4)})`,
  '--color-insights-header':hslColour(hue,70,19),
  '--color-planner-spot':insightsHeroStop(hue,42),
  '--theme-insights-hero':`linear-gradient(140deg,${insightsHeroStop(hue)},${hslColour(hue,68,12)})`,
  '--theme-menu-page':`linear-gradient(180deg,${hslColour(hue,70,19)},${hslColour(hue,65,10)} 50%,${hslColour(hue,52,6)})`,
  '--theme-menu-panel':`linear-gradient(150deg,${hslColour(hue,55,13)},${hslColour(hue,50,9)})`,
  '--color-menu-border':hslColour(hue,43,28),
- '--theme-account-panel':`linear-gradient(145deg,${hslColour(hue,28,13)},${hslColour(hue,30,9)})`,
+ '--theme-account-panel':`linear-gradient(145deg,${hslColour(hue,28,11)},${hslColour(hue,30,8)})`,
  '--theme-account-selected':`linear-gradient(145deg,${hslColour(hue,64,22)},${hslColour(hue,64,10)})`,
  '--theme-account-primary':`linear-gradient(180deg,${accountButtons[0]},${accountButtons[1]})`};
 }

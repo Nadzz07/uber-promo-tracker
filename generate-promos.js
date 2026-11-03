@@ -169,7 +169,8 @@ async function generatePromos() {
   if (new Set(paths).size !== paths.length) throw new Error("Input, database and output paths must be distinct.");
   const messages = await loadMessages(inputPath);
   const accountAllowlist = await loadAccountAllowlist();
-  const backup = backupPrivateDb(privateDbPath);
+  // Explicit owner opt-out for a manual run; scheduled imports retain their normal backup policy.
+  const backup = process.env.TRACKER_SKIP_IMPORT_BACKUP === 'true' ? null : backupPrivateDb(privateDbPath);
   if (backup) console.log("Consistent private database backup created before import.");
   const db = openPrivateDb(privateDbPath);
   let transaction = false;

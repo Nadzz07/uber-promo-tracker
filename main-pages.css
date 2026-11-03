@@ -1,0 +1,43 @@
+/* One material system for the four primary destinations. Detail routes and
+   sheets retain their approved styles and never inherit these local aliases. */
+html:has(.main-screen.active),body:has(.main-screen.active) {
+ background:var(--main-page); background-attachment:fixed;
+}
+body:has(.main-screen.active)::before { display:none; }
+.app-shell:has(.main-screen.active) {
+ --theme-account-panel:var(--main-card); --theme-stats:var(--main-card);
+ --theme-panel:var(--main-card); --color-border:var(--main-border);
+ --color-outline:var(--main-border); --color-stats-border:var(--main-border);
+ --color-dropdown:var(--main-surface-bottom); --color-dropdown-border:var(--main-border);
+ --main-radius:16px; --main-control-radius:12px; --main-heading:30px;
+}
+/* Existing components share a material, not a replacement layout. */
+:is(#view-home,#view-accounts,#view-used,#view-more) :is(.stat-card,.home-tools-card,.accounts-summary,.directory-card,.used-summary,.used-record,.used-info-link,.used-more,.more-group-list) {
+ background:var(--main-card); border-color:var(--main-border); border-radius:var(--main-radius); box-shadow:none; backdrop-filter:none;
+}
+#view-home .total-saved-card {
+ background:var(--main-card); border-color:color-mix(in srgb,var(--color-accent) 35%,var(--main-border));
+}
+:is(#view-home,#view-accounts,#view-used,#view-more) :is(.search-wrap,.used-search,.directory-select,.account-login-tabs,.used-filters,#accountTypeTrigger) {
+ background:var(--main-control); border-color:var(--main-border); border-radius:var(--main-control-radius); box-shadow:none;
+}
+:is(#view-accounts,#view-used) :is(.search-input,.used-search input,.directory-select select) { background:transparent; font-size:16px; }
+#app .main-screen :is(.accounts-head h1,.used-head h1,.screen-title) {
+ font-size:var(--main-heading); line-height:1.2; font-weight:650; letter-spacing:-.03em;
+}
+#view-more .screen-head { margin-inline:0; }
+#view-more .more-group h2 { margin-left:3px; }
+#view-more .more-card + .more-card::before { background:var(--main-border); }
+:is(#view-accounts,#view-used) :is(.account-login-tabs button[aria-pressed=true],.used-filters>button[aria-pressed=true]) {
+ background:var(--theme-account-primary); color:var(--color-on-accent); border-color:var(--color-accent-line); box-shadow:none;
+}
+#view-accounts .account-preferred-chips button { background:var(--main-control); border-color:color-mix(in srgb,var(--color-accent) 45%,var(--main-border)); }
+#view-accounts .account-preferred-chips button[aria-pressed=true] { background:var(--theme-account-primary); color:var(--color-on-accent); }
+:is(#view-accounts,#view-used) :is(.directory-account-head,.used-record-head) { align-items:center; }
+:is(#view-accounts,#view-used) :is(.directory-provider,.used-provider),#view-more .more-icon { align-self:center; }
+/* One existing dock; its geometry, routes and safe-area measurement are kept. */
+.app-shell:has(.main-screen.active) .bottom-nav {
+ background:var(--main-control); background-color:var(--main-surface-bottom); border-color:var(--main-border); box-shadow:none; backdrop-filter:none;
+}
+.app-shell:has(.main-screen.active) .bottom-nav::before { background:linear-gradient(180deg,transparent,var(--main-base)); }
+html[data-layout=mobile] #app:has(.main-screen.active) { padding-inline:20px; }

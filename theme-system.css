@@ -129,7 +129,6 @@ input[role=switch]:checked { background:var(--color-toggle)!important; border-co
 .receipt-review-action > svg:last-child { color:var(--color-warning-icon); }
 
 /* Accounts reference: joined controls and compact content, never page scaling. */
-html:has(#view-accounts.active),body:has(#view-accounts.active) { background:var(--theme-account-page); }
 #view-accounts .accounts-head { margin-bottom:10px; min-height:40px; gap:8px; }
 #view-accounts .accounts-find { min-height:38px; padding:0 10px; gap:6px; border:1px solid var(--color-outline); border-radius:22px; background:var(--theme-panel); font-size:12px; }
 #view-accounts .accounts-find svg { width:16px; height:16px; }
@@ -338,7 +337,6 @@ html[data-motion="reduced"] .usage-segment { transition:none; }
 .account-notes p { margin:4px 0; color:var(--color-secondary); white-space:pre-wrap; overflow-wrap:anywhere; }
 .account-notes textarea { width:100%; min-height:88px; font-size:16px; resize:vertical; }
 @media(max-width:369px) { .sheet[data-screen="Account details"] .account-calculator-cash { padding:0; border-left:0; }.sheet[data-screen="Account details"] .account-offer-meta { margin-left:0; } }
-body:has(#view-used.active) { background:var(--theme-account-page); }
 .used-summary,.used-record,.used-info-link,.used-more { background:var(--theme-account-panel); }
 .used-filters > button[aria-pressed=true] { background:var(--theme-account-primary); }
 .used-sort select { background:none; border:0; padding:4px 0 4px 6px; }
@@ -355,20 +353,16 @@ body:has(#view-used.active) { background:var(--theme-account-page); }
 :is(.bottom-nav,html[data-layout=desktop] .bottom-nav) { background-color:var(--color-panel); }
 
 /* More: one live grouped menu, sharing the approved hue-derived materials. */
-html:has(#view-more.active),body:has(#view-more.active) {
- background:radial-gradient(ellipse at 0 0,color-mix(in srgb,var(--color-accent) 21%,transparent),transparent 38%),radial-gradient(ellipse at 100% 100%,color-mix(in srgb,var(--color-accent) 16%,transparent),transparent 44%),var(--theme-background);
- background-attachment:fixed;
-}
 body:has(#view-more.active)::before { display:none; }
 #view-more .screen-head { display:block; margin:0 6px 28px; padding:0; text-align:left; }
-#view-more .screen-title,html[data-layout=desktop] #view-more .screen-title { font-size:36px; line-height:1.2; font-weight:700; }
+
 #view-more .more-intro { margin:4px 0 0; color:var(--color-secondary); font-size:16px; line-height:1.5; }
 #view-more .more-grid,html[data-layout=desktop] #view-more .more-grid { gap:24px; }
 #view-more .more-group h2 { margin:0 8px 10px; color:var(--color-soft-accent); font-size:12px; line-height:18px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; }
-#view-more .more-group-list { padding:0; border:1px solid color-mix(in srgb,var(--color-accent) 30%,var(--color-border)); border-radius:16px; background:linear-gradient(135deg,color-mix(in srgb,var(--color-accent) 9%,var(--color-panel)),color-mix(in srgb,var(--color-accent) 5%,var(--color-panel))); overflow:hidden; }
+#view-more .more-group-list { padding:0; border:1px solid color-mix(in srgb,var(--color-accent) 30%,var(--color-border)); border-radius:16px; background:var(--theme-panel); overflow:hidden; }
 #view-more .more-card,html[data-layout=desktop] #view-more .more-card { display:flex; position:relative; align-items:center; min-height:52px; padding:12px 18px; gap:22px; }
 #view-more .more-card + .more-card { border-top:0; }
-#view-more .more-card + .more-card::before { content:""; position:absolute; inset:0 14px auto; height:1px; background:color-mix(in srgb,var(--color-accent) 20%,var(--color-border)); pointer-events:none; }
+#view-more .more-card + .more-card::before { content:""; position:absolute; inset:0 14px auto; height:1px; background:var(--color-border); pointer-events:none; }
 #view-more .more-icon,#view-more .more-icon svg { width:24px; height:24px; flex:0 0 24px; color:var(--color-text); }
 #view-more .more-icon { display:flex; align-items:center; justify-content:center; padding:0; background:none; border:0; border-radius:0; }
 #view-more .more-title { font-size:16px; line-height:1.5; font-weight:500; }
@@ -433,10 +427,8 @@ html[data-layout=mobile] .sheet-body { overscroll-behavior:contain; -webkit-over
 #view-accounts .directory-selected { display:block; font-size:12px; color:var(--color-soft-accent); margin-top:2px; }
 
 /* Final Used reference: joined account tabs and an inline status disclosure. */
-html:has(#view-used.active),body:has(#view-used.active) { background:radial-gradient(ellipse at 0% 0%,color-mix(in srgb,var(--color-accent) 18%,transparent),transparent 42%),radial-gradient(ellipse at 100% 90%,color-mix(in srgb,var(--color-accent) 10%,transparent),transparent 50%),var(--theme-account-page); background-attachment:fixed; }
 body:has(#view-used.active)::before { display:none; }
-#view-used .used-head h1 { font-size:32px; line-height:1.2; }
-#view-used :is(.used-summary,.used-record,.used-search) { background:radial-gradient(ellipse at 0% 0%,color-mix(in srgb,var(--color-accent) 6%,transparent),transparent 85%),var(--theme-account-panel); border-color:color-mix(in srgb,var(--color-soft-accent) 32%,var(--color-border)); }
+
 #view-used .used-summary { grid-template-columns:repeat(2,minmax(0,1fr)); padding:14px 0; }
 #view-used .used-summary strong { font-size:30px; line-height:1.15; }
 #view-used .used-search { min-height:46px; margin-bottom:14px; }
@@ -500,7 +492,7 @@ html[data-layout=mobile] .app-shell:has(#view-used.active) { padding-bottom:calc
 .cash-balance-editor .check-actions,.check-correction-history .check-actions {position:static;bottom:auto;background:transparent}
 
 /* Final Accounts reference: one inline offer row and rectangular usage previews. */
-#view-accounts .accounts-head h1 { font-size:32px; }
+
 #view-accounts .account-offer-picker-row { position:relative; }
 #view-accounts #accountTypeTrigger { min-height:46px; padding-right:40px; }
 #view-accounts .account-offer-picker-row:has(#clearAccountType:not([hidden])) #accountTypeTrigger { padding-right:112px; }

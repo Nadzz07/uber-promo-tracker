@@ -111,6 +111,7 @@ exclude:
   - test-cash-pipeline.js
   - test-account-sheet-data.js
   - test-manage-account-browser.js
+  - test-main-pages-browser.js
   - test-theme-browser.js
   - test-theme-system.js
 
