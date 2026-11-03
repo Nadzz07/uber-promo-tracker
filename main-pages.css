@@ -37,7 +37,7 @@ body:has(.main-screen.active)::before { display:none; }
 :is(#view-accounts,#view-used) :is(.directory-provider,.used-provider),#view-more .more-icon { align-self:center; }
 /* One existing dock; its geometry, routes and safe-area measurement are kept. */
 .app-shell:has(.main-screen.active) .bottom-nav {
- background:var(--main-control); border-color:var(--main-border); box-shadow:none; backdrop-filter:none;
+ background:var(--main-control); background-color:var(--main-surface-bottom); border-color:var(--main-border); box-shadow:none; backdrop-filter:none;
 }
 .app-shell:has(.main-screen.active) .bottom-nav::before { background:linear-gradient(180deg,transparent,var(--main-base)); }
 html[data-layout=mobile] #app:has(.main-screen.active) { padding-inline:20px; }
