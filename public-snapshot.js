@@ -72,13 +72,16 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
       if (promo.trackingState === 'expired' && promo.closedReason !== 'expired') throw new Error('Expired offer cannot be described as receipt used.');
     }
     const summary = payload.summary;
-    if(summary.financialBreakdown?.adjustmentsNeedingReview!=null&&summary.financialBreakdown.adjustmentsNeedingReview!==payload.accounts.reduce((n,a)=>n+(a.receiptReviewCount||0),0))throw Error('Financial review counters disagree with accounts.');
+    const historical=payload.historicalAccounts||[];
+    const historicalRefs=new Set();for(const a of historical){if(!a||Object.keys(a).some(k=>!['accountRef','orderCount','rideCount','totalSaved','estimatedUberOneSavings','estimatedTotalSaved','receiptReviewCount'].includes(k))||!a.accountRef||accounts.has(a.accountRef)||historicalRefs.has(a.accountRef))throw Error('Invalid historical account aggregate.');historicalRefs.add(a.accountRef);for(const k of ['orderCount','rideCount','receiptReviewCount'])if(!Number.isSafeInteger(a[k])||a[k]<0)throw Error('Invalid historical receipt count.');for(const k of ['totalSaved','estimatedUberOneSavings','estimatedTotalSaved'])if(!Number.isFinite(a[k])||a[k]<0)throw Error('Invalid historical saving.');}
+    const receiptAccounts=[...payload.accounts,...historical];
+    if(summary.financialBreakdown?.adjustmentsNeedingReview!=null&&summary.financialBreakdown.adjustmentsNeedingReview!==receiptAccounts.reduce((n,a)=>n+(a.receiptReviewCount||0),0))throw Error('Financial review counters disagree with accounts.');
     for (const [field, count] of [
       ['knownAccounts', payload.accounts.length], ['accessibleAccounts', payload.accounts.filter(a => a.canLogin).length],
       ['inaccessibleAccounts', payload.accounts.filter(a => a.canLogin === false).length], ['availableAccounts', payload.accounts.filter(a => summary.offerEligibilityVersion === 1 ? a.hasEligibleOffers : a.recommendationEligible).length],
       ['usedAccounts', payload.accounts.filter(a => independent ? a.accountUsed : a.accountState === 'used').length], ['archivedAccounts', payload.accounts.filter(a => independent ? a.archived : a.accountState === 'archived').length],
       ['needsCheckingAccounts', payload.accounts.filter(a => a.accountState === 'needs_checking').length],
-      ['trackedOrders', payload.accounts.reduce((n, a) => n + a.orderCount, 0)]
+      ['trackedOrders', receiptAccounts.reduce((n, a) => n + a.orderCount, 0)]
     ]) if (summary[field] !== count) throw new Error('Summary counter disagrees with accounts: ' + field);
     if (summary.offerEligibilityVersion === 1) {
       if (summary.readyToUseAccounts !== payload.accounts.filter(a => a.recommendationEligible).length ||
@@ -94,7 +97,7 @@ export function assertPublicSnapshot(payload, history, privateValues = []) {
     if (summary.completedPromotions != null && summary.fullyUsedAccounts !== payload.accounts.filter(a => a.accountUsed).length) throw new Error('Fully used accounts disagree with receipts.');
     if (independent && summary.usedAccessibleAccounts !== payload.accounts.filter(a => a.accountUsed && a.canLogin).length) throw new Error('Used accessible counter disagrees with accounts.');
     for (const [summaryField, accountField] of [['totalSaved', 'totalSaved'], ['estimatedUberOneSavings', 'estimatedUberOneSavings'], ['estimatedTotalSaved', 'estimatedTotalSaved']]) {
-      if (Math.abs(Number(summary[summaryField]) - payload.accounts.reduce((sum, a) => sum + Number(a[accountField] || 0), 0)) > 0.011) throw new Error('Savings summary disagrees with accounts.');
+      if (Math.abs(Number(summary[summaryField]) - receiptAccounts.reduce((sum, a) => sum + Number(a[accountField] || 0), 0)) > 0.011) throw new Error('Savings summary disagrees with accounts.');
     }
   }
   if (payload.receiptActivity) {

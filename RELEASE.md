@@ -1,3 +1,7 @@
+## Authoritative account list — 4 November 2026
+
+Replaces the current login roster with the owner-confirmed 229 unique accounts: 207 accessible and 22 inaccessible. Existing stable identities and explicit login methods are preserved; new rows use the supplied method rather than email-domain inference. The prior 129 unlisted identities are excluded from selectable accounts and current device-account exports. Receipt and correction history remains intact, with nonselectable historical financial aggregates separated from current account counts. Subsequent source projections and login exports honor the saved replacement roster. The Mail scanner and Mail cleanup policy are unchanged by this update.
+
 ## November Mail update — 3 November 2026
 
 Reviewed tracker Mail received from 1 November through the scan cutoff on 3 November, including original receipt headers and offer footnotes. Updated the local sanitised snapshots and private transfer files with deduplicated records; existing user-confirmed access and financial corrections remain intact. New login access stays pending until confirmed in chat. No Mail was moved or deleted and no publication was performed. An explicit manual-run option skips the database backup when requested by the owner; the default scheduled policy is unchanged. Public/privacy validation and import/term regressions pass.
