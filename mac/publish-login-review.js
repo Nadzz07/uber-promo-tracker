@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {applyAccountRoster} from '../account-roster.js';
 // Re-project reviewed login fields through the existing sanitised files, without scanning Mail.
 import fs from 'node:fs';import {DatabaseSync} from 'node:sqlite';import {createHash}from'node:crypto';
 import {getAccounts}from'../private-db.js';import{classifyAccount,eligibleAccountCounts}from'../account-state.js';import{classifyOfferCompletion}from'../offer-state.js';import{assertPublicSnapshot}from'../public-snapshot.js';
@@ -15,6 +16,7 @@ const db=new DatabaseSync(dbPath,{readOnly:true}),scratch=[];try{
  Object.assign(summary,{knownAccounts:all.length,accessibleAccounts:all.filter(a=>a.canLogin===true).length,inaccessibleAccounts:all.filter(a=>a.canLogin===false).length,pendingAccessAccounts:all.filter(a=>a.canLogin==null).length,availableAccounts:e.available,readyToUseAccounts:e.ready,offerAttentionAccounts:e.attention,needsCheckingAccounts:all.filter(a=>a.accountState==='needs_checking').length,usedAccessibleAccounts:all.filter(a=>a.accountUsed&&a.canLogin).length,partialUsageAccounts:all.filter(a=>a.canLogin&&a.partialUsage).length,expiredAccounts:all.filter(a=>a.accountState==='expired').length,activePromoAccounts:new Set(snapshot.promos.filter(p=>p.trackingState==='available'&&eligible.has(p.accountRef)).map(p=>p.accountRef)).size});
  const completions=snapshot.promos.map(p=>classifyOfferCompletion(p,at));for(const [key,test]of [['fullyUsedOffers','fullyUsed'],['finishedExpiredOffers','finishedExpired'],['fullyConsumedOffers','consumed'],['expiredUnusedOffers','expiredUnused'],['partiallyUsedOffers','partiallyUsed']])summary[key]=completions.filter(c=>c[test]).length;summary.completedPromotions=completions.filter(c=>c.consumed).length;
  snapshot.generatedAt=history.updatedAt=at;if(snapshot.sync?.lastSuccessfulMailScanAt!==lastScan||JSON.stringify(summary.financialBreakdown)!==financial)throw Error('Unrelated financial or scan data changed.');
+ const roster=db.prepare("SELECT value FROM meta WHERE key='account_roster_refs_v1'").get()?.value;if(roster)applyAccountRoster(snapshot,history,JSON.parse(roster));
  assertPublicSnapshot(snapshot,history,accounts.map(a=>a.alias));db.exec('COMMIT');
  for(const [name,data]of [['promos.json',snapshot],['history.json',history]]){const tmp=name+'.tmp-'+process.pid;scratch.push(tmp);fs.writeFileSync(tmp,JSON.stringify(data,null,2)+'\n',{mode:0o600});}
  for(let i=0;i<scratch.length;i++)fs.renameSync(scratch[i],i===0?'promos.json':'history.json');

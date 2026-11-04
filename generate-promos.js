@@ -1,3 +1,4 @@
+import {applyAccountRoster} from './account-roster.js';
 import {auditLoginAccounts} from './account-login-review.js';
 import {recordSyncRun,validateSyncReport} from './sync-report.js';
 import fs from "node:fs/promises";
@@ -573,6 +574,8 @@ async function generatePromos() {
         .slice(0, 750)
     };
 
+    const roster=db.prepare("SELECT value FROM meta WHERE key='account_roster_refs_v1'").get()?.value;
+    if(roster)applyAccountRoster(payload,publicHistory,JSON.parse(roster));
     assertPublicSnapshot(payload, publicHistory, [
       ...getAccounts(db).map(account => account.alias),
       ...allHistoryOffers.map(promo => promo.code)

@@ -22,6 +22,8 @@ let rows, offerIdMigrations = [];
 try {
   const columns=new Set(db.prepare('PRAGMA table_info(accounts)').all().map(r=>r.name));
   rows=db.prepare("SELECT account_ref AS accountRef, masked AS accountMasked, alias AS email,"+(columns.has('login_access')?" CASE WHEN login_access='pending' THEN NULL ELSE can_login END":" NULL")+" AS canLogin,"+(columns.has('login_method')?'login_method':'NULL')+" AS loginMethod FROM accounts ORDER BY account_ref").all();
+  const roster=db.prepare("SELECT value FROM meta WHERE key='account_roster_refs_v1'").get()?.value;
+  if(roster){const wanted=new Set(JSON.parse(roster));rows=rows.filter(a=>wanted.has(a.accountRef));if(rows.length!==wanted.size)throw Error('Replacement account identities are incomplete.');}
   const hasEvidence=db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='account_login_fields'").get();
   for(const row of rows){row.canLogin=row.canLogin==null?null:Boolean(row.canLogin);if(hasEvidence){row.loginReview=Object.fromEntries(db.prepare('SELECT field,status,source,confirmed_at AS confirmedAt,recorded_at AS recordedAt FROM account_login_fields WHERE account_ref=?').all(row.accountRef).map(({field,...record})=>[field,record]));}else{row.loginReview={access:{status:'pending',rawValue:row.canLogin},method:{status:'pending',rawValue:row.loginMethod}};row.canLogin=null;row.loginMethod=null;}}
   const key = db.prepare("SELECT value FROM meta WHERE key='public_offer_identity_key'").get()?.value;
