@@ -3014,7 +3014,7 @@
         (selected.conditional ? '<p class="plan-conditional-note">Estimated payment assumes Uber accepts Cash with this promo.</p>' : '') +
         (Object.keys(privateWallets).length ? '<button class="planner-matching-action" data-open-sheet="finance" data-finance-target="cash">Manage Cash in Accounts <span aria-hidden="true">›</span></button>' : '');
       target.querySelector('.plan-badge-slot').append(status);
-      const otherPlans=target.querySelector('.planner-alternatives');if(scopeHost)otherPlans.append(scopeHost);if(scopeNote)otherPlans.append(scopeNote);if(matchesAction)otherPlans.append(matchesAction);
+      const otherPlans=target.querySelector('.planner-alternatives');if(scopeHost)otherPlans.append(scopeHost);
       target.querySelector('#plannerOtherOptions').addEventListener('toggle', event => { otherOptionsOpen = event.target.open; });
     }
 
