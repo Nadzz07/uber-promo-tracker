@@ -4114,13 +4114,13 @@
         if (isActive) activeSection = section;
       });
 
-      const navParent=["help","settings","preferred-promos","preferred-catalogue","receipts","savings","finance","sync"].includes(view)?"more":["offers","planner"].includes(view)?routeEntries.get(currentRouteEntry)?.navigationParent||"home":view;
+      const navParent=["help","settings","preferred-promos","preferred-catalogue","receipts","savings","finance","sync"].includes(view)?"more":view==="planner"?"home":view==="offers"?routeEntries.get(currentRouteEntry)?.navigationParent||"home":view;
       document.querySelectorAll("[data-view]").forEach(button => {
         button.classList.toggle("active",button.dataset.view===navParent);
         if(button.dataset.view===navParent)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");
       });
 
-      activeSection?.querySelector('[data-home-back]')?.setAttribute('aria-label',navParent==='more'?'Back to More':'Back to Home');
+      activeSection?.querySelector('[data-home-back]')?.setAttribute('aria-label',routeEntries.get(currentRouteEntry)?.navigationParent==='more'?'Back to More':'Back to Home');
       updateNavGlider();
       queueDetailViewport();
       if (activeSection&&view!=='home') replayMotion(activeSection, 'motion-page');
