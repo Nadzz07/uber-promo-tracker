@@ -180,3 +180,67 @@ html[data-motion=reduced] .rim-help summary svg{transition:none;}
 .bk-status:empty{display:none;}
 @media(prefers-reduced-motion:reduce){.backup-dialog summary>svg{transition:none;}}
 html[data-motion=reduced] .backup-dialog summary>svg{transition:none;}
+/* Reference sheets use the same data materials and outline icon tiles. */
+.receipt-import-dialog { background:radial-gradient(ellipse at 95% 0%,var(--data-accent-fill),transparent 60%),linear-gradient(180deg,var(--data-fade-top),var(--data-fade-bottom)); border:1px solid var(--data-accent-border); }
+.receipt-import-dialog:not(.backup-dialog)[data-phase=choose] { height:calc(100dvh - env(safe-area-inset-top,0px)); }
+.receipt-import-dialog:not(.backup-dialog)[data-phase=choose]>div { height:100%; }
+.receipt-import-dialog:not(.backup-dialog)[data-phase=choose] .rim-body { flex:1 1 auto; }
+.receipt-import-dialog .rim-card { background:var(--data-card); border-color:var(--data-border); }
+.rim-icon-tile { display:grid; place-items:center; width:38px; height:38px; flex:0 0 38px!important; border:1px solid var(--data-accent-border); border-radius:11px; background:var(--data-accent-fill); color:var(--color-soft-accent); }
+.rim-icon-tile svg { width:20px; height:20px; }
+.receipt-import-dialog .rim-header { padding:18px 16px 16px; align-items:flex-start; }
+.receipt-import-dialog .rim-header h1 { font-weight:720; font-size:24px; line-height:30px; letter-spacing:-.03em; }
+.receipt-import-dialog .rim-header button:last-child { width:44px; height:44px; min-height:44px; border:1px solid var(--data-border); background:var(--data-group); border-radius:50%; padding:8px; }
+.receipt-import-dialog:not(.backup-dialog) .rim-header p { margin-top:8px; }
+.receipt-import-dialog .rim-body { padding-inline:18px; }
+.receipt-import-dialog[data-phase=choose] .rim-choose { padding:16px; border-color:var(--data-accent-border); background:linear-gradient(135deg,var(--data-accent-fill),var(--data-card-bottom) 80%); border-style:solid; }
+.receipt-import-dialog[data-phase=choose] .rim-choose>.rim-identity { gap:12px; min-height:42px; }
+.receipt-import-dialog .rim-choose strong { font-size:16px; line-height:22px; }
+.receipt-import-dialog .rim-choose small { font-size:12px; line-height:17px; color:var(--color-tertiary); }
+.receipt-import-dialog .rim-choose>button { display:flex; align-items:center; justify-content:center; gap:8px; min-height:46px; margin-top:14px; padding:10px; }
+.receipt-import-dialog .rim-primary { box-shadow:0 5px 18px color-mix(in srgb,var(--color-accent) 12%,transparent); }
+.receipt-import-dialog .rim-primary svg { width:18px; height:18px; }
+.rim-preview-note { display:flex; align-items:center; gap:8px; margin:12px 3px 20px; font-size:11px; }
+.rim-preview-note svg { width:15px; height:15px; flex:none; }
+.receipt-import-dialog .rim-eyebrow { text-transform:uppercase; color:var(--color-soft-accent); font-size:10px!important; letter-spacing:.1em; line-height:16px!important; margin:20px 3px 10px!important; }
+.receipt-import-dialog .rim-support { padding:0 12px; background:var(--data-group); }
+.receipt-import-dialog .rim-support>div { gap:12px; min-height:60px; padding:12px 0; border-color:var(--data-border); }
+.receipt-import-dialog .rim-support strong { font-size:13px; line-height:19px; }
+.receipt-import-dialog .rim-support .rim-icon-tile { width:32px; height:32px; flex-basis:32px!important; border-radius:9px; }
+.receipt-import-dialog[data-phase=choose] .rim-help { border:1px solid var(--data-border); border-radius:16px; background:var(--data-group); padding:0 13px; }
+.receipt-import-dialog[data-phase=choose] .rim-help summary { min-height:54px; gap:10px; font-size:13px; color:var(--color-text); }
+.receipt-import-dialog[data-phase=choose] .rim-help summary span { flex:1; }
+.receipt-import-dialog[data-phase=choose] .rim-help summary svg:last-child { transform:none; }
+.receipt-import-dialog[data-phase=choose] .rim-help[open] summary svg:last-child { transform:rotate(90deg); }
+.receipt-import-dialog[data-phase=choose] .rim-help p { padding-bottom:8px; }
+.backup-dialog .rim-header .rim-icon-tile { align-self:center; width:40px; height:40px; flex-basis:40px!important; }
+.backup-dialog .rim-header h1 { font-size:22px; line-height:26px; margin:0; }
+.backup-dialog .rim-header p { margin-top:3px; font-size:12px; line-height:17px; }
+.backup-dialog .rim-header { gap:12px; padding-bottom:10px; }
+.backup-dialog .bk-group { background:var(--data-group); padding-inline:12px; border-radius:17px; }
+.backup-dialog .bk-row { gap:10px; min-height:46px; padding:7px 0; border-color:var(--data-border); font-size:13px; }
+.backup-dialog .bk-row .rim-icon-tile { width:28px; height:28px; flex-basis:28px!important; border-radius:8px; }
+.backup-dialog .bk-row .rim-icon-tile svg { width:16px; height:16px; }
+.backup-dialog .bk-row strong { font-size:13px; font-weight:600; color:var(--color-secondary); }
+.bk-steps { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; padding:0 18px 12px; }
+.bk-steps span { border-top:3px solid var(--data-accent-border); padding-top:7px; text-transform:uppercase; font-size:9px; font-weight:650; letter-spacing:.03em; color:var(--color-tertiary); }
+.bk-steps span.current { border-color:var(--color-accent); color:var(--color-soft-accent); }
+.backup-dialog .bk-upload { display:flex; align-items:center; flex-direction:column; gap:8px; padding:26px 14px; border-style:dashed; border-color:var(--data-accent-border); background:linear-gradient(135deg,var(--data-accent-fill),var(--data-card-bottom)); }
+.bk-upload strong { font-size:15px; margin-top:3px; }
+.bk-upload small { font-size:12px; color:var(--color-tertiary); }
+.bk-choose-caption { display:flex; gap:8px; align-items:flex-start; }
+.bk-choose-caption svg { width:14px; height:16px; flex:none; }
+.backup-dialog .bk-changes>span { display:flex; align-items:center; gap:8px; flex:1; border-radius:13px; font-size:12px; padding:10px; }
+.bk-changes>span strong { font-size:27px; line-height:1.2; }
+.backup-dialog .bk-added { border-color:var(--color-positive-border); }
+.backup-dialog .bk-updated { border-color:var(--data-accent-border); }
+.backup-dialog .bk-changes>details { flex-basis:100%; }
+.backup-dialog .bk-warning { margin-top:10px; }
+.backup-dialog .bk-warning summary { font-weight:600; font-size:12px; }
+.backup-dialog .bk-status:empty { display:none; }
+.backup-dialog .rim-actions { gap:2px; padding-top:10px; }
+.backup-dialog .rim-actions .rim-primary { min-height:48px; font-size:15px; display:flex; align-items:center; justify-content:center; gap:8px; }
+
+.receipt-import-dialog[data-phase=choose] :is(.rim-support,.bk-group) { background:var(--data-group); }
+
+.receipt-import-dialog .rim-help summary .rim-icon-tile { width:32px; height:32px; flex-basis:32px!important; border-radius:9px; }

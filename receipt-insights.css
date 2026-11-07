@@ -1,5 +1,5 @@
 /* Shared data-page materials: one palette for receipts, savings, finances and sync. */
-html:has(:is(#view-receipts,#view-sync,#view-home,#view-more).active) {
+html:has(:is(#view-receipts,#view-sync,#view-home,#view-more,#view-accounts,#view-planner).active) {
  --data-page-base:var(--data-screen);
  --data-page-fade:radial-gradient(ellipse at 85% 80%,var(--data-fade-corner),transparent 65%),linear-gradient(180deg,var(--data-fade-top),var(--data-fade-bottom));
  --data-card:linear-gradient(145deg,var(--data-card-top),var(--data-card-bottom));
@@ -8,7 +8,7 @@ html:has(:is(#view-receipts,#view-sync,#view-home,#view-more).active) {
  --data-accent-border:color-mix(in srgb,var(--color-accent) 28%,var(--color-border));
  --data-accent-fill:color-mix(in srgb,var(--color-accent) 11%,var(--color-panel));
 }
-html:has(:is(#view-receipts,#view-sync,#view-home,#view-more).active),body:has(:is(#view-receipts,#view-sync,#view-home,#view-more).active) { background:var(--data-page-base); background-image:var(--data-page-fade); background-attachment:fixed; overflow-anchor:none; }
+html:has(:is(#view-receipts,#view-sync,#view-home,#view-more,#view-accounts,#view-planner).active),body:has(:is(#view-receipts,#view-sync,#view-home,#view-more,#view-accounts,#view-planner).active) { background:var(--data-page-base); background-image:var(--data-page-fade); background-attachment:fixed; overflow-anchor:none; }
 body:has(#view-sync.active)::before { display:none; }
 /* Cover a native top inset with the exact page paint, including while scrolling. */
 body:has(#view-receipts.active)::before { content:''; display:block; position:fixed; top:0; left:0; right:0; width:100%; height:env(safe-area-inset-top,0px); border-radius:0; background:var(--data-page-base); background-image:var(--data-page-fade); background-attachment:fixed; box-shadow:none; filter:none; pointer-events:none; z-index:26; }

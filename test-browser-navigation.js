@@ -8,7 +8,8 @@ export async function openHomeDetail(page,name) {
 }
 
 export async function directoryStatus(page,value) {
- const panel=page.locator('#accountSecondaryFilters');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await page.locator('#accountScope').selectOption(value);
+ const key=({all:'active',tracked:'active',offers:'active',unfinished:'active',used:'finished','expired-unused':'expired',pending:'review'}[value]||value);
+ if(!await page.locator('#accountShowOptions').isVisible())await page.locator('#accountShowTrigger').click();await page.locator('[data-show-accounts="'+key+'"]').click();
 }
 export async function directoryType(page,value) {
  if(!await page.locator('#accountTypeOptions').isVisible())await page.locator('#accountTypeTrigger').click();const main=page.locator('[data-offer-type="'+value+'"]');if(await main.count())await main.click();else{await page.locator('[data-offer-type="other"]').click();await page.locator('[data-catalogue-value="'+value+'"]').click();}
@@ -16,10 +17,14 @@ export async function directoryType(page,value) {
 export async function directoryReset(page) {
  await page.locator('#accountSearch').fill('');await page.locator('[data-login-filter="all"]').click();await page.locator('#accountProvider').selectOption('all');
  await directoryType(page,'all');
- const panel=page.locator('#accountSecondaryFilters');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await page.locator('[data-reset-secondary]').click();
+ await directoryStatus(page,'active');
 }
 
-export async function directoryAvailability(page,value) { const panel=page.locator('#accountSecondaryFilters');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await page.locator('#accountOfferScope').selectOption(value); }
+// Availability now composes the visible Show and login controls.
+export async function directoryAvailability(page,value) {
+ await directoryStatus(page,value==='archived'?'archived':value==='attention'?'review':'active');
+ await page.locator('[data-login-filter="'+(value==='ready'?'login':'all')+'"]').click();
+}
 
 // Back/Forward and ResizeObserver updates can finish after goBack resolves.
 // Wait for stable scroll and dock geometry before the next pointer action.

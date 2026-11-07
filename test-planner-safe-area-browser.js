@@ -37,7 +37,7 @@ try{
   await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto('http://127.0.0.1:'+server.address().port);
   const originalTheme=await page.locator('meta[name="theme-color"]').getAttribute('content');
   await page.locator('[data-home-detail="planner"]').first().click();await page.locator('.recommendation-title').waitFor();
-  await page.locator('#basketInput').fill('30');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='2 orders');await page.locator('#basketInput').blur();
+  await page.locator('#basketInput').fill('30');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent?.startsWith('2 orders ·'));await page.locator('#basketInput').blur();
   await page.waitForFunction(()=>document.querySelector('meta[name="theme-color"]').content.toLowerCase()===getComputedStyle(document.documentElement).getPropertyValue('--color-screen').trim().toLowerCase());
   assert.equal(await page.locator('#view-planner .detail-view-head').evaluate(e=>getComputedStyle(e).animationName),'none','Header stays crisp during page entry');
   await page.evaluate(async()=>{await Promise.all(document.getAnimations().filter(a=>a.effect?.getComputedTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{})));});
@@ -95,7 +95,7 @@ try{
   // Eligibility remains active even though its restrictions moved out of the default row.
   await page.locator('#plannerFulfilment').selectOption('pickup');assert.equal(await page.locator('.plan-accounts .plan-row').count(),0);
   await page.locator('#plannerFulfilment').selectOption('delivery');assert.equal(await rows.count(),2);
-  await page.locator('#basketInput').fill('15');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='1 order');assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£4.00']);
+  await page.locator('#basketInput').fill('15');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent?.startsWith('1 order ·'));assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£4.00']);
   await navigate(page,'accounts');await page.waitForFunction(()=>document.querySelector('meta[name="theme-color"]').content.toLowerCase()===getComputedStyle(document.documentElement).getPropertyValue('--color-screen').trim().toLowerCase());
   await page.waitForFunction(()=>document.documentElement.style.getPropertyValue('--planner-nav-clearance')==='');
   assert.equal(await page.evaluate(()=>document.documentElement.style.getPropertyValue('--planner-nav-clearance')),'','Planner measurements do not change other screens');

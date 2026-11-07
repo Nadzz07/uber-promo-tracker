@@ -42,7 +42,8 @@ assert.ok(html.includes("Mark finished manually"));
 assert.equal(html.includes("Mark account done"), false, "manual account-done control should stay retired");
 assert.equal(html.includes("Accounts marked done"), false, "Used view should not duplicate promo completion with account-done status");
 assert.equal(html.includes("Done accounts"), false, "Used summary should focus on promo activity");
-assert.ok(html.includes("Not finished"));
+assert.ok(html.includes('id="accountShowTrigger"'));
+assert.equal(html.includes('id="accountSecondaryFilters"'),false,'Replaced by the six-option Show menu');
 assert.ok(html.includes("Matching accounts"));assert.equal(html.includes('id="view-offers"'),false,"The duplicate finder page is removed");
 assert.ok(html.includes("Total saved"));
 assert.ok(html.includes('id="loginStat"') && html.includes('id="archivedStat"'));
@@ -66,8 +67,8 @@ assert.ok(html.includes("grid-template-columns: auto minmax(0,1fr) 36px"));
 assert.ok(html.includes("Archived accounts"));
 assert.ok(html.includes("Needs checking"));
 assert.ok(html.includes('id="homeNeedsChecking"'));
-assert.ok(html.includes('<option value="used">Fully used accounts</option>'));
-assert.ok(html.includes('<option value="finished">Has finished promotions</option>'));
+assert.ok(fs.readFileSync('account-sheet-data.js','utf8').includes("key:'finished',label:'Finished'"));
+assert.equal(html.includes('id="accountOfferScope"'),false,'Availability is composed from Show and login');
 assert.equal(/id="(?:needsCheckingList|fullyUsedList|expiredList)"/.test(html),false,'Old category-menu presentation is removed');
 
 assert.ok(

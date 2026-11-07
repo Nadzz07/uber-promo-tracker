@@ -39,17 +39,17 @@ try {for(const [width,height,large] of [[320,568,false],[390,844,false],[393,852
  await page.locator('#accountSearch').fill('second');await directoryAvailability(page,'all');await directoryType(page,'fixed:12:15');
  assert.equal(await page.locator('[data-preferred-filter="fixed:12:15"]').getAttribute('aria-pressed'),'true');
  await navigate(page,'home');await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.locator('.topbar').isVisible(),false);assert.equal(await page.locator('#view-planner h1').count(),1);assert.equal(await page.locator('.planner-section-head h2').innerText(),'Suggested plan');
- await page.locator('#basketInput').fill('30');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='2 orders');
+ await page.locator('#basketInput').fill('30');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='2 orders · 2 accounts');
  assert.equal(await page.locator('.recommendation-save').innerText(),'£8.00\nIncluding estimated fees');assert.equal(await page.locator('.plan-accounts .plan-row').count(),2);
  const selected=await page.locator('.plan-accounts').innerText();assert.ok(selected.includes(emails[0])&&selected.includes(emails[1]));assert.match(selected,/£15 basket · £1 fee/);assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£4.00','£4.00']);
  assert.equal(await page.locator('#plannerFeeInput').inputValue(),'1.00');assert.equal(await page.locator('#view-planner [data-open-sheet=advanced]').count(),0);
  assert.equal(await page.locator('#recommendation .plan-fee-explanation').count(),0);assert.equal(await page.locator('.planner-final-fees').innerText(),'Final fees are confirmed in Uber.');
  if(!large)await shot(page,width,'planner-default');
- await page.locator('#plannerOtherOptions > summary').click();assert.equal(await page.locator('.plan-alternative').count(),1);assert.equal(await page.locator('.plan-alternative-price > strong').innerText(),'£19.00');assert.match(await page.locator('.plan-alternative-price').innerText(),/\+£11.00 vs suggested/);
+ await page.locator('#plannerOtherOptions > summary').click();assert.equal(await page.locator('.plan-alternative').count(),1);assert.equal(await page.locator('.plan-alternative-price > strong').innerText(),'£19.00');assert.match(await page.locator('.plan-alternative-price').innerText(),/\+£11.00/);
  if(!large)await shot(page,width,'planner-options');
- await page.locator('[data-select-plan]').click();assert.equal(await page.locator('.plan-status').isVisible(),false);assert.equal(await page.locator('.plan-accounts .plan-row').count(),1);
- await page.locator('#view-planner [data-home-detail="offers"]').click();assert.equal(await page.locator('#accountSearch').inputValue(),'second');assert.equal(await page.locator('#accountOfferScope').inputValue(),'all');
- await navigate(page,'home');await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.locator('.plan-status').isVisible(),false);assert.equal(await page.locator('#plannerOtherOptions').getAttribute('open'),'');await page.locator('[data-select-plan]').click();assert.equal(await page.locator('.plan-status').innerText(),'Lowest cost');
+ await page.locator('[data-select-plan]').click();assert.equal(await page.locator('.plan-status').innerText(),'Your pick');assert.equal(await page.locator('.plan-accounts .plan-row').count(),1);
+ await page.locator('#view-planner [data-home-detail="offers"]').click();assert.equal(await page.locator('#accountSearch').inputValue(),'second');assert.equal(await page.locator('#accountShowValue').innerText(),'Active');
+ await navigate(page,'home');await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.locator('.plan-status').innerText(),'Your pick');assert.equal(await page.locator('#plannerOtherOptions').getAttribute('open'),'');await page.locator('[data-select-plan]').click();assert.equal(await page.locator('.plan-status').innerText(),'Your pick');
 
  const layout=await page.evaluate(()=>{
   const rect=s=>{const r=document.querySelector(s).getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom};};
@@ -75,15 +75,15 @@ try {for(const [width,height,large] of [[320,568,false],[390,844,false],[393,852
   const clearance=await page.locator('#view-planner .planner-final-fees').evaluate(e=>({footer:e.getBoundingClientRect().bottom,dock:document.querySelector('.bottom-nav').getBoundingClientRect().top,scroll:scrollY,height:document.documentElement.scrollHeight}));
   assert.ok(clearance.footer<=clearance.dock,'Last content clears the dock at '+width+' large '+large+' '+JSON.stringify(clearance));
  }
- await page.locator('#plannerFeeInput').fill('13');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='1 order');
+ await page.locator('#plannerFeeInput').fill('13');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent?.startsWith('1 order ·'));
  await page.locator('#plannerFeeInput').fill('2');assert.equal(await page.locator('.recommendation-save').innerText(),'£10.00\nIncluding estimated fees');
  await page.reload();await page.locator('#view-planner.active').waitFor();assert.equal(await page.locator('#plannerFeeInput').inputValue(),'2.00');assert.equal(Number(await page.locator('#basketInput').inputValue()),30);
  if(large)await page.addStyleTag({content:'#view-planner input,#view-planner select{font-size:24px!important}'});
  assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£5.00','£5.00']);
- await page.locator('#basketInput').fill('45');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='3 orders');assert.equal(await page.locator('.recommendation-save').innerText(),'£15.00\nIncluding estimated fees');
+ await page.locator('#basketInput').fill('45');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent?.startsWith('3 orders ·'));assert.equal(await page.locator('.recommendation-save').innerText(),'£15.00\nIncluding estimated fees');
  await page.locator('.plan-row').first().click();await page.locator('[data-account-sheet]').waitFor();await dismiss(page);assert.equal(await page.locator('#basketInput').inputValue(),'45');
- await page.locator('#basketInput').fill('15');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='1 order');assert.equal(await page.locator('.recommendation-save').innerText(),'£5.00\nIncluding estimated fees');
- await page.locator('#basketInput').fill('30');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='2 orders');
+ await page.locator('#basketInput').fill('15');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent?.startsWith('1 order ·'));assert.equal(await page.locator('.recommendation-save').innerText(),'£5.00\nIncluding estimated fees');
+ await page.locator('#basketInput').fill('30');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='2 orders · 2 accounts');
  await page.locator('#plannerFeeInput').fill('0');assert.equal(await page.locator('.recommendation-save').innerText(),'£6.00\nIncluding estimated fees');
  await page.locator('#plannerFeeInput').fill('');assert.match(await page.locator('#recommendation').innerText(),/Enter a valid/);
  await page.locator('#plannerFeeInput').fill('1');assert.equal(await page.locator('.recommendation-save').innerText(),'£8.00\nIncluding estimated fees');

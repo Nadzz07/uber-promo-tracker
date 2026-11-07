@@ -59,7 +59,7 @@ try {
   assert.equal(await page.locator('#savedStatSub').count(),0,'No Uber One estimate is mixed into Home promo savings');
   await navigate(page,'accounts');
   await directoryType(page,'all');await directoryStatus(page,'used');
-  assert.equal(await page.locator('#accountsList .account-card').count(), 1);
+  assert.equal(await page.locator('#accountsList .account-card').count(), 2,'Finished combines receipt-used accounts and completed offers');
   assert.match(await page.locator('#accountsList').innerText(), /us…ed/);
   await page.locator('#accountSearch').fill('missing');
   assert.equal(await page.locator('#accountsList .account-card').count(), 0);
@@ -242,10 +242,10 @@ try {
   await filterPage.route('**/history.json?*', route => route.fulfill({ json: { updatedAt: time, records: [] } }));
   await filterPage.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await filterPage.goto(url); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
 
-  assert.equal(await filterPage.locator('[data-login-filter=login]').getAttribute('aria-pressed'),'true');await filterPage.locator('[data-login-filter=all]').click();await directoryStatus(filterPage,'unfinished');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'8 accounts','All-access status keeps the inaccessible started account');await directoryAvailability(filterPage,'ready');
-  assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts');
-  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4 confirmed · Up to 1 left/);
-  assert.equal(await filterPage.locator('#accountsList [data-card-account="A108"]').count(),0);
+  assert.equal(await filterPage.locator('[data-login-filter=login]').getAttribute('aria-pressed'),'true');await filterPage.locator('[data-login-filter=all]').click();await directoryStatus(filterPage,'unfinished');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'9 accounts','Active includes the inaccessible account and unstarted current offers');await directoryAvailability(filterPage,'ready');
+  assert.equal(await filterPage.locator('#accountsMeta').innerText(),'9 accounts');
+  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4 confirmed · up to 1 left/);
+  assert.equal(await filterPage.locator('#accountsList [data-card-account="A108"]').count(),1,'Active includes unstarted offers; it replaces the narrower Not finished scope');
   await navigate(filterPage,'home');
   await openHomeDetail(filterPage,'offers');await directoryReset(filterPage);await directoryType(filterPage,'cash');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A107"]').count(), 1, 'Receipt completion cannot hide a current Cash offer');
@@ -268,7 +268,7 @@ try {
   repeatOffer.usesRemaining = 1; repeatOffer.receiptConfirmedUses = 4;
   for (const promo of filterOffers.filter(p => p.accountRef === 'A101' && p.discountType === 'uberCash')) {promo.usesRemaining=0;promo.cashEstimate={...promo.cashEstimate,status:'exhausted',remaining:0};}
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
-  await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts','One remaining use does not finish an account');
+  await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'9 accounts','One remaining use does not finish an account');
   await directoryReset(filterPage);await directoryType(filterPage,'cash-promo');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'1 account');await navigate(filterPage,'home');
   const preferredReady=Number(await filterPage.locator('#activeStat').innerText());await filterPage.locator('.stats-row [data-home-list=ready]').click();assert.equal(await filterPage.locator('#accountTypeValue').innerText(),'Preferred offers');assert.equal(Number((await filterPage.locator('#accountsMeta').innerText()).replace(/[^0-9]/g,'')),preferredReady);await filterPage.goBack();await filterPage.locator('#view-home.active').waitFor();
   assert.equal(await filterPage.locator('#homeReadyCount').innerText(),'Search offers in Accounts');
@@ -280,11 +280,11 @@ try {
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A102"]').count(), 1);
   filterAccounts.find(a => a.accountRef === 'A109').orderCount = 5;
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
-  await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts','Receipt completion cannot hide a remaining offer');
+  await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'9 accounts','Receipt completion cannot hide a remaining offer');
   filterOffers.find(p => p.accountRef === 'A109').usesRemaining = 0;
   filterOffers.find(p => p.accountRef === 'A109').receiptConfirmedUses = 5;
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
-  await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'6 accounts','Completed receipt usage leaves the unfinished group');
+  await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'8 accounts','Completed receipt usage leaves the unfinished group');
   await openHomeDetail(filterPage,'offers');await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A109"]').count(), 0);
   for (const width of [320, 390, 1440]) {

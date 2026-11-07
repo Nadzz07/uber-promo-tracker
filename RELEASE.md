@@ -11,6 +11,17 @@ link uses the exact same account set as its count. Tablet and desktop add the
 reviewed 72px/260px sidebar shell; later desktop page compositions remain separate
 review steps. Mobile workflows and explicit file-picker behavior are retained.
 
+The follow-up refines Accounts with six inline Show choices, compact identity and
+offer rows, evidence-specific usage bars and accessible expiry explanations.
+Estimated deadlines retain their tilde; a single tap/hover/focus bubble explains
+the source and closes on repeat tap, outside interaction, scroll or timeout.
+Can log in remains the default. Finished combines the retained account-usage and
+promotion-completion views without rewriting either source. Pending access stays
+unconfirmed. Full-height initial imports and compact backup sheets follow the
+latest reference, including actual backup counts and the restore review steps.
+Order Planner retains its cost engine while presenting editable grouped inputs,
+account-detail links and in-place plan choices with a Your pick label.
+
 This release does not regenerate the published financial/account snapshots.
 `promos.json` and `history.json` are byte-identical to the verified 229-account
 snapshot published from e78320c320d519ab8f737952d1610fcf92ffc6b1 (PR 126).

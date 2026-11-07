@@ -5,7 +5,7 @@ import http from 'node:http';
 import {once} from 'node:events';
 import {execFileSync} from 'node:child_process';
 import {chromium,webkit,firefox,devices} from 'playwright';
-import {directoryReset,settlePageLayout} from './test-browser-navigation.js';
+import {directoryReset,directoryStatus,settlePageLayout} from './test-browser-navigation.js';
 execFileSync(process.execPath,['build-site.js']);
 const now=new Date().toISOString(),expiry=new Date(Date.now()+20*86400000).toISOString();
 const accounts=[
@@ -48,7 +48,7 @@ try{
   await close(page);await open(page);await expand(page);await close(page);await start(page);await open(page);await expand(page);
   assert.equal(await page.locator('#accountCalcPromo,#accountCalcCash').count(),0,'Calculate with was deliberately removed');const offersBefore=await page.locator('.account-detail-offer').count();const manualBefore=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).offers,stateKey);
   await page.locator('[data-account-archive]').click();assert.equal(await page.locator('[data-account-archive]').innerText(),'Unarchive');assert.equal(await page.locator('[data-use-this-account]').isDisabled(),true);assert.equal(await page.locator('.account-detail-offer').count(),offersBefore);assert.equal(await page.locator('.account-record-access').innerText(),'Can log in');assert.deepEqual(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).offers,stateKey),manualBefore);assert.equal(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).accountRecords.A970.note,stateKey),'Updated synthetic note.','Notes persist through archive and reload');await shot(page,'archived',width,height,large);
-  await close(page);await start(page);await open(page);await expand(page);assert.equal(await page.locator('[data-account-archive]').innerText(),'Unarchive','Archive survives reload');await page.locator('[data-account-archive]').click();assert.equal(await page.locator('[data-account-archive]').innerText(),'Archive');assert.equal(await page.locator('[data-use-this-account]').isEnabled(),true);
+  await close(page);await start(page);await directoryStatus(page,'archived');await open(page);await expand(page);assert.equal(await page.locator('[data-account-archive]').innerText(),'Unarchive','Archive survives reload');await page.locator('[data-account-archive]').click();assert.equal(await page.locator('[data-account-archive]').innerText(),'Archive');assert.equal(await page.locator('[data-use-this-account]').isEnabled(),true);
   if(width===440){
    await page.evaluate(key=>{window.__setItem=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k===key)throw Error('Quota exceeded');return window.__setItem.call(this,k,v)}},stateKey);await page.locator('[data-account-archive]').click();assert.match(await page.locator('.account-management-feedback').innerText(),/Couldn’t save/);assert.equal(await page.locator('[data-account-archive]').innerText(),'Archive');await page.evaluate(()=>Storage.prototype.setItem=window.__setItem);
    const second=await context.newPage();await start(second);await open(second);await expand(second);await page.locator('[data-account-archive]').click();await second.waitForFunction(()=>document.querySelector('[data-account-archive]')?.textContent==='Unarchive');await second.locator('[data-account-archive]').click();await page.waitForFunction(()=>document.querySelector('[data-account-archive]')?.textContent==='Archive');await second.close();

@@ -72,7 +72,7 @@ try{
   const homeHeroHeight=await page.locator('.total-saved-card').evaluate(el=>el.getBoundingClientRect().height);
   assert.ok(homeHeroHeight>=240&&(width>=768||homeHeroHeight<=400),'Home savings reserves its chart and readable support: '+name+' / '+width+' / '+homeHeroHeight);
   await navigate(page,'accounts');await directoryReset(page);await directoryStatus(page,'used');
-  assert.equal(await page.locator('#view-used,[data-view=used]').count(),0);assert.equal(await page.locator('#accountScope').inputValue(),'used');
+  assert.equal(await page.locator('#view-used,[data-view=used]').count(),0);assert.equal(await page.locator('#accountShowValue').innerText(),'Finished');
   await page.keyboard.press('Escape');await openMoreDestination(page,'health');await page.locator('[data-account-import]').click();
   await page.locator('.receipt-import-dialog[open] [data-receipt-import-file]').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{}')});await page.locator('.rim-error').waitFor();assert.match(await page.locator('.rim-error').innerText(),/Choose a tracker/);
   if(width<768){

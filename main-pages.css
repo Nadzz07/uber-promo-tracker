@@ -62,3 +62,77 @@ html[data-layout=mobile] #app:has(.main-screen.active) { padding-inline:20px; }
 #view-more .more-card:focus-visible { outline:2px solid var(--color-accent); outline-offset:-3px; }
 :is(.nav-btn.active,html[data-layout=desktop] .nav-btn.active) { background:var(--theme-active-tab); color:var(--color-soft-accent); border-radius:999px; }
 @media(max-width:370px) { #view-more .more-card { padding:14px 12px; gap:10px; }#view-more .more-icon { width:38px; height:40px; flex-basis:38px; }#view-more .more-title { font-size:15px; }.more-sync-status { max-width:76px; flex:none; font-size:10px; } }
+/* Accounts reference: shared charcoal surfaces and a single inline Show menu. */
+#view-accounts { --main-card:var(--data-card); --main-control:var(--data-card); --main-border:var(--data-border); }
+#view-accounts .accounts-head { margin-bottom:18px; }
+#view-accounts .accounts-head h1 { font-weight:720; }
+#view-accounts .accounts-summary { min-height:94px; padding:15px 16px; margin-bottom:14px; border-color:var(--data-accent-border); background:linear-gradient(125deg,var(--data-accent-fill),var(--data-card-bottom) 75%); }
+#view-accounts .accounts-stat strong { font-size:36px; line-height:1.15; font-weight:720; letter-spacing:-.03em; }
+#view-accounts .accounts-stat>div>span { font-size:13px; }
+#view-accounts .search-wrap { margin-bottom:12px; }
+#view-accounts .account-login-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); padding:0; border:0; gap:8px; background:none; margin-bottom:12px; }
+#view-accounts .account-login-tabs button { margin:0; min-height:46px; font-size:13px; border:1px solid var(--data-border); border-radius:14px; background:var(--data-card); white-space:nowrap; padding:8px 4px; }
+#view-accounts .account-login-tabs button[aria-pressed=true] { background:var(--theme-active-tab); color:var(--color-soft-accent); border-color:var(--color-accent-line); }
+#view-accounts .account-control-row { gap:10px; margin-bottom:12px; }
+#view-accounts .directory-select,#view-accounts #accountTypeTrigger { min-height:46px; border-radius:14px; }
+#view-accounts .account-type-picker { margin-bottom:12px; }
+#view-accounts .account-preferred-chips { display:flex; flex-wrap:nowrap; gap:8px; overflow-x:auto; padding:0 16px 4px 0; margin-bottom:10px; scrollbar-width:none; mask-image:linear-gradient(to right,var(--data-black) calc(100% - 18px),transparent); }
+#view-accounts .account-preferred-chips button { flex:none; padding:9px 14px; min-height:40px; border-radius:999px; white-space:nowrap; border-color:var(--data-border); font-size:13px; }
+.account-show-picker { margin-bottom:22px; }
+#accountShowTrigger { display:flex; width:100%; min-height:46px; align-items:center; gap:10px; padding:10px 16px; border:1px solid var(--data-border); border-radius:14px; color:var(--color-text); background:var(--data-card); font:inherit; font-size:14px; cursor:pointer; }
+#accountShowTrigger svg { width:18px; height:18px; color:var(--color-secondary); }
+#accountShowTrigger>span:last-child { margin-left:auto; }
+#accountShowTrigger[aria-expanded=true] { border-color:var(--color-accent); }
+#accountShowTrigger[aria-expanded=true]>span:last-child { transform:rotate(180deg); }
+.account-show-label { color:var(--color-tertiary); }
+#accountShowTrigger strong { font-weight:650; }
+#accountShowOptions { padding:8px; border:1px solid var(--data-border); border-radius:18px; background:var(--data-card); margin-top:8px; }
+#accountShowOptions[hidden] { display:none; }
+#accountShowOptions button { display:flex; align-items:center; gap:10px; width:100%; min-height:46px; border:0; padding:9px 12px; border-radius:11px; background:none; color:var(--color-text); text-align:left; font:inherit; font-size:15px; cursor:pointer; }
+#accountShowOptions button>span { width:16px; }
+#accountShowOptions [aria-selected=true] { background:var(--theme-active-tab); color:var(--color-soft-accent); }
+#view-accounts .accounts-results-head { margin:0 0 14px; align-items:center; }
+#view-accounts .accounts-results-head h2 { font-size:21px; font-weight:700; }
+#view-accounts .directory-card { display:flex; flex-wrap:wrap; align-items:center; padding:16px; border-radius:22px; margin-bottom:12px; box-shadow:inset 0 1px 0 var(--data-row-shade); }
+#view-accounts .directory-account-head { padding:0 0 14px; margin:0 0 14px; width:100%; border:0; border-bottom:1px solid var(--data-border); display:flex; gap:13px; background:none; min-height:52px; }
+#view-accounts .directory-provider,#view-accounts .directory-offer-icon { display:grid; place-items:center; width:42px; height:44px; flex:0 0 42px; border-radius:12px; background:var(--data-accent-fill); border:1px solid var(--data-accent-border); color:var(--color-soft-accent); }
+#view-accounts .directory-provider svg,#view-accounts .directory-offer-icon svg { width:22px; height:22px; }
+#view-accounts .directory-identity { min-width:0; flex:1; display:block; }
+#view-accounts .account-email { display:block; font-size:16px; font-weight:650; line-height:1.3; white-space:normal; overflow-wrap:anywhere; text-overflow:clip; }
+#view-accounts .account-login-route { display:block; margin-top:4px; color:var(--color-tertiary); font-size:12px; line-height:1.4; }
+.account-access-text.positive { color:var(--color-positive); white-space:nowrap; }
+#view-accounts .directory-offers { width:100%; display:block; padding:0; border:0; margin:0; }
+#view-accounts .directory-offer-row { display:flex; gap:10px; align-items:center; padding:0; border:0; }
+.directory-offer-copy { flex:1; min-width:0; }
+#view-accounts .directory-offer-copy strong { display:block; font-size:18px; line-height:1.3; font-weight:700; }
+#view-accounts .directory-offer-copy small { display:flex; gap:6px; flex-wrap:wrap; font-size:12px; line-height:1.5; color:var(--color-tertiary); margin-top:3px; }
+.directory-confirmed { color:var(--color-positive); white-space:nowrap; }
+#view-accounts .directory-expiry-target { flex:none; display:flex; align-items:center; min-height:44px; padding:6px 0 6px 4px; background:none; border:0; border-radius:10px; cursor:pointer; }
+.directory-expiry-pill { display:inline-flex; align-items:center; gap:4px; white-space:nowrap; font-size:11px; line-height:16px; padding:3px 7px; border:1px solid var(--data-border); border-radius:999px; color:var(--color-secondary); background:var(--data-chart-track); }
+.directory-expiry-pill svg { width:12px; height:12px; }
+.directory-expiry-pill.urgent { color:var(--color-warning-icon); border-color:var(--color-warning-border); background:var(--data-warning-chip); }
+#view-accounts .directory-usage { width:calc(100% - 94px); flex:1; min-width:0; margin:14px 0 0; }
+#view-accounts .directory-usage-boxes { display:grid; grid-template-columns:repeat(var(--directory-use-columns),minmax(0,1fr)); gap:5px; margin-bottom:9px; }
+#view-accounts .directory-usage-box { height:8px; min-height:8px; border:0; border-radius:6px; background:var(--data-chart-track); box-shadow:none; }
+#view-accounts .directory-usage-box.confirmed { background:var(--theme-primary); }
+#view-accounts .directory-usage-box.manual { border:1px solid var(--color-accent); background:repeating-linear-gradient(130deg,var(--color-accent) 0 3px,transparent 3px 6px); }
+#view-accounts .directory-usage-box.unknown { background:none; border:1px dashed var(--data-accent-border); }
+#view-accounts .directory-use-limit { font-size:12px; color:var(--color-tertiary); margin:0; line-height:1.5; }
+#view-accounts .directory-view-offers { margin:27px 0 0 8px; padding:0; min-height:44px; align-self:flex-end; background:none; border:0; color:var(--color-accent); font-size:13px; white-space:nowrap; }
+#view-accounts .directory-extras { display:flex; width:100%; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; padding-top:12px; border-top:1px solid var(--data-border); font-size:12px; }
+#view-accounts .directory-cash { color:var(--color-positive); }
+.directory-more-offers { border:1px solid var(--data-border); border-radius:999px; padding:3px 8px; color:var(--color-secondary); }
+#view-accounts .receipt-review-action { width:100%; margin-top:8px; padding:6px 0; font-size:12px; border:0; }
+#view-accounts :focus-visible { outline:2px solid var(--color-accent); outline-offset:2px; }
+.account-expiry-tooltip { position:fixed; z-index:120; box-sizing:border-box; width:max-content; max-width:min(220px,calc(100vw - 16px)); padding:10px 12px; border:1px solid var(--data-border); border-radius:12px; background:var(--data-tooltip); color:var(--color-text); font-size:13px; line-height:18px; pointer-events:none; box-shadow:0 4px 16px var(--data-scrim); }
+.account-expiry-tooltip::before { content:''; position:absolute; top:-5px; left:calc(var(--expiry-arrow-x) - 5px); width:8px; height:8px; background:var(--data-tooltip); border-top:1px solid var(--data-border); border-left:1px solid var(--data-border); transform:rotate(45deg); }
+@media(max-width:370px) { #view-accounts .directory-card { padding:13px; }#view-accounts .directory-provider,#view-accounts .directory-offer-icon { width:34px; height:38px; flex-basis:34px; }#view-accounts .directory-offer-row { gap:7px; }#view-accounts .directory-offer-copy strong { font-size:16px; }.directory-expiry-pill { font-size:10px; padding-inline:5px; }#view-accounts .account-email { font-size:14px; } }
+#view-accounts .directory-usage { width:100%; flex-basis:100%; }
+#view-accounts .directory-use-limit { padding-right:95px; }
+#view-accounts .directory-view-offers { margin:-29px 0 -7px auto; }
+
+.account-expiry-tooltip[data-side=above]::before { top:auto; bottom:-5px; transform:rotate(225deg); }
+
+#view-accounts .directory-sort { position:relative; }
+#view-accounts .directory-sort>[data-icon]:first-child { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px; height:16px; pointer-events:none; color:var(--color-secondary); }
+#view-accounts .directory-sort select { padding-left:35px; }
