@@ -70,7 +70,7 @@ try{
   assert.ok(await page.locator('.total-saved-card').evaluate(el=>getComputedStyle(el).backgroundImage.includes('gradient')&&getComputedStyle(el,'::before').content==='none'),'Home shares the Savings material');
   assert.ok(await page.locator('.home-overview').evaluate(el=>el.querySelector('.total-saved-card').getBoundingClientRect().top<el.querySelector('.home-intro').getBoundingClientRect().top),'Savings leads the overview');
   const homeHeroHeight=await page.locator('.total-saved-card').evaluate(el=>el.getBoundingClientRect().height);
-  assert.ok(homeHeroHeight>=240&&homeHeroHeight<=400,'Home savings reserves its chart and readable support: '+name+' / '+width+' / '+homeHeroHeight);
+  assert.ok(homeHeroHeight>=240&&(width>=768||homeHeroHeight<=400),'Home savings reserves its chart and readable support: '+name+' / '+width+' / '+homeHeroHeight);
   await navigate(page,'accounts');await directoryReset(page);await directoryStatus(page,'used');
   assert.equal(await page.locator('#view-used,[data-view=used]').count(),0);assert.equal(await page.locator('#accountScope').inputValue(),'used');
   await page.keyboard.press('Escape');await openMoreDestination(page,'health');await page.locator('[data-account-import]').click();

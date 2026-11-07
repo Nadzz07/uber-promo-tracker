@@ -9,7 +9,7 @@ Used is removed as a destination; its underlying usage and financial records
 remain available through Accounts filters and receipt views. Home's Needs checking
 link uses the exact same account set as its count. Tablet and desktop add the
 reviewed 72px/260px sidebar shell; later desktop page compositions remain separate
-review steps. Existing phone layouts and explicit file-picker behavior are retained.
+review steps. Mobile workflows and explicit file-picker behavior are retained.
 
 This release does not regenerate the published financial/account snapshots.
 `promos.json` and `history.json` are byte-identical to the verified 229-account
@@ -29,7 +29,9 @@ Mail deletion was performed.
 Release verification includes unit/parser/ledger/privacy/syntax validation,
 allowlisted build and browser checks of navigation, recorded uses, imports,
 backup rollback, saved filters, financial corrections, five-week chart interactions,
-shared themes, enlarged text and responsive widths. Automated browser checks are
+shared themes, enlarged text and responsive widths. Native receipt safe areas retain full-width coverage with the exact page fade,
+verified for geometry, colour, fixed scrolling and all five tested hues.
+Automated browser checks are
 emulation; physical iPhone testing is not claimed. Retired Used-page assertions
 are replaced by route-removal/data-preservation and Accounts-status checks.
 

@@ -17,7 +17,7 @@
       let preference = 'auto';
       try { const saved = localStorage.getItem('uber-eats-promo-tracker:layout:v1'); if (saved === 'mobile' || saved === 'desktop') preference = saved; } catch {}
       document.documentElement.dataset.layoutPreference = preference;
-      document.documentElement.dataset.layout = preference === 'auto' ? (innerWidth >= 980 ? 'desktop' : 'mobile') : preference;
+      document.documentElement.dataset.layout = preference === 'auto' ? (innerWidth >= 768 ? 'desktop' : 'mobile') : preference;
     })();
   </script>
   <style>

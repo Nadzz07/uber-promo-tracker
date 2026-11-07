@@ -23,7 +23,7 @@ let browser;
 try {
   const engine = {chromium,webkit,firefox}[process.env.TRACKER_BROWSER_ENGINE || 'chromium'];
   browser = await engine.launch(engine === chromium ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined, args: ['--no-sandbox', '--disable-dev-shm-usage'] } : {});
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: engine !== firefox, hasTouch: true, timezoneId: 'America/Los_Angeles' });
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: false, hasTouch: true, timezoneId: 'America/Los_Angeles' });
   const page = await context.newPage(); const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   // First-sync behaviour must not depend on the user's checked-in live data.
@@ -156,7 +156,7 @@ try {
   await page.keyboard.press('ArrowLeft'); assert.equal(await page.locator('#view-accounts').isVisible(), true);
   await page.keyboard.press('End'); assert.equal(await page.locator('#view-more').isVisible(), true);
 
-  await page.locator('[data-open-sheet="appearance"]').click();await page.locator('[data-open-sheet="theme"]').click();
+  await openMoreDestination(page,'appearance');await page.locator('[data-open-sheet="theme"]').click();
   const manualBeforeLayout = await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:manual-state:v3'));
   // Saved layout values remain intact while the responsive shell follows its breakpoints.
   for(const value of ['mobile','desktop','auto']){await page.locator('[name="layoutPreference"][value="'+value+'"]').check();assert.equal(await page.locator('html').getAttribute('data-layout-preference'),value);}
@@ -242,7 +242,7 @@ try {
   await filterPage.route('**/history.json?*', route => route.fulfill({ json: { updatedAt: time, records: [] } }));
   await filterPage.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await filterPage.goto(url); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
 
-  await directoryStatus(filterPage,'unfinished');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'8 accounts','All-access status keeps the inaccessible started account');await directoryAvailability(filterPage,'ready');
+  assert.equal(await filterPage.locator('[data-login-filter=login]').getAttribute('aria-pressed'),'true');await filterPage.locator('[data-login-filter=all]').click();await directoryStatus(filterPage,'unfinished');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'8 accounts','All-access status keeps the inaccessible started account');await directoryAvailability(filterPage,'ready');
   assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts');
   assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4 confirmed · Up to 1 left/);
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A108"]').count(),0);

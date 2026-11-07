@@ -1,7 +1,7 @@
 // Existing feature checks enter the same tap-through screens as users.
 export async function openHomeDetail(page,name) {
   if (await page.locator('#view-'+name+'.active').count()) return;
-  if (!await page.locator('#view-home.active').count()) await page.locator('[data-view="home"]').click();
+  if (!await page.locator('#view-home.active').count()) await navigate(page,'home');
   await page.locator('#view-home [data-home-detail="'+name+'"]').click();
   await page.locator('#view-'+(name==='offers'?'accounts':name)+'.active').waitFor();
   if(name==='offers'&&await page.locator('#accountTypeOptions').isVisible())await page.keyboard.press('Escape');
@@ -57,6 +57,7 @@ export async function importPrivateFinance(page,file){
 
 // Browser tests follow the same responsive navigation as the app.
 export async function navigate(page,view) {
+ await settlePageLayout(page);
  const desktop=await page.evaluate(()=>matchMedia('(min-width:768px)').matches);
  if(desktop){if(view==='more')throw Error('More is mobile-only; select a desktop sidebar destination.');await page.locator('.desktop-sidebar [data-sidebar-view="'+view+'"]').click();}
  else await page.locator('#mainNav [data-view="'+view+'"]').click();
@@ -76,4 +77,9 @@ export async function clickOfferTerms(page) {
 export async function openReviewCard(page,receiptId=null) {
  const card=receiptId?page.locator('.review-card:has([data-ri-receipt="'+receiptId+'"])'):page.locator('.review-card').first();
  if(await card.getAttribute('open')===null)await card.locator('>summary').click();
+}
+
+export async function waitForMoreParent(page) {
+ const view=await page.evaluate(()=>matchMedia('(min-width:768px)').matches?'home':'more');
+ await page.locator('#view-'+view+'.active').waitFor();
 }

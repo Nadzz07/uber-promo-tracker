@@ -9,7 +9,9 @@ html:has(:is(#view-receipts,#view-sync,#view-home,#view-more).active) {
  --data-accent-fill:color-mix(in srgb,var(--color-accent) 11%,var(--color-panel));
 }
 html:has(:is(#view-receipts,#view-sync,#view-home,#view-more).active),body:has(:is(#view-receipts,#view-sync,#view-home,#view-more).active) { background:var(--data-page-base); background-image:var(--data-page-fade); background-attachment:fixed; overflow-anchor:none; }
-body:has(:is(#view-receipts,#view-sync).active)::before { display:none; }
+body:has(#view-sync.active)::before { display:none; }
+/* Cover a native top inset with the exact page paint, including while scrolling. */
+body:has(#view-receipts.active)::before { content:''; display:block; position:fixed; top:0; left:0; right:0; width:100%; height:env(safe-area-inset-top,0px); border-radius:0; background:var(--data-page-base); background-image:var(--data-page-fade); background-attachment:fixed; box-shadow:none; filter:none; pointer-events:none; z-index:26; }
 .ri-page { --muted:var(--color-secondary); --dim:var(--color-tertiary); max-width:620px; margin-inline:auto; color:var(--color-text); font-size:14px; line-height:1.45; }
 .app-shell:has(#view-receipts.active) { max-width:760px; margin-inline:auto; padding:calc(24px + env(safe-area-inset-top,0px)) max(18px,env(safe-area-inset-left,0px)) 0; }
 .app-shell:has(#view-receipts.active)>.privacy { display:none; }
