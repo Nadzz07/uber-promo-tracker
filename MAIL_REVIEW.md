@@ -130,3 +130,21 @@ Amazon includes Prime Video and Amazon-branded delivery notifications from the
 encoded DPD sender. A matching Amazon display name on an unrelated sender alone
 is insufficient. The completed run's older private classification is preserved;
 nine messages were independently corrected and verified in Amazon afterwards.
+
+## Login confirmation during every owner-requested Mail check — 7 November 2026
+
+For each genuine receipt, compare its verified full recipient with the current
+private account roster before adding or classifying the account. Collect genuinely
+new or unresolved receipt-linked accounts and ask the owner in this Codex chat in
+manageable batches, using each full email address. Ask only the missing fields:
+login access (Can log in / Can’t log in / Not confirmed), and login method
+(iCloud / Google / Both / Not confirmed). A domain does not confirm a method.
+Preserve existing confirmations and imported access-list evidence; do not ask
+about already-confirmed fields again. An affirmative batch answer applies only
+to the named batch. Save each answer against its stable account identity with
+field-specific `codex_chat` provenance and the actual confirmation time. Carry
+confirmed changes through the private export and sanitised public projection;
+never put full addresses or confirmation records in repository files or logs.
+Outside an active chat, retain unresolved fields as pending for the next review.
+The website cannot initiate a chat. Do not archive or mark an account ready merely
+because its login details are missing. Preserve its receipts and offers.

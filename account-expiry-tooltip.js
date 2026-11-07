@@ -1,8 +1,9 @@
 import {expiryEndTime} from './offer-time.js';
 import {offerCountdown} from './dashboard-data.js';
+import {offerTermsRows} from './offer-details.js';
 
 export function directoryExpiry(promo,now=Date.now()) {
- const end=expiryEndTime(promo),estimated=promo.expiryStatus!=='exact';
+ const end=expiryEndTime(promo),estimated=promo.expiryStatus!=='exact'||offerTermsRows(promo).some(r=>r.field==='expiry'&&r.estimated);
  if(end==null)return {label:'Expiry unknown',explanation:'Expiry has not been confirmed',urgent:false};
  const raw=offerCountdown({...promo,expiryStatus:'exact'},now).replace(/^~\s*/,''),days=Math.ceil((end-now)/86400000);
  return {label:(estimated?'~':'')+raw,explanation:estimated?'Estimated from when the offer was added':'Exact expiry from Uber',urgent:days>=0&&days<=3};

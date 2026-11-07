@@ -22,9 +22,19 @@ latest reference, including actual backup counts and the restore review steps.
 Order Planner retains its cost engine while presenting editable grouped inputs,
 account-detail links and in-place plan choices with a Your pick label.
 
-This release does not regenerate the published financial/account snapshots.
-`promos.json` and `history.json` are byte-identical to the verified 229-account
-snapshot published from e78320c320d519ab8f737952d1610fcf92ffc6b1 (PR 126).
+The owner confirmed six new receipt-linked accounts in chat on 7 November.
+Their stable identities now join the prior 229-account roster: 235 current
+accounts, 213 confirmed able to log in, and 22 archived. Each new account is
+confirmed as iCloud only. Full addresses, field-level provenance and confirmation
+times remain private. Existing account and offer facts and the financial snapshot
+from the verified e78320c320d519ab8f737952d1610fcf92ffc6b1 release are preserved;
+account status projections are refreshed against the same rules and current time.
+The public update contains masked account records and aggregate counts only.
+The new owner-requested Mail check indexed 30,296 received messages. Seven
+source-verified preferred offers are added incrementally and three existing
+reminder clocks are updated. Existing offer facts, first-source anchors, receipt
+records, financial corrections and monetary totals remain preserved. The fresh
+capture contained no new receipts. Sync shows the actual completed scan time.
 The subsequent owner-only receipt update preserves the original 462 receipt
 records and adds nine, for 471. Its import, correction preservation, money-page
 projection and Mail filing were checked privately; full receipt files, account

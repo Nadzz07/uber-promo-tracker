@@ -147,3 +147,4 @@ exclude:
   - test-navigation-shell-browser.js
   - test-weekly-savings-browser.js
   - test-weekly-savings.js
+  - test-account-expiry-browser.js

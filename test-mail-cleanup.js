@@ -108,3 +108,10 @@ assert.equal(explicitMailDecision({...oldPercent,subject:'Last call: 50% off you
 const postOrderAd={...base,subject:'Example, thanks for ordering',body:'Join Uber One and save as a member! Pan to plate with just a few taps. Explore Top Eats. Order now. Make your own masterpiece. Unsubscribe.'};assert.equal(explicitMailDecision(postOrderAd).destination,'Bin');assert.equal(explicitMailDecision({...postOrderAd,body:postOrderAd.body+' Order details. Order ID ABC12345. Subtotal £15. Total £3.'}),null);
 assert.equal(explicitMailDecision({...base,subject:'Remember, remember… Bonfire Night',body:'Shop Bonfire Night snacks. Unsubscribe.'}).destination,'Bin');assert.equal(explicitMailDecision({...base,subject:'Your Bonfire Night receipt',body:'Thanks for your order. Subtotal £15. Total £3. Unsubscribe.'}),null);
 assert.equal(explicitMailDecision({...postOrderAd,body:postOrderAd.body+' Your payment method will be charged £4.99/month after a free trial. View the Renewable Membership T&Cs.'}).destination,'Bin','Generic membership renewal fine print is not a transaction receipt');
+
+{
+ const {explicitMailDecision}=await import('./mail-review-rules.js');
+ const base={sender:'Uber One <noreply@uber.com>',recipient:'member@example.invalid',sentAt:new Date().toISOString()};
+ assert.equal(explicitMailDecision({...base,subject:'Long time, no see!',body:'Try Uber One. Rejoin our membership and get 4 weeks free. Join Uber One. Unsubscribe.'})?.destination,'Bin');
+ assert.equal(explicitMailDecision({...base,subject:'Your Uber One receipt',body:'Membership invoice. Total paid £5.99. Unsubscribe.'}),null,'Actual membership receipts stay protected');
+}
