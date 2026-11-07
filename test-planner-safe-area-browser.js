@@ -1,3 +1,5 @@
+import {clickOfferTerms} from './test-browser-navigation.js';
+import {navigate,openMoreDestination} from './test-browser-navigation.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -48,7 +50,7 @@ try{
   assert.ok((await rows.nth(1).innerText()).includes(emails[1]));
   assert.doesNotMatch(await page.locator('.plan-accounts').innerText(),/Selected merchants|Delivery only|Apply promo code/);
   await rows.first().click();
-  await page.locator('.offer-terms > summary').first().click();
+  await clickOfferTerms(page);
   const details=await page.locator('.offer-terms').first().innerText();
   assert.match(details,/Selected merchants/);assert.match(details,/Delivery only/);assert.doesNotMatch(details,/Activation|Calculated|Source evidence|Expiry basis/);
   await page.keyboard.press('Escape');await page.waitForFunction(()=>!history.state?.trackerSheet);
@@ -94,10 +96,10 @@ try{
   await page.locator('#plannerFulfilment').selectOption('pickup');assert.equal(await page.locator('.plan-accounts .plan-row').count(),0);
   await page.locator('#plannerFulfilment').selectOption('delivery');assert.equal(await rows.count(),2);
   await page.locator('#basketInput').fill('15');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='1 order');assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£4.00']);
-  await page.locator('[data-view="more"]').click();await page.waitForFunction(()=>document.querySelector('meta[name="theme-color"]').content.toLowerCase()===getComputedStyle(document.documentElement).getPropertyValue('--color-screen').trim().toLowerCase());
+  await navigate(page,'accounts');await page.waitForFunction(()=>document.querySelector('meta[name="theme-color"]').content.toLowerCase()===getComputedStyle(document.documentElement).getPropertyValue('--color-screen').trim().toLowerCase());
   await page.waitForFunction(()=>document.documentElement.style.getPropertyValue('--planner-nav-clearance')==='');
   assert.equal(await page.evaluate(()=>document.documentElement.style.getPropertyValue('--planner-nav-clearance')),'','Planner measurements do not change other screens');
-  await page.locator('[data-view="home"]').click();await page.waitForFunction(theme=>document.querySelector('meta[name="theme-color"]').content===theme,originalTheme);
+  await navigate(page,'home');await page.waitForFunction(theme=>document.querySelector('meta[name="theme-color"]').content===theme,originalTheme);
   assert.ok(!/maximum-scale|user-scalable=no/.test(await page.locator('meta[name="viewport"]').getAttribute('content')));
   assert.deepEqual(errors,[]);await context.close();
  }

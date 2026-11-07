@@ -7,7 +7,7 @@ assert.equal(receiptInsightsModel({...source,range:'all',correctedOnly:true}).co
 assert.equal(receiptInsightsModel({...source,service:'rides',correctedOnly:true}).count,0);
 const partial={...corrections,review:{reviewKind:'receipt-review-v1',currency:'GBP',receiptTotal:4,promoDiscount:12}};
 const m=receiptInsightsModel({...source,corrections:partial,correctedOnly:true});assert.equal(m.correctedCount,2);assert.equal(m.reviewCount,1,'A partial manual correction does not clear unresolved review');
-const html=receiptOverviewMarkup(m,{page:'receipts',full:true,reviewHub:true,correctedOnly:true,reviewOnly:false,range:'month',service:'all',metric:'orders',limit:80,now});assert.match(html,/Corrected · 2/);assert.doesNotMatch(html,/All receipts<\/button>/);assert.doesNotMatch(html,/ri-paid-card|Receipt totals/);
+const html=receiptOverviewMarkup(m,{page:'receipts',full:true,reviewHub:true,correctedOnly:true,reviewOnly:false,range:'month',service:'all',metric:'orders',limit:80,now});assert.match(html,/<span>Corrections<\/span><strong>2<\/strong>/);assert.doesNotMatch(html,/All receipts<\/button>/);assert.doesNotMatch(html,/ri-paid-card|Receipt totals/);
 assert.match(receiptDetailMarkup(receiptInsightRecord(rows[1],corrections.corrected)),/Manually corrected/);
 console.log('✓ Receipt review counts share period/service/dedup scope; corrected and unresolved may overlap; two-view review flow preserves partial corrections.');
 

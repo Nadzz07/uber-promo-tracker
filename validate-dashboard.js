@@ -20,7 +20,8 @@ assert.ok(
 
 assert.ok(html.includes('data-view="home"'));
 assert.ok(html.includes('data-view="accounts"'));
-assert.ok(html.includes('data-view="used"'));
+assert.equal(html.includes('data-view="used"'),false);
+assert.equal(html.includes('id="view-used"'),false);
 assert.ok(html.includes('data-view="more"'));
 
 assert.ok(html.includes("Fee settings"));
@@ -45,7 +46,7 @@ assert.ok(html.includes("Not finished"));
 assert.ok(html.includes("Matching accounts"));assert.equal(html.includes('id="view-offers"'),false,"The duplicate finder page is removed");
 assert.ok(html.includes("Total saved"));
 assert.ok(html.includes('id="loginStat"') && html.includes('id="archivedStat"'));
-assert.ok(html.includes('<h1 class="home-title">Overview</h1>'));
+assert.ok(html.includes('<h1 class="home-title">Accounts</h1>'));
 assert.ok(html.includes("Total accounts"));
 assert.ok(html.includes("Matching receipts"));
 assert.ok(html.includes("Account receipt rule met"));
@@ -64,8 +65,9 @@ assert.ok(html.includes("cashBalanceInterface"),"Account details owns balance co
 assert.ok(html.includes("grid-template-columns: auto minmax(0,1fr) 36px"));
 assert.ok(html.includes("Archived accounts"));
 assert.ok(html.includes("Needs checking"));
-assert.ok(html.includes('id="needsCheckCount"'));
-assert.ok(html.includes('id="usedRecords"')&&html.includes('id="usedSearch"')&&html.includes('id="usedStatusOptions"'));
+assert.ok(html.includes('id="homeNeedsChecking"'));
+assert.ok(html.includes('<option value="used">Fully used accounts</option>'));
+assert.ok(html.includes('<option value="finished">Has finished promotions</option>'));
 assert.equal(/id="(?:needsCheckingList|fullyUsedList|expiredList)"/.test(html),false,'Old category-menu presentation is removed');
 
 assert.ok(

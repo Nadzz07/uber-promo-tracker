@@ -1,3 +1,5 @@
+import {openReviewCard} from './test-browser-navigation.js';
+import {navigate,openMoreDestination} from './test-browser-navigation.js';
 import {directoryType,directoryAvailability} from './test-browser-navigation.js';
 import {importPrivateFinance} from './test-browser-navigation.js';
 import assert from 'node:assert/strict';
@@ -36,7 +38,7 @@ try {for(const [width,height,large] of [[320,568,false],[390,844,false],[393,852
  await openHomeDetail(page,'offers');assert.equal(await page.locator('.topbar').isVisible(),false);assert.equal(await page.locator('#view-accounts h1').count(),1);
  await page.locator('#accountSearch').fill('second');await directoryAvailability(page,'all');await directoryType(page,'fixed:12:15');
  assert.equal(await page.locator('[data-preferred-filter="fixed:12:15"]').getAttribute('aria-pressed'),'true');
- await page.locator('[data-view=home]').click();await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.locator('.topbar').isVisible(),false);assert.equal(await page.locator('#view-planner h1').count(),1);assert.equal(await page.locator('.planner-section-head h2').innerText(),'Suggested plan');
+ await navigate(page,'home');await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.locator('.topbar').isVisible(),false);assert.equal(await page.locator('#view-planner h1').count(),1);assert.equal(await page.locator('.planner-section-head h2').innerText(),'Suggested plan');
  await page.locator('#basketInput').fill('30');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='2 orders');
  assert.equal(await page.locator('.recommendation-save').innerText(),'£8.00\nIncluding estimated fees');assert.equal(await page.locator('.plan-accounts .plan-row').count(),2);
  const selected=await page.locator('.plan-accounts').innerText();assert.ok(selected.includes(emails[0])&&selected.includes(emails[1]));assert.match(selected,/£15 basket · £1 fee/);assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£4.00','£4.00']);
@@ -47,7 +49,7 @@ try {for(const [width,height,large] of [[320,568,false],[390,844,false],[393,852
  if(!large)await shot(page,width,'planner-options');
  await page.locator('[data-select-plan]').click();assert.equal(await page.locator('.plan-status').isVisible(),false);assert.equal(await page.locator('.plan-accounts .plan-row').count(),1);
  await page.locator('#view-planner [data-home-detail="offers"]').click();assert.equal(await page.locator('#accountSearch').inputValue(),'second');assert.equal(await page.locator('#accountOfferScope').inputValue(),'all');
- await page.locator('[data-view=home]').click();await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.locator('.plan-status').isVisible(),false);assert.equal(await page.locator('#plannerOtherOptions').getAttribute('open'),'');await page.locator('[data-select-plan]').click();assert.equal(await page.locator('.plan-status').innerText(),'Lowest cost');
+ await navigate(page,'home');await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.locator('.plan-status').isVisible(),false);assert.equal(await page.locator('#plannerOtherOptions').getAttribute('open'),'');await page.locator('[data-select-plan]').click();assert.equal(await page.locator('.plan-status').innerText(),'Lowest cost');
 
  const layout=await page.evaluate(()=>{
   const rect=s=>{const r=document.querySelector(s).getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom};};
@@ -90,7 +92,7 @@ try {for(const [width,height,large] of [[320,568,false],[390,844,false],[393,852
  await page.locator('#view-planner [data-home-detail="offers"]').click();await page.locator('#accountSearch').fill('');if(!large)await shot(page,width,'offers');
  if(width<980){for(const view of ['offers','planner']){await openHomeDetail(page,view);const field=page.locator(view==='offers'?'#accountSearch':'#basketInput');await page.setViewportSize({width,height:360});await field.focus();await field.scrollIntoViewIfNeeded();assert.ok(await field.evaluate(e=>e.getBoundingClientRect().top>=0&&e.getBoundingClientRect().bottom<=innerHeight),'Keyboard-sized viewport exposes focused field');await page.setViewportSize({width,height});}}
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Detail screen overflow '+width+' large '+large);
- await importPrivateFinance(page,{name:'preview.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(transfer))});await page.locator('[data-sync-back]').click();await page.locator('#view-more.active').waitFor();await page.locator('[data-view=more]').click();await page.locator('#view-more [data-open-sheet=finance]').click();await page.locator('.fi-range').selectOption('all');await page.locator('.fi-review').click();await page.locator('[data-ri-review=all]').count();await page.locator('[data-ri-review=needs]').click();assert.ok(await page.locator('.ri-receipt-row').count()>0);await page.locator('.ri-receipt-row').first().click();await page.locator('[data-check-form]').waitFor();assert.equal(await page.locator('[data-finance-action=lock]').count(),0);await page.locator('[data-check-cancel]').click();
+ await importPrivateFinance(page,{name:'preview.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(transfer))});await openMoreDestination(page,'finance');await page.locator('.fi-range').selectOption('all');await page.locator('.fi-review').click();assert.ok(await page.locator('.review-card').count()>0);await openReviewCard(page);await page.locator('.review-card [data-ri-receipt]').first().click();await page.locator('[data-check-form]').waitFor();assert.equal(await page.locator('[data-finance-action=lock]').count(),0);await page.locator('[data-check-cancel]').click();
  assert.ok(!/maximum-scale|user-scalable=no/.test(await page.locator('meta[name="viewport"]').getAttribute('content')));assert.ok(await page.locator('.sheet').evaluate(e=>e.scrollWidth<=e.clientWidth+1));assert.deepEqual(errors,[]);await context.close();
 }assert.equal(writes,0);console.log('✓ Compact headers, £1/zero/high/default fees, cheapest split, immediate account allocations/payments, selectable alternatives, disclosure/search/filter/basket/type/Back state, neutral mobile fields, keyboard/larger text; three receipt card layouts save exact corrections and preserve originals ('+name+')');
 }finally{await browser.close();server.close();}

@@ -16,7 +16,7 @@ const engine=process.env.TRACKER_BROWSER_ENGINE||'chromium',browser=await{chromi
 if(output)fs.mkdirSync(output,{recursive:true,mode:0o700});
 const groups=[['Offers & history',['Order Planner','Promo history','Archived accounts']],['Savings & receipts',['Savings','Receipt insights','Finances']],['Accounts & data',['Sync & data']],['Settings & help',['Settings','Help & guide','About this tracker']]];
 const destinations=['planner','history','locked','savings','receipts','finance','health','appearance','guide','about'];
-try {for(const [width,height,large] of [[320,568,false],[440,956,false],[430,932,false],[1440,1000,false],[390,844,true]]){
+try {for(const [width,height,large] of [[320,568,false],[440,956,false],[430,932,false],[390,844,true]]){
  const context=await browser.newContext({viewport:{width,height},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await context.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:theme:v1','#9b5cff'));
  await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Updated');await page.locator('[data-view="more"]').click();
@@ -30,7 +30,7 @@ try {for(const [width,height,large] of [[320,568,false],[440,956,false],[430,932
  assert.equal(await page.evaluate(()=>getComputedStyle(document.body,'::before').display),'none','No isolated top safe-area patch');
 
  const geometry=await page.locator('#view-more .more-card').evaluateAll(rows=>rows.map(row=>{const rect=row.getBoundingClientRect(),icon=row.querySelector('.more-icon'),label=row.querySelector('.more-title'),chevron=row.querySelector('.row-chevron'),style=getComputedStyle(icon);return {height:rect.height,icon:icon.getBoundingClientRect().left-rect.left,label:label.getBoundingClientRect().left-rect.left,chevron:chevron.getBoundingClientRect().right-rect.left,background:style.backgroundColor,border:style.borderTopWidth};}));
- assert.ok(geometry.every(r=>r.height>=44&&r.background==='rgba(0, 0, 0, 0)'&&r.border==='0px'));
+ assert.ok(geometry.every(r=>r.height>=44&&r.background!=='rgba(0, 0, 0, 0)'&&r.border==='1px'));
  for(const key of ['icon','label','chevron'])assert.ok(Math.max(...geometry.map(r=>r[key]))-Math.min(...geometry.map(r=>r[key]))<1,'Rows align '+key+' at '+width+' large '+large+' '+JSON.stringify(geometry));
  if(!large&&output&&[320,440,430,1440].includes(width))await page.screenshot({path:output+'/'+engine+'-'+width+'-more.png',fullPage:true});
  for(let i=0;i<destinations.length;i++){

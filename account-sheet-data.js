@@ -140,8 +140,9 @@ export function directoryAccounts(accounts,filters,preferences,{emailFor=a=>a.ac
  const selections=Array.isArray(filters.type)?filters.type:[filters.type||'all'];
  const historical=['finished','expired-unused','expired','review'].includes(management);
  const typeMatches=(p,type)=>type==='all'||type==='cash'&&p.discountType==='uberCash'||type==='preferred'&&isPreferredPromo(p,preferences)||accountOfferKey(p)===type;
- const results=[];
+ const results=[],reviewRefs=Array.isArray(filters.reviewAccountRefs)?new Set(filters.reviewAccountRefs):null;
  for(const account of new Map(accounts.map(a=>[a.accountRef,a])).values()) {
+  if(management==='review'&&reviewRefs&&!reviewRefs.has(account.accountRef))continue;
   if(!accountMatchesLogin(account,filters.login)||!accountMatchesProvider(account,filters.provider))continue;
   if(query&&![emailFor(account),account.accountMasked,account.accountRef,account.loginMethod,...(account.loginMethods||[])].some(v=>String(v||'').toLocaleLowerCase('en-GB').includes(query)))continue;
   const cash=hasCurrentCash(account),revealed=!historical&&(query||selections.some(t=>/^(fixed|percent):/.test(t)))?(account.allOffers||[]).filter(p=>p.hiddenByPromoUse&&offerEligible({...p,hiddenByPromoUse:false},now)):[],source=historical?(account.allOffers||account.promos||[]):[...(account.promos||[]),...revealed];
@@ -149,7 +150,7 @@ export function directoryAccounts(accounts,filters,preferences,{emailFor=a=>a.ac
   if(management==='finished')candidates=candidates.filter(p=>classifyOfferCompletion(p,now).fullyUsed);
   if(management==='expired-unused')candidates=candidates.filter(p=>classifyOfferCompletion(p,now).expiredUnused);
   if(management==='expired')candidates=candidates.filter(p=>isOfferExpired(p,now));
-  const accountReview=Number(account.sourceReviewCount||0)>0||Number(account.receiptReviewCount||0)>0;
+  const accountReview=reviewRefs?reviewRefs.has(account.accountRef):Number(account.sourceReviewCount||0)>0||Number(account.receiptReviewCount||0)>0;
   if(management==='review'&&!accountReview)candidates=candidates.filter(p=>p.trackingState==='needs_checking'||p.needsReview);
   if(management==='unfinished')candidates=candidates.filter(p=>offerInProgress(p,now));
   if(management==='expiring')candidates=candidates.filter(p=>{const end=expiryEndTime(p);return end!=null&&end>now&&end-now<=7*86400000;});

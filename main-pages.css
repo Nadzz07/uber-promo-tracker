@@ -41,3 +41,24 @@ body:has(.main-screen.active)::before { display:none; }
 }
 .app-shell:has(.main-screen.active) .bottom-nav::before { background:linear-gradient(180deg,transparent,var(--main-base)); }
 html[data-layout=mobile] #app:has(.main-screen.active) { padding-inline:20px; }
+/* More's grouped settings rows share the data-page material and theme roles. */
+#view-more .screen-head { display:block; margin:0 0 26px; }
+#view-more .screen-title { text-align:left; font-weight:720; font-size:30px; line-height:1.2; }
+#view-more .more-intro { margin:7px 0 0; font-size:14px; color:var(--color-tertiary); }
+#view-more .more-grid,html[data-layout=desktop] #view-more .more-grid { display:grid; grid-template-columns:minmax(0,1fr); gap:25px; }
+#view-more .more-group h2 { margin:0 5px 12px; color:var(--color-accent); font-size:11px; line-height:1.4; letter-spacing:.12em; font-weight:650; }
+#view-more .more-group-list { padding:0; border:1px solid var(--data-border); border-radius:21px; background:var(--data-group); }
+#view-more .more-card,html[data-layout=desktop] #view-more .more-card { min-height:84px; padding:17px 16px; gap:14px; }
+#view-more .more-card+.more-card { border-top:1px solid var(--data-border); }
+#view-more .more-icon { display:grid; place-items:center; flex:0 0 44px; width:44px; height:44px; border:1px solid var(--data-accent-border); border-radius:12px; background:var(--data-accent-fill); color:var(--color-soft-accent); }
+#view-more .more-icon svg { width:22px; height:22px; color:inherit; }
+#view-more [data-open-sheet=savings] .more-icon { color:var(--color-positive); background:var(--data-positive-tint); border-color:var(--color-positive-border); }
+#view-more .more-content { display:block; flex:1; min-width:0; }
+#view-more .more-title { display:block; font-size:17px; line-height:1.3; font-weight:650; letter-spacing:-.015em; }
+#view-more .more-description { display:block; margin-top:4px; color:var(--color-tertiary); font-size:12px; line-height:1.4; }
+#view-more .more-count { flex:none; margin:0; padding:3px 9px; border-radius:999px; border:1px solid var(--data-accent-border); background:var(--data-accent-fill); color:var(--color-soft-accent); font-size:12px; font-weight:650; }
+.more-sync-status { display:inline-flex; align-items:center; gap:6px; flex:none; color:var(--color-warning-icon); font-size:11px; font-weight:600; }.more-sync-status::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }.more-sync-status.confirmed { color:var(--color-positive); }
+.more-colour-wheel { width:26px; height:26px; flex:none; display:grid; place-items:center; border-radius:50%; background:conic-gradient(var(--wheel-red),var(--wheel-yellow),var(--wheel-green),var(--wheel-cyan),var(--wheel-blue),var(--wheel-pink),var(--wheel-red)); border:1px solid var(--color-accent); }.more-colour-wheel i { width:12px; height:12px; border-radius:50%; background:var(--color-accent); border:2px solid var(--data-group); box-shadow:0 0 0 1px var(--data-ring); }
+#view-more .more-card:focus-visible { outline:2px solid var(--color-accent); outline-offset:-3px; }
+:is(.nav-btn.active,html[data-layout=desktop] .nav-btn.active) { background:var(--theme-active-tab); color:var(--color-soft-accent); border-radius:999px; }
+@media(max-width:370px) { #view-more .more-card { padding:14px 12px; gap:10px; }#view-more .more-icon { width:38px; height:40px; flex-basis:38px; }#view-more .more-title { font-size:15px; }.more-sync-status { max-width:76px; flex:none; font-size:10px; } }

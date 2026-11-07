@@ -88,7 +88,10 @@ function nextWeekday(receivedAt, weekday) {
 export function extractExpiry(text, receivedAtValue) {
   const receivedAt = asDate(receivedAtValue);
 
-  const clockFirst=text.match(/(?:offer\s+available\s+until|valid\s+until|expires?(?:\s+at)?)\s+(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)\s+on\s+(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})\s+(\d{4})/i);
+  const clockFirstMatches=[...text.matchAll(/(?:offer\s+available\s+until|available\s+until|valid\s+until|(?:offer\s+)?ends?(?:\s+at)?|expires?(?:\s+at)?)\s+(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)\s+on\s+(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})\s+(\d{4})/gi)];
+  const explicitDeadlines=clockFirstMatches.map(m=>{const month=MONTHS[m[5].toLowerCase()],day=number(m[4]);return month!=null&&day>=1&&day<=31?explicitResult(text,m,number(m[6]),month,day,parseClock(m[1],m[2],m[3])):null;}).filter(Boolean);
+  if(new Set(explicitDeadlines.map(r=>r.expiresAt)).size>1)return {expires:null,expiresAt:null,expiryStatus:'unknown',expiryBasis:'multiple_explicit_deadlines',expiryConfidence:'needs_review',expirySourceText:sourceSnippet(text,clockFirstMatches[0])};
+  const clockFirst=clockFirstMatches[0];
   if(clockFirst){const month=MONTHS[clockFirst[5].toLowerCase()],day=number(clockFirst[4]);if(month!=null&&day>=1&&day<=31){const result=explicitResult(text,clockFirst,number(clockFirst[6]),month,day,parseClock(clockFirst[1],clockFirst[2],clockFirst[3]));if(result)return result;}}
 
   const named = firstMatch(text, [

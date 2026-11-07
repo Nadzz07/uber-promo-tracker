@@ -898,7 +898,7 @@
       width: min(calc(100% - 18px), 520px);
       transform: translateX(-50%);
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 3px;
       padding: var(--space-1);
       border: 1px solid var(--color-outline);
@@ -2162,16 +2162,16 @@
       }
     }
   </style>
-  <link rel="stylesheet" href="./desktop-layout.css">
   <link rel="stylesheet" href="./ui-refinements.css">
   <link rel="stylesheet" href="./liquid-glass.css">
   <link rel="stylesheet" href="./theme-system.css">
   <link rel="stylesheet" href="./receipt-insights.css">
   <link rel="stylesheet" href="./planner-design.css">
   <link rel="stylesheet" href="sync-data.css">
-  <link rel="stylesheet" href="home-design.css">
   <link rel="stylesheet" href="icon-layout.css">
   <link rel="stylesheet" href="main-pages.css">
+  <link rel="stylesheet" href="home-design.css">
+  <link rel="stylesheet" href="./desktop-layout.css">
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -2194,12 +2194,8 @@
         <svg viewBox="0 0 24 24" stroke-width="1.7" aria-hidden="true" focusable="false"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3H3ZM16 4a3 3 0 0 1 0 6M17 14a5 5 0 0 1 4 5v2h-3"/></svg>
         Accounts
       </button>
-      <button class="nav-btn" data-view="used">
-        <svg viewBox="0 0 24 24" stroke-width="1.7" aria-hidden="true" focusable="false"><circle class="nav-used-ring" cx="12" cy="12" r="9.5"/><path d="m7.5 12 3 3 6-6"/></svg>
-        Used
-      </button>
       <button class="nav-btn" data-view="more">
-        <svg viewBox="0 0 24 24" stroke-width="1.7" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="5" cy="5" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="19" cy="5" r="1.5"/><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="19" r="1.5"/><circle cx="12" cy="19" r="1.5"/><circle cx="19" cy="19" r="1.5"/></svg>
         More
       </button>
     </nav>
@@ -2207,14 +2203,17 @@
     <main>
       <section id="view-home" class="view main-screen active" aria-label="Home">
         <section class="home-overview">
-          <button class="total-saved-card" data-open-sheet="savings"><span class="home-savings-icon" data-icon="promo-tag" aria-hidden="true"></span><span class="home-saved-copy"><span class="stat-label">Total saved</span><strong id="savedStat">—</strong><span id="homeReceiptCount">From promo discounts</span></span><span class="saved-link">View savings <span aria-hidden="true">›</span></span></button>
-          <div class="home-intro"><h1 class="home-title">Overview</h1><button class="home-view-accounts" data-home-list="total">View accounts <span aria-hidden="true">›</span></button></div>
+          <section class="total-saved-card" aria-label="Total saved">
+            <div class="home-savings-head"><div class="home-saved-copy"><span class="stat-label">Total saved</span><strong id="savedStat">—</strong></div><span class="home-savings-icon" data-icon="promo-tag" aria-hidden="true"></span></div>
+            <div id="homeWeeklySavings"></div>
+            <div class="home-savings-footer"><span id="homeReceiptCount">From promo discounts</span><button class="saved-link" data-open-sheet="savings">View savings <span aria-hidden="true">›</span></button></div>
+          </section>
+          <div class="home-intro"><h1 class="home-title">Accounts</h1><button class="home-view-accounts" data-home-list="total">View accounts <span aria-hidden="true">›</span></button></div>
           <div id="syncStrip" class="sync-strip home-sync" role="status" hidden></div>
-          <div class="stats-row">
-            <button class="stat-card" data-home-list="total"><span class="overview-icon" data-icon="users" aria-hidden="true"></span><span class="home-stat-copy"><span class="stat-label">Total accounts</span><strong id="usableStat" class="stat-value">—</strong></span></button>
-            <button id="availableStatCard" class="stat-card available-stat-card" data-home-list="ready"><span class="overview-icon" data-icon="star" aria-hidden="true"></span><span class="home-stat-copy"><span class="stat-label accounts-available-label">Accounts ready</span><strong id="activeStat" class="stat-value available">—</strong></span></button>
-            <button class="stat-card" data-home-list="login"><span class="overview-icon" data-icon="user-check" aria-hidden="true"></span><span class="home-stat-copy"><span class="stat-label">Can log in</span><strong id="loginStat" class="stat-value">—</strong></span></button>
-            <button class="stat-card" data-home-list="archived"><span class="overview-icon" data-icon="archive" aria-hidden="true"></span><span class="home-stat-copy"><span class="stat-label">Archived</span><strong id="archivedStat" class="stat-value">—</strong></span></button>
+          <section class="home-account-total stat-card" aria-label="Account summary"><span class="stat-label">Total accounts</span><div class="home-total-heading"><button data-home-list="total" aria-label="View all accounts"><strong id="usableStat">—</strong></button><span id="homeLoginPercent"></span></div><div id="homeAccountSplit" class="home-account-split" role="img" aria-label="Account access and archive status"><span class="home-split-login"></span><span class="home-split-archived"></span><span class="home-split-other"></span></div><div class="home-account-legend"><button data-home-list="login"><i class="home-dot-login" aria-hidden="true"></i>Can log in <strong id="loginStat">—</strong></button><button data-home-list="archived"><i class="home-dot-archived" aria-hidden="true"></i>Archived <strong id="archivedStat">—</strong></button></div><p id="homeAccountOther" hidden></p></section>
+          <div class="stats-row home-status-tiles">
+            <button id="availableStatCard" class="stat-card available-stat-card" data-home-list="ready"><span class="overview-icon" data-icon="star" aria-hidden="true"></span><span class="home-stat-copy"><strong id="activeStat" class="stat-value available">—</strong><span class="stat-label accounts-available-label">Accounts ready</span></span><span class="row-chevron" aria-hidden="true">›</span></button>
+            <button class="stat-card home-needs-checking" data-home-review="true"><span class="overview-icon" data-icon="alert-circle" aria-hidden="true"></span><span class="home-stat-copy"><strong id="homeNeedsChecking" class="stat-value">—</strong><span class="stat-label">Needs checking</span></span><span class="row-chevron" aria-hidden="true">›</span></button>
           </div>
         </section>
         <section class="home-quick-actions" aria-labelledby="quickActionsTitle"><h2 id="quickActionsTitle">Quick tools</h2><div class="home-tools-card">
@@ -2222,7 +2221,6 @@
           <button class="home-action-row" data-home-detail="planner"><span data-icon="calculator" aria-hidden="true"></span><span><strong>Order Planner</strong><small id="homePlannerSummary">Work out what you’ll pay</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
           <div id="homeAnalytics"><button class="home-action-row" data-open-sheet="receipts"><span data-icon="chart" aria-hidden="true"></span><span><strong>Receipt insights</strong><small>Spending and activity</small></span><span class="row-chevron" aria-hidden="true">›</span></button></div>
         </div></section>
-        <button class="home-needs-checking" data-home-review="true"><span data-icon="alert-circle" aria-hidden="true"></span><span><strong>Needs checking</strong><small>Review accounts</small></span><strong id="homeNeedsChecking">—</strong><span class="row-chevron" aria-hidden="true">›</span></button>
       </section>
 <section id="view-planner" class="view home-detail" aria-labelledby="plannerTitle"><div class="detail-view-head"><button class="detail-back" data-home-back="true" aria-label="Back to Home"><span aria-hidden="true">‹</span></button><h1 id="plannerTitle" tabindex="-1">Order Planner</h1><button class="detail-switch" data-home-detail="offers">Find an offer <span aria-hidden="true">›</span></button></div>        <div class="planner-column">
         <section class="hero-card glass">
@@ -2271,21 +2269,11 @@
         <div id="accountsList" class="account-list"></div>
       </section>
 
-      <section id="view-used" class="view main-screen" aria-labelledby="usedTitle">
-        <header class="used-head"><h1 id="usedTitle" tabindex="-1">Used accounts</h1><button class="icon-control" data-used-info="true" aria-label="How statuses work"><span data-icon="info" aria-hidden="true"></span></button></header>
-        <div class="used-summary" aria-label="Activity summaries"><button data-used-status="used"><strong id="usedAccountCount">0</strong><span>Fully used</span></button><button data-used-status="needs_checking"><strong id="needsCheckCount">0</strong><span>Needs checking</span></button></div>
-        <div class="used-search"><span data-icon="search" aria-hidden="true"></span><input id="usedSearch" type="search" placeholder="Search accounts or offers" aria-label="Search accounts or offers" autocomplete="off"></div>
-        <div class="used-filters"><button data-used-status="used" aria-pressed="true">Fully used <span id="usedQuickCount">0</span></button><button data-used-status="needs_checking" aria-pressed="false">Needs checking <span id="usedReviewQuickCount">0</span></button></div><div class="used-status-control"><button id="usedStatus" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="usedStatusOptions" aria-label="Activity status"><span data-icon="filter" aria-hidden="true"></span><span id="usedStatusLabel">Status</span><span class="used-status-chevron" data-icon="chevron-down" aria-hidden="true"></span></button><div id="usedStatusOptions" role="listbox" aria-label="Activity status" hidden></div></div>
-        <div class="used-results-head"><div><h2 id="usedResultsTitle">Fully used</h2><span id="usedResultsCount" role="status" aria-live="polite"></span></div><label class="used-sort"><span class="sr-only">Sort results</span><select id="usedSort"><option value="latest">Latest activity</option><option value="email">Account email</option></select></label></div>
-        <div id="usedRecords" class="used-records"></div><div id="usedPagination"></div>
-        <button class="used-info-link" data-used-info="true"><span data-icon="info" aria-hidden="true"></span><span>How statuses work</span><span aria-hidden="true">›</span></button>
-      </section>
-
       <section id="view-settings" class="view" aria-labelledby="settingsTitle"><header class="settings-head"><button data-settings-back="true"><span aria-hidden="true">‹</span> More</button><h1 id="settingsTitle" tabindex="-1">Settings</h1><span aria-hidden="true"></span></header><div id="settingsContent" class="compact-settings"></div></section>
 
       <section id="view-preferred-promos" class="view preferred-page" aria-labelledby="preferredTitle"></section>
       <section id="view-preferred-catalogue" class="view preferred-page" aria-labelledby="preferredCatalogueTitle"></section>
-      <section id="view-more" class="view main-screen"><div class="screen-head"><h1 id="moreTitle" class="screen-title" tabindex="-1">More</h1><p class="more-intro">Tools and settings</p></div><div class="more-grid"><section class="more-group" aria-labelledby="more-group-0"><h2 id="more-group-0" class="eyebrow">Offers & history</h2><div class="more-group-list"><button class="more-card" data-jump-planner="true"><span class="more-icon" data-icon="calculator" aria-hidden="true"></span><span class="more-content"><span class="more-title">Order Planner</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="history"><span class="more-icon" data-icon="promo-tag" aria-hidden="true"></span><span class="more-content"><span class="more-title">Promo history</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="locked"><span class="more-icon" data-icon="archive" aria-hidden="true"></span><span class="more-content"><span class="more-title">Archived accounts</span><span class="more-count" id="lockedCardCopy"></span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-1"><h2 id="more-group-1" class="eyebrow">Savings & receipts</h2><div class="more-group-list"><button class="more-card" data-open-sheet="savings"><span class="more-icon" data-icon="menu-coins" aria-hidden="true"></span><span class="more-content"><span class="more-title">Savings</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="receipts"><span class="more-icon" data-icon="chart" aria-hidden="true"></span><span class="more-content"><span class="more-title">Receipt insights</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="finance"><span class="more-icon" data-icon="wallet" aria-hidden="true"></span><span class="more-content"><span class="more-title">Finances</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-2"><h2 id="more-group-2" class="eyebrow">Accounts & data</h2><div class="more-group-list"><button class="more-card" data-open-sheet="health"><span class="more-icon" data-icon="menu-sync" aria-hidden="true"></span><span class="more-content"><span class="more-title">Sync & data</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-3"><h2 id="more-group-3" class="eyebrow">Settings & help</h2><div class="more-group-list"><button class="more-card" data-open-sheet="appearance"><span class="more-icon" data-icon="menu-sliders" aria-hidden="true"></span><span class="more-content"><span class="more-title">Settings</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-guide="overview"><span class="more-icon" data-icon="menu-book" aria-hidden="true"></span><span class="more-content"><span class="more-title">Help & guide</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="about"><span class="more-icon" data-icon="info" aria-hidden="true"></span><span class="more-content"><span class="more-title">About this tracker</span></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section></div></section>
+      <section id="view-more" class="view main-screen"><div class="screen-head"><h1 id="moreTitle" class="screen-title" tabindex="-1">More</h1><p class="more-intro">Tools and settings</p></div><div class="more-grid"><section class="more-group" aria-labelledby="more-group-0"><h2 id="more-group-0" class="eyebrow">Offers & history</h2><div class="more-group-list"><button class="more-card" data-jump-planner="true"><span class="more-icon" data-icon="calculator" aria-hidden="true"></span><span class="more-content"><span class="more-title">Order Planner</span><small class="more-description">Work out what you’ll pay</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="history"><span class="more-icon" data-icon="promo-tag" aria-hidden="true"></span><span class="more-content"><span class="more-title">Promo history</span><small class="more-description">Offers you’ve used before</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="locked"><span class="more-icon" data-icon="archive" aria-hidden="true"></span><span class="more-content"><span class="more-title">Archived accounts</span><small class="more-description">Accounts you’ve set aside</small></span><span class="more-count" id="lockedCardCopy"></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-1"><h2 id="more-group-1" class="eyebrow">Savings & receipts</h2><div class="more-group-list"><button class="more-card" data-open-sheet="savings"><span class="more-icon" data-icon="menu-coins" aria-hidden="true"></span><span class="more-content"><span class="more-title">Savings</span><small class="more-description">Your promo savings over time</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="receipts"><span class="more-icon" data-icon="chart" aria-hidden="true"></span><span class="more-content"><span class="more-title">Receipt insights</span><small class="more-description">Spending and activity</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="finance"><span class="more-icon" data-icon="wallet" aria-hidden="true"></span><span class="more-content"><span class="more-title">Finances</span><small class="more-description">Payments and transactions</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-2"><h2 id="more-group-2" class="eyebrow">Accounts & data</h2><div class="more-group-list"><button class="more-card" data-open-sheet="health"><span class="more-icon" data-icon="menu-sync" aria-hidden="true"></span><span class="more-content"><span class="more-title">Sync & data</span><small class="more-description">Imports and backups</small></span><span id="moreSyncStatus" class="more-sync-status"></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-3"><h2 id="more-group-3" class="eyebrow">Settings & help</h2><div class="more-group-list"><button class="more-card" data-open-sheet="appearance"><span class="more-icon" data-icon="menu-sliders" aria-hidden="true"></span><span class="more-content"><span class="more-title">Settings</span><small class="more-description">Colours and preferences</small></span><span class="more-colour-wheel" aria-hidden="true"><i></i></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-guide="overview"><span class="more-icon" data-icon="menu-book" aria-hidden="true"></span><span class="more-content"><span class="more-title">Help & guide</span><small class="more-description">How to use the tracker</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="about"><span class="more-icon" data-icon="info" aria-hidden="true"></span><span class="more-content"><span class="more-title">About this tracker</span><small class="more-description">Version and info</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section></div></section>
       <section id="view-sync" class="view"><div id="syncDataPage" class="sync-page"></div></section>
       <section id="view-help" class="view" aria-labelledby="guideTitle">
         <button class="advanced-btn" data-guide-back="true">‹ Back to More</button>
@@ -2324,13 +2312,15 @@
     import {OFFER_PREFERENCES_KEY,DEFAULT_PREFERRED_PROMOS,readOfferPreferences,saveOfferPreferences,selectedOfferScope,offerScopeLabel,mainOfferChoices,matchesDiscoveryScope,plannerOffersForScope,hasCurrentCash,isPreferredPromo} from "./offer-preferences.js";
     import {currentCashPosition,cashCreditHistory,cashCalculationState} from "./cash-ledger.js";
     import {openOfferCatalogue,createPreferredPromosEditor} from "./preference-picker.js";
-    import {ACTIVITY_STATUSES,buildUsedActivity,activityResults} from "./used-activity.js";
+    import {createDesktopShell} from "./desktop-shell.js";
+    import {createWeeklySavingsChart,weeklySavingsData} from "./weekly-savings.js";
+    import {buildUsedActivity} from "./used-activity.js";
     import { offerTermsRows,offerFieldReviewReasons,offerTitle, useCountNeedsReview, effectiveDiscountPercent } from "./offer-details.js";
     import { THEME_KEY, DEFAULT_COLOUR, applyThemeTokens, THEME_PRESETS, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
     import { offerFinishedReason, offerClosureLabel, classifyOfferCompletion } from "./offer-state.js";
     import {createReceiptImporter} from './receipt-import.js';
     import {prepareAccountImport,accountWithDeviceMetadata} from './account-import.js';
-    import {createSyncData,syncHistoryMarkup,reportedSyncState as syncState} from './sync-data.js';
+    import {createSyncData,syncHistoryMarkup,syncReportModel,reportedSyncState as syncState} from './sync-data.js';
     import {PrivateFinanceVault} from './private-finance-vault.js';
     import {accountHistoryGroups,preferredAccountOffers,offerReceiptAvailability,offerUsageEvidence,offerUsageSlots,directoryAccounts,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
     import { setupDraggableNavigation } from "./nav-gestures.js";
@@ -2407,12 +2397,11 @@
     const snapshotCache = new Map();
     let loadError = false;
     let currentView = "home";
+    let desktopShell;
 
 
     let accountOfferScope = "any";
-    let accountLoginFilter = "all", accountProviderFilter = "all", accountSort = "best", accountTypeFilter = selectedOfferScope(offerPreferences);
-    let usedState={status:"used",query:"",sort:"latest",full:false,limit:24};
-    let usedRecordIndex=new Map();
+    let accountLoginFilter = "login", accountProviderFilter = "all", accountSort = "best", accountTypeFilter = selectedOfferScope(offerPreferences);
     let accountFilter = "all";
     let accountDisplayLimit = 48;
     let archivedDisplayLimit = 80;
@@ -2912,6 +2901,7 @@
       let saved={};try{saved=JSON.parse(sessionStorage.getItem('uber-tracker-receipt-view:v1')||'{}');}catch{}
       return {range:RECEIPT_RANGES.some(([k])=>k===saved.range)?saved.range:'month',service:['eats','rides','all'].includes(saved.service)?saved.service:DEFAULT_SAVINGS_SERVICE};
     }
+    let homeWeeklyChart;
     function renderStats() {
       const selection=homeSavingsSelection(),model=receiptInsightsModel({data:financeVault.data,corrections:financeVault.current().corrections,payload,...selection}),promo=model.amounts.promos;
       const amount=document.getElementById('savedStat');amount.textContent=promo.value==null?'—':new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP'}).format(promo.value);amount.classList.toggle('unknown',promo.value==null);
@@ -2920,6 +2910,15 @@
       document.getElementById('savedStat').setAttribute('aria-label',(promo.value==null?'Amount unavailable':money(promo.value))+' in promo discounts, '+period+', '+service);
       for(const [id,kind]of [['usableStat','total'],['activeStat','ready'],['loginStat','login'],['archivedStat','archived']])document.getElementById(id).textContent=homeDirectoryRows(kind).length.toLocaleString('en-GB');
       document.getElementById('homeNeedsChecking').textContent=usedActivityModel().summary.needs_checking.toLocaleString('en-GB');
+      homeWeeklyChart ||= createWeeklySavingsChart(document.getElementById('homeWeeklySavings'));
+      homeWeeklyChart.update(weeklySavingsData({data:financeVault.data,corrections:financeVault.current().corrections,payload}));
+      const totalRows=homeDirectoryRows('total'),total=totalRows.length,login=homeDirectoryRows('login').length,archived=homeDirectoryRows('archived').length;
+      const activeLogin=totalRows.filter(a=>a.canLogin===true&&!a.archived).length,other=Math.max(0,total-activeLogin-archived),split=document.getElementById('homeAccountSplit');
+      for(const [cls,value] of [['login',activeLogin],['archived',archived],['other',other]]){const segment=split.querySelector('.home-split-'+cls);segment.style.flexGrow=value;segment.hidden=value===0;}
+      split.setAttribute('aria-label',activeLogin+' active accounts can log in, '+archived+' archived'+(other?', '+other+' other accounts':''));
+      document.getElementById('homeLoginPercent').textContent=total?Math.round(login/total*100)+'% can log in':'';
+      const otherLabel=document.getElementById('homeAccountOther');otherLabel.hidden=!other;otherLabel.textContent=other?other+' other accounts · access not confirmed or not available':'';
+
       renderHomePlannerSummary();
     }
 
@@ -3051,9 +3050,9 @@
     function accountTypeLabel(key){return key==='preferred'?'Preferred offers':offerScopeLabel(key);}
     function directoryUsagePreview(promo,knownLimit,summary){
       const model=offerUsageSlots(financeVault.data,promo,manualStore,financeVault.status,knownLimit);
-      const boxes=model.compact?'':'<div class="directory-usage-boxes" role="list" aria-label="Offer uses" style="--directory-use-columns:'+Math.min(model.total,6)+'">'+model.slots.map(slot=>{
+      const boxes=model.compact?'':'<div class="directory-usage-boxes" role="list" aria-label="Offer uses" style="--directory-use-columns:'+Math.min(model.total,5)+'">'+model.slots.map(slot=>{
         const label=slot.kind==='confirmed'?'Receipt-confirmed use':slot.kind==='manual'?'Manually recorded use':slot.kind==='unused'?'Remaining use':'Usage unknown';
-        return '<span class="directory-usage-box '+slot.kind+'" role="listitem" aria-label="'+label+' '+slot.number+'">'+(slot.kind==='confirmed'?financeIcon('check'):slot.kind==='manual'?financeIcon('edit'):slot.kind==='unknown'?'<span aria-hidden="true">?</span>':'')+'</span>';
+        return '<span class="directory-usage-box '+slot.kind+'" role="listitem" aria-label="'+label+' '+slot.number+'">'+(slot.kind==='confirmed'?financeIcon('check'):slot.kind==='manual'?financeIcon('edit'):'')+'</span>';
       }).join('')+'</div>';
       return '<div class="directory-usage"><p class="directory-use-limit">'+escapeHtml(summary)+'</p>'+boxes+'</div>';
     }
@@ -3106,7 +3105,7 @@
       if(accountFilter!=='all')active.push('<button data-clear-secondary="management">'+escapeHtml(document.getElementById('accountScope').selectedOptions[0].textContent)+' ×</button>');
       if(accountOfferScope!=='any')active.push('<button data-clear-secondary="availability">'+escapeHtml(document.getElementById('accountOfferScope').selectedOptions[0].textContent)+' ×</button>');
       document.getElementById('accountActiveFilters').innerHTML=active.join('');document.getElementById('accountSecondaryCount').textContent=active.length?' · '+active.length+' active':'';
-      const list=directoryAccounts(enrichedAccounts(),{search,login:accountLoginFilter,provider:accountProviderFilter,type:accountTypeFilter,management:accountFilter,availability:accountOfferScope,sort:accountSort},offerPreferences,{emailFor:accountDisplay,valueFor:p=>{
+      const list=directoryAccounts(enrichedAccounts(),{search,login:accountLoginFilter,provider:accountProviderFilter,type:accountTypeFilter,management:accountFilter,availability:accountOfferScope,sort:accountSort,...(accountFilter==='review'?{reviewAccountRefs:usedActivityModel().buckets.needs_checking.map(row=>row.account.accountRef)}:{})},offerPreferences,{emailFor:accountDisplay,valueFor:p=>{
         if(p.discountType==='uberCash'||p.minimumSpend==null||p.minimumSpendVerified===false)return null;
         const amount=Math.max(currentBasket(),Number(p.minimumSpend)||0),calculation=savingForSpend(p,amount);
         return calculation.eligible?calculation.saving:null;
@@ -3135,27 +3134,6 @@
       if(!usedActivityCache||usedActivityCache.clock!==projectionClock||usedActivityCache.manual!==manualStore||usedActivityCache.data!==payload||usedActivityCache.privateData!==financeVault.data)usedActivityCache={clock:projectionClock,manual:manualStore,data:payload,privateData:financeVault.data,model:buildUsedActivity(rows,promos.map(receiptAwarePromo),manualStore,receiptReviewCount)};
       return usedActivityCache.model;
     }
-    function renderUsed() {
-      const model=usedActivityModel();
-      for(const [id,value]of Object.entries({usedAccountCount:model.summary.used,needsCheckCount:model.summary.needs_checking,usedQuickCount:model.summary.used,usedReviewQuickCount:model.summary.needs_checking}))document.getElementById(id).textContent=value.toLocaleString('en-GB');
-      const categories=[...ACTIVITY_STATUSES,{key:'expired',label:'Expired offers',entity:'promotions'}];
-      const category=categories.find(s=>s.key===usedState.status)||categories[0];
-      document.getElementById('usedStatusOptions').innerHTML=categories.map(s=>'<button type="button" role="option" tabindex="-1" aria-selected="'+(s.key===usedState.status)+'" data-status-option="'+s.key+'"><span>'+escapeHtml(s.label)+'</span><span aria-hidden="true">'+(s.key===usedState.status?'✓':'')+'</span></button>').join('');
-      document.getElementById('usedStatusLabel').textContent='Status';document.getElementById('usedStatus').setAttribute('aria-label','Activity status: '+category.label);
-      document.querySelectorAll('.used-filters [data-used-status]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.usedStatus===usedState.status)));
-      document.querySelector('.used-filters').classList.toggle('large-text',parseFloat(getComputedStyle(document.querySelector('.used-filters > button')).fontSize)>16);
-      const list=activityResults(model,usedState,accountDisplay),shown=list.slice(0,usedState.limit);
-      usedRecordIndex=new Map(list.map(r=>[r.key,r]));
-      document.getElementById('usedResultsTitle').textContent=usedState.status==='used'?'Fully used':category.label;
-      document.getElementById('usedResultsCount').textContent=list.length.toLocaleString('en-GB')+' '+(list.length===1?category.entity.slice(0,-1):category.entity);
-      document.getElementById('usedRecords').innerHTML=shown.length?shown.map(r=>{
-        const account=r.account,access=account.canLogin===true?'Can log in':account.canLogin===false?'Can’t log in':'Not confirmed';
-        const when=r.expiry?'Expired '+(formatDate(r.expiry)||'date unknown'):r.at?(r.entity==='account'&&usedState.status==='used'?'Last used ':'Activity ')+(formatDate(r.at)||''):'';
-        return '<button type="button" class="used-record'+(usedState.status==='needs_checking'?' needs-checking':'')+'" data-used-record="'+escapeHtml(r.key)+'" data-activity-record="'+escapeHtml(r.key)+'" aria-label="View '+escapeHtml(accountDisplay(account))+'"><span class="used-record-head"><span class="used-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="used-identity"><strong>'+escapeHtml(accountDisplay(account))+'</strong><span>'+escapeHtml(loginRouteText(account))+'</span><span class="used-access '+(account.canLogin===true?'positive':'')+'"><i aria-hidden="true"></i>'+access+'</span></span><span class="used-chevron" aria-hidden="true">›</span></span><span class="used-evidence"><span class="used-evidence-icon">'+financeIcon(r.receiptRuleMet?'check':usedState.status==='needs_checking'?'alert':'receipt')+'</span><span><span class="used-evidence-text">'+escapeHtml(r.promo?promoLabel(r.promo)+' · '+r.evidence:r.evidence)+'</span>'+(when?'<small>'+financeIcon('calendar')+escapeHtml(when)+'</small>':'')+'</span>'+(r.receiptRuleMet?'<span class="receipt-rule-badge">Usage complete</span>':'')+'</span></button>';
-      }).join(''):'<div class="used-empty"><p>No matching '+category.entity+'.</p><button data-reset-used="true">Clear search and show fully used</button></div>';
-      document.getElementById('usedPagination').innerHTML=list.length>shown.length?'<button class="used-more" data-used-more="true">Show more '+category.entity+'<span aria-hidden="true">⌄</span></button>':'';
-    }
-
     let guideModule, guideLoading;
     const metricExplanations = {
       'Total Accounts':['accounts','Every tracked account, including archived, deactivated and pending accounts.'],
@@ -3230,6 +3208,9 @@
       document.getElementById("lockedCardCopy").textContent =
         locked.toLocaleString("en-GB");
       document.getElementById("lockedCardCopy").setAttribute("aria-label",locked+" archived "+(locked===1?"account":"accounts"));
+      const report=syncReportModel(payload.sync),schedule=report.scheduler,age=Date.now()-Date.parse(schedule?.reportedAt),confirmed=schedule?.state==='enabled'&&schedule.intervalSeconds===86400&&age>=-300000&&age<=172800000;
+      const status=document.getElementById('moreSyncStatus');status.textContent=confirmed?'Daily':'Not confirmed';status.classList.toggle('confirmed',confirmed);status.setAttribute('aria-label','Email scan schedule: '+status.textContent);
+
     }
 
     function renderLegacyAppearanceControls() {
@@ -3343,6 +3324,10 @@
     function accountOfferExpiry(promo) {
       const estimated=offerTermsRows(promo).find(r=>r.field==='expiry')?.estimated;return (offerCountdown(promo)||'Expiry unknown')+(estimated?' · Estimated':'');
     }
+    function accountExpiryMarkup(promo,cls) {
+      const end=expiryEndTime(promo),days=end==null?null:Math.ceil((end-Date.now())/86400000),urgent=days!=null&&days>=0&&days<=3;
+      return `<span class="${cls}${urgent?' expiry-urgent':''}" aria-label="${escapeHtml(accountOfferDeadline(promo))}" title="${escapeHtml(accountOfferDeadline(promo))}">${financeIcon(urgent?'clock':'menu-calendar')}${escapeHtml(accountOfferExpiry(promo))}</span>`;
+    }
     function accountOfferDeadline(promo) {
       const end=expiryEndTime(promo);
       return accountOfferExpiry(promo)+(end!=null?' · '+(promo.expiryStatus==='estimated'?'Estimated end ':'Ends ')+formatDate(promo.expires||promo.expiresAt)+' at '+ukClock.format(new Date(end))+' UK':'');
@@ -3373,6 +3358,8 @@
       if(evidence.status==='outdated'&&usage?.confirmed!=null)evidence.message='Receipt details not imported.';
       if(evidence.status!=='available')return `<p class="account-receipt-empty" role="status" data-receipt-state="${e(evidence.status)}">${e(evidence.message)}</p>`;
 
+      const latest=rows[0],latestAt=latest&&(latest.orderAt||latest.orderDate||latest.sentAt||latest.receivedAt);
+      if(limit===1&&rows.length)return `<section class="account-matching-receipts" data-match-key="${e(key)}"><button class="account-receipt-row account-receipt-overview" data-offer-savings-receipts="${e(key)}">${financeIcon('receipt')}<span><strong>View ${rows.length} receipt${rows.length===1?'':'s'}</strong><small>Latest: ${e(formatDate(latestAt)||'Date unknown')}</small></span>${financeIcon('chevron-right')}</button></section>`;
       return `<section class="account-matching-receipts" data-match-key="${e(key)}">${limit>1?`<h4>Matching receipts (${rows.length})</h4>`:''}${rows.length?`<div class="account-receipt-list${limit>1?' is-expanded':''}">${rows.slice(0,limit).map(r=>`<button class="account-receipt-row" data-account-receipt="${e(r.receiptId)}" data-receipt-offer="${e(key)}">${financeIcon('receipt')}<span><strong>${limit===1?'Latest receipt · ':''}${e(formatDate(r.orderAt||r.orderDate||r.sentAt||r.receivedAt)||'Date unknown')}</strong></span>${financeIcon('chevron-right')}</button>`).join('')}</div>`:`<p class="account-receipt-empty">${promo.reviewReasons?.includes('ambiguous_receipt_match')?'Receipt matching is unresolved. No receipt is assigned to this offer.':'No matching receipts recorded for this offer.'}</p>`}${rows.length>1?`<button class="account-receipt-toggle" data-receipt-list="${e(key)}" aria-expanded="${limit>1}"><span>${limit>1?'Show latest only':'View all '+rows.length+' receipts'}</span>${financeIcon(limit>1?'chevron-up':'chevron-down')}</button>`:''}${limit>1&&rows.length>limit?`<button class="account-receipt-more" data-more-matched-receipts="${e(key)}">Show ${Math.min(20,rows.length-limit)} more · ${limit} of ${rows.length}</button>`:''}</section>`;
     }
     let usageSlotResize=null;
@@ -3384,20 +3371,25 @@
       requestAnimationFrame(layout);
     }
 
+    function accountOrderCompletion(model){
+      if(model.confirmed==null)return 'Receipt usage unknown';
+      const completed=model.confirmed+model.manual;
+      return completed+(model.total!=null?' of '+model.total:'')+' orders completed';
+    }
     function accountUsageMarkup(promo,knownLimit){
       const e=escapeHtml,key=promoStateKey(promo),model=offerUsageSlots(financeVault.data,promo,manualStore,financeVault.status,knownLimit),{confirmed,manual,total}=model;
       const known=confirmed!=null;
-      const label=known?(manual?`${confirmed} confirmed · <span class="account-manual-usage">${manual} manual</span>`:`${confirmed}${total!=null?' of '+total:''} uses confirmed`):'<span class="account-usage-unknown" data-usage-state="unknown">Receipt usage unknown</span>';
-      const line=`<div class="${known?'use-line':'usage-unknown-line'}" aria-live="polite"><span>${label}</span>${model.remaining!=null?`<span>Up to ${model.remaining} left${model.remaining>0||model.manual>0?' <small class="account-estimate-label">Estimated</small>':''}</span>`:''}</div>`;
+      const label=known?e(accountOrderCompletion(model)):'<span class="account-usage-unknown" data-usage-state="unknown">Receipt usage unknown</span>';
+      const line=`<div class="${known?'use-line':'usage-unknown-line'}" aria-live="polite"><span>${label}</span>${model.remaining!=null?`<span>${model.remaining} remaining</span>`:''}</div>`;
       const marker=(slot)=>{const date=slot.at?formatDate(slot.at):null,kind=slot.kind,receipt=kind==='confirmed'&&slot.receiptId,manualSlot=kind==='manual';
         const content=`<span class="usage-segment" aria-hidden="true"><span class="usage-marker">${kind==='confirmed'?financeIcon('check'):manualSlot?financeIcon('edit'):kind==='unknown'?'':'—'}</span></span>${date?`<span class="usage-slot-date">${e(date)}</span>`:''}${kind==='confirmed'&&slot.total!=null?`<strong class="usage-slot-amount">${e(money(slot.total))}</strong>`:manualSlot?'<small class="usage-slot-kind">Manual</small>':''}`;
         const name=`Use ${slot.number}: ${kind==='manual'?'manually recorded':kind==='unknown'?'confirmation unknown':kind}${date?', '+date:''}${slot.total!=null?', receipt total '+money(slot.total):''}`;
         return `<div role="listitem" class="usage-slot ${kind}"${receipt||manualSlot?'':` aria-label="${e(name)}"`}>${receipt||manualSlot?`<button class="usage-slot-control" ${receipt?`data-account-receipt="${e(slot.receiptId)}" data-receipt-offer="${e(key)}"`:`data-manual-slot="${e(key)}" aria-controls="manage-${e(key)}"`} aria-label="${e(name)}">${content}</button>`:`<div class="usage-slot-control">${content}</div>`}</div>`;
       };
-      const manualUnknown=!known&&manual?`<p class="account-manual-usage">${manual} manual ${manual===1?'use':'uses'}</p>`:'';
+      const manualUnknown=manual?`<p class="account-manual-usage">${manual} manual ${manual===1?'use':'uses'}</p>`:'';
       const semantics=known&&total!=null?`<div class="usage-progress-accessible" role="progressbar" aria-label="Receipt-confirmed uses" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${Math.min(total,confirmed)}" aria-valuetext="${confirmed} receipt-confirmed${manual?', '+manual+' manually recorded':''}"></div>`:'';
       if(model.compact)return `<section class="use-progress usage-compact">${line}${manualUnknown}${manual?`<div class="usage-compact-entries">${model.manualEntries.slice(-3).map(entry=>`<button class="account-sheet-link" data-manual-slot="${e(key)}">Manual · ${e(entry.at?formatDate(entry.at):'Date unknown')}</button>`).join('')}${manual>3?`<small>${manual-3} additional manual entries</small>`:''}</div>`:''}${total==null?'<p class="sheet-help">Use limit unknown</p>':`<p class="sheet-help">${total} permitted uses</p>`}</section>`;
-      return `<section class="use-progress usage-slots">${line}${manualUnknown}${semantics}<div class="usage-slot-grid" data-usage-columns="${Math.min(total,5)}" role="list" aria-label="Offer uses" style="--usage-slot-columns:${Math.min(total,5)};--usage-narrow-columns:${Math.min(total,3)}">${model.slots.map(marker).join('')}</div><div class="usage-legend"><span>${financeIcon('check')}Receipt confirmed</span><span>${financeIcon('edit')}Manual entry</span></div>${model.partial?'<p class="account-usage-unknown">More matches need review.</p>':''}</section>`;
+      return `<section class="use-progress usage-slots">${line}${semantics}<div class="usage-slot-grid" data-usage-columns="${Math.min(total,5)}" role="list" aria-label="Offer uses" style="--usage-slot-columns:${Math.min(total,5)};--usage-narrow-columns:${Math.min(total,3)}">${model.slots.map(marker).join('')}</div><div class="usage-legend"><span><i class="usage-key confirmed"></i>${known?confirmed+' confirmed from receipts':'Receipt usage unknown'}</span><span><i class="usage-key manual"></i>${manual} recorded manually</span></div>${model.partial?'<p class="account-usage-unknown">More matches need review.</p>':''}</section>`;
     }
 
     function accountHistoricalMeta(promo,activity){
@@ -3417,16 +3409,22 @@
       const e=escapeHtml,key=promoStateKey(promo),total=Number(promo.uses);
       const knownLimit=Number.isInteger(total)&&total>0&&!useCountNeedsReview(promo)&&(promo.usesVerified===true||promo.evidence?.usesBasis==='explicit_offer_terms');
       const usage=offerUsageEvidence(financeVault.data,promo,financeVault.status),knownConfirmed=usage.confirmed!=null;
+      const slotModel=offerUsageSlots(financeVault.data,promo,manualStore,financeVault.status,knownLimit);
       const confirmed=usage.confirmed,pending=pendingManualUses(manualStore,promo),activity=manualActivity(manualStore,promo),remaining=effectiveRemainingUses(manualStore,promo),lifecycle=promotionActivity(manualStore,promo);
       const disabled=promo.hiddenByPromoUse||promo.usageEvidenceConflict||promo.canLogin!==true||remaining<=0||promo.trackingState==='needs_checking'&&!promo.usageEvidenceUnavailable||useCountNeedsReview(promo)||activity.ignored||effectivePromoState(manualStore,promo)==='used'||isExpired(promo);
       const minimum=promo.minimumSpend==null||accountOfferKey(promo)?.endsWith(':unknown')?'Minimum spend unknown':Number(promo.minimumSpend)>0?money(promo.minimumSpend)+' minimum':'No minimum spend';
-      const subtitle=[minimum,knownLimit?'Up to '+total+(total===1?' order':' orders'):'Use limit unknown',promo.discountType==='percent'&&(promo.perUseCap??promo.maxSaving)!=null?'Max. '+money(promo.perUseCap??promo.maxSaving)+' per order':null].filter(Boolean).join(' · ');
+      const subtitle=[minimum,knownLimit?'Up to '+total+(total===1?' order':' orders'):'Use limit unknown'].filter(Boolean).join(' · ');
       const term=(label,value)=>`<div><dt>${e(label)}</dt><dd>${e(value)}</dd></div>`;
-      const terms=offerTermsRows(promo,money).map(row=>`<div><dt>${e(row.label)}</dt><dd>${e(row.value)}${row.estimated?'<span class="account-estimate-label">Estimated</span>':''}</dd></div>`).join('');
+      const termRows=offerTermsRows(promo,money),missingTerms=['Order type','Merchants','Other promos'].filter(label=>!termRows.some(row=>row.label===label));
+      const terms=termRows.filter(row=>!['Offer','Orders'].includes(row.label)).map(row=>`<div data-term-field="${e(row.field)}"><dt>${financeIcon(({'Minimum spend':'receipt','Order type':'bag','Merchants':'bag','Other promos':'layers','Expiry date':'menu-calendar'})[row.label]||'info')}<span>${e(row.label==='Expiry date'?'Expires':row.label)}</span></dt><dd>${e(row.value)}${row.estimated?'<span class="account-estimate-label">Estimated</span>':''}</dd></div>`).join('');
+      const termsMissing=missingTerms.length?`<p class="terms-missing">Not recorded: ${e(missingTerms.map(label=>label.toLowerCase()).join(', '))}.</p>`:'';
+      const fieldReasons=offerFieldReviewReasons(promo),usageOnly=fieldReasons.length&&fieldReasons.every(r=>r.field==='remainingUses');
+      const fieldWarning=fieldReasons.length?(usageOnly?`<p class="offer-evidence-warning" title="${e(fieldReasons.map(r=>r.reason).join(' · '))}">${financeIcon('alert-circle')}<span>Estimated from recorded usage</span></p>`:`<button class="account-sheet-link offer-evidence-warning" data-review-offer-fields="${e(key)}" aria-label="Review offer details in Accounts" title="${e(fieldReasons.map(r=>r.reason).join(' · '))}">${financeIcon('alert-circle')}<span>Offer details need checking</span>${financeIcon('chevron-right')}</button>`):'';
+      const compactUsage=slotModel.confirmed==null?`<span class="compact-use-track usage-unchecked" aria-hidden="true" style="--compact-use-columns:5">${Array.from({length:5},()=>'<span class="unknown"></span>').join('')}</span>`:!slotModel.compact?`<span class="compact-use-track" aria-hidden="true" style="--compact-use-columns:${Math.min(slotModel.total,5)}">${slotModel.slots.map(slot=>`<span class="${slot.kind}"></span>`).join('')}</span>`:'';
       const progress=accountUsageMarkup(promo,knownLimit);
-      const history=activity.history.length||activity.verificationConflict?`<details class="account-action-history" data-disclosure-key="history-${e(key)}"><summary>Saved action history${financeIcon('chevron-down')}</summary>${activity.verificationConflict?`<p role="status">${e(activity.verificationConflict)}</p><button data-review-evidence="${e(key)}"${promo.reviewReasons?.includes('ambiguous_receipt_match')?' disabled':''}>Accept current confirmed count</button>`:''}<ol>${activity.history.map(event=>`<li>${e(({manual_use_recorded:'Manual use recorded',manual_use_undone:'Manual use undone',manually_finished:'Marked finished manually',manual_finish_undone:'Manual finish undone',completion_verified:'Completion verified from receipts',evidence_reviewed:'Evidence reviewed',offer_terms_corrected:'Source terms corrected'})[event.type]||'Manual action')} · ${e(formatEvidenceTime(event.at)||'Date unknown')}</li>`).join('')}</ol></details>`:'';
+      const history=activity.verificationConflict?`<div class="account-evidence-conflict"><p role="status">${e(activity.verificationConflict)}</p><button data-review-evidence="${e(key)}"${promo.reviewReasons?.includes('ambiguous_receipt_match')?' disabled':''}>Accept current confirmed count</button></div>`:'';
       const row=(icon,label,helper,attribute,disabled=false,kind='')=>`<button class="account-manage-row ${kind}" ${attribute}${disabled?' disabled':''}>${financeIcon(icon)}<span><strong>${label}</strong><small>${helper}</small></span></button>`;
-      return `<details class="offer-card account-detail-offer${historic?' past-offer':''}" data-offer-key="${e(key)}"${historic?` data-history-key="${e(key)}"`:''}${open?' open':''}><summary class="account-offer-toggle">${financeIcon('promo-tag')}<span class="account-offer-heading"><span class="account-offer-titleline"><strong class="offer-name">${e(promo.discountType==='percent'?promoLabel(promo):accountOfferTitle(promo))}</strong>${accountCalculator?.promoKey===key?'<span class="account-selected-badge">Selected</span>':''}</span><small class="offer-details">${e(subtitle)}</small><small class="compact-offer-expiry">${e(historic?accountHistoricalMeta(promo,lifecycle):minimum+' · '+accountOfferExpiry(promo))}</small></span>${historic?`<span class="history-record-status ${e(lifecycle.bucket==='ignored'?'ignored':lifecycle.consumed?'completed':isExpired(promo)?'expired':'other')}">${historyCategoryIcon(lifecycle.bucket==='ignored'?'ignored':lifecycle.consumed?'completed':isExpired(promo)?'expired':'other')}<span>${e(lifecycle.bucket==='ignored'?'Ignored':lifecycle.consumed?'Completed':isExpired(promo)?'Expired':lifecycle.bucket==='manual'?'Manually finished':lifecycle.bucket==='needs_checking'?'Needs checking':'History')}</span></span>`:''}${financeIcon('chevron-down')}</summary><div class="account-offer-body">${promo.hiddenByPromoUse||lifecycle.bucket!=='available'&&lifecycle.bucket!=='partial'?`<span class="account-offer-state">${e(promo.hiddenByPromoUse?'Hidden · another promo used':lifecycle.status)}</span>`:''}<div class="account-offer-meta"><span class="account-offer-expiry" tabindex="0" aria-label="${e(accountOfferDeadline(promo))}" title="${e(accountOfferDeadline(promo))}">${financeIcon('menu-calendar')}${e(accountOfferExpiry(promo))}</span><details class="offer-terms" data-disclosure-key="terms-${e(key)}"><summary><span>More terms</span>${financeIcon('chevron-down')}</summary><div class="disclosure-body"><dl class="terms-grid">${terms}</dl>${offerFieldReviewReasons(promo).length?`<button class="account-sheet-link" data-review-offer-fields="${e(key)}">${financeIcon('alert-circle')}Needs checking · ${e(offerFieldReviewReasons(promo).map(r=>r.reason).join(' · '))}${financeIcon('chevron-right')}</button>`:''}</div></details></div>${promo.hiddenByPromoUse||promo.hiddenByPreference?`<button class="account-restore-promo" data-restore-competing="${e(key)}">${promo.hiddenByPromoUse?'Restore promo':'Show in current offers'}</button>`:''}${progress}${accountReceiptMarkup(promo,usage)}<div class="account-offer-actions"><button class="account-record-use" data-use-one="${e(key)}"${disabled?' disabled':''}>${financeIcon('plus')}Record use</button><button class="account-manage-toggle" aria-label="Manage offer" data-manage-toggle="${e(key)}" aria-expanded="false" aria-controls="manage-${e(key)}">${financeIcon('more')}Manage${financeIcon('chevron-down')}</button><div class="manage-offer" id="manage-${e(key)}" data-disclosure-key="manage-${e(key)}" hidden>${row('undo','Undo manual use','Remove the latest manual entry',`data-undo-use="${e(key)}"`,pending<=0||promo.usageEvidenceConflict)}${row('ignored',activity.ignored?'Restore offer':'Ignore offer',activity.ignored?'Restore this offer to recommendations':'Exclude from recommendations',`data-toggle-ignore="${e(key)}" data-ignore="${!activity.ignored}"`,false,'warning')}${row('history',activity.forceDone?'Reopen offer':lifecycle.consumed?'Completed · verified':'Mark finished manually',activity.forceDone?'Remove manual finish':'Keep as manually finished, not verified',`data-mark-offer-done="${e(key)}" data-done="${!activity.forceDone}"`,lifecycle.consumed&&!activity.forceDone,'danger')}${history}</div></div></div></details>`;
+      return `<details class="offer-card account-detail-offer${historic?' past-offer':''}" data-offer-key="${e(key)}"${historic?` data-history-key="${e(key)}"`:''}${open?' open':''}><summary class="account-offer-toggle">${financeIcon('promo-tag')}<span class="account-offer-heading"><span class="account-offer-titleline"><strong class="offer-name">${e(promo.discountType==='percent'?promoLabel(promo):accountOfferTitle(promo))}</strong>${accountCalculator?.promoKey===key?'<span class="account-selected-badge">Selected</span>':''}</span><small class="offer-details">${e(subtitle)}</small><small class="compact-offer-expiry">${e(historic?accountHistoricalMeta(promo,lifecycle):minimum+' · '+accountOfferExpiry(promo))}</small></span>${historic?`<span class="history-record-status ${e(lifecycle.bucket==='ignored'?'ignored':lifecycle.consumed?'completed':isExpired(promo)?'expired':'other')}">${historyCategoryIcon(lifecycle.bucket==='ignored'?'ignored':lifecycle.consumed?'completed':isExpired(promo)?'expired':'other')}<span>${e(lifecycle.bucket==='ignored'?'Ignored':lifecycle.consumed?'Completed':isExpired(promo)?'Expired':lifecycle.bucket==='manual'?'Manually finished':lifecycle.bucket==='needs_checking'?'Needs checking':'History')}</span></span>`:''}${financeIcon('chevron-down')}<span class="account-offer-compact">${accountExpiryMarkup(promo,'compact-expiry-badge')}<span class="compact-completion-line"><small class="compact-order-completion${slotModel.confirmed==null?' usage-not-checked':''}">${e(slotModel.confirmed==null?'Usage not checked'+(slotModel.manual?' · '+slotModel.manual+' manual':''):accountOrderCompletion(slotModel))}</small>${slotModel.remaining!=null?`<small class="compact-order-remaining">${slotModel.remaining} remaining</small>`:slotModel.confirmed==null?'<small class="compact-not-checked">Not checked</small>':''}</span>${compactUsage}</span></summary><div class="account-offer-body">${promo.hiddenByPromoUse||lifecycle.bucket!=='available'&&lifecycle.bucket!=='partial'?`<span class="account-offer-state">${e(promo.hiddenByPromoUse?'Hidden · another promo used':lifecycle.status)}</span>`:''}<div class="account-offer-meta"><details class="offer-terms" data-disclosure-key="terms-${e(key)}"><summary>${accountExpiryMarkup(promo,'account-offer-expiry')}<span>More terms</span>${financeIcon('chevron-down')}</summary><div class="disclosure-body"><dl class="terms-grid">${terms}</dl>${termsMissing}${fieldWarning}</div></details></div>${promo.hiddenByPromoUse||promo.hiddenByPreference?`<button class="account-restore-promo" data-restore-competing="${e(key)}">${promo.hiddenByPromoUse?'Restore promo':'Show in current offers'}</button>`:''}${progress}${accountReceiptMarkup(promo,usage)}<div class="account-offer-actions"><button class="account-record-use" data-use-one="${e(key)}"${disabled?' disabled':''}>${financeIcon('plus')}Record use</button><button class="account-manage-toggle" aria-label="Manage offer" data-manage-toggle="${e(key)}" aria-expanded="false" aria-controls="manage-${e(key)}">${financeIcon('more')}Manage${financeIcon('chevron-down')}</button><div class="manage-offer" id="manage-${e(key)}" data-disclosure-key="manage-${e(key)}" hidden>${row('undo','Undo manual use','Remove the latest manual entry',`data-undo-use="${e(key)}"`,pending<=0||promo.usageEvidenceConflict)}${row('ignored',activity.ignored?'Restore offer':'Ignore offer',activity.ignored?'Restore this offer to recommendations':'Exclude from recommendations',`data-toggle-ignore="${e(key)}" data-ignore="${!activity.ignored}"`,false,'warning')}${row('history',activity.forceDone?'Reopen offer':lifecycle.consumed?'Completed · verified':'Mark finished manually',activity.forceDone?'Remove manual finish':'Keep as manually finished, not verified',`data-mark-offer-done="${e(key)}" data-done="${!activity.forceDone}"`,lifecycle.consumed&&!activity.forceDone,'danger')}${history}</div></div></div></details>`;
     }
     function accountCalculatorMarkup(context,planner=false){
       const e=escapeHtml,ref=context.accountRef,items=allPromosForAccount(ref).filter(p=>p.discountType!=='uberCash'),cash=accountCashState(ref,context.promoKey),id=planner?'plannerAccountPromo':'accountCalcPromo';
@@ -3458,6 +3456,7 @@
       if(toggleAccountHistory(event))return;
       const manualSlot=event.target.closest('[data-manual-slot]');if(manualSlot){const panel=document.getElementById('manage-'+manualSlot.dataset.manualSlot);if(panel){panel.hidden=false;panel.setAttribute('open','');panel.closest('.account-offer-actions').querySelector('[data-manage-toggle]')?.setAttribute('aria-expanded','true');panel.querySelector('[data-undo-use]')?.focus();}return;}
       const manage=event.target.closest('[data-manage-toggle]');if(manage){const panel=document.getElementById('manage-'+manage.dataset.manageToggle);panel.hidden=!panel.hidden;panel.toggleAttribute('open',!panel.hidden);manage.setAttribute('aria-expanded',String(!panel.hidden));return;}
+      const savingsReceipts=event.target.closest('[data-offer-savings-receipts]');if(savingsReceipts){const promo=promoByKey(savingsReceipts.dataset.offerSavingsReceipts);if(promo){const ids=offerMatchedReceipts(financeVault.data,promo).map(r=>r.receiptId),entry=routeEntries.get(currentRouteEntry);if(entry)entry.accountSnapshot=accountDisclosureSnapshot();closeSheet(true);switchView('savings',{preserveSheet:true});Object.assign(receiptInsightsView.state,{range:'all',service:'all',savingsList:true,savingsOffer:null,savingsReceiptIds:ids});receiptInsightsView.render();window.scrollTo({top:0,behavior:'instant'});}return;}
       const receipts=event.target.closest('[data-receipt-list]');if(receipts){const key=receipts.dataset.receiptList;accountReceiptLimits.set(key,(accountReceiptLimits.get(key)||1)>1?1:20);updateAccountReceiptList(key);return;}
       const more=event.target.closest('[data-more-matched-receipts]');if(more){const key=more.dataset.moreMatchedReceipts;accountReceiptLimits.set(key,(accountReceiptLimits.get(key)||20)+20);updateAccountReceiptList(key);return;}
       const receipt=event.target.closest('[data-account-receipt]');if(receipt){openAccountReceipt(receipt.dataset.accountReceipt,receipt.dataset.receiptOffer);return;}
@@ -3492,9 +3491,9 @@
       if(!cashRecord)return '';
       const positive=cashCalculationState(cash).usable,review=cash?.status==='needs_checking';
 
-      const e=escapeHtml,status=!positive&&!review&&!privateWallets[account.accountRef]?'Current amount not recorded':review?'Balance needs checking':cash.status==='verified'?'Manually checked balance':cash.status==='verified_reconciled'?'Estimated from balance check':'Estimated remaining';
+      const e=escapeHtml,status=!positive&&!review&&!privateWallets[account.accountRef]?'Current amount not recorded':review?'Balance needs checking':cash.status==='verified'&&cash.verifiedAt?'Balance checked '+formatDate(cash.verifiedAt):cash.status==='verified'?'Manually checked balance':cash.status==='verified_reconciled'?'Estimated from balance check':'Estimated remaining';
       const expiry=positive&&cash.grants?.length?offerCountdown({expiresAt:cash.grants.map(g=>g.expiresAt).filter(Boolean).sort()[0],expiryStatus:'exact'}):'';
-      return `<details class="account-cash-entry" data-cash-entry data-cash-state="${e(cash.status)}" data-disclosure-key="cash"><summary>${financeIcon('wallet')}<span class="account-cash-copy"><span class="account-cash-title"><strong>Uber Cash</strong><span class="cash-balance-badge">Balance</span></span><small>${e(status+(expiry?' · '+expiry:''))}</small></span><div class="cash-entry-value"><strong class="cash-entry-balance${cash?.remaining!=null&&['verified','verified_reconciled','estimated'].includes(cash.status)?'':' cash-balance-unknown'}">${e(cash?.remaining!=null&&['verified','verified_reconciled','estimated'].includes(cash.status)?cashMoney(cash.remaining):'Unknown')}</strong>${cash.remaining!=null&&['estimated','verified_reconciled'].includes(cash.status)?'<span class="account-estimate-label">Estimated</span>':''}</div>${financeIcon('chevron-down')}</summary><div class="account-cash-body">${accountCreditHistory(account,cashItems)}<div data-account-balance-editor="${e(account.accountRef)}"></div></div></details>`;
+      return `<details class="account-cash-entry" data-cash-entry data-cash-state="${e(cash.status)}" data-disclosure-key="cash"><summary>${financeIcon('wallet')}<span class="account-cash-copy"><span class="account-cash-title"><strong>Uber Cash</strong><span class="cash-balance-badge">Balance</span></span><small>${e(status+(expiry?' · '+expiry:''))}</small></span><div class="cash-entry-value"><strong class="cash-entry-balance${cash?.remaining!=null&&['verified','verified_reconciled','estimated'].includes(cash.status)?'':' cash-balance-unknown'}">${e(cash?.remaining!=null&&['verified','verified_reconciled','estimated'].includes(cash.status)?cashMoney(cash.remaining):'Unknown')}</strong>${cash.remaining!=null&&['estimated','verified_reconciled'].includes(cash.status)?'<span class="account-estimate-label">Estimated</span>':''}</div>${financeIcon('chevron-down')}</summary><div class="account-cash-body"><dl class="cash-current-summary"><div><dt>Current balance</dt><dd>${e(cash.remaining!=null&&['verified','verified_reconciled','estimated'].includes(cash.status)?cashMoney(cash.remaining):'Unknown')}${cash.status==='estimated'||cash.status==='verified_reconciled'?'<small>Estimated</small>':''}</dd></div><div><dt>Last checked</dt><dd>${e(cash.verifiedAt?formatEvidenceTime(cash.verifiedAt):'Not checked')}</dd></div></dl>${accountCreditHistory(account,cashItems)}<div data-account-balance-editor="${e(account.accountRef)}"></div></div></details>`;
     }
 
     function accountSheetRecord(ref){
@@ -3540,7 +3539,7 @@
       const first=groups.find(g=>g.records.length)?.key||'completed';
       const category=originating?.key||accountHistorySelections.get(openAccountRef)||first;
       accountHistorySelections.set(openAccountRef,category);
-      return `<details id="accountOfferHistory" class="offer-history"${expanded.has('accountOfferHistory')||originating?' open':''}><summary><span class="account-history-title">${financeIcon('archive')}<span>Past &amp; other offers</span><small class="account-history-count">${total.toLocaleString('en-GB')}</small>${financeIcon('chevron-down')}</span></summary><div class="account-history-groups">${accountHistoryControls(groups,category)}<div class="account-history-results">${accountHistoryResults(groups,category,expanded)}</div></div></details>`;
+      return `<details id="accountOfferHistory" class="offer-history"${expanded.has('accountOfferHistory')||originating?' open':''}><summary><span class="account-history-title">${financeIcon('history')}<span>Past &amp; other offers</span><small class="account-history-count">${total.toLocaleString('en-GB')}</small>${financeIcon('chevron-down')}</span></summary><div class="account-history-groups">${accountHistoryControls(groups,category)}<div class="account-history-results">${accountHistoryResults(groups,category,expanded)}</div></div></details>`;
     }
     function chooseAccountHistoryCategory(category, focus=false) {
       const groups=accountHistoryModels.get(openAccountRef),history=document.getElementById('accountOfferHistory');if(!groups||!history||!groups.some(g=>g.key===category))return;
@@ -3578,8 +3577,8 @@
       const methods = [...new Set((Array.isArray(account.loginMethods) ? account.loginMethods : account.loginMethod === 'Both' ? ['iCloud','Google'] : [account.loginMethod]).filter(value => ['iCloud','Google'].includes(value)))];
       const access = account.canLogin === true && account.accessStatus !== 'pending' ? 'Can log in' : account.canLogin === false ? 'Can’t log in' : 'Not confirmed';
       const archived = accountArchived(currentAccountState(account)), deactivated = account.deactivated || account.accountStatus === 'deactivated';
-      return `<section class="account-management" data-disclosure-key="manage-account" data-expanded="false"><h3><button type="button" class="account-management-toggle" id="accountManagementToggle" data-account-management-toggle aria-expanded="false" aria-controls="accountManagementBody">${financeIcon('menu-sliders')}<span>Manage account</span>${financeIcon('chevron-down')}</button></h3><div id="accountManagementBody" class="account-management-body" hidden>
-        <dl class="account-record-summary"><div><dt>Login access</dt><dd class="account-record-access${access === 'Can log in' ? ' positive' : ''}">${access === 'Can log in' ? '<span class="status-dot" aria-hidden="true"></span>' : ''}${e(access)}</dd></div><div><dt>Login method</dt><dd class="account-record-methods">${methods.length ? methods.map(method => `<span>${financeIcon(method === 'iCloud' ? 'cloud' : 'google')}${method}</span>`).join('') : 'Not confirmed'}</dd></div></dl>
+      return `<section class="account-management" data-disclosure-key="manage-account" data-expanded="false"><h3><button type="button" class="account-management-toggle" id="accountManagementToggle" data-account-management-toggle aria-expanded="false" aria-controls="accountManagementBody">${financeIcon('user')}<span>Manage account</span>${financeIcon('chevron-down')}</button></h3><div id="accountManagementBody" class="account-management-body" hidden>
+        <dl class="account-record-summary account-record-reference"><div><dt>Login access</dt><dd class="account-record-access${access === 'Can log in' ? ' positive' : ''}">${access === 'Can log in' ? '<span class="status-dot" aria-hidden="true"></span>' : ''}${e(access)}</dd></div><div><dt>Login method</dt><dd class="account-record-methods">${methods.length ? methods.map(method => `<span>${financeIcon(method === 'iCloud' ? 'cloud' : 'google')}${method}</span>`).join('') : 'Not confirmed'}</dd></div></dl>
         ${accountCashEntry(account,allPromosForAccount(account.accountRef).filter(p=>p.discountType==='uberCash'))?'<button type="button" class="account-sheet-link" data-manage-balance="true">Update balance</button>':`<div data-account-balance-editor="${e(account.accountRef)}"></div>`}${receiptRule}<p class="account-record-source">From your account records.</p>
         <section class="account-notes"><div><span>Notes</span><button type="button" class="account-management-action" data-edit-account-note="true">Edit</button></div><p data-account-note-text>${e(note||'No notes')}</p><div data-account-note-editor hidden><label class="sr-only" for="accountNote">Account notes</label><textarea id="accountNote" maxlength="10000" rows="3">${e(note)}</textarea><div><button type="button" class="account-management-action" data-save-account-note="true">Save</button><button type="button" class="account-management-action" data-cancel-account-note="true">Cancel</button></div></div></section>
         <p class="account-management-feedback" role="status" aria-live="polite" hidden></p><div class="account-archive-row">${financeIcon('archive')}<div><span>${archived ? 'Archived account' : 'Archive account'}</span><small>Keeps receipts and history.</small></div><button type="button" class="account-management-action" data-account-archive="${!archived}"${deactivated ? ' disabled' : ''}>${archived ? 'Unarchive' : 'Archive'}</button></div>
@@ -3647,7 +3646,7 @@
       if(reviewItems.length)historyGroups.push({key:'review',label:'Needs checking',records:reviewItems.map(promo=>({kind:'promo',key:promoStateKey(promo),promo,activity:promotionActivity(manualStore,promo)}))});
       const ranked=rankPromosForSpend(liveItems,currentBasket(),{service:'Uber Eats',accountRef:account.accountRef,accessibleOnly:false});
       const preferred=accountOfferToOpen||(window.history.state?.trackerAccount===account.accountRef?window.history.state.trackerOffer:null)||ranked[0]?.promo?.id||liveItems[0]?.id;
-      liveItems.sort((a,b)=>Number(promoStateKey(b)===preferred)-Number(promoStateKey(a)===preferred));
+      liveItems.sort((a,b)=>Number(promoStateKey(b)===preferred)-Number(promoStateKey(a)===preferred)||Number(Boolean(b.promoInUse))-Number(Boolean(a.promoInUse)));
       historicItems.sort((a,b)=>Number(promoStateKey(b)===preferred)-Number(promoStateKey(a)===preferred));
       const receiptMet=currentAccountState(account).accountUsed;
       const cashEntry=accountCashEntry(account,cashItems);
@@ -3657,12 +3656,12 @@
       const access=account.canLogin===true?'Can log in':account.canLogin===false?'Can’t log in':'Not confirmed';
       accountSheetClock=accountSheetClockKey();
       const calc=accountCalculator?.accountRef===account.accountRef?accountCalculator:(accountCalculator=initialiseAccountCalculator(account.accountRef,accountOfferToOpen));
-      host.innerHTML=`<div data-account-sheet="${escapeHtml(account.accountRef)}"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">${accountProviderIcon(account)}</span><div class="account-identity-copy"><div class="account-sheet-email">${escapeHtml(accountDisplay(account))}</div><span class="account-login-badge${account.canLogin===true?' positive':''}"><span class="status-dot"></span>${escapeHtml(access+(loginMethodLabel(account)==='Not set'?'':' with '+loginMethodLabel(account)))}</span></div></div><div class="account-sheet-actions">${deviceEmail(deviceAccounts,account)?`<button class="account-secondary" data-copy-email="${escapeHtml(account.accountRef)}">${financeIcon('copy')}Copy email</button>`:`<button class="account-secondary" data-copy-import="true">${financeIcon('copy')}Copy email</button>`}<button class="account-primary" data-use-this-account="${escapeHtml(account.accountRef)}"${!account.privateHistoryOnly&&currentAccountState(account).recommendationEligible?'':' disabled'}>${financeIcon('external')}Use this account</button></div></section>${receiptReviewAction(account)}<section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>${summaryCount}</span></div>${!liveItems.length?'<p class="account-no-offers">'+(preferredGroups.other.length?'Other offers are in Past &amp; other offers.':'No current promos.')+'</p>':''}${liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}${cashEntry}${liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):promoStateKey(p)===preferred})).join('')}</section>${accountHistoryMarkup(historyGroups,expanded,activeExpanded)}${account.privateHistoryOnly?'':`<section class="account-calculator"><div class="account-calculator-panel"><h3>Calculate with</h3>${accountCalculatorMarkup(calc)}</div></section>`}${accountManagementMarkup(account,receiptMet?`<details class="account-rule-note" data-disclosure-key="receipt-rule"><summary>${financeIcon('check-circle')}Account receipt rule met${financeIcon('chevron-down')}</summary><p>${escapeHtml(receiptHistoryText(account))}. Offers can still be available.</p></details>`:'')}</div>`;
+      host.innerHTML=`<div data-account-sheet="${escapeHtml(account.accountRef)}"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">${accountProviderIcon(account)}</span><div class="account-identity-copy"><div class="account-sheet-email">${escapeHtml(accountDisplay(account))}</div><span class="account-login-route">${escapeHtml(loginRouteText(account))}</span></div><span class="account-login-badge${account.canLogin===true?' positive':''}"><span class="status-dot"></span>${escapeHtml(access)}</span></div><div class="account-sheet-actions">${deviceEmail(deviceAccounts,account)?`<button class="account-secondary" data-copy-email="${escapeHtml(account.accountRef)}">${financeIcon('copy')}Copy email</button>`:`<button class="account-secondary" data-copy-import="true">${financeIcon('copy')}Copy email</button>`}<button class="account-primary" data-use-this-account="${escapeHtml(account.accountRef)}"${!account.privateHistoryOnly&&currentAccountState(account).recommendationEligible?'':' disabled'}>${financeIcon('external')}Use this account</button></div></section>${receiptReviewAction(account)}<section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>${summaryCount}</span></div>${!liveItems.length?'<p class="account-no-offers">'+(preferredGroups.other.length?'Other offers are in Past &amp; other offers.':'No current promos.')+'</p>':''}${liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):false})).join('')}${liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):false})).join('')}${cashEntry}</section>${historyGroups.some(g=>g.records.length)?'<h3 class="account-section-caption">History</h3>':''}${accountHistoryMarkup(historyGroups,expanded,activeExpanded)}<h3 class="account-section-caption">Account</h3>${accountManagementMarkup(account,receiptMet?`<details class="account-rule-note" data-disclosure-key="receipt-rule"><summary>${financeIcon('check-circle')}Account receipt rule met${financeIcon('chevron-down')}</summary><p>${escapeHtml(receiptHistoryText(account))}. Offers can still be available.</p></details>`:'')}</div>`;
       if(previous){restoreAccountDisclosureState({expanded:[...expanded],scroll});}
       if(accountOfferToOpen){
         const credit=[...host.querySelectorAll('[data-credit-offers]')].find(row=>JSON.parse(row.dataset.creditOffers).includes(accountOfferToOpen));
         const target=credit||(accountOfferToOpen==='cash'?host.querySelector('[data-cash-entry],#accountOfferHistory'):host.querySelector('[data-offer-key="'+CSS.escape(accountOfferToOpen)+'"]'));
-        if(target){target.open=true;for(let parent=target.parentElement.closest('details');parent&&host.contains(parent);parent=parent.parentElement.closest('details'))parent.open=true;}
+        if(target&&(target.matches('[data-cash-entry],.past-offer')||target.closest('#accountOfferHistory'))){target.open=true;for(let parent=target.parentElement.closest('details');parent&&host.contains(parent);parent=parent.parentElement.closest('details'))parent.open=true;}
       }else if(!previous&&!liveItems.length&&currentCash){const row=host.querySelector('[data-cash-entry]');if(row)row.open=true;}
       if(window.history.state?.trackerSheet==='account')window.history.replaceState({...window.history.state,trackerOffer:accountOfferToOpen||window.history.state.trackerOffer},'');
       observeUsageSlots(host);
@@ -3764,17 +3763,18 @@
         getSource:()=>({data:financeVault.data,storeStatus:financeVault.status,corrections:financeVault.current().corrections,payload,offers:[...promos,...history]}),
         getScroll:()=>window.scrollY,setScroll:top=>window.scrollTo({top,behavior:'instant'}),
         onHeading:(title,state)=>{
-          if(!state.receiptId){document.getElementById('receiptInsightsTitle').textContent=title;const subtitle=document.getElementById('receiptInsightsSubtitle');subtitle.textContent=state.reviewHub?'':state.page==='savings'?'Your promo savings over time':state.page==='finance'?'':'Spending and payments from receipts';subtitle.hidden=!subtitle.textContent;document.getElementById('receiptInsightsInfo').textContent=state.reviewHub?'Review counts use receipt dates within the selected period and service. Corrected receipts can still need checking when details remain missing. Corrections preserve imported values and are not automatic verification.':state.page==='finance'?'Payments and refunds are shown in their recorded currency. Uber Cash is separate. Unknown payment methods and refund destinations are not assumed to be cards. Reviewed net amounts are not reduced by their refund twice. Dates use recorded payment/refund dates, falling back to the receipt date. Gross and refunds remain unknown where only an adjusted net payment is supported.':state.page==='savings'?'Recorded promo discounts only. Uber Cash is a payment source, not promo savings. Averages use orders or rides with a positive recorded promo discount; zero and unknown discounts are excluded. Totals are in GBP; other currencies stay separate. Offers are attributed only by confirmed account and receipt links. Some imported emails only report combined Uber One and promotion savings; those do not establish an itemised promo discount.':'Out-of-pocket spend uses recorded non-credit payments, or compatible receipt totals minus recorded Uber Cash. Receipt totals include credit; they are not your bank or card spending. Missing amounts are not zero. GBP totals exclude other currencies.';return;}
+          if(!state.receiptId){document.getElementById('receiptInsightsTitle').textContent=title;const subtitle=document.getElementById('receiptInsightsSubtitle');subtitle.textContent=state.reviewHub?'Check receipts so your totals stay right.':state.page==='savings'?(state.savingsList?'Receipts with promo discounts':'Your promo savings over time'):state.page==='finance'?'Payments and refunds.':'Spending and payments from receipts';subtitle.hidden=!subtitle.textContent;document.getElementById('receiptInsightsInfo').textContent=state.reviewHub?'Review counts use receipt dates within the selected period and service. Corrected receipts can still need checking when details remain missing. Corrections preserve imported values and are not automatic verification.':state.page==='finance'?'Payments and refunds are shown in their recorded currency. Uber Cash is separate. Unknown payment methods and refund destinations are not assumed to be cards. Reviewed net amounts are not reduced by their refund twice. Dates use recorded payment/refund dates, falling back to the receipt date. Gross and refunds remain unknown where only an adjusted net payment is supported.':state.page==='savings'?'Recorded promo discounts only. Uber Cash is a payment source, not promo savings. Averages use orders or rides with a positive recorded promo discount; zero and unknown discounts are excluded. Totals are in GBP; other currencies stay separate. Offers are attributed only by confirmed account and receipt links. Some imported emails only report combined Uber One and promotion savings; those do not establish an itemised promo discount.':'Out-of-pocket spend uses recorded non-credit payments, or compatible receipt totals minus recorded Uber Cash. Receipt totals include credit; they are not your bank or card spending. Missing amounts are not zero. GBP totals exclude other currencies.';return;}
           setSheetHeading(title,'');
           const sheet=document.querySelector('.sheet'),head=sheet.querySelector('.sheet-head');sheet.dataset.receiptInsights='detail';
           const back=document.createElement('button');back.type='button';back.className='ri-back';back.setAttribute('aria-label',state.page==='finance'?'Back to Finances':state.page==='savings'?'Back to Savings receipts':'Back to Receipt insights');back.innerHTML=financeIcon('chevron-left');back.onclick=()=>closeSheet();head.prepend(back);
         },
         onReviewReceipt:id=>openUtilitySheet('finance','check',false,null,id),
+        onUndoCorrection:async id=>{await financeVault.changeHistory('receipt',id,'undo');await privateDataUpdated();},
         onOpenReceipt:id=>{
           openSheetType='receipt-detail';receiptInsightsView.openReceipt(id);showSheet();document.querySelector('.ri-back').focus({preventScroll:true});
         }
       });
-      if(openSheetType!=='receipt-detail'){if(currentView==='savings'&&!receiptInsightsView.state.serviceSaved)receiptInsightsView.state.service=DEFAULT_SAVINGS_SERVICE;if(receiptInsightsView.state.page!==currentView){receiptInsightsView.state.savingsList=false;receiptInsightsView.state.savingsOffer=null;}receiptInsightsView.state.page=currentView;receiptInsightsView.state.receiptId=null;receiptInsightsView.render();}
+      if(openSheetType!=='receipt-detail'){if(currentView==='savings'&&!receiptInsightsView.state.serviceSaved)receiptInsightsView.state.service=DEFAULT_SAVINGS_SERVICE;if(receiptInsightsView.state.page!==currentView){receiptInsightsView.state.savingsList=false;receiptInsightsView.state.savingsOffer=null;receiptInsightsView.state.savingsReceiptIds=null;}receiptInsightsView.state.page=currentView;receiptInsightsView.state.receiptId=null;receiptInsightsView.render();}
     }
 
     function renderAboutSheet() {
@@ -3799,7 +3799,7 @@
     function privateDataUpdated(){
       restoreSourceProjection();
       privateWallets=financeVault.current().wallets;invalidateAccountProjection();reconcileLocalEvidence();reviewData=reviewView=null;
-      renderAccounts();renderUsed();renderRecommendation();if(currentView==='home')renderStats();
+      renderAccounts();renderRecommendation();if(currentView==='home')renderStats();
       if(openSheetType==='account')renderAccountSheet();
       if(['receipts','savings','finance'].includes(currentView)||openSheetType==='receipt-detail')receiptInsightsView?.refresh();
     }
@@ -3860,12 +3860,12 @@
     }
 
     function showSheet() {
-      if (!routeRestoring && ['offers','planner','used','accounts','receipts','savings','finance'].includes(currentView)) {
+      if (!routeRestoring && ['offers','planner','accounts','receipts','savings','finance'].includes(currentView)) {
         const state = window.history.state;
         if (routeEntries.has(state?.trackerEntry)) routeEntries.get(state.trackerEntry).scroll = window.scrollY;
         const entry = ++routeSerial;
         currentRouteEntry = entry;
-        routeEntries.set(entry, {opener: document.activeElement, scroll: window.scrollY, accountRef:openAccountRef||sheetOpener?.dataset.accountOffers, activityKey:document.activeElement?.dataset.activityRecord||sheetOpener?.dataset.activityRecord});
+        routeEntries.set(entry, {opener: document.activeElement, scroll: window.scrollY, accountRef:openAccountRef||sheetOpener?.dataset.accountOffers});
         const receiptChild=Boolean(accountReceiptReturn&&openSheetType==='finance');
         const method=state?.trackerSheet&&!(receiptChild&&state.trackerSheet==='account')?'replaceState':'pushState';
         window.history[method]({trackerView: currentView, trackerEntry: entry, trackerSheet: openSheetType, trackerAccount: openAccountRef,trackerOffer: accountOfferToOpen,accountReceiptChild:receiptChild,trackerReceipt:openSheetType==='receipt-detail'?receiptInsightsView.state.receiptId:null}, '', '#' + currentView);
@@ -3880,7 +3880,7 @@
       backdrop.classList.add("open");
       backdrop.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
-      document.getElementById("sheetClose").focus();
+      document.getElementById("sheetClose").focus();updateSidebar();
     }
 
     function closeSheet(skipHistory = false) {
@@ -3898,10 +3898,8 @@
       if (sheetOpener?.isConnected) sheetOpener.focus({preventScroll:true});
       sheetOpener = null;
       openSheetType = null;
-      openAccountRef = null;
+      openAccountRef = null;updateSidebar();
     }
-
-    function renderUsedInformation(){setSheetHeading('How statuses work','Accounts and offers are counted separately.');document.getElementById('sheetBody').innerHTML='<div class="setting-card"><p>Usage is complete with at least one Eats receipt and one Ride receipt, or at least five Eats receipts. Lime rides count as Ride. Login access stays separate; account usage completion does not mean every promo is exhausted.</p><p>Needs checking counts accounts with uncertain offer or receipt evidence. The record explains the uncertainty.</p><p>Expired offers remain available through Status, including Finished · Expired and Expired · Unused. The summary counts accounts; offer categories count promotions.</p><p>Completed promotions require every permitted use to be verified. Partial use, manual finish and ignore states stay separate.</p></div><button class="advanced-btn" data-open-guide="verification">Read the full status guide ›</button>';}
 
     function openUtilitySheet(type, financeTarget = null, financeMissing = false, financeAccount = null, financeReceipt = null) {
       if(type==='device'){if(currentView!=='sync')switchView('sync');if(openSheetType)closeSheet(true);openAccountImporter();return;}
@@ -3939,7 +3937,6 @@
       const financeRevision = ++financeOpenRevision;
       openAccountRef = null;
 
-      if(type==='used-info')renderUsedInformation();
       if (type === 'about') renderAboutSheet();
       if (type === "advanced") renderAdvancedSheet();
       if (type === "locked") renderLockedSheet();
@@ -4021,6 +4018,7 @@
       if (openSheetType === "account") renderAccountSheet();
     }
 
+    function updateSidebar(){desktopShell?.update({view:currentView,sheet:openSheetType,archived:accounts.map(currentAccountState).filter(accountArchived).length});}
     function renderAll() {
       if(['receipts','savings','finance'].includes(currentView))renderReceiptsPage();
       renderStatus();
@@ -4028,10 +4026,10 @@
         renderStats();
         renderRecommendation();
       } else if (currentView === 'accounts') renderAccounts();
-      else if (currentView === 'used') renderUsed();
       else if (currentView === 'sync') renderSyncPage();
       else if (currentView === 'settings') renderSettingsPage();
       else if (currentView === 'more') renderMore();
+      updateSidebar();
       renderedClockKey = timedViewKey();
     }
 
@@ -4064,7 +4062,7 @@
     const routeName=location.hash.slice(1).split(/[?&]/)[0];
     const legacyOfferEntry=['offers','find-offer','find-an-offer'].includes(routeName);
     const financeAlias=['private-finances','private-finance','finances'].includes(routeName);
-    const initialView=['health','sync-data'].includes(routeName)?'sync':financeAlias?'finance':legacyOfferEntry?'accounts':['home','accounts','used','more','settings','planner','receipts','savings','finance','sync'].includes(routeName)?routeName:'home';
+    const initialView=['health','sync-data'].includes(routeName)?'sync':financeAlias?'finance':legacyOfferEntry?'accounts':['home','accounts','more','settings','planner','receipts','savings','finance','sync'].includes(routeName)?routeName:'home';
     let pendingOfferEntry=legacyOfferEntry;
     function applyDirectoryRouteParams(){
       const params=new URLSearchParams(location.search);new URLSearchParams(location.hash.replace(/^#[^?&]*[?&]?/,'')).forEach((value,key)=>params.set(key,value));
@@ -4079,7 +4077,7 @@
       document.getElementById('accountSearch').value=params.get('q')||params.get('search')||params.get('accountRef')||'';
     }
     if(legacyOfferEntry||routeName==='accounts')applyDirectoryRouteParams();
-    window.history.replaceState({trackerView: initialView, trackerEntry: 0}, '', initialView === 'home' ? location.href : '#' + initialView+(initialView==='accounts'&&location.hash.includes('?')?'?'+location.hash.split('?')[1]:''));
+    window.history.replaceState({trackerView: initialView, trackerEntry: 0}, '', initialView === 'home' ? location.pathname+location.search+'#home' : '#' + initialView+(initialView==='accounts'&&location.hash.includes('?')?'?'+location.hash.split('?')[1]:''));
     window.history.scrollRestoration = 'manual';
     function recordViewRoute(view,{preserveSheet=false,navigationParent=null}={}) {
       if (routeRestoring || (window.history.state?.trackerView === view && !window.history.state?.trackerSheet)) return;
@@ -4098,6 +4096,8 @@
     }
     let moreScrollPosition=0,accountsScrollPosition=0;
     function switchView(view,routeOptions) {
+      if(view==='more'&&matchMedia('(min-width:768px)').matches){view='home';window.history.replaceState({...window.history.state,trackerView:'home'},'','#home');}
+      if(!['home','accounts','more','settings','planner','offers','receipts','savings','finance','sync','help','preferred-promos','preferred-catalogue'].includes(view))view='home';
       const findOffer=view==='offers'||routeOptions?.offerSelector;if(view==='offers')view='accounts';
       if(currentView==='sync')syncScrollPosition=window.scrollY;
       if(currentView==='accounts'){accountsScrollPosition=window.scrollY;if(view!=='accounts')closeAccountPicker();}
@@ -4108,8 +4108,8 @@
       if(currentView==='receipts'&&view!=='receipts'&&receiptInsightsView?.state.reviewContext){Object.assign(receiptInsightsView.state,receiptInsightsView.state.reviewContext,{reviewAccountRef:null,reviewContext:null,reviewHub:false,correctedOnly:false});}
       recordViewRoute(view,routeOptions);
       if(view==='receipts'&&routeRestoring&&routeEntries.get(currentRouteEntry)?.reviewState)Object.assign(receiptInsightsView.state,routeEntries.get(currentRouteEntry).reviewState);
-      currentView = view;updateBrowserTheme();
-      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','used','settings','more','preferred-promos','preferred-catalogue','receipts','savings','finance','sync'].includes(view));
+      currentView = view;updateBrowserTheme();updateSidebar();
+      document.getElementById('app').classList.toggle('detail-mode', ['offers','planner','accounts','settings','more','preferred-promos','preferred-catalogue','receipts','savings','finance','sync'].includes(view));
       renderAll();
       let activeSection = null;
 
@@ -4140,10 +4140,10 @@
       else { const detail = currentView; switchView('home'); document.querySelector('#view-home [data-home-detail="' + detail + '"]')?.focus({preventScroll:true}); }
     }
     window.addEventListener('hashchange',()=>{
-      const name=location.hash.slice(1).split(/[?&]/)[0],alias=['private-finances','private-finance','finances','health','sync-data'].includes(name),direct=['home','accounts','used','more','settings','planner','receipts','savings','finance','sync'].includes(name);
-      if(direct&&window.history.state?.trackerView===name)return;
+      const name=location.hash.slice(1).split(/[?&]/)[0],alias=['private-finances','private-finance','finances','health','sync-data'].includes(name),direct=['home','accounts','more','settings','planner','receipts','savings','finance','sync'].includes(name);
+      if(window.history.state?.trackerView===name&&(direct||['help','preferred-promos','preferred-catalogue'].includes(name)))return;
       if(alias||direct){const target=['health','sync-data'].includes(name)?'sync':alias?'finance':name;if(target==='accounts'&&location.hash.includes('?'))applyDirectoryRouteParams();const old=currentRouteEntry;if(routeEntries.has(old))routeEntries.get(old).scroll=window.scrollY;closeSheet(true);currentRouteEntry=++routeSerial;routeEntries.set(currentRouteEntry,{scroll:0,opener:document.activeElement,position:window.history.length-1});window.history.replaceState({trackerView:target,trackerEntry:currentRouteEntry},'','#'+target);routeRestoring=true;switchView(target);routeRestoring=false;window.scrollTo({top:0,behavior:'instant'});return;}
-      if(!['offers','find-offer','find-an-offer'].includes(name))return;
+      if(!['offers','find-offer','find-an-offer'].includes(name)){if(name){closeSheet(true);switchView('home');window.history.replaceState({...window.history.state,trackerView:'home'},'','#home');}return;}
       applyDirectoryRouteParams();const old=currentRouteEntry;routeEntries.get(old).scroll=window.scrollY;currentRouteEntry=++routeSerial;
       routeEntries.set(currentRouteEntry,{scroll:0,opener:document.activeElement,position:window.history.length-1});
       window.history.replaceState({trackerView:'accounts',trackerEntry:currentRouteEntry},'','#accounts'+(location.hash.includes('?')?'?'+location.hash.split('?')[1]:''));
@@ -4184,20 +4184,20 @@
       switchView(state.trackerView);
       if (state.trackerSheet === 'advanced') openUtilitySheet('advanced');
       else if (state.trackerSheet === 'account') openAccountSheet(state.trackerAccount,state.trackerOffer,routeEntries.get(state.trackerEntry)?.accountSnapshot);
-      else if(['used-info','theme','sync-info'].includes(state.trackerSheet))openUtilitySheet(state.trackerSheet);
+      else if(['theme','sync-info'].includes(state.trackerSheet))openUtilitySheet(state.trackerSheet);
       routeRestoring = false;
       window.scrollTo({top:routeEntries.get(state.trackerEntry)?.scroll || 0,behavior:'instant'});
       const opener = leaving?.opener;
+      if(state.trackerView==='preferred-promos')requestAnimationFrame(()=>document.getElementById('browsePreferredPromos')?.focus({preventScroll:true}));
       if(state.trackerView==='settings'&&preferredViews.has(leaving?.preferredView))requestAnimationFrame(()=>document.getElementById('preferredPromosButton')?.focus({preventScroll:true}));
       if (!state.trackerSheet && opener?.isConnected && opener.getClientRects().length) opener.focus({preventScroll:true});
-      else if (!state.trackerSheet) {const view=document.getElementById('view-'+state.trackerView); const restored=leaving?.accountRef&&view?.querySelector('[data-account-offers="'+CSS.escape(leaving.accountRef)+'"]') || leaving?.activityKey&&view?.querySelector('[data-activity-record="'+CSS.escape(leaving.activityKey)+'"]');(restored||view?.querySelector('h1'))?.focus({preventScroll:true});}
+      else if (!state.trackerSheet) {const view=document.getElementById('view-'+state.trackerView); const restored=leaving?.accountRef&&view?.querySelector('[data-account-offers="'+CSS.escape(leaving.accountRef)+'"]');(restored||view?.querySelector('h1'))?.focus({preventScroll:true});}
       // Returning to the directory can change the dock height (especially with
       // larger text). Restore after its measured clearance has been applied so
       // the browser does not clamp the saved position to the shorter fallback.
-      if(['accounts','used'].includes(state.trackerView)&&!state.trackerSheet) {
+      if(['accounts'].includes(state.trackerView)&&!state.trackerSheet) {
         const scroll=routeEntries.get(state.trackerEntry)?.scroll||0;
-        requestAnimationFrame(()=>{if(currentRouteEntry!==state.trackerEntry||!['accounts','used'].includes(currentView))return;
-          if(state.trackerView==='used'&&leaving?.opener?.dataset.activityRecord)document.querySelector('[data-activity-record="'+CSS.escape(leaving.opener.dataset.activityRecord)+'"]')?.focus({preventScroll:true});
+        requestAnimationFrame(()=>{if(currentRouteEntry!==state.trackerEntry||!['accounts'].includes(currentView))return;
 
           window.scrollTo({top:scroll,behavior:'instant'});
         });
@@ -4209,10 +4209,10 @@
       detailViewportFrame = requestAnimationFrame(() => {
         detailViewportFrame = 0;
         const root = document.documentElement;
-        const view = document.querySelector('#view-planner.active, #view-offers.active, #view-accounts.active, #view-used.active, #view-settings.active, #view-more.active, #view-preferred-promos.active, #view-preferred-catalogue.active, #view-receipts.active, #view-sync.active, #view-home.active');
+        const view = document.querySelector('#view-planner.active, #view-offers.active, #view-accounts.active, #view-settings.active, #view-more.active, #view-preferred-promos.active, #view-preferred-catalogue.active, #view-receipts.active, #view-sync.active, #view-home.active');
         const active = Boolean(view);
         const prefix = view?.id?.slice(5) || 'planner';
-        for(const name of ['planner','offers','accounts','used','settings','more','receipts','sync','home'])if(name!==prefix)root.style.removeProperty('--'+name+'-nav-clearance');
+        for(const name of ['planner','offers','accounts','settings','more','receipts','sync','home'])if(name!==prefix)root.style.removeProperty('--'+name+'-nav-clearance');
         const rootStyle = active ? getComputedStyle(root) : null;
         updateBrowserTheme();
         const nav = document.getElementById('mainNav');
@@ -4225,9 +4225,9 @@
         const bottom = parseFloat(style.bottom);
         const gap = parseFloat(rootStyle.getPropertyValue('--' + prefix + '-nav-gap')) || 16;
         const rect=nav.getBoundingClientRect();
-        if(['home','sync','accounts','used'].includes(prefix)&&(rect.height<=0||style.visibility==='hidden'))return;
+        if(['home','sync','accounts'].includes(prefix)&&(rect.height<=0||style.visibility==='hidden'))return;
         const occupied=rect.height+(Number.isFinite(bottom)?bottom:0);
-        const clearance = Math.ceil((['home','sync','accounts','used'].includes(prefix)?Math.max(occupied,innerHeight-rect.top):occupied)+gap)+'px';
+        const clearance = Math.ceil((['home','sync','accounts'].includes(prefix)?Math.max(occupied,innerHeight-rect.top):occupied)+gap)+'px';
         if (root.style.getPropertyValue('--' + prefix + '-nav-clearance') !== clearance) root.style.setProperty('--' + prefix + '-nav-clearance', clearance);
       });
     }
@@ -4346,6 +4346,7 @@
       } finally { loadInProgress = false; lastSnapshotCheckedAt = Date.now(); refreshTimedViews(); }
     }
 
+    desktopShell=createDesktopShell({app:document.getElementById('app'),more:document.getElementById('view-more'),onNavigate:switchView,onDesktop:()=>{if(currentView==='more')switchView('home');queueDetailViewport();}});
     const mainNav = document.getElementById('mainNav');
     mainNav.dataset.motion=motionSetting;
 
@@ -4385,29 +4386,6 @@
     document.getElementById('accountProvider').addEventListener('change',e=>{accountProviderFilter=e.target.value;accountDisplayLimit=48;renderAccounts();});
     document.getElementById('accountSort').addEventListener('change',e=>{accountSort=e.target.value;accountDisplayLimit=48;renderAccounts();});
     document.getElementById('accountLoginTabs').addEventListener('click',e=>{const b=e.target.closest('[data-login-filter]');if(b){accountLoginFilter=b.dataset.loginFilter;accountDisplayLimit=48;renderAccounts();}});
-    function chooseUsedStatus(status){closeUsedPicker();usedState={...usedState,status,full:false,limit:24};renderUsed();}
-    document.getElementById('usedSearch').addEventListener('input',e=>{usedState.query=e.target.value;usedState.full=false;usedState.limit=24;renderUsed();});
-    function closeUsedPicker(restore=false){document.getElementById('usedStatusOptions').hidden=true;document.getElementById('usedStatus').setAttribute('aria-expanded','false');if(restore)document.getElementById('usedStatus').focus({preventScroll:true});}
-    function openUsedPicker(last=false){
-      const menu=document.getElementById('usedStatusOptions'),trigger=document.getElementById('usedStatus');
-      menu.hidden=false;trigger.setAttribute('aria-expanded','true');
-      replayMotion(menu,'motion-refresh');
-      (last?menu.lastElementChild:menu.querySelector('[aria-selected="true"]')||menu.firstElementChild)?.focus({preventScroll:true});
-    }
-
-    document.getElementById('usedStatus').addEventListener('click',()=>document.getElementById('usedStatusOptions').hidden?openUsedPicker():closeUsedPicker(true));
-    document.getElementById('usedStatus').addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();openUsedPicker(e.key==='ArrowUp');}});
-    document.getElementById('usedStatusOptions').addEventListener('click',e=>{const b=e.target.closest('[data-status-option]');if(b){closeUsedPicker(true);chooseUsedStatus(b.dataset.statusOption);}});
-    document.getElementById('usedStatusOptions').addEventListener('keydown',e=>{const options=[...e.currentTarget.children],i=options.indexOf(document.activeElement);if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeUsedPicker(true);}else if(e.key==='Tab'){closeUsedPicker();}else if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){e.preventDefault();options[e.key==='Home'?0:e.key==='End'?options.length-1:(i+(e.key==='ArrowDown'?1:-1)+options.length)%options.length].focus();}});
-    document.addEventListener('click',e=>{if(!e.target.closest('.used-status-control'))closeUsedPicker();});
-    document.getElementById('usedSort').addEventListener('change',e=>{usedState.sort=e.target.value;usedState.limit=24;renderUsed();});
-    document.getElementById('view-used').addEventListener('click',e=>{
-      const status=e.target.closest('[data-used-status]');if(status){chooseUsedStatus(status.dataset.usedStatus);return;}
-      if(e.target.closest('[data-used-more]')){usedState.full=true;usedState.limit+=24;renderUsed();(document.querySelector('[data-used-more]')||document.querySelector('.used-info-link'))?.focus({preventScroll:true});return;}
-      if(e.target.closest('[data-reset-used]')){usedState={status:'used',query:'',sort:'latest',full:false,limit:24};document.getElementById('usedSearch').value='';document.getElementById('usedSort').value='latest';renderUsed();return;}
-      if(e.target.closest('[data-used-info]')){e.target.closest('button').focus({preventScroll:true});openUtilitySheet('used-info');return;}
-      const target=e.target.closest('[data-activity-record]');if(target){const r=usedRecordIndex.get(target.dataset.activityRecord);if(r){target.focus({preventScroll:true});openAccountSheet(r.account.accountRef,r.promo?promoStateKey(r.promo):null);if(r.promo)revealOfferHistory(r.promo);}}
-    });
     document.getElementById('clearAccountType').addEventListener('click',event=>{event.stopPropagation();closeAccountPicker();applyOfferScope('all');document.getElementById('accountTypeTrigger').focus({preventScroll:true});});
     document.getElementById('accountPreferredChips').addEventListener('click',event=>{const chip=event.target.closest('[data-preferred-filter]');if(chip){const key=chip.dataset.preferredFilter,focused=document.activeElement===chip;applyOfferScope(key,true,'directory');if(focused)document.querySelector('[data-preferred-filter="'+CSS.escape(key)+'"]')?.focus({preventScroll:true});}});
     document.getElementById('accountTypeTrigger').addEventListener('click',()=>{if(document.getElementById('accountTypeOptions').hidden)openAccountPicker();else closeAccountPicker(true);});
@@ -4416,6 +4394,11 @@
     document.getElementById('accountTypeOptions').addEventListener('keydown',e=>{const menu=e.currentTarget,options=[...menu.children],i=options.indexOf(document.activeElement);if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeAccountPicker(true);}else if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){e.preventDefault();const next=e.key==='Home'?0:e.key==='End'?options.length-1:(i+(e.key==='ArrowDown'?1:-1)+options.length)%options.length;options[next].focus({preventScroll:true});options[next].scrollIntoView({block:'nearest'});}else if(e.key==='Tab'){e.preventDefault();closeAccountPicker();(e.shiftKey?document.getElementById('accountTypeTrigger'):document.querySelector('#accountPreferredChips button')||document.querySelector('#accountSecondaryFilters > summary')).focus();}else if(e.key.length===1&&!e.ctrlKey&&!e.metaKey){const found=options.slice(i+1).concat(options.slice(0,i+1)).find(b=>b.textContent.trim().toLowerCase().startsWith(e.key.toLowerCase()));found?.focus();}});
     document.addEventListener('pointerdown',e=>{if(!e.target.closest('.account-type-picker'))closeAccountPicker();});
     document.addEventListener('focusin',e=>{if(!e.target.closest('.account-type-picker'))closeAccountPicker();});
+    function openDirectoryStatus(scope,query='') {
+      accountFilter=scope;accountLoginFilter='all';accountProviderFilter='all';accountTypeFilter='all';accountOfferScope='any';accountDisplayLimit=48;
+      document.getElementById('accountSearch').value=query;
+      switchView('accounts');document.getElementById('accountSecondaryFilters').open=true;window.scrollTo({top:0,behavior:'instant'});
+    }
     function resetDirectory() {accountFilter='all';accountOfferScope='any';accountTypeFilter='all';saveOfferState({...offerPreferences,selection:'all'});accountProviderFilter='all';accountLoginFilter='all';accountSort='best';document.getElementById('accountSearch').value='';accountDisplayLimit=48;renderAccounts();}
     function openAccountsOffers(){
       if(currentView!=='accounts'){switchView('accounts',{offerSelector:true});return;}
@@ -4434,7 +4417,7 @@
       if(event.target.closest('[data-planner-matches]')) { openAccountsOffers(); return; }
       const homeList=event.target.closest('[data-home-list]');
       if(homeList){const f=homeDirectoryFilters(homeList.dataset.homeList);accountFilter=f.management;accountLoginFilter=f.login;accountProviderFilter=f.provider;accountTypeFilter=f.type;accountOfferScope=f.availability;document.getElementById('accountSearch').value='';accountDisplayLimit=48;switchView('accounts');routeEntries.get(currentRouteEntry).opener=homeList;window.scrollTo({top:0,behavior:'instant'});return;}
-      if(event.target.closest('[data-home-review]')){usedState={...usedState,status:'needs_checking',query:'',full:false,limit:24};document.getElementById('usedSearch').value='';switchView('used');return;}
+      if(event.target.closest('[data-home-review]')){openDirectoryStatus('review');return;}
       const homeDetail = event.target.closest('[data-home-detail]');
       if(homeDetail?.dataset.homeDetail==='offers'){openAccountsOffers();return;}
       if (homeDetail) { switchView(homeDetail.dataset.homeDetail); routeEntries.get(currentRouteEntry).opener = homeDetail; document.getElementById(homeDetail.dataset.homeDetail + 'Title').focus({preventScroll:true}); return; }
@@ -4466,7 +4449,6 @@
         return;
       }
 
-      if (event.target.closest('[data-more-expired]')) { expiredDisplayLimit += 50; renderUsed(); return; }
       const offersButton = event.target.closest("[data-account-offers]");
       if (offersButton) {
         offersButton.focus({preventScroll:true}); openAccountSheet(offersButton.dataset.accountOffers, offersButton.dataset.accountOffer || offersButton.closest('[data-offer-id]')?.dataset.offerId);
@@ -4496,7 +4478,7 @@
     });
 
     document.getElementById("sheetBody").addEventListener("click", event => {
-      const fieldReview=event.target.closest('[data-review-offer-fields]');if(fieldReview){const p=promoByKey(fieldReview.dataset.reviewOfferFields),a=p&&accounts.find(a=>a.accountRef===p.accountRef);if(a){closeSheet(true);usedState={...usedState,status:'needs_checking',query:accountDisplay(a),full:false,limit:24};document.getElementById('usedSearch').value=usedState.query;switchView('used');renderUsed();}return;}
+      const fieldReview=event.target.closest('[data-review-offer-fields]');if(fieldReview){const p=promoByKey(fieldReview.dataset.reviewOfferFields),a=p&&accounts.find(a=>a.accountRef===p.accountRef);if(a){closeSheet(true);openDirectoryStatus('review',accountDisplay(a));}return;}
       if (event.target.closest('[data-show-more-archived]')) {
         archivedDisplayLimit += 80;
         renderLockedSearch(document.getElementById('sheetLockedSearch')?.value || '');

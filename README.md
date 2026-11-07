@@ -182,7 +182,7 @@ Private financial corrections use an encrypted device ledger and an owner-only M
 
 ### Offer preferences and activity
 
-Used accounts is an activity view with search, eight status categories and paged records. Fully used still means at least one Eats plus one Ride receipt, or five Eats receipts. Promotion completion, expiry, manual finish, ignore state, login and archive status remain separate. Summary categories count different entities and must not be added together.
+The main navigation is Home, Accounts and More. Accounts → More filters includes Fully used accounts and Has finished promotions; the separate Used page and route have been removed. Fully used still means at least one Eats plus one Ride receipt, or five Eats receipts. Promotion completion, expiry, manual finish, ignore state, login and archive status remain separate. Recorded uses, receipts and account history are retained.
 
 Discovery defaults to exact £10, £12 and £15 off £15 offers, plus eligible Cash. Settings saves preferred promos and Cash inclusion on this device; explicit selections are preserved when defaults change. Find an offer on Home opens the Accounts offer selector. Account search, offer filters, results and saved selection use one shared implementation; normal tab navigation restores the list position. Other offers remain in a separate searchable picker. Planner uses the same preferences, with an All offers override, and charges the saved fee to every order including the first (£1 by default). It compares estimated out-of-pocket payments, applying Cash after discounts and fees. Unknown Cash/promo compatibility is conditional.
 
