@@ -148,3 +148,30 @@ never put full addresses or confirmation records in repository files or logs.
 Outside an active chat, retain unresolved fields as pending for the next review.
 The website cannot initiate a chat. Do not archive or mark an account ready merely
 because its login details are missing. Preserve its receipts and offers.
+
+## Broader exclusions and questions — 8 November 2026
+
+Apply the owner's categories proactively, rather than only remembering titles.
+Bin grocery/supermarket offers, named-shop or local-shop-only deals, Uber One and
+Member Days promotional offers/credit-earning adverts, seasonal Diwali/Bonfire/
+Halloween advertising, courier/airport/work-trip/feature advertisements, generic
+discovery and re-engagement, the named terms/cancellation/wait-time notices,
+£8 off £25, and discounts requiring two qualifying £15 orders first. Preserve
+receipts, actual billing/credit records, protected codes and phone changes ahead
+of advertising rules. Bin unrewarded surveys; keep explicitly rewarded surveys.
+Flag unclear incentive promises and prize draws and ask before moving them.
+
+The owner explicitly confirmed KEEP for “£12 off 5 orders is still yours to
+enjoy. 🍛 🍝” (£12 off £15) and “Get 40% off your next 5 orders”, including their
+selected-restaurant restriction. This generic restriction is not a named-shop
+advert. Apply that distinction to similar genuine personal offers. Preserve their
+recorded terms and history. Show Selected restaurants in Account details → More
+terms. Prioritize unrestricted offers over otherwise usable selected-restaurant
+offers; keep restricted choices available. Missing restriction data is unknown,
+not proof of unrestricted eligibility.
+
+On every requested Mail check, flag genuinely ambiguous decisions and ask in chat
+using the email TITLE and a brief explanation, in small batches. Leave them
+untouched until answered. Save category decisions to avoid repeated questions.
+Continue asking full addresses and only missing login fields for genuinely new
+receipt-linked accounts. No automatic cleanup scheduler is authorized.
