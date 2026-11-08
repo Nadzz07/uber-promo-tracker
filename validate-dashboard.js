@@ -147,7 +147,7 @@ assert.ok(
   "inaccessible-account search must be wired"
 );
 
-for (const sheetType of ["advanced", "locked", "health", "history"]) {
+for (const sheetType of ["advanced", "locked", "health"]) {
   assert.ok(
     html.includes(`type === "${sheetType}"`),
     `sheet route ${sheetType} must render a real panel`
@@ -181,3 +181,6 @@ assert.deepEqual(
 );
 
 console.log("✓ Release UI, savings, action wiring and sync-flow guard");
+
+assert.ok(!html.includes('function renderHistorySheet('), 'The retired Promo history page is removed');
+assert.ok(!html.includes('data-open-sheet=\"history\"'), 'No links open the retired page');

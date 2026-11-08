@@ -1,3 +1,49 @@
+## Compact phone layout and completed Mail follow-up — 8 November 2026
+
+Matches the latest 393px brief: 16px screen padding, 28px primary titles,
+20px section titles, 36px summary values (40px savings), 14.5px body text,
+42px filters, 34px offer chips, 20px cards with 14px padding, and a 64px
+three-item navigation dock. Sort and Show share a row, preferred-offer chips
+start hidden, expiry pills retain their padding, and usage captions align with
+View offers. Text inflation is capped at 100%; browser zoom remains available.
+Inter is self-hosted with its license. Shared custom select menus retain the
+existing form callbacks while adding theme-aware listboxes, selected ticks,
+keyboard controls, focus restoration and viewport containment.
+
+More now contains eight destinations. Its first group is Tools with Order Planner
+only; Archived accounts is reached through Accounts, Show → Archived. Promo
+history has no page or navigation destination. Underlying receipt, offer and use
+history remains available. Import actions are reached from Sync & data only.
+All counts come from the current data: the verified roster remains 235, with
+213 confirmed able to log in and 22 archived. Home partitions those same accounts
+into disjoint, labelled segments, including a Not confirmed legend when needed.
+No example account counts are hardcoded. Explicit unrestricted-merchant offers
+rank ahead of restricted or unspecified ones among otherwise eligible choices;
+selected-restaurant offers stay available with their source terms.
+
+Completes the owner's expanded Mail exclusions with reversible moves and receipt,
+identity and rewarded-survey safeguards. Across the two 8 November reviews,
+596 unwanted messages were moved to Bin, 20 to Amazon, six to Others, and one
+new receipt was imported and filed. All planned original locations and destinations
+were independently verified. No permanent deletion occurred. Personal offers
+limited to selected restaurants were retained as explicitly requested. Unknown
+usage on older expired offers remains pending the owner's answer. A new receipt
+identity remains outside the selectable roster until login access is confirmed.
+
+The second review adds eight source-backed campaigns and refreshes 15 existing
+reminders, following the first review's 25 campaigns and 42 reminder updates.
+The financial projection now includes all 472 verified private receipts, retaining
+saved corrections and prior records. Current-month known promo savings are
+£103.57; Uber Cash remains separate. These are actual source figures, not the
+illustrative mockup values. Full identities, receipt details, originals and owner
+transfer files are excluded from the public artifact. Only the bounded verified
+source and financial projections are refreshed; an incomplete recovery database
+is not used to regenerate the entire public snapshot.
+
+Tablet/desktop remains at the reviewed sidebar-shell stage. Later desktop page
+compositions require the separately requested screenshot review. Phone testing
+uses browser emulation; physical iPhone testing is not claimed.
+
 ## Source-verified Mail update — 8 November 2026
 
 Adds 25 genuine personal Eats campaigns from the fresh 30,415-message Mail scan:

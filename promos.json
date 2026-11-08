@@ -1,12 +1,19 @@
 {
   "schemaVersion": 3,
-  "generatedAt": "2026-11-08T18:07:51.172Z",
+  "generatedAt": "2026-11-08T19:36:44.311Z",
   "source": "apple-mail-sqlite",
   "demo": false,
   "sync": {
     "state": "idle",
-    "lastSuccessfulMailScanAt": "2026-11-08T18:06:18.487Z",
+    "lastSuccessfulMailScanAt": "2026-11-08T18:33:07.682Z",
     "runs": [
+      {
+        "at": "2026-11-08T18:33:07.682Z",
+        "status": "success",
+        "emailsChecked": 30464,
+        "newReceipts": 1,
+        "offersUpdated": 23
+      },
       {
         "at": "2026-11-08T18:06:18.487Z",
         "status": "success",
@@ -66,6 +73,342 @@
   "receiptActivity": {
     "amountVersion": 1,
     "days": [
+      {
+        "period": "2026-11-08",
+        "eats": 0,
+        "rides": 1,
+        "saved": 9.94,
+        "amounts": {
+          "eats": {
+            "paid": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "subtotal": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "fees": {
+              "value": 0,
+              "known": 0,
+              "total": 0,
+              "complete": 0
+            },
+            "promos": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "cash": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "outOfPocket": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "saved": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            }
+          },
+          "rides": {
+            "paid": {
+              "value": 0,
+              "known": 1,
+              "total": 1
+            },
+            "subtotal": {
+              "value": null,
+              "known": 0,
+              "total": 1
+            },
+            "fees": {
+              "value": null,
+              "known": 0,
+              "total": 1,
+              "complete": 0
+            },
+            "promos": {
+              "value": 9.94,
+              "known": 1,
+              "total": 1
+            },
+            "cash": {
+              "value": null,
+              "known": 0,
+              "total": 1
+            },
+            "outOfPocket": {
+              "value": 0,
+              "known": 1,
+              "total": 1
+            },
+            "saved": {
+              "value": 9.94,
+              "known": 1,
+              "total": 1
+            }
+          }
+        }
+      },
+      {
+        "period": "2026-11-06",
+        "eats": 0,
+        "rides": 2,
+        "saved": 18.98,
+        "amounts": {
+          "eats": {
+            "paid": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "subtotal": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "fees": {
+              "value": 0,
+              "known": 0,
+              "total": 0,
+              "complete": 0
+            },
+            "promos": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "cash": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "outOfPocket": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "saved": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            }
+          },
+          "rides": {
+            "paid": {
+              "value": 2.9,
+              "known": 2,
+              "total": 2
+            },
+            "subtotal": {
+              "value": null,
+              "known": 0,
+              "total": 2
+            },
+            "fees": {
+              "value": null,
+              "known": 0,
+              "total": 2,
+              "complete": 0
+            },
+            "promos": {
+              "value": 18.98,
+              "known": 2,
+              "total": 2
+            },
+            "cash": {
+              "value": null,
+              "known": 0,
+              "total": 2
+            },
+            "outOfPocket": {
+              "value": 0,
+              "known": 1,
+              "total": 2
+            },
+            "saved": {
+              "value": 18.98,
+              "known": 2,
+              "total": 2
+            }
+          }
+        }
+      },
+      {
+        "period": "2026-11-05",
+        "eats": 0,
+        "rides": 4,
+        "saved": 36.8,
+        "amounts": {
+          "eats": {
+            "paid": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "subtotal": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "fees": {
+              "value": 0,
+              "known": 0,
+              "total": 0,
+              "complete": 0
+            },
+            "promos": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "cash": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "outOfPocket": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "saved": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            }
+          },
+          "rides": {
+            "paid": {
+              "value": 0,
+              "known": 4,
+              "total": 4
+            },
+            "subtotal": {
+              "value": null,
+              "known": 0,
+              "total": 4
+            },
+            "fees": {
+              "value": null,
+              "known": 0,
+              "total": 4,
+              "complete": 0
+            },
+            "promos": {
+              "value": 36.8,
+              "known": 4,
+              "total": 4
+            },
+            "cash": {
+              "value": null,
+              "known": 0,
+              "total": 4
+            },
+            "outOfPocket": {
+              "value": 0,
+              "known": 4,
+              "total": 4
+            },
+            "saved": {
+              "value": 36.8,
+              "known": 4,
+              "total": 4
+            }
+          }
+        }
+      },
+      {
+        "period": "2026-11-04",
+        "eats": 2,
+        "rides": 0,
+        "saved": 39.12,
+        "amounts": {
+          "eats": {
+            "paid": {
+              "value": 19.73,
+              "known": 2,
+              "total": 2
+            },
+            "subtotal": {
+              "value": null,
+              "known": 0,
+              "total": 2
+            },
+            "fees": {
+              "value": null,
+              "known": 0,
+              "total": 2,
+              "complete": 0
+            },
+            "promos": {
+              "value": null,
+              "known": 0,
+              "total": 2
+            },
+            "cash": {
+              "value": 10,
+              "known": 1,
+              "total": 2
+            },
+            "outOfPocket": {
+              "value": 3.18,
+              "known": 1,
+              "total": 2
+            },
+            "saved": {
+              "value": 39.12,
+              "known": 2,
+              "total": 2
+            }
+          },
+          "rides": {
+            "paid": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "subtotal": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "fees": {
+              "value": 0,
+              "known": 0,
+              "total": 0,
+              "complete": 0
+            },
+            "promos": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "cash": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "outOfPocket": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "saved": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            }
+          }
+        }
+      },
       {
         "period": "2026-11-02",
         "eats": 0,
@@ -5520,6 +5863,90 @@
             },
             "saved": {
               "value": 10,
+              "known": 1,
+              "total": 1
+            }
+          }
+        }
+      },
+      {
+        "period": "2026-05-22",
+        "eats": 0,
+        "rides": 1,
+        "saved": 3.97,
+        "amounts": {
+          "eats": {
+            "paid": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "subtotal": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "fees": {
+              "value": 0,
+              "known": 0,
+              "total": 0,
+              "complete": 0
+            },
+            "promos": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "cash": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "outOfPocket": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            },
+            "saved": {
+              "value": 0,
+              "known": 0,
+              "total": 0
+            }
+          },
+          "rides": {
+            "paid": {
+              "value": 0,
+              "known": 1,
+              "total": 1
+            },
+            "subtotal": {
+              "value": null,
+              "known": 0,
+              "total": 1
+            },
+            "fees": {
+              "value": null,
+              "known": 0,
+              "total": 1,
+              "complete": 0
+            },
+            "promos": {
+              "value": 3.97,
+              "known": 1,
+              "total": 1
+            },
+            "cash": {
+              "value": null,
+              "known": 0,
+              "total": 1
+            },
+            "outOfPocket": {
+              "value": 0,
+              "known": 1,
+              "total": 1
+            },
+            "saved": {
+              "value": 3.97,
               "known": 1,
               "total": 1
             }
@@ -20735,8 +21162,8 @@
       {
         "period": "2026-05",
         "eats": 0,
-        "rides": 3,
-        "saved": 28.86,
+        "rides": 4,
+        "saved": 32.83,
         "amounts": {
           "eats": {
             "paid": {
@@ -20779,39 +21206,39 @@
           "rides": {
             "paid": {
               "value": 5.95,
-              "known": 3,
-              "total": 3
+              "known": 4,
+              "total": 4
             },
             "subtotal": {
               "value": null,
               "known": 0,
-              "total": 3
+              "total": 4
             },
             "fees": {
               "value": null,
               "known": 0,
-              "total": 3,
+              "total": 4,
               "complete": 0
             },
             "promos": {
-              "value": 28.86,
-              "known": 3,
-              "total": 3
+              "value": 32.83,
+              "known": 4,
+              "total": 4
             },
             "cash": {
               "value": null,
               "known": 0,
-              "total": 3
+              "total": 4
             },
             "outOfPocket": {
               "value": 0,
-              "known": 2,
-              "total": 3
+              "known": 3,
+              "total": 4
             },
             "saved": {
-              "value": 28.86,
-              "known": 3,
-              "total": 3
+              "value": 32.83,
+              "known": 4,
+              "total": 4
             }
           }
         }
@@ -21238,84 +21665,84 @@
       },
       {
         "period": "2026-11",
-        "eats": 0,
-        "rides": 4,
-        "saved": 37.85,
+        "eats": 2,
+        "rides": 11,
+        "saved": 142.69,
         "amounts": {
           "eats": {
             "paid": {
-              "value": 0,
-              "known": 0,
-              "total": 0
+              "value": 19.73,
+              "known": 2,
+              "total": 2
             },
             "subtotal": {
-              "value": 0,
+              "value": null,
               "known": 0,
-              "total": 0
+              "total": 2
             },
             "fees": {
-              "value": 0,
+              "value": null,
               "known": 0,
-              "total": 0,
+              "total": 2,
               "complete": 0
             },
             "promos": {
-              "value": 0,
+              "value": null,
               "known": 0,
-              "total": 0
+              "total": 2
             },
             "cash": {
-              "value": 0,
-              "known": 0,
-              "total": 0
+              "value": 10,
+              "known": 1,
+              "total": 2
             },
             "outOfPocket": {
-              "value": 0,
-              "known": 0,
-              "total": 0
+              "value": 3.18,
+              "known": 1,
+              "total": 2
             },
             "saved": {
-              "value": 0,
-              "known": 0,
-              "total": 0
+              "value": 39.12,
+              "known": 2,
+              "total": 2
             }
           },
           "rides": {
             "paid": {
-              "value": 0.94,
-              "known": 4,
-              "total": 4
+              "value": 3.84,
+              "known": 11,
+              "total": 11
             },
             "subtotal": {
               "value": null,
               "known": 0,
-              "total": 4
+              "total": 11
             },
             "fees": {
               "value": null,
               "known": 0,
-              "total": 4,
+              "total": 11,
               "complete": 0
             },
             "promos": {
-              "value": 37.85,
-              "known": 4,
-              "total": 4
+              "value": 103.57,
+              "known": 11,
+              "total": 11
             },
             "cash": {
               "value": null,
               "known": 0,
-              "total": 4
+              "total": 11
             },
             "outOfPocket": {
               "value": 0,
-              "known": 3,
-              "total": 4
+              "known": 9,
+              "total": 11
             },
             "saved": {
-              "value": 37.85,
-              "known": 4,
-              "total": 4
+              "value": 103.57,
+              "known": 11,
+              "total": 11
             }
           }
         }
@@ -21323,43 +21750,43 @@
     ]
   },
   "summary": {
-    "orderCount": 178,
-    "promoSavings": 2670.62,
-    "uberCashUsed": 998.78,
+    "orderCount": 180,
+    "promoSavings": 2740.31,
+    "uberCashUsed": 1008.78,
     "uberCashConfirmedSavings": 0,
     "uberOneConfirmedSavings": 0,
-    "otherConfirmedSavings": 1348.03,
-    "confirmedSaved": 4018.65,
+    "otherConfirmedSavings": 1387.15,
+    "confirmedSaved": 4127.46,
     "estimatedUberOneSavings": 0,
-    "estimatedTotalSaved": 4018.65,
-    "lastOrderAt": "2026-10-31T22:21:00.000Z",
+    "estimatedTotalSaved": 4127.46,
+    "lastOrderAt": "2026-11-04T19:16:00.000Z",
     "recentDays": 30,
     "recentOrders": 16,
-    "recentConfirmedSaved": 422.87,
+    "recentConfirmedSaved": 433.09,
     "recentEstimatedUberOneSavings": 0,
-    "recentEstimatedTotalSaved": 422.87,
-    "trackedOrders": 178,
-    "totalSaved": 4018.65,
-    "averageSavedPerOrder": 7.57,
-    "estimatedAverageSavedPerOrder": 7.57,
+    "recentEstimatedTotalSaved": 433.09,
+    "trackedOrders": 180,
+    "totalSaved": 4127.46,
+    "averageSavedPerOrder": 7.71,
+    "estimatedAverageSavedPerOrder": 7.71,
     "uberOneEstimateModel": {
       "sampleSize": 0,
       "baselinePerEligibleOrder": 0,
       "confidence": "none",
       "status": "insufficient_evidence",
-      "receiptsMentioningUberOne": 70,
+      "receiptsMentioningUberOne": 72,
       "explanation": "Receipts do not separately state an Uber One saving or the undiscounted delivery and service fees. Combined savings remain in confirmed totals. A missing estimate does not mean no Uber One benefit."
     },
-    "eatsConfirmedSaved": 1348.03,
-    "rideConfirmedSaved": 2670.62,
-    "trackedRides": 284,
+    "eatsConfirmedSaved": 1387.15,
+    "rideConfirmedSaved": 2740.31,
+    "trackedRides": 292,
     "financialBreakdown": {
-      "total": 4018.65,
+      "total": 4127.46,
       "categories": {
         "eatsPromotions": 14.85,
-        "ridePromotions": 2670.62,
+        "ridePromotions": 2740.31,
         "explicitUberOne": 0,
-        "combinedUberOnePromotions": 1188.58,
+        "combinedUberOnePromotions": 1227.7,
         "schedule": 1.5,
         "other": 143.1
       },
@@ -21367,36 +21794,36 @@
       "missingSavings": 100,
       "adjustmentsNeedingReview": 29,
       "conflicting": 0,
-      "cashUsed": 998.78,
-      "outOfPocket": 128.59,
-      "paymentKnown": 249,
-      "receipts": 462,
+      "cashUsed": 1008.78,
+      "outOfPocket": 131.77,
+      "paymentKnown": 257,
+      "receipts": 472,
       "manual": 1
     },
-    "recentRides": 30,
+    "recentRides": 31,
     "averageExtraOrderFees": 0,
     "knownAccounts": 235,
     "accessibleAccounts": 213,
     "inaccessibleAccounts": 22,
     "pendingAccessAccounts": 0,
-    "activePromoAccounts": 134,
+    "activePromoAccounts": 135,
     "accountStatusVersion": 2,
     "offerEligibilityVersion": 1,
     "cashModelVersion": 1,
-    "availableAccounts": 134,
-    "readyToUseAccounts": 134,
+    "availableAccounts": 135,
+    "readyToUseAccounts": 135,
     "offerAttentionAccounts": 0,
-    "usedAccounts": 112,
+    "usedAccounts": 115,
     "fullyUsedOffers": 0,
     "finishedExpiredOffers": 0,
     "fullyConsumedOffers": 0,
-    "expiredUnusedOffers": 3693,
+    "expiredUnusedOffers": 3694,
     "partiallyUsedOffers": 0,
-    "usedAccessibleAccounts": 111,
-    "completedUsageAccounts": 112,
-    "partialUsageAccounts": 77,
+    "usedAccessibleAccounts": 114,
+    "completedUsageAccounts": 115,
+    "partialUsageAccounts": 74,
     "expiredAccounts": 6,
-    "fullyUsedAccounts": 112,
+    "fullyUsedAccounts": 115,
     "completedPromotions": 0,
     "archivedAccounts": 22,
     "deactivatedAccounts": 0,
@@ -21991,10 +22418,10 @@
       "lastSeenAt": "2026-11-03T17:40:28.000Z",
       "lastPromoAt": "2026-11-03T17:40:28.000Z",
       "lastOrderAt": "2026-06-10T13:06:00.000Z",
-      "lastRideAt": null,
+      "lastRideAt": "2026-05-22",
       "orderCount": 2,
-      "rideCount": 0,
-      "totalSaved": 0,
+      "rideCount": 1,
+      "totalSaved": 3.97,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
       "activePromoCount": 2,
@@ -22007,19 +22434,19 @@
       },
       "needsReview": false,
       "reviewOfferCount": 1,
-      "promoSavings": 0,
+      "promoSavings": 3.97,
       "uberCashUsed": 0,
       "uberCashConfirmedSavings": 0,
       "uberOneConfirmedSavings": 0,
       "otherConfirmedSavings": 0,
       "rideConfirmedSaved": 0,
       "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 0,
-      "accountUsed": false,
-      "partialUsage": true,
-      "accountUsedReason": null,
+      "estimatedTotalSaved": 3.97,
+      "accountUsed": true,
+      "partialUsage": false,
+      "accountUsedReason": "eats_and_ride_receipts",
       "archived": false,
-      "accountState": "available",
+      "accountState": "used",
       "fullyUsedOfferCount": 0,
       "expiredUnusedOfferCount": 23,
       "hasEligibleOffers": true,
@@ -22669,7 +23096,7 @@
       "totalSaved": 22.96,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 5,
+      "activePromoCount": 6,
       "cashSummary": {
         "status": "expired",
         "remaining": 0,
@@ -23208,7 +23635,7 @@
       "totalSaved": 25.73,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 4,
+      "activePromoCount": 5,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -25652,7 +26079,7 @@
       "totalSaved": 8.94,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 3,
+      "activePromoCount": 4,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -25735,11 +26162,11 @@
       "deactivated": false,
       "lastSeenAt": "2026-11-02T12:43:05.000Z",
       "lastPromoAt": "2026-11-02T12:43:05.000Z",
-      "lastOrderAt": null,
+      "lastOrderAt": "2026-11-04T19:16:00.000Z",
       "lastRideAt": "2026-10-23T11:24:00.000Z",
-      "orderCount": 0,
+      "orderCount": 1,
       "rideCount": 1,
-      "totalSaved": 8.94,
+      "totalSaved": 39.92,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
       "activePromoCount": 1,
@@ -25756,15 +26183,15 @@
       "uberCashUsed": 0,
       "uberCashConfirmedSavings": 0,
       "uberOneConfirmedSavings": 0,
-      "otherConfirmedSavings": 0,
+      "otherConfirmedSavings": 30.98,
       "rideConfirmedSaved": 8.94,
       "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 8.94,
-      "accountUsed": false,
-      "partialUsage": true,
-      "accountUsedReason": null,
+      "estimatedTotalSaved": 39.92,
+      "accountUsed": true,
+      "partialUsage": false,
+      "accountUsedReason": "eats_and_ride_receipts",
       "archived": false,
-      "accountState": "available",
+      "accountState": "used",
       "fullyUsedOfferCount": 0,
       "expiredUnusedOfferCount": 0,
       "hasEligibleOffers": true,
@@ -26147,7 +26574,7 @@
       "totalSaved": 9.95,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 2,
+      "activePromoCount": 3,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -26507,7 +26934,7 @@
       "totalSaved": 9.95,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 2,
+      "activePromoCount": 1,
       "cashSummary": {
         "status": "estimated",
         "remaining": 15,
@@ -26546,7 +26973,7 @@
       "archived": false,
       "accountState": "available",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 4,
+      "expiredUnusedOfferCount": 5,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -26927,7 +27354,7 @@
       "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 1,
+      "activePromoCount": 2,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -26972,7 +27399,7 @@
       "totalSaved": 9.94,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 2,
+      "activePromoCount": 3,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -27452,7 +27879,7 @@
       "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 1,
-      "activePromoCount": 3,
+      "activePromoCount": 4,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -27985,11 +28412,11 @@
       "deactivated": false,
       "lastSeenAt": "2026-10-30T19:12:56.000Z",
       "lastPromoAt": "2026-10-30T19:12:56.000Z",
-      "lastOrderAt": null,
+      "lastOrderAt": "2026-11-04T19:06:00.000Z",
       "lastRideAt": "2026-04-15T07:35:00.000Z",
-      "orderCount": 0,
+      "orderCount": 1,
       "rideCount": 1,
-      "totalSaved": 9.94,
+      "totalSaved": 18.08,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
       "activePromoCount": 0,
@@ -28032,18 +28459,18 @@
       "needsReview": false,
       "reviewOfferCount": 0,
       "promoSavings": 9.94,
-      "uberCashUsed": 0,
+      "uberCashUsed": 10,
       "uberCashConfirmedSavings": 0,
       "uberOneConfirmedSavings": 0,
-      "otherConfirmedSavings": 0,
+      "otherConfirmedSavings": 8.14,
       "rideConfirmedSaved": 9.94,
       "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 9.94,
-      "accountUsed": false,
-      "partialUsage": true,
-      "accountUsedReason": null,
+      "estimatedTotalSaved": 18.08,
+      "accountUsed": true,
+      "partialUsage": false,
+      "accountUsedReason": "eats_and_ride_receipts",
       "archived": false,
-      "accountState": "no_offers",
+      "accountState": "used",
       "fullyUsedOfferCount": 0,
       "expiredUnusedOfferCount": 9,
       "hasEligibleOffers": false,
@@ -28126,7 +28553,7 @@
       "totalSaved": 9.91,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 0,
+      "activePromoCount": 1,
       "cashSummary": {
         "status": "expired",
         "remaining": 0,
@@ -28166,8 +28593,8 @@
       "accountState": "used",
       "fullyUsedOfferCount": 0,
       "expiredUnusedOfferCount": 30,
-      "hasEligibleOffers": false,
-      "recommendationEligible": false
+      "hasEligibleOffers": true,
+      "recommendationEligible": true
     },
     {
       "accountRef": "A068",
@@ -33055,13 +33482,13 @@
       "lastRideAt": "2026-11-06T17:39:00.000Z",
       "orderCount": 0,
       "rideCount": 1,
-      "totalSaved": 0,
+      "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
       "activePromoCount": 0,
       "archived": false,
       "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 0,
+      "estimatedTotalSaved": 10,
       "accountUsed": false,
       "partialUsage": true,
       "accountUsedReason": null,
@@ -33071,7 +33498,12 @@
       "expiredUnusedOfferCount": 0,
       "hasEligibleOffers": false,
       "needsReview": false,
-      "recommendationEligible": false
+      "recommendationEligible": false,
+      "promoSavings": 10,
+      "uberCashUsed": 0,
+      "uberCashConfirmedSavings": 0,
+      "uberOneConfirmedSavings": 0,
+      "otherConfirmedSavings": 0
     },
     {
       "accountRef": "A360",
@@ -33087,13 +33519,13 @@
       "lastRideAt": "2026-11-06T14:32:00.000Z",
       "orderCount": 0,
       "rideCount": 1,
-      "totalSaved": 0,
+      "totalSaved": 8.98,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
       "activePromoCount": 0,
       "archived": false,
       "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 0,
+      "estimatedTotalSaved": 8.98,
       "accountUsed": false,
       "partialUsage": true,
       "accountUsedReason": null,
@@ -33103,7 +33535,12 @@
       "expiredUnusedOfferCount": 0,
       "hasEligibleOffers": false,
       "needsReview": false,
-      "recommendationEligible": false
+      "recommendationEligible": false,
+      "promoSavings": 8.98,
+      "uberCashUsed": 0,
+      "uberCashConfirmedSavings": 0,
+      "uberOneConfirmedSavings": 0,
+      "otherConfirmedSavings": 0
     },
     {
       "accountRef": "A361",
@@ -33119,13 +33556,13 @@
       "lastRideAt": "2026-11-05T17:21:00.000Z",
       "orderCount": 0,
       "rideCount": 1,
-      "totalSaved": 0,
+      "totalSaved": 9,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
       "activePromoCount": 0,
       "archived": false,
       "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 0,
+      "estimatedTotalSaved": 9,
       "accountUsed": false,
       "partialUsage": true,
       "accountUsedReason": null,
@@ -33135,7 +33572,12 @@
       "expiredUnusedOfferCount": 0,
       "hasEligibleOffers": false,
       "needsReview": false,
-      "recommendationEligible": false
+      "recommendationEligible": false,
+      "promoSavings": 9,
+      "uberCashUsed": 0,
+      "uberCashConfirmedSavings": 0,
+      "uberOneConfirmedSavings": 0,
+      "otherConfirmedSavings": 0
     },
     {
       "accountRef": "A362",
@@ -33151,13 +33593,13 @@
       "lastRideAt": "2026-11-05T16:48:00.000Z",
       "orderCount": 0,
       "rideCount": 1,
-      "totalSaved": 0,
+      "totalSaved": 8.93,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
       "activePromoCount": 0,
       "archived": false,
       "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 0,
+      "estimatedTotalSaved": 8.93,
       "accountUsed": false,
       "partialUsage": true,
       "accountUsedReason": null,
@@ -33167,7 +33609,12 @@
       "expiredUnusedOfferCount": 0,
       "hasEligibleOffers": false,
       "needsReview": false,
-      "recommendationEligible": false
+      "recommendationEligible": false,
+      "promoSavings": 8.93,
+      "uberCashUsed": 0,
+      "uberCashConfirmedSavings": 0,
+      "uberOneConfirmedSavings": 0,
+      "otherConfirmedSavings": 0
     },
     {
       "accountRef": "A363",
@@ -33183,13 +33630,13 @@
       "lastRideAt": "2026-11-05T09:31:00.000Z",
       "orderCount": 0,
       "rideCount": 1,
-      "totalSaved": 0,
+      "totalSaved": 8.93,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
       "activePromoCount": 0,
       "archived": false,
       "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 0,
+      "estimatedTotalSaved": 8.93,
       "accountUsed": false,
       "partialUsage": true,
       "accountUsedReason": null,
@@ -33199,7 +33646,12 @@
       "expiredUnusedOfferCount": 0,
       "hasEligibleOffers": false,
       "needsReview": false,
-      "recommendationEligible": false
+      "recommendationEligible": false,
+      "promoSavings": 8.93,
+      "uberCashUsed": 0,
+      "uberCashConfirmedSavings": 0,
+      "uberOneConfirmedSavings": 0,
+      "otherConfirmedSavings": 0
     },
     {
       "accountRef": "A364",
@@ -33215,13 +33667,13 @@
       "lastRideAt": "2026-11-05T09:17:00.000Z",
       "orderCount": 0,
       "rideCount": 1,
-      "totalSaved": 0,
+      "totalSaved": 9.94,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
       "activePromoCount": 0,
       "archived": false,
       "estimatedUberOneSavings": 0,
-      "estimatedTotalSaved": 0,
+      "estimatedTotalSaved": 9.94,
       "accountUsed": false,
       "partialUsage": true,
       "accountUsedReason": null,
@@ -33231,7 +33683,12 @@
       "expiredUnusedOfferCount": 0,
       "hasEligibleOffers": false,
       "needsReview": false,
-      "recommendationEligible": false
+      "recommendationEligible": false,
+      "promoSavings": 9.94,
+      "uberCashUsed": 0,
+      "uberCashConfirmedSavings": 0,
+      "uberOneConfirmedSavings": 0,
+      "otherConfirmedSavings": 0
     }
   ],
   "promos": [
@@ -33844,7 +34301,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-11-03T15:16:37.000Z",
-      "emailSentAt": "2026-11-03T15:16:37.000Z",
+      "emailSentAt": "2026-11-08T14:11:26.000Z",
       "recommendationEligible": true
     },
     {
@@ -34252,7 +34709,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-11-03T12:56:05.000Z",
-      "emailSentAt": "2026-11-03T12:56:05.000Z",
+      "emailSentAt": "2026-11-08T15:42:57.000Z",
       "recommendationEligible": true
     },
     {
@@ -34303,7 +34760,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-11-03T12:52:08.000Z",
-      "emailSentAt": "2026-11-03T12:52:08.000Z",
+      "emailSentAt": "2026-11-08T15:23:48.000Z",
       "recommendationEligible": true
     },
     {
@@ -34507,7 +34964,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-11-03T12:48:49.000Z",
-      "emailSentAt": "2026-11-03T12:48:49.000Z",
+      "emailSentAt": "2026-11-08T15:26:26.000Z",
       "recommendationEligible": true
     },
     {
@@ -35425,7 +35882,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-11-03T12:14:42.000Z",
-      "emailSentAt": "2026-11-03T12:14:42.000Z",
+      "emailSentAt": "2026-11-08T15:38:25.000Z",
       "recommendationEligible": true
     },
     {
@@ -35731,7 +36188,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-11-03T12:08:23.000Z",
-      "emailSentAt": "2026-11-03T12:08:23.000Z",
+      "emailSentAt": "2026-11-08T16:05:20.000Z",
       "recommendationEligible": true
     },
     {
@@ -35986,7 +36443,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-11-03T11:53:41.000Z",
-      "emailSentAt": "2026-11-03T11:53:41.000Z",
+      "emailSentAt": "2026-11-08T15:49:38.000Z",
       "recommendationEligible": true
     },
     {
@@ -36037,7 +36494,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-11-03T11:52:21.000Z",
-      "emailSentAt": "2026-11-03T11:52:21.000Z",
+      "emailSentAt": "2026-11-08T15:55:34.000Z",
       "recommendationEligible": true
     },
     {
@@ -36088,7 +36545,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-11-03T11:46:33.000Z",
-      "emailSentAt": "2026-11-03T11:46:33.000Z",
+      "emailSentAt": "2026-11-08T17:42:52.000Z",
       "recommendationEligible": true
     },
     {
@@ -36241,7 +36698,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-11-03T11:38:49.000Z",
-      "emailSentAt": "2026-11-03T11:38:49.000Z",
+      "emailSentAt": "2026-11-08T15:33:55.000Z",
       "recommendationEligible": true
     },
     {
@@ -36649,7 +37106,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-11-03T11:13:40.000Z",
-      "emailSentAt": "2026-11-03T11:13:40.000Z",
+      "emailSentAt": "2026-11-08T15:49:48.000Z",
       "recommendationEligible": true
     },
     {
@@ -36751,7 +37208,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-11-03T11:04:43.000Z",
-      "emailSentAt": "2026-11-03T11:04:43.000Z",
+      "emailSentAt": "2026-11-08T15:08:38.000Z",
       "recommendationEligible": true
     },
     {
@@ -40155,7 +40612,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-04T12:32:49.000Z",
-      "emailSentAt": "2026-11-01T12:32:47.000Z",
+      "emailSentAt": "2026-11-08T15:31:44.000Z",
       "recommendationEligible": true
     },
     {
@@ -42164,7 +42621,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-31T16:35:00.000Z",
-      "emailSentAt": "2026-10-31T16:35:00.000Z",
+      "emailSentAt": "2026-11-08T17:38:48.000Z",
       "recommendationEligible": true
     },
     {
@@ -42215,7 +42672,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-31T16:19:54.000Z",
-      "emailSentAt": "2026-10-31T16:19:54.000Z",
+      "emailSentAt": "2026-11-08T16:19:55.000Z",
       "recommendationEligible": true
     },
     {
@@ -44530,7 +44987,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-27T16:58:02.000Z",
       "emailSentAt": "2026-10-30T17:42:24.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_c8094408d98756bd85e5d14f9b1afcfa",
@@ -51943,7 +52400,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-27T21:42:30.000Z",
       "emailSentAt": "2026-10-27T21:42:30.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_fbd8e881578d1fa0cc2c5766ca57b064",
@@ -59915,7 +60372,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-20T10:20:20.000Z",
       "emailSentAt": "2026-10-21T16:15:06.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_2e8b34c1e0f6e3def7ed950803dfcaae",
@@ -65837,7 +66294,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-20T19:35:54.000Z",
       "emailSentAt": "2026-10-20T19:35:54.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_946044a0cca39d05e89bd40832cc4b66",
@@ -74773,7 +75230,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-06T11:33:21.000Z",
       "emailSentAt": "2026-10-11T17:55:26.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_5b7ee09e1cbc78a304966d54a47960e0",
@@ -80922,7 +81379,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-06T17:30:10.000Z",
       "emailSentAt": "2026-10-06T17:30:10.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_c350e925da38267b052350c25320bba4",
@@ -88265,7 +88722,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-29T14:50:38.000Z",
       "emailSentAt": "2026-09-29T14:50:38.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_c4633344ca9665047c7193f751445e25",
@@ -91413,7 +91870,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-26T09:19:52.000Z",
       "emailSentAt": "2026-09-26T09:19:52.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_82c27b4460a6b60e610013ad73529d60",
@@ -96052,7 +96509,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-24T14:42:05.000Z",
       "emailSentAt": "2026-09-24T14:42:05.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_a57c0cfe4124ccab10822cffff83963a",
@@ -100694,7 +101151,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-15T14:23:06.000Z",
       "emailSentAt": "2026-09-15T14:23:06.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_b79f9270a1327af9a59e5121f1538f13",
@@ -103668,7 +104125,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-01T15:18:51.000Z",
       "emailSentAt": "2026-09-01T15:18:51.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_6816b50e49895b1ee8e50089f08e87f8",
@@ -106017,7 +106474,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-01T10:47:42.000Z",
       "emailSentAt": "2026-09-01T10:47:42.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_84804030da9bd5415dafaff82721b5d1",
@@ -111219,7 +111676,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-25T14:07:40.000Z",
       "emailSentAt": "2026-08-28T16:58:24.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_3fb75e5e7a9d200af8ca0b7dc240d1c4",
@@ -112443,7 +112900,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-28T11:22:06.000Z",
       "emailSentAt": "2026-08-28T11:22:06.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_e4c61e334320aea85da6dad77642afe6",
@@ -114680,7 +115137,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-27T06:42:06.000Z",
       "emailSentAt": "2026-08-27T06:42:06.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_1d22f7b4c3cd332fa739dab326d5dbdb",
@@ -117245,7 +117702,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-25T19:36:09.000Z",
       "emailSentAt": "2026-08-25T19:36:09.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_ea2d34a14eb226a78718759c1688d210",
@@ -122547,7 +123004,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-18T18:26:54.000Z",
       "emailSentAt": "2026-08-21T14:30:32.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_c64179757ad804165138e382cdd58dbe",
@@ -124574,7 +125031,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-19T12:42:02.000Z",
       "emailSentAt": "2026-08-19T12:42:02.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_e719d08485604e1075e0e55f74a6acff",
@@ -131695,7 +132152,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-04T15:23:38.000Z",
       "emailSentAt": "2026-08-04T15:23:38.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_26718cab9d4bfb71ab7d80dea765e058",
@@ -133225,7 +133682,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-04T10:48:17.000Z",
       "emailSentAt": "2026-08-04T10:48:17.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_42788e03c50a1e19d8bda26322085df7",
@@ -138141,7 +138598,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-07-28T11:45:37.000Z",
       "emailSentAt": "2026-07-31T11:00:41.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_9222fbdf51db515eb20ef8f1faecfaa8",
@@ -141989,7 +142446,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-07-28T16:20:29.000Z",
       "emailSentAt": "2026-07-28T16:20:29.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_17a5e8f1157b367174919f1fc97a5cd9",
@@ -145515,7 +145972,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-07-25T11:57:39.000Z",
       "emailSentAt": "2026-07-25T11:57:39.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_2c5dc410a73bf9ce6ddcf1bf25dc29ae",
@@ -147775,7 +148232,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-07-21T14:36:56.000Z",
       "emailSentAt": "2026-07-24T11:00:04.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_c0d48a77a1123cb8d72b56a51a5999cb",
@@ -150930,7 +151387,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-07-21T09:41:19.000Z",
       "emailSentAt": "2026-07-21T09:41:19.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_95f4b0fad0f36c99f20fb1f3aacc2458",
@@ -166647,7 +167104,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-06-30T18:02:20.000Z",
       "emailSentAt": "2026-06-30T18:02:20.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_d05c2a032c4727c19287987fc8323c3c",
@@ -174275,7 +174732,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-06-08T18:13:53.000Z",
       "emailSentAt": "2026-06-10T19:01:40.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_97629c9ca67f440d61dbafdba3f7d9c5",
@@ -194736,7 +195193,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-04-21T06:55:16.000Z",
       "emailSentAt": "2026-05-05T18:16:12.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_31b6b45d2b38d44f07a377c5110502cf",
@@ -208196,7 +208653,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-03-28T13:58:15.000Z",
       "emailSentAt": "2026-04-09T13:46:16.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_419cf68a1bab1bb363cbdd2c5149833e",
@@ -214669,7 +215126,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-03-18T16:54:02.000Z",
       "emailSentAt": "2026-03-26T16:47:03.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_c3681d140ddc54466c855f8fa57457fd",
@@ -244934,6 +245391,414 @@
       "firstEmailSentAt": "2026-11-07T21:02:00.000Z",
       "emailSentAt": "2026-11-07T21:02:00.000Z",
       "recommendationEligible": true
+    },
+    {
+      "id": "pub_8024dac23a5f9b419961ff7095b7afbb",
+      "service": "Uber Eats",
+      "offerType": "percentage_discount",
+      "title": "50% off on 5 orders",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "explicit",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": true,
+        "stacking": "no_other_promotions",
+        "excludesFees": false,
+        "excludesAlcoholTobacco": false,
+        "merchantLimited": false
+      },
+      "discountType": "percent",
+      "discount": 50,
+      "maxSaving": 15,
+      "perUseCap": null,
+      "uses": 5,
+      "usesVerified": true,
+      "usesRemaining": 5,
+      "maxTotalSaving": 15,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": true,
+      "expires": "2026-12-13",
+      "expiresAt": "2026-12-13T18:21:13.000Z",
+      "expiryStatus": "estimated",
+      "expiryBasis": "tracker_35_day_rule",
+      "classificationConfidence": "high",
+      "expiryConfidence": "policy",
+      "accountRef": "A313",
+      "accountMasked": "fa…5s@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-08T18:21:13.000Z",
+      "emailSentAt": "2026-11-08T18:21:13.000Z",
+      "recommendationEligible": true
+    },
+    {
+      "id": "pub_7a0c5628a2b843f69fcb9a7658f03411",
+      "service": "Uber Eats",
+      "offerType": "percentage_discount",
+      "title": "50% off on 5 orders",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "explicit",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": true,
+        "stacking": "no_other_promotions",
+        "excludesFees": false,
+        "excludesAlcoholTobacco": false,
+        "merchantLimited": false
+      },
+      "discountType": "percent",
+      "discount": 50,
+      "maxSaving": 15,
+      "perUseCap": null,
+      "uses": 5,
+      "usesVerified": true,
+      "usesRemaining": 5,
+      "maxTotalSaving": 15,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": true,
+      "expires": "2026-12-13",
+      "expiresAt": "2026-12-13T18:20:03.000Z",
+      "expiryStatus": "estimated",
+      "expiryBasis": "tracker_35_day_rule",
+      "classificationConfidence": "high",
+      "expiryConfidence": "policy",
+      "accountRef": "A324",
+      "accountMasked": "is…6m@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-08T18:20:03.000Z",
+      "emailSentAt": "2026-11-08T18:20:03.000Z",
+      "recommendationEligible": true
+    },
+    {
+      "id": "pub_c36b739704f5c96cb68597ab00665753",
+      "service": "Uber Eats",
+      "offerType": "multi_order_discount",
+      "title": "£10 off on 2 orders",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "fixed_discount_value",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": true,
+        "stacking": "no_other_promotions",
+        "excludesFees": false,
+        "excludesAlcoholTobacco": false,
+        "merchantLimited": false
+      },
+      "discountType": "fixed",
+      "discount": 10,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 2,
+      "usesVerified": true,
+      "usesRemaining": 2,
+      "maxTotalSaving": 20,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": true,
+      "expires": "2026-12-13",
+      "expiresAt": "2026-12-13T17:33:49.000Z",
+      "expiryStatus": "estimated",
+      "expiryBasis": "tracker_35_day_rule",
+      "classificationConfidence": "high",
+      "expiryConfidence": "policy",
+      "accountRef": "A331",
+      "accountMasked": "ge…2k@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-08T17:33:49.000Z",
+      "emailSentAt": "2026-11-08T17:33:49.000Z",
+      "recommendationEligible": true
+    },
+    {
+      "id": "pub_749680791812fa82e4cd546f7674a945",
+      "service": "Uber Eats",
+      "offerType": "fixed_order_discount",
+      "title": "£10 off",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "fixed_discount_value",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": true,
+        "stacking": "no_other_promotions",
+        "excludesFees": false,
+        "excludesAlcoholTobacco": false,
+        "merchantLimited": false
+      },
+      "discountType": "fixed",
+      "discount": 10,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 1,
+      "usesVerified": true,
+      "usesRemaining": 1,
+      "maxTotalSaving": null,
+      "minimumSpend": 20,
+      "sameAccountOfferCount": 1,
+      "hasCode": true,
+      "expires": "2026-12-13",
+      "expiresAt": "2026-12-13T17:23:46.000Z",
+      "expiryStatus": "estimated",
+      "expiryBasis": "tracker_35_day_rule",
+      "classificationConfidence": "high",
+      "expiryConfidence": "policy",
+      "accountRef": "A190",
+      "accountMasked": "ra…2c@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-08T17:23:46.000Z",
+      "emailSentAt": "2026-11-08T17:23:46.000Z",
+      "recommendationEligible": true
+    },
+    {
+      "id": "pub_693faf82bff70af5fa035ffab8d909e3",
+      "service": "Uber Eats",
+      "offerType": "percentage_discount",
+      "title": "40% off",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "explicit",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": true,
+        "stacking": "no_other_promotions",
+        "excludesFees": false,
+        "excludesAlcoholTobacco": false,
+        "merchantLimited": false
+      },
+      "discountType": "percent",
+      "discount": 40,
+      "maxSaving": 30,
+      "perUseCap": null,
+      "uses": 1,
+      "usesVerified": true,
+      "usesRemaining": 1,
+      "maxTotalSaving": 30,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": true,
+      "expires": "2026-12-13",
+      "expiresAt": "2026-12-13T16:56:40.000Z",
+      "expiryStatus": "estimated",
+      "expiryBasis": "tracker_35_day_rule",
+      "classificationConfidence": "high",
+      "expiryConfidence": "policy",
+      "accountRef": "A011",
+      "accountMasked": "43…by@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-08T16:56:40.000Z",
+      "emailSentAt": "2026-11-08T16:56:40.000Z",
+      "recommendationEligible": true
+    },
+    {
+      "id": "pub_5bd5fc750cf83b09c6cf410a8ee68004",
+      "service": "Uber Eats",
+      "offerType": "multi_order_discount",
+      "title": "£10 off on 2 orders",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "fixed_discount_value",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": true,
+        "stacking": "no_other_promotions",
+        "excludesFees": false,
+        "excludesAlcoholTobacco": false,
+        "merchantLimited": false
+      },
+      "discountType": "fixed",
+      "discount": 10,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 2,
+      "usesVerified": true,
+      "usesRemaining": 2,
+      "maxTotalSaving": 20,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": true,
+      "expires": "2026-12-13",
+      "expiresAt": "2026-12-13T16:41:52.000Z",
+      "expiryStatus": "estimated",
+      "expiryBasis": "tracker_35_day_rule",
+      "classificationConfidence": "high",
+      "expiryConfidence": "policy",
+      "accountRef": "A330",
+      "accountMasked": "me…29@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-08T16:41:52.000Z",
+      "emailSentAt": "2026-11-08T16:41:52.000Z",
+      "recommendationEligible": true
+    },
+    {
+      "id": "pub_5c208d466d651242458e38aeaaa1900e",
+      "service": "Uber Eats",
+      "offerType": "percentage_discount",
+      "title": "40% off on 5 orders",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "explicit",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": false,
+        "stacking": "unknown",
+        "excludesFees": true,
+        "excludesAlcoholTobacco": true,
+        "merchantLimited": true
+      },
+      "discountType": "percent",
+      "discount": 40,
+      "maxSaving": 12,
+      "perUseCap": null,
+      "uses": 5,
+      "usesVerified": true,
+      "usesRemaining": 5,
+      "maxTotalSaving": 12,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": false,
+      "expires": "2026-11-09",
+      "expiresAt": "2026-11-09T03:00:00",
+      "expiryStatus": "exact",
+      "expiryBasis": "explicit_in_offer_terms",
+      "classificationConfidence": "high",
+      "expiryConfidence": "high",
+      "accountRef": "A021",
+      "accountMasked": "82…ws@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-08T13:57:45.000Z",
+      "emailSentAt": "2026-11-08T13:57:45.000Z",
+      "recommendationEligible": true
+    },
+    {
+      "id": "pub_70ac9b4566837e6ac3b915f46d7026a2",
+      "service": "Uber Eats",
+      "offerType": "percentage_discount",
+      "title": "50% off on 5 orders",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "explicit",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": true,
+        "stacking": "no_other_promotions",
+        "excludesFees": false,
+        "excludesAlcoholTobacco": false,
+        "merchantLimited": false
+      },
+      "discountType": "percent",
+      "discount": 50,
+      "maxSaving": 15,
+      "perUseCap": null,
+      "uses": 5,
+      "usesVerified": true,
+      "usesRemaining": 5,
+      "maxTotalSaving": 15,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": true,
+      "expires": "2026-12-13",
+      "expiresAt": "2026-12-13T13:13:44.000Z",
+      "expiryStatus": "estimated",
+      "expiryBasis": "tracker_35_day_rule",
+      "classificationConfidence": "high",
+      "expiryConfidence": "policy",
+      "accountRef": "A320",
+      "accountMasked": "ar…1p@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-08T13:13:44.000Z",
+      "emailSentAt": "2026-11-08T13:13:44.000Z",
+      "recommendationEligible": true
     }
   ],
   "historicalAccounts": [
@@ -246096,6 +246961,15 @@
       "totalSaved": 5,
       "estimatedUberOneSavings": 0,
       "estimatedTotalSaved": 5,
+      "receiptReviewCount": 0
+    },
+    {
+      "accountRef": "A365",
+      "orderCount": 0,
+      "rideCount": 1,
+      "totalSaved": 9.94,
+      "estimatedUberOneSavings": 0,
+      "estimatedTotalSaved": 9.94,
       "receiptReviewCount": 0
     }
   ]
