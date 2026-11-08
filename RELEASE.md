@@ -1,3 +1,18 @@
+## Source-verified Mail update — 8 November 2026
+
+Adds 25 genuine personal Eats campaigns from the fresh 30,415-message Mail scan:
+23 fixed-value campaigns and two percentage campaigns. Refreshes the source
+clocks of 42 existing campaigns using their stable identities. The scan found
+no new receipts or receipt-linked accounts. Existing receipts, monetary totals,
+manual uses, corrections, login confirmations and the 235-account roster remain
+unchanged. Sync reports the actual completed scan time. Full originals and
+private account identities remain excluded from the published build.
+
+Pages now runs on explicit verified publication only. The separate seven-check
+CI workflow continues to run on pull requests and main pushes, and publication
+retains its complete validation, browser suite, build and private-data guard.
+This removes a duplicate non-publishing build from the deployment queue.
+
 ## Reviewed UI and mail-policy release — 7 November 2026
 
 Publishes the current reviewed work: Home's fixed five-week promo-savings SVG,

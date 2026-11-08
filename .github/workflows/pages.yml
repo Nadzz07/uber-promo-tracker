@@ -1,7 +1,5 @@
 name: Deploy tracker to GitHub Pages
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       private_data_verified:
