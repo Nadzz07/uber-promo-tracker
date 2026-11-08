@@ -1,5 +1,5 @@
 import {clickOfferTerms} from './test-browser-navigation.js';
-import {navigate,openMoreDestination} from './test-browser-navigation.js';
+import {navigate,openMoreDestination,settlePageLayout} from './test-browser-navigation.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -81,13 +81,15 @@ try{
    for(const expanded of [false,true]){
     await page.locator('#plannerOtherOptions').evaluate((e,open)=>{if(e.open!==open)e.querySelector('summary').click();},expanded);
     const controls=['#plannerOtherOptions > summary','#plannerFeeInput'];
-    if(expanded)controls.splice(1,0,'[data-select-plan]','[data-planner-matches]');
+    if(expanded)controls.splice(1,0,'[data-select-plan]','#plannerOfferScope');
     for(const selector of controls){
      const control=page.locator('#view-planner '+selector).first();
-     await control.evaluate(e=>{e.focus({preventScroll:true});e.scrollIntoView({block:'end',behavior:'instant'});});
-     if(width<980)assert.ok(await control.evaluate(e=>{const r=e.getBoundingClientRect();return r.top>=0&&r.bottom<=document.querySelector('.bottom-nav').getBoundingClientRect().top-15;}),'Control can scroll above the dock: '+selector+' '+JSON.stringify({width,height,large,top,bottom,expanded}));
+     await control.evaluate(e=>{e.focus({preventScroll:true});e.scrollIntoView({block:'end',behavior:'instant'});});await settlePageLayout(page);
+     if(width<980)assert.ok(await control.evaluate(e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&r.top>=0&&r.bottom<=document.querySelector('.bottom-nav').getBoundingClientRect().top-15;}),'Control can scroll above the dock: '+selector+' '+JSON.stringify({width,height,large,top,bottom,expanded}));
     }
-    await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));
+    // Finish the input interaction before checking footer scrolling: Firefox may
+    // otherwise reveal its focused number field again after a programmatic scroll.
+    await page.locator('#plannerFeeInput').blur();await settlePageLayout(page);await page.evaluate(()=>scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'}));await page.waitForFunction(()=>Math.abs(scrollY-Math.max(0,document.documentElement.scrollHeight-innerHeight))<2);await settlePageLayout(page);
     if(width<980){const end=await page.locator('#view-planner .planner-final-fees').evaluate(e=>({footer:e.getBoundingClientRect().bottom,dock:document.querySelector('.bottom-nav').getBoundingClientRect().top,padding:getComputedStyle(document.body).paddingBottom,scroll:scrollY,height:document.documentElement.scrollHeight}));assert.ok(end.footer<=end.dock-15,'Final content clears the actual dock and safe area '+JSON.stringify({width,height,large,top,bottom,expanded,...end}));}
    }
    checked++;
