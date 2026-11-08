@@ -80,8 +80,8 @@ body:has(.receipt-import-dialog[open]) #mainNav{visibility:hidden;pointer-events
 .receipt-import-dialog[data-phase=choose] .rim-help svg,.rim-compact-header button{color:var(--color-soft-accent);}
 .receipt-import-dialog[data-phase=choose] .rim-help summary{justify-content:flex-start;gap:10px;font-size:14px;}
 .receipt-import-dialog[data-phase=choose] .rim-help summary span{flex:0 1 auto;}
-.receipt-import-dialog[data-phase=choose] .rim-help summary svg:last-child{transform:rotate(90deg);}
-.receipt-import-dialog[data-phase=choose] .rim-help[open] summary svg:last-child{transform:rotate(270deg);}
+.receipt-import-dialog[data-phase=choose] .rim-help summary>svg:last-child{transform:rotate(90deg);}
+.receipt-import-dialog[data-phase=choose] .rim-help[open] summary>svg:last-child{transform:rotate(270deg);}
 .receipt-import-dialog[data-phase=choose] .rim-actions{padding-top:14px;}
 .receipt-import-dialog[data-phase=choose] .rim-actions .rim-primary{min-height:52px;font-size:16px;}
 .receipt-import-dialog[data-phase=choose] .rim-actions>[data-rim-close]{font-size:16px;}
@@ -103,7 +103,7 @@ body:has(.receipt-import-dialog[open]) #mainNav{visibility:hidden;pointer-events
 .rim-issues summary>span{flex:1;}.rim-issues small{display:block;font-size:12px;color:var(--color-secondary);}.rim-issues ul{padding-left:20px;overflow-wrap:anywhere;}
 .rim-help{font-size:12px;line-height:18px;color:var(--color-secondary);border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border);}
 .rim-help summary{min-height:44px;display:flex;align-items:center;gap:12px;cursor:pointer;list-style:none;font-size:13px;}
-.rim-help summary::-webkit-details-marker{display:none;}.rim-help summary span{flex:1;}.rim-help summary svg{width:16px;height:16px;flex:none;color:var(--color-icon);transition:transform 180ms var(--motion-ease);}.rim-help[open] summary svg:last-child{transform:rotate(90deg);}.rim-help p{margin:0 0 12px;line-height:18px;}
+.rim-help summary::-webkit-details-marker{display:none;}.rim-help summary span{flex:1;}.rim-help summary svg{width:16px;height:16px;flex:none;color:var(--color-icon);transition:transform 180ms var(--motion-ease);}.rim-help[open] summary>svg:last-child{transform:rotate(90deg);}.rim-help p{margin:0 0 12px;line-height:18px;}
 .rim-actions{padding:8px 18px calc(16px + env(safe-area-inset-bottom,0px));display:grid;gap:8px;flex:none;border-top:0;background:transparent;}
 .rim-actions>button{width:100%;}.rim-actions>[data-rim-close]{border:0;background:transparent;border-radius:0;font-size:14px;}.rim-actions .rim-primary{min-height:46px;}
 .receipt-import-dialog .rim-primary{background:var(--theme-primary);color:var(--color-on-accent);border-color:var(--color-accent-line);font-weight:600;}
@@ -210,8 +210,8 @@ html[data-motion=reduced] .backup-dialog summary>svg{transition:none;}
 .receipt-import-dialog[data-phase=choose] .rim-help { border:1px solid var(--data-border); border-radius:16px; background:var(--data-group); padding:0 13px; }
 .receipt-import-dialog[data-phase=choose] .rim-help summary { min-height:54px; gap:10px; font-size:13px; color:var(--color-text); }
 .receipt-import-dialog[data-phase=choose] .rim-help summary span { flex:1; }
-.receipt-import-dialog[data-phase=choose] .rim-help summary svg:last-child { transform:rotate(90deg); }
-.receipt-import-dialog[data-phase=choose] .rim-help[open] summary svg:last-child { transform:rotate(270deg); }
+.receipt-import-dialog[data-phase=choose] .rim-help summary>svg:last-child { transform:rotate(90deg); }
+.receipt-import-dialog[data-phase=choose] .rim-help[open] summary>svg:last-child { transform:rotate(270deg); }
 .receipt-import-dialog[data-phase=choose] .rim-help p { padding-bottom:8px; }
 .backup-dialog .rim-header .rim-icon-tile { align-self:center; width:40px; height:40px; flex-basis:40px!important; }
 .backup-dialog .rim-header h1 { font-size:22px; line-height:26px; margin:0; }
