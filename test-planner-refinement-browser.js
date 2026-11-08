@@ -46,6 +46,7 @@ try {for(const [width,height,large] of [[320,568,false],[390,844,false],[393,852
  assert.equal(await page.locator('#recommendation .plan-fee-explanation').count(),0);assert.equal(await page.locator('.planner-final-fees').innerText(),'Final fees are confirmed in Uber.');
  if(!large)await shot(page,width,'planner-default');
  await page.locator('#plannerOtherOptions > summary').click();assert.equal(await page.locator('.plan-alternative').count(),1);assert.equal(await page.locator('.plan-alternative-price > strong').innerText(),'£19.00');assert.match(await page.locator('.plan-alternative-price').innerText(),/\+£11.00/);
+ if(!large&&width>=390){const row=await page.locator('.plan-alternative-head').evaluate(e=>({width:e.clientWidth,copy:e.firstElementChild.getBoundingClientRect().width,pill:e.querySelector('.plan-select').getBoundingClientRect().width}));assert.ok(row.copy>=row.width/2&&row.pill<80,'Alternative gives the offer its width and keeps Use a small inline pill: '+JSON.stringify(row));}
  if(!large)await shot(page,width,'planner-options');
  await page.locator('[data-select-plan]').click();assert.equal(await page.locator('.plan-status').innerText(),'Your pick');assert.equal(await page.locator('.plan-accounts .plan-row').count(),1);
  await page.locator('#view-planner [data-home-detail="offers"]').click();assert.equal(await page.locator('#accountSearch').inputValue(),'second');assert.equal(await page.locator('#accountShowValue').innerText(),'Active');

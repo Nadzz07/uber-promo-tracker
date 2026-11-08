@@ -1359,8 +1359,6 @@ html[data-layout="desktop"] #view-planner .basket-editor,
 #view-planner .planner-other-options > summary::after { content:''; width:9px; height:9px; flex:0 0 9px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform:rotate(45deg); margin:0 3px var(--space-1) auto; }
 #view-planner .planner-other-options[open] > summary::after { transform:rotate(225deg); margin-top:var(--space-2); }
 #view-planner .plan-alternative-price { text-align:right; }
-#view-planner .plan-alternative-head { flex-wrap:wrap; }
-#view-planner .plan-alternative-head > div { min-width:0; flex:1 1 120px; }
 #view-planner .plan-alternative-price > strong { font-size:22px; }
 #view-planner .plan-alternative-price small { color: var(--muted); }
 #view-planner .planner-final-fees { display:flex; align-items:flex-start; gap:var(--space-2); margin:var(--space-3) 0 var(--space-1); color: var(--muted); font-size:13px; line-height:1.5; }

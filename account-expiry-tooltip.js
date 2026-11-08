@@ -21,7 +21,8 @@ export function createExpiryTooltips(host) {
   scrollPositions=new Map();for(let node=button;node;node=node.parentElement)scrollPositions.set(node,[node.scrollLeft,node.scrollTop]);scrollPositions.set(document.scrollingElement,[scrollX,scrollY]);
   timer=setTimeout(close,4000);return same;
  }
- host.addEventListener('pointerdown',e=>{const b=e.target.closest('[data-expiry-explanation]');if(b){e.stopPropagation();e.preventDefault();if(e.pointerType==='touch')lastTouch=Date.now();}});
+ // WebKit suppresses the synthetic tap click when touch pointerdown is cancelled.
+ host.addEventListener('pointerdown',e=>{const b=e.target.closest('[data-expiry-explanation]');if(b){e.stopPropagation();if(e.pointerType==='touch')lastTouch=Date.now();else e.preventDefault();}});
  host.addEventListener('click',e=>{const b=e.target.closest('[data-expiry-explanation]');if(!b)return;e.stopPropagation();if(active===b&&pinned)close();else show(b,true);});
  host.addEventListener('pointerover',e=>{const b=e.target.closest('[data-expiry-explanation]');if(b&&e.pointerType==='mouse'&&Date.now()-lastTouch>600&&!pinned)show(b);});
  host.addEventListener('pointerout',e=>{if(active&&!pinned&&e.target.closest('[data-expiry-explanation]')===active&&!active.contains(e.relatedTarget))close();});
