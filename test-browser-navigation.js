@@ -1,14 +1,15 @@
 // Existing feature checks enter the same tap-through screens as users.
 export async function openHomeDetail(page,name) {
   if (await page.locator('#view-'+name+'.active').count()) return;
-  if (!await page.locator('#view-home.active').count()) await page.locator('[data-view="home"]').click();
+  if (!await page.locator('#view-home.active').count()) await navigate(page,'home');
   await page.locator('#view-home [data-home-detail="'+name+'"]').click();
   await page.locator('#view-'+(name==='offers'?'accounts':name)+'.active').waitFor();
   if(name==='offers'&&await page.locator('#accountTypeOptions').isVisible())await page.keyboard.press('Escape');
 }
 
 export async function directoryStatus(page,value) {
- const panel=page.locator('#accountSecondaryFilters');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await page.locator('#accountScope').selectOption(value);
+ const key=({all:'active',tracked:'active',offers:'active',unfinished:'active',used:'finished','expired-unused':'expired',pending:'review'}[value]||value);
+ if(!await page.locator('#accountShowOptions').isVisible())await page.locator('#accountShowTrigger').click();await page.locator('[data-show-accounts="'+key+'"]').click();
 }
 export async function directoryType(page,value) {
  if(!await page.locator('#accountTypeOptions').isVisible())await page.locator('#accountTypeTrigger').click();const main=page.locator('[data-offer-type="'+value+'"]');if(await main.count())await main.click();else{await page.locator('[data-offer-type="other"]').click();await page.locator('[data-catalogue-value="'+value+'"]').click();}
@@ -16,10 +17,14 @@ export async function directoryType(page,value) {
 export async function directoryReset(page) {
  await page.locator('#accountSearch').fill('');await page.locator('[data-login-filter="all"]').click();await page.locator('#accountProvider').selectOption('all');
  await directoryType(page,'all');
- const panel=page.locator('#accountSecondaryFilters');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await page.locator('[data-reset-secondary]').click();
+ await directoryStatus(page,'active');
 }
 
-export async function directoryAvailability(page,value) { const panel=page.locator('#accountSecondaryFilters');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await page.locator('#accountOfferScope').selectOption(value); }
+// Availability now composes the visible Show and login controls.
+export async function directoryAvailability(page,value) {
+ await directoryStatus(page,value==='archived'?'archived':value==='attention'?'review':'active');
+ await page.locator('[data-login-filter="'+(value==='ready'?'login':'all')+'"]').click();
+}
 
 // Back/Forward and ResizeObserver updates can finish after goBack resolves.
 // Wait for stable scroll and dock geometry before the next pointer action.
@@ -48,9 +53,38 @@ export async function openOfferManagement(page, key = null) {
 // Exercise the actual import location, then return to Private finances.
 export async function importPrivateFinance(page,file){
  if(await page.locator('#sheetBackdrop.open').count()) {await page.locator('#sheetClose').click();await page.locator('#sheetBackdrop.open').waitFor({state:'hidden'});}
- await page.locator('[data-view="more"]').click();await page.locator('#view-more [data-open-sheet="health"]').click();
+ await openMoreDestination(page,'health');
  await page.locator('[data-device-file]').setInputFiles(file);
  await page.locator('[data-device-confirm]').click();
  await page.getByText('Backup restored on this device.',{exact:true}).waitFor();
  // Leave Sync & data open; callers return through its actual Close action.
+}
+
+// Browser tests follow the same responsive navigation as the app.
+export async function navigate(page,view) {
+ await settlePageLayout(page);
+ const desktop=await page.evaluate(()=>matchMedia('(min-width:768px)').matches);
+ if(desktop){if(view==='more')throw Error('More is mobile-only; select a desktop sidebar destination.');await page.locator('.desktop-sidebar [data-sidebar-view="'+view+'"]').click();}
+ else await page.locator('#mainNav [data-view="'+view+'"]').click();
+}
+export async function openMoreDestination(page,destination) {
+ if(await page.evaluate(()=>matchMedia('(min-width:768px)').matches))await page.locator('.desktop-sidebar [data-sidebar-key="'+destination+'"]').click();
+ else {await navigate(page,'more');await page.locator('#view-more '+(destination==='help'?'[data-open-guide]':destination==='planner'?'[data-jump-planner]':'[data-open-sheet="'+destination+'"]')).click();}
+}
+
+// Compact offers require opening the offer before its inline terms are visible.
+export async function clickOfferTerms(page) {
+ const terms=page.locator('.offer-terms').first(),card=terms.locator('xpath=ancestor::details[contains(@class,"account-detail-offer")]');
+ if(await card.count()&&await card.getAttribute('open')===null)await card.locator('>summary').click();
+ await terms.locator('>summary').click();
+}
+
+export async function openReviewCard(page,receiptId=null) {
+ const card=receiptId?page.locator('.review-card:has([data-ri-receipt="'+receiptId+'"])'):page.locator('.review-card').first();
+ if(await card.getAttribute('open')===null)await card.locator('>summary').click();
+}
+
+export async function waitForMoreParent(page) {
+ const view=await page.evaluate(()=>matchMedia('(min-width:768px)').matches?'home':'more');
+ await page.locator('#view-'+view+'.active').waitFor();
 }

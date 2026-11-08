@@ -1,3 +1,5 @@
+import {clickOfferTerms} from './test-browser-navigation.js';
+import {navigate,openMoreDestination} from './test-browser-navigation.js';
 import {openHomeDetail,directoryStatus,directoryType,directoryReset,directoryAvailability,usedStatus,openOfferManagement} from './test-browser-navigation.js';
 // Synthetic data is intercepted in the test browser only, never written to public JSON.
 import assert from 'node:assert/strict';
@@ -21,7 +23,7 @@ let browser;
 try {
   const engine = {chromium,webkit,firefox}[process.env.TRACKER_BROWSER_ENGINE || 'chromium'];
   browser = await engine.launch(engine === chromium ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined, args: ['--no-sandbox', '--disable-dev-shm-usage'] } : {});
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: engine !== firefox, hasTouch: true, timezoneId: 'America/Los_Angeles' });
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: false, hasTouch: true, timezoneId: 'America/Los_Angeles' });
   const page = await context.newPage(); const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   // First-sync behaviour must not depend on the user's checked-in live data.
@@ -55,19 +57,19 @@ try {
   assert.equal(await page.locator('#homeReadyCount').innerText(),'Search offers in Accounts');
   assert.equal(await page.locator('#savedStat').innerText(), '£0.00');
   assert.equal(await page.locator('#savedStatSub').count(),0,'No Uber One estimate is mixed into Home promo savings');
-  await page.locator('[data-view="accounts"]').click();
+  await navigate(page,'accounts');
   await directoryType(page,'all');await directoryStatus(page,'used');
-  assert.equal(await page.locator('#accountsList .account-card').count(), 1);
+  assert.equal(await page.locator('#accountsList .account-card').count(), 2,'Finished combines receipt-used accounts and completed offers');
   assert.match(await page.locator('#accountsList').innerText(), /us…ed/);
   await page.locator('#accountSearch').fill('missing');
   assert.equal(await page.locator('#accountsList .account-card').count(), 0);
   await page.locator('#accountSearch').fill('');
   await directoryReset(page);
-  await page.locator('[data-view="home"]').click();
+  await navigate(page,'home');
   for (const hidden of ['lo…ed', 're…ew', 'ex…ed', 'us…ed', 'ba…nt']) assert.equal(recommendation.includes(hidden), false);
   if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('[data-account-offers="A001"]:visible').first().click();
   assert.equal(await page.evaluate(() => document.activeElement.id), 'sheetClose');
-  await page.locator('.offer-terms > summary').first().click();assert.match(await page.locator('.account-offer-expiry').first().getAttribute('aria-label'), /Ends 31 Dec at 23:59 UK/, 'An explicit Uber deadline takes priority over the fallback window');
+  await page.locator('[data-offer-key=test-offer-1]>summary').click();await clickOfferTerms(page);assert.match(await page.locator('.account-offer-expiry').first().getAttribute('aria-label'), /Ends 31 Dec at 23:59 UK/, 'An explicit Uber deadline takes priority over the fallback window');
   const sheetMotion = await page.locator('.sheet').evaluate(el => {
     const style=getComputedStyle(el);
     return {animation:style.animationName,properties:style.transitionProperty,durations:style.transitionDuration.split(',').map(Number.parseFloat)};
@@ -86,15 +88,12 @@ try {
   offer.receiptConfirmedUses = 2; offer.usesRemaining = 3;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('[data-account-offers="A001"]:visible').first().click();
-  assert.match(await page.locator('#sheetBody').innerText(), /Up to 3 left/);
+  assert.match(await page.locator('#sheetBody').innerText(), /3 remaining/);
   await page.keyboard.press('Escape');
-  await page.locator('[data-view="used"]').click();
-  assert.equal(await page.locator('#usedStatusOptions').isVisible(),false,'Status picker is closed by default');
-  await usedStatus(page,'finished_expired');assert.match(await page.locator('#usedRecords').innerText(),/ex…ed/);
-  await usedStatus(page,'needs_checking');assert.match(await page.locator('#usedRecords').innerText(),/re…ew/);assert.match(await page.locator('#usedRecords').innerText(),/allowance needs verification|Offer evidence needs checking/);assert.doesNotMatch(await page.locator('#usedRecords').innerText(),/96 orders/);
-  await page.locator('#usedRecords [data-activity-record="review:A007"]').click();
-  assert.equal(await page.locator('[data-use-one="test-bad-count"]').isDisabled(), true);
-  assert.doesNotMatch(await page.locator('#sheetBody').innerText(), /96 left|of 96/);
+  await navigate(page,'accounts');await directoryReset(page);await page.locator('#accountSearch').fill('ba…nt');
+  await page.locator('#accountsList [data-account-offers="A007"]').click();
+  assert.equal(await page.locator('[data-use-one="test-bad-count"]').isDisabled(),true);
+  assert.doesNotMatch(await page.locator('#sheetBody').innerText(),/96 left|of 96/);
   await page.keyboard.press('Escape');
   failHistory = true;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
@@ -102,82 +101,20 @@ try {
   assert.match(await page.locator('#recommendation').innerText(), /Promo discount\s*−£10\.00/);
   failPromos = true;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Attention');
-  await page.locator('[data-view=home]').click();assert.equal(await page.locator('[data-retry-load]').isVisible(), true);
+  await navigate(page,'home');assert.equal(await page.locator('[data-retry-load]').isVisible(), true);
   failPromos = false;
   await page.locator('[data-retry-load]').click();
   await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
-  for (const width of [320, 360, 375, 390, 414, 430, 600, 768, 980, 1120, 1440, 1920]) {
-    await page.setViewportSize({ width, height: 900 });
-    await page.waitForFunction(expected => document.documentElement.dataset.layout === expected, width < 980 ? 'mobile' : 'desktop');
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Overflow at ${width}px`);
-    const brand = await page.locator('.brand-title').evaluate(el => ({
-      text: el.textContent.trim(),
-      height: el.getBoundingClientRect().height,
-      fontSize: parseFloat(getComputedStyle(el).fontSize),
-      scrollWidth: el.scrollWidth,
-      clientWidth: el.clientWidth
-    }));
-    assert.equal(brand.text, 'Promo Tracker', `Header should use the compact product title at ${width}px`);
-    assert.ok(brand.height <= brand.fontSize * 1.5, `Default product title stays compact at ${width}px; enlarged text can wrap`);
-    assert.ok(brand.scrollWidth <= brand.clientWidth + 1, `Product title should fit without clipping at ${width}px`);
-    const header = await page.evaluate(() => {
-      const title = document.querySelector('.brand-title'), stamp = document.getElementById('scanTime');
-      const a = title.getBoundingClientRect(), b = stamp.getBoundingClientRect();
-      return { overlap: a.right > b.left && a.bottom > b.top && a.top < b.bottom, filter: getComputedStyle(title).filter, stampSize: parseFloat(getComputedStyle(stamp).fontSize) };
-    });
-    assert.equal(header.overlap, false, `Title and last sync timestamp must not overlap at ${width}px`);
-    assert.equal(header.filter, 'none'); assert.ok(header.stampSize >= 11);
-    assert.equal(await page.locator('.nav-glider').count(),0,'Shared navigation has no sliding pill');
-    // Resize transitions settle before checking exact geometry below.
-    if (width < 980) {
-      const nav = await page.locator('#mainNav').evaluate(el => ({ bottom: innerHeight-el.getBoundingClientRect().bottom, radius: getComputedStyle(el).borderRadius, position: getComputedStyle(el).position, height: el.offsetHeight }));
-      assert.equal(nav.position, 'fixed'); assert.equal(nav.radius, '28px');
-      assert.ok(nav.bottom >= 7 && nav.bottom <= 9, 'Floating nav must sit 8px above the browser safe area');
-      assert.ok(nav.height < 75, 'Floating nav must stay a compact capsule');
-    }
-
-    const availableLabelFits = await page.locator('.accounts-available-label').evaluate(el => ({
-      nowrap: getComputedStyle(el).whiteSpace === 'nowrap',
-      scrollWidth: el.scrollWidth,
-      clientWidth: el.clientWidth,
-      fits: el.scrollWidth <= el.clientWidth
-    }));
-
-    assert.equal(availableLabelFits.fits, true, `Preferred offers should fit its card at ${width}px (scroll ${availableLabelFits.scrollWidth}px / client ${availableLabelFits.clientWidth}px)`);
-    if (width <= 600) {
-      const cardWidths = await page.locator('.home-overview .stat-card').evaluateAll(cards => cards.map(card => card.getBoundingClientRect().width));
-      assert.ok(Math.max(...cardWidths) - Math.min(...cardWidths) < 1, `Home stat cards should remain equal width at ${width}px`);
-      const labelSizes = await page.locator('.home-overview .stat-label').evaluateAll(labels => labels.map(label => parseFloat(getComputedStyle(label).fontSize)));
-      assert.ok(Math.max(...labelSizes) - Math.min(...labelSizes) < 0.1, `Home stat labels should use the same font size at ${width}px`);
-      assert.ok(Math.min(...labelSizes) >= 11, `Home stat labels should remain readable at ${width}px`);
-      const mobileColumns = await page.locator('.home-overview .stats-row').evaluate(row => getComputedStyle(row).gridTemplateColumns.split(' ').length);
-      assert.equal(mobileColumns, 2, `Phone Home account metrics should use the requested 2×2 grid at ${width}px`);
-      assert.equal(await page.locator('.home-overview .stats-row .stat-card').count(),4);
-    }
-    if (process.env.TRACKER_SCREENSHOT_DIR && [390, 1440].includes(width)) await page.screenshot({ path: `${process.env.TRACKER_SCREENSHOT_DIR}/tracker-${width}.png`, fullPage: true });
+  for(const width of [320,360,390,440,600,767,768,1024,1100,1280,1440,1920]){
+    await page.setViewportSize({width,height:900});await navigate(page,'home');
+    await page.waitForFunction(expected=>document.documentElement.dataset.layout===expected,width<768?'mobile':'desktop');
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'No overflow at '+width);
+    assert.equal(await page.locator('#mainNav').isVisible(),width<768);
+    assert.equal(await page.locator('.desktop-sidebar').isVisible(),width>=768);
+    assert.equal(await page.locator('#homeWeeklySavings .weekly-savings-points circle').count(),5);
+    assert.equal(await page.locator('.home-overview .stat-card').count(),3);
   }
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.locator('[data-view="home"]').click();
-  const desktopLayout = await page.evaluate(() => {
-    const nav = document.getElementById('mainNav').getBoundingClientRect();
-    const main = document.querySelector('main').getBoundingClientRect();
-    const overview = document.querySelector('.home-overview').getBoundingClientRect();
-    const navStyle = getComputedStyle(document.getElementById('mainNav'));
-    const widths = [...document.querySelectorAll('.home-overview .stat-card')].map(el => el.getBoundingClientRect().width);
-    return { navBottom: nav.bottom, mainTop: main.top, overviewWidth: overview.width, overviewTop: overview.top, mainBottom: main.bottom, navColumns: navStyle.gridTemplateColumns.split(' ').length, widths };
-  });
-  assert.equal(desktopLayout.navColumns, 4, 'Desktop navigation should use four horizontal tabs');
-  assert.ok(desktopLayout.navBottom <= desktopLayout.mainTop, 'Desktop navigation belongs in the header above the dashboard');
-  assert.ok(Math.max(...desktopLayout.widths)-Math.min(...desktopLayout.widths) < 1, 'Desktop summary cards should be equal width');
-  assert.ok(desktopLayout.overviewWidth > 1000, 'Desktop should use the full workspace width');
-  assert.ok(desktopLayout.overviewTop < 220, 'Privacy footer must not create a blank row above the desktop dashboard');
-  assert.equal(await page.locator('.privacy').count(),0,'Unrequested explanatory footer stays off the main screens');
-  const desktopHome = await page.locator('[data-view="home"]').boundingBox(), desktopAccounts = await page.locator('[data-view="accounts"]').boundingBox();
-  await page.mouse.move(desktopHome.x+desktopHome.width/2, desktopHome.y+desktopHome.height/2); await page.mouse.down();
-  await page.mouse.move(desktopAccounts.x+desktopAccounts.width/2, desktopAccounts.y+desktopAccounts.height/2, { steps: 6 });
-  await page.mouse.up(); assert.equal(await page.locator('#view-accounts').isVisible(), true, 'Desktop header tabs must slide horizontally');
-  await page.keyboard.press('Home'); assert.equal(await page.locator('#view-home').isVisible(), true);
-
+  await page.setViewportSize({width:1440,height:900});await navigate(page,'accounts');await page.keyboard.press('/');assert.equal(await page.evaluate(()=>document.activeElement.id),'accountSearch');await navigate(page,'home');
   // A real-sized savings total must fit its desktop card, not hide behind ellipsis.
   payload.summary.totalSaved = 3382.60;
   payload.receiptActivity={amountVersion:1,months:[{period:time.slice(0,7),eats:1,rides:0,saved:3382.60,amounts:{eats:receiptAmountSummary([{receiptId:'large-saving',service:'Uber Eats',promotionDiscount:3382.60,total:0,uberCashUsed:0}]),rides:receiptAmountSummary([])}}],days:[]};
@@ -209,55 +146,22 @@ try {
   assert.match(await page.locator('#recommendation').innerText(), /2 orders/);assert.equal(await page.locator('#plannerFeeInput').inputValue(),'1.00');
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.locator('[data-view="home"]').click();
+  await navigate(page,'home');
   const homeTab = await page.locator('[data-view="home"]').boundingBox(), moreTab = await page.locator('[data-view="more"]').boundingBox();
   await page.mouse.move(homeTab.x+homeTab.width/2, homeTab.y+homeTab.height/2); await page.mouse.down();
   await page.mouse.move(moreTab.x+moreTab.width/2, moreTab.y+moreTab.height/2, { steps: 8 });
   assert.equal(await page.locator('#mainNav').evaluate(el => el.classList.contains('dragging')), true);
   await page.mouse.up(); assert.equal(await page.locator('#view-more').isVisible(), true);
   assert.equal(await page.locator('#mainNav [aria-current=page]').getAttribute('data-view'),'more');
-  await page.keyboard.press('ArrowLeft'); assert.equal(await page.locator('#view-used').isVisible(), true);
+  await page.keyboard.press('ArrowLeft'); assert.equal(await page.locator('#view-accounts').isVisible(), true);
   await page.keyboard.press('End'); assert.equal(await page.locator('#view-more').isVisible(), true);
 
-  await page.locator('[data-open-sheet="appearance"]').click();await page.locator('[data-open-sheet="theme"]').click();
+  await openMoreDestination(page,'appearance');await page.locator('[data-open-sheet="theme"]').click();
   const manualBeforeLayout = await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:manual-state:v3'));
-  // Mobile on a wide display stays the phone composition, including its fixed dock.
-  await page.locator('[name="layoutPreference"][value="mobile"]').check();
-  await page.setViewportSize({ width: 1440, height: 900 });
-  assert.equal(await page.locator('html').getAttribute('data-layout'), 'mobile');
-  assert.ok((await page.locator('#app').boundingBox()).width <= 480);
-  const phoneDock = await page.locator('#mainNav').evaluate(el => ({ width: el.offsetWidth, position: getComputedStyle(el).position }));
-  assert.equal(phoneDock.position, 'fixed'); assert.ok(phoneDock.width <= 452);
-  await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
-  assert.equal(await page.locator('html').getAttribute('data-layout'), 'mobile', 'Layout override must survive reload');
-  await page.locator('[data-view="more"]').click();
-  assert.equal(await page.locator('#view-more .screen-title').innerText(), 'More');
-  assert.equal(await page.locator('#view-more .more-group').count(), 4, 'Tools retain grouped destinations');
-  await page.locator('[data-open-sheet="appearance"]').click();await page.locator('[data-open-sheet="theme"]').click();
-  await page.locator('[name="layoutPreference"][value="desktop"]').check();
-  assert.equal(await page.locator('html').getAttribute('data-layout'), 'desktop');
-  await page.setViewportSize({ width: 390, height: 844 });
-  assert.equal(await page.locator('html').getAttribute('data-layout'), 'desktop', 'Desktop override must survive resize');
-  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'Explicit Desktop must remain usable at phone width');
-  for (const width of [320,600,768,980,1440]) {
-    await page.setViewportSize({ width, height: 900 });
-    assert.equal(await page.locator('html').getAttribute('data-layout'), 'desktop');
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Explicit Desktop must fit ${width}px`);
-    const navSizes = await page.locator('.nav-btn').evaluateAll(buttons => buttons.map(button => ({label:button.innerText,content:button.scrollWidth,width:button.clientWidth})));
-    assert.ok(navSizes.every(button => button.content <= button.width+1), `Desktop navigation labels must fit at ${width}px: ${JSON.stringify(navSizes)}`);
-  }
-  await page.setViewportSize({ width: 390, height: 844 });
-  // The radio group works with keyboard selection and Auto can be restored.
-  await page.locator('[name="layoutPreference"][value="desktop"]').focus();
-  await page.keyboard.press('ArrowLeft');
-  await page.waitForFunction(() => document.documentElement.dataset.layoutPreference === 'mobile');
-  await page.locator('[name="layoutPreference"][value="auto"]').check();
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.waitForFunction(() => document.documentElement.dataset.layout === 'desktop');
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.waitForFunction(() => document.documentElement.dataset.layout === 'mobile');
-  assert.equal(await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:manual-state:v3')), manualBeforeLayout, 'Layout choices must preserve manual usage');
-  await page.keyboard.press('Escape');await page.locator('[data-view=home]').click();assert.equal(await page.locator('#savedStat').innerText(), '£3,382.60', 'Layout choices must preserve financial totals on the actual Home view');await page.locator('[data-view=more]').click();await page.locator('[data-open-sheet=appearance]').click();await page.locator('[data-open-sheet=theme]').click();
+  // Saved layout values remain intact while the responsive shell follows its breakpoints.
+  for(const value of ['mobile','desktop','auto']){await page.locator('[name="layoutPreference"][value="'+value+'"]').check();assert.equal(await page.locator('html').getAttribute('data-layout-preference'),value);}
+  await page.setViewportSize({width:390,height:844});assert.equal(await page.locator('html').getAttribute('data-layout'),'mobile');
+  assert.equal(await page.evaluate(()=>localStorage.getItem('uber-eats-promo-tracker:manual-state:v3')),manualBeforeLayout);
   await page.locator('[data-theme-colour="#c5a0ff"]').click();
   const chosen = await page.evaluate(() => ({ stored: localStorage.getItem('uber-eats-promo-tracker:theme:v1'), colour: getComputedStyle(document.documentElement).getPropertyValue('--green') }));
   assert.equal(chosen.stored, '#c5a0ff'); assert.notEqual(chosen.colour.trim(), '#9bea72');
@@ -272,7 +176,7 @@ try {
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   assert.equal(await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:theme:v1')), wheelColour);
 
-  await page.locator('[data-view="more"]').click(); await page.locator('#view-more [data-open-sheet="health"]').click();await page.locator('[data-account-import]').click();
+  await openMoreDestination(page,'health');await page.locator('[data-account-import]').click();
   const privateEmail = 'alot.extralong+login.alpha@example.invalid';
   const requests = []; page.on('request', request => requests.push({ url: request.url(), method: request.method() }));
   await context.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
@@ -281,7 +185,7 @@ try {
   await page.locator('.receipt-import-dialog[open] [data-rim-confirm]').click();
   await page.getByText('Import accounts complete.',{exact:true}).waitFor();
   assert.deepEqual(requests, [], 'Importing private emails must not make any network request');
-  await page.keyboard.press('Escape'); await page.locator('[data-view="accounts"]').click();
+  await page.keyboard.press('Escape'); await navigate(page,'accounts');
   await page.locator('#accountSearch').fill(privateEmail);
   assert.equal(await page.locator('#accountsList .account-card').count(), 1);
   assert.equal(await page.locator('#accountsList .account-email').innerText(), privateEmail);
@@ -293,10 +197,10 @@ try {
   await page.keyboard.press('Escape'); await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   await openHomeDetail(page,'planner');assert.match(await page.locator('#recommendation').innerText(), /alot\.extralong\+login\.alpha/);
   assert.equal(requests.some(r => r.url.includes(privateEmail) || r.method !== 'GET'), false);
-  await page.locator('[data-view="more"]').click(); await page.locator('#view-more [data-open-sheet="health"]').click();await page.locator('[data-sync-info]').click();await page.getByText('Saved account imports',{exact:true}).click();
+  await openMoreDestination(page,'health');await page.locator('[data-sync-info]').click();await page.getByText('Saved account imports',{exact:true}).click();
   await page.locator('#forgetDeviceAccounts').click();
   assert.equal(await page.evaluate(() => localStorage.getItem('uber-eats-promo-tracker:device-accounts:v1')), null);
-  await page.keyboard.press('Escape'); await page.locator('[data-view="home"]').click();
+  await page.keyboard.press('Escape'); await navigate(page,'home');
   assert.equal((await page.locator('#recommendation').innerText()).includes(privateEmail), false);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.locator('[data-view="more"]').click();
@@ -338,17 +242,17 @@ try {
   await filterPage.route('**/history.json?*', route => route.fulfill({ json: { updatedAt: time, records: [] } }));
   await filterPage.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await filterPage.goto(url); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
 
-  await directoryStatus(filterPage,'unfinished');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'8 accounts','All-access status keeps the inaccessible started account');await directoryAvailability(filterPage,'ready');
-  assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts');
-  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4 confirmed · Up to 1 left/);
-  assert.equal(await filterPage.locator('#accountsList [data-card-account="A108"]').count(),0);
-  await filterPage.locator('[data-view="home"]').click();
+  assert.equal(await filterPage.locator('[data-login-filter=login]').getAttribute('aria-pressed'),'true');await filterPage.locator('[data-login-filter=all]').click();await directoryStatus(filterPage,'unfinished');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'9 accounts','Active includes the inaccessible account and unstarted current offers');await directoryAvailability(filterPage,'ready');
+  assert.equal(await filterPage.locator('#accountsMeta').innerText(),'9 accounts');
+  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4 confirmed · up to 1 left/);
+  assert.equal(await filterPage.locator('#accountsList [data-card-account="A108"]').count(),1,'Active includes unstarted offers; it replaces the narrower Not finished scope');
+  await navigate(filterPage,'home');
   await openHomeDetail(filterPage,'offers');await directoryReset(filterPage);await directoryType(filterPage,'cash');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A107"]').count(), 1, 'Receipt completion cannot hide a current Cash offer');
-  await filterPage.locator('[data-view="accounts"]').click();
+  await navigate(filterPage,'accounts');
   await directoryType(filterPage,'cash');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A111"]').count(),0,'Past Cash stays in history and does not qualify as a current Cash opportunity');
-  await filterPage.locator('[data-view="home"]').click();
+  await navigate(filterPage,'home');
 
   await openHomeDetail(filterPage,'offers');await directoryReset(filterPage);await directoryType(filterPage,'cash-promo');await directoryAvailability(filterPage,'ready');
   assert.equal(await filterPage.locator('#accountsList .account-card').count(), 2);
@@ -356,7 +260,7 @@ try {
 
   assert.equal(await filterPage.locator('#savedStat').innerText(), '—','Home does not substitute an unrelated lifetime summary for selected-period promo receipts');
   assert.match(await filterPage.locator('#recommendation').innerText(), /Promo discount\s*−£0\.00/, 'Finder changes preserve the cash-only Planner scope; Cash cannot become a promo discount');assert.equal(await filterPage.locator('#plannerOfferScope').inputValue(),'cash');
-  await filterPage.locator('[data-view="accounts"]').click();
+  await navigate(filterPage,'accounts');
   await directoryType(filterPage,'cash-promo');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A101"]').count(), 1);
   for (const accountRef of ['A102', 'A103', 'A104', 'A105']) assert.equal(await filterPage.locator(`#accountsList [data-card-account="${accountRef}"]`).count(), 0);
@@ -364,8 +268,8 @@ try {
   repeatOffer.usesRemaining = 1; repeatOffer.receiptConfirmedUses = 4;
   for (const promo of filterOffers.filter(p => p.accountRef === 'A101' && p.discountType === 'uberCash')) {promo.usesRemaining=0;promo.cashEstimate={...promo.cashEstimate,status:'exhausted',remaining:0};}
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
-  await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts','One remaining use does not finish an account');
-  await directoryReset(filterPage);await directoryType(filterPage,'cash-promo');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'1 account');await filterPage.locator('[data-view=home]').click();
+  await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'9 accounts','One remaining use does not finish an account');
+  await directoryReset(filterPage);await directoryType(filterPage,'cash-promo');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'1 account');await navigate(filterPage,'home');
   const preferredReady=Number(await filterPage.locator('#activeStat').innerText());await filterPage.locator('.stats-row [data-home-list=ready]').click();assert.equal(await filterPage.locator('#accountTypeValue').innerText(),'Preferred offers');assert.equal(Number((await filterPage.locator('#accountsMeta').innerText()).replace(/[^0-9]/g,'')),preferredReady);await filterPage.goBack();await filterPage.locator('#view-home.active').waitFor();
   assert.equal(await filterPage.locator('#homeReadyCount').innerText(),'Search offers in Accounts');
   filterOffers.splice(filterOffers.findIndex(p => p.id === 'another-single-102'), 1);
@@ -376,20 +280,20 @@ try {
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A102"]').count(), 1);
   filterAccounts.find(a => a.accountRef === 'A109').orderCount = 5;
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
-  await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'7 accounts','Receipt completion cannot hide a remaining offer');
+  await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'9 accounts','Receipt completion cannot hide a remaining offer');
   filterOffers.find(p => p.accountRef === 'A109').usesRemaining = 0;
   filterOffers.find(p => p.accountRef === 'A109').receiptConfirmedUses = 5;
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
-  await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'6 accounts','Completed receipt usage leaves the unfinished group');
+  await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'8 accounts','Completed receipt usage leaves the unfinished group');
   await openHomeDetail(filterPage,'offers');await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A109"]').count(), 0);
   for (const width of [320, 390, 1440]) {
     await filterPage.setViewportSize({ width, height: 900 });
-    await filterPage.waitForFunction(layout => document.documentElement.dataset.layout === layout, width < 980 ? 'mobile' : 'desktop');
+    await filterPage.waitForFunction(layout => document.documentElement.dataset.layout === layout, width < 768 ? 'mobile' : 'desktop');
     assert.equal(await filterPage.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Quick filters fit ${width}px`);
     assert.equal(await filterPage.locator('.quick-card').evaluateAll(cards => cards.every(card => card.scrollWidth <= card.clientWidth+1 && card.scrollHeight <= card.clientHeight+1)), true, `Quick filter labels fit their cards at ${width}px`);
   }
-  await filterPage.locator('[data-view="home"]').click();
+  await navigate(filterPage,'home');
   await filterPage.locator('#homeAnalytics button').click();
   assert.ok(await filterPage.locator('.ri-activity').isVisible(),'Receipt quick action opens the full insights view');
   await filterPage.locator('.ri-range').selectOption('all');await filterPage.locator('[data-ri-service=all]').click();await filterPage.locator('.ri-metric-select').selectOption('orders');
@@ -402,7 +306,7 @@ try {
   repeatOffer.expiresAt=new Date(clockNow+2*86400000).toISOString();repeatOffer.expiryStatus='exact';
   await filterPage.clock.install({time:clockNow});
   await filterPage.reload();await filterPage.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Updated');
-  await filterPage.locator('[data-view="accounts"]').click();await directoryStatus(filterPage,'expiring');
+  await navigate(filterPage,'accounts');await directoryStatus(filterPage,'expiring');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A101"]').count(),1);
   const activeBefore=Number(await filterPage.locator('#activeStat').innerText());
   if(await filterPage.locator("#view-home.active").count())await openHomeDetail(filterPage,'offers');await filterPage.locator('#accountsList [data-account-offers="A101"]').click();
@@ -410,9 +314,9 @@ try {
   assert.equal(await filterPage.locator('.offers-section > .offer-card').count(),0,'An open account sheet must also remove newly expired offers');
   await filterPage.keyboard.press('Escape');
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A101"]').count(),0,'Expired offers leave Expiring soon');
-  await filterPage.locator('[data-view="home"]').click();
+  await navigate(filterPage,'home');
   assert.equal(Number(await filterPage.locator('#activeStat').innerText()),activeBefore-1,'Home availability follows the same current expiry checks');
-  await filterPage.locator('[data-view="accounts"]').click();
+  await navigate(filterPage,'accounts');
   await directoryReset(filterPage);if(await filterPage.locator("#view-home.active").count())await openHomeDetail(filterPage,'offers');await filterPage.locator('#accountsList [data-account-offers="A101"]').click();
   assert.equal(await filterPage.locator('#accountOfferHistory').getAttribute('open'),null,'Past offers stay collapsed by default');
   assert.equal(await filterPage.locator('.offers-section > .offer-card').count(),0,'Expired offers do not appear among current offers');

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {accountHistoryGroups,preferredAccountOffers,validateOfferReceiptLinks,mergeOfferReceiptLinks,offerReceiptAvailability,offerUsageEvidence,directoryAccounts,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices} from './account-sheet-data.js';
+import {accountHistoryGroups,preferredAccountOffers,validateOfferReceiptLinks,mergeOfferReceiptLinks,offerReceiptAvailability,offerUsageEvidence,directoryAccounts,offerMatchedReceipts,offerWithPrivateReceiptUses,plannerAccountChoices,normalizeDirectoryShow,DIRECTORY_SHOW_CHOICES} from './account-sheet-data.js';
 import {validateFinanceData,PrivateFinanceVault} from './private-finance-vault.js';
 import {assertPublicSnapshot} from './public-snapshot.js';
 const receipt=(id,accountRef='A1',orderAt='2026-10-18T12:00:00Z',extra={})=>({receiptId:id,accountRef,orderAt,service:'Uber Eats',total:4,...extra});
@@ -231,3 +231,15 @@ console.log('✓ Incomplete compact receipts never manufacture zero; preference 
  const before=login();records[0].promos=records[0].promos.map(p=>({...p,usesRemaining:0}));assert.deepEqual(list({preferredPromos:['fixed:12:15'],includeCash:false}),[]);assert.equal(login(),before,'Can log in remains independent of preferred-offer availability');
 }
 console.log('✓ Preferred Home scope: saved custom/empty choices, unique accounts, remaining use, expiry, ignore/manual finish, hidden competitors, uncertain evidence, Cash setting and independent login counts.');
+
+{
+ assert.deepEqual(DIRECTORY_SHOW_CHOICES.map(c=>c.label),['Active','Expiring soon','Needs checking','Expired','Finished','Archived']);
+ for(const alias of ['all','tracked','offers','unfinished'])assert.equal(normalizeDirectoryShow(alias),'active');
+ assert.equal(normalizeDirectoryShow('used'),'finished');assert.equal(normalizeDirectoryShow('expired-unused'),'expired');
+ const rows=[{accountRef:'lifetime',orderCount:5,canLogin:true,promos:[],allOffers:[]},{accountRef:'manual',canLogin:true,promos:[],allOffers:[{id:'manual',service:'Uber Eats',forceDone:true}]},{accountRef:'pending',canLogin:null,accessStatus:'pending',accountStatus:'active',promos:[],allOffers:[]}];
+ const before=JSON.stringify(rows),options={type:'all',login:'all',management:'finished'};
+ assert.deepEqual(directoryAccounts(rows,options,{}).map(a=>a.accountRef).sort(),['lifetime','manual']);
+ assert.deepEqual(directoryAccounts(rows,{...options,management:'active',login:'locked',includePendingAccess:true},{}).map(a=>a.accountRef),['pending']);
+ assert.equal(JSON.stringify(rows),before,'Filter views never rewrite access or usage evidence');
+}
+console.log('✓ Six Show choices, legacy route mapping, combined finished view, pending login remains unconfirmed and source records remain unchanged.');

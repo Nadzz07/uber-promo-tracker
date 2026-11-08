@@ -1,12 +1,19 @@
 {
   "schemaVersion": 3,
-  "generatedAt": "2026-11-04T18:13:39.441Z",
+  "generatedAt": "2026-11-07T23:43:48.314Z",
   "source": "apple-mail-sqlite",
   "demo": false,
   "sync": {
-    "state": "snapshot",
-    "lastSuccessfulMailScanAt": "2026-11-03T18:31:43.192Z",
+    "state": "idle",
+    "lastSuccessfulMailScanAt": "2026-11-07T20:58:49.863Z",
     "runs": [
+      {
+        "at": "2026-11-07T20:58:49.863Z",
+        "status": "success",
+        "emailsChecked": 30296,
+        "newReceipts": 0,
+        "offersUpdated": 10
+      },
       {
         "at": "2026-11-03T18:31:43.192Z",
         "status": "success",
@@ -21361,26 +21368,26 @@
     },
     "recentRides": 30,
     "averageExtraOrderFees": 0,
-    "knownAccounts": 229,
-    "accessibleAccounts": 207,
+    "knownAccounts": 235,
+    "accessibleAccounts": 213,
     "inaccessibleAccounts": 22,
     "pendingAccessAccounts": 0,
-    "activePromoAccounts": 135,
+    "activePromoAccounts": 128,
     "accountStatusVersion": 2,
     "offerEligibilityVersion": 1,
     "cashModelVersion": 1,
-    "availableAccounts": 135,
-    "readyToUseAccounts": 135,
+    "availableAccounts": 128,
+    "readyToUseAccounts": 128,
     "offerAttentionAccounts": 0,
     "usedAccounts": 112,
     "fullyUsedOffers": 0,
     "finishedExpiredOffers": 0,
     "fullyConsumedOffers": 0,
-    "expiredUnusedOffers": 3655,
+    "expiredUnusedOffers": 3691,
     "partiallyUsedOffers": 0,
     "usedAccessibleAccounts": 111,
     "completedUsageAccounts": 112,
-    "partialUsageAccounts": 71,
+    "partialUsageAccounts": 77,
     "expiredAccounts": 6,
     "fullyUsedAccounts": 112,
     "completedPromotions": 0,
@@ -21388,7 +21395,7 @@
     "deactivatedAccounts": 0,
     "archivedConfirmedSaved": 208.2,
     "deactivatedConfirmedSaved": 0,
-    "needsCheckingAccounts": 1,
+    "needsCheckingAccounts": 6,
     "receiptSourcesNeedingReview": 2,
     "feeModel": {
       "sampleSize": 0,
@@ -21722,7 +21729,7 @@
       "archived": false,
       "accountState": "available",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 2,
+      "expiredUnusedOfferCount": 3,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -21803,7 +21810,7 @@
       "totalSaved": 26.76,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 3,
+      "activePromoCount": 2,
       "cashSummary": {
         "status": "expired",
         "remaining": 0,
@@ -21842,7 +21849,7 @@
       "archived": false,
       "accountState": "used",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 13,
+      "expiredUnusedOfferCount": 14,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -22655,7 +22662,7 @@
       "totalSaved": 22.96,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 6,
+      "activePromoCount": 5,
       "cashSummary": {
         "status": "expired",
         "remaining": 0,
@@ -22708,7 +22715,7 @@
       "archived": false,
       "accountState": "used",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 6,
+      "expiredUnusedOfferCount": 7,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -22729,7 +22736,7 @@
       "totalSaved": 24.79,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 6,
+      "activePromoCount": 5,
       "cashSummary": {
         "status": "expired",
         "remaining": 0,
@@ -22768,7 +22775,7 @@
       "archived": false,
       "accountState": "used",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 17,
+      "expiredUnusedOfferCount": 18,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -23194,7 +23201,7 @@
       "totalSaved": 25.73,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 5,
+      "activePromoCount": 4,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -23218,7 +23225,7 @@
       "archived": false,
       "accountState": "available",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 10,
+      "expiredUnusedOfferCount": 11,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -23682,7 +23689,7 @@
       "archived": false,
       "accountState": "used",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 18,
+      "expiredUnusedOfferCount": 19,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -24438,7 +24445,7 @@
       "totalSaved": 9.91,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 4,
+      "activePromoCount": 3,
       "cashSummary": {
         "status": "expired",
         "remaining": 0,
@@ -24477,7 +24484,7 @@
       "archived": false,
       "accountState": "used",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 31,
+      "expiredUnusedOfferCount": 32,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -24498,7 +24505,7 @@
       "totalSaved": 9.91,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 3,
+      "activePromoCount": 2,
       "cashSummary": {
         "status": "expired",
         "remaining": 0,
@@ -24537,7 +24544,7 @@
       "archived": false,
       "accountState": "used",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 34,
+      "expiredUnusedOfferCount": 35,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -24558,7 +24565,7 @@
       "totalSaved": 9.95,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 2,
+      "activePromoCount": 1,
       "cashSummary": {
         "status": "expired",
         "remaining": 0,
@@ -24597,7 +24604,7 @@
       "archived": false,
       "accountState": "used",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 47,
+      "expiredUnusedOfferCount": 48,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -25503,7 +25510,7 @@
       "totalSaved": 9.95,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 2,
+      "activePromoCount": 1,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -25527,7 +25534,7 @@
       "archived": false,
       "accountState": "available",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 9,
+      "expiredUnusedOfferCount": 10,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -25548,7 +25555,7 @@
       "totalSaved": 7.93,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 0,
+      "activePromoCount": 1,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -25570,11 +25577,11 @@
       "partialUsage": true,
       "accountUsedReason": null,
       "archived": false,
-      "accountState": "no_offers",
+      "accountState": "available",
       "fullyUsedOfferCount": 0,
       "expiredUnusedOfferCount": 2,
-      "hasEligibleOffers": false,
-      "recommendationEligible": false
+      "hasEligibleOffers": true,
+      "recommendationEligible": true
     },
     {
       "accountRef": "A186",
@@ -25842,7 +25849,7 @@
       "archived": false,
       "accountState": "available",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 1,
+      "expiredUnusedOfferCount": 2,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -25953,7 +25960,7 @@
       "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 2,
+      "activePromoCount": 1,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -25977,7 +25984,7 @@
       "archived": false,
       "accountState": "available",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 1,
+      "expiredUnusedOfferCount": 2,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -26043,7 +26050,7 @@
       "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 3,
+      "activePromoCount": 2,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -26067,7 +26074,7 @@
       "archived": false,
       "accountState": "available",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 29,
+      "expiredUnusedOfferCount": 30,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -26658,7 +26665,7 @@
       "totalSaved": 8.98,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 2,
+      "activePromoCount": 1,
       "cashSummary": {
         "status": "expired",
         "remaining": 0,
@@ -26697,7 +26704,7 @@
       "archived": false,
       "accountState": "used",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 42,
+      "expiredUnusedOfferCount": 43,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -26778,7 +26785,7 @@
       "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 0,
+      "activePromoCount": 1,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -26800,11 +26807,11 @@
       "partialUsage": true,
       "accountUsedReason": null,
       "archived": false,
-      "accountState": "no_offers",
+      "accountState": "available",
       "fullyUsedOfferCount": 0,
       "expiredUnusedOfferCount": 0,
-      "hasEligibleOffers": false,
-      "recommendationEligible": false
+      "hasEligibleOffers": true,
+      "recommendationEligible": true
     },
     {
       "accountRef": "A328",
@@ -26823,7 +26830,7 @@
       "totalSaved": 8.98,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 0,
+      "activePromoCount": 1,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -26845,11 +26852,11 @@
       "partialUsage": true,
       "accountUsedReason": null,
       "archived": false,
-      "accountState": "no_offers",
+      "accountState": "available",
       "fullyUsedOfferCount": 0,
       "expiredUnusedOfferCount": 0,
-      "hasEligibleOffers": false,
-      "recommendationEligible": false
+      "hasEligibleOffers": true,
+      "recommendationEligible": true
     },
     {
       "accountRef": "A329",
@@ -26958,7 +26965,7 @@
       "totalSaved": 9.94,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 0,
+      "activePromoCount": 1,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -26980,11 +26987,11 @@
       "partialUsage": true,
       "accountUsedReason": null,
       "archived": false,
-      "accountState": "no_offers",
+      "accountState": "available",
       "fullyUsedOfferCount": 0,
       "expiredUnusedOfferCount": 0,
-      "hasEligibleOffers": false,
-      "recommendationEligible": false
+      "hasEligibleOffers": true,
+      "recommendationEligible": true
     },
     {
       "accountRef": "A325",
@@ -27393,7 +27400,7 @@
       "totalSaved": 58.52,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 4,
+      "activePromoCount": 2,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -27417,7 +27424,7 @@
       "archived": false,
       "accountState": "used",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 4,
+      "expiredUnusedOfferCount": 6,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -27507,7 +27514,7 @@
       "archived": false,
       "accountState": "available",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 4,
+      "expiredUnusedOfferCount": 5,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -27978,7 +27985,7 @@
       "totalSaved": 9.94,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 2,
+      "activePromoCount": 0,
       "cashSummary": {
         "status": "estimated",
         "remaining": 10,
@@ -28029,11 +28036,11 @@
       "partialUsage": true,
       "accountUsedReason": null,
       "archived": false,
-      "accountState": "available",
+      "accountState": "no_offers",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 7,
-      "hasEligibleOffers": true,
-      "recommendationEligible": true
+      "expiredUnusedOfferCount": 9,
+      "hasEligibleOffers": false,
+      "recommendationEligible": false
     },
     {
       "accountRef": "A177",
@@ -28397,7 +28404,7 @@
       "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 1,
+      "activePromoCount": 0,
       "cashSummary": {
         "status": "expired",
         "remaining": 0,
@@ -28420,7 +28427,7 @@
           }
         ]
       },
-      "needsReview": false,
+      "needsReview": true,
       "reviewOfferCount": 1,
       "promoSavings": 10,
       "uberCashUsed": 0,
@@ -28434,11 +28441,11 @@
       "partialUsage": true,
       "accountUsedReason": null,
       "archived": false,
-      "accountState": "available",
+      "accountState": "needs_checking",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 4,
-      "hasEligibleOffers": true,
-      "recommendationEligible": true
+      "expiredUnusedOfferCount": 5,
+      "hasEligibleOffers": false,
+      "recommendationEligible": false
     },
     {
       "accountRef": "A051",
@@ -28862,7 +28869,7 @@
       "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 1,
+      "activePromoCount": 0,
       "cashSummary": {
         "status": "expired",
         "remaining": 0,
@@ -28899,7 +28906,7 @@
           }
         ]
       },
-      "needsReview": false,
+      "needsReview": true,
       "reviewOfferCount": 1,
       "promoSavings": 10,
       "uberCashUsed": 0,
@@ -28913,11 +28920,11 @@
       "partialUsage": true,
       "accountUsedReason": null,
       "archived": false,
-      "accountState": "available",
+      "accountState": "needs_checking",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 10,
-      "hasEligibleOffers": true,
-      "recommendationEligible": true
+      "expiredUnusedOfferCount": 11,
+      "hasEligibleOffers": false,
+      "recommendationEligible": false
     },
     {
       "accountRef": "A030",
@@ -29266,7 +29273,7 @@
       "totalSaved": 9.95,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 2,
+      "activePromoCount": 1,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -29290,7 +29297,7 @@
       "archived": false,
       "accountState": "available",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 8,
+      "expiredUnusedOfferCount": 9,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -29356,7 +29363,7 @@
       "totalSaved": 9.97,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 1,
+      "activePromoCount": 0,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -29364,7 +29371,7 @@
         "hasUncertainty": false,
         "grants": []
       },
-      "needsReview": false,
+      "needsReview": true,
       "reviewOfferCount": 1,
       "promoSavings": 9.97,
       "uberCashUsed": 0,
@@ -29378,11 +29385,11 @@
       "partialUsage": true,
       "accountUsedReason": null,
       "archived": false,
-      "accountState": "available",
+      "accountState": "needs_checking",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 2,
-      "hasEligibleOffers": true,
-      "recommendationEligible": true
+      "expiredUnusedOfferCount": 3,
+      "hasEligibleOffers": false,
+      "recommendationEligible": false
     },
     {
       "accountRef": "A205",
@@ -29446,7 +29453,7 @@
       "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 1,
+      "activePromoCount": 0,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -29454,7 +29461,7 @@
         "hasUncertainty": false,
         "grants": []
       },
-      "needsReview": false,
+      "needsReview": true,
       "reviewOfferCount": 1,
       "promoSavings": 10,
       "uberCashUsed": 0,
@@ -29468,11 +29475,11 @@
       "partialUsage": true,
       "accountUsedReason": null,
       "archived": false,
-      "accountState": "available",
+      "accountState": "needs_checking",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 2,
-      "hasEligibleOffers": true,
-      "recommendationEligible": true
+      "expiredUnusedOfferCount": 3,
+      "hasEligibleOffers": false,
+      "recommendationEligible": false
     },
     {
       "accountRef": "A143",
@@ -29491,7 +29498,7 @@
       "totalSaved": 9.94,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 2,
+      "activePromoCount": 1,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -29515,7 +29522,7 @@
       "archived": false,
       "accountState": "available",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 8,
+      "expiredUnusedOfferCount": 9,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -29596,7 +29603,7 @@
       "totalSaved": 9.88,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 2,
+      "activePromoCount": 1,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -29620,7 +29627,7 @@
       "archived": false,
       "accountState": "available",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 8,
+      "expiredUnusedOfferCount": 9,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -29761,7 +29768,7 @@
       "totalSaved": 8.62,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 1,
+      "activePromoCount": 0,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -29769,7 +29776,7 @@
         "hasUncertainty": false,
         "grants": []
       },
-      "needsReview": false,
+      "needsReview": true,
       "reviewOfferCount": 1,
       "promoSavings": 8.62,
       "uberCashUsed": 0,
@@ -29783,11 +29790,11 @@
       "partialUsage": true,
       "accountUsedReason": null,
       "archived": false,
-      "accountState": "available",
+      "accountState": "needs_checking",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 4,
-      "hasEligibleOffers": true,
-      "recommendationEligible": true
+      "expiredUnusedOfferCount": 5,
+      "hasEligibleOffers": false,
+      "recommendationEligible": false
     },
     {
       "accountRef": "A169",
@@ -29866,7 +29873,7 @@
       "totalSaved": 9.94,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 2,
+      "activePromoCount": 1,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -29890,7 +29897,7 @@
       "archived": false,
       "accountState": "available",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 7,
+      "expiredUnusedOfferCount": 8,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -29911,7 +29918,7 @@
       "totalSaved": 10,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 1,
+      "activePromoCount": 0,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -29933,11 +29940,11 @@
       "partialUsage": true,
       "accountUsedReason": null,
       "archived": false,
-      "accountState": "available",
+      "accountState": "no_offers",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 5,
-      "hasEligibleOffers": true,
-      "recommendationEligible": true
+      "expiredUnusedOfferCount": 6,
+      "hasEligibleOffers": false,
+      "recommendationEligible": false
     },
     {
       "accountRef": "A031",
@@ -30016,7 +30023,7 @@
       "totalSaved": 9.94,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 6,
+      "activePromoCount": 4,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -30040,7 +30047,7 @@
       "archived": false,
       "accountState": "used",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 5,
+      "expiredUnusedOfferCount": 7,
       "hasEligibleOffers": true,
       "recommendationEligible": true
     },
@@ -30121,7 +30128,7 @@
       "totalSaved": 9.96,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 1,
+      "activePromoCount": 0,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -30143,11 +30150,11 @@
       "partialUsage": true,
       "accountUsedReason": null,
       "archived": false,
-      "accountState": "available",
+      "accountState": "no_offers",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 4,
-      "hasEligibleOffers": true,
-      "recommendationEligible": true
+      "expiredUnusedOfferCount": 5,
+      "hasEligibleOffers": false,
+      "recommendationEligible": false
     },
     {
       "accountRef": "A312",
@@ -30331,7 +30338,7 @@
       "totalSaved": 7.97,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 1,
+      "activePromoCount": 0,
       "cashSummary": {
         "status": "expired",
         "remaining": 0,
@@ -30382,11 +30389,11 @@
       "partialUsage": true,
       "accountUsedReason": null,
       "archived": false,
-      "accountState": "available",
+      "accountState": "no_offers",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 8,
-      "hasEligibleOffers": true,
-      "recommendationEligible": true
+      "expiredUnusedOfferCount": 9,
+      "hasEligibleOffers": false,
+      "recommendationEligible": false
     },
     {
       "accountRef": "A215",
@@ -30405,7 +30412,7 @@
       "totalSaved": 23.32,
       "sourceReviewCount": 0,
       "receiptReviewCount": 0,
-      "activePromoCount": 1,
+      "activePromoCount": 0,
       "cashSummary": {
         "status": "expired",
         "remaining": 0,
@@ -30444,9 +30451,9 @@
       "archived": false,
       "accountState": "used",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 17,
-      "hasEligibleOffers": true,
-      "recommendationEligible": true
+      "expiredUnusedOfferCount": 18,
+      "hasEligibleOffers": false,
+      "recommendationEligible": false
     },
     {
       "accountRef": "A197",
@@ -30525,7 +30532,7 @@
       "totalSaved": 9.91,
       "sourceReviewCount": 0,
       "receiptReviewCount": 1,
-      "activePromoCount": 1,
+      "activePromoCount": 0,
       "cashSummary": {
         "status": "none",
         "remaining": 0,
@@ -30547,11 +30554,11 @@
       "partialUsage": true,
       "accountUsedReason": null,
       "archived": false,
-      "accountState": "available",
+      "accountState": "no_offers",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 3,
-      "hasEligibleOffers": true,
-      "recommendationEligible": true
+      "expiredUnusedOfferCount": 4,
+      "hasEligibleOffers": false,
+      "recommendationEligible": false
     },
     {
       "accountRef": "A195",
@@ -31959,7 +31966,7 @@
       "archived": true,
       "accountState": "archived",
       "fullyUsedOfferCount": 0,
-      "expiredUnusedOfferCount": 25,
+      "expiredUnusedOfferCount": 26,
       "hasEligibleOffers": false,
       "recommendationEligible": false
     },
@@ -33018,6 +33025,198 @@
       "archived": false,
       "accountUsed": false,
       "partialUsage": false,
+      "accountUsedReason": null,
+      "accountState": "no_offers",
+      "reviewOfferCount": 0,
+      "fullyUsedOfferCount": 0,
+      "expiredUnusedOfferCount": 0,
+      "hasEligibleOffers": false,
+      "needsReview": false,
+      "recommendationEligible": false
+    },
+    {
+      "accountRef": "A359",
+      "accountMasked": "fi…es@icloud.com",
+      "canLogin": true,
+      "accessStatus": "accessible",
+      "loginMethod": "iCloud",
+      "accountStatus": "active",
+      "deactivated": false,
+      "lastSeenAt": "2026-11-06T18:13:53.000Z",
+      "lastPromoAt": null,
+      "lastOrderAt": null,
+      "lastRideAt": "2026-11-06T17:39:00.000Z",
+      "orderCount": 0,
+      "rideCount": 1,
+      "totalSaved": 0,
+      "sourceReviewCount": 0,
+      "receiptReviewCount": 0,
+      "activePromoCount": 0,
+      "archived": false,
+      "estimatedUberOneSavings": 0,
+      "estimatedTotalSaved": 0,
+      "accountUsed": false,
+      "partialUsage": true,
+      "accountUsedReason": null,
+      "accountState": "no_offers",
+      "reviewOfferCount": 0,
+      "fullyUsedOfferCount": 0,
+      "expiredUnusedOfferCount": 0,
+      "hasEligibleOffers": false,
+      "needsReview": false,
+      "recommendationEligible": false
+    },
+    {
+      "accountRef": "A360",
+      "accountMasked": "mi…1n@icloud.com",
+      "canLogin": true,
+      "accessStatus": "accessible",
+      "loginMethod": "iCloud",
+      "accountStatus": "active",
+      "deactivated": false,
+      "lastSeenAt": "2026-11-06T14:46:34.000Z",
+      "lastPromoAt": null,
+      "lastOrderAt": null,
+      "lastRideAt": "2026-11-06T14:32:00.000Z",
+      "orderCount": 0,
+      "rideCount": 1,
+      "totalSaved": 0,
+      "sourceReviewCount": 0,
+      "receiptReviewCount": 0,
+      "activePromoCount": 0,
+      "archived": false,
+      "estimatedUberOneSavings": 0,
+      "estimatedTotalSaved": 0,
+      "accountUsed": false,
+      "partialUsage": true,
+      "accountUsedReason": null,
+      "accountState": "no_offers",
+      "reviewOfferCount": 0,
+      "fullyUsedOfferCount": 0,
+      "expiredUnusedOfferCount": 0,
+      "hasEligibleOffers": false,
+      "needsReview": false,
+      "recommendationEligible": false
+    },
+    {
+      "accountRef": "A361",
+      "accountMasked": "st…5a@icloud.com",
+      "canLogin": true,
+      "accessStatus": "accessible",
+      "loginMethod": "iCloud",
+      "accountStatus": "active",
+      "deactivated": false,
+      "lastSeenAt": "2026-11-05T17:37:03.000Z",
+      "lastPromoAt": null,
+      "lastOrderAt": null,
+      "lastRideAt": "2026-11-05T17:21:00.000Z",
+      "orderCount": 0,
+      "rideCount": 1,
+      "totalSaved": 0,
+      "sourceReviewCount": 0,
+      "receiptReviewCount": 0,
+      "activePromoCount": 0,
+      "archived": false,
+      "estimatedUberOneSavings": 0,
+      "estimatedTotalSaved": 0,
+      "accountUsed": false,
+      "partialUsage": true,
+      "accountUsedReason": null,
+      "accountState": "no_offers",
+      "reviewOfferCount": 0,
+      "fullyUsedOfferCount": 0,
+      "expiredUnusedOfferCount": 0,
+      "hasEligibleOffers": false,
+      "needsReview": false,
+      "recommendationEligible": false
+    },
+    {
+      "accountRef": "A362",
+      "accountMasked": "sl…5t@icloud.com",
+      "canLogin": true,
+      "accessStatus": "accessible",
+      "loginMethod": "iCloud",
+      "accountStatus": "active",
+      "deactivated": false,
+      "lastSeenAt": "2026-11-05T17:07:53.000Z",
+      "lastPromoAt": null,
+      "lastOrderAt": null,
+      "lastRideAt": "2026-11-05T16:48:00.000Z",
+      "orderCount": 0,
+      "rideCount": 1,
+      "totalSaved": 0,
+      "sourceReviewCount": 0,
+      "receiptReviewCount": 0,
+      "activePromoCount": 0,
+      "archived": false,
+      "estimatedUberOneSavings": 0,
+      "estimatedTotalSaved": 0,
+      "accountUsed": false,
+      "partialUsage": true,
+      "accountUsedReason": null,
+      "accountState": "no_offers",
+      "reviewOfferCount": 0,
+      "fullyUsedOfferCount": 0,
+      "expiredUnusedOfferCount": 0,
+      "hasEligibleOffers": false,
+      "needsReview": false,
+      "recommendationEligible": false
+    },
+    {
+      "accountRef": "A363",
+      "accountMasked": "ho…58@icloud.com",
+      "canLogin": true,
+      "accessStatus": "accessible",
+      "loginMethod": "iCloud",
+      "accountStatus": "active",
+      "deactivated": false,
+      "lastSeenAt": "2026-11-05T09:39:54.000Z",
+      "lastPromoAt": null,
+      "lastOrderAt": null,
+      "lastRideAt": "2026-11-05T09:31:00.000Z",
+      "orderCount": 0,
+      "rideCount": 1,
+      "totalSaved": 0,
+      "sourceReviewCount": 0,
+      "receiptReviewCount": 0,
+      "activePromoCount": 0,
+      "archived": false,
+      "estimatedUberOneSavings": 0,
+      "estimatedTotalSaved": 0,
+      "accountUsed": false,
+      "partialUsage": true,
+      "accountUsedReason": null,
+      "accountState": "no_offers",
+      "reviewOfferCount": 0,
+      "fullyUsedOfferCount": 0,
+      "expiredUnusedOfferCount": 0,
+      "hasEligibleOffers": false,
+      "needsReview": false,
+      "recommendationEligible": false
+    },
+    {
+      "accountRef": "A364",
+      "accountMasked": "ve…8s@icloud.com",
+      "canLogin": true,
+      "accessStatus": "accessible",
+      "loginMethod": "iCloud",
+      "accountStatus": "active",
+      "deactivated": false,
+      "lastSeenAt": "2026-11-05T09:26:10.000Z",
+      "lastPromoAt": null,
+      "lastOrderAt": null,
+      "lastRideAt": "2026-11-05T09:17:00.000Z",
+      "orderCount": 0,
+      "rideCount": 1,
+      "totalSaved": 0,
+      "sourceReviewCount": 0,
+      "receiptReviewCount": 0,
+      "activePromoCount": 0,
+      "archived": false,
+      "estimatedUberOneSavings": 0,
+      "estimatedTotalSaved": 0,
+      "accountUsed": false,
+      "partialUsage": true,
       "accountUsedReason": null,
       "accountState": "no_offers",
       "reviewOfferCount": 0,
@@ -34811,7 +35010,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-11-03T12:39:38.000Z",
-      "emailSentAt": "2026-11-03T12:39:38.000Z",
+      "emailSentAt": "2026-11-07T16:17:51.000Z",
       "recommendationEligible": true
     },
     {
@@ -36856,7 +37055,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-04T14:30:51.000Z",
-      "emailSentAt": "2026-11-02T19:26:21.000Z",
+      "emailSentAt": "2026-11-07T14:54:51.000Z",
       "recommendationEligible": true
     },
     {
@@ -38500,7 +38699,7 @@
       "receiptConfirmedUses": 0,
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-28T17:25:55.000Z",
-      "emailSentAt": "2026-11-01T17:25:57.000Z",
+      "emailSentAt": "2026-11-07T12:02:45.000Z",
       "recommendationEligible": true
     },
     {
@@ -41294,7 +41493,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-28T19:18:31.000Z",
       "emailSentAt": "2026-11-01T07:51:55.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_c263b1613c4a0b61d89a51feda575eac",
@@ -44063,7 +44262,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-22T18:22:41.000Z",
       "emailSentAt": "2026-10-30T19:12:56.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_40c060a79548a9ae0385eca80781bbf2",
@@ -45892,7 +46091,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-30T16:04:39.000Z",
       "emailSentAt": "2026-10-30T16:04:39.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_ab03a2e5afdb6040fb291a852b553d8a",
@@ -46997,7 +47196,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-30T12:13:17.000Z",
       "emailSentAt": "2026-10-30T12:13:17.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_28cb5f903a317b5574d734720976b5fe",
@@ -48306,7 +48505,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-30T12:06:54.000Z",
       "emailSentAt": "2026-10-30T12:06:54.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_3af31ff0bafe583c07797799f8f0d550",
@@ -48461,7 +48660,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-30T12:06:10.000Z",
       "emailSentAt": "2026-10-30T12:06:10.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_ad435fa621780926e8ac228d51ced1a6",
@@ -48877,7 +49076,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-30T12:04:18.000Z",
       "emailSentAt": "2026-10-30T12:04:18.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_b78479879a7965ccada06546a7b88c8d",
@@ -51431,7 +51630,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-04T14:35:45.000Z",
       "emailSentAt": "2026-10-29T07:24:57.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_ad44e206d62b8febaace66e1250e30cc",
@@ -56129,7 +56328,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-21T14:47:40.000Z",
       "emailSentAt": "2026-10-24T17:47:37.000Z",
-      "recommendationEligible": false
+      "recommendationEligible": true
     },
     {
       "id": "pub_9c0e3b81d21d0e6e40dfb7d75b555978",
@@ -74148,7 +74347,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-05-01T17:40:53.000Z",
       "emailSentAt": "2026-10-13T09:38:31.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_6983ace78cc4a5cad15adddd50e65dc9",
@@ -81767,7 +81966,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-01T15:33:02.000Z",
       "emailSentAt": "2026-10-04T11:49:07.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_1334a31ffe673ea0b9ec5c73c08ebc7d",
@@ -84062,7 +84261,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-30T19:24:43.000Z",
       "emailSentAt": "2026-10-04T06:31:33.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_d87a4d6b839c5487ca18992c97a674aa",
@@ -86051,7 +86250,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-01T18:12:20.000Z",
       "emailSentAt": "2026-10-01T18:12:20.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_91b042f79ac9113b1ac827b3d56631c1",
@@ -86102,7 +86301,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-01T16:42:43.000Z",
       "emailSentAt": "2026-10-01T16:42:43.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_ce9cf97bba072c86c1fdc25bb682ecc4",
@@ -86153,7 +86352,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-01T16:28:26.000Z",
       "emailSentAt": "2026-10-01T16:28:26.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_b4c2d062c913afce3fac77b63304063d",
@@ -86204,7 +86403,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-01T16:20:23.000Z",
       "emailSentAt": "2026-10-01T16:20:23.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_d230bc823258892faf01d8124562e9a9",
@@ -86357,7 +86556,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-01T16:16:23.000Z",
       "emailSentAt": "2026-10-01T16:16:23.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_adc8e7262d5b8bb44efc08d6f5c79316",
@@ -86408,7 +86607,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-01T16:13:32.000Z",
       "emailSentAt": "2026-10-01T16:13:32.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_272cf5ad4e550fb851479e8d8961125b",
@@ -86459,7 +86658,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-01T16:12:32.000Z",
       "emailSentAt": "2026-10-01T16:12:32.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_8919662f512c454cb12d253f9eec6954",
@@ -86663,7 +86862,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-01T15:15:48.000Z",
       "emailSentAt": "2026-10-01T15:15:48.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_2a1a21fecedc403ba7744c3a43451641",
@@ -86780,7 +86979,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-10-01T15:07:23.000Z",
       "emailSentAt": "2026-10-01T15:07:23.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_402b4d1605e3a99be74135c60f39631c",
@@ -88926,7 +89125,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-23T11:04:57.000Z",
       "emailSentAt": "2026-09-27T16:43:21.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_d293b6064111870d8768e6041ffbb16b",
@@ -89494,7 +89693,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-23T16:50:35.000Z",
       "emailSentAt": "2026-09-26T13:00:46.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_f764e29d1bfe9b53f9cefb1b64e32d60",
@@ -93500,7 +93699,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-24T16:24:06.000Z",
       "emailSentAt": "2026-09-24T16:24:06.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_77cf78d28fdfbc58ad3d2b9437e74bb6",
@@ -94163,7 +94362,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-24T15:48:05.000Z",
       "emailSentAt": "2026-09-24T15:48:05.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_64ceef64c961e68efc1267d64137b6dd",
@@ -94265,7 +94464,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-24T15:44:17.000Z",
       "emailSentAt": "2026-09-24T15:44:17.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_10a543fd9117fe46374ae122053cd131",
@@ -94316,7 +94515,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-24T15:43:33.000Z",
       "emailSentAt": "2026-09-24T15:43:33.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_7b9293d4549cb70faf82984e09d058be",
@@ -94775,7 +94974,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-24T15:16:47.000Z",
       "emailSentAt": "2026-09-24T15:16:47.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_b00893dcba4069603047591d7967d6d9",
@@ -96050,7 +96249,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-24T14:40:10.000Z",
       "emailSentAt": "2026-09-24T14:40:10.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_31f484367a265addc4c465973eb23f50",
@@ -96509,7 +96708,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-09-24T14:29:37.000Z",
       "emailSentAt": "2026-09-24T14:29:37.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_b3e2697b02705466a592f061ed839efb",
@@ -106610,7 +106809,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-07-05T18:47:28.000Z",
       "emailSentAt": "2026-09-01T09:56:02.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_094d1d7f1a7023a754ecc60bdfe0df0e",
@@ -108401,7 +108600,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-19T11:52:05.000Z",
       "emailSentAt": "2026-08-31T08:10:43.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_d74f09c3252fb2b883c00de9257c1039",
@@ -114066,7 +114265,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-27T06:53:24.000Z",
       "emailSentAt": "2026-08-27T06:53:24.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_07ce490f1dc5cc492dc99eaa3bdc68f6",
@@ -114423,7 +114622,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-27T06:42:21.000Z",
       "emailSentAt": "2026-08-27T06:42:21.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_a98f836e1fe912e82b515dcb6617905e",
@@ -114882,7 +115081,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-27T06:26:24.000Z",
       "emailSentAt": "2026-08-27T06:26:24.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_121636449bbd814ac620f1d0e601333a",
@@ -115866,7 +116065,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-22T15:00:04.000Z",
       "emailSentAt": "2026-08-26T15:00:04.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_5fad416f1dba1c9464aeb0fb04c65a73",
@@ -119130,7 +119329,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-25T10:52:50.000Z",
       "emailSentAt": "2026-08-25T10:52:50.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_533b205aeb39a1aa0d1a0dd3f8d66097",
@@ -120955,7 +121154,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-14T17:05:43.000Z",
       "emailSentAt": "2026-08-22T15:38:44.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_fce0d6c5a7ee5d2e29f75cb9bbd4d8ec",
@@ -126380,7 +126579,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-19T09:18:52.000Z",
       "emailSentAt": "2026-08-19T09:18:52.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_3878322f88831ea59ddb601aa5246343",
@@ -127122,7 +127321,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-19T07:14:24.000Z",
       "emailSentAt": "2026-08-19T07:14:24.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_87f2ee51bcd9aa4e7fd86ddd266bdc79",
@@ -127344,7 +127543,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-19T06:28:02.000Z",
       "emailSentAt": "2026-08-19T06:28:02.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_af89b3f8f2ff239024549947c3a80b30",
@@ -130620,7 +130819,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-08-01T14:12:25.000Z",
       "emailSentAt": "2026-08-05T14:12:23.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_80dd5ec600334c15824ed8553f2d3cec",
@@ -133751,7 +133950,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-06-09T15:02:14.000Z",
       "emailSentAt": "2026-08-03T12:02:22.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_64cc676214fb6d7b0571751ade40a48b",
@@ -139615,7 +139814,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-07-29T17:23:12.000Z",
       "emailSentAt": "2026-07-29T17:23:12.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_83dba7e84b9ec46f3037051d7a6efec0",
@@ -146337,7 +146536,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-06-19T19:26:32.000Z",
       "emailSentAt": "2026-07-24T17:58:23.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_1b53ab3773272c1d82e44790c11eb215",
@@ -151411,7 +151610,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-07-05T09:27:08.000Z",
       "emailSentAt": "2026-07-21T09:38:58.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_f50f15df7752c6d8b771171b029c2023",
@@ -152736,7 +152935,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-07-21T09:33:41.000Z",
       "emailSentAt": "2026-07-21T09:33:41.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_96689ca69f4060a5e7ac216985e3495d",
@@ -155315,7 +155514,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-07-01T12:46:59.000Z",
       "emailSentAt": "2026-07-19T11:34:56.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_ef78604c4dae25ae23649f4ee315619e",
@@ -160844,7 +161043,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-07-12T09:03:01.000Z",
       "emailSentAt": "2026-07-12T09:03:01.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_a003c5ca8a5a29e7f03e8df17f4591d3",
@@ -162703,7 +162902,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-07-05T09:23:24.000Z",
       "emailSentAt": "2026-07-09T09:23:21.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_10b7f1b0acc3be922ad69c53b393e8ac",
@@ -165512,7 +165711,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-06-07T08:44:22.000Z",
       "emailSentAt": "2026-07-02T07:43:26.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_87d45b67dca47c306682e6f572ec7cc7",
@@ -165614,7 +165813,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-06-07T08:47:27.000Z",
       "emailSentAt": "2026-07-02T07:41:55.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_2592ea2e920ebb73e82a561cf38293a9",
@@ -168203,7 +168402,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-06-17T14:20:31.000Z",
       "emailSentAt": "2026-06-21T13:16:20.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_e230e90e9b6884be4714b7c8ad4ee0e0",
@@ -177234,7 +177433,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-05-13T18:28:51.000Z",
       "emailSentAt": "2026-06-03T18:29:45.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_e8c96912d7054402075ea3254fdd4671",
@@ -184064,7 +184263,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-05-01T10:04:06.000Z",
       "emailSentAt": "2026-05-27T11:06:17.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_ee54d178291845878b0fcb5761871bde",
@@ -189373,7 +189572,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-05-12T12:27:54.000Z",
       "emailSentAt": "2026-05-20T12:27:54.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_28af76a59014361b5e6ff6459ce2d361",
@@ -193244,7 +193443,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-05-14T11:15:07.000Z",
       "emailSentAt": "2026-05-14T11:15:07.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_5f43cba5e030d5389c95245b9c82b91a",
@@ -193805,7 +194004,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-05-01T12:03:04.000Z",
       "emailSentAt": "2026-05-13T12:03:16.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_aa7a78a4beb72d2b358d0dfe279edb17",
@@ -194217,7 +194416,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-05-12T15:42:08.000Z",
       "emailSentAt": "2026-05-12T15:42:08.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_2512f1a559a4599afca0f0250b419ab6",
@@ -194425,7 +194624,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-05-08T17:54:12.000Z",
       "emailSentAt": "2026-05-08T17:54:12.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_54edac83fb29387afe633b3b6225ca0d",
@@ -194584,7 +194783,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-04-21T06:14:41.000Z",
       "emailSentAt": "2026-05-05T18:06:05.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_598f3b47ad6604b16899dd908171e2d0",
@@ -197139,7 +197338,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-04-18T12:03:15.000Z",
       "emailSentAt": "2026-04-30T12:03:21.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_edd73958b47d0b7de5f38fdf4f83c74b",
@@ -197448,7 +197647,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-04-17T11:38:18.000Z",
       "emailSentAt": "2026-04-29T16:29:22.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_1cf0514553c8e51bbe26806bc1b900a0",
@@ -197811,7 +198010,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-04-24T11:30:01.000Z",
       "emailSentAt": "2026-04-28T18:48:24.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_087a81974c7eaae08566289fe8908e60",
@@ -198780,7 +198979,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-04-21T06:02:11.000Z",
       "emailSentAt": "2026-04-27T17:58:48.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_f965e22356f7d6e3079a5e745214c4aa",
@@ -198834,7 +199033,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-04-21T06:51:27.000Z",
       "emailSentAt": "2026-04-27T17:55:15.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_8c021dd54cd249e028811a1348724c51",
@@ -199044,7 +199243,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-04-21T06:09:13.000Z",
       "emailSentAt": "2026-04-27T17:01:50.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_a4015ea804558e2bb84c018d747873f1",
@@ -208173,7 +208372,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-04-07T06:04:23.000Z",
       "emailSentAt": "2026-04-08T20:42:57.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_d0fede0999b283c5320b0d32ac90b634",
@@ -210024,7 +210223,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-04-05T11:14:46.000Z",
       "emailSentAt": "2026-04-07T08:45:33.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_36415ed1c3973d44b4ae488292207bb7",
@@ -211023,7 +211222,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-03-14T18:21:14.000Z",
       "emailSentAt": "2026-04-03T18:19:58.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_5d703c106a21fe59662530d73047b04e",
@@ -217881,7 +218080,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-03-07T13:50:43.000Z",
       "emailSentAt": "2026-03-12T07:45:03.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_2bcea41f49465459d9e1675221aeadfd",
@@ -217983,7 +218182,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-03-07T13:53:27.000Z",
       "emailSentAt": "2026-03-11T16:35:46.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_7dab41c54e0d00b6b1b78595f7277069",
@@ -218625,7 +218824,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-03-08T14:03:59.000Z",
       "emailSentAt": "2026-03-08T14:03:59.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_5fd92d5f5602c7d44ee788e14acec92b",
@@ -221280,7 +221479,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-02-23T13:05:10.000Z",
       "emailSentAt": "2026-02-23T13:05:10.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_e38d9fc9d9f93f24347baf7de5e622e9",
@@ -221502,7 +221701,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-02-14T13:00:44.000Z",
       "emailSentAt": "2026-02-22T18:06:37.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_85438336b275f0917cfb563651f3297e",
@@ -222624,7 +222823,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-02-13T13:13:05.000Z",
       "emailSentAt": "2026-02-21T18:59:09.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_d03f793c40a618e1eb5bfa10e45b30ac",
@@ -222726,7 +222925,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-02-09T12:26:09.000Z",
       "emailSentAt": "2026-02-21T18:24:22.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_aaf27e72ff37f1e587dabda99d552a0c",
@@ -222828,7 +223027,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-02-13T12:53:02.000Z",
       "emailSentAt": "2026-02-21T16:46:57.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_f999e17c3e6a19b32517fd449a7680ee",
@@ -230742,7 +230941,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-01-19T13:16:53.000Z",
       "emailSentAt": "2026-01-31T14:01:35.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_3b763f95301898c6ef8e390e6d2c60de",
@@ -232856,7 +233055,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-01-05T14:52:04.000Z",
       "emailSentAt": "2026-01-17T17:05:53.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_a06d52834ee5819d5442d0faaef340cf",
@@ -233162,7 +233361,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2026-01-15T08:11:42.000Z",
       "emailSentAt": "2026-01-15T08:11:42.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_244a4ceb9b0e48ab6acb187e400e8133",
@@ -235844,7 +236043,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2025-12-09T15:36:59.000Z",
       "emailSentAt": "2025-12-16T10:18:43.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_5727e44bc3a5ec1dd6253de9fdb4fd1d",
@@ -238143,7 +238342,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2025-11-30T10:14:16.000Z",
       "emailSentAt": "2025-12-12T12:25:00.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_46ee044b02efd854e6a7eb6071f567dc",
@@ -239013,7 +239212,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2025-12-07T09:51:31.000Z",
       "emailSentAt": "2025-12-09T10:43:21.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_71e842b72fbed4cf9f2c0d1df44b3c4f",
@@ -241157,7 +241356,7 @@
       "lastUsedAt": null,
       "firstEmailSentAt": "2025-11-13T12:13:27.000Z",
       "emailSentAt": "2025-11-28T15:08:49.000Z",
-      "recommendationEligible": true
+      "recommendationEligible": false
     },
     {
       "id": "pub_f841cbdc6da954b228f98d328f1108f6",
@@ -243096,6 +243295,363 @@
       "firstEmailSentAt": "2025-10-20T10:19:51.000Z",
       "emailSentAt": "2025-10-24T16:12:54.000Z",
       "recommendationEligible": false
+    },
+    {
+      "id": "pub_2651c9467ee0de3ccb52464debb88145",
+      "service": "Uber Eats",
+      "offerType": "multi_order_discount",
+      "title": "£12 off on 5 orders",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "fixed_discount_value",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": false,
+        "stacking": "no_other_promotions",
+        "excludesFees": true,
+        "excludesAlcoholTobacco": false,
+        "merchantLimited": true
+      },
+      "discountType": "fixed",
+      "discount": 12,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 5,
+      "usesVerified": true,
+      "usesRemaining": 5,
+      "maxTotalSaving": 60,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": false,
+      "expires": "2026-11-11",
+      "expiresAt": "2026-11-11T03:00:00",
+      "expiryStatus": "exact",
+      "expiryBasis": "explicit_in_offer_terms",
+      "classificationConfidence": "high",
+      "expiryConfidence": "high",
+      "accountRef": "A331",
+      "accountMasked": "ge…2k@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-07T20:17:55.000Z",
+      "emailSentAt": "2026-11-07T20:17:55.000Z",
+      "recommendationEligible": true
+    },
+    {
+      "id": "pub_c49a27a16c5b334a7312f15958dc1791",
+      "service": "Uber Eats",
+      "offerType": "multi_order_discount",
+      "title": "£12 off on 5 orders",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "fixed_discount_value",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": false,
+        "stacking": "no_other_promotions",
+        "excludesFees": true,
+        "excludesAlcoholTobacco": false,
+        "merchantLimited": true
+      },
+      "discountType": "fixed",
+      "discount": 12,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 5,
+      "usesVerified": true,
+      "usesRemaining": 5,
+      "maxTotalSaving": 60,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": false,
+      "expires": "2026-11-11",
+      "expiresAt": "2026-11-11T03:00:00",
+      "expiryStatus": "exact",
+      "expiryBasis": "explicit_in_offer_terms",
+      "classificationConfidence": "high",
+      "expiryConfidence": "high",
+      "accountRef": "A141",
+      "accountMasked": "ma…4p@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-07T19:14:09.000Z",
+      "emailSentAt": "2026-11-07T19:14:09.000Z",
+      "recommendationEligible": true
+    },
+    {
+      "id": "pub_86c0d5290017e134a7f687573f3a859a",
+      "service": "Uber Eats",
+      "offerType": "multi_order_discount",
+      "title": "£12 off on 5 orders",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "fixed_discount_value",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": false,
+        "stacking": "no_other_promotions",
+        "excludesFees": true,
+        "excludesAlcoholTobacco": false,
+        "merchantLimited": true
+      },
+      "discountType": "fixed",
+      "discount": 12,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 5,
+      "usesVerified": true,
+      "usesRemaining": 5,
+      "maxTotalSaving": 60,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": false,
+      "expires": "2026-11-11",
+      "expiresAt": "2026-11-11T03:00:00",
+      "expiryStatus": "exact",
+      "expiryBasis": "explicit_in_offer_terms",
+      "classificationConfidence": "high",
+      "expiryConfidence": "high",
+      "accountRef": "A317",
+      "accountMasked": "fu…ks@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-07T19:03:31.000Z",
+      "emailSentAt": "2026-11-07T19:03:31.000Z",
+      "recommendationEligible": true
+    },
+    {
+      "id": "pub_dc4bd4e8b5942805a712be5c26f802d6",
+      "service": "Uber Eats",
+      "offerType": "multi_order_discount",
+      "title": "£12 off on 5 orders",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "fixed_discount_value",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": false,
+        "stacking": "no_other_promotions",
+        "excludesFees": true,
+        "excludesAlcoholTobacco": false,
+        "merchantLimited": true
+      },
+      "discountType": "fixed",
+      "discount": 12,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 5,
+      "usesVerified": true,
+      "usesRemaining": 5,
+      "maxTotalSaving": 60,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": false,
+      "expires": "2026-11-11",
+      "expiresAt": "2026-11-11T03:00:00",
+      "expiryStatus": "exact",
+      "expiryBasis": "explicit_in_offer_terms",
+      "classificationConfidence": "high",
+      "expiryConfidence": "high",
+      "accountRef": "A315",
+      "accountMasked": "ri…9d@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-07T18:45:09.000Z",
+      "emailSentAt": "2026-11-07T18:45:09.000Z",
+      "recommendationEligible": true
+    },
+    {
+      "id": "pub_41e9a9a2ee3a44edc56ec74a5c7647d4",
+      "service": "Uber Eats",
+      "offerType": "multi_order_discount",
+      "title": "£12 off on 5 orders",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "fixed_discount_value",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": false,
+        "stacking": "no_other_promotions",
+        "excludesFees": true,
+        "excludesAlcoholTobacco": false,
+        "merchantLimited": true
+      },
+      "discountType": "fixed",
+      "discount": 12,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 5,
+      "usesVerified": true,
+      "usesRemaining": 5,
+      "maxTotalSaving": 60,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": false,
+      "expires": "2026-11-11",
+      "expiresAt": "2026-11-11T03:00:00",
+      "expiryStatus": "exact",
+      "expiryBasis": "explicit_in_offer_terms",
+      "classificationConfidence": "high",
+      "expiryConfidence": "high",
+      "accountRef": "A328",
+      "accountMasked": "se…os@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-07T18:14:44.000Z",
+      "emailSentAt": "2026-11-07T18:14:44.000Z",
+      "recommendationEligible": true
+    },
+    {
+      "id": "pub_235cd162dd7d8193f818f51d723794cb",
+      "service": "Uber Eats",
+      "offerType": "multi_order_discount",
+      "title": "£12 off on 5 orders",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "fixed_discount_value",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": false,
+        "stacking": "no_other_promotions",
+        "excludesFees": true,
+        "excludesAlcoholTobacco": false,
+        "merchantLimited": true
+      },
+      "discountType": "fixed",
+      "discount": 12,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 5,
+      "usesVerified": true,
+      "usesRemaining": 5,
+      "maxTotalSaving": 60,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": false,
+      "expires": "2026-11-11",
+      "expiresAt": "2026-11-11T03:00:00",
+      "expiryStatus": "exact",
+      "expiryBasis": "explicit_in_offer_terms",
+      "classificationConfidence": "high",
+      "expiryConfidence": "high",
+      "accountRef": "A316",
+      "accountMasked": "gr…ir@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-07T17:59:19.000Z",
+      "emailSentAt": "2026-11-07T17:59:19.000Z",
+      "recommendationEligible": true
+    },
+    {
+      "id": "pub_def575d7bad7bd6a883b3a0890391be7",
+      "service": "Uber Eats",
+      "offerType": "multi_order_discount",
+      "title": "£12 off on 5 orders",
+      "offerScope": "order",
+      "termsVerification": "email_verified",
+      "minimumSpendVerified": true,
+      "termsConflict": false,
+      "capBasis": "fixed_discount_value",
+      "restrictions": {
+        "fulfilment": "unknown",
+        "promoCodeRequired": false,
+        "stacking": "no_other_promotions",
+        "excludesFees": true,
+        "excludesAlcoholTobacco": false,
+        "merchantLimited": true
+      },
+      "discountType": "fixed",
+      "discount": 12,
+      "maxSaving": null,
+      "perUseCap": null,
+      "uses": 5,
+      "usesVerified": true,
+      "usesRemaining": 5,
+      "maxTotalSaving": 60,
+      "minimumSpend": 15,
+      "sameAccountOfferCount": 1,
+      "hasCode": false,
+      "expires": "2026-11-11",
+      "expiresAt": "2026-11-11T03:00:00",
+      "expiryStatus": "exact",
+      "expiryBasis": "explicit_in_offer_terms",
+      "classificationConfidence": "high",
+      "expiryConfidence": "high",
+      "accountRef": "A327",
+      "accountMasked": "re…6t@icloud.com",
+      "canLogin": true,
+      "loginMethod": "iCloud",
+      "hasCompanionOffer": false,
+      "receiptState": null,
+      "trackingState": "available",
+      "needsReview": false,
+      "reviewReasons": [],
+      "closedReason": null,
+      "receiptConfirmedUses": null,
+      "lastUsedAt": null,
+      "firstEmailSentAt": "2026-11-07T17:15:34.000Z",
+      "emailSentAt": "2026-11-07T17:15:34.000Z",
+      "recommendationEligible": true
     }
   ],
   "historicalAccounts": [

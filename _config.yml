@@ -85,6 +85,8 @@ exclude:
   - financial-ledger.js
   - test-financial-ledger.js
   - mail-cleanup.js
+  - mail-review-rules.js
+  - MAIL_REVIEW.md
   - test-mail-cleanup.js
   - test-reviewed-cleanup.js
   - test-finance-browser.js
@@ -140,3 +142,9 @@ exclude:
   - account-login-review.js
 
   - test-account-login-review.js
+
+  - mail-filing-rules.js
+  - test-navigation-shell-browser.js
+  - test-weekly-savings-browser.js
+  - test-weekly-savings.js
+  - test-account-expiry-browser.js

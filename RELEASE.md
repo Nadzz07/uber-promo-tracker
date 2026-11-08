@@ -1,3 +1,61 @@
+## Reviewed UI and mail-policy release — 7 November 2026
+
+Publishes the current reviewed work: Home's fixed five-week promo-savings SVG,
+three-destination mobile navigation, the Home-only follow-up with lighter charcoal
+materials, restrained outer shadows, clearer status tiles, natural scroll spacing
+and interaction-only chart tooltips, grouped More menu, compact Account details,
+Savings/Receipt insights/Finances/Review screens, Sync & data and shared palette.
+Used is removed as a destination; its underlying usage and financial records
+remain available through Accounts filters and receipt views. Home's Needs checking
+link uses the exact same account set as its count. Tablet and desktop add the
+reviewed 72px/260px sidebar shell; later desktop page compositions remain separate
+review steps. Mobile workflows and explicit file-picker behavior are retained.
+
+The follow-up refines Accounts with six inline Show choices, compact identity and
+offer rows, evidence-specific usage bars and accessible expiry explanations.
+Estimated deadlines retain their tilde; a single tap/hover/focus bubble explains
+the source and closes on repeat tap, outside interaction, scroll or timeout.
+Can log in remains the default. Finished combines the retained account-usage and
+promotion-completion views without rewriting either source. Pending access stays
+unconfirmed. Full-height initial imports and compact backup sheets follow the
+latest reference, including actual backup counts and the restore review steps.
+Order Planner retains its cost engine while presenting editable grouped inputs,
+account-detail links and in-place plan choices with a Your pick label.
+
+The owner confirmed six new receipt-linked accounts in chat on 7 November.
+Their stable identities now join the prior 229-account roster: 235 current
+accounts, 213 confirmed able to log in, and 22 archived. Each new account is
+confirmed as iCloud only. Full addresses, field-level provenance and confirmation
+times remain private. Existing account and offer facts and the financial snapshot
+from the verified e78320c320d519ab8f737952d1610fcf92ffc6b1 release are preserved;
+account status projections are refreshed against the same rules and current time.
+The public update contains masked account records and aggregate counts only.
+The new owner-requested Mail check indexed 30,296 received messages. Seven
+source-verified preferred offers are added incrementally and three existing
+reminder clocks are updated. Existing offer facts, first-source anchors, receipt
+records, financial corrections and monetary totals remain preserved. The fresh
+capture contained no new receipts. Sync shows the actual completed scan time.
+The subsequent owner-only receipt update preserves the original 462 receipt
+records and adds nine, for 471. Its import, correction preservation, money-page
+projection and Mail filing were checked privately; full receipt files, account
+identities and confirmation records are excluded from the public artifact.
+No fresh complete Mail reparse or new public financial-data publication is claimed.
+
+Mail policy changes implement the owner's reviewed routing and reversible Bin
+rules, receipt safeguards, exact free-receipt handling and explicit source expiry
+parsing. No cleanup runs as part of deployment. Latest private Mail follow-up
+independently verified nine filed receipts and 28 binned adverts; no permanent
+Mail deletion was performed.
+
+Release verification includes unit/parser/ledger/privacy/syntax validation,
+allowlisted build and browser checks of navigation, recorded uses, imports,
+backup rollback, saved filters, financial corrections, five-week chart interactions,
+shared themes, enlarged text and responsive widths. Native receipt safe areas retain full-width coverage with the exact page fade,
+verified for geometry, colour, fixed scrolling and all five tested hues.
+Automated browser checks are
+emulation; physical iPhone testing is not claimed. Retired Used-page assertions
+are replaced by route-removal/data-preservation and Accounts-status checks.
+
 ## Authoritative account list — 4 November 2026
 
 Replaces the current login roster with the owner-confirmed 229 unique accounts: 207 accessible and 22 inaccessible. Existing stable identities and explicit login methods are preserved; new rows use the supplied method rather than email-domain inference. The prior 129 unlisted identities are excluded from selectable accounts and current device-account exports. Receipt and correction history remains intact, with nonselectable historical financial aggregates separated from current account counts. Subsequent source projections and login exports honor the saved replacement roster. The Mail scanner and Mail cleanup policy are unchanged by this update.

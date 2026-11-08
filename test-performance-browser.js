@@ -1,3 +1,4 @@
+import {navigate,openMoreDestination} from './test-browser-navigation.js';
 import {openHomeDetail,openOfferManagement} from './test-browser-navigation.js';
 // Synthetic performance regressions; no owner account or Mail data is loaded.
 import fs from 'node:fs';
@@ -33,9 +34,9 @@ try {
  await page.clock.install({time});await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all',preferredPromos:['percent:50:unknown','percent:25:unknown'],includeCash:false})));await page.goto('http://127.0.0.1:'+server.address().port);
  await page.waitForFunction(()=>window.__runtime?.model().length===1);
  assert.equal(await page.locator('#accountsList .account-card').count(),0,'Closed account screen is deferred');
- assert.equal(await page.locator('#usedRecords .used-record').count(),0);
+ assert.equal(await page.locator('#view-used').count(),0);
  assert.equal(await page.evaluate(()=>window.__runtime.model()===window.__runtime.model()),true,'Repeated projections reuse derived accounts');
- await page.evaluate(()=>window.originalPlan=window.__runtime.planner());await openHomeDetail(page,'offers');await page.locator('[data-view=home]').click();await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.evaluate(()=>window.__runtime.planner()===window.originalPlan),true,'Opening detail views reuses unchanged planner calculations');await page.locator('[data-view="home"]').click();
+ await page.evaluate(()=>window.originalPlan=window.__runtime.planner());await openHomeDetail(page,'offers');await navigate(page,'home');await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.evaluate(()=>window.__runtime.planner()===window.originalPlan),true,'Opening detail views reuses unchanged planner calculations');await navigate(page,'home');
  const renders=await page.evaluate(()=>window.__runtime.renders);await page.clock.fastForward(4*60000);
  assert.equal(await page.evaluate(()=>window.__runtime.renders),renders,'Unchanged minute checks do not reconstruct visible DOM');
  await page.evaluate(async()=>await Promise.all([window.__runtime.reload(),window.__runtime.reload()]));
@@ -47,10 +48,10 @@ try {
  await page.evaluate(async()=>await window.__runtime.reload());
  assert.equal(await page.evaluate(()=>window.__runtime.model()[0].bestNow.promo.discount),25,'A changed snapshot invalidates derived state');
  assert.ok(requests.slice(-2).every(r=>!r.cached));
- await page.locator('[data-view="accounts"]').click();assert.equal(await page.locator('#accountsList .account-card').count(),1);
+ await navigate(page,'accounts');assert.equal(await page.locator('#accountsList .account-card').count(),1);
  await page.locator('#accountSearch').fill('not-found');assert.equal(await page.locator('#accountsList .account-card').count(),0);
  await page.locator('#accountSearch').fill('');assert.equal(await page.locator('#accountsList .account-card').count(),1);
- await page.locator('[data-view="home"]').click();await openHomeDetail(page,'planner');await page.locator('#basketInput').fill('40');await page.clock.fastForward(200);
+ await navigate(page,'home');await openHomeDetail(page,'planner');await page.locator('#basketInput').fill('40');await page.clock.fastForward(200);
  assert.equal(await page.evaluate(()=>window.__runtime.model()[0].bestNow.calculation.saving),10,'Basket changes recompute offer savings');
  if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('[data-account-offers="A901"]:visible').first().click();await openOfferManagement(page);await page.locator('[data-use-one="perf-offer"]').click();
  assert.equal(await page.evaluate(()=>window.__runtime.model()[0].promos[0].usesRemaining),4,'Manual actions invalidate offer projections');await page.keyboard.press('Escape');

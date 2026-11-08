@@ -109,6 +109,9 @@ export function parseUberTransportReceipt({
   if (["li.me", "lime.bike"].some(domain => limeAddress?.[2]?.toLowerCase() === domain || limeAddress?.[2]?.toLowerCase().endsWith("." + domain))) {
     senderAnalysis.trusted = true; senderAnalysis.confidence = "high"; senderAnalysis.basis = "lime_domain";
   }
+  if(limeAddress?.[2]?.toLowerCase()==='icloud.com'&&/^(?:no-reply|noreply|receipts)_at_(?:[a-z0-9_]+_)?(?:li_me|lime_bike)(?:[_-][^@\s>]*)?@icloud\.com$/i.test(limeAddress[1])){
+    senderAnalysis.trusted=true;senderAnalysis.confidence='high';senderAnalysis.basis='lime_icloud_relay_shape';
+  }
 
   const eatsSignal =
     /\buber\s*eats\b|\brestaurant\b|\bdelivery\s+fee\b|\bitems\s+subtotal\b/i.test(text);
@@ -119,7 +122,8 @@ export function parseUberTransportReceipt({
   const bikeSignal =
     /\buber\s*(?:bike|bikes)\b|\blime\s+(?:e-?bike|bike)\b|\bbike\s+(?:trip|ride|number)\b|\bcycle\s+(?:trip|ride)\b|\bthanks\s+for\s+(?:choosing|riding\s+with)\s+lime\b|\byour\s+lime\s+(?:ride|receipt)\b/i.test(text);
 
-  const total = moneyForLabel(text, [
+  const explicitlyFree=bikeSignal?text.match(/\btotal\s*(?:\(\s*incl\.?\s*VAT\s*\))?\s*[:\-]?\s*FREE\b/i):null;
+  const total = explicitlyFree?{value:0,match:explicitlyFree}:moneyForLabel(text, [
     "new total",
     "updated total",
     "trip total",

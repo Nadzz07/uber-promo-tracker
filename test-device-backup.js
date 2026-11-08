@@ -29,7 +29,7 @@ const partial=memory(),partialVault=new PrivateFinanceVault(partial);partial.set
 
 const currentStamp=new Date().toISOString();
 for(const [state,interval,label] of [['enabled',86400,'Enabled'],['disabled',86400,'Not confirmed'],['enabled',3600,'Not confirmed'],['unknown',null,'Not confirmed']]){
- const page=syncDataMarkup({lastSuccessfulMailScanAt:currentStamp,scheduler:{state,intervalSeconds:interval,reportedAt:currentStamp}});assert.match(page,new RegExp(label==='Enabled'?'data-sync-auto>Daily':'data-sync-auto>Schedule not confirmed'));assert.doesNotMatch(page,/Latest sync|Automatic sync|Request sync|Sync now/);
+ const page=syncDataMarkup({lastSuccessfulMailScanAt:currentStamp,scheduler:{state,intervalSeconds:interval,reportedAt:currentStamp}});assert.match(page,new RegExp(label==='Enabled'?'data-sync-auto[^>]*>Daily':'data-sync-auto[^>]*>Schedule not confirmed'));assert.doesNotMatch(page,/Latest sync|Automatic sync|Request sync|Sync now/);
 }
 assert.match(syncDataMarkup({scheduler:{state:'enabled',intervalSeconds:86400,reportedAt:'2020-01-01T00:00:00Z'}}),/Schedule not confirmed/,'Stale scheduler reports cannot establish current daily availability');
 console.log('✓ Latest Sync: daily-only reported status, stale/unknown/disabled states, actual successful timestamp, one refresh and no remote controls.');

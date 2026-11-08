@@ -2,7 +2,7 @@ import {dedupeReceipts} from './receipt-identity.js';
 import {receiptWhen} from './receipt-date.js';
 import {getOfferManualState,promotionActivity,promoStateKey,pendingManualEntries,pendingManualUses} from './manual-state.js';
 import {classifyOfferTrackingState,classifyOfferCompletion} from './offer-state.js';
-import {accountMatchesLogin,accountMatchesProvider,matchesAccountFilter,accountOfferKey,offerReadinessRank,offerInProgress,offerEligible} from './account-state.js';
+import {accountArchived,accountMatchesLogin,accountMatchesProvider,matchesAccountFilter,accountOfferKey,offerReadinessRank,offerInProgress,offerEligible} from './account-state.js';
 import {hasCurrentCash,isPreferredPromo} from './offer-preferences.js';
 import {expiryEndTime,isOfferExpired} from './offer-time.js';
 
@@ -133,6 +133,9 @@ export function accountHistoryGroups(promos=[],grants=[],store={},now=new Date()
  return groups;
 }
 
+export const DIRECTORY_SHOW_CHOICES=[{key:'active',label:'Active'},{key:'expiring',label:'Expiring soon'},{key:'review',label:'Needs checking'},{key:'expired',label:'Expired'},{key:'finished',label:'Finished'},{key:'archived',label:'Archived'}];
+export function normalizeDirectoryShow(value){return DIRECTORY_SHOW_CHOICES.some(c=>c.key===value)?value:({used:'finished','expired-unused':'expired',pending:'review',attention:'review'}[value]||'active');}
+
 // Filter the complete account projection before pagination. All offer predicates
 // are evaluated on one candidate collection, never unrelated headline offers.
 export function directoryAccounts(accounts,filters,preferences,{emailFor=a=>a.accountMasked||'',valueFor=()=>null,now=Date.now()}={}) {
@@ -140,16 +143,17 @@ export function directoryAccounts(accounts,filters,preferences,{emailFor=a=>a.ac
  const selections=Array.isArray(filters.type)?filters.type:[filters.type||'all'];
  const historical=['finished','expired-unused','expired','review'].includes(management);
  const typeMatches=(p,type)=>type==='all'||type==='cash'&&p.discountType==='uberCash'||type==='preferred'&&isPreferredPromo(p,preferences)||accountOfferKey(p)===type;
- const results=[];
+ const results=[],reviewRefs=Array.isArray(filters.reviewAccountRefs)?new Set(filters.reviewAccountRefs):null;
  for(const account of new Map(accounts.map(a=>[a.accountRef,a])).values()) {
-  if(!accountMatchesLogin(account,filters.login)||!accountMatchesProvider(account,filters.provider))continue;
+  if(management==='review'&&reviewRefs&&!reviewRefs.has(account.accountRef))continue;
+  if(!(filters.includePendingAccess&&filters.login==='locked'?(account.canLogin!==true||account.accessStatus==='pending'):accountMatchesLogin(account,filters.login))||!accountMatchesProvider(account,filters.provider))continue;
   if(query&&![emailFor(account),account.accountMasked,account.accountRef,account.loginMethod,...(account.loginMethods||[])].some(v=>String(v||'').toLocaleLowerCase('en-GB').includes(query)))continue;
   const cash=hasCurrentCash(account),revealed=!historical&&(query||selections.some(t=>/^(fixed|percent):/.test(t)))?(account.allOffers||[]).filter(p=>p.hiddenByPromoUse&&offerEligible({...p,hiddenByPromoUse:false},now)):[],source=historical?(account.allOffers||account.promos||[]):[...(account.promos||[]),...revealed];
   let candidates=source.filter(p=>p.discountType!=='uberCash'||historical&&management!=='finished');
-  if(management==='finished')candidates=candidates.filter(p=>classifyOfferCompletion(p,now).fullyUsed);
+  if(management==='finished'&&!matchesAccountFilter(account,'used'))candidates=candidates.filter(p=>classifyOfferCompletion(p,now).fullyUsed||p.forceDone);
   if(management==='expired-unused')candidates=candidates.filter(p=>classifyOfferCompletion(p,now).expiredUnused);
   if(management==='expired')candidates=candidates.filter(p=>isOfferExpired(p,now));
-  const accountReview=Number(account.sourceReviewCount||0)>0||Number(account.receiptReviewCount||0)>0;
+  const accountReview=reviewRefs?reviewRefs.has(account.accountRef):Number(account.sourceReviewCount||0)>0||Number(account.receiptReviewCount||0)>0;
   if(management==='review'&&!accountReview)candidates=candidates.filter(p=>p.trackingState==='needs_checking'||p.needsReview);
   if(management==='unfinished')candidates=candidates.filter(p=>offerInProgress(p,now));
   if(management==='expiring')candidates=candidates.filter(p=>{const end=expiryEndTime(p);return end!=null&&end>now&&end-now<=7*86400000;});
@@ -161,7 +165,8 @@ export function directoryAccounts(accounts,filters,preferences,{emailFor=a=>a.ac
   if(!selections.includes('all')&&!candidates.length&&!cashOnlyMatch)continue;
   if(selections.includes('cash')&&selections.length===1&&!cash&&!historical)continue;
   if(selections.includes('cash-promo')&&selections.length===1&&!(cash&&candidates.some(p=>offerEligible(p,now))))continue;
-  if(['finished','expired-unused','expired','unfinished','expiring'].includes(management)&&!candidates.length)continue;
+  if(management==='active'&&(accountArchived(account)||!matchesAccountFilter({...account,hasEligibleOffers:scoped.hasEligibleOffers},'all')))continue;
+  if(['finished','expired-unused','expired','unfinished','expiring'].includes(management)&&!candidates.length&&!(management==='finished'&&matchesAccountFilter(account,'used')))continue;
   if(management==='review'&&!candidates.length&&!accountReview)continue;
   if(management==='offers'&&!candidates.length&&!cash)continue;
   if(!['tracked','finished','expired-unused','expired','review','offers','unfinished','expiring'].includes(management)&&!matchesAccountFilter({...account,hasEligibleOffers:scoped.hasEligibleOffers||candidates.some(p=>p.hiddenByPromoUse)},management))continue;

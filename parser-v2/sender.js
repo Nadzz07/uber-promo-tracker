@@ -32,7 +32,7 @@ export function analyseSender(sender) {
     };
   }
 
-  if (domain === "icloud.com" && /^(?:ubereats|uber|noreply|no_reply|receipts)_at_(?:[a-z0-9_]+_)?uber_com(?:[_-][^@\s>]*)?@icloud\.com$/i.test(address[1])) {
+  if (domain === "icloud.com" && /^(?:ubereats|uber-eats|uberone|uber|admin|noreply|no-reply|no_reply|receipts)_at_(?:[a-z0-9_]+_)?uber_com(?:[_-][^@\s>]*)?@icloud\.com$/i.test(address[1])) {
     return {
       provided: true,
       trusted: true,

@@ -1,3 +1,4 @@
+import {navigate,openMoreDestination} from './test-browser-navigation.js';
 import {openHomeDetail,directoryStatus,directoryType,directoryReset,directoryAvailability} from './test-browser-navigation.js';
 import fs from 'node:fs';import assert from 'node:assert/strict';import http from 'node:http';import {once} from 'node:events';import {execFileSync} from 'node:child_process';import {chromium,webkit,firefox} from 'playwright';
 execFileSync(process.execPath,['build-site.js']);const allowed=new Set(fs.readdirSync('dist'));const server=http.createServer((req,res)=>{const file=new URL(req.url,'http://localhost').pathname.slice(1)||'index.html';if(!allowed.has(file)){res.writeHead(404).end();return;}res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':file.endsWith('.json')?'application/json':'text/html');res.end(fs.readFileSync('dist/'+file));});server.listen(0,'127.0.0.1');await once(server,'listening');
@@ -19,9 +20,9 @@ try { for(const width of [390,980,1440,1920]) {
   assert.ok(await page.locator('#offersTitle').isVisible(),'Offer detail retains its heading');
   if(width===390) {await page.waitForFunction(()=>{const heading=document.getElementById('homeAccountsTitle').getBoundingClientRect();return heading.top>=0&&heading.bottom<document.getElementById('mainNav').getBoundingClientRect().top;});assert.ok(await page.locator('#homeAccountsTitle').evaluate(e=>e.getBoundingClientRect().top>=0 && e.getBoundingClientRect().bottom<document.getElementById('mainNav').getBoundingClientRect().top),'Selected result context must be discoverable above the dock');}
  }
- await openHomeDetail(page,'offers');await page.locator('[data-intent="15off15"]').click();await openHomeDetail(page,'offers');await page.locator('#homeResultsFooter [data-jump-accounts]').click();assert.equal(await page.locator('#accountsMeta').innerText(),'7 accounts');assert.equal(await page.locator('#accountTypeValue').innerText(),'£15 off £15');await page.locator('[data-view="home"]').click();assert.equal(await page.locator('#homeAccountsTitle').innerText(),'Best matches');await openHomeDetail(page,'offers');await page.locator('#resetQuickFind').click();assert.equal(await page.locator('#homeAccountsTitle').innerText(),'Best matches');
- await page.locator('[data-view="accounts"]').click();await directoryReset(page);await directoryStatus(page,'pending');assert.equal(await page.locator('#accountsMeta').innerText(),'1 account');assert.match(await page.locator('#accountsList').innerText(),/pending verification/i);
- await page.locator('[data-view="home"]').click();
+ await openHomeDetail(page,'offers');await page.locator('[data-intent="15off15"]').click();await openHomeDetail(page,'offers');await page.locator('#homeResultsFooter [data-jump-accounts]').click();assert.equal(await page.locator('#accountsMeta').innerText(),'7 accounts');assert.equal(await page.locator('#accountTypeValue').innerText(),'£15 off £15');await navigate(page,'home');assert.equal(await page.locator('#homeAccountsTitle').innerText(),'Best matches');await openHomeDetail(page,'offers');await page.locator('#resetQuickFind').click();assert.equal(await page.locator('#homeAccountsTitle').innerText(),'Best matches');
+ await navigate(page,'accounts');await directoryReset(page);await directoryStatus(page,'pending');assert.equal(await page.locator('#accountsMeta').innerText(),'1 account');assert.match(await page.locator('#accountsList').innerText(),/pending verification/i);
+ await navigate(page,'home');
  assert.equal(await page.locator('#activeStat').innerText(),'15');
  assert.match(await page.locator('#offerScopeSummary').innerText(),/12 ready · 3 need attention/);
  for(const [scope,count] of [['all',15],['archived',1],['attention',3],['ready',12]]) {
@@ -44,10 +45,10 @@ try { for(const width of [390,980,1440,1920]) {
  const terms=page.locator('.offer-terms').first();await terms.locator('> summary').click();assert.notEqual(await terms.getAttribute('open'),null);assert.match(await terms.textContent(),/Minimum£15/);assert.match(await terms.textContent(),/Calculated100%/);assert.match(await terms.textContent(),/remaining uses require confirmation in Uber/);
  await page.keyboard.press('Escape');
 
- await page.locator('[data-view="home"]').click();assert.equal(await page.locator('#offerScope').inputValue(),'all');
+ await navigate(page,'home');assert.equal(await page.locator('#offerScope').inputValue(),'all');
  await openHomeDetail(page,'offers');await page.locator('#offerScope').selectOption('ready');
- await page.locator('[data-view="used"]').click();await page.locator('#usedStatus').focus();await page.keyboard.press('ArrowDown');assert.equal(await page.locator('#usedStatusOptions [role=option]').count(),9);await page.keyboard.press('End');await page.keyboard.press('Escape');assert.equal(await page.evaluate(()=>document.activeElement.id),'usedStatus');
- await page.locator('[data-view="home"]').click();await page.locator('#homeAnalytics button').focus();await page.keyboard.press('Enter');assert.ok(await page.locator('.ri-activity').isVisible());await page.locator('[data-receipts-back]').click();
+ assert.equal(await page.locator('#view-used,[data-view=used]').count(),0);
+ await navigate(page,'home');await page.locator('#homeAnalytics button').focus();await page.keyboard.press('Enter');assert.ok(await page.locator('.ri-activity').isVisible());await page.locator('[data-receipts-back]').click();
  if(width===390){await openHomeDetail(page,'offers');await page.locator('#homeResultsFooter button').scrollIntoViewIfNeeded();await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));assert.ok(await page.locator('#homeResultsFooter button').evaluate(e=>e.getBoundingClientRect().bottom<document.getElementById('mainNav').getBoundingClientRect().top),'Last result action can clear floating navigation');}
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Horizontal overflow');assert.deepEqual(errors,[]);await page.close();
  }console.log('✓ Connected discovery across four widths: six category selections/counts and Best matches heading, persistent View all filter, pending access, native disclosures, dock clearance');

@@ -22,7 +22,7 @@ function test(name, fn) { fn(); passed++; console.log('✓ ' + name); }
 test('Layout selection overrides screen size while Auto follows the responsive boundary', () => {
   for (const value of [null, undefined, '', 'other', 'AUTO', '<script>']) assert.equal(normaliseLayout(value), 'auto');
   assert.equal(normaliseLayout('mobile'), 'mobile'); assert.equal(normaliseLayout('desktop'), 'desktop');
-  assert.equal(resolveLayout('auto', 979), 'mobile'); assert.equal(resolveLayout('auto', 980), 'desktop');
+  assert.equal(resolveLayout('auto', 767), 'mobile'); assert.equal(resolveLayout('auto', 768), 'desktop');
   assert.equal(resolveLayout('mobile', 1920), 'mobile'); assert.equal(resolveLayout('desktop', 320), 'desktop');
 });
 

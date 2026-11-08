@@ -1,3 +1,5 @@
+import {clickOfferTerms} from './test-browser-navigation.js';
+import {navigate,openMoreDestination,settlePageLayout} from './test-browser-navigation.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -35,7 +37,7 @@ try{
   await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto('http://127.0.0.1:'+server.address().port);
   const originalTheme=await page.locator('meta[name="theme-color"]').getAttribute('content');
   await page.locator('[data-home-detail="planner"]').first().click();await page.locator('.recommendation-title').waitFor();
-  await page.locator('#basketInput').fill('30');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='2 orders');await page.locator('#basketInput').blur();
+  await page.locator('#basketInput').fill('30');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent?.startsWith('2 orders ·'));await page.locator('#basketInput').blur();
   await page.waitForFunction(()=>document.querySelector('meta[name="theme-color"]').content.toLowerCase()===getComputedStyle(document.documentElement).getPropertyValue('--color-screen').trim().toLowerCase());
   assert.equal(await page.locator('#view-planner .detail-view-head').evaluate(e=>getComputedStyle(e).animationName),'none','Header stays crisp during page entry');
   await page.evaluate(async()=>{await Promise.all(document.getAnimations().filter(a=>a.effect?.getComputedTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{})));});
@@ -48,7 +50,7 @@ try{
   assert.ok((await rows.nth(1).innerText()).includes(emails[1]));
   assert.doesNotMatch(await page.locator('.plan-accounts').innerText(),/Selected merchants|Delivery only|Apply promo code/);
   await rows.first().click();
-  await page.locator('.offer-terms > summary').first().click();
+  await clickOfferTerms(page);
   const details=await page.locator('.offer-terms').first().innerText();
   assert.match(details,/Selected merchants/);assert.match(details,/Delivery only/);assert.doesNotMatch(details,/Activation|Calculated|Source evidence|Expiry basis/);
   await page.keyboard.press('Escape');await page.waitForFunction(()=>!history.state?.trackerSheet);
@@ -79,13 +81,15 @@ try{
    for(const expanded of [false,true]){
     await page.locator('#plannerOtherOptions').evaluate((e,open)=>{if(e.open!==open)e.querySelector('summary').click();},expanded);
     const controls=['#plannerOtherOptions > summary','#plannerFeeInput'];
-    if(expanded)controls.splice(1,0,'[data-select-plan]','[data-planner-matches]');
+    if(expanded)controls.splice(1,0,'[data-select-plan]','#plannerOfferScope');
     for(const selector of controls){
      const control=page.locator('#view-planner '+selector).first();
-     await control.evaluate(e=>{e.focus({preventScroll:true});e.scrollIntoView({block:'end',behavior:'instant'});});
-     if(width<980)assert.ok(await control.evaluate(e=>{const r=e.getBoundingClientRect();return r.top>=0&&r.bottom<=document.querySelector('.bottom-nav').getBoundingClientRect().top-15;}),'Control can scroll above the dock: '+selector+' '+JSON.stringify({width,height,large,top,bottom,expanded}));
+     await control.evaluate(e=>{e.focus({preventScroll:true});e.scrollIntoView({block:'end',behavior:'instant'});});await settlePageLayout(page);
+     if(width<980)assert.ok(await control.evaluate(e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&r.top>=0&&r.bottom<=document.querySelector('.bottom-nav').getBoundingClientRect().top-15;}),'Control can scroll above the dock: '+selector+' '+JSON.stringify({width,height,large,top,bottom,expanded}));
     }
-    await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));
+    // Finish the input interaction before checking footer scrolling: Firefox may
+    // otherwise reveal its focused number field again after a programmatic scroll.
+    await page.locator('#plannerFeeInput').blur();await settlePageLayout(page);await page.evaluate(()=>scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'}));await page.waitForFunction(()=>Math.abs(scrollY-Math.max(0,document.documentElement.scrollHeight-innerHeight))<2);await settlePageLayout(page);
     if(width<980){const end=await page.locator('#view-planner .planner-final-fees').evaluate(e=>({footer:e.getBoundingClientRect().bottom,dock:document.querySelector('.bottom-nav').getBoundingClientRect().top,padding:getComputedStyle(document.body).paddingBottom,scroll:scrollY,height:document.documentElement.scrollHeight}));assert.ok(end.footer<=end.dock-15,'Final content clears the actual dock and safe area '+JSON.stringify({width,height,large,top,bottom,expanded,...end}));}
    }
    checked++;
@@ -93,11 +97,11 @@ try{
   // Eligibility remains active even though its restrictions moved out of the default row.
   await page.locator('#plannerFulfilment').selectOption('pickup');assert.equal(await page.locator('.plan-accounts .plan-row').count(),0);
   await page.locator('#plannerFulfilment').selectOption('delivery');assert.equal(await rows.count(),2);
-  await page.locator('#basketInput').fill('15');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent==='1 order');assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£4.00']);
-  await page.locator('[data-view="more"]').click();await page.waitForFunction(()=>document.querySelector('meta[name="theme-color"]').content.toLowerCase()===getComputedStyle(document.documentElement).getPropertyValue('--color-screen').trim().toLowerCase());
+  await page.locator('#basketInput').fill('15');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent?.startsWith('1 order ·'));assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£4.00']);
+  await navigate(page,'accounts');await page.waitForFunction(()=>document.querySelector('meta[name="theme-color"]').content.toLowerCase()===getComputedStyle(document.documentElement).getPropertyValue('--color-screen').trim().toLowerCase());
   await page.waitForFunction(()=>document.documentElement.style.getPropertyValue('--planner-nav-clearance')==='');
   assert.equal(await page.evaluate(()=>document.documentElement.style.getPropertyValue('--planner-nav-clearance')),'','Planner measurements do not change other screens');
-  await page.locator('[data-view="home"]').click();await page.waitForFunction(theme=>document.querySelector('meta[name="theme-color"]').content===theme,originalTheme);
+  await navigate(page,'home');await page.waitForFunction(theme=>document.querySelector('meta[name="theme-color"]').content===theme,originalTheme);
   assert.ok(!/maximum-scale|user-scalable=no/.test(await page.locator('meta[name="viewport"]').getAttribute('content')));
   assert.deepEqual(errors,[]);await context.close();
  }

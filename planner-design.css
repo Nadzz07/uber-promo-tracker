@@ -152,3 +152,61 @@ html[data-layout=desktop] #view-planner .detail-view-head h1 { font-size:22px; }
 #view-planner .plan-account { line-height:1.25; }
 #view-planner .plan-promo,#view-planner .plan-subtotal { line-height:1.3; }
 #view-planner .recommendation-save small { line-height:1.4; }
+/* Planner reference: compact editable fields and an in-place plan comparison. */
+html:has(#view-planner.active),body:has(#view-planner.active) { background:var(--data-page-base); background-image:var(--data-page-fade); background-attachment:fixed; }
+#view-planner .detail-view-head,#view-planner .detail-view-head::before { background:transparent; }
+body:has(#view-planner.active)::before { display:none; }
+#view-planner .hero-card { padding:0 15px; border:1px solid var(--data-border); border-radius:20px; background:var(--data-group); box-shadow:inset 0 1px 0 var(--data-row-shade); }
+#view-planner :is(.basket-editor,.planner-mode,.planner-fee-row) { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:66px; margin:0; padding:12px 0; border:0; border-bottom:1px solid var(--data-border); }
+#view-planner .planner-fee-row { border-bottom:0; }
+#view-planner :is(.basket-editor-copy,.planner-mode-copy) { flex:1; }
+#view-planner :is(.basket-editor-copy label,.planner-mode-copy label,.planner-fee-row>label) { display:flex; align-items:center; gap:11px; font-size:14px; font-weight:600; }
+#view-planner :is(.basket-editor-copy label,.planner-mode-copy label,.planner-fee-row>label)>[data-icon] { display:grid; place-items:center; width:36px; height:36px; flex:none; border:1px solid var(--data-accent-border); background:var(--data-accent-fill); border-radius:10px; color:var(--color-soft-accent); }
+#view-planner :is(.basket-editor-copy label,.planner-mode-copy label,.planner-fee-row>label)>[data-icon] svg { width:18px; height:18px; }
+#view-planner :is(.basket-value-wrap,.planner-select-wrap) { width:112px; flex:0 0 112px; min-height:38px; padding:7px 10px; border:1px solid var(--data-border); border-radius:10px; background:var(--data-card); display:flex; align-items:center; }
+#view-planner :is(.basket-value-wrap input,.planner-select-wrap select) { min-width:0; width:100%; border:0; padding:0; background:none; color:var(--color-text); font:inherit; font-size:15px; font-weight:600; outline-offset:3px; }
+#view-planner .basket-currency { font-size:15px; font-weight:600; }
+#view-planner :is(.planner-edit-hint,.planner-select-wrap>svg) { width:14px; height:14px; color:var(--color-accent); margin-left:5px; flex:none; }
+#view-planner .planner-section-head { margin:24px 0 12px; }
+#view-planner .planner-section-head h2 { font-size:21px; font-weight:720; }
+#view-planner .recommendation-card { border-radius:20px; padding:18px; border-color:var(--data-accent-border); background:linear-gradient(135deg,var(--data-accent-fill),var(--data-card-bottom) 80%); box-shadow:0 3px 18px color-mix(in srgb,var(--color-accent) 9%,transparent); }
+#view-planner .plan-feature-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; gap:8px; }
+#view-planner .plan-status,#view-planner .plan-saving-chip { display:inline-flex; align-items:center; gap:5px; min-height:26px; border:1px solid var(--data-accent-border); border-radius:9px; background:var(--data-accent-fill); color:var(--color-soft-accent); padding:3px 8px; font-size:11px; line-height:16px; white-space:nowrap; }
+#view-planner .plan-status svg,#view-planner .plan-saving-chip svg { width:12px; height:12px; }
+#view-planner .plan-saving-chip { color:var(--color-positive); border-color:var(--color-positive-border); background:var(--data-positive-tint); }
+#view-planner .recommendation-top { display:flex; gap:8px; flex-wrap:nowrap; align-items:center; }
+#view-planner .recommendation-estimate { flex:1; }
+#view-planner .recommendation-estimate>span { text-transform:uppercase; letter-spacing:.1em; font-size:10px; font-weight:700; color:var(--color-soft-accent); }
+#view-planner .recommendation-save { text-align:left; font-size:58px; line-height:1.15; letter-spacing:-.04em; font-weight:750; margin:6px 0 0; }
+#view-planner .recommendation-save small { font-size:12px; font-weight:400; letter-spacing:0; margin-top:6px; color:var(--color-tertiary); }
+#view-planner .recommendation-choice { flex:0 1 auto; align-self:center; padding-top:16px; }
+#view-planner .recommendation-title { font-size:11px; line-height:1.4; color:var(--color-tertiary); font-weight:400; margin:0; }
+#view-planner .plan-costs { display:grid; gap:10px; margin-top:18px; padding:14px 0; border-top:1px solid var(--data-border); border-bottom:1px solid var(--data-border); }
+#view-planner .plan-cost-line { font-size:13px; }
+#view-planner .plan-accounts { border:0; margin-top:14px; padding:0; }
+#view-planner .plan-accounts h4 { text-transform:uppercase; letter-spacing:.1em; font-size:10px; font-weight:650; color:var(--color-tertiary); margin-bottom:9px; }
+#view-planner .plan-row { display:flex; width:100%; gap:10px; align-items:center; padding:12px 10px; border:1px solid var(--data-border); border-radius:14px; background:var(--data-inset); margin-top:8px; cursor:pointer; }
+#view-planner .plan-provider { display:grid; place-items:center; width:34px; height:36px; flex:none; border:1px solid var(--data-accent-border); border-radius:10px; background:var(--data-accent-fill); color:var(--color-soft-accent); }
+#view-planner .plan-provider svg { width:18px; height:18px; }
+#view-planner .plan-body { flex:1; text-align:left; }
+#view-planner .plan-account { font-size:clamp(10px,2.9vw,13px); white-space:normal; overflow-wrap:anywhere; text-overflow:clip; min-height:0; font-weight:600; line-height:1.35; }
+#view-planner .plan-promo { display:block; font-size:12px; color:var(--color-accent); margin:3px 0 0; }
+#view-planner .plan-subtotal { display:block; font-size:11px; margin-top:3px; }
+#view-planner .plan-row>svg:last-child { width:16px; height:16px; flex:none; color:var(--color-tertiary); }
+#view-planner .planner-other-options { border:1px solid var(--data-border); background:var(--data-group); border-radius:19px; padding:0; overflow:hidden; }
+#view-planner .planner-other-options>summary { padding:13px 15px; min-height:64px; font-size:15px; font-weight:600; }
+#view-planner .planner-other-options>summary>.finance-icon { flex:0 0 36px; width:36px; height:36px; padding:8px; border:1px solid var(--data-accent-border); border-radius:10px; background:var(--data-accent-fill); color:var(--color-soft-accent); }
+#view-planner .planner-alternatives { display:block; padding:0; }
+#view-planner .plan-alternative { padding:14px 15px; border:0; border-top:1px solid var(--data-border); border-radius:0; background:none; cursor:pointer; }
+#view-planner .plan-alternative-head { display:flex; flex-wrap:nowrap; align-items:center; gap:10px; }
+#view-planner .plan-alternative-head>div:first-child { flex:1; min-width:0; }
+#view-planner .plan-alternative-head strong { font-size:14px; }
+#view-planner .plan-alternative-head small { display:block; font-size:10px; color:var(--color-tertiary); overflow-wrap:anywhere; margin-top:3px; }
+#view-planner .plan-alternative-price { flex:none; text-align:right; }
+#view-planner .plan-select { display:inline-flex; align-items:center; justify-content:center; width:auto; max-width:none; margin:0; flex:0 0 auto; border:1px solid var(--color-accent-line); border-radius:999px; background:var(--theme-active-tab); color:var(--color-soft-accent); min-height:26px; padding:4px 10px; font-size:11px; }
+#view-planner :is(.planner-offer-scope,.planner-scope-label,.planner-matching-action) { margin:10px 15px; }
+#view-planner :focus-visible { outline:2px solid var(--color-accent); outline-offset:2px; }
+@media(max-width:370px) { #view-planner .recommendation-save { font-size:48px; }#view-planner :is(.basket-editor-copy label,.planner-mode-copy label,.planner-fee-row>label) { font-size:12px; gap:8px; }#view-planner :is(.basket-value-wrap,.planner-select-wrap) { width:100px; flex-basis:100px; } }
+/* Keep the sticky title and native top inset on the same continuous paint. */
+#view-planner .detail-view-head,#view-planner .detail-view-head::before { background:var(--data-page-base); background-image:var(--data-page-fade); background-attachment:fixed; }
+body:has(#view-planner.active)::before { content:''; display:block; position:fixed; inset:0 0 auto; width:100%; height:var(--planner-safe-top,env(safe-area-inset-top,0px)); border-radius:0; background:var(--data-page-base); background-image:var(--data-page-fade); background-attachment:fixed; opacity:1; filter:none; box-shadow:none; z-index:26; pointer-events:none; }

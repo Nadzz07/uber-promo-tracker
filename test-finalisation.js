@@ -21,19 +21,20 @@ let passed = 0;
 const test = (name, fn) => { fn(); passed++; console.log('✓ ' + name); };
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'tracker-finalisation-'));
 const now = '2026-10-08T12:00:00Z';
+const classifyAt=(account,offers)=>classifyAccount(account,offers,Date.parse(now));
 const offer = { id: 'offer-one', offerId: 'offer-one', service: 'Uber Eats', accountRef: 'A001', discountType: 'fixed', discount: 10, minimumSpend: 15, uses: 5, emailSentAt: '2026-10-01T12:00:00Z', expiryStatus: 'unknown', canLogin: true };
 const email = { sender: 'receipts@uber.com', recipient: 'alpha@example.invalid', subject: 'Your receipt from Test Kitchen', body: 'Thanks for your order\nOrder ID: UNIQUE-001\nSubtotal £20\nPromotion -£10\nTotal £10', sentAt: '2026-10-02T12:00:00Z', receivedAt: '2026-10-02T12:00:01Z', messageId: '<receipt-one@uber.com>' };
 try {
   test('Account use requires five Eats, or one Eats plus one ride/bike; access and expiry are independent', () => {
     for (const [eats, rides, expected] of [[0,0,false],[1,0,false],[4,0,false],[0,5,false],[1,1,true],[5,0,true],[5,9,true]]) assert.equal(accountUsage({ orderCount: eats, rideCount: rides }).accountUsed, expected);
     const active = applyOfferTrackingStates([offer], [], { now });
-    assert.equal(classifyAccount({ canLogin: true, orderCount: 1, rideCount: 0 }, active).accountState, 'available');
-    assert.equal(classifyAccount({ canLogin: true, orderCount: 1, rideCount: 1 }, active).accountState, 'used');
-    assert.equal(classifyAccount({ canLogin: false, orderCount: 5 }, active).accountState, 'archived');
-    assert.equal(classifyAccount({ canLogin: true }, []).accountState, 'no_offers');
-    assert.equal(classifyAccount({ canLogin: true }, [...active, { trackingState: 'needs_checking' }]).needsReview, false, 'A reviewable offer cannot make a usable account Needs checking');
-    assert.equal(classifyAccount({ canLogin: true }, [{ trackingState: 'expired', closedReason: 'expired' }]).accountState, 'expired');
-    assert.equal(classifyAccount({ canLogin: true }, [{ trackingState: 'expired', closedReason: 'expired' }, { trackingState: 'used', closedReason: 'uses_finished' }]).accountState, 'no_offers', 'Mixed expired and consumed offers are not all consumed');
+    assert.equal(classifyAt({ canLogin: true, orderCount: 1, rideCount: 0 }, active).accountState, 'available');
+    assert.equal(classifyAt({ canLogin: true, orderCount: 1, rideCount: 1 }, active).accountState, 'used');
+    assert.equal(classifyAt({ canLogin: false, orderCount: 5 }, active).accountState, 'archived');
+    assert.equal(classifyAt({ canLogin: true }, []).accountState, 'no_offers');
+    assert.equal(classifyAt({ canLogin: true }, [...active, { trackingState: 'needs_checking' }]).needsReview, false, 'A reviewable offer cannot make a usable account Needs checking');
+    assert.equal(classifyAt({ canLogin: true }, [{ trackingState: 'expired', closedReason: 'expired' }]).accountState, 'expired');
+    assert.equal(classifyAt({ canLogin: true }, [{ trackingState: 'expired', closedReason: 'expired' }, { trackingState: 'used', closedReason: 'uses_finished' }]).accountState, 'no_offers', 'Mixed expired and consumed offers are not all consumed');
     assert.equal(accountUsage({ orderCount: 1, rideCount: 0 }).partialUsage, true);
     assert.equal(accountUsage({ orderCount: 0, rideCount: 0 }).partialUsage, false);
     assert.equal(accountUsage({ orderCount: 1, rideCount: 1 }).partialUsage, false);

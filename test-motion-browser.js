@@ -1,3 +1,4 @@
+import {navigate,openMoreDestination} from './test-browser-navigation.js';
 import fs from 'node:fs';
 import http from 'node:http';
 import {once} from 'node:events';
@@ -15,9 +16,9 @@ try {
  const p=await context.newPage();const errors=[];p.on('pageerror',e=>errors.push(e.message));
  await p.goto('http://127.0.0.1:'+server.address().port);await p.locator('#scanLabel').filter({hasText:/OPENING/i}).waitFor({state:'hidden'});
  await p.evaluate(()=>{window.__frames=[];window.__long=[];new PerformanceObserver(l=>window.__long.push(...l.getEntries().map(e=>e.duration))).observe({type:'longtask',buffered:true});let last=performance.now();window.__frame=requestAnimationFrame(function tick(now){window.__frames.push(now-last);last=now;window.__frame=requestAnimationFrame(tick);});});
- for(const name of ['accounts','used','more','home','accounts','more']){await p.locator('#mainNav [data-view="'+name+'"]').click();await p.waitForTimeout(120);}
- await p.locator('#view-more [data-open-sheet="appearance"]').click();await p.locator('[data-open-sheet="theme"]').click();await p.waitForTimeout(300);await p.keyboard.press('Escape');await p.waitForTimeout(300);
- await p.locator('#mainNav [data-view="accounts"]').click();await p.locator('#accountTypeTrigger').click();await p.waitForTimeout(200);await p.keyboard.press('Escape');await p.locator('#accountSearch').fill('no-such-account');await p.locator('#accountSearch').fill('');await p.waitForTimeout(300);
+ for(const name of ['accounts','more','home','accounts','more']){await p.locator('#mainNav [data-view="'+name+'"]').click();await p.waitForTimeout(120);}
+ await openMoreDestination(p,'appearance');await p.locator('[data-open-sheet="theme"]').click();await p.waitForTimeout(300);await p.keyboard.press('Escape');await p.waitForTimeout(300);
+ await navigate(p,'accounts');await p.locator('#accountTypeTrigger').click();await p.waitForTimeout(200);await p.keyboard.press('Escape');await p.locator('#accountSearch').fill('no-such-account');await p.locator('#accountSearch').fill('');await p.waitForTimeout(300);
  assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  assert.equal(await p.evaluate(()=>getComputedStyle(document.querySelector('.sheet')).willChange),'auto');
  assert.equal(await p.evaluate(()=>getComputedStyle(document.querySelector('.account-list')).transform),'none');assert.deepEqual(errors,[]);

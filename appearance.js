@@ -10,7 +10,7 @@ export function normaliseLayout(value) {
 
 export function resolveLayout(value, viewportWidth) {
   const preference = normaliseLayout(value);
-  return preference === 'auto' ? (Number(viewportWidth) >= 980 ? 'desktop' : 'mobile') : preference;
+  return preference === 'auto' ? (Number(viewportWidth) >= 768 ? 'desktop' : 'mobile') : preference;
 }
 
 export function normaliseColour(value) {

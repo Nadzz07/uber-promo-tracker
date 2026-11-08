@@ -1,12 +1,26 @@
 #!/usr/bin/env node
+// Exact reviewed digest and stable original reads are required for each bounded batch.
 // Requires a digest of the exact preview the user approved. Never imported or
 // invoked by routine Mail sync. Every batch rechecks original physical sources.
 import fs from'node:fs';import path from'node:path';import os from'node:os';import{createHash}from'node:crypto';import{createGunzip}from'node:zlib';import{execFileSync}from'node:child_process';
 import{jsonLines,verifiedCleanupTargets,targetKey}from'../reviewed-cleanup-plan.js';
+import{cleanupPolicyFingerprint}from'../cleanup-policy.js';
+import{parseMboxText}from'../mbox-import.js';
+import{isReceiptMail}from'../mail-review-rules.js';
+import{messageKey}from'../identity.js';
 process.umask(0o077);const args=process.argv.slice(2);let plan,report,approval,max=25,audit,auditDir;for(let i=0;i<args.length;i++){if(args[i]==='--plan')plan=args[++i];else if(args[i]==='--report')report=args[++i];else if(args[i]==='--approval-digest')approval=args[++i];else if(args[i]==='--audit')audit=args[++i];else if(args[i]==='--audit-dir')auditDir=args[++i];else if(args[i]==='--max')max=Number(args[++i]);else throw Error('Unsupported cleanup argument');}
 if(!plan||!report||!approval||!audit||!Number.isInteger(max)||max<1||max>250||!plan.endsWith('.local.jsonl.gz')||!report.endsWith('.local.json')||!audit.endsWith('.local.jsonl')||fs.existsSync(audit))throw Error('Require private plan, approved preview digest, new private audit and max 1–250.');
 const digest=createHash('sha256').update(fs.readFileSync(report)).digest('hex');if(digest!==approval)throw Error('Approval does not match this preview');const preview=JSON.parse(fs.readFileSync(report));const h=createHash('sha256');for await(const chunk of fs.createReadStream(plan))h.update(chunk);if(preview.planSha256!==h.digest('hex'))throw Error('Plan changed after preview');
 const verified=auditDir?verifiedCleanupTargets(auditDir,approval):new Set();
+const financeProof=preview.inputProofs?.find(p=>/private-finance\.local\.json$/.test(p.file));const receiptKeys=new Set(financeProof?JSON.parse(fs.readFileSync(financeProof.file)).receipts.map(r=>r.messageKey).filter(Boolean):[]);
+const reviewLock=preview.version===2?path.resolve('.tracker-sync.lock'):null;
+if(reviewLock){fs.mkdirSync(reviewLock,{mode:0o700});fs.writeFileSync(path.join(reviewLock,'pid'),String(process.pid),{mode:0o600});}
+try{
+if(preview.version===2){
+ if(preview.requiresApproval!==true||preview.ruleFingerprint!==cleanupPolicyFingerprint()||!Array.isArray(preview.inputProofs)||preview.inputProofs.length<5)throw Error('Reviewed Mail rules or source proof changed; prepare a new preview.');
+ for(const proof of preview.inputProofs){let digest=null;if(fs.existsSync(proof.file)){const h=createHash('sha256');for await(const chunk of fs.createReadStream(proof.file))h.update(chunk);digest=h.digest('hex');}if(digest!==proof.sha256)throw Error('Tracker data changed after preview; prepare a new preview before moving Mail.');}
+}
 const temp=fs.mkdtempSync(path.join(os.tmpdir(),'uber-reviewed-cleanup-'));fs.chmodSync(temp,0o700);const fd=fs.openSync(audit,'wx',0o600);let moved=0;let batch=[];
 function execute(){if(!batch.length)return;const file=path.join(temp,'batch.local.json');fs.writeFileSync(file,JSON.stringify({kind:'approved-uber-cleanup-batch',approvalDigest:approval,targets:batch}),{mode:0o600});const result=JSON.parse(execFileSync('/usr/bin/osascript',['-l','JavaScript',path.join(import.meta.dirname,'move-reviewed-mail.js'),file,'--approved-cleanup-batch'],{encoding:'utf8',maxBuffer:4000000}));for(const r of result.results)fs.writeSync(fd,JSON.stringify({...r,at:new Date().toISOString(),approvalDigest:approval})+'\n');fs.fsyncSync(fd);moved+=result.results.filter(r=>r.verified).length;batch=[];if(result.halted)throw Error('Move verification halted. Reconcile the private audit and Mail before proceeding.');}
-try{for await(const line of jsonLines(fs.createReadStream(plan).pipe(createGunzip()))){if(!line.trim())continue;const target=JSON.parse(line);if(target.kind!=='target')throw Error('Invalid planned source');if(verified.has(targetKey(target)))continue;batch.push(target);if(batch.length===25||moved+batch.length>=max){execute();if(moved>=max)break;}}execute();console.log(JSON.stringify({moved,previouslyVerified:verified.size,verified:true,audit}));}finally{fs.closeSync(fd);fs.rmSync(temp,{recursive:true,force:true});}
+try{for await(const line of jsonLines(fs.createReadStream(plan).pipe(createGunzip()))){if(!line.trim())continue;const target=JSON.parse(line);if(target.kind!=='target')throw Error('Invalid planned source');if(verified.has(targetKey(target)))continue;if(target.classification?.destination!=='Uber Receipts'){const parsed=await parseMboxText('From export Thu Jan 01 00:00:00 1970\n'+target.raw.replace(/\r\n/g,'\n'));if(parsed.length!==1||receiptKeys.has(messageKey(parsed[0]))||isReceiptMail(parsed[0]))throw Error('Receipt protection stopped a non-receipt cleanup action before moving it.');}batch.push(target);if(batch.length===25||moved+batch.length>=max){execute();if(moved>=max)break;}}execute();console.log(JSON.stringify({moved,previouslyVerified:verified.size,verified:true,audit}));}finally{fs.closeSync(fd);fs.rmSync(temp,{recursive:true,force:true});}
+}finally{if(reviewLock){fs.unlinkSync(path.join(reviewLock,'pid'));fs.rmdirSync(reviewLock);}}

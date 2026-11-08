@@ -41,6 +41,10 @@ export function classifyMessage({ subject, text, contentText = text, senderAnaly
   const orderSignal = /uber\s*eats|ubereats|\bfood\b|\border\b|\bdelivery\b/i.test(corpus);
   const mentionsUberCash = offer.discountType === "uberCash" || /\buber\s+cash\b/i.test(corpus);
 
+  // The discount's service terms outrank an Uber Eats sender/logo. A Ride
+  // coupon cross-promoted by Eats is not an Eats percentage offer.
+  const targets=[...String(offer.termsText||content).matchAll(/(?:\b\d{1,3}\s*%\s*(?:off|discount)|£\s*\d+(?:\.\d{1,2})?\s*off)\s+(?:(?:on|your|the|next|first|eligible|qualifying|uber|eats|reserve|up|to|\d+)\s+){0,8}(rides?|trips?|orders?|baskets?)\b/gi)].map(m=>m[1].toLowerCase());
+  const rideTerms=targets.some(t=>/^ride|^trip/.test(t)),foodTerms=targets.some(t=>/^order|^basket/.test(t));
   let service = "Uber";
   // A membership upsell or legal footer does not turn a Cash offer for food
   // into an Uber One subscription. Cash messages retain their stated use;
@@ -49,6 +53,7 @@ export function classifyMessage({ subject, text, contentText = text, senderAnaly
   else if (offer.discountType === "uberCash") {
     if (orderSignal && !rideSubject) service = "Uber Eats";
   }
+  else if (rideTerms && !foodTerms) service = "Uber";
   else if (orderSignal && !rideSubject) service = "Uber Eats";
   else if (mentionsUberCash && /\border\b|uber\s*eats/i.test(corpus)) service = "Uber Eats";
 
