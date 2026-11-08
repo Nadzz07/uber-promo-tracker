@@ -12,7 +12,7 @@ import {getReceipts,getTransportReceipts} from '../private-db.js';
 import {receiptFingerprint,transportReceiptFingerprint} from '../identity.js';
 import {parseDeviceAccounts} from '../device-accounts.js';
 import {validateFinanceData} from '../private-finance-vault.js';
-import {createMailReviewContext,reviewMailMessage,campaignWinner,finalizeMailDecision,MAIL_REVIEW_RULE_VERSION} from '../mail-review-rules.js';
+import {createMailReviewContext,historicalMailAccess,reviewMailMessage,campaignWinner,finalizeMailDecision,MAIL_REVIEW_RULE_VERSION} from '../mail-review-rules.js';
 import {cleanupPolicyFingerprint} from '../cleanup-policy.js';
 process.umask(0o077);
 const args=process.argv.slice(2),options={};for(let i=0;i<args.length;i+=2){if(!['--capture','--out','--db','--accounts','--finance','--snapshot'].includes(args[i])||!args[i+1])throw Error('Expected named preview inputs.');options[args[i].slice(2)]=path.resolve(args[i+1]);}
@@ -27,7 +27,7 @@ validateFinanceData(finance);parseDeviceAccounts(identities,snapshot.accounts);
 const db=new DatabaseSync(options.db,{readOnly:true}),saved=[...getReceipts(db),...getTransportReceipts(db)],savedById=new Map(saved.map(r=>[r.receiptId,r]));
 if(saved.length!==finance.receipts.length||finance.receipts.some(r=>JSON.stringify(r)!==JSON.stringify(savedById.get(r.receiptId))))throw Error('Private receipt source does not exactly match the current transfer; do not use it for filing.');
 const normal=v=>String(v||'').trim().replace(/^<|>$/g,'').toLowerCase();
-const imported=new Set(db.prepare("SELECT m.message_id,a.alias FROM messages m JOIN accounts a USING(account_ref) WHERE m.accepted=1 AND m.kind IN ('receipt','transport_receipt')").all().map(m=>normal(m.message_id)+'|'+m.alias));db.close();
+const imported=new Set(db.prepare("SELECT m.message_id,a.alias FROM messages m JOIN accounts a USING(account_ref) WHERE m.accepted=1 AND m.kind IN ('receipt','transport_receipt')").all().map(m=>normal(m.message_id)+'|'+m.alias));const historicalAccess=historicalMailAccess(db);db.close();
 const receiptImported=(message,receipt,account)=>{
  if(!imported.has(normal(message.messageId)+'|'+account.email))return false;
  const id=receipt.service==='Uber Eats'?receiptFingerprint({...receipt,accountRef:account.accountRef}):transportReceiptFingerprint({...receipt,accountRef:account.accountRef});
@@ -36,7 +36,7 @@ const receiptImported=(message,receipt,account)=>{
  for(const k of ['total','subtotal','promotionDiscount','uberCashUsed','deliveryFee','serviceFee','refundAmount'])if(receipt[k]!=null&&receipt[k]!==saved[k])return false;
  return true;
 };
-const context=createMailReviewContext({accounts:identities,snapshot,finance,receiptImported}),winners=new Map(),classified=new Map();let completed=null,sourceCount=0;
+const context=createMailReviewContext({accounts:identities,historicalAccess,snapshot,finance,receiptImported}),winners=new Map(),classified=new Map();let completed=null,sourceCount=0;
 async function* sources(parse=true){for await(const line of jsonLines(fs.createReadStream(options.capture).pipe(createGunzip()))){if(!line.trim())continue;const s=JSON.parse(line);if(s.kind==='complete'){completed=s;continue;}if(s.kind!=='source')continue;
  if(!parse){const cached=classified.get(targetKey(s));if(!cached)throw Error('Physical source changed between preview passes.');yield {...s,message:cached.message,classification:cached.classification};continue;}
  const parsed=await parseMboxText('From export Thu Jan 01 00:00:00 1970\n'+s.raw.replace(/\r\n/g,'\n'));if(parsed.length!==1){yield {...s,message:{subject:'',sender:'',recipient:''}};continue;}
