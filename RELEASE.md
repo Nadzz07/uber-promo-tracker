@@ -1,3 +1,36 @@
+## Verified Mail and account data update — 8 November 2026
+
+Updates data while preserving the deployed interface. The owner confirmed the
+new receipt-linked account as able to log in through iCloud only. The current
+roster is 236 accounts: 214 can log in and 22 archived. Historical explicit
+inaccessible-access evidence is used for Mail only, without restoring older
+accounts to the selectable roster.
+
+The bounded financial projection includes all 472 verified private receipts,
+retaining prior receipt facts, saved corrections, recorded uses and match history.
+Compared with the preceding public snapshot, ten previously verified receipts
+are now represented in aggregates. Known current-month promo savings are £103.57;
+Uber Cash remains separate. The incomplete recovery database is not used to
+regenerate the whole snapshot. Eleven source-backed campaigns and twenty existing
+reminder updates follow the prior published 8 November scan. Sync reports the
+latest 30,484-message capture, with zero new receipts in that final catch-up.
+
+Completes the paused 621-message cleanup (585 recoverable Bin, 36 Archive), then
+verifies a fresh 139-message Bin pass: 90 offers for explicitly inaccessible
+accounts, including 19 Cash offers, and 49 excluded adverts. Latest-per-campaign
+archive evidence is retained when expired personal-offer usage is unknown;
+duplicates do not establish completion. Receipts, actual payments/credits,
+authentication codes and links, and phone changes remain protected. All planned
+moves and untouched current-scan originals are independently checked. Unrelated
+location changes during the earlier pause are reconciled by exact message identity
+and copy count. Nothing is permanently deleted. Two Disney+ benefit emails remain
+in Inbox at the owner's explicit request.
+
+Only masked identities and sanitized aggregates are published. Full addresses,
+Mail originals, access provenance and the owner-only account/receipt transfer
+files remain excluded from the repository and Pages artifact. Publication itself
+performs no Mail movement. UI work resumes after the data deployment is verified.
+
 ## Source-verified Mail update — 8 November 2026
 
 Adds 25 genuine personal Eats campaigns from the fresh 30,415-message Mail scan:

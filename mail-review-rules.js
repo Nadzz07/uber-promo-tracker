@@ -8,18 +8,22 @@ import {extractAccountAlias} from './parser-v2/utils.js';
 import {offerFingerprint} from './identity.js';
 import {applyOfferExpiryPolicy,expiryEndTime} from './offer-time.js';
 
-export const MAIL_REVIEW_RULE_VERSION=3;
+export const MAIL_REVIEW_RULE_VERSION=8;
 const at=v=>v&&Number.isFinite(Date.parse(v))?Date.parse(v):null;
 const positive=v=>typeof v==='number'&&Number.isFinite(v)&&v>0;
 const decision=(category,reason,destination=null,extra={})=>({category,reason,destination,...extra});
 
 export function mailIdentityExclusion(message){
  const subject=String(message.subject||''),text=receiptText(subject,message.body);
+ if(/\b(?:verify|confirm)\s+your\s+(?:Uber\s+)?(?:account\s+)?email\b/i.test(subject))return 'excluded_login_link';
  const digits=/\b\d{4,8}\b|\b\d{3}[ -]\d{3}\b/.test(text);
  const codeSubject=/\b(?:uber(?: eats)? code|(?:verification|security|login|sign[ -]?in|one[ -]?time|authentication) code)\b/i.test(subject);
  const authSubject=/\b(?:log[ -]?in|sign[ -]?in|verify|verification|one[ -]?time|authentication)\b/i.test(subject);
  const authCodeLabel=/\b(?:verification|security|login|sign[ -]?in|one[ -]?time|authentication) code\b/i.test(text);
  const nearCode=/\b(?:code|otp|pin)\s*(?:is|:|=|-)?\s*(?:\d{4,8}\b|\d{3}[ -]\d{3}\b)|\b(?:\d{4,8}|\d{3}[ -]\d{3})\s+is\s+your\s+(?:uber(?: eats)?\s+|verification\s+|login\s+)?code\b/i.test(text);
+ const privateCodeSubject=/^\s*do not share\s*[:\-]?\s*\d{4,8}\s*$/i.test(subject);
+ const numericCodeSubject=/^\s*\d{4,8}\s*$/.test(subject)&&/\b(?:code|sign[ -]?in|verification|authenticate|one[ -]?time|otp)\b/i.test(text)&&!/\b(?:promo(?:tion)?|discount|offer|Uber Cash)\b/i.test(text);
+ if(digits&&(privateCodeSubject||numericCodeSubject))return 'excluded_login_code';
  const strongCodeSubject=/\b(?:verification|login|sign[ -]?in|one[ -]?time|authentication) code\b/i.test(subject);
  if(digits&&(strongCodeSubject||(codeSubject||authCodeLabel||authSubject)&&nearCode||codeSubject&&/\b\d{6,8}\b|\b\d{3}[ -]\d{3}\b/.test(text)))return 'excluded_login_code';
  if(/phone|mobile|telephone/i.test(subject)&&/number/i.test(text)&&/chang|updat|added|removed|new number/i.test(text))return 'excluded_phone_update';
@@ -52,6 +56,43 @@ function sourceConfirmedExpiry(promo){
  return fullDate?expiryEndTime(applyOfferExpiryPolicy(promo)):null;
 }
 function oneCalendarMonthBefore(now){const d=new Date(now),day=d.getUTCDate();d.setUTCDate(1);d.setUTCMonth(d.getUTCMonth()-1);const last=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0)).getUTCDate();d.setUTCDate(Math.min(day,last));return d.getTime();}
+// These are categories, not just a blacklist of remembered titles. Call only
+// after sender, receipt, identity and genuine Eurostar protections have run.
+function ownerMarketingPreference(message,text){
+ const subject=String(message.subject||'').normalize('NFKC').replace(/[’‘]/g,"'").trim();
+ const clean=text.replace(/&(?:shy|zwnj|zwj|#(?:847|8199|8204|8205|65279));/gi,' ').replace(/\s+/g,' '),lead=clean.slice(0,2400);
+ const bin=(category,reason)=>decision(category,reason,'Bin');
+ if(/\b(?:order|trip|ride|delivery) confirmation\b|\b(?:order|trip|ride|delivery)\b.{0,100}\b(?:confirmed|cancelled|canceled|delivered|refunded)\b/i.test(subject))return decision('protected_transaction_notice','Order confirmation, delivery or cancellation notice, not grocery or merchant advertising.');
+ // Actual billing, security and credit records are not membership advertising.
+ if(/\b(?:payment (?:failed|declined|received|confirmation|receipt)|add a different payment method|billing (?:problem|issue)|refund|invoice|amount charged|credits? (?:added|received)|membership (?:cancelled|canceled|ended))\b/i.test(subject))return decision('protected_transaction_notice','Actual billing, refund or credited-balance notice; the owner exclusions concern advertising.');
+ if(/^(?:we've|we have) updated our terms (?:&|and) conditions\b|^(?:info(?:rmation)? about|updates? to) cancellation and wait(?:ing)? time policies\b/i.test(subject))return bin('owner_excluded_policy_notice','Owner requested general terms, cancellation and wait-time policy notices in Bin.');
+ if(/\b(?:diwali|bonfire|halloween|spooky season|spook-tacular)\b|no tricks,? just treats/i.test(subject))return bin('owner_excluded_seasonal_marketing','Owner excludes seasonal Diwali, Bonfire and Halloween advertising.');
+ const survey=/\bsurvey\b|\b(?:share|tell us) (?:your |what you think)|\b(?:feedback|your opinion|how did we do|help us improve)\b/i.test(subject)||/\b(?:complete|take|answer|participate in) (?:our |this |a |the )?(?:short |quick )?survey\b/i.test(lead);
+ if(survey){
+  const incentive=/\b(?:reward|voucher|gift card|cashback|incentive|prize|win|draw|compensat|paid survey)\b|£\s*\d/i.test(clean);
+  const noReward=/\b(?:no (?:reward|compensation|incentive)|unpaid survey|not (?:paid|compensated))\b/i.test(clean);
+  if(!incentive||noReward)return bin('owner_excluded_unrewarded_survey','Owner excludes surveys without a reward.');
+  const guaranteed=/\b(?:complete|take|finish|answer)\b.{0,120}\b(?:receive|get|earn|be paid)\b.{0,50}(?:£\s*\d|voucher|gift card)|(?:£\s*\d|voucher|gift card).{0,50}\b(?:for your time|for completing|after (?:you )?(?:complete|finish))/i.test(clean)&&!/\b(?:chance to win|prize draw|sweepstake|raffle)\b/i.test(clean);
+  if(guaranteed)return decision('keep_rewarded_survey','Survey explicitly promises a reward for completion; owner only excludes unrewarded surveys.');
+  // A prize draw or unclear promise is a question for the owner, not consent.
+  return decision('review','Survey mentions an incentive; ask the owner using its email title before moving it.',null,{ownerQuestion:true});
+ }
+ if(/\b(?:grocer(?:y|ies)|supermarket|fresh fruit|fruit (?:&|and) veg|vegetables)\b|\b(?:Waitrose|Sainsbury's|Tesco|Asda|Morrisons|Ocado|Iceland|Aldi|Lidl|Co[ -]?Op)\b/i.test(subject))return bin('owner_excluded_grocery','Owner excludes all grocery and supermarket offer advertising.');
+ if(/\b(?:offer|discount|promotion) (?:is |only )?(?:valid|available|applies) (?:only )?(?:on|for) grocery (?:orders|shops)\b|\b(?:get|save)\s+(?:up to\s+)?£\s*\d+(?:\.\d+)?\s+off\s+(?:your\s+)?(?:next\s+)?grocer/i.test(lead))return bin('owner_excluded_grocery','The primary offer is for grocery orders, which the owner excludes.');
+ if(/\bUber One Exclusive\b|\bMember Days\b|^Earn\s+(?:up to\s+)?\d+%\s+Uber One credits?\b/i.test(subject))return bin('owner_excluded_membership_offer','Owner excludes Uber One and Member Days offer advertising, including credit-earning campaigns.');
+ const merchant=subject.match(/(?:£\s*\d+(?:\.\d+)?|\d+\s*%)\s+(?:off\s+(?:(at|from)\s+)?|at\s+)(.+)$/i);
+ const namedTheShop=merchant&&/^The [A-Z]/.test(merchant[2])&&clean.toLowerCase().includes('order from '+merchant[2].toLowerCase());
+ const generic=/^(?:your|our|next|first|all|every|each|any|an?\s|the\b|up to|on\b|Uber\b|meals?\b|orders?\b|deliver(?:y|ies)\b|food\b|eats\b|restaurants?\b|\d)/i;
+ if(namedTheShop||merchant&&(merchant[1]&&!/^(?:selected|participating|eligible) restaurants?\b/i.test(merchant[2])||/^[A-ZÀ-ÖØ-Þ]/u.test(merchant[2])&&!generic.test(merchant[2]))||/\b\d+\s*[-–]?for[-–]?\s*\d+\s+at\s+/i.test(subject)||/\b(?:all your |your )?local favourites\b/i.test(subject))return bin('owner_excluded_merchant_offer','Owner excludes named-shop, product and local-shop-only deals. Generic selected-restaurant personal offers remain eligible.');
+ if(/\b(?:school term|back to school)\b/i.test(subject)&&/\b(?:link|create|sign up)\b.{0,90}\bteen(?:s)? account\b/i.test(lead))return bin('owner_excluded_prerequisite_reward','Generic teen-account signup and grocery reward advertisement, not an unconditional personal Eats offer.');
+ if(/\bUber One\b/i.test(subject)&&/\b(?:get|earn)\s+(?:up to\s+)?\d+%\s+Uber One credits?\b/i.test(lead))return bin('owner_excluded_membership_offer','Membership credit-earning advertisement; existing Cash balances and actual credits remain separate.');
+ if(/\bunlock an easier way to ride\b|^Rep your team.s flag$/i.test(subject)&&/\bunsubscribe\b/i.test(clean))return bin('generic_transport_marketing','General app, ride-feature or customisation advertising excluded by the owner.');
+ if(/\b(?:your shortcut for spooky season|fuel up the squad|not ordered in a while|whatever your plans or budget)\b/i.test(subject))return bin('owner_excluded_discovery_marketing','Owner excludes this discovery or re-engagement advertising category.');
+ if(/\bleft something behind\b/i.test(subject)&&/\b(?:courier|send|parcel|package)\b/i.test(clean)){if(/\bunsubscribe\b/i.test(clean))return bin('generic_courier_marketing','Owner excludes courier advertising, including forgotten-item delivery promotions.');return decision('review','Courier wording might be an actual lost-item notice; ask the owner using its title before moving it.',null,{ownerQuestion:true});}
+ if(/\b(?:loved ones on the go|say hello to Uber Electric|get to the airport with ease|make your next work trip a breeze)\b/i.test(subject))return bin('generic_transport_marketing','Owner excludes travel, airport, work-trip and Uber Electric advertising.');
+ if(/\bunlock\s+25%\s+off\b/i.test(subject)&&/\b(?:complete|place|make)\s+(?:two|2)\s+(?:qualifying\s+)?orders?\b/i.test(clean))return bin('owner_excluded_prerequisite_reward','Owner excludes offers that first require completing two qualifying orders to unlock a later discount.');
+ return null;
+}
 export function explicitMailDecision(message,now=Date.now()){
  const subject=String(message.subject||''),text=receiptText(subject,message.body),sender=analyseSender(message.sender),address=String(message.sender||'').match(/<?([a-z0-9._%+-]+@([a-z0-9.-]+))>?(?:\s*)$/i),domain=address?.[2]?.toLowerCase();
  const eurostarSender=domain==='eurostar.com'||domain?.endsWith('.eurostar.com');
@@ -60,11 +101,13 @@ export function explicitMailDecision(message,now=Date.now()){
  if(mailIdentityExclusion(message)||hasForwardedReceiptClaims(subject,message.body))return null;
  if(isMarketingOnlyOrderThanks(message))return decision('generic_membership_marketing','The thanks-for-ordering subject is a marketing template, without transaction details; not a receipt.','Bin');
  if(/\breceipt\b|thanks for (?:your order|riding)|^your (?:trip|ride) (?:with|on)\b/i.test(subject)||/\b(?:order id|trip id|total paid|fare breakdown|ride total)\b/i.test(text.slice(0,2500)))return null;
+ if(/^Your Disney\+ promo code is on its way[!.]?$/i.test(subject.trim()))return decision('keep_owner_benefit','Owner asked to leave these Disney+ benefit emails in Inbox for now.','Inbox');
  if(/\bEurostar\b/i.test(subject)||eurostarSender)return decision('eurostar_folder','Owner requested all Eurostar emails in the Eurostar mailbox.','Eurostar');
  if(/\b(?:trains?|coach(?:es)?|Lumo|GWR)\b/i.test(subject)||/Go green on your next adventure/i.test(subject))return decision('generic_transport_marketing','General train or coach advertising is not a Eurostar campaign: owner requested Bin.','Bin');
  if(/Sainsbury.s|Pet Week|10% Back on every flight|30% off\? Yes, please|^Limited-time deals$|Stay home, JOE.s coming over|spook-tacular £3 treat|50% off fresh fruit|Chico.s Brick Lane|£10 off pickup orders over £25/i.test(subject))return decision('owner_excluded_campaign','Owner explicitly requested this merchant, product, pickup or flight campaign in Bin.','Bin');
  if(/^(?:New device sign[ -]?in|New device log[ -]?in|Land\s*1K\s*bonus Avios|From pre-drinks to the after-party)/i.test(subject))return decision('explicit_excluded_campaign','Owner specifically requested this sign-in notice or advertising campaign in Bin.','Bin');
  if(/^(?:phone|security|password|payment|refund|invoice)|verification|sign[ -]?in|log[ -]?in/i.test(subject))return null;
+ const ownerPreference=ownerMarketingPreference(message,text);if(ownerPreference)return ownerPreference;
  if(/^Book a table on Uber Eats and get a free ride(?:\s|[!🚗])*$/iu.test(subject.trim()))return decision('explicit_table_campaign','Owner specifically requested this table/free-ride campaign in Bin.','Bin');
  if(/\bBonfire Night\b/i.test(subject)&&/\bunsubscribe\b/i.test(text))return decision('owner_excluded_bonfire','Owner requested Bonfire Night advertising in Bin.','Bin');
  if(/\bCourier\b/i.test(subject)&&/\b(?:send|delivery|packages?|parcels?)\b/i.test(text)&&/\bunsubscribe\b/i.test(text))return decision('generic_courier_marketing','Courier service advertising is excluded generic Uber marketing.','Bin');
@@ -73,6 +116,7 @@ export function explicitMailDecision(message,now=Date.now()){
  if(/30% off snacks at Co-op/i.test(subject)&&/30% off selected range|selected.{0,20}snacks/i.test(text))return decision('owner_excluded_campaign','Item-level Co-op snack advertising, excluded product promotion.','Bin');
  if(at(message.sentAt||message.receivedAt)==null)return null;
  const promo=parseUberPromo(message),scope=promo.evidence?.discountScope||promo.offerScope;
+ if(promo.isPromo&&promo.service==='Uber Eats'&&promo.discountType==='fixed'&&promo.discount===8&&promo.minimumSpend===25)return decision('owner_excluded_8_off_25','Owner explicitly excludes £8 off a £25 minimum offer emails; existing tracker records stay intact.','Bin');
  if(promo.isPromo&&promo.service==='Uber Eats'&&promo.discountType==='fixed'&&promo.discount===15&&promo.minimumSpend===25)return decision('owner_excluded_15_off_25','Owner requested £15 off £25 offer emails in Bin; receipt and tracker history remain protected.','Bin');
  const sent=at(message.sentAt||message.receivedAt);
  const personalPercentageHeadline=/\d+%\s+off\s+your\s+(?:next|first)\s+(?:\d+\s+)?(?:meals?|orders?)\b/i.test(subject);
@@ -80,7 +124,7 @@ export function explicitMailDecision(message,now=Date.now()){
  const genuineOrderTerms=promo.isPromo&&scope==='order'&&/\b(?:minimum spend|use (?:promo )?code|valid on .{0,20}orders|your next .{0,12}orders)\b/i.test(text);
  const redeemableOrderTerms=/\b(?:us(?:e|ing)|enter|apply)\s+(?:the\s+)?(?:promo(?:tional)?\s+)?code\b|\byour\s+(?:next|first)\s+.{0,28}(?:orders?|meals?)\b|\b(?:minimum spend|maximum discount|discount capped)\b/i.test(text);
  const discovery=/^(?:All the trusted picks|Crowd favourites, delivered|Feeling peckish\?|Restaurants everyone is loving|Satisfy your cravings|Widely loved and popular|Your favourites are calling|Delicious meal on your mind\? Let us help\.)$/i.test(subject.trim());
- const discoveryTemplate=/\b(?:Order from these restaurants near you|Check out these affordable options near you|Take a look at these trending restaurants|Order from these familiar favourites|Most popular restaurants near you|Budget-friendly restaurants near you|Help yourself to these restaurants)\b/i.test(text);
+ const discoveryTemplate=/\b(?:Order from these restaurants near you|Check out these affordable options near you|Take a look at these trending restaurants|Order from these familiar favourites|Most popular restaurants near you|Budget-friendly restaurants near you|Help yourself to these restaurants|Reorder and satisfy your cravings|Tasty treats from local restaurants|Popular plates in your area|Need inspiration for another order|There are so many flavours to choose from)\b/i.test(text);
  if((discovery||discoveryTemplate)&&!redeemableOrderTerms)return decision('generic_marketing','Restaurant discovery advert with menu prices, not a personal redeemable offer.','Bin');
  if(/discount percentage varies per item|percentage off of the original price of the item/i.test(text)&&!redeemableOrderTerms)return decision('owner_excluded_campaign','Product and shopping advert: its terms describe item discounts, not a personal account offer.','Bin');
  if(/^Turn takeaways into getaways/i.test(subject)&&/collect Avios|British Airways Club/i.test(text))return decision('generic_marketing','Avios loyalty advertising, excluded by the owner.','Bin');
@@ -101,8 +145,19 @@ export function explicitMailDecision(message,now=Date.now()){
  return null;
 }
 
-export function createMailReviewContext({accounts,snapshot,finance,receiptImported=()=>false,now=Date.now()}) {
+// Read existing field-level confirmations only. Roster omission and a database
+// default of can_login=0 are never evidence that an account is inaccessible.
+export function historicalMailAccess(db){
+ return db.prepare("SELECT a.account_ref AS accountRef,a.alias AS email,f.status,f.source,f.recorded_at AS recordedAt FROM accounts a JOIN account_login_fields f USING(account_ref) WHERE f.field='access' AND f.value_json='false' AND f.status IN ('confirmed','imported') AND f.source IN ('codex_chat','access_list') AND a.can_login=0 AND a.login_access='inaccessible'").all().map(({status,source,recordedAt,...a})=>({...a,canLogin:false,accessEvidence:{value:false,status,source,recordedAt}}));
+}
+
+export function createMailReviewContext({accounts,historicalAccess=[],snapshot,finance,receiptImported=()=>false,now=Date.now()}) {
  const byEmail=new Map(accounts.accounts.map(a=>[a.email.trim().toLowerCase(),a]));
+ for(const a of historicalAccess){
+  const email=typeof a.email==='string'?a.email.trim().toLowerCase():'',e=a.accessEvidence;
+  if(byEmail.has(email)||!email||!a.accountRef||a.canLogin!==false||e?.value!==false||!['confirmed','imported'].includes(e.status)||!['codex_chat','access_list'].includes(e.source)||!Number.isFinite(Date.parse(e.recordedAt)))continue;
+  byEmail.set(email,{...a,email,mailOnlyHistorical:true});
+ }
  const publicIds=new Map(accounts.offerIdMigrations.map(m=>[m.from,m.to]));
  const offers=new Map(),receipts=new Map(finance.receipts.map(r=>[r.receiptId,r]));
  for(const offer of snapshot.promos){offers.set(offer.id,offer);for(const id of offer.previousOfferIds||[])if(!offers.has(id))offers.set(id,offer);}
@@ -144,7 +199,15 @@ export function createMailReviewContext({accounts,snapshot,finance,receiptImport
 
 export function reviewMailMessage(message,context){
  const subject=String(message.subject||''),text=receiptText(subject,message.body),sender=analyseSender(message.sender);
- const explicit=explicitMailDecision(message,context.now);if(explicit)return {...explicit,accountEmail:extractAccountAlias(message.recipient)};
+ const explicit=explicitMailDecision(message,context.now),confirmed=context.byEmail.get(extractAccountAlias(message.recipient));
+ if(!explicit&&sender.trusted===true&&sender.confidence==='high'&&!isReceiptMail(message)&&/\b(?:payment (?:failed|declined|received|confirmation|receipt)|billing (?:problem|issue)|refund|invoice|amount charged|credits? (?:added|received)|membership (?:cancelled|canceled|ended))\b/i.test(subject))return {...decision('protected_transaction_notice','Actual billing, payment, refund or credited-balance record; leave intact.'),accountEmail:extractAccountAlias(message.recipient)};
+ // A confirmed inaccessible Uber account cannot supply a usable offer, including
+ // Cash. Preserve actual transactions and identity messages before this rule.
+ if(confirmed?.canLogin===false&&sender.trusted===true&&sender.confidence==='high'&&!isReceiptMail(message)&&!mailIdentityExclusion(message)&&!hasForwardedReceiptClaims(subject,message.body)&&!['protected_transaction_notice','keep_owner_benefit'].includes(explicit?.category)){
+  const p=parseUberPromo(message);
+  if(p.isPromo||explicit?.category==='eurostar_folder'||/\b(?:promo(?:tion)?|offer)\b|\bUber Cash\b.{0,60}\b(?:waiting|available|use|enjoy)\b/i.test(subject))return {...decision('inaccessible_offer','Confirmed cannot log in: bin every Uber offer, including Cash, regardless of expiry.','Bin'),accountRef:confirmed.accountRef,accountEmail:extractAccountAlias(message.recipient)};
+ }
+ if(explicit)return {...explicit,accountEmail:extractAccountAlias(message.recipient)};
  if(sender.trusted!==true||sender.confidence!=='high')return decision('review','Sender is not verified as Uber.');
  if(hasForwardedReceiptClaims(subject,message.body))return decision('review','Forwarded identity needs checking.');
  const alias=extractAccountAlias(message.recipient),account=context.byEmail.get(alias);
@@ -160,7 +223,7 @@ export function reviewMailMessage(message,context){
   return result('file_receipt','Receipt is already saved in the tracker.','Uber Receipts');
  }
  const identityExclusion=mailIdentityExclusion(message);
- if(identityExclusion)return result(identityExclusion,identityExclusion==='excluded_login_code'?'Login verification code: leave in its current folder.':'Phone-number update: leave in its current folder.');
+ if(identityExclusion)return result(identityExclusion,identityExclusion==='excluded_login_code'?'Login verification code: leave in its current folder.':identityExclusion==='excluded_login_link'?'Account email verification link: leave in its current folder.':'Phone-number update: leave in its current folder.');
  if(account.canLogin===false)return result('inaccessible_other','Cannot log in: bin other Uber emails immediately.','Bin');
  if(/\bEurostar\b/i.test(subject))return result('excluded_eurostar','Accessible account: Eurostar is excluded; leave where it is.');
  const promo=parseUberPromo(message),scope=promo.evidence?.discountScope||promo.offerScope;
@@ -176,6 +239,12 @@ export function reviewMailMessage(message,context){
   if(end==null)return result('review','Eats percentage expiry is unknown, inferred or estimated; leave for review.');
   return end<=context.now?result('expired_eats_percentage','Owner requested expired Eats percentage promotions in Bin; imported history stays saved.','Bin'):result('current_eats_percentage','Keep unexpired Eats percentage offers in Inbox for a possible later Cash combination.','Inbox');
  }
+ // The owner chose archival evidence, not an assumed zero-use/completed state.
+ // Unmapped campaigns need their own explicit source date and full offer terms.
+ const expiredUnknown=(end,extra={})=>result('retain_one_expired_unknown_offer','Expired personal offer with unknown usage: archive the latest source and bin only duplicates.','Archive',{...extra,family:JSON.stringify([account.accountRef,offerFingerprint({...promo,accountRef:account.accountRef}),end]),deduplicate:true,usageUnknown:true});
+ if(!offer&&promo.isPromo&&promo.service==='Uber Eats'&&promo.discountType==='fixed'&&scope==='order'&&positive(promo.discount)&&promo.evidence?.discount&&promo.evidence?.minimumSpend){
+  const end=sourceConfirmedExpiry(promo);if(end!=null&&end<=context.now)return expiredUnknown(end);
+ }
  if(promo.isPromo&&(!offer||scope==='uncertain'))return result('review','Offer campaign identity is not established.');
  if(offer){
   const u=context.usage(offer),end=expiryEndTime(applyOfferExpiryPolicy(offer));
@@ -185,7 +254,7 @@ export function reviewMailMessage(message,context){
   const extra={offerId:offer.id,offerTitle:offer.title,family:offer.id};
   if((preferred||cash||percent)&&u.used&&(u.full||expired||cash))return result('retain_one_used_offer','Used offer: archive the latest source and bin campaign duplicates.','Archive',{...extra,deduplicate:true});
   if((preferred||cash||percent)&&expired&&u.known&&!u.used)return result('expired_unused_offer','Expired offer is explicitly known to be unused.','Bin',extra);
-  if(!u.known&&expired)return result('review','Expired offer usage is unknown; do not assume unused.',null,extra);
+  if(!u.known&&expired)return expiredUnknown(end,extra);
   if(percent){
    if(context.cashOverlap(offer))return result('keep_percentage_cash','Eats percentage and Cash have overlapping dates; compatibility and usage remain separate.',null,extra);
    return result('review','Eats percentage offer has no verified overlapping Cash campaign.',null,extra);
@@ -205,5 +274,6 @@ export function campaignWinner(current,candidate){
 export function finalizeMailDecision(source,classification,winner){
  if(!classification.deduplicate)return classification;
  const same=winner&&winner.accountId===source.accountId&&JSON.stringify(winner.path)===JSON.stringify(source.path)&&winner.nativeId===source.nativeId;
+ if(classification.usageUnknown)return same?classification:{...classification,category:'duplicate_expired_unknown_offer',reason:'Duplicate of the same expired campaign; latest source is retained in Archive and usage remains unknown.',destination:'Bin',retentionProof:{accountId:winner.accountId,messageId:winner.message.messageId,raw:winner.sourceRaw||winner.raw}};
  return same?classification:{...classification,category:'duplicate_used_offer',reason:'Duplicate of the same used campaign; latest email is retained in Archive.',destination:'Bin',retentionProof:{accountId:winner.accountId,messageId:winner.message.messageId,raw:winner.sourceRaw||winner.raw}};
 }
