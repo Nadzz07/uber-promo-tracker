@@ -43,7 +43,7 @@ try{
   await page.evaluate(async()=>{await Promise.all(document.getAnimations().filter(a=>a.effect?.getComputedTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{})));});
   const rows=page.locator('.plan-accounts .plan-row');
   assert.equal(await rows.count(),2);
-  assert.deepEqual(await page.locator('.plan-promo').allTextContents(),['£12 off £15','£12 off £15']);
+  assert.deepEqual(await page.locator('.plan-promo').allTextContents(),['£12 off £15Selected merchants','£12 off £15Selected merchants']);
   assert.deepEqual(await page.locator('.plan-subtotal').allTextContents(),['£15 basket · £1 fee','£15 basket · £1 fee']);
   assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£4.00','£4.00']);
   assert.equal(await page.locator('.plan-login').count(),0,'Compact plan rows leave provider details in the existing account interaction');
@@ -75,7 +75,7 @@ try{
     const background=getComputedStyle(document.body,'::before');
     return{header:rect(head),headerColor:getComputedStyle(head).backgroundColor,ancestors,background:{height:parseFloat(background.height),color:background.backgroundColor,filter:background.filter},nav:rect(document.querySelector('.bottom-nav')),padding:parseFloat(getComputedStyle(document.body).paddingBottom),overflow:document.documentElement.scrollWidth>innerWidth};
    });
-   if(width<980){assert.equal(layout.header.top,top+24,'Only the shell applies the top inset');assert.equal(layout.background.height,top);assert.equal(layout.background.color,layout.headerColor);assert.equal(layout.background.filter,'none');if(large)assert.ok(layout.nav.height>100,'Clearance follows actual enlarged dock height');}
+   if(width<980){assert.equal(layout.header.top,top+24,'Only the shell applies the top inset');assert.equal(layout.background.height,top);assert.equal(layout.background.color,layout.headerColor);assert.equal(layout.background.filter,'none');if(large)assert.ok(Math.abs(layout.nav.height-66)<1,'The shared dock token stays 66px with enlarged text');}
    for(const ancestor of layout.ancestors){assert.ok(ancestor.filter==='none'||ancestor.filter==='blur(0px)');assert.equal(ancestor.backdrop,'none');assert.ok(!['clip','hidden'].includes(ancestor.overflowY),'No ancestor clips vertical page scrolling');}
    assert.equal(layout.overflow,false);
    for(const expanded of [false,true]){
