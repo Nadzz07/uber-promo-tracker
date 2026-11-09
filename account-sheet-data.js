@@ -1,3 +1,4 @@
+import {offerRestrictionRank} from './offer-details.js';
 import {dedupeReceipts} from './receipt-identity.js';
 import {receiptWhen} from './receipt-date.js';
 import {getOfferManualState,promotionActivity,promoStateKey,pendingManualEntries,pendingManualUses} from './manual-state.js';
@@ -136,6 +137,10 @@ export function accountHistoryGroups(promos=[],grants=[],store={},now=new Date()
 export const DIRECTORY_SHOW_CHOICES=[{key:'active',label:'Active'},{key:'expiring',label:'Expiring soon'},{key:'review',label:'Needs checking'},{key:'expired',label:'Expired'},{key:'finished',label:'Finished'},{key:'archived',label:'Archived'}];
 export function normalizeDirectoryShow(value){return DIRECTORY_SHOW_CHOICES.some(c=>c.key===value)?value:({used:'finished','expired-unused':'expired',pending:'review',attention:'review'}[value]||'active');}
 
+// A recorded absence of merchant restrictions has recommendation priority.
+// Missing fields stay unknown; they never establish unrestricted eligibility.
+export const merchantPreferenceRank=offerRestrictionRank;
+
 // Filter the complete account projection before pagination. All offer predicates
 // are evaluated on one candidate collection, never unrelated headline offers.
 export function directoryAccounts(accounts,filters,preferences,{emailFor=a=>a.accountMasked||'',valueFor=()=>null,now=Date.now()}={}) {
@@ -171,9 +176,9 @@ export function directoryAccounts(accounts,filters,preferences,{emailFor=a=>a.ac
   if(management==='offers'&&!candidates.length&&!cash)continue;
   if(!['tracked','finished','expired-unused','expired','review','offers','unfinished','expiring'].includes(management)&&!matchesAccountFilter({...account,hasEligibleOffers:scoped.hasEligibleOffers||candidates.some(p=>p.hiddenByPromoUse)},management))continue;
   if(availability!=='any'&&(!scoped.hasEligibleOffers||availability==='ready'&&!scoped.recommendationEligible||availability==='archived'&&!account.archived||availability==='attention'&&scoped.recommendationEligible))continue;
-  const values=candidates.map(valueFor).filter(v=>v!=null&&Number.isFinite(v));
-  candidates.sort((a,b)=>Number(Boolean(a.hiddenByPromoUse))-Number(Boolean(b.hiddenByPromoUse))||(valueFor(b)??-Infinity)-(valueFor(a)??-Infinity)||String(a.id||a.offerId).localeCompare(String(b.id||b.offerId)));
-  results.push({...account,directoryOffers:candidates,directoryValue:values.length?Math.max(...values):null});
+  candidates.sort((a,b)=>Number(Boolean(a.hiddenByPromoUse))-Number(Boolean(b.hiddenByPromoUse))||Number(!Number.isFinite(valueFor(a)))-Number(!Number.isFinite(valueFor(b)))||(valueFor(b)??-Infinity)-(valueFor(a)??-Infinity)||merchantPreferenceRank(a)-merchantPreferenceRank(b)||String(a.id||a.offerId).localeCompare(String(b.id||b.offerId)));
+  const best=candidates[0],value=best?valueFor(best):null;
+  results.push({...account,directoryOffers:candidates,directoryValue:Number.isFinite(value)?value:null,directoryMerchantRank:merchantPreferenceRank(best)});
  }
  const identity=(a,b)=>String(emailFor(a)).localeCompare(String(emailFor(b)),'en-GB',{sensitivity:'base'})||String(a.accountRef).localeCompare(String(b.accountRef));
  return results.sort((a,b)=>{
@@ -181,6 +186,6 @@ export function directoryAccounts(accounts,filters,preferences,{emailFor=a=>a.ac
   const readiness=(filters.type!=='all'||availability!=='any'||['offers','unfinished','expiring'].includes(management))?offerReadinessRank(a)-offerReadinessRank(b):0;
   if(readiness)return readiness;
   if(a.directoryValue==null||b.directoryValue==null)return Number(a.directoryValue==null)-Number(b.directoryValue==null)||identity(a,b);
-  return b.directoryValue-a.directoryValue||identity(a,b);
+  return b.directoryValue-a.directoryValue||a.directoryMerchantRank-b.directoryMerchantRank||identity(a,b);
  });
 }

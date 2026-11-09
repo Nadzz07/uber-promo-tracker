@@ -11,9 +11,13 @@ export async function directoryStatus(page,value) {
  const key=({all:'active',tracked:'active',offers:'active',unfinished:'active',used:'finished','expired-unused':'expired',pending:'review'}[value]||value);
  if(!await page.locator('#accountShowOptions').isVisible())await page.locator('#accountShowTrigger').click();await page.locator('[data-show-accounts="'+key+'"]').click();
 }
-export async function directoryType(page,value) {
- if(!await page.locator('#accountTypeOptions').isVisible())await page.locator('#accountTypeTrigger').click();const main=page.locator('[data-offer-type="'+value+'"]');if(await main.count())await main.click();else{await page.locator('[data-offer-type="other"]').click();await page.locator('[data-catalogue-value="'+value+'"]').click();}
+export async function directoryType(page,value){
+ if(!await page.locator('#accountTypeOptions').isVisible())await page.locator('#accountTypeTrigger').click();
+ await page.locator('[data-offer-clear]').click();
+ if(value!=='all'){const keys=value==='preferred'?await page.locator('[data-offer-multi]').evaluateAll(es=>es.slice(0,3).map(e=>e.dataset.offerMulti)):[value];for(const key of keys)await page.locator('[data-offer-multi="'+key+'"]').click();}
+ await page.locator('[data-offer-apply]').click();
 }
+
 export async function directoryReset(page) {
  await page.locator('#accountSearch').fill('');await page.locator('[data-login-filter="all"]').click();await page.locator('#accountProvider').selectOption('all');
  await directoryType(page,'all');
@@ -68,6 +72,7 @@ export async function navigate(page,view) {
  else await page.locator('#mainNav [data-view="'+view+'"]').click();
 }
 export async function openMoreDestination(page,destination) {
+ if(destination==='locked'){await navigate(page,'accounts');await directoryReset(page);await directoryStatus(page,'archived');return;}
  if(await page.evaluate(()=>matchMedia('(min-width:768px)').matches))await page.locator('.desktop-sidebar [data-sidebar-key="'+destination+'"]').click();
  else {await navigate(page,'more');await page.locator('#view-more '+(destination==='help'?'[data-open-guide]':destination==='planner'?'[data-jump-planner]':'[data-open-sheet="'+destination+'"]')).click();}
 }

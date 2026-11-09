@@ -16,12 +16,12 @@ an automatic cleanup schedule as part of this workflow.
   promotions of any discount type, but never confuse them with Ride receipts.
 - Keep usable preferred Eats offers: £10/£12/£15 off a £15 minimum, and Cash.
 - For each reliably identified campaign: once fully used, retain the latest
-  offer email in Archive and bin duplicates. Do the same for a partly used
+  offer email in Inbox and archive older copies. Do the same for a partly used
   campaign once its exact expiry has passed. Bin all copies of a demonstrably
   unused expired campaign. Unknown usage/expiry never means zero/expired.
 - Percentage Eats offers can be useful alongside same-account Cash with
   overlapping dates. This is not proof of checkout compatibility or joint use.
-  Archive one latest source for each used campaign, with duplicates in Bin.
+  Keep the latest used-campaign source in Inbox and older copies in Archive.
   If only Cash was used, do not infer percentage use; bin the unused percentage
   campaign after verified expiry. Keep uncertain cases for review.
 - After receipt-supported promo completion, bin other non-excluded Uber mail.
@@ -221,3 +221,20 @@ New receipt-linked identities are still checked against the current roster.
 The owner subsequently chose to leave emails titled ‘Your Disney+ promo code is
 on its way’ in Inbox for now. Keep this explicit benefit exception until the
 owner changes it; it is not a reason to keep other membership advertising.
+
+
+## Latest owner correction — used campaign emails
+
+For a receipt-confirmed fully used campaign, keep its latest promo email in Inbox
+and archive every older promo email from that same campaign. Apply exactly the
+same routing to a partly used campaign after its confirmed expiry. Do not bin
+those older emails. Preserve the actual matched count: two of three remains two
+of three, expired; do not invent a third use. Confirmed-unused expired campaigns
+still go entirely to Bin. Separate campaigns stay separate by account, terms,
+maximum uses and validity window. A matching discount amount alone is insufficient.
+This supersedes earlier used-campaign latest-in-Archive/duplicates-in-Bin wording.
+Unknown usage is not proof of unused status. Receipts and other safeguards remain.
+
+## Owner clarification — 9 November
+
+Bin “Browse new deals”. Keep “Dig in to up to £15 off” and “24 hours until your £ Uber voucher expires ⏳” while their personal-offer terms are uncertain. This does not confirm expiry, usage or balance, and does not make an inaccessible account usable.

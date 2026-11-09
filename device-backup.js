@@ -1,3 +1,4 @@
+import {validateLocalOfferEdits} from './offer-local-edits.js';
 import {encryptDeviceFile,decryptDeviceFile,LEGACY_FILE_MESSAGE} from './device-file-key.js';
 import {validateFinanceData,encryptFinance,decryptFinance,FINANCE_STORAGE_KEY,commitDeviceRestore,mergeFinanceData} from './private-finance-vault.js';
 import {deviceEmail} from './device-accounts.js';
@@ -18,7 +19,8 @@ function validateValues(values){
   if(key.endsWith('manual-state:v3')){
    if(value.version!=null&&value.version!==3||!object(value.offers)||value.accountRecords&&!object(value.accountRecords))throw Error('Unsupported manual usage version.');
    for(const state of Object.values(value.offers))if(!object(state)||state.manualUsesConsumed!=null&&(!Number.isInteger(state.manualUsesConsumed)||state.manualUsesConsumed<0)||state.history!=null&&!Array.isArray(state.history))throw Error('Invalid manual usage.');
-   for(const state of Object.values(value.offers))if(['ignored','forceDone','competitionRestored'].some(k=>state[k]!=null&&typeof state[k]!=='boolean'))throw Error('Invalid saved offer state.');
+   for(const state of Object.values(value.offers))if(['ignored','forceDone','competitionRestored','removed'].some(k=>state[k]!=null&&typeof state[k]!=='boolean'))throw Error('Invalid saved offer state.');
+   for(const state of Object.values(value.offers))if(state.fieldEdits)validateLocalOfferEdits(state.fieldEdits);
    for(const r of Object.values(value.accountRecords||{}))if(!object(r)||r.note!=null&&(typeof r.note!=='string'||r.note.length>10000)||r.archived!=null&&typeof r.archived!=='boolean')throw Error('Invalid saved account change.');
   }
   if(key.endsWith('planner-settings:v1')&&value.basketSubtotal!=null&&value.basketSubtotal!==''&&(!Number.isFinite(Number(value.basketSubtotal))||Number(value.basketSubtotal)<0||Number(value.basketSubtotal)>1000))throw Error('Invalid saved basket.');

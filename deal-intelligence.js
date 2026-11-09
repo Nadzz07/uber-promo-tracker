@@ -1,3 +1,6 @@
+import {offerRestrictionRank} from './offer-details.js';
+const restrictionDifference=(a,b)=>a&&b?offerRestrictionRank(a)-offerRestrictionRank(b):0;
+const planRestrictionTie=(a,b)=>a.orders.some(o=>o.promo)&&b.orders.some(o=>o.promo)?a.orders.reduce((n,o)=>n+(o.promo?offerRestrictionRank(o.promo):0),0)-b.orders.reduce((n,o)=>n+(o.promo?offerRestrictionRank(o.promo):0),0):0;
 import { isOfferExpired, ukDateKey } from "./offer-time.js";
 import {cashAwarePlans,cashForOrder} from './cash-planner.js';
 
@@ -149,6 +152,9 @@ export function rankPromosForSpend(
       if (b.calculation.saving !== a.calculation.saving) {
         return b.calculation.saving - a.calculation.saving;
       }
+
+      const restrictionTie=restrictionDifference(a.promo,b.promo);
+      if(restrictionTie)return restrictionTie;
 
       if (b.calculation.effectivePercent !== a.calculation.effectivePercent) {
         return b.calculation.effectivePercent - a.calculation.effectivePercent;
@@ -470,14 +476,14 @@ export function rankBasketPlans(promos = [], subtotal, {
   }
   if(requiredPromoId)for(let i=candidates.length-1;i>=0;i--)if(!candidates[i].orders.every(order=>(order.promo?.id||order.promo?.offerId)===requiredPromoId))candidates.splice(i,1);
   // Cost is primary. Fewer orders and conserving Cash break equal-cost ties.
-  candidates.sort((a, b) => a.estimatedPay - b.estimatedPay || a.cashUsed - b.cashUsed || a.orderCount - b.orderCount);
+  candidates.sort((a, b) => a.estimatedPay - b.estimatedPay || planRestrictionTie(a,b) || a.cashUsed - b.cashUsed || a.orderCount - b.orderCount);
   for (const plan of candidates) plan.key = plan.kind + ':' + plan.orders.map(o => [o.accountRef, o.promo?.id || 'wallet', o.subtotal].join('/')).join('|');
   const suggested = candidates[0];
   if (!suggested) return {suggested: null, plans: [], reason:'No eligible checkout option fits this basket and offer scope.'};
   // A few ordering strategies, rather than repeated accounts with the same
   // deal. Preserve conditional Cash comparisons, clearly labelled for review.
   const seen = new Set(), distinct = candidates.filter(plan => {
-    const signature = [plan.kind, plan.orderCount, plan.grossSaving, plan.cashUsed, plan.estimatedPay, plan.conditional].join('|');
+    const signature = [plan.kind,plan.orders.map(o=>[o.accountRef,o.promo?.id||o.promo?.offerId||'wallet',o.subtotal].join(':')).sort().join('|'),plan.estimatedPay,plan.conditional].join('|');
     if (seen.has(signature)) return false;
     seen.add(signature); return true;
   });
@@ -498,5 +504,5 @@ export function rankCheckoutOptions(promos=[],subtotal,{wallets={},accounts=[],f
   const add=(promo,ref,discount,cashUsed,kind,conditional=false)=>{const w=walletFor(ref),knownFee=number(fees[ref]),estimatedFee=knownFee==null?roundMoney(Math.max(0,number(orderFeeEstimate)||0)):0,fee=knownFee!=null&&knownFee>=0?knownFee:estimatedFee;const beforeCash=roundMoney(Math.max(0,basket-discount)+fee),cash=cashUsed>0?cashForOrder(w,promo,basket,discount,fee,{now}):{used:0,basis:null,conditional:false};const spent=cash.used;if(kind==='promo_cash'&&spent<=0)return;result.push({promo,accountRef:ref,basket,promotionDiscount:discount,cashUsed:spent,cashBasis:cash.basis,fees:knownFee!=null?fee:null,estimatedFee,outOfPocket:roundMoney(beforeCash-spent),cashRemaining:w?roundMoney(Number(w.balance)-spent):null,kind,conditional:spent>0&&(conditional||cash.conditional),estimated:knownFee==null,expires:promo?.expires||null,restriction:promo?.restrictions||null});};
   for(const item of rankPromosForSpend(promos.filter(p=>p.discountType!=='uberCash'&&matchesFulfilment(p,fulfilment)),basket,{service:'Uber Eats',accessibleOnly:true})) {const p=item.promo,ref=p.accountRef;if(accounts.length&&!byAccount.has(ref))continue;add(p,ref,item.calculation.saving,0,'promo');const w=walletFor(ref);if(w&&Number(w.balance)>0&&w.stacking!=='unsupported')add(p,ref,item.calculation.saving,Number(w.balance),'promo_cash',w.stacking!=='supported');}
   for(const [ref]of byAccount){const w=walletFor(ref);if(w&&Number(w.balance)>0)add(null,ref,0,Number(w.balance),'cash');}
-  return result.sort((a,b)=>Number(a.conditional)-Number(b.conditional)||a.outOfPocket-b.outOfPocket||a.cashUsed-b.cashUsed||((a.promo?.discountType==='fixed'&&b.promo?.discountType==='fixed')?Number(a.promo.discount)-Number(b.promo.discount):0)||b.cashRemaining-a.cashRemaining||b.promotionDiscount-a.promotionDiscount||String(a.expires||'9999').localeCompare(String(b.expires||'9999'))||a.accountRef.localeCompare(b.accountRef));
+  return result.sort((a,b)=>Number(a.conditional)-Number(b.conditional)||a.outOfPocket-b.outOfPocket||restrictionDifference(a.promo,b.promo)||a.cashUsed-b.cashUsed||((a.promo?.discountType==='fixed'&&b.promo?.discountType==='fixed')?Number(a.promo.discount)-Number(b.promo.discount):0)||b.cashRemaining-a.cashRemaining||b.promotionDiscount-a.promotionDiscount||String(a.expires||'9999').localeCompare(String(b.expires||'9999'))||a.accountRef.localeCompare(b.accountRef));
 }

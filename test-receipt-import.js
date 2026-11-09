@@ -11,3 +11,15 @@ await assert.rejects(()=>prepareReceiptImport(vault,{kind:'random'}),/private re
 const legacy={kind:'uber-tracker-encrypted-finance',schemaVersion:1};await assert.rejects(()=>prepareReceiptImport(vault,legacy),/convert/);
 const duplicates=await prepareReceiptImport(vault,{...source,receipts:[...vault.data.receipts,...vault.data.receipts]});assert.equal(duplicates.changes,0);assert.equal(duplicates.counts.unchanged,4);
 console.log('✓ Receipt import preview: exclusive new/updated/unchanged/rejected counts, partial identity rejection, zero/currency, no preview writes, preserved corrections, repeated import, conflicting IDs and legacy compatibility.');
+// A refreshed export can add matching evidence without changing any receipt.
+// It must still offer Import: otherwise all linked account-use counts stay stale.
+const linked={...structuredClone(vault.data),kind:'uber-tracker-private-finance',exportedAt:'2026-11-09T12:00:00Z',receiptMatchVersion:1,receiptMatchExportedAt:'2026-11-09T12:00:00Z',offerReceiptMatches:[{receiptId:'r1',accountRef:'A1',offerId:'offer-1',status:'confirmed'}]};
+const matchingOnly=await prepareReceiptImport(vault,linked);
+assert.equal(matchingOnly.changes,0);
+assert.ok(matchingOnly.historyChanges>0,'Updated receipt links must enable the import action');
+await applyDeviceRestore(vault,matchingOnly.plan);
+assert.equal(vault.data.offerReceiptMatches[0].offerId,'offer-1');
+assert.deepEqual(vault.data.events,events,'Matching refresh preserves saved corrections');
+const matchingRepeat=await prepareReceiptImport(vault,linked);
+assert.equal(matchingRepeat.historyChanges,0,'Identical receipt links do not cause repeat imports');
+console.log('✓ Matching-only receipt refresh is importable, updates linked usage, and remains idempotent.');

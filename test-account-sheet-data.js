@@ -243,3 +243,14 @@ console.log('✓ Preferred Home scope: saved custom/empty choices, unique accoun
  assert.equal(JSON.stringify(rows),before,'Filter views never rewrite access or usage evidence');
 }
 console.log('✓ Six Show choices, legacy route mapping, combined finished view, pending login remains unconfirmed and source records remain unchanged.');
+
+{
+ const now=Date.parse('2026-11-08T12:00:00Z');
+ const offer=(id,ref,discount,limited)=>({id,accountRef:ref,service:'Uber Eats',discountType:'fixed',discount,minimumSpend:15,minimumSpendVerified:true,uses:5,usesVerified:true,receiptConfirmedUses:0,usesRemaining:5,trackingState:'available',expiresAt:'2026-12-04T00:00:00Z',expiryStatus:'exact',restrictions:limited==null?{}:{merchantLimited:limited}});
+ const account=(ref,ps)=>({accountRef:ref,accountMasked:ref,canLogin:true,accountStatus:'active',promos:ps,allOffers:ps,hasEligibleOffers:true});
+ const records=[account('restricted',[offer('restricted-12','restricted',12,true)]),account('mixed',[offer('mixed-restricted','mixed',12,true),offer('mixed-general','mixed',10,false)]),account('unknown',[offer('unknown-15','unknown',15,null)])];
+ records.push(account('tie',[offer('tie-limited','tie',12,true),offer('tie-general','tie',12,false)]));
+ const before=JSON.stringify(records),run=sort=>directoryAccounts(records,{type:'all',management:'tracked',login:'all',provider:'all',sort},{},{now,valueFor:p=>p.discount});
+ const best=run('best');assert.equal(best.find(a=>a.accountRef==='tie').directoryOffers[0].id,'tie-general');assert.equal(best[0].accountRef,'unknown');assert.equal(best.find(a=>a.accountRef==='mixed').directoryOffers[0].id,'mixed-restricted');assert.equal(best.find(a=>a.accountRef==='mixed').directoryValue,12);assert.equal(best.find(a=>a.accountRef==='mixed').directoryOffers.length,2,'Restricted choice stays available');assert.equal(best.find(a=>a.accountRef==='unknown').directoryMerchantRank,1,'Unknown is not confirmed unrestricted');assert.deepEqual(run('email').map(a=>a.accountRef),['mixed','restricted','tie','unknown']);assert.equal(JSON.stringify(records),before,'Sorting does not alter source terms or usage');
+ console.log('✓ Accounts prioritize recorded unrestricted offers; selected-restaurant choices remain available; unknown terms, email sorting and source data are preserved.');
+}

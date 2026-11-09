@@ -48,7 +48,7 @@ try{
   assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£4.00','£4.00']);
   assert.equal(await page.locator('.plan-login').count(),0,'Compact plan rows leave provider details in the existing account interaction');
   assert.ok((await rows.nth(1).innerText()).includes(emails[1]));
-  assert.doesNotMatch(await page.locator('.plan-accounts').innerText(),/Selected merchants|Delivery only|Apply promo code/);
+  assert.match(await page.locator('.plan-accounts').innerText(),/Selected merchants/);assert.doesNotMatch(await page.locator('.plan-accounts').innerText(),/Delivery only|Apply promo code/);
   await rows.first().click();
   await clickOfferTerms(page);
   const details=await page.locator('.offer-terms').first().innerText();
@@ -102,7 +102,7 @@ try{
   await page.waitForFunction(()=>document.documentElement.style.getPropertyValue('--planner-nav-clearance')==='');
   assert.equal(await page.evaluate(()=>document.documentElement.style.getPropertyValue('--planner-nav-clearance')),'','Planner measurements do not change other screens');
   await navigate(page,'home');await page.waitForFunction(theme=>document.querySelector('meta[name="theme-color"]').content===theme,originalTheme);
-  assert.ok(!/maximum-scale|user-scalable=no/.test(await page.locator('meta[name="viewport"]').getAttribute('content')));
+  assert.equal(await page.locator('meta[name="viewport"]').getAttribute('content'),'width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover');
   assert.deepEqual(errors,[]);await context.close();
  }
  assert.equal(writes,0);

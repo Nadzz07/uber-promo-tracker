@@ -6,7 +6,7 @@ import { transformSync, version as minifierVersion } from "esbuild";
 const payload = JSON.parse(fs.readFileSync("promos.json", "utf8"));
 const history = JSON.parse(fs.readFileSync("history.json", "utf8"));
 assertPublicSnapshot(payload, history);
-const files = ["account-expiry-tooltip.js","desktop-shell.js","weekly-savings.js","main-pages.css","icon-layout.css","home-design.css", "sync-data.js", "sync-data.css", "device-backup.js", "device-file-key.js", "receipt-import.js", "account-import.js", "planner-design.css", "receipt-insights.js", "receipt-insights.css", "theme-palette.js", "theme-system.css", "account-sheet-data.js", "receipt-identity.js", "index.html", "promos.json", "history.json", "deal-intelligence.js", "cash-ledger.js", "cash-planner.js", "offer-preferences.js", "preference-picker.js", "used-activity.js", "manual-state.js", "offer-time.js", "offer-state.js", "account-state.js", "offer-details.js", "appearance.js", "device-accounts.js", "desktop-layout.css", "ui-refinements.css", "nav-gestures.js", "dashboard-data.js", "receipt-date.js", "liquid-glass.js", "liquid-glass.css", "help-guide.js", "receipt-financials.js", "private-finance-vault.js", "private-finance-ui.js", "finance-layout.js"];
+const files = ["offer-local-edits.js","offer-edit-ui.js","interaction-motion.js","app-select-menus.js","app-select-menus.css","reference-finish.css","inter-variable-v4.1.woff2","Inter-LICENSE.txt","account-expiry-tooltip.js","desktop-shell.js","weekly-savings.js","main-pages.css","icon-layout.css","home-design.css", "sync-data.js", "sync-data.css", "device-backup.js", "device-file-key.js", "receipt-import.js", "account-import.js", "planner-design.css", "receipt-insights.js", "receipt-insights.css", "theme-palette.js", "theme-system.css", "account-sheet-data.js", "receipt-identity.js", "index.html", "promos.json", "history.json", "deal-intelligence.js", "cash-ledger.js", "cash-planner.js", "offer-preferences.js", "preference-picker.js", "used-activity.js", "manual-state.js", "offer-time.js", "offer-state.js", "account-state.js", "offer-details.js", "appearance.js", "device-accounts.js", "desktop-layout.css", "ui-refinements.css", "nav-gestures.js", "dashboard-data.js", "receipt-date.js", "liquid-glass.js", "liquid-glass.css", "help-guide.js", "receipt-financials.js", "private-finance-vault.js", "private-finance-ui.js", "finance-layout.js"];
 fs.rmSync("dist", { recursive: true, force: true });
 fs.mkdirSync("dist");
 // Version the entire code bundle so a cached parent module cannot keep an
@@ -30,7 +30,8 @@ for (const file of files) {
       .replace(/<script([^>]*)>([\s\S]*?)<\/script>/g, (_, attributes, js) => '<script' + attributes + '>' + compact(js, 'js', /type="module"/.test(attributes)) + '</script>');
     else content = compact(content, file.endsWith('.css') ? 'css' : 'js', file.endsWith('.js'));
     fs.writeFileSync('dist/' + file, content);
-  } else fs.writeFileSync('dist/' + file, JSON.stringify(file === 'promos.json' ? payload : history));
+  } else if(file.endsWith('.json')) fs.writeFileSync('dist/' + file, JSON.stringify(file === 'promos.json' ? payload : history));
+  else fs.copyFileSync(file,'dist/'+file);
 }
 fs.writeFileSync("dist/.nojekyll", "");
 console.log("Built validated public site: " + files.length + " application files.");

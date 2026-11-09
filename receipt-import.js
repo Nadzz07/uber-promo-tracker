@@ -20,7 +20,7 @@ export async function prepareReceiptImport(vault,input){
  if(input.events.some(event=>event.kind==='receipt'&&!valid.has(event.recordId)))throw Error('Correction history refers to a rejected receipt. Fix the export on your Mac before importing.');
  const data=await readDeviceBackup({...input,receipts,...(input.offerReceiptMatches?{offerReceiptMatches:input.offerReceiptMatches.filter(link=>valid.has(link.receiptId))}:{})});
  const plan=prepareDeviceRestore(vault,data),c=plan.changes,unchanged=receipts.length-c.newReceipts-c.updatedReceipts;
- return {plan,issues,counts:{added:c.newReceipts,updated:c.updatedReceipts,unchanged:Math.max(0,unchanged)+duplicates,rejected:issues.length},changes:c.newReceipts+c.updatedReceipts,historyChanges:c.historyEntries};
+ return {plan,issues,counts:{added:c.newReceipts,updated:c.updatedReceipts,unchanged:Math.max(0,unchanged)+duplicates,rejected:issues.length},changes:c.newReceipts+c.updatedReceipts,historyChanges:c.historyEntries+(JSON.stringify([vault.data.receiptMatchVersion,vault.data.offerReceiptMatches||[]])!==JSON.stringify([plan.finance.receiptMatchVersion,plan.finance.offerReceiptMatches||[]])?1:0)+(c.offerRecords||0)+plan.records.filter(r=>r.category==='sources'&&r.state!=='unchanged').length};
 }
 export function createReceiptImporter({vault,onUpdate=()=>{},mode='receipts',prepareFile=input=>prepareReceiptImport(vault,input),savePlan=plan=>applyDeviceRestore(vault,plan)}){
  const isAccounts=mode==='accounts',noun=isAccounts?'accounts':'receipts',title=isAccounts?'Import accounts':'Import receipts';

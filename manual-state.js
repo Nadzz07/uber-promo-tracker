@@ -113,6 +113,8 @@ export function getOfferManualState(store, promo) {
       confirmedUses(promo)
     ),
     ignored: Boolean(raw.ignored),
+    removed: Boolean(raw.removed),
+    ...(raw.fieldEdits&&typeof raw.fieldEdits==='object'?{fieldEdits:raw.fieldEdits}:{}),
     forceDone: Boolean(raw.forceDone),
     lastManualUseAt: raw.lastManualUseAt || null,
     updatedAt: raw.updatedAt || null,
@@ -277,6 +279,7 @@ export function setOfferIgnored(
   safe.offers[key] = {
     ...state,
     ignored: Boolean(ignored),
+    removed: ignored ? state.removed : false,
     updatedAt
   };
 
