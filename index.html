@@ -4137,6 +4137,7 @@
       if(preferredViews.has(view)&&!preferredEditor.active)preferredEditor.start();
       if(!preferredViews.has(view))preferredEditor.end();
       if(currentView==='receipts'&&view!=='receipts'&&receiptInsightsView?.state.reviewContext){Object.assign(receiptInsightsView.state,receiptInsightsView.state.reviewContext,{reviewAccountRef:null,reviewContext:null,reviewHub:false,correctedOnly:false});}
+      if(openSheetType&&view!==currentView&&!routeOptions?.preserveSheet)closeSheet(true);
       recordViewRoute(view,routeOptions);
       if(view==='receipts'&&routeRestoring&&routeEntries.get(currentRouteEntry)?.reviewState)Object.assign(receiptInsightsView.state,routeEntries.get(currentRouteEntry).reviewState);
       currentView = view;updateBrowserTheme();updateSidebar();

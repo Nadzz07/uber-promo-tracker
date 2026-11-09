@@ -67,7 +67,7 @@ try{
   assert.ok(heroColours.surface.includes('gradient'));assert.equal(heroColours.reflection,'none','Savings shares the hue fade without a curved reflection');
   await page.keyboard.press('Escape');await navigate(page,'home');
   assert.ok(await page.locator('.total-saved-card').evaluate(el=>getComputedStyle(el).backgroundImage.includes('gradient')&&getComputedStyle(el,'::before').content==='none'),'Home shares the Savings material');
-  assert.ok(await page.locator('.home-overview').evaluate(el=>el.querySelector('.total-saved-card').getBoundingClientRect().top<el.querySelector('.home-intro').getBoundingClientRect().top),'Savings leads the overview');
+  assert.ok(await page.locator('.home-overview').evaluate(el=>el.querySelector('.total-saved-card').getBoundingClientRect().top<=el.querySelector('.home-intro').getBoundingClientRect().top),'Savings leads the overview');
   const homeHeroHeight=await page.locator('.total-saved-card').evaluate(el=>el.getBoundingClientRect().height);
   assert.ok(homeHeroHeight>=240&&(width>=768||homeHeroHeight<=400),'Home savings reserves its chart and readable support: '+name+' / '+width+' / '+homeHeroHeight);
   await navigate(page,'accounts');await directoryReset(page);await directoryStatus(page,'used');

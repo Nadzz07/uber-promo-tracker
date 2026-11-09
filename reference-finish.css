@@ -332,3 +332,6 @@ html[data-motion=reduced] :is(.receipt-import-dialog,.backup-dialog,.offer-edit-
 .sheet[data-screen="Account details"] .offers-section .account-detail-offer[open],
 .sheet[data-screen="Account details"] .offers-section .account-detail-offer:not([open]),
 .sheet[data-screen="Account details"] .offers-section .account-detail-offer:not([open]):not(:has(.account-selected-badge)){background:linear-gradient(145deg,color-mix(in srgb,var(--color-panel) 94%,var(--color-text)),var(--color-panel))}
+#view-planner :is(.basket-value-wrap,.planner-select-wrap){height:var(--size-control);min-height:var(--size-control);padding:0 10px;box-sizing:border-box}
+#view-planner :is(.basket-value-wrap input,.planner-select-wrap .app-select-trigger){height:40px;min-height:0;font-size:var(--size-body);padding-block:0}
+#view-planner .basket-value-wrap .basket-currency{font-size:var(--size-body)}

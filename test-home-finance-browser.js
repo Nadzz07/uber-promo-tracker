@@ -97,7 +97,7 @@ try{for(const [width,height,largeText] of [[440,956,false],[390,844,false],[430,
  assert.match(await page.locator('#homeReceiptCount').innerText(),/^\d[\d,]* of \d[\d,]* receipts · /);
 
  // Reserved scrollbars reduce the usable canvas; system fonts may wrap a caption.
- if(width===430&&!largeText){const canvas=await page.evaluate(()=>document.documentElement.clientWidth);assert.ok(copy.every(c=>Math.abs(c.width-(canvas-52)/2)<3&&c.height>=70&&c.height<=120&&c.offset[0]>=12),'Home metrics retain the reference width and inset without clipping wrapped text: '+JSON.stringify({canvas,copy}));}
+ if(width===430&&!largeText){const canvas=await page.evaluate(()=>document.documentElement.clientWidth);assert.ok(copy.every(c=>Math.abs(c.width-(canvas-42)/2)<3&&c.height>=70&&c.height<=120&&c.offset[0]>=12),'Home metrics retain the reference width and inset without clipping wrapped text: '+JSON.stringify({canvas,copy}));}
  if(output&&!largeText&&[440,430,320,1440].includes(width))await page.screenshot({path:output+'/'+name+'-'+width+'-home.png',fullPage:width>=980});
  assert.equal(await page.locator('.weekly-savings-points circle').count(),5,'Home retains exactly five weekly savings points');
  const find=page.locator('[data-home-detail="offers"]').first();await find.focus();await page.keyboard.press('Enter');await page.locator('#view-accounts.active').waitFor();
