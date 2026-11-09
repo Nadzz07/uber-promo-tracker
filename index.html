@@ -3129,6 +3129,7 @@
       if(privateMigrationPending&&(accountTypeFilter!=='all'||accountOfferScope!=='any'||accountFilter==='offers')){document.getElementById('accountsList').innerHTML='<div class="empty">Import the updated private login file to restore saved promotion decisions.<button class="advanced-btn" data-open-sheet="health">Open Sync &amp; data</button></div>';return;}
       const shown=list.slice(0,accountDisplayLimit);
       document.getElementById('accountsList').innerHTML=shown.length?shown.map(directoryCard).join('')+(list.length>shown.length?'<button class="ghost-btn" data-show-more-accounts="true">Show '+Math.min(48,list.length-shown.length)+' more</button>':''):'<div class="empty">'+(preferredScopeEmpty()?emptyPreferredNotice():'No matching accounts.')+'<button class="advanced-btn" '+(preferredScopeEmpty()?'data-open-sheet="appearance"':'data-reset-directory="true"')+'>'+(preferredScopeEmpty()?'Settings':'Reset filters')+'</button></div>';
+      if(accountFilter==='archived')document.getElementById('accountsList').insertAdjacentHTML('beforeend',storedBalanceAccountsMarkup(search));
     }
 
     function activityRow(promo, meta, actionHtml = "") {
@@ -3601,7 +3602,7 @@
       return allPromosForAccount(openAccountRef).map(p=>promoStateKey(p)+'|'+offerCountdown(p)).join(';');
     }
     function accountManagementMarkup(account,receiptRule='') {
-      if(account.privateHistoryOnly)return '<section class="account-management"><p class="sheet-help">This stored account is not in the current account list. Its private balance history remains available; login details are not recorded here.</p></section>';
+      if(account.privateHistoryOnly)return `<section class="account-management" data-disclosure-key="manage-account" data-expanded="false"><h3><button type="button" class="account-management-toggle" data-account-management-toggle aria-expanded="false" aria-controls="accountManagementBody">${financeIcon('user')}<span>Manage account</span>${financeIcon('chevron-down')}</button></h3><div id="accountManagementBody" class="account-management-body" hidden><p class="sheet-help">This stored account is not in the current account list. Its private balance history remains available; login details are not recorded here.</p><div data-account-balance-editor="${escapeHtml(account.accountRef)}"></div></div></section>`;
       const e = escapeHtml;
       const note=accountManualRecord(manualStore,account).note??account.notes??account.note??'';
       const methods = [...new Set((Array.isArray(account.loginMethods) ? account.loginMethods : account.loginMethod === 'Both' ? ['iCloud','Google'] : [account.loginMethod]).filter(value => ['iCloud','Google'].includes(value)))];
@@ -3755,6 +3756,12 @@
         '<div id="sheetLockedList" class="sheet-section"></div>';
 
       renderLockedSearch("");
+    }
+
+    function storedBalanceAccountsMarkup(search='') {
+      const term=String(search).trim().toLowerCase();
+      const stored=[...new Set((financeVault.data?.events||[]).filter(e=>e.kind==='cash').map(e=>e.accountRef))].filter(ref=>!accounts.some(a=>a.accountRef===ref)).map(accountSheetRecord).filter(a=>a&&(!term||[a.accountRef,a.accountMasked].join(' ').toLowerCase().includes(term)));
+      return stored.length?'<section class="sheet-section stored-balance-accounts"><h2>Other stored accounts</h2><p class="sheet-help">Balance history retained outside the current account list.</p>'+stored.map(a=>'<button class="sheet-action-row" data-account-offers="'+escapeHtml(a.accountRef)+'">'+financeIcon('wallet')+'<span>'+escapeHtml(accountDisplay(a))+'<small>Stored balance history</small></span>'+financeIcon('chevron-right')+'</button>').join('')+'</section>':'';
     }
 
     function renderLockedSearch(search) {
