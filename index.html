@@ -3651,10 +3651,10 @@
       }
     }
     document.addEventListener('click', event => {
+      if(event.target.closest('[data-manage-balance]')){const management=document.querySelector('.account-management');if(management)setAccountManagementOpen(management,true);const editor=management?.querySelector('.cash-balance-editor');if(editor){editor.open=true;editor.scrollIntoView({block:'center',behavior:'instant'});editor.querySelector('input')?.focus({preventScroll:true});}return;}
       const panel = event.target.closest('.account-management'); if (!panel) return;
       if (event.target.closest('[data-account-management-toggle]')) { setAccountManagementOpen(panel, panel.dataset.expanded !== 'true',true); return; }
       const account = accounts.find(row => row.accountRef === openAccountRef); if (!account) return;
-      if(event.target.closest('[data-manage-balance]')){const management=document.querySelector('.account-management');if(management)setAccountManagementOpen(management,true);const editor=management?.querySelector('.cash-balance-editor');if(editor){editor.open=true;editor.scrollIntoView({block:'center',behavior:'instant'});editor.querySelector('input')?.focus({preventScroll:true});}return;}
       if(event.target.closest('[data-edit-account-note]')){panel.querySelector('[data-account-note-editor]').hidden=false;panel.querySelector('[data-account-note-text]').hidden=true;panel.querySelector('#accountNote').focus();return;}
       if(event.target.closest('[data-cancel-account-note]')){panel.querySelector('[data-account-note-editor]').hidden=true;panel.querySelector('[data-account-note-text]').hidden=false;panel.querySelector('#accountNote').value=accountManualRecord(manualStore,account).note??account.notes??account.note??'';panel.querySelector('[data-edit-account-note]').focus();return;}
       if(event.target.closest('[data-save-account-note]')){commitAccountManagement({note:panel.querySelector('#accountNote').value});return;}
