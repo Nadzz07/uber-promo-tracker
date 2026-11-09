@@ -1,3 +1,35 @@
+## Compact UI and desktop release — 9 November 2026
+
+Applies the supplied reference layouts with shared Inter typography, 393px size
+tokens, hue-derived accents, fixed savings green and checking amber. Home,
+Accounts, Account details, More, Order Planner, Savings, Savings receipts,
+Receipt insights, Finances, Review & corrections and Sync & data share the
+compact controls and custom menus. The three-tab navigation is Home, Accounts,
+More. Used and Promo history have no page or navigation destination.
+
+Desktop uses a 260px sidebar (72px on tablet), account detail panes, a sortable
+transaction table and wider receipt, savings and sync layouts. Mobile keeps its
+bottom navigation and sheets. Offer restrictions remain visible and break ties
+after value/cost, with unknown restrictions ranked conservatively.
+
+Matching-only receipt uploads now update usage without duplicating receipt
+amounts. Edits/removals preserve source offers, receipts, corrections and manual
+history. Historical balance records outside the current roster remain reachable
+under Accounts → Show → Archived. Missing itemised Eats discounts or confirmed
+source matches remain unknown; combined Uber One amounts are not invented as
+promo savings or matched uses.
+
+The public roster remains 236 accounts, 214 able to log in; all 472 private
+receipt records and prior financial totals are preserved. Latest personal Mail
+offers are included, and the subsequent no-change scan is recorded in Sync.
+Mail originals were checked against the owner's updated campaign and exclusion
+rules; there were no new receipt-linked accounts to confirm in that scan.
+
+Validation covers shared financial/privacy contracts, mobile widths 360/393/430,
+desktop widths 1024/1280/1440/1920, custom-menu keyboard/touch behaviour, private
+receipt imports, saved state and the five-point SVG chart. Screenshots and the
+interaction recording are browser captures; a physical iPhone was unavailable.
+
 ## Verified Mail and account data update — 8 November 2026
 
 Updates data while preserving the deployed interface. The owner confirmed the
