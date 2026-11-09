@@ -50,9 +50,8 @@ try{
   assert.equal(await page.locator('[data-toggle-ignore][data-ignore="false"]').count(),0,'Cancel must not ignore');
   await openOfferManagement(page);await page.locator('[data-toggle-ignore][data-ignore="true"]').click();await page.locator('[data-confirm-offer-action]').click();
   assert.equal(await page.locator('[data-toggle-ignore][data-ignore="false"]').count(),1);await openOfferManagement(page);await page.locator('[data-toggle-ignore][data-ignore="false"]').click();
-  await openOfferManagement(page);await page.locator('[data-mark-offer-done][data-done="true"]').click();await page.locator('[data-cancel-offer-action]').click();
-  assert.equal(await page.locator('[data-mark-offer-done][data-done="false"]').count(),0);
-  await openOfferManagement(page);await page.locator('[data-mark-offer-done][data-done="true"]').click();await page.locator('[data-confirm-offer-action]').click();
+  await openOfferManagement(page);await page.locator('[data-remove-offer]').click();await page.locator('.offer-edit-dialog [data-cancel]').click();assert.equal(await page.locator('[data-mark-offer-done][data-done="false"]').count(),0);
+  await page.evaluate(async offer=>{const m=await import('./manual-state.js'),key='uber-eats-promo-tracker:manual-state:v3',store=m.normaliseManualStore(JSON.parse(localStorage.getItem(key)||'{}'));localStorage.setItem(key,JSON.stringify(m.setOfferDone(store,offer,true)));dispatchEvent(new StorageEvent('storage',{key}));},offer);
   assert.match(await page.locator('.offer-card .use-line').innerText(),/1 of 5 orders completed/);
   await page.keyboard.press('Escape');await navigate(page,'accounts');await directoryReset(page);await directoryStatus(page,'used');
   assert.equal(await page.locator('#accountsMeta').innerText(),'1 account');

@@ -3991,8 +3991,8 @@
       const past = document.querySelector('#sheetBody details[data-history-key="' + CSS.escape(promoStateKey(promo)) + '"]');
       if (past) { document.getElementById('accountOfferHistory').open = true; past.open = true; }
       if(!managementAction){currentOffer?.querySelector('.account-matching-receipts')?.scrollIntoView({block:'nearest'});return;}
-      const management=currentOffer?.querySelector('.manage-offer');if(management){if(management.tagName==='DETAILS')management.open=true;else management.hidden=false;management.setAttribute('open','');currentOffer.querySelector('[data-manage-toggle]')?.setAttribute('aria-expanded','true');}
-      document.querySelector('#sheetBody [data-mark-offer-done="' + CSS.escape(promoStateKey(promo)) + '"], #sheetBody [data-toggle-ignore="' + CSS.escape(promoStateKey(promo)) + '"]')?.focus();
+      const management=currentOffer?.querySelector('.manage-offer');if(management)closeOfferMenu(management);
+      currentOffer?.querySelector('[data-manage-toggle]')?.focus({preventScroll:true});
     }
     function renderOfferConfirmation(promo, kind) {
       pendingOfferAction = {key:promoStateKey(promo), kind};

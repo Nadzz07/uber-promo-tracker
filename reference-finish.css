@@ -317,3 +317,12 @@ html[data-motion=reduced] :is(.receipt-import-dialog,.backup-dialog,.offer-edit-
 .history-extra-statuses .app-select{max-width:100%}
 .history-extra-statuses .app-select-trigger{height:40px;min-height:40px;font-size:var(--size-small);padding:6px 10px}
 #view-more .more-card small,.sd-row small{font-weight:400}
+/* Sheets have an opaque base: only the scrim reveals the underlying page. */
+.sheet{background-color:var(--color-screen)}
+.sheet[data-screen="Account details"]{background:linear-gradient(145deg,color-mix(in srgb,var(--color-screen) 94%,var(--color-accent)),var(--color-screen) 68%)}
+.sheet[data-screen="Account details"] .account-detail-offer{padding:0}
+.sheet[data-screen="Account details"] .account-offer-toggle>.compact-expiry-badge{min-height:44px;padding:10px 0;border:0;border-radius:0;background:none}
+.sheet[data-screen="Account details"] .account-offer-toggle>.compact-expiry-badge.expiry-urgent{background:none;border:0}
+.sheet[data-screen="Account details"] .compact-completion-line{justify-content:space-between;align-items:center;text-align:left}
+.sheet[data-screen="Account details"] .account-sheet-actions{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
+.sheet[data-screen="Account details"] .account-sheet-actions button{display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;flex-wrap:nowrap;padding-inline:6px;font-size:var(--size-small)}
