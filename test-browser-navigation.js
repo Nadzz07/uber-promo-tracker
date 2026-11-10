@@ -82,6 +82,7 @@ export async function clickOfferTerms(page) {
  const terms=page.locator('.offer-terms').first(),card=terms.locator('xpath=ancestor::details[contains(@class,"account-detail-offer")]');
  if(await card.count()&&await card.getAttribute('open')===null)await card.locator('>summary').click();
  await terms.locator('>summary').click();
+ await terms.evaluate(async el=>{await new Promise(requestAnimationFrame);void getComputedStyle(el).height;await Promise.all(el.getAnimations({subtree:true}).filter(a=>a.effect?.getComputedTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{})));});
 }
 
 export async function openReviewCard(page,receiptId=null) {
