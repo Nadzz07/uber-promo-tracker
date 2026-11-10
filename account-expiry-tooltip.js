@@ -32,7 +32,7 @@ export function createExpiryTooltips(host) {
  host.addEventListener('focusout',e=>{if(!pinned&&e.target.closest('[data-expiry-explanation]'))close();});
  document.addEventListener('pointerdown',e=>{if(active&&!active.contains(e.target)||focusFrame&&!e.target.closest('[data-expiry-explanation]'))close();},true);
  document.addEventListener('focusin',e=>{if(active&&!active.contains(e.target))close();});
- document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(active||focusFrame)){e.stopPropagation();close();}},true);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(active||focusFrame)){const ownsFocus=active?.contains(e.target)||focusFrame&&e.target.closest('[data-expiry-explanation]');close();if(ownsFocus)e.stopPropagation();}},true);
  window.addEventListener('scroll',event=>{if(!active)return;const node=event.target===window||event.target===document?document.scrollingElement:event.target,prior=scrollPositions.get(node);if(prior&&prior[0]===node.scrollLeft&&prior[1]===node.scrollTop)return;close();},true);window.addEventListener('wheel',close,{capture:true,passive:true});window.addEventListener('touchmove',close,{capture:true,passive:true});window.addEventListener('resize',close);window.addEventListener('popstate',close);
  return {close};
 }
