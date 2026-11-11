@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import {once} from 'node:events';
 import {execFileSync} from 'node:child_process';
-import {chromium,webkit,firefox} from 'playwright';
+import {chromium,webkit,firefox,devices} from 'playwright';
 execFileSync(process.execPath,['build-site.js']);
 const stamp=new Date().toISOString(),emails=['a.long.private.account.label.for.layout@example.invalid','second@example.invalid'];
 const accounts=emails.map((email,i)=>({accountRef:'A'+(901+i),accountMasked:(email.split('@')[0].slice(0,2)+'…'+email.split('@')[0].slice(-2))+'@example.invalid',canLogin:true,accountStatus:'active',orderCount:0,rideCount:0}));
@@ -21,10 +21,10 @@ server.listen(0,'127.0.0.1');await once(server,'listening');
 const name=process.env.TRACKER_BROWSER_ENGINE||'chromium',browser=await{chromium,webkit,firefox}[name].launch(),url='http://127.0.0.1:'+server.address().port;
 const output=process.env.TRACKER_SCREENSHOT_DIR;
 if(output)fs.mkdirSync(output,{recursive:true,mode:0o700});
-try{for(const [width,height,largeText] of [[440,956,false],[390,844,false],[430,932,false],[1440,1000,false],[320,568,false],[390,844,true]]){
- const context=await browser.newContext({viewport:{width,height},hasTouch:width<980,reducedMotion:'reduce',timezoneId:'Europe/London'}),page=await context.newPage(),errors=[];
+try{for(const [width,height,largeText] of [[440,956,false],[393,852,false],[390,844,false],[430,932,false],[360,780,false],[1440,1000,false],[320,568,false],[390,844,true]]){
+ const device=width===440&&name!=='firefox'?devices['iPhone 16 Pro Max']:{},context=await browser.newContext({...device,viewport:{width,height},isMobile:width<980&&name!=='firefox',hasTouch:width<980,reducedMotion:'reduce',timezoneId:'Europe/London'}),page=await context.newPage(),errors=[];
  page.on('pageerror',e=>{errors.push(e.message);console.log('Page error: '+e.message);});
- await context.addInitScript(({accounts,emails})=>localStorage.setItem('uber-eats-promo-tracker:device-accounts:v1',JSON.stringify(Object.fromEntries(accounts.map((a,i)=>[a.accountRef,{email:emails[i],accountMasked:a.accountMasked}])))),{accounts,emails});
+ await context.addInitScript(({accounts,emails})=>{Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>window.__qaCopiedEmail=text}});localStorage.setItem('uber-eats-promo-tracker:device-accounts:v1',JSON.stringify(Object.fromEntries(accounts.map((a,i)=>[a.accountRef,{email:emails[i],accountMasked:a.accountMasked}]))));},{accounts,emails});
  await page.goto(url);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Updated');
  if(output&&!largeText&&[430,1440].includes(width)){
   const previousGradient=await page.locator('.total-saved-card').evaluate(e=>getComputedStyle(e).backgroundImage);
@@ -98,7 +98,7 @@ try{for(const [width,height,largeText] of [[440,956,false],[390,844,false],[430,
 
  // Reserved scrollbars reduce the usable canvas; system fonts may wrap a caption.
  if(width===430&&!largeText){const canvas=await page.evaluate(()=>document.documentElement.clientWidth);assert.ok(copy.every(c=>Math.abs(c.width-(canvas-42)/2)<3&&c.height>=70&&c.height<=120&&c.offset[0]>=12),'Home metrics retain the reference width and inset without clipping wrapped text: '+JSON.stringify({canvas,copy}));}
- if(output&&!largeText&&[440,430,320,1440].includes(width))await page.screenshot({path:output+'/'+name+'-'+width+'-home.png',fullPage:width>=980});
+ if(output&&!largeText&&[440,393,430,360,320,1440].includes(width))await page.screenshot({path:output+'/'+name+'-'+width+'-home.png',fullPage:width>=980});
  assert.equal(await page.locator('.weekly-savings-points circle').count(),5,'Home retains exactly five weekly savings points');
  const find=page.locator('[data-home-detail="offers"]').first();await find.focus();await page.keyboard.press('Enter');await page.locator('#view-accounts.active').waitFor();
  assert.equal(await page.locator('[data-view="accounts"]').getAttribute('aria-current'),'page');
@@ -112,9 +112,8 @@ try{for(const [width,height,largeText] of [[440,956,false],[390,844,false],[430,
  if(output&&!largeText&&[430,1440].includes(width))await page.screenshot({path:output+'/'+name+'-'+width+'-planner.png',fullPage:true});
  await page.locator('#view-planner [data-home-back]').click();await page.locator('#view-home.active').waitFor();assert.equal(await page.locator('#homePlannerSummary').innerText(),'£30 basket · Collection');
  await page.locator('#view-home [data-home-detail="planner"]').click();assert.equal(await page.locator('#recommendation').innerText(),result);
- // Explicitly choosing an account resets discovery filters so a previous
- // search cannot hide that chosen account; ordinary view switches retain it.
- assert.equal(await page.locator('.plan-accounts .plan-row').count(),0,'Ordinary Delivery promos are absent from Pickup');await page.locator('#plannerFulfilment').selectOption('delivery');await page.locator('#recommendation [data-account-offers="A901"]').click();await page.locator('[data-use-this-account="A901"]').click();await page.locator('#view-accounts.active').waitFor();assert.equal(await page.locator('#accountSearch').inputValue(),'second','Account usage navigation preserves the shared search');assert.equal(await page.locator('#basketInput').inputValue(),'30');assert.equal(await page.locator('#plannerFulfilment').inputValue(),'delivery');
+ // Opening account details from a planner recommendation is copy-only and must not disturb planner or directory state.
+ assert.equal(await page.locator('.plan-accounts .plan-row').count(),0,'Ordinary Delivery promos are absent from Pickup');await page.locator('#plannerFulfilment').selectOption('delivery');await page.locator('#recommendation [data-account-offers="A901"]').click();await page.locator('[data-account-sheet="A901"]').waitFor();assert.equal(await page.locator('.account-sheet-email').innerText(),emails[0]);assert.equal(await page.locator('[data-use-this-account]').count(),0,'Account details has no account-launch action');await page.locator('[data-copy-email="A901"]').click();assert.equal(await page.evaluate(()=>window.__qaCopiedEmail),emails[0],'Account header copies the private email');await page.goBack();await page.locator('#view-planner.active').waitFor();assert.equal(await page.locator('#accountSearch').inputValue(),'second','Account detail Back preserves the shared search');assert.equal(await page.locator('#basketInput').inputValue(),'30');assert.equal(await page.locator('#plannerFulfilment').inputValue(),'delivery');await page.goForward();await page.locator('[data-account-sheet="A901"]').waitFor();await page.locator('#sheetClose').click();await page.locator('#view-planner.active').waitFor();assert.equal(await page.locator('#accountSearch').inputValue(),'second','Closing account details preserves the shared search');assert.equal(await page.locator('#basketInput').inputValue(),'30');assert.equal(await page.locator('#plannerFulfilment').inputValue(),'delivery');
  await navigate(page,'home');await page.locator('#homeAnalytics button').click();assert.equal(await page.locator('.ri-paid-card').count(),1);assert.equal(await page.locator('.ri-range').inputValue(),'month');assert.equal(await page.locator('.ri-activity').count(),1);await page.locator('[data-receipts-back]').click();
  await importPrivateFinance(page,{name:'preview-finance.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(transfer))});await page.locator('[data-sync-back]').click();await page.locator('#view-'+(width>=768?'home':'more')+'.active').waitFor();await navigate(page,'accounts');await page.locator('#accountSearch').fill('');await directoryType(page,'all');await page.locator('#accountsList [data-account-offers=A901]').first().click();assert.equal(await page.locator('[data-cash-entry]').count(),0,'No Cash card before a real balance record');await page.locator('[data-account-management-toggle]').click();await page.locator('.cash-balance-editor>summary').click();await page.locator('[name=balance]').fill('12');await page.locator('.cash-balance-editor form > details > summary').first().click();await page.locator('[name=basketSubtotal]').fill('30');await page.locator('[name=checkoutFees]').fill('0');await page.locator('[name=stacking]').selectOption('unsupported');await page.locator('[data-cash-balance-form] button[type=submit]').click();await page.waitForFunction(()=>document.querySelector('.cash-entry-balance')?.textContent==='£12.00');
  const decrypt=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('uber-tracker-finance-encrypted-v1')).data);assert.deepEqual((await decrypt()).receipts,transfer.receipts);assert.equal((await decrypt()).events.at(-1).value.checkoutFees,0);
@@ -138,5 +137,5 @@ try{for(const [width,height,largeText] of [[440,956,false],[390,844,false],[430,
   assert.equal(await page.locator('#scanTime').getAttribute('datetime'),stamp);
  }
  assert.deepEqual(errors,[]);await context.close();
-}assert.equal(writes,0);console.log('✓ Compact Home, Back/Forward/focus and persistent filters/planner; private Cash blank/zero, account drafts, explicit coverage, fees, save/reopen/undo/redo/history and encrypted transfer roundtrip; 6 sizes/text configurations; exact Overview/review destinations and correction-driven Savings parity ('+name+')');
+}assert.equal(writes,0);console.log('✓ Compact Home, Back/Forward/focus and persistent filters/planner; private Cash blank/zero, account drafts, explicit coverage, fees, save/reopen/undo/redo/history and encrypted transfer roundtrip; 8 widths/text configurations; exact Overview/review destinations and correction-driven Savings parity ('+name+')');
 }finally{await browser.close();server.close();}

@@ -37,8 +37,8 @@ try { for(const width of [390,980,1440,1920]) {
  const ordered=await page.locator('#accountsList [data-card-account]').evaluateAll(nodes=>nodes.map(n=>n.dataset.cardAccount));assert.deepEqual(ordered.slice(-3),['A814','A813','A815'],'Readiness outranks basket savings and receipt usage');
  await directoryAvailability(page,'attention');assert.equal(await page.locator('#accountsMeta').innerText(),'3 accounts');
  if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('#accountsList [data-account-offers="A815"]').click();
- assert.equal(await page.locator('[data-use-this-account="A815"]').isDisabled(),true);
- assert.match(await page.locator('.account-inline-access').innerText(),/Can’t log in/);assert.ok(await page.locator('[data-use-this-account]').isDisabled());
+ assert.equal(await page.locator('[data-use-this-account="A815"]').count(),0,'Account details has no account-launch action');
+ assert.match(await page.locator('.account-inline-access').innerText(),/Can’t log in/);assert.equal(await page.locator('[data-use-this-account]').count(),0);
  const review=page.locator('#sheetBody .account-detail-offer').filter({has:page.locator('.account-offer-state', {hasText:'Needs checking'})});
  await review.locator('> summary').click();
  const reviewStatus=review.locator('.account-offer-state').filter({hasText:'Needs checking'}).first();await reviewStatus.scrollIntoViewIfNeeded();await reviewStatus.waitFor({state:'visible'});assert.match(await review.textContent(),/Needs checking/);
