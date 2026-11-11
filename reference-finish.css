@@ -85,3 +85,46 @@ html,body { font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSyst
  #view-accounts .directory-usage-footer .directory-use-limit { padding-right:94px; }
  #view-accounts .directory-usage-footer .directory-view-offers { position:absolute; right:0; top:50%; transform:translateY(-50%); }
 }
+
+/* Approved 393px reference geometry shared across the mobile app. */
+@media(max-width:767px) {
+ html { font-size:16px; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+ #app.app-shell { padding-bottom:calc(102px + env(safe-area-inset-bottom,0px)); }
+ #app .main-screen :is(.screen-title,.accounts-head h1),body:has(#view-home.active) .brand-title,.ri-page-head h1,.sd-header h1 { font-weight:800; letter-spacing:-.8px; }
+ #view-home :is(.home-accounts-heading h2,.home-quick-actions>h2),.ri-section-head h2,.sd-heading { font-size:20px; line-height:1.2; font-weight:800; letter-spacing:-.5px; }
+ #view-home .home-accounts-heading { margin:20px 0 10px; }
+ #view-home .home-quick-actions>h2 { margin:20px 0 10px; }
+ #view-home .total-saved-card { min-height:250px; padding:16px; border-radius:22px; margin-bottom:0; }
+ #view-home #savedStat { font-size:38px; font-weight:800; }
+ #view-home .home-account-total { padding:14px 16px; min-height:131px; border-radius:22px; }
+ #view-home .home-total-heading { margin:6px 0 12px; }
+ #view-home #usableStat { font-size:36px; font-weight:800; }
+ #view-home .home-account-legend { margin-top:10px; }
+ #view-home .home-status-tiles { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:10px 0 0; }
+ #view-home .home-status-tiles .stat-card { height:70px; min-height:70px; padding:12px; gap:8px; }
+ #view-home .home-status-tiles .overview-icon { width:36px; height:36px; flex:0 0 36px; }
+ #view-home .home-status-tiles .stat-value { font-size:26px; font-weight:800; }
+ #view-home .home-status-tiles .stat-label { font-size:12px; margin-top:4px; }
+ #view-accounts .directory-usage-box { height:12px; min-height:12px; flex:1; min-width:0; border-radius:999px; }
+ #view-accounts .search-wrap,#view-accounts .account-filter-grid .directory-select,.account-filter-grid :is(#accountTypeTrigger,#accountShowTrigger) { border-radius:14px; }
+ #view-accounts .account-login-tabs button { border-radius:13px; }
+ :is(.account-detail-provider,.account-detail-offer .account-offer-icon,.directory-provider,.more-icon,.sd-icon,.ri-icon) { aspect-ratio:1; flex-shrink:0; }
+ .account-detail-provider { width:42px; height:42px; flex:0 0 42px; }
+ .account-identity-copy { min-width:0; }
+ .account-sheet-email { text-overflow:ellipsis; white-space:nowrap; overflow:hidden; font-size:15.5px; font-weight:700; }
+ html[data-layout=mobile] #mainNav.bottom-nav { min-height:66px; height:66px; bottom:calc(12px + env(safe-area-inset-bottom,0px)); width:calc(100% - 24px); }
+ html[data-layout=mobile] #app.app-shell { padding-bottom:calc(102px + env(safe-area-inset-bottom,0px)); }
+}
+@media(max-width:767px) {
+ #view-home .total-saved-card { height:250px; min-height:250px; }
+ #view-home .home-saved-copy { gap:4px; }
+ #view-home .home-savings-icon { width:46px; height:46px; }
+ #view-home .weekly-savings-heading { margin-top:12px; }
+ #view-home .weekly-savings-plot { padding-top:0; margin-top:6px; }
+ #view-home .weekly-savings-plot svg { height:60px; aspect-ratio:auto; }
+ #view-home .weekly-savings-tooltip { top:-28px; }
+ #view-home .weekly-savings-labels { margin-top:6px; }
+ #view-home .home-savings-footer { margin-top:12px; }
+ #view-home .saved-link { min-height:32px; padding-block:4px; }
+ #view-home .home-account-total { box-sizing:border-box; }
+}
