@@ -1,3 +1,21 @@
+## Compact reference screens and verified refresh — 11 November 2026
+
+Completes the latest compact phone design refinements across Home, Accounts,
+Account details, Savings, Finances, Receipt Insights, Sync & data, More and
+backup/import flows. Shared design tokens now govern typography, corner radii,
+spacing, dropdowns, cards, navigation and safe-area clearance. Account details
+is edge-to-edge, has a copy-email action instead of an account-launch button,
+and keeps expandable terms, usage, history and account management controls.
+Accounts offer ranking favours unrestricted offers on otherwise equal value;
+restricted merchant terms stay neutral and visible where supplied.
+
+The release data validates at 236 accounts (214 can log in, 22 archived) and
+472 receipts. Promo savings and Uber Cash remain separate. Account/receipt
+reconciliation preserves saved corrections and does not infer missing usage.
+Public output passes the privacy/consistency validator; private Mail originals
+and full identities are excluded. Mail-routing rule updates are included in the
+repository; deployment itself does not move or delete messages.
+
 ## Verified Mail and account data update — 8 November 2026
 
 Updates data while preserving the deployed interface. The owner confirmed the

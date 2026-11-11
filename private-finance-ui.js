@@ -1,4 +1,3 @@
-import {createReceiptImporter} from './receipt-import.js';
 import {receiptWhen,receiptDay} from './receipt-date.js';
 import {PrivateFinanceVault} from './private-finance-vault.js';
 import {financialCategories,moneyAmount,receiptPaymentAmount,receiptReviewState,receiptRefundParts} from './receipt-financials.js';
@@ -12,11 +11,11 @@ function receiptDateLabel(receipt) {
 }
 // Sync & data owns import, recovery and encrypted backup. Editing lives in
 // the receipt and account components below; no finance hub is rendered.
-export function syncDataInterface({host,onUpdate=()=>{},vault=new PrivateFinanceVault()}){
- let active=true;const importer=createReceiptImporter({vault,onUpdate:()=>onUpdate(vault)});
- function render(){if(!active)return;host.innerHTML='<section class="setting-card"><h3>Legacy receipt recovery</h3><p class="sheet-help">'+escape(vault.status==='migration_required'?'Legacy encrypted data needs conversion on your trusted Mac. The original remains preserved.':vault.status==='error'?'Private data could not load. The original is preserved.':'Receipt imports are available in Sync & data → Import data.')+'</p>'+(vault.status==='ready'?'<button data-finance-action="import" class="advanced-btn">Import receipts</button>':'')+(vault.status==='migration_required'?'<button data-finance-action="legacy-backup" class="advanced-btn">Download encrypted original</button>':'')+'</section>';}
- const click=e=>{const action=e.target.closest('[data-finance-action]')?.dataset.financeAction;if(action==='import')importer.open();if(action==='legacy-backup'){const u=URL.createObjectURL(new Blob([vault.recoveryBackup()],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download='tracker-legacy-original.local.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}};
- host.addEventListener('click',click);render();return {vault,render,destroy(){active=false;importer.destroy();host.removeEventListener('click',click);}};
+export function syncDataInterface({host,onUpdate=()=>{},onSync=()=>{},vault=new PrivateFinanceVault()}){
+ let active=true;
+ function render(){if(!active)return;host.innerHTML='<section class="setting-card"><h3>Legacy receipt recovery</h3><p class="sheet-help">'+escape(vault.status==='migration_required'?'Legacy encrypted data needs conversion on your trusted Mac. The original remains preserved.':vault.status==='error'?'Private data could not load. The original is preserved.':'Receipt imports are available in Sync & data → Import data.')+'</p>'+(vault.status==='ready'?'<button data-finance-action="sync" class="advanced-btn">Open Sync &amp; data</button>':'')+(vault.status==='migration_required'?'<button data-finance-action="legacy-backup" class="advanced-btn">Download encrypted original</button>':'')+'</section>';}
+ const click=e=>{const action=e.target.closest('[data-finance-action]')?.dataset.financeAction;if(action==='sync')onSync();if(action==='legacy-backup'){const u=URL.createObjectURL(new Blob([vault.recoveryBackup()],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download='tracker-legacy-original.local.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}};
+ host.addEventListener('click',click);render();return {vault,render,destroy(){active=false;host.removeEventListener('click',click);}};
 }
 
 export function receiptReviewInterface({host,vault,receiptId,onUpdate=()=>{},onCancel=()=>{}}){

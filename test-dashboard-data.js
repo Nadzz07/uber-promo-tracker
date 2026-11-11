@@ -91,6 +91,12 @@ try {
  sources.push({...trip,service:'Uber',messageKey:'third',promotionDiscount:0,receivedAt:'2026-07-04T18:10:03Z'});
  reconcileTransportReceiptIdentities(identityDb,new Set(['first','second','third']),sources);
  assert.equal(getTransportReceipts(identityDb)[0].promotionDiscount,0,'An explicit later zero must override earlier savings');
+ setAccountAccess(identityDb,'excluded@example.test',false);
+ const excluded=getAccounts(identityDb).find(a=>a.alias==='excluded@example.test');
+ upsertTransportReceipt(identityDb,{...trip,accountRef:excluded.accountRef,receiptId:'excluded-history',messageKey:'excluded-source'});
+ const excludedResult=reconcileTransportReceiptIdentities(identityDb,new Set(['first','second','third','excluded-source']),sources,new Set([account.accountRef]));
+ assert.equal(excludedResult.mergedDerivedRows,0,'Excluded account history stays unchanged during active source reconciliation');
+ assert.equal(identityDb.prepare("SELECT COUNT(*) AS n FROM transport_receipts WHERE receipt_id='excluded-history'").get().n,1);
 } finally { identityDb.close(); }
 console.log('✓ Repeated HTML times match plain receipts; legacy duplicates require complete evidence and retain a recovery journal');
 

@@ -148,3 +148,6 @@ exclude:
   - test-weekly-savings-browser.js
   - test-weekly-savings.js
   - test-account-expiry-browser.js
+
+  - test-app-select-menus-browser.js
+  - test-compact-393-browser.js

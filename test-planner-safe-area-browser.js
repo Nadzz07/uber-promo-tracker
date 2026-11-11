@@ -102,7 +102,7 @@ try{
   await page.waitForFunction(()=>document.documentElement.style.getPropertyValue('--planner-nav-clearance')==='');
   assert.equal(await page.evaluate(()=>document.documentElement.style.getPropertyValue('--planner-nav-clearance')),'','Planner measurements do not change other screens');
   await navigate(page,'home');await page.waitForFunction(theme=>document.querySelector('meta[name="theme-color"]').content===theme,originalTheme);
-  assert.ok(!/maximum-scale|user-scalable=no/.test(await page.locator('meta[name="viewport"]').getAttribute('content')));
+  assert.equal(await page.locator('meta[name="viewport"]').getAttribute('content'),'width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover');
   assert.deepEqual(errors,[]);await context.close();
  }
  assert.equal(writes,0);

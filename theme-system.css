@@ -869,3 +869,40 @@ html[data-layout=mobile] .app-shell:has(#view-accounts.active) { padding-bottom:
 .sheet[data-screen="Account details"] .terms-grid [data-term-field=stacking] dd,.sheet[data-screen="Account details"] .account-estimate-label { color:var(--color-warning-icon); }
 .sheet[data-screen="Account details"] .manage-offer :is([data-undo-use],[data-mark-offer-done]) { color:var(--color-text); }
 .sheet[data-screen="Account details"] .manage-offer [data-toggle-ignore] { color:var(--color-warning-icon); }
+
+/* Account details follows the edge-to-edge phone reference, with its grabber and close control. */
+.sheet-backdrop:has(.sheet[data-screen="Account details"]) {
+  inset:0; width:100vw; height:100dvh; padding:0; margin:0;
+  align-items:stretch; justify-content:stretch; background:transparent;
+}
+.sheet-backdrop:has(.sheet[data-screen="Account details"]).open { display:flex; }
+.sheet-backdrop.open .sheet[data-screen="Account details"] {
+  position:relative; inset:auto; display:flex; flex:1 1 100%;
+  width:100%; min-width:100%; max-width:none; height:100%; min-height:100%; max-height:100%;
+  margin:0; padding:env(safe-area-inset-top,0px) 0 0;
+  border:0; border-radius:0; background:var(--color-screen); box-shadow:none;
+  opacity:1; transform:none; animation:account-page-enter 280ms cubic-bezier(.2,.8,.2,1) both;
+}
+.sheet[data-screen="Account details"] .sheet-handle {
+  display:block; flex:0 0 4px; width:36px; height:4px; margin:10px auto 14px;
+  border-radius:999px; background:var(--color-outline);
+}
+.sheet[data-screen="Account details"] .sheet-head {
+  display:flex; flex:0 0 56px; align-items:center; justify-content:space-between;
+  min-height:56px; padding:0 16px 12px; gap:12px;
+}
+.sheet[data-screen="Account details"] .sheet-head > div { order:0; flex:1; min-width:0; }
+.sheet[data-screen="Account details"] .sheet-title { font-size:26px; line-height:1.15; font-weight:800; letter-spacing:-.7px; }
+.sheet[data-screen="Account details"] .sheet-close {
+  order:1; flex:0 0 36px; width:36px; height:36px; padding:0;
+  display:grid; place-items:center; border:1px solid var(--color-close-border);
+  border-radius:50%; background:var(--color-close); color:var(--color-icon);
+  font-size:23px; line-height:1;
+}
+.sheet[data-screen="Account details"] .sheet-body {
+  flex:1; min-height:0; overflow:auto; padding:0 16px calc(102px + env(safe-area-inset-bottom,0px));
+  scroll-padding-bottom:calc(102px + env(safe-area-inset-bottom,0px));
+}
+@media(prefers-reduced-motion:reduce) {
+  .sheet[data-screen="Account details"] { animation:none !important; }
+}

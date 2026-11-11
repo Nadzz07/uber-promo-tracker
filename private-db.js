@@ -1186,7 +1186,7 @@ export function upsertTransportReceipt(
 
 // Run only after complete, validated source coverage. Duplicate derived rows
 // remain recoverable in a private journal; every original message is retained.
-export function reconcileTransportReceiptIdentities(db, processedMessageKeys, parsedSources = null) {
+export function reconcileTransportReceiptIdentities(db, processedMessageKeys, parsedSources = null, allowedAccountRefs = null) {
   const rows=prepare(db, `SELECT r.* FROM transport_receipts r LEFT JOIN messages m USING(message_key)
     WHERE r.trip_key IS NOT NULL AND (m.message_key IS NULL OR (m.accepted=1 AND m.kind='transport_receipt'))`).all();
   const groups=new Map();
@@ -1201,7 +1201,13 @@ export function reconcileTransportReceiptIdentities(db, processedMessageKeys, pa
   let merged=0;
   if (parsedSources) for(const [key,group] of groups) {
     const sources=parsedSources.filter(r=>JSON.stringify([r.accountRef,r.transportMode||'ride',r.tripKey])===key);
-    if (!sources.length) throw new Error('Receipt identity has no currently accepted source.');
+    if (!sources.length) {
+      // Records belonging to accounts deliberately omitted from the active
+      // registry remain private history. They are source-covered, but must not
+      // be reparsed into the current account set or block its reconciliation.
+      if (allowedAccountRefs instanceof Set && !allowedAccountRefs.has(group[0].account_ref)) continue;
+      throw new Error('Receipt identity has no currently accepted source.');
+    }
     const reconstructed=dedupeReceipts(sources);
     const [current]=reconstructed;
     if (reconstructed.length!==1) throw new Error('Receipt sources cannot be reconstructed unambiguously.');

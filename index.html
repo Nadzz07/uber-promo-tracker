@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="">
   <meta name="description" content="Private Uber Eats promo tracker with account recommendations, usage tracking and receipt-based savings.">
@@ -2172,6 +2172,9 @@
   <link rel="stylesheet" href="main-pages.css">
   <link rel="stylesheet" href="home-design.css">
   <link rel="stylesheet" href="./desktop-layout.css">
+  <link rel="preload" href="inter-variable-v4.1.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="app-select-menus.css">
+  <link rel="stylesheet" href="reference-finish.css">
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -2210,7 +2213,7 @@
           </section>
           <div class="home-intro"><h1 class="home-title">Accounts</h1><button class="home-view-accounts" data-home-list="total">View accounts <span aria-hidden="true">›</span></button></div>
           <div id="syncStrip" class="sync-strip home-sync" role="status" hidden></div>
-          <section class="home-account-total stat-card" aria-label="Account summary"><span class="stat-label">Total accounts</span><div class="home-total-heading"><button data-home-list="total" aria-label="View all accounts"><strong id="usableStat">—</strong></button><span id="homeLoginPercent"></span></div><div id="homeAccountSplit" class="home-account-split" role="img" aria-label="Account access and archive status"><span class="home-split-login"></span><span class="home-split-archived"></span><span class="home-split-other"></span></div><div class="home-account-legend"><button data-home-list="login"><i class="home-dot-login" aria-hidden="true"></i>Can log in <strong id="loginStat">—</strong></button><button data-home-list="archived"><i class="home-dot-archived" aria-hidden="true"></i>Archived <strong id="archivedStat">—</strong></button></div><p id="homeAccountOther" hidden></p></section>
+          <section class="home-account-total stat-card" aria-label="Account summary"><span class="stat-label">Total accounts</span><div class="home-total-heading"><button data-home-list="total" aria-label="View all accounts"><strong id="usableStat">—</strong></button><span id="homeLoginPercent"></span></div><div id="homeAccountSplit" class="home-account-split" role="img" aria-label="Account access and archive status"><span class="home-split-login"></span><span class="home-split-archived"></span><span class="home-split-unavailable"></span><span class="home-split-other"></span></div><div class="home-account-legend"><button data-home-list="login"><i class="home-dot-login" aria-hidden="true"></i>Can log in <strong id="loginStat">—</strong></button><button data-home-list="archived"><i class="home-dot-archived" aria-hidden="true"></i>Archived <strong id="archivedStat">—</strong></button><span class="home-extra-legend" id="homeUnavailableLegend" hidden><i class="home-dot-unavailable" aria-hidden="true"></i>Can’t log in <strong id="homeUnavailableCount">0</strong></span><span class="home-extra-legend" id="homePendingLegend" hidden><i class="home-dot-pending" aria-hidden="true"></i>Not confirmed <strong id="homePendingCount">0</strong></span></div><p id="homeAccountOther" hidden></p></section>
           <div class="stats-row home-status-tiles">
             <button id="availableStatCard" class="stat-card available-stat-card" data-home-list="ready"><span class="overview-icon" data-icon="star" aria-hidden="true"></span><span class="home-stat-copy"><strong id="activeStat" class="stat-value available">—</strong><span class="stat-label accounts-available-label">Accounts ready</span></span><span class="row-chevron" aria-hidden="true">›</span></button>
             <button class="stat-card home-needs-checking" data-home-review="true"><span class="overview-icon" data-icon="alert-circle" aria-hidden="true"></span><span class="home-stat-copy"><strong id="homeNeedsChecking" class="stat-value">—</strong><span class="stat-label">Needs checking</span></span><span class="row-chevron" aria-hidden="true">›</span></button>
@@ -2259,11 +2262,9 @@
           <div class="accounts-stat"><div><span><i class="accounts-login-dot" aria-hidden="true"></i>Can log in</span><strong id="accountsAccessible">0</strong></div><button class="metric-help" data-metric-help="Accessible" data-metric-label="Can log in" aria-label="Explain Can log in"><span data-icon="info" aria-hidden="true"></span></button></div>
         </div>
         <div class="search-wrap"><span class="search-icon" data-icon="search" aria-hidden="true"></span><input id="accountSearch" class="search-input" type="search" aria-label="Search accounts" placeholder="Search accounts" autocomplete="off"></div>
-        <div id="accountLoginTabs" class="account-login-tabs" role="group" aria-label="Login access"><button data-login-filter="all" aria-pressed="false">All</button><button data-login-filter="login" aria-pressed="true">Can log in</button><button data-login-filter="locked" aria-pressed="false">Can’t log in</button></div>
-        <div class="account-control-row"><label class="directory-select"><select id="accountProvider" aria-label="Login provider"><option value="all">All providers</option></select><span data-icon="chevron-down" aria-hidden="true"></span></label><label class="directory-select directory-sort"><span data-icon="sort" aria-hidden="true"></span><select id="accountSort" aria-label="Sort accounts"><option value="best">Best offer</option><option value="email">Email</option></select><span data-icon="chevron-down" aria-hidden="true"></span></label></div>
-        <div class="account-type-picker"><div class="account-offer-picker-row"><button id="accountTypeTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="accountTypeOptions" aria-labelledby="accountTypeValue"><span data-icon="tag" aria-hidden="true"></span><span id="accountTypeValue">All offers</span><span class="account-picker-chevron" data-icon="chevron-down" aria-hidden="true"></span></button><button id="clearAccountType" type="button" aria-label="Clear offer filter" hidden>Clear</button></div><div id="accountTypeOptions" role="listbox" aria-label="Offer filter" hidden></div></div>
-        <div id="accountPreferredChips" class="account-preferred-chips" role="group" aria-label="Preferred offer filters"></div>
-        <div class="account-show-picker"><button id="accountShowTrigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="accountShowOptions"><span data-icon="filter" aria-hidden="true"></span><span class="account-show-label">Show</span><strong id="accountShowValue">Active</strong><span data-icon="chevron-down" aria-hidden="true"></span></button><div id="accountShowOptions" role="listbox" aria-label="Show accounts" hidden></div></div>
+        <div id="accountLoginTabs" class="account-login-tabs" role="group" aria-label="Login access"><button data-login-filter="all" aria-pressed="false"><span>All</span> <small data-login-count="all">0</small></button><button data-login-filter="login" aria-pressed="true"><span>Can log in</span> <small data-login-count="login">0</small></button><button data-login-filter="locked" aria-pressed="false"><span>Can’t log in</span> <small data-login-count="locked">0</small></button></div>
+        <div class="account-filter-grid"><label class="directory-select"><select id="accountProvider" aria-label="Login provider"><option value="all">All providers</option></select><span data-icon="chevron-down" aria-hidden="true"></span></label><div class="account-type-picker"><div class="account-offer-picker-row"><button id="accountTypeTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="accountTypeOptions" aria-labelledby="accountTypeValue"><span data-icon="tag" aria-hidden="true"></span><span id="accountTypeValue">All offers</span><span class="account-picker-chevron" data-icon="chevron-down" aria-hidden="true"></span></button><button id="clearAccountType" type="button" aria-label="Clear offer filter" hidden>Clear</button></div><div id="accountTypeOptions" role="listbox" aria-label="Offer filter" hidden></div></div><label class="directory-select directory-sort"><span data-icon="sort" aria-hidden="true"></span><select id="accountSort" aria-label="Sort accounts"><option value="best">Best offer</option><option value="email">Email</option></select><span data-icon="chevron-down" aria-hidden="true"></span></label><div class="account-show-picker"><button id="accountShowTrigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="accountShowOptions"><span data-icon="filter" aria-hidden="true"></span><span class="account-show-label">Show</span><strong id="accountShowValue">Active</strong><span data-icon="chevron-down" aria-hidden="true"></span></button><div id="accountShowOptions" role="listbox" aria-label="Show accounts" hidden></div></div></div>
+        <div id="accountPreferredChips" class="account-preferred-chips" hidden role="group" aria-label="Preferred offer filters"></div>
         <div class="accounts-results-head"><h2>Matching accounts</h2><span id="accountsMeta" role="status" aria-live="polite"></span></div>
         <div id="accountsList" class="account-list"></div>
       </section>
@@ -2272,7 +2273,7 @@
 
       <section id="view-preferred-promos" class="view preferred-page" aria-labelledby="preferredTitle"></section>
       <section id="view-preferred-catalogue" class="view preferred-page" aria-labelledby="preferredCatalogueTitle"></section>
-      <section id="view-more" class="view main-screen"><div class="screen-head"><h1 id="moreTitle" class="screen-title" tabindex="-1">More</h1><p class="more-intro">Tools and settings</p></div><div class="more-grid"><section class="more-group" aria-labelledby="more-group-0"><h2 id="more-group-0" class="eyebrow">Offers & history</h2><div class="more-group-list"><button class="more-card" data-jump-planner="true"><span class="more-icon" data-icon="calculator" aria-hidden="true"></span><span class="more-content"><span class="more-title">Order Planner</span><small class="more-description">Work out what you’ll pay</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="history"><span class="more-icon" data-icon="promo-tag" aria-hidden="true"></span><span class="more-content"><span class="more-title">Promo history</span><small class="more-description">Offers you’ve used before</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="locked"><span class="more-icon" data-icon="archive" aria-hidden="true"></span><span class="more-content"><span class="more-title">Archived accounts</span><small class="more-description">Accounts you’ve set aside</small></span><span class="more-count" id="lockedCardCopy"></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-1"><h2 id="more-group-1" class="eyebrow">Savings & receipts</h2><div class="more-group-list"><button class="more-card" data-open-sheet="savings"><span class="more-icon" data-icon="menu-coins" aria-hidden="true"></span><span class="more-content"><span class="more-title">Savings</span><small class="more-description">Your promo savings over time</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="receipts"><span class="more-icon" data-icon="chart" aria-hidden="true"></span><span class="more-content"><span class="more-title">Receipt insights</span><small class="more-description">Spending and activity</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="finance"><span class="more-icon" data-icon="wallet" aria-hidden="true"></span><span class="more-content"><span class="more-title">Finances</span><small class="more-description">Payments and transactions</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-2"><h2 id="more-group-2" class="eyebrow">Accounts & data</h2><div class="more-group-list"><button class="more-card" data-open-sheet="health"><span class="more-icon" data-icon="menu-sync" aria-hidden="true"></span><span class="more-content"><span class="more-title">Sync & data</span><small class="more-description">Imports and backups</small></span><span id="moreSyncStatus" class="more-sync-status"></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-3"><h2 id="more-group-3" class="eyebrow">Settings & help</h2><div class="more-group-list"><button class="more-card" data-open-sheet="appearance"><span class="more-icon" data-icon="menu-sliders" aria-hidden="true"></span><span class="more-content"><span class="more-title">Settings</span><small class="more-description">Colours and preferences</small></span><span class="more-colour-wheel" aria-hidden="true"><i></i></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-guide="overview"><span class="more-icon" data-icon="menu-book" aria-hidden="true"></span><span class="more-content"><span class="more-title">Help & guide</span><small class="more-description">How to use the tracker</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="about"><span class="more-icon" data-icon="info" aria-hidden="true"></span><span class="more-content"><span class="more-title">About this tracker</span><small class="more-description">Version and info</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section></div></section>
+      <section id="view-more" class="view main-screen"><div class="screen-head"><h1 id="moreTitle" class="screen-title" tabindex="-1">More</h1><p class="more-intro">Tools and settings</p></div><div class="more-grid"><section class="more-group" aria-labelledby="more-group-0"><h2 id="more-group-0" class="eyebrow">Tools</h2><div class="more-group-list"><button class="more-card" data-jump-planner="true"><span class="more-icon" data-icon="calculator" aria-hidden="true"></span><span class="more-content"><span class="more-title">Order Planner</span><small class="more-description">Work out what you’ll pay</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-1"><h2 id="more-group-1" class="eyebrow">Savings & receipts</h2><div class="more-group-list"><button class="more-card" data-open-sheet="savings"><span class="more-icon" data-icon="menu-coins" aria-hidden="true"></span><span class="more-content"><span class="more-title">Savings</span><small class="more-description">Your promo savings over time</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="receipts"><span class="more-icon" data-icon="chart" aria-hidden="true"></span><span class="more-content"><span class="more-title">Receipt insights</span><small class="more-description">Spending and activity</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="finance"><span class="more-icon" data-icon="wallet" aria-hidden="true"></span><span class="more-content"><span class="more-title">Finances</span><small class="more-description">Payments and transactions</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-2"><h2 id="more-group-2" class="eyebrow">Accounts & data</h2><div class="more-group-list"><button class="more-card" data-open-sheet="health"><span class="more-icon" data-icon="menu-sync" aria-hidden="true"></span><span class="more-content"><span class="more-title">Sync & data</span><small class="more-description">Imports and backups</small></span><span id="moreSyncStatus" class="more-sync-status"></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section><section class="more-group" aria-labelledby="more-group-3"><h2 id="more-group-3" class="eyebrow">Settings & help</h2><div class="more-group-list"><button class="more-card" data-open-sheet="appearance"><span class="more-icon" data-icon="menu-sliders" aria-hidden="true"></span><span class="more-content"><span class="more-title">Settings</span><small class="more-description">Colours and preferences</small></span><span class="more-colour-wheel" aria-hidden="true"><i></i></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-guide="overview"><span class="more-icon" data-icon="menu-book" aria-hidden="true"></span><span class="more-content"><span class="more-title">Help & guide</span><small class="more-description">How to use the tracker</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button><button class="more-card" data-open-sheet="about"><span class="more-icon" data-icon="info" aria-hidden="true"></span><span class="more-content"><span class="more-title">About this tracker</span><small class="more-description">Version and info</small></span><span class="row-chevron" data-icon="chevron-right" aria-hidden="true"></span></button></div></section></div></section>
       <section id="view-sync" class="view"><div id="syncDataPage" class="sync-page"></div></section>
       <section id="view-help" class="view" aria-labelledby="guideTitle">
         <button class="advanced-btn" data-guide-back="true">‹ Back to More</button>
@@ -2299,9 +2300,11 @@
       <div id="sheetBody" class="sheet-body"></div>
     </div>
   </div>
+  <div id="appToast" class="app-toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <script type="module">
     import { financeIcon } from "./finance-layout.js";
+    import {createAppSelectMenus} from "./app-select-menus.js";
     import {createExpiryTooltips,directoryExpiry} from "./account-expiry-tooltip.js";
     import {receiptDetailMarkup,receiptInsightRecord,receiptInsightsModel,createReceiptInsights,RECEIPT_RANGES,DEFAULT_SAVINGS_SERVICE} from "./receipt-insights.js";
     import { PALETTE } from './theme-palette.js';
@@ -2377,6 +2380,7 @@
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     let liquidNavigation = null;
+    const appSelectMenus=createAppSelectMenus(document);
     let payload = {};
     let promos = [];
     let accounts = [];
@@ -2913,12 +2917,16 @@
       document.getElementById('homeNeedsChecking').textContent=usedActivityModel().summary.needs_checking.toLocaleString('en-GB');
       homeWeeklyChart ||= createWeeklySavingsChart(document.getElementById('homeWeeklySavings'));
       homeWeeklyChart.update(weeklySavingsData({data:financeVault.data,corrections:financeVault.current().corrections,payload}));
-      const totalRows=homeDirectoryRows('total'),total=totalRows.length,login=homeDirectoryRows('login').length,archived=homeDirectoryRows('archived').length;
-      const activeLogin=totalRows.filter(a=>a.canLogin===true&&!a.archived).length,other=Math.max(0,total-activeLogin-archived),split=document.getElementById('homeAccountSplit');
-      for(const [cls,value] of [['login',activeLogin],['archived',archived],['other',other]]){const segment=split.querySelector('.home-split-'+cls);segment.style.flexGrow=value;segment.hidden=value===0;}
-      split.setAttribute('aria-label',activeLogin+' active accounts can log in, '+archived+' archived'+(other?', '+other+' other accounts':''));
-      document.getElementById('homeLoginPercent').textContent=total?Math.round(login/total*100)+'% can log in':'';
-      const otherLabel=document.getElementById('homeAccountOther');otherLabel.hidden=!other;otherLabel.textContent=other?other+' other accounts · access not confirmed or not available':'';
+      const totalRows=homeDirectoryRows('total'),total=totalRows.length;
+      const archivedRows=totalRows.filter(a=>accountArchived(a)),archived=archivedRows.length,remaining=totalRows.filter(a=>!accountArchived(a));
+      const activeLogin=remaining.filter(a=>a.canLogin===true&&a.accessStatus!=='pending').length,pending=remaining.filter(a=>a.accessStatus==='pending'||typeof a.canLogin!=='boolean').length,unavailable=remaining.length-activeLogin-pending,split=document.getElementById('homeAccountSplit');
+      for(const [cls,value]of [['login',activeLogin],['archived',archived],['unavailable',unavailable],['other',pending]]){const segment=split.querySelector('.home-split-'+cls);segment.style.flexGrow=value;segment.hidden=value===0;}
+      document.getElementById('loginStat').textContent=activeLogin.toLocaleString('en-GB');document.getElementById('archivedStat').textContent=archived.toLocaleString('en-GB');
+      split.setAttribute('aria-label',activeLogin+' can log in, '+archived+' archived, '+unavailable+' cannot log in, '+pending+' not confirmed; '+total+' total');
+      document.getElementById('homeLoginPercent').textContent=total?Math.round(activeLogin/total*100)+'% can log in':'';
+      for(const [name,count]of [['Unavailable',unavailable],['Pending',pending]]){document.getElementById('home'+name+'Legend').hidden=count===0;document.getElementById('home'+name+'Count').textContent=count.toLocaleString('en-GB');}
+      document.getElementById('homeAccountOther').hidden=true;
+
 
       renderHomePlannerSummary();
     }
@@ -2964,7 +2972,7 @@
       controls.hidden=true;
       const status = document.getElementById('plannerStatus');
       status.hidden = true;
-      if(privateMigrationPending){target.innerHTML='<div class="empty">Import your updated private login file to reconnect saved offer decisions after the security update. Your previous actions remain saved.<button class="advanced-btn" data-open-sheet="device">Import private login file</button></div>';return;}
+      if(privateMigrationPending){target.innerHTML='<div class="empty">Import your updated private login file to reconnect saved offer decisions after the security update. Your previous actions remain saved.<button class="advanced-btn" data-open-sheet="health">Open Sync &amp; data</button></div>';return;}
       const basket = currentBasket();
       const basketField=document.getElementById('basketInput'),feeField=document.getElementById('plannerFeeInput');
       if(basketField.value===''||!basketField.validity.valid||feeField.value===''||!feeField.validity.valid){
@@ -3050,7 +3058,7 @@
         const label=slot.kind==='confirmed'?'Receipt-confirmed use':slot.kind==='manual'?'Manually recorded use':slot.kind==='unused'?'Remaining use':'Usage unknown';
         return '<span class="directory-usage-box '+slot.kind+'" role="listitem" aria-label="'+label+' '+slot.number+'"></span>';
       }).join('')+'</div>';
-      return '<div class="directory-usage">'+boxes+'<p class="directory-use-limit">'+escapeHtml(summary)+'</p></div>';
+      return '<div class="directory-usage">'+boxes+'</div><div class="directory-usage-footer"><p class="directory-use-limit">'+escapeHtml(summary)+'</p>';
     }
     function directoryCard(account) {
       const offers=account.directoryOffers||account.promos||[],selected=accountTypeFilter==='cash'?null:offers.find(p=>p.discountType!=='uberCash');
@@ -3065,7 +3073,7 @@
       const more=Math.max(0,(account.promos||[]).filter(p=>p.discountType!=='uberCash'&&p.id!==selected?.id).length);
       const extra=cash||more?'<div class="directory-extras">'+(cash?'<span class="directory-cash">Uber Cash '+(wallet.status==='verified'?'':'~')+escapeHtml(money(wallet.remaining))+'</span>':'')+(more?'<span class="directory-more-offers">+'+more+' more offer'+(more===1?'':'s')+'</span>':'')+'</div>':'';
       return '<article class="account-card directory-card'+(selectedAccountRef===account.accountRef?' picked':'')+'" data-card-account="'+escapeHtml(account.accountRef)+'"><button class="directory-account-head" data-account-offers="'+escapeHtml(account.accountRef)+'" data-account-offer="'+escapeHtml(selected?.id||(accountTypeFilter==='cash'?'cash':''))+'" aria-label="View account '+escapeHtml(accountDisplay(account))+'"><span class="directory-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="directory-identity"><span class="account-email">'+escapeHtml(accountDisplay(account))+'</span><span class="account-login-route">'+escapeHtml(loginRouteText(account))+'<span aria-hidden="true"> · </span><span class="account-access-text '+(status==='Can log in'?'positive':'')+'">'+(status==='Can log in'?'● ':'')+escapeHtml(status)+'</span></span>'+(selectedAccountRef===account.accountRef?'<small class="directory-selected">Chosen account</small>':'')+'</span></button>'+
-        '<div class="directory-offers">'+promo+'</div>'+(!selected&&!cash?'<p class="directory-no-offer">No current offers</p>':'')+(selected?directoryUsagePreview(selected,knownLimit,usageText):'')+'<button class="directory-view-offers" data-directory-offers="'+escapeHtml(account.accountRef)+'">View offers <span aria-hidden="true">›</span></button>'+extra+(account.archived?'<small class="directory-account-status">Archived</small>':'')+receiptReviewAction(account)+'</article>';
+        '<div class="directory-offers">'+promo+'</div>'+(!selected&&!cash?'<p class="directory-no-offer">No current offers</p>':'')+(selected?directoryUsagePreview(selected,knownLimit,usageText):'')+'<button class="directory-view-offers" data-directory-offers="'+escapeHtml(account.accountRef)+'">View offers <span aria-hidden="true">›</span></button>'+(selected?'</div>':'')+extra+(account.archived?'<small class="directory-account-status">Archived</small>':'')+receiptReviewAction(account)+'</article>';
     }
     function closeAccountPicker(restore=false) {
       document.getElementById('accountTypeOptions').hidden=true;
@@ -3073,6 +3081,7 @@
       if(restore)document.getElementById('accountTypeTrigger').focus({preventScroll:true});
     }
     function openAccountPicker(last=false) {
+      document.getElementById("accountPreferredChips").hidden=false;
       const trigger=document.getElementById('accountTypeTrigger'),menu=document.getElementById('accountTypeOptions');
       menu.hidden=false;trigger.setAttribute('aria-expanded','true');
       (last?menu.lastElementChild:menu.querySelector('[aria-selected="true"]')||menu.firstElementChild)?.focus({preventScroll:true});
@@ -3084,7 +3093,9 @@
     function renderAccounts() {
       expiryTooltips?.close();
       document.getElementById('accountsTotal').textContent=accounts.length.toLocaleString('en-GB');
-      document.getElementById('accountsAccessible').textContent=accounts.filter(a=>a.canLogin===true).length.toLocaleString('en-GB');
+      const loginCount=accounts.filter(a=>a.canLogin===true&&!a.archived&&a.accessStatus!=='pending').length;
+      document.getElementById('accountsAccessible').textContent=loginCount.toLocaleString('en-GB');
+      for(const [key,count]of [['all',accounts.length],['login',loginCount],['locked',accounts.length-loginCount]])document.querySelector('[data-login-count=\"'+key+'\"]').textContent=count.toLocaleString('en-GB');
       const search=String(document.getElementById('accountSearch').value||'').trim().toLowerCase();
       const choices=accountTypeChoices();
       const quick=[...offerPreferences.preferredPromos,...(offerPreferences.includeCash&&offerPreferences.anyPromoWithCash?['cash-promo']:[])];
@@ -3106,7 +3117,7 @@
         return calculation.eligible?calculation.saving:null;
       }});
       document.getElementById('accountsMeta').textContent=list.length+(list.length===1?' account':' accounts');
-      if(privateMigrationPending&&(accountTypeFilter!=='all'||accountOfferScope!=='any'||accountFilter==='offers')){document.getElementById('accountsList').innerHTML='<div class="empty">Import the updated private login file to restore saved promotion decisions.<button class="advanced-btn" data-open-sheet="device">Import private file</button></div>';return;}
+      if(privateMigrationPending&&(accountTypeFilter!=='all'||accountOfferScope!=='any'||accountFilter==='offers')){document.getElementById('accountsList').innerHTML='<div class="empty">Import the updated private login file to restore saved promotion decisions.<button class="advanced-btn" data-open-sheet="health">Open Sync &amp; data</button></div>';return;}
       const shown=list.slice(0,accountDisplayLimit);
       document.getElementById('accountsList').innerHTML=shown.length?shown.map(directoryCard).join('')+(list.length>shown.length?'<button class="ghost-btn" data-show-more-accounts="true">Show '+Math.min(48,list.length-shown.length)+' more</button>':''):'<div class="empty">'+(preferredScopeEmpty()?emptyPreferredNotice():'No matching accounts.')+'<button class="advanced-btn" '+(preferredScopeEmpty()?'data-open-sheet="appearance"':'data-reset-directory="true"')+'>'+(preferredScopeEmpty()?'Settings':'Reset filters')+'</button></div>';
     }
@@ -3200,9 +3211,7 @@
 
     function renderMore() {
       const locked = accounts.map(currentAccountState).filter(accountArchived).length;
-      document.getElementById("lockedCardCopy").textContent =
-        locked.toLocaleString("en-GB");
-      document.getElementById("lockedCardCopy").setAttribute("aria-label",locked+" archived "+(locked===1?"account":"accounts"));
+
       const report=syncReportModel(payload.sync),schedule=report.scheduler,age=Date.now()-Date.parse(schedule?.reportedAt),confirmed=schedule?.state==='enabled'&&schedule.intervalSeconds===86400&&age>=-300000&&age<=172800000;
       const status=document.getElementById('moreSyncStatus');status.textContent=confirmed?'Daily':'Not confirmed';status.classList.toggle('confirmed',confirmed);status.setAttribute('aria-label','Email scan schedule: '+status.textContent);
 
@@ -3651,7 +3660,7 @@
       const access=account.canLogin===true?'Can log in':account.canLogin===false?'Can’t log in':'Not confirmed';
       accountSheetClock=accountSheetClockKey();
       const calc=accountCalculator?.accountRef===account.accountRef?accountCalculator:(accountCalculator=initialiseAccountCalculator(account.accountRef,accountOfferToOpen));
-      host.innerHTML=`<div data-account-sheet="${escapeHtml(account.accountRef)}"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">${accountProviderIcon(account)}</span><div class="account-identity-copy"><div class="account-sheet-email">${escapeHtml(accountDisplay(account))}</div><span class="account-login-route">${escapeHtml(loginRouteText(account))}</span></div><span class="account-login-badge${account.canLogin===true?' positive':''}"><span class="status-dot"></span>${escapeHtml(access)}</span></div><div class="account-sheet-actions">${deviceEmail(deviceAccounts,account)?`<button class="account-secondary" data-copy-email="${escapeHtml(account.accountRef)}">${financeIcon('copy')}Copy email</button>`:`<button class="account-secondary" data-copy-import="true">${financeIcon('copy')}Copy email</button>`}<button class="account-primary" data-use-this-account="${escapeHtml(account.accountRef)}"${!account.privateHistoryOnly&&currentAccountState(account).recommendationEligible?'':' disabled'}>${financeIcon('external')}Use this account</button></div></section>${receiptReviewAction(account)}<section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>${summaryCount}</span></div>${!liveItems.length?'<p class="account-no-offers">'+(preferredGroups.other.length?'Other offers are in Past &amp; other offers.':'No current promos.')+'</p>':''}${liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):false})).join('')}${liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):false})).join('')}${cashEntry}</section>${historyGroups.some(g=>g.records.length)?'<h3 class="account-section-caption">History</h3>':''}${accountHistoryMarkup(historyGroups,expanded,activeExpanded)}<h3 class="account-section-caption">Account</h3>${accountManagementMarkup(account,receiptMet?`<details class="account-rule-note" data-disclosure-key="receipt-rule"><summary>${financeIcon('check-circle')}Account receipt rule met${financeIcon('chevron-down')}</summary><p>${escapeHtml(receiptHistoryText(account))}. Offers can still be available.</p></details>`:'')}</div>`;
+      host.innerHTML=`<div data-account-sheet="${escapeHtml(account.accountRef)}"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">${accountProviderIcon(account)}</span><div class="account-identity-copy"><div class="account-sheet-email">${escapeHtml(accountDisplay(account))}</div><span class="account-login-route">${escapeHtml(loginRouteText(account))}<span class="account-inline-access${account.canLogin===true?' positive':''}"> · <span class="status-dot"></span>${escapeHtml(access)}</span></span></div>${deviceEmail(deviceAccounts,account)?`<button class="account-copy-icon" data-copy-email="${escapeHtml(account.accountRef)}" aria-label="Copy email" title="Copy email">${financeIcon('copy')}</button>`:`<button class="account-copy-icon" data-copy-import="true" aria-label="Copy email" title="Copy email">${financeIcon('copy')}</button>`}</div></section>${receiptReviewAction(account)}<section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>${summaryCount}</span></div>${!liveItems.length?'<p class="account-no-offers">'+(preferredGroups.other.length?'Other offers are in Past &amp; other offers.':'No current promos.')+'</p>':''}${liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):false})).join('')}${liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):false})).join('')}${cashEntry}</section>${historyGroups.some(g=>g.records.length)?'<h3 class="account-section-caption">History</h3>':''}${accountHistoryMarkup(historyGroups,expanded,activeExpanded)}<h3 class="account-section-caption">Account</h3>${accountManagementMarkup(account,receiptMet?`<details class="account-rule-note" data-disclosure-key="receipt-rule"><summary>${financeIcon('check-circle')}Account receipt rule met${financeIcon('chevron-down')}</summary><p>${escapeHtml(receiptHistoryText(account))}. Offers can still be available.</p></details>`:'')}</div>`;
       if(previous){restoreAccountDisclosureState({expanded:[...expanded],scroll});}
       if(accountOfferToOpen){
         const credit=[...host.querySelectorAll('[data-credit-offers]')].find(row=>JSON.parse(row.dataset.creditOffers).includes(accountOfferToOpen));
@@ -3783,7 +3792,11 @@
         '<button class="sheet-action-row" data-open-guide="overview">' + financeIcon('help') + '<span>Open Help & Guide</span></button>';
     }
 
-    function currentAccountSources(){return [...new Map([...(financeVault.data?.trackerSource?.accounts||[]),...(payload.accounts||[])].map(a=>[a.accountRef,a])).values()];}
+    function currentAccountSources(){
+      const current=[...(financeVault.data?.trackerSource?.accounts||[]),...(payload.accounts||[])],refs=new Set(current.map(a=>a.accountRef));
+      const privateOnly=(financeVault.data?.accounts||[]).filter(a=>a?.accountRef&&!refs.has(a.accountRef)).map(a=>({...a,canLogin:null,accessStatus:'unknown',loginMethod:null,loginMethods:[],archived:true,accountStatus:'archived',privateHistoryOnly:true}));
+      return [...new Map([...privateOnly,...current].map(a=>[a.accountRef,a])).values()];
+    }
     function restoreSourceProjection(){
       const source=financeVault.data?.trackerSource;if(!source)return;
       history=[...new Map([...source.history,...history].map(r=>[r.id,r])).values()];
@@ -3801,7 +3814,7 @@
     function mountPrivateDataTools(){
       const host=document.getElementById('privateDataTools');if(!host)return;
       financeModule ||= import('./private-finance-ui.js');
-      financeModule.then(module=>{if(host.isConnected&&openSheetType==='sync-info')financeView=module.syncDataInterface({host,vault:financeVault,onUpdate:privateDataUpdated});}).catch(()=>{if(host.isConnected)host.textContent='Private data controls could not load. Refresh to retry.';});
+      financeModule.then(module=>{if(host.isConnected&&openSheetType==='sync-info')financeView=module.syncDataInterface({host,vault:financeVault,onUpdate:privateDataUpdated,onSync:()=>{closeSheet(true);switchView('sync');document.getElementById('syncTitle').focus({preventScroll:true});}});}).catch(()=>{if(host.isConnected)host.textContent='Private data controls could not load. Refresh to retry.';});
     }
     let syncDataView=null,syncScrollPosition=0;
     function renderHealthSheet(){ switchView('sync'); }
@@ -3812,46 +3825,34 @@
         onBack:()=>{if(routeEntries.get(window.history.state?.trackerEntry)?.opener?.closest('#view-more,#view-home'))window.history.back();else switchView('more');},
         onInfo:()=>openUtilitySheet('sync-info'),
         onAccounts:()=>openUtilitySheet('device'),
-        refresh:async()=>{const result=await load();if(result==='failed')throw Error('Could not refresh published data. Your saved changes are unchanged.');if(result==='partial')throw Error('Published data was partly refreshed. Promo history could not load. Your saved changes are unchanged.');return result;},
+        refresh:async()=>{const result=await load();if(result==='failed')throw Error('Could not refresh published data. Your saved changes are unchanged.');if(result==='partial')throw Error('Published data was partly refreshed. Past offers could not load. Your saved changes are unchanged.');return result;},
         onRestore:()=>{manualStore=readManualStore();deviceAccounts=readDeviceAccounts();accounts=currentAccountSources().map(a=>accountWithDeviceMetadata(deviceAccounts,a));offerPreferences=readOfferPreferences(localStorage);plannerSettings=readPlannerSettings();document.getElementById('basketInput').value=plannerSettings.basketSubtotal.toFixed(2);motionSetting=localStorage.getItem(MOTION_KEY)==='reduced'?'reduced':'system';document.documentElement.dataset.motion=motionSetting;mainNav.dataset.motion=motionSetting;liquidNavigation?.refreshMotion();accountTypeFilter=selectedOfferScope(offerPreferences);applyTheme(readThemeColour());layoutPreference=readLayoutPreference();applyLayoutPreference();privateDataUpdated();renderAll();}});
 
-    }
-
-    function renderHistorySheet() {
-      setSheetHeading("Promo history", "Recent promotions with their current status and original expiry.");
-
-      const rows = history.slice(0, 60);
-
-      document.getElementById("sheetBody").innerHTML =
-        '<div class="sheet-section">' +
-          (rows.length
-            ? '<div class="sheet-list">' +
-              rows.map(row => (
-                '<div class="sheet-row"><div><div class="sheet-row-title">' + escapeHtml(accountDisplay(row)) + '</div>' +
-                '<div class="sheet-row-meta">' + escapeHtml(offerTitle(row)) +
-                  (row.expires ? ' · ends ' + escapeHtml(formatDate(row.expires) || row.expires) : '') +
-                '</div></div><span class="pill ' + (row.status === "active" ? 'good' : '') + '">' +
-                escapeHtml(promotionActivity(manualStore, promoKeyIndex.get(promoStateKey(row)) || row).status) + '</span></div>'
-              )).join("") +
-              '</div>'
-            : '<div class="empty">' + (historyUnavailable ? 'History is temporarily unavailable. Your current offers are still loaded.' : 'No promo history yet.') + '</div>') +
-        '</div>';
     }
 
     function setSheetHeading(title, sub) {
       const sheet = document.querySelector('.sheet');
       sheet.dataset.screen = title;
-      document.getElementById("sheetClose").innerHTML=title==='Account details'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg>':'×';
+      document.getElementById("sheetClose").innerHTML='×';
+      document.getElementById("sheetClose").setAttribute('aria-label','Close');
       sheet.toggleAttribute('data-planner-fees',title==='Fee settings'&&currentView==='planner');
       delete sheet.dataset.receiptCheck;delete sheet.dataset.receiptInsights;sheet.querySelectorAll('.ri-range-wrap,.ri-back').forEach(e=>e.remove());
       sheet.removeAttribute('data-finance-layout');
       let icon = sheet.querySelector('.finance-heading-icon');
       if (!icon) { icon = document.createElement('span'); icon.className = 'finance-heading-icon'; sheet.querySelector('.sheet-head').prepend(icon); }
       icon.hidden = false;
-      const icons = {'Savings':'savings','Settings':'settings','Account details':'user','Private account import':'shield','Review import':'receipt','Receipt insights':'insights','About this tracker':'info','Fee settings':'settings','Ignore offer':'ignored','Mark promotion finished':'check','Archived accounts':'history','Promo history':'calendar','Sync & data':'history'};
+      const icons = {'Savings':'savings','Settings':'settings','Account details':'user','Private account import':'shield','Review import':'receipt','Receipt insights':'insights','About this tracker':'info','Fee settings':'settings','Ignore offer':'ignored','Mark promotion finished':'check','Archived accounts':'history','Sync & data':'history'};
       icon.innerHTML = financeIcon(icons[title] || 'info');
       document.getElementById("sheetTitle").textContent = title;
       document.getElementById("sheetSub").textContent = sub || "";
+    }
+
+    let appToastTimer;
+    function showAppToast(message) {
+      const toast=document.getElementById('appToast');
+      if(!toast)return;
+      toast.textContent=message;toast.classList.add('visible');
+      clearTimeout(appToastTimer);appToastTimer=setTimeout(()=>toast.classList.remove('visible'),1600);
     }
 
     function showSheet() {
@@ -3897,6 +3898,8 @@
     }
 
     function openUtilitySheet(type, financeTarget = null, financeMissing = false, financeAccount = null, financeReceipt = null) {
+      if(type==='history'){closeSheet(true);switchView('accounts');return;}
+      if(type==='locked'){accountFilter='archived';accountLoginFilter='all';closeSheet(true);switchView('accounts');return;}
       if(type==='device'){if(currentView!=='sync')switchView('sync');if(openSheetType)closeSheet(true);openAccountImporter();return;}
       if(type==='receipts'&&receiptInsightsView?.state.reviewHub){const state=receiptInsightsView.state;Object.assign(state,state.reviewContext||{reviewOnly:false,correctedOnly:false,full:false},{reviewHub:false,reviewContext:null,reviewAccountRef:null});receiptInsightsView.saveState();}
       if(type==='finance'&&financeTarget==='receipt'&&financeReceipt){
@@ -3937,7 +3940,6 @@
       if (type === "locked") renderLockedSheet();
       if (type === "sync-info") {setSheetHeading('Sync & data','About updates and backups.');document.getElementById('sheetBody').innerHTML='<p class="sheet-help">The Mac reads Apple Mail and publishes a separate sanitised snapshot. Times and schedule status come from the last published report; this page cannot tell whether your Mac is online. Latest-run counts refer to that run, not lifetime totals. Emails checked means distinct Uber-related messages inspected, including unchanged messages.</p><p class="sheet-help">Refresh this device only fetches published data. Backups include the saved records accessible in this browser profile, not your Mac database or Mail archive. Restoring merges receipt histories by stable ID and uses backup values for matching saved decisions and preferences. A recoverable pre-restore copy stays on this device.</p>'+syncHistoryMarkup(payload.sync||{})+'<details class="sd-transfer"><summary class="sheet-action-row">Saved account imports</summary><p class="sheet-help">Removes imported emails and login overrides from this device. Keeps receipts, notes and manual uses.</p><button class="advanced-btn" id="forgetDeviceAccounts">Remove imported account details</button><p id="deviceImportStatus" role="status"></p></details><details class="sd-transfer"><summary class="sheet-action-row">Legacy receipt recovery</summary><div id="privateDataTools"></div></details>';mountPrivateDataTools();if(financeVault.status==='migration_required')document.getElementById('privateDataTools').closest('details').open=true;}
       if (type === "health") renderHealthSheet();
-      if (type === "history") renderHistorySheet();
       if(type==='theme'){renderLegacyAppearanceControls();setSheetHeading('Theme colour & layout','Saved on this device.');}
       if (type === 'finance') {
         setSheetHeading('Check receipt','');if(financeTarget==='check')document.querySelector('.sheet').dataset.receiptCheck='true';
@@ -4491,26 +4493,13 @@
       if (colourButton) { chooseTheme(colourButton.dataset.themeColour); return; }
       if (event.target.id === 'resetTheme') { chooseTheme(DEFAULT_COLOUR); return; }
       if(event.target.id==='forgetDeviceAccounts'){try{localStorage.removeItem(DEVICE_ACCOUNTS_KEY);deviceAccounts={};accounts=payload.accounts;invalidateAccountProjection();renderAll();event.target.disabled=true;document.getElementById('deviceImportStatus').textContent='Imported account details removed. Receipts and notes kept.';}catch{document.getElementById('deviceImportStatus').textContent='Could not remove imported details.';}return;}
-      if(event.target.closest('[data-copy-import]')){openUtilitySheet('device');return;}
+      if(event.target.closest('[data-copy-import]')){openUtilitySheet('health');return;}
       const copyButton = event.target.closest('[data-copy-email]');
       if (copyButton) {
         const account = accounts.find(a => a.accountRef === copyButton.dataset.copyEmail), address = deviceEmail(deviceAccounts, account);
         if (!address) return;
-        navigator.clipboard?.writeText(address).then(() => { copyButton.textContent = 'Copied'; }).catch(() => { copyButton.textContent = 'Select and copy the email above'; });
-        if (!navigator.clipboard) copyButton.textContent = 'Select and copy the email above';
-        return;
-      }
-      const useThisAccount = event.target.closest("[data-use-this-account]");
-      if (useThisAccount) {
-        const account = accounts.find(a => a.accountRef === useThisAccount.dataset.useThisAccount);
-        if (!account || !currentAccountState(account).recommendationEligible) return;
-        selectedAccountRef = useThisAccount.dataset.useThisAccount;
-        closeSheet(true);
-        switchView('accounts');
-        requestAnimationFrame(() => {
-          const card = document.querySelector('[data-card-account="' + CSS.escape(selectedAccountRef) + '"]');
-          card?.scrollIntoView({ behavior: motionReduced() ? "instant" : "smooth", block: "center" });
-        });
+        navigator.clipboard?.writeText(address).then(() => showAppToast('Copied')).catch(() => showAppToast('Could not copy email'));
+        if (!navigator.clipboard) showAppToast('Could not copy email');
         return;
       }
 

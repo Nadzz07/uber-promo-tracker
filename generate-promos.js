@@ -204,6 +204,10 @@ async function generatePromos() {
       if (receipt.isReceipt) {
         if (!accountAllowed(accountAllowlist, receipt.accountAlias)) {
           skippedOutsideAccessList++;
+          // We still reparsed this source. Keep it out of the replacement
+          // roster while counting it toward complete-source coverage so
+          // historical identities cannot block a safe clock rebuild.
+          processedMessageKeys.add(key);
           continue;
         }
 
@@ -257,6 +261,7 @@ async function generatePromos() {
       if (transportReceipt.isReceipt) {
         if (!accountAllowed(accountAllowlist, transportReceipt.accountAlias)) {
           skippedOutsideAccessList++;
+          processedMessageKeys.add(key);
           continue;
         }
 
@@ -316,6 +321,7 @@ async function generatePromos() {
 
       if (!accountAllowed(accountAllowlist, promo.accountAlias)) {
         skippedOutsideAccessList++;
+        processedMessageKeys.add(key);
         continue;
       }
 
@@ -379,7 +385,10 @@ async function generatePromos() {
       const rebuilt = reconcileOfferSources(db, { processedMessageKeys, families: sourceFamilies });
       console.log('Complete stored-source offer reconstruction: ' + JSON.stringify(rebuilt));
       console.log('Complete Eats receipt source reconstruction: '+JSON.stringify(reconcileEatsReceiptSources(db,processedMessageKeys,eatsSources)));
-      console.log('Complete receipt identity reconstruction: ' + JSON.stringify(reconcileTransportReceiptIdentities(db,processedMessageKeys,transportSources)));
+      const allowedSourceAccountRefs = accountAllowlist
+        ? new Set([...accountAllowlist.keys()].map(alias => getAccountByAlias(db, alias)?.accountRef).filter(Boolean))
+        : null;
+      console.log('Complete receipt identity reconstruction: ' + JSON.stringify(reconcileTransportReceiptIdentities(db,processedMessageKeys,transportSources,allowedSourceAccountRefs)));
     }
 
     auditLoginAccounts(db,accountAllowlist?[...accountAllowlist.values()]:[]);

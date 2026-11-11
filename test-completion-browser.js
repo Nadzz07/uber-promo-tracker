@@ -19,7 +19,7 @@ try{
  await page.route('**/promos.json?*',r=>r.fulfill({json:{accounts,promos:offers,generatedAt:time,sync:{lastSuccessfulMailScanAt:time},summary:{totalSaved:12}}}));await page.route('**/history.json?*',r=>r.fulfill({json:{updatedAt:time,records:offers}}));
  await page.addInitScript(()=>localStorage.setItem('uber-eats-promo-tracker:offer-preferences:v1',JSON.stringify({defaultView:'all',selection:'all'})));await page.goto('http://127.0.0.1:'+server.address().port);await page.waitForFunction(()=>document.getElementById('scanLabel').textContent==='Updated');
  assert.deepEqual(await page.locator('.home-overview .stats-row .stat-label').allTextContents(),['Accounts ready','Needs checking']);
- for(const [id,count] of [['usableStat',8],['activeStat',2],['loginStat',5],['archivedStat',2]])assert.equal(await page.locator('#'+id).innerText(),String(count));
+	 for(const [id,count] of [['usableStat',8],['activeStat',2],['loginStat',4],['archivedStat',2]])assert.equal(await page.locator('#'+id).innerText(),String(count));
  await openHomeDetail(page,'offers');const firstCard=page.locator('#accountsList [data-card-account="A901"]');
  assert.equal(await firstCard.locator('.directory-offer-row strong').innerText(),'£12 off £15');assert.match(await firstCard.locator('.directory-offer-row').innerText(),/£15 minimum/);
  assert.match(await firstCard.locator('.directory-use-limit').innerText(),/Usage not checked/);assert.doesNotMatch(await firstCard.innerText(),/2 of 2/,'Uses belong to the displayed promo');assert.match(await firstCard.locator('.directory-offer-row').innerText(),/days? left/);

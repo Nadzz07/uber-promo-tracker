@@ -68,6 +68,7 @@ export async function navigate(page,view) {
  else await page.locator('#mainNav [data-view="'+view+'"]').click();
 }
 export async function openMoreDestination(page,destination) {
+ if(destination==='locked'){await navigate(page,'accounts');await directoryReset(page);await directoryStatus(page,'archived');return;}
  if(await page.evaluate(()=>matchMedia('(min-width:768px)').matches))await page.locator('.desktop-sidebar [data-sidebar-key="'+destination+'"]').click();
  else {await navigate(page,'more');await page.locator('#view-more '+(destination==='help'?'[data-open-guide]':destination==='planner'?'[data-jump-planner]':'[data-open-sheet="'+destination+'"]')).click();}
 }

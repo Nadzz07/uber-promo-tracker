@@ -74,7 +74,7 @@ try {
     const style=getComputedStyle(el);
     return {animation:style.animationName,properties:style.transitionProperty,durations:style.transitionDuration.split(',').map(Number.parseFloat)};
   });
-  assert.equal(sheetMotion.animation,'none','A competing entrance animation must not prevent reversible sheet transitions');
+  assert.equal(sheetMotion.animation,'account-page-enter','Account details uses the reference right-to-left page entrance');
   assert.match(sheetMotion.properties,/transform/);assert.match(sheetMotion.properties,/opacity/);
   assert.ok(sheetMotion.durations.every(value=>value>=.2&&value<=.3),'Sheets use short, purposeful transitions');
   assert.equal(await page.locator('#app').evaluate(e => e.inert), true);
