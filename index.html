@@ -3793,9 +3793,12 @@
     }
 
     function currentAccountSources(){
-      const current=[...(financeVault.data?.trackerSource?.accounts||[]),...(payload.accounts||[])],refs=new Set(current.map(a=>a.accountRef));
-      const privateOnly=(financeVault.data?.accounts||[]).filter(a=>a?.accountRef&&!refs.has(a.accountRef)).map(a=>({...a,canLogin:null,accessStatus:'unknown',loginMethod:null,loginMethods:[],archived:true,accountStatus:'archived',privateHistoryOnly:true}));
-      return [...new Map([...privateOnly,...current].map(a=>[a.accountRef,a])).values()];
+      // The published tracker roster is authoritative. Private finance account
+      // aggregates can include addresses seen only in old receipts; keep those
+      // aggregates in the finance vault, but never promote them into the current
+      // account directory or its account totals.
+      const current=[...(financeVault.data?.trackerSource?.accounts||[]),...(payload.accounts||[])];
+      return [...new Map(current.filter(a=>a?.accountRef).map(a=>[a.accountRef,a])).values()];
     }
     function restoreSourceProjection(){
       const source=financeVault.data?.trackerSource;if(!source)return;
