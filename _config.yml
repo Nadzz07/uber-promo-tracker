@@ -151,3 +151,7 @@ exclude:
 
   - test-app-select-menus-browser.js
   - test-compact-393-browser.js
+  - test-desktop-compositions-browser.js
+  - test-offer-edit-browser.js
+  - test-offer-local-edits.js
+  - test-receipt-link-refresh-browser.js

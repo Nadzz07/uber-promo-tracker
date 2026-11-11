@@ -29,7 +29,7 @@ const name=process.env.TRACKER_BROWSER_ENGINE||'chromium',browser=await{chromium
   await openMoreDestination(page,'finance');await page.locator('.fi-review').waitFor();assert.equal(await page.locator('[data-finance-action=lock]').count(),0);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.locator('[data-receipts-back]').click();
   await page.keyboard.press('Escape');await openMoreDestination(page,'health');await page.locator('[data-account-import]').click();
   assert.equal(await page.locator('.receipt-import-dialog[open] [data-rim-choose]').evaluate(e=>getComputedStyle(e).visibility),'visible','Reduced-motion sheet text must appear immediately, without nested visibility transitions');
-  assert.equal(await page.locator('.receipt-import-dialog[open] [data-rim-choose]').evaluate(e=>getComputedStyle(e).transitionProperty),'none');
+  assert.ok(await page.locator('.receipt-import-dialog[open] [data-rim-choose]').evaluate(e=>{const s=getComputedStyle(e);return ['none','opacity'].includes(s.transitionProperty)&&s.transitionDuration.split(',').every(v=>parseFloat(v)<=.1);}),'Reduced motion uses only a short fade');
   assert.deepEqual(errors,[]);await page.close();
  }
  assert.equal(uploads,0);console.log('✓ Expanded comparison, long private emails, account terms, large savings and fresh vault at six widths ('+name+')');

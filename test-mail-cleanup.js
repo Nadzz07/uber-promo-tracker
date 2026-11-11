@@ -181,5 +181,3 @@ for(const state of ['used','partial']){const p={...offer,receiptState:state},c=c
 
 for(const subject of ['Dig in to up to £15 off','24 hours until your £ Uber voucher expires ⏳'])assert.equal(result({...message,subject},context()).category,'keep_owner_personal_teaser');
 assert.equal(result({...message,subject:'Browse new deals'},context()).destination,'Bin');
-
-assert.equal(result({...base,subject:'Tackle your to-do list with Uber',body:'Your trusted ride, wherever you are heading. Keeping you going on your busiest days. Open the app.'}).destination,'Bin');

@@ -20,7 +20,7 @@ try { for(const width of [390,980,1440,1920]) {
   assert.ok(await page.locator('#offersTitle').isVisible(),'Offer detail retains its heading');
   if(width===390) {await page.waitForFunction(()=>{const heading=document.getElementById('homeAccountsTitle').getBoundingClientRect();return heading.top>=0&&heading.bottom<document.getElementById('mainNav').getBoundingClientRect().top;});assert.ok(await page.locator('#homeAccountsTitle').evaluate(e=>e.getBoundingClientRect().top>=0 && e.getBoundingClientRect().bottom<document.getElementById('mainNav').getBoundingClientRect().top),'Selected result context must be discoverable above the dock');}
  }
- await openHomeDetail(page,'offers');await page.locator('[data-intent="15off15"]').click();await openHomeDetail(page,'offers');await page.locator('#homeResultsFooter [data-jump-accounts]').click();assert.equal(await page.locator('#accountsMeta').innerText(),'7 accounts');assert.equal(await page.locator('#accountTypeValue').innerText(),'£15 off £15');await navigate(page,'home');assert.equal(await page.locator('#homeAccountsTitle').innerText(),'Best matches');await openHomeDetail(page,'offers');await page.locator('#resetQuickFind').click();assert.equal(await page.locator('#homeAccountsTitle').innerText(),'Best matches');
+ await openHomeDetail(page,'offers');await page.locator('[data-intent="15off15"]').click();await openHomeDetail(page,'offers');await page.locator('#homeResultsFooter [data-jump-accounts]').click();assert.equal(await page.locator('#accountsMeta').innerText(),'7 accounts');assert.equal(await page.locator('#accountTypeValue').innerText(),'1 selected');await navigate(page,'home');assert.equal(await page.locator('#homeAccountsTitle').innerText(),'Best matches');await openHomeDetail(page,'offers');await page.locator('#resetQuickFind').click();assert.equal(await page.locator('#homeAccountsTitle').innerText(),'Best matches');
  await navigate(page,'accounts');await directoryReset(page);await directoryStatus(page,'pending');assert.equal(await page.locator('#accountsMeta').innerText(),'1 account');assert.match(await page.locator('#accountsList').innerText(),/pending verification/i);
  await navigate(page,'home');
  assert.equal(await page.locator('#activeStat').innerText(),'15');
@@ -38,7 +38,7 @@ try { for(const width of [390,980,1440,1920]) {
  await directoryAvailability(page,'attention');assert.equal(await page.locator('#accountsMeta').innerText(),'3 accounts');
  if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('#accountsList [data-account-offers="A815"]').click();
  assert.equal(await page.locator('[data-use-this-account="A815"]').isDisabled(),true);
- assert.match(await page.locator('.account-login-badge').innerText(),/Can’t log in/);assert.ok(await page.locator('[data-use-this-account]').isDisabled());
+ assert.match(await page.locator('.account-inline-access').innerText(),/Can’t log in/);assert.ok(await page.locator('[data-use-this-account]').isDisabled());
  const review=page.locator('#sheetBody .account-detail-offer').filter({has:page.locator('.account-offer-state', {hasText:'Needs checking'})});
  await review.locator('> summary').click();
  const reviewStatus=review.locator('.account-offer-state').filter({hasText:'Needs checking'}).first();await reviewStatus.scrollIntoViewIfNeeded();await reviewStatus.waitFor({state:'visible'});assert.match(await review.textContent(),/Needs checking/);

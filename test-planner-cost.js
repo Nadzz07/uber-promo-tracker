@@ -62,3 +62,14 @@ const selectedPromoPlan=rankBasketPlans([scopedPromo],15,{accounts:[accounts[0]]
 assert.equal(selectedPromoPlan.orders[0].promo.id,scopedPromo.id,'An explicit calculator promo is not silently replaced by a cash-only option');assert.equal(selectedPromoPlan.totalAfterPromosAndFees,11);assert.equal(selectedPromoPlan.cashUsed,11);assert.equal(selectedPromoPlan.estimatedPay,0);
 assert.equal(rankBasketPlans([scopedPromo],15,{accounts:[accounts[0]],requiredPromoId:'a-different-offer',now}).suggested,null,'Account handoff never substitutes another promo');
 console.log('✓ Explicit shared-calculator promo scope preserves selection and applies Cash and first-order fees once.');
+{
+ const choices=[{...offers[0],id:'limited',restrictions:{merchantLimited:true}},{...offers[1],id:'general',restrictions:{merchantLimited:false}},{...offers[2],id:'unknown',restrictions:{}}];
+ const equal=rankBasketPlans(choices,15,{accounts,now});
+ assert.equal(equal.suggested.orders[0].promo.id,'general','Confirmed unrestricted wins a cost tie');
+ assert.ok(equal.plans.some(p=>p.orders[0].promo?.id==='limited'),'Same-cost restricted accounts stay in Other options');
+ const cheaper=rankBasketPlans([{...choices[0],discount:13},choices[1]],15,{accounts,now});
+ assert.equal(cheaper.suggested.orders[0].promo.id,'limited','A bigger restricted offer wins when it costs less');
+ const named=rankBasketPlans([{...choices[0],restriction:'Selected merchants',restrictions:{merchantLimited:false}},choices[1]],15,{accounts,now});
+ assert.equal(named.suggested.orders[0].promo.id,'general','Explicit restriction text is respected');
+ console.log('✓ Planner restriction ties, unknown terms, cheaper restricted offers and distinct equal-cost account alternatives.');
+}

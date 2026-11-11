@@ -41,6 +41,7 @@ const paths = {
   list: '<circle cx="4" cy="5" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="19" r="1"/><path d="M10 5h11M10 12h11M10 19h7"/>',
   gift: '<path d="M3 10h18v4H3zM5 14v8h14v-8M12 10v12M12 10C3 10 4 1 9 3c2 1 3 4 3 7ZM12 10c9 0 8-9 3-7-2 1-3 4-3 7Z"/>',
   tag: '<path d="M3 3h9l9 9-9 9-9-9V3Z"/><circle cx="8" cy="8" r="1"/>',
+  shop: '<path d="M3 10v11h18V10M2 10l2-7h16l2 7M2 10a3 3 0 0 0 5 2 3 3 0 0 0 5 0 3 3 0 0 0 5 0 3 3 0 0 0 5-2M9 21v-7h6v7"/>',
   layers: '<path d="m12 2 10 6-10 6L2 8l10-6ZM2 12l10 6 10-6M2 16l10 6 10-6"/>',
   sort: '<path d="M7 3v18m-4-4 4 4 4-4M17 21V3m-4 4 4-4 4 4"/>',
   delivery: '<circle cx="5" cy="18" r="3"/><circle cx="19" cy="18" r="3"/><path d="M5 18 9 9h5l5 9M8 12h7l-2-8h-3M3 9h4M15 4h3"/>',

@@ -1,6 +1,7 @@
 name: Test promo engine
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
