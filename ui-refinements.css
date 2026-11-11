@@ -1,4 +1,10 @@
 /* A neutral canvas lets the saved accent colour tint the whole app consistently. */
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 :root {
   --bg: var(--color-panel);
   --bg-deep: var(--color-sheet);
@@ -2313,3 +2319,76 @@ body:has(.sheet-backdrop.open .sheet[data-screen="Account details"]) { backgroun
 .account-estimate-label{display:inline-flex;align-items:center;margin-inline-start:6px;padding:2px 7px;border:1px solid currentColor;border-radius:7px;font-size:11px;line-height:16px;color:var(--color-warning-text);font-weight:500;}
 .account-cash-entry>summary>.cash-entry-value{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
 .cash-entry-value>.account-estimate-label{margin:0;}
+
+/* Account details follows the full-screen reference instead of the shared sheet frame. */
+.sheet-backdrop:has(.sheet[data-screen="Account details"]) {
+  inset:0; height:100dvh; align-items:stretch; justify-content:stretch;
+  padding:0; background:transparent;
+}
+.sheet-backdrop:has(.sheet[data-screen="Account details"]).open { display:flex; }
+.sheet[data-screen="Account details"] {
+  width:100%; max-width:none; height:100dvh; max-height:100dvh; min-height:0;
+  padding-top:env(safe-area-inset-top,0px);
+  border:0; border-radius:0; background:var(--color-screen); box-shadow:none;
+  transform:none; animation:account-page-enter 280ms cubic-bezier(.2,.8,.2,1) both;
+}
+.sheet[data-screen="Account details"] .sheet-handle,
+.sheet[data-screen="Account details"] .finance-heading-icon { display:none; }
+.sheet[data-screen="Account details"] .sheet-head {
+  min-height:64px; padding:8px 16px 10px; gap:12px;
+}
+.sheet[data-screen="Account details"] .sheet-close {
+  order:-1; flex:0 0 36px; width:36px; height:36px; padding:7px;
+  border-radius:50%; background:var(--color-panel);
+}
+.sheet[data-screen="Account details"] .sheet-close svg { width:20px; height:20px; }
+.sheet[data-screen="Account details"] .sheet-title { font-size:26px; font-weight:800; letter-spacing:-.7px; }
+.sheet[data-screen="Account details"] .sheet-sub { display:none; }
+.sheet[data-screen="Account details"] .sheet-body {
+  padding:0 16px calc(102px + env(safe-area-inset-bottom,0px));
+  scroll-padding-bottom:calc(102px + env(safe-area-inset-bottom,0px));
+}
+.sheet[data-screen="Account details"] .account-sheet-hero {
+  padding:14px; border-radius:20px; background:var(--color-panel);
+}
+.sheet[data-screen="Account details"] .account-sheet-top { gap:12px; }
+.sheet[data-screen="Account details"] .account-sheet-top > .account-detail-provider {
+  flex:0 0 42px; width:42px; height:42px; justify-content:center;
+  border:1px solid var(--tint-color-accent-30-0-transparent); border-radius:14px;
+  background:var(--tint-color-accent-12-0-transparent);
+}
+.sheet[data-screen="Account details"] .account-detail-provider svg { width:20px; height:20px; }
+.sheet[data-screen="Account details"] .account-sheet-top > .account-identity-copy { flex:1 1 0; min-width:0; }
+.sheet[data-screen="Account details"] .account-sheet-email {
+  margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-size:15.5px; font-weight:700; letter-spacing:-.2px;
+}
+.sheet[data-screen="Account details"] .account-login-route {
+  display:block; margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-size:12.5px; line-height:1.4;
+}
+.account-inline-access { display:inline-flex; align-items:center; gap:5px; color:var(--muted); }
+.account-inline-access.positive { color:var(--color-positive); }
+.account-inline-access .status-dot { width:7px; height:7px; flex:none; box-shadow:none; background:var(--color-secondary); }
+.account-inline-access.positive .status-dot { background:var(--color-positive-dot); }
+.account-copy-icon {
+  flex:0 0 36px; width:36px; height:36px; display:grid; place-items:center;
+  padding:0; border:1px solid var(--color-border); border-radius:50%;
+  background:var(--color-close); color:var(--color-icon); cursor:pointer;
+}
+.account-copy-icon svg { width:18px; height:18px; }
+.sheet[data-screen="Account details"] .account-sheet-actions { display:none; }
+.sheet-backdrop:has(.sheet[data-screen="Account details"]).open { animation:account-backdrop-enter 240ms ease both; }
+.app-toast {
+  position:fixed; z-index:10000; left:50%; bottom:calc(90px + env(safe-area-inset-bottom,0px));
+  max-width:calc(100vw - 32px); padding:10px 16px; border:1px solid var(--color-border);
+  border-radius:999px; background:var(--color-panel); color:var(--color-text); font-size:13px;
+  opacity:0; transform:translate(-50%,8px); pointer-events:none; transition:opacity 160ms ease,transform 160ms ease;
+}
+.app-toast.visible { opacity:1; transform:translate(-50%,0); }
+@keyframes account-page-enter { from { opacity:.7; translate:24px 0; } to { opacity:1; translate:0 0; } }
+@keyframes account-backdrop-enter { from { opacity:0; } to { opacity:1; } }
+@media(prefers-reduced-motion:reduce) {
+  .sheet[data-screen="Account details"],.sheet-backdrop:has(.sheet[data-screen="Account details"]).open { animation:none; }
+  .app-toast { transition:opacity 100ms linear; transform:translate(-50%,0); }
+}

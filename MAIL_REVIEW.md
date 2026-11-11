@@ -16,12 +16,12 @@ an automatic cleanup schedule as part of this workflow.
   promotions of any discount type, but never confuse them with Ride receipts.
 - Keep usable preferred Eats offers: £10/£12/£15 off a £15 minimum, and Cash.
 - For each reliably identified campaign: once fully used, retain the latest
-  offer email in Archive and bin duplicates. Do the same for a partly used
+  offer email in Inbox and archive older copies. Do the same for a partly used
   campaign once its exact expiry has passed. Bin all copies of a demonstrably
   unused expired campaign. Unknown usage/expiry never means zero/expired.
 - Percentage Eats offers can be useful alongside same-account Cash with
   overlapping dates. This is not proof of checkout compatibility or joint use.
-  Archive one latest source for each used campaign, with duplicates in Bin.
+  Keep the latest used-campaign source in Inbox and older copies in Archive.
   If only Cash was used, do not infer percentage use; bin the unused percentage
   campaign after verified expiry. Keep uncertain cases for review.
 - After receipt-supported promo completion, bin other non-excluded Uber mail.
@@ -175,3 +175,76 @@ using the email TITLE and a brief explanation, in small batches. Leave them
 untouched until answered. Save category decisions to avoid repeated questions.
 Continue asking full addresses and only missing login fields for genuinely new
 receipt-linked accounts. No automatic cleanup scheduler is authorized.
+
+
+### Owner clarification — 8 November: expired offers with unknown usage
+
+Keep the latest email for each expired personal offer in Archive and move only
+its duplicates to Bin. This does not establish that an offer was unused, used
+or completed. Preserve recorded usage and original source evidence. Campaign
+groups must include the exact account, offer terms and explicit validity window;
+reused codes with different expiry dates are not duplicates. An unmatched offer
+requires source-confirmed expiry and discount/minimum-spend terms before applying
+this rule. Unknown or estimated expiry remains held. Earlier explicit exclusions
+(such as expired percentage promotions, grocery or merchant-only advertising)
+continue to take precedence.
+
+The receipt-linked account reviewed in this batch is confirmed able to log in
+through iCloud only. Full address and field-level chat provenance stay in the
+private confirmation audit and account transfer, not this public policy file.
+
+
+### Further owner clarification — 8 November: all inaccessible-account offers
+
+Every Uber offer email for an account explicitly confirmed as unable to log in
+goes to recoverable Bin, including Uber Cash, fixed discounts, percentage offers
+and Uber-issued travel offers. This takes precedence over offer-retention rules
+and the earlier routing of Uber-issued Eurostar ads. Missing roster membership
+is not evidence of inaccessible login. Actual receipts, credited-balance/payment
+records, login codes and phone-number changes remain protected. No balance,
+receipt, usage or monetary total is deleted by binning an advertisement.
+
+The source-reviewed generic teen signup/grocery reward, ride-app download and
+customisation ads, named-shop deals starting with The, Save £X at named retailers,
+Co-op shopping discovery and reordering menus follow the existing advertising
+exclusions. Genuine personal order-level terms embedded in a discovery template
+remain protected.
+
+For Mail decisions only, consult preserved field-level access confirmations for
+older unlisted accounts too. A historical false value must have imported
+access-list or explicit chat provenance, a nonpending status, and a recorded time;
+the database access state must agree. A default false flag or omission from the
+current roster is insufficient. Current roster confirmations take precedence.
+This evidence never adds an account back to the tracker or changes its counts.
+New receipt-linked identities are still checked against the current roster.
+
+The owner subsequently chose to leave emails titled ‘Your Disney+ promo code is
+on its way’ in Inbox for now. Keep this explicit benefit exception until the
+owner changes it; it is not a reason to keep other membership advertising.
+
+
+## Latest owner correction — used campaign emails
+
+For a receipt-confirmed fully used campaign, keep its latest promo email in Inbox
+and archive every older promo email from that same campaign. Apply exactly the
+same routing to a partly used campaign after its confirmed expiry. Do not bin
+those older emails. Preserve the actual matched count: two of three remains two
+of three, expired; do not invent a third use. Confirmed-unused expired campaigns
+still go entirely to Bin. Separate campaigns stay separate by account, terms,
+maximum uses and validity window. A matching discount amount alone is insufficient.
+This supersedes earlier used-campaign latest-in-Archive/duplicates-in-Bin wording.
+Unknown usage is not proof of unused status. Receipts and other safeguards remain.
+
+## Owner clarification — 9 November
+
+Bin “Browse new deals”. Keep “Dig in to up to £15 off” and “24 hours until your £ Uber voucher expires ⏳” while their personal-offer terms are uncertain. This does not confirm expiry, usage or balance, and does not make an inaccessible account usable.
+
+### Generic ride advertising, 10 November 2026
+
+“Tackle your to-do list with Uber”, when its original confirms the trusted-ride / busy-days advertising template, belongs in Bin. It is transport advertising, not a personal Eats or Cash benefit. Receipt and transaction protections still take precedence.
+
+### 11 November follow-up
+
+Reviewed the past 24 hours against the current rules. Three messages moved to Bin, two Amazon messages to Amazon, and one other message to Others. Independent location verification covered all 30,775 scanned originals: six moved, 30,769 untouched, and all six destinations verified. No permanent deletion. No new receipts or receipt-linked account identities were found.
+
+The owner explicitly asked to keep the ten uncertain Cash/personal-offer reminders in Inbox for now. These are held, not treated as expired or silently discarded. A reminder is scheduled for 12 November at 18:00. Source-exact eligible campaigns from the earlier scan were reconciled separately without changing receipt totals or inventing usage.

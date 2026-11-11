@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="">
   <meta name="description" content="Private Uber Eats promo tracker with account recommendations, usage tracking and receipt-based savings.">
@@ -2300,6 +2300,7 @@
       <div id="sheetBody" class="sheet-body"></div>
     </div>
   </div>
+  <div id="appToast" class="app-toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <script type="module">
     import { financeIcon } from "./finance-layout.js";
@@ -3092,7 +3093,7 @@
     function renderAccounts() {
       expiryTooltips?.close();
       document.getElementById('accountsTotal').textContent=accounts.length.toLocaleString('en-GB');
-      const loginCount=accounts.filter(a=>a.canLogin===true&&a.accessStatus!=='pending').length;
+      const loginCount=accounts.filter(a=>a.canLogin===true&&!a.archived&&a.accessStatus!=='pending').length;
       document.getElementById('accountsAccessible').textContent=loginCount.toLocaleString('en-GB');
       for(const [key,count]of [['all',accounts.length],['login',loginCount],['locked',accounts.length-loginCount]])document.querySelector('[data-login-count=\"'+key+'\"]').textContent=count.toLocaleString('en-GB');
       const search=String(document.getElementById('accountSearch').value||'').trim().toLowerCase();
@@ -3659,7 +3660,7 @@
       const access=account.canLogin===true?'Can log in':account.canLogin===false?'Can’t log in':'Not confirmed';
       accountSheetClock=accountSheetClockKey();
       const calc=accountCalculator?.accountRef===account.accountRef?accountCalculator:(accountCalculator=initialiseAccountCalculator(account.accountRef,accountOfferToOpen));
-      host.innerHTML=`<div data-account-sheet="${escapeHtml(account.accountRef)}"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">${accountProviderIcon(account)}</span><div class="account-identity-copy"><div class="account-sheet-email">${escapeHtml(accountDisplay(account))}</div><span class="account-login-route">${escapeHtml(loginRouteText(account))}</span></div><span class="account-login-badge${account.canLogin===true?' positive':''}"><span class="status-dot"></span>${escapeHtml(access)}</span></div><div class="account-sheet-actions">${deviceEmail(deviceAccounts,account)?`<button class="account-secondary" data-copy-email="${escapeHtml(account.accountRef)}">${financeIcon('copy')}Copy email</button>`:`<button class="account-secondary" data-copy-import="true">${financeIcon('copy')}Copy email</button>`}<button class="account-primary" data-use-this-account="${escapeHtml(account.accountRef)}"${!account.privateHistoryOnly&&currentAccountState(account).recommendationEligible?'':' disabled'}>${financeIcon('external')}Use this account</button></div></section>${receiptReviewAction(account)}<section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>${summaryCount}</span></div>${!liveItems.length?'<p class="account-no-offers">'+(preferredGroups.other.length?'Other offers are in Past &amp; other offers.':'No current promos.')+'</p>':''}${liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):false})).join('')}${liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):false})).join('')}${cashEntry}</section>${historyGroups.some(g=>g.records.length)?'<h3 class="account-section-caption">History</h3>':''}${accountHistoryMarkup(historyGroups,expanded,activeExpanded)}<h3 class="account-section-caption">Account</h3>${accountManagementMarkup(account,receiptMet?`<details class="account-rule-note" data-disclosure-key="receipt-rule"><summary>${financeIcon('check-circle')}Account receipt rule met${financeIcon('chevron-down')}</summary><p>${escapeHtml(receiptHistoryText(account))}. Offers can still be available.</p></details>`:'')}</div>`;
+      host.innerHTML=`<div data-account-sheet="${escapeHtml(account.accountRef)}"><section class="account-sheet-hero"><div class="account-sheet-top"><span class="account-detail-provider">${accountProviderIcon(account)}</span><div class="account-identity-copy"><div class="account-sheet-email">${escapeHtml(accountDisplay(account))}</div><span class="account-login-route">${escapeHtml(loginRouteText(account))}<span class="account-inline-access${account.canLogin===true?' positive':''}"> · <span class="status-dot"></span>${escapeHtml(access)}</span></span></div>${deviceEmail(deviceAccounts,account)?`<button class="account-copy-icon" data-copy-email="${escapeHtml(account.accountRef)}" aria-label="Copy email" title="Copy email">${financeIcon('copy')}</button>`:`<button class="account-copy-icon" data-copy-import="true" aria-label="Copy email" title="Copy email">${financeIcon('copy')}</button>`}</div></section>${receiptReviewAction(account)}<section class="sheet-section offers-section"><div class="account-offers-heading"><h2>Offers</h2><span>${summaryCount}</span></div>${!liveItems.length?'<p class="account-no-offers">'+(preferredGroups.other.length?'Other offers are in Past &amp; other offers.':'No current promos.')+'</p>':''}${liveItems.slice(0,1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):false})).join('')}${liveItems.slice(1).map(p=>offerSheetCard(p,{open:previous?expanded.has(promoStateKey(p)):false})).join('')}${cashEntry}</section>${historyGroups.some(g=>g.records.length)?'<h3 class="account-section-caption">History</h3>':''}${accountHistoryMarkup(historyGroups,expanded,activeExpanded)}<h3 class="account-section-caption">Account</h3>${accountManagementMarkup(account,receiptMet?`<details class="account-rule-note" data-disclosure-key="receipt-rule"><summary>${financeIcon('check-circle')}Account receipt rule met${financeIcon('chevron-down')}</summary><p>${escapeHtml(receiptHistoryText(account))}. Offers can still be available.</p></details>`:'')}</div>`;
       if(previous){restoreAccountDisclosureState({expanded:[...expanded],scroll});}
       if(accountOfferToOpen){
         const credit=[...host.querySelectorAll('[data-credit-offers]')].find(row=>JSON.parse(row.dataset.creditOffers).includes(accountOfferToOpen));
@@ -3791,7 +3792,11 @@
         '<button class="sheet-action-row" data-open-guide="overview">' + financeIcon('help') + '<span>Open Help & Guide</span></button>';
     }
 
-    function currentAccountSources(){return [...new Map([...(financeVault.data?.trackerSource?.accounts||[]),...(payload.accounts||[])].map(a=>[a.accountRef,a])).values()];}
+    function currentAccountSources(){
+      const current=[...(financeVault.data?.trackerSource?.accounts||[]),...(payload.accounts||[])],refs=new Set(current.map(a=>a.accountRef));
+      const privateOnly=(financeVault.data?.accounts||[]).filter(a=>a?.accountRef&&!refs.has(a.accountRef)).map(a=>({...a,canLogin:null,accessStatus:'unknown',loginMethod:null,loginMethods:[],archived:true,accountStatus:'archived',privateHistoryOnly:true}));
+      return [...new Map([...privateOnly,...current].map(a=>[a.accountRef,a])).values()];
+    }
     function restoreSourceProjection(){
       const source=financeVault.data?.trackerSource;if(!source)return;
       history=[...new Map([...source.history,...history].map(r=>[r.id,r])).values()];
@@ -3828,7 +3833,8 @@
     function setSheetHeading(title, sub) {
       const sheet = document.querySelector('.sheet');
       sheet.dataset.screen = title;
-      document.getElementById("sheetClose").innerHTML=title==='Account details'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg>':'×';
+      document.getElementById("sheetClose").innerHTML='×';
+      document.getElementById("sheetClose").setAttribute('aria-label','Close');
       sheet.toggleAttribute('data-planner-fees',title==='Fee settings'&&currentView==='planner');
       delete sheet.dataset.receiptCheck;delete sheet.dataset.receiptInsights;sheet.querySelectorAll('.ri-range-wrap,.ri-back').forEach(e=>e.remove());
       sheet.removeAttribute('data-finance-layout');
@@ -3839,6 +3845,14 @@
       icon.innerHTML = financeIcon(icons[title] || 'info');
       document.getElementById("sheetTitle").textContent = title;
       document.getElementById("sheetSub").textContent = sub || "";
+    }
+
+    let appToastTimer;
+    function showAppToast(message) {
+      const toast=document.getElementById('appToast');
+      if(!toast)return;
+      toast.textContent=message;toast.classList.add('visible');
+      clearTimeout(appToastTimer);appToastTimer=setTimeout(()=>toast.classList.remove('visible'),1600);
     }
 
     function showSheet() {
@@ -4484,21 +4498,8 @@
       if (copyButton) {
         const account = accounts.find(a => a.accountRef === copyButton.dataset.copyEmail), address = deviceEmail(deviceAccounts, account);
         if (!address) return;
-        navigator.clipboard?.writeText(address).then(() => { copyButton.textContent = 'Copied'; }).catch(() => { copyButton.textContent = 'Select and copy the email above'; });
-        if (!navigator.clipboard) copyButton.textContent = 'Select and copy the email above';
-        return;
-      }
-      const useThisAccount = event.target.closest("[data-use-this-account]");
-      if (useThisAccount) {
-        const account = accounts.find(a => a.accountRef === useThisAccount.dataset.useThisAccount);
-        if (!account || !currentAccountState(account).recommendationEligible) return;
-        selectedAccountRef = useThisAccount.dataset.useThisAccount;
-        closeSheet(true);
-        switchView('accounts');
-        requestAnimationFrame(() => {
-          const card = document.querySelector('[data-card-account="' + CSS.escape(selectedAccountRef) + '"]');
-          card?.scrollIntoView({ behavior: motionReduced() ? "instant" : "smooth", block: "center" });
-        });
+        navigator.clipboard?.writeText(address).then(() => showAppToast('Copied')).catch(() => showAppToast('Could not copy email'));
+        if (!navigator.clipboard) showAppToast('Could not copy email');
         return;
       }
 

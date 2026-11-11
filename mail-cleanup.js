@@ -11,7 +11,7 @@ export function cleanupPreview(sources,accounts,context=null) {
  const last=source.path?.at(-1)||source.message.sourceMailbox;
  if(classification.category.startsWith('protected')){protectedSources.push({accountId:source.accountId,path:source.path,nativeId:source.nativeId,messageId:source.message.messageId});continue;}
  if(!classification.destination){review.push({accountRef:accounts.get(source.message.recipient)?.accountRef||null,reason:classification.reason});continue;}
- if(/^(?:sent messages|drafts|bin|trash|deleted messages|deleted items)$/i.test(last)||classification.destination==='Archive'&&/^archive$/i.test(last)){alreadyAtDestination++;continue;}
+ if(/^(?:sent messages|drafts|bin|trash|deleted messages|deleted items)$/i.test(last)||classification.destination==='Archive'&&/^archive$/i.test(last)||classification.destination==='Inbox'&&/^inbox$/i.test(last)){alreadyAtDestination++;continue;}
  if(!source.accountId||!source.path||source.nativeId==null||!source.raw||!source.message.messageId){review.push({reason:'A qualified physical source is required.'});continue;}
  targets.push({accountId:source.accountId,path:source.path,nativeId:source.nativeId,messageId:source.message.messageId,recipient:source.message.recipient,raw:source.raw,classification,...classification});
  }

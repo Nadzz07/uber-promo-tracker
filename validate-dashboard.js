@@ -33,7 +33,7 @@ assert.ok(html.includes("Estimated fee per order"));
 assert.ok(html.includes("Maximum split orders"));
 assert.ok(html.includes("data-max-orders"));
 assert.ok(html.includes("[1,2,3,4].map"));
-assert.ok(html.includes("Use this account"));
+assert.equal(html.includes("Use this account"), false, "Account details must not include an account-launch action");
 assert.ok(html.includes("account-status-badge"));
 assert.ok(html.includes('id="sheetBackdrop"'));
 assert.ok(html.includes("Record use") && html.includes("data-use-one"));
@@ -111,7 +111,6 @@ const actionWiring = [
   ['data-login-filter=', "closest('[data-login-filter]')"],
   ['data-open-sheet=', 'closest("[data-open-sheet]")'],
   ['data-account-offers=', 'closest("[data-account-offers]")'],
-  ['data-use-this-account=', 'closest("[data-use-this-account]")'],
   ['data-max-orders=', 'closest("[data-max-orders]")'],
   ['data-use-one=', 'closest("[data-use-one]")'],
   ['data-undo-use=', 'closest("[data-undo-use]")'],

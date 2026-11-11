@@ -18,7 +18,7 @@ async function expand(p,selector){const d=p.locator(selector);if(selector==='.ac
 async function open(p,ref){assert.equal(await p.locator('#accountsList [data-account-offers="'+ref+'"]').count(),1,JSON.stringify(await p.evaluate(()=>({search:document.getElementById('accountSearch').value,meta:document.getElementById('accountsMeta').textContent,display:document.getElementById('accountsList').textContent,type:document.getElementById('accountTypeValue').textContent}))));await p.locator('#accountsList [data-account-offers="'+ref+'"]').click();await p.locator('.sheet[data-screen="Account details"]').waitFor();}
 async function close(p){await p.keyboard.press('Escape');await p.waitForFunction(()=>!history.state?.trackerSheet);await settlePageLayout(p);}
 try {
- for(const [width,height,large] of [[440,956,false],[390,844,false],[320,568,false],[1440,1000,false],[440,763,true]]) {
+ for(const [width,height,large] of [[440,956,false],[393,852,false],[390,844,false],[320,568,false],[1440,1000,false],[440,763,true]]) {
   const c=await browser.newContext({viewport:{width,height},reducedMotion:'reduce',timezoneId:'Europe/London'}),p=await c.newPage(),errors=[];
   p.on('pageerror',e=>errors.push(e.message));
   await c.addInitScript(({accounts})=>{Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async v=>window.__qaCopied=v}});localStorage.setItem('uber-eats-promo-tracker:device-accounts:v1',JSON.stringify(Object.fromEntries(accounts.map((a,i)=>[a.accountRef,{email:i===2?'very.long.synthetic.account.email+tag@example.invalid':'qa.account.'+i+'@example.invalid',accountMasked:a.accountMasked}]))));},{accounts});
@@ -27,8 +27,11 @@ try {
   assert.equal(await p.locator('#app').evaluate(e=>e.inert),true);
   assert.equal(await p.locator('#accountCalcPromo,[data-account-calculate]').count(),0,'Calculate with stays removed');
   assert.equal(await p.locator('.account-sheet-email').innerText(),'qa.account.0@example.invalid');
-  assert.match(await p.locator('.account-login-badge').innerText(),/Can log in/);
-  await p.locator('[data-copy-email]').click();assert.equal(await p.evaluate(()=>window.__qaCopied),'qa.account.0@example.invalid');
+  assert.match(await p.locator('.account-inline-access').innerText(),/Can log in/);assert.equal(await p.locator('[data-use-this-account]').count(),0,'Account details has no Use this account action');assert.equal(await p.locator('#sheetClose').getAttribute('aria-label'),'Close');assert.notEqual(await p.locator('.sheet-handle').evaluate(e=>getComputedStyle(e).display),'none');
+  const pageGeometry=await p.locator('.sheet[data-screen="Account details"]').evaluate(e=>({left:e.getBoundingClientRect().left,width:e.getBoundingClientRect().width,height:e.getBoundingClientRect().height,viewportWidth:innerWidth,viewportHeight:innerHeight,radius:getComputedStyle(e).borderRadius,backdropLeft:e.parentElement.getBoundingClientRect().left,backdropWidth:e.parentElement.getBoundingClientRect().width}));
+  assert.ok(Math.abs(pageGeometry.left)<1&&Math.abs(pageGeometry.width-pageGeometry.viewportWidth)<1,'Account details fills the viewport width');assert.ok(Math.abs(pageGeometry.height-pageGeometry.viewportHeight)<1,'Account details fills the viewport height');assert.equal(pageGeometry.radius,'0px','Account details has no outer rounded sheet frame');
+  if(out&&width===393)await p.screenshot({path:out+'/'+name+'-'+width+'-details-top.png'});
+  await p.locator('[data-copy-email]').click();assert.equal(await p.evaluate(()=>window.__qaCopied),'qa.account.0@example.invalid');await p.locator('#appToast.visible').waitFor();assert.equal(await p.locator('#appToast').innerText(),'Copied');
   const primary=p.locator(key('qa-primary'));assert.equal(await primary.getAttribute('open'),null,'Offers begin compact');
   assert.equal(await primary.locator('.compact-use-track>span').count(),5);
   assert.match(await primary.locator('.compact-order-completion').innerText(),/3 of 5 orders completed/);
