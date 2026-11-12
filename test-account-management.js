@@ -49,10 +49,10 @@ function activeOffer(){return {...offer,firstEmailSentAt:'2026-10-08T12:00:00Z',
 const expired={...offer,...classifyOfferTrackingState(offer,{now})};
 assert.equal(classifyAccount({canLogin:true,accountStatus:'active',orderCount:0,rideCount:0},[expired]).accountUsed,false);
 const active={...offer,emailSentAt:'2026-10-08T12:00:00Z',firstEmailSentAt:'2026-10-08T12:00:00Z',trackingState:'available'};
-assert.equal(classifyAccount({canLogin:true,accountStatus:'active'},[expired,active]).recommendationEligible,true,'Another eligible current offer survives unrelated expiry');
+assert.equal(classifyAccount({canLogin:true,accountStatus:'active'},[expired,active],now).recommendationEligible,true,'Another eligible current offer survives unrelated expiry');
 for(const canLogin of [true,false])for(const archived of [true,false])for(const used of [true,false]){
  const account={canLogin,accountStatus:archived?'archived':'active',orderCount:used?1:0,rideCount:used?1:0};
- const state={...account,...classifyAccount(account,[active])};
+ const state={...account,...classifyAccount(account,[active],now)};
  assert.equal(state.archived,archived);assert.equal(state.accountUsed,used);
  assert.equal(state.recommendationEligible,canLogin&&!archived);
  for(const [filter,expected] of [['all',true],['login',canLogin],['locked',!canLogin],['used',used],['used-login',used&&canLogin],['used-locked',used&&!canLogin],['archived-login',archived&&canLogin],['archived-locked',archived&&!canLogin]])assert.equal(matchesAccountFilter(state,filter),expected,filter);
