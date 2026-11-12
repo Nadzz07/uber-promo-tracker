@@ -1390,7 +1390,7 @@ html:has(#view-planner.active) {
 html[data-layout="mobile"]:has(#view-planner.active) { scroll-padding-bottom:var(--planner-nav-clearance); }
 html[data-layout="mobile"] body:has(#view-planner.active) { padding-bottom:var(--planner-nav-clearance); }
 html[data-layout="mobile"] .app-shell:has(#view-planner.active) { padding-top:calc(var(--planner-safe-top) + var(--space-6)); }
-html[data-layout="mobile"]:has(#view-planner.active) .bottom-nav { bottom:calc(8px + var(--planner-safe-bottom)); }
+html[data-layout="mobile"]:has(#view-planner.active) .bottom-nav { bottom:calc(12px + var(--planner-safe-bottom)); }
 /* An opaque background strip covers only the system inset, never foreground controls. */
 body:has(#view-planner.active)::before {
   display:block; position:fixed; inset:0 0 auto; width:auto; height:var(--planner-safe-top);
@@ -1483,7 +1483,7 @@ html:has(#view-offers.active) { --offers-safe-top: env(safe-area-inset-top,0px);
 html[data-layout="mobile"] .app-shell:has(#view-offers.active) { padding-top:calc(var(--offers-safe-top) + var(--space-6)); }
 html[data-layout="mobile"] body:has(#view-offers.active) { padding-bottom:var(--offers-nav-clearance); }
 html[data-layout="mobile"]:has(#view-offers.active) { scroll-padding-bottom:var(--offers-nav-clearance); }
-html[data-layout="mobile"]:has(#view-offers.active) .bottom-nav { bottom:calc(8px + var(--offers-safe-bottom)); }
+html[data-layout="mobile"]:has(#view-offers.active) .bottom-nav { bottom:calc(12px + var(--offers-safe-bottom)); }
 body:has(#view-offers.active)::before { display:block; position:fixed; inset:0 0 auto; width:auto; height:var(--offers-safe-top); border-radius: 0; background: var(--bg-deep); opacity:1; filter: none; z-index:29; pointer-events:none; }
 html[data-layout="mobile"] #view-offers :is(button,input,select,summary) { scroll-margin-bottom:var(--space-4); }
 @media (max-width:370px) {
@@ -1608,7 +1608,7 @@ html:has(#view-accounts.active) { --accounts-safe-top: env(safe-area-inset-top,0
 html[data-layout="mobile"] .app-shell:has(#view-accounts.active) { padding-top:calc(var(--accounts-safe-top) + var(--space-5)); }
 html[data-layout="mobile"] body:has(#view-accounts.active) { padding-bottom:var(--accounts-nav-clearance); }
 html[data-layout="mobile"]:has(#view-accounts.active) { scroll-padding-bottom:var(--accounts-nav-clearance); scroll-padding-top:calc(var(--accounts-safe-top) + var(--space-3)); }
-html[data-layout="mobile"]:has(#view-accounts.active) .bottom-nav { bottom:calc(8px + var(--accounts-safe-bottom)); }
+html[data-layout="mobile"]:has(#view-accounts.active) .bottom-nav { bottom:calc(12px + var(--accounts-safe-bottom)); }
 body:has(#view-accounts.active)::before { display:block; position:fixed; inset:0 0 auto; width:auto; height:var(--accounts-safe-top); border-radius: 0; background: var(--bg-deep); opacity:1; filter: none; z-index:29; pointer-events:none; }
 html[data-layout="mobile"] #view-accounts :is(button,input,select,summary) { scroll-margin-bottom:var(--space-4); }
 #view-accounts.motion-enter > .accounts-head { animation:none; }
@@ -1722,7 +1722,7 @@ label.catalogue-option { justify-content:flex-start; }
 .app-shell:has(#view-settings.active) .privacy { display:none; }
 html[data-layout=mobile] body:has(#view-settings.active) { padding-bottom:var(--settings-nav-clearance,calc(96px + var(--settings-safe-bottom))); }
 html[data-layout=mobile]:has(#view-settings.active) { scroll-padding-bottom:var(--settings-nav-clearance,calc(96px + var(--settings-safe-bottom))); }
-html[data-layout=mobile] body:has(#view-settings.active) .bottom-nav { bottom:calc(14px + var(--settings-safe-bottom)); }
+html[data-layout=mobile] body:has(#view-settings.active) .bottom-nav { bottom:calc(12px + var(--settings-safe-bottom)); }
 body:has(#view-settings.active)::before { position:fixed; inset:0 0 auto; width:auto; height:var(--settings-safe-top); border-radius: 0; background: var(--bg-deep); opacity:1; filter: none; z-index:29; pointer-events:none; }
 #view-settings { width:100%; max-width:680px; margin:0 auto; }
 .settings-head { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:var(--space-3); min-height:44px; margin:0 0 var(--space-6); }
@@ -1790,7 +1790,7 @@ body:has(#view-used.active) .privacy{display:none}
 
 .finder-progress-filter{margin-top:var(--space-2);font-size:13px;color: var(--muted)}.finder-progress-filter summary{min-height:44px;display:flex;align-items:center;cursor:pointer}.finder-progress-filter button{min-height:44px;background: var(--surface);border: 1px solid var(--line);border-radius: var(--card-radius);color: var(--text);font-size:14px;padding:var(--space-2) var(--space-3)}.finder-progress-filter button[aria-pressed=true]{border-color: var(--green)}
 
-html[data-layout=mobile] body:has(#view-used.active) .bottom-nav{bottom:calc(14px + var(--used-safe-bottom))}
+html[data-layout=mobile] body:has(#view-used.active) .bottom-nav{bottom:calc(12px + var(--used-safe-bottom))}
 
 /* Latest More menu: the activity pages' graphite, with a compact centred header. */
 :root { --more-safe-top: env(safe-area-inset-top,0px); --more-safe-bottom: env(safe-area-inset-bottom,0px); --preferred-safe-top: env(safe-area-inset-top,0px); --preferred-safe-bottom: env(safe-area-inset-bottom,0px); }
@@ -1809,7 +1809,7 @@ html[data-layout=mobile] body:has(#view-used.active) .bottom-nav{bottom:calc(14p
 #view-more .more-count { margin-left:auto; font-size:13px; }
 html[data-layout=mobile] body:has(#view-more.active) { padding-bottom:var(--more-nav-clearance,calc(98px + var(--more-safe-bottom))); }
 html[data-layout=mobile]:has(#view-more.active) { scroll-padding-bottom:var(--more-nav-clearance,calc(98px + var(--more-safe-bottom))); }
-html[data-layout=mobile] body:has(#view-more.active) .bottom-nav { bottom:calc(14px + var(--more-safe-bottom)); }
+html[data-layout=mobile] body:has(#view-more.active) .bottom-nav { bottom:calc(12px + var(--more-safe-bottom)); }
 body:has(#view-more.active)::before { display:block; position:fixed; inset:0 0 auto; width:auto; height:var(--more-safe-top); border-radius: 0; background: var(--bg-deep); opacity:1; filter: none; z-index:29; pointer-events:none; }
 #view-more :is(button,h1) { scroll-margin-bottom:var(--space-4); }
 #view-more.motion-enter > .screen-head { animation:none; }
