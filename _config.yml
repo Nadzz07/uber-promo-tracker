@@ -88,6 +88,8 @@ exclude:
   - mail-review-rules.js
   - MAIL_REVIEW.md
   - test-mail-cleanup.js
+  - test-mail-master-rules.js
+  - test-mail-owner-exclusions.js
   - test-reviewed-cleanup.js
   - test-finance-browser.js
   - test-order-dates.js
