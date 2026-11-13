@@ -114,4 +114,6 @@ for(const path of [['Sent'],['Drafts'],['Deleted Messages'],['Bin']])assert.equa
 // A login or security email is never filed away.
 const chatGptCode={sender:'ChatGPT <noreply_at_tm_openai_com_2f8xkbzpcm@icloud.com>',recipient:'a@icloud.com',subject:'Your temporary ChatGPT login code',body:'123456 is your temporary ChatGPT login code. Do not share it.'};
 assert.equal(mailIdentityExclusion(chatGptCode),'excluded_login_code','A non-Uber login code is still a protected security email');
+// Non-Uber security mail is filed to Others, never binned and never left cluttering the Inbox.
+assert.equal(confirmedFiling(row(['INBOX'],7),chatGptCode,new Set()),'Others','Non-Uber security mail files to Others');
 console.log('✓ Non-Uber filing: Amazon sender routing, Others fallback, Uber/receipt/Eurostar/Sent/Bin protection and non-Uber login codes protected');
