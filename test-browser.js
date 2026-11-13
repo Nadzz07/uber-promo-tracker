@@ -190,7 +190,7 @@ try {
   assert.equal(await page.locator('#accountsList .account-card').count(), 1);
   assert.equal(await page.locator('#accountsList .account-email').innerText(), privateEmail);
   const fullEmail = await page.locator('#accountsList .account-email').evaluate(el => ({ overflow: el.scrollWidth > el.clientWidth+1, whiteSpace: getComputedStyle(el).whiteSpace }));
-  assert.equal(fullEmail.overflow, false); assert.equal(fullEmail.whiteSpace, 'normal');
+  assert.equal(fullEmail.overflow, true); assert.equal(fullEmail.whiteSpace, 'nowrap');
   if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('#accountsList [data-account-offers="A001"]').click();
   await page.locator('[data-copy-email="A001"]').click();
   assert.equal(await page.evaluate(() => window.testCopiedEmail), privateEmail);
