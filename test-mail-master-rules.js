@@ -97,3 +97,21 @@ assert.equal(general.destination,'Others','General Uber mail is filed, not disca
 assert.equal(general.category,'general_uber_mail');
 
 console.log('✓ Master rule engine: estimated-expiry matching without destructive action, new campaigns held, distinct campaigns not merged, one retained copy in Archive with duplicates binned, multilingual login codes protected over every rule, Cash notices not campaigns, Uber One welcome and general Uber mail filed to Others');
+
+// ── 9. Non-Uber mail is filed by its actual sender ───────────────────────
+import {confirmedFiling,amazonSender} from './mail-filing-rules.js';
+const row=(path,id)=>({accountId:'local',path,nativeId:id});
+const amazonMail={sender:'"Amazon.co.uk" <payments-messages_at_amazon_co_uk_mvh9d8h@icloud.com>',recipient:'a@icloud.com',subject:'Refund on order 026-0649989-7644312',body:'Your refund is on its way.'};
+const openaiMail={sender:'OpenAI <noreply_at_tm_openai_com_q52725jcq55@icloud.com>',recipient:'a@icloud.com',subject:'Final reminder: Your Plus access ends soon',body:'Renew your plan.'};
+assert.equal(amazonSender(amazonMail.sender),true,'Amazon sender detected');
+assert.equal(confirmedFiling(row(['INBOX'],1),amazonMail,new Set()),'Amazon','Amazon mail files to the Amazon folder');
+assert.equal(confirmedFiling(row(['INBOX'],2),openaiMail,new Set()),'Others','Any other non-Uber mail files to Others');
+// Never file Uber mail, receipts or anything already filed.
+assert.equal(confirmedFiling(row(['INBOX'],3),{...openaiMail,sender:'Uber <noreply@uber.com>'},new Set()),null,'Uber mail is never filed as non-Uber');
+assert.equal(confirmedFiling(row(['Uber Receipts'],4),amazonMail,new Set()),null,'Uber Receipts folder is protected');
+assert.equal(confirmedFiling(row(['Eurostar'],5),amazonMail,new Set()),null,'Eurostar folder is protected');
+for(const path of [['Sent'],['Drafts'],['Deleted Messages'],['Bin']])assert.equal(confirmedFiling(row(path,6),amazonMail,new Set()),null,'Never file from '+path.join('/'));
+// A login or security email is never filed away.
+const chatGptCode={sender:'ChatGPT <noreply_at_tm_openai_com_2f8xkbzpcm@icloud.com>',recipient:'a@icloud.com',subject:'Your temporary ChatGPT login code',body:'123456 is your temporary ChatGPT login code. Do not share it.'};
+assert.equal(mailIdentityExclusion(chatGptCode),'excluded_login_code','A non-Uber login code is still a protected security email');
+console.log('✓ Non-Uber filing: Amazon sender routing, Others fallback, Uber/receipt/Eurostar/Sent/Bin protection and non-Uber login codes protected');
