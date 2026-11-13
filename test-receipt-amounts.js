@@ -63,7 +63,7 @@ assert.equal(receiptFinancials(adjusted).total,12,'Payment availability cannot a
 const mixed=receiptAmountSummary(paymentCases.map(([r],i)=>({...r,receiptId:'mixed-'+i})));
 assert.equal(mixed.outOfPocket.value,7.75);assert.equal(mixed.outOfPocket.known,5);assert.equal(mixed.outOfPocket.total,12);
 assert.doesNotMatch(missingMarkup,/ri-paid-bottom/,'Do not reserve an empty basket/fees band');
-assert.match(markup,/Known out-of-pocket spend/);assert.match(markup,/ri-coverage-info/);
+assert.match(markup,/Out-of-pocket spend/);assert.match(markup,/ri-coverage-info/);
 console.log('✓ Non-credit payment evidence: complete mixed payments, explicit payments with unknown Cash, missing/incompatible totals, true zero, refunds, stale and reviewed corrections. Ledger savings unchanged.');
 
 const freeRide={receiptId:'zero-no-allocation',service:'Uber',orderDate:'2026-10-02',total:0,promotionDiscount:9.95};
