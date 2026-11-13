@@ -1,5 +1,5 @@
 // One hue input for every surface and accent. Fixed semantic roles never rotate.
-export const DEFAULT_HUE=214;/* Reference blue sampled from the owner's screenshots (~hsl 214). */
+export const DEFAULT_HUE=283;
 export function hslColour(hue,saturation,lightness){
  const h=((hue%360)+360)%360/60,s=Math.max(0,Math.min(100,saturation))/100,l=Math.max(0,Math.min(100,lightness))/100;
  const c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs(h%2-1)),m=l-c/2;

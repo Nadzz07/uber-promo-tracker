@@ -526,7 +526,12 @@ html[data-motion=reduced] .offer-terms-anim,html[data-motion=reduced] .offer-ter
  #view-accounts .search-input{flex:1;min-width:0;width:0;height:42px;font-size:14.5px;border:0;background:transparent;padding:0;box-shadow:none}
  #view-accounts .account-login-tabs{height:42px;min-height:42px;gap:6px;margin:0 0 10px}
  #view-accounts .account-login-tabs button{height:42px;min-height:42px;font-size:13.5px;border-radius:14px}
- #view-accounts .account-filter-grid{gap:8px 10px;margin:0 0 8px}
+ #view-accounts .account-filter-grid{gap:8px 10px;margin:0 0 8px} #view-accounts .account-show-label{flex:0 0 auto;white-space:nowrap;color:var(--color-tertiary);font-size:13.5px}
+ #view-accounts .account-filter-grid .directory-select{display:flex;align-items:center;gap:8px;min-width:0;padding:0 12px}
+ #view-accounts .account-filter-grid .directory-select select{flex:1;min-width:0;color:var(--color-text);font-size:13.5px;font-weight:600}
+ #view-accounts .account-filter-grid .account-type-picker .app-select-trigger{gap:8px}
+ #view-accounts #accountTypeValue{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13.5px;font-weight:600}
+
  #view-accounts .account-filter-grid .directory-select,#view-accounts .account-filter-grid .account-type-picker .app-select-trigger{height:42px;min-height:42px;border-radius:14px;font-size:13.5px}
  #view-accounts .accounts-results-head{margin:20px 0 10px}
  #view-accounts .accounts-results-head h2{font-size:20px;font-weight:800;line-height:1.2}
