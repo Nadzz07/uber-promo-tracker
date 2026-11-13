@@ -39,7 +39,7 @@ try{for(const [width,height,large]of [[440,956,false],[440,763,false],[390,844,f
  assert.equal(await combo.locator('.directory-usage-box.confirmed').count(),1);
  assert.equal(await combo.locator('.directory-usage-box.manual').count(),1);
  assert.equal(await combo.locator('.directory-usage-box.unused').count(),3);
- assert.match(await combo.locator('.directory-use-limit').innerText(),/1 confirmed · 1 manual · up to 3 left/);
+ assert.match(await combo.locator('.directory-use-limit').innerText(),/2 of 5 used · 3 left/);
  assert.ok(await combo.evaluate(e=>e.querySelector('.directory-usage-boxes').getBoundingClientRect().bottom<=e.querySelector('.directory-use-limit').getBoundingClientRect().top));
  assert.equal(await p.locator('#accountTypeOptions').isVisible(),false,'Clear never opened the picker');
  if(width===440&&!large)await shot(p,'440-final-mixed');
