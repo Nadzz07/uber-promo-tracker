@@ -3244,7 +3244,7 @@
           THEME_PRESETS.map(({value:colour,label}) =>
             '<button class="theme-swatch" style="--swatch:' + colour + '" data-theme-colour="' + colour + '" aria-label="' + label + '" aria-pressed="false"><span></span></button>'
           ).join('') +
-        '</div><button id="resetTheme" class="action-btn">Reset to purple</button><div id="themeStatus" class="setting-note" role="status"></div></div>';
+        '</div><button id="resetTheme" class="action-btn">Reset to blue</button><div id="themeStatus" class="setting-note" role="status"></div></div>';
       chooseTheme(themeColour);
       const wheel = document.getElementById('colourWheel');
       drawColourWheel(wheel);
@@ -3281,7 +3281,7 @@
     }
     function themeColourLabel(){
       const named=Object.fromEntries(THEME_PRESETS.map(({value,label})=>[value,label]));
-      return themeColour===DEFAULT_COLOUR?'Purple':named[themeColour]||'Custom';
+      return themeColour===DEFAULT_COLOUR?'Blue':named[themeColour]||'Custom';
     }
     function preferredPromosSummary(){
       const keys=offerPreferences.preferredPromos,amounts=keys.filter(k=>/^fixed:\d+(?:\.\d+)?:15$/.test(k)).map(k=>money(Number(k.split(':')[1])));

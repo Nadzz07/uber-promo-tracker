@@ -20,13 +20,13 @@ for(const hue of [283,210,24,338,160]){
  assert.ok(contrastRatio(colourRgb(p.chipText),colourRgb(p.chip))>=4.5);
 }
 for(const name of ACCENT_TOKENS)assert.ok(new Set(snapshots.map(s=>s.get(cssToken(name)))).size>1,'Hue family changes together: '+name);
-assert.equal(DEFAULT_HUE,283);assert.equal(DEFAULT_COLOUR,PALETTE.accent.toLowerCase());assert.equal(themeTokens(DEFAULT_COLOUR).hue,283);
+assert.equal(DEFAULT_HUE,214);assert.equal(DEFAULT_COLOUR,PALETTE.accent.toLowerCase());assert.equal(themeTokens(DEFAULT_COLOUR).hue,214);
 assert.deepEqual(paletteProperties(NaN),paletteProperties(DEFAULT_HUE));
 for(let hue=0;hue<360;hue++){
  const stops=paletteProperties(hue)['--theme-account-primary'].match(/#[a-f0-9]{6}/gi);
  for(const stop of stops)assert.ok(contrastRatio(colourRgb(stop),colourRgb(paletteForHue(hue).onAccent))>=4.5,'Reference button contrast across the complete wheel at '+hue);
 }
-console.log('✓ One hue registry, default 283; five hue families; shared fades/components; fixed neutral/status roles; text, selected-card, chip and gradient-button contrast.');
+console.log('✓ One hue registry, default 214; five hue families; shared fades/components; fixed neutral/status roles; text, selected-card, chip and gradient-button contrast.');
 
 // A bright recommendation corner must retain small-label and monetary contrast
 // throughout the complete wheel, including high-luminance yellows and greens.
