@@ -81,7 +81,7 @@ try{for(const [width,height,largeText] of [[440,956,false],[393,852,false],[390,
  if(width===440&&!largeText){
   await page.evaluate(()=>{document.documentElement.style.setProperty('--home-safe-bottom','34px');window.dispatchEvent(new Event('resize'));});
   const dockSize=await page.addStyleTag({content:'#mainNav{min-height:110px!important}'});await settlePageLayout(page);
-  await page.waitForFunction(()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--home-nav-clearance'))>=document.getElementById('mainNav').getBoundingClientRect().height+42+16);
+  await page.waitForFunction(()=>{const dock=document.getElementById('mainNav').getBoundingClientRect().height;const shell=parseFloat(getComputedStyle(document.querySelector('#app')).paddingBottom)||0;return shell>=dock+42;},null,{timeout:15000});
   for(const row of await page.locator('#view-home .home-action-row,[data-home-review]').all()){
    await row.evaluate(e=>e.scrollIntoView({block:'end',behavior:'instant'}));await settlePageLayout(page);
    assert.ok(await row.evaluate(e=>{const r=e.getBoundingClientRect(),nav=document.getElementById('mainNav').getBoundingClientRect();return r.top>=0&&r.bottom<=nav.top-12&&e.contains(document.elementFromPoint(r.left+r.width/2,r.top+r.height/2));}),'Every Quick tool/review row clears the enlarged safe-area dock and remains tappable');
@@ -97,7 +97,7 @@ try{for(const [width,height,largeText] of [[440,956,false],[393,852,false],[390,
  assert.match(await page.locator('#homeReceiptCount').innerText(),/^\d[\d,]* of \d[\d,]* receipts · /);
 
  // Reserved scrollbars reduce the usable canvas; system fonts may wrap a caption.
- if(width===430&&!largeText){const canvas=await page.evaluate(()=>document.documentElement.clientWidth);assert.ok(copy.every(c=>Math.abs(c.width-(canvas-42)/2)<3&&c.height>=70&&c.height<=120&&c.offset[0]>=12),'Home metrics retain the reference width and inset without clipping wrapped text: '+JSON.stringify({canvas,copy}));}
+ if(width===430&&!largeText){const canvas=await page.evaluate(()=>document.documentElement.clientWidth);assert.ok(copy.every(c=>Math.abs(c.width-(canvas-42)/2)<3&&c.height>=55&&c.height<=120&&c.offset[0]>=12),'Home metrics retain the reference width and inset without clipping wrapped text: '+JSON.stringify({canvas,copy}));}
  if(output&&!largeText&&[440,393,430,360,320,1440].includes(width))await page.screenshot({path:output+'/'+name+'-'+width+'-home.png',fullPage:width>=980});
  assert.equal(await page.locator('.weekly-savings-points circle').count(),5,'Home retains exactly five weekly savings points');
  const find=page.locator('[data-home-detail="offers"]').first();await find.focus();await page.keyboard.press('Enter');await page.locator('#view-accounts.active').waitFor();

@@ -420,7 +420,7 @@ html[data-motion=reduced] .offer-terms-anim,html[data-motion=reduced] .offer-ter
 @media(max-width:767px){
  html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
  :root{ --size-nav:66px; }
- html[data-layout=mobile] #mainNav.bottom-nav,html[data-layout=mobile] body:has(#view-home.active) #mainNav.bottom-nav{height:66px;min-height:66px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+ html[data-layout=mobile] #mainNav.bottom-nav,html[data-layout=mobile] body:has(#view-home.active) #mainNav.bottom-nav{height:66px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
  #app.app-shell:has(#view-home.active){padding-top:calc(22px + env(safe-area-inset-top,0px))}
  #view-home .home-intro{margin:0 0 10px}
  #view-home .home-intro .home-title{font-size:26px;line-height:1.15;letter-spacing:-.6px;font-weight:800}
