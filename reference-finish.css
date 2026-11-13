@@ -359,3 +359,122 @@ html[data-motion=reduced] :is(.receipt-import-dialog,.backup-dialog,.offer-edit-
 #view-planner :is(.basket-value-wrap,.planner-select-wrap){height:var(--size-control);min-height:var(--size-control);padding:0 10px;box-sizing:border-box}
 #view-planner :is(.basket-value-wrap input,.planner-select-wrap .app-select-trigger){height:40px;min-height:0;font-size:var(--size-body);padding-block:0}
 #view-planner .basket-value-wrap .basket-currency{font-size:var(--size-body)}
+
+/* Full terms: in-place dropdown inside the opened offer card. */
+.offer-terms{display:block;margin-top:10px}
+.offer-terms-toggle{display:flex;align-items:center;gap:8px;width:100%;height:42px;box-sizing:border-box;padding:0 12px;list-style:none;cursor:pointer;border:1px solid var(--color-border);border-radius:14px;background:transparent;color:var(--color-text);font-size:14px;font-weight:600;line-height:1}
+.offer-terms-toggle::-webkit-details-marker{display:none}
+.offer-terms-toggle>svg:first-child{width:18px;height:18px;flex:none;color:var(--color-accent)}
+.offer-terms-toggle>svg:last-child{margin-left:auto;width:16px;height:16px;flex:none;color:var(--color-tertiary);transition:transform 220ms ease-out}
+.offer-terms[open] .offer-terms-toggle>svg:last-child{transform:rotate(180deg)}
+.terms-label-open{display:none}
+.offer-terms[open] .terms-label-closed{display:none}
+.offer-terms[open] .terms-label-open{display:inline}
+.offer-terms-anim{display:grid;grid-template-rows:0fr;transition:grid-template-rows 260ms cubic-bezier(.2,.8,.2,1)}
+.offer-terms[open] .offer-terms-anim{grid-template-rows:1fr}
+.offer-terms-inner{min-height:0;overflow:hidden}
+.offer-terms-body{margin-top:8px;border-radius:14px;padding:12px 14px;background:color-mix(in srgb,var(--color-text) 4%,transparent);border:1px solid color-mix(in srgb,var(--color-text) 7%,transparent);color:var(--color-secondary);font-size:13px;line-height:1.5;max-height:200px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.offer-terms-body .full-terms-grid{border:0;border-radius:0}
+.offer-terms-body .full-terms-grid>div{padding:6px 0;border-bottom:1px solid color-mix(in srgb,var(--color-text) 6%,transparent)}
+.offer-terms-body .full-terms-grid>div:last-child{border-bottom:0}
+.offer-terms-body p{margin:6px 0 0;font-size:13px;line-height:1.5;color:var(--color-secondary)}
+.account-detail-offer .account-offer-actions{margin-top:12px}
+@media(prefers-reduced-motion:reduce){.offer-terms-anim{transition:none}.offer-terms-toggle>svg:last-child{transition:none}}
+html[data-motion=reduced] .offer-terms-anim,html[data-motion=reduced] .offer-terms-toggle>svg:last-child{transition:none}
+
+/* Accounts list card: three clear parts — account row, inset offer box, footer chip. */
+#accountsList .directory-card{border-radius:20px;padding:14px;border:1px solid var(--color-border);background:linear-gradient(180deg,var(--data-card-top),var(--data-card-bottom));box-shadow:inset 0 1px 0 color-mix(in srgb,var(--color-text) 3%,transparent);transition:scale .14s ease}
+#accountsList .directory-card:active{scale:.98}
+#accountsList .directory-account-head{display:flex;align-items:center;gap:12px;min-height:40px;margin:0 0 12px;padding:0;border:0;background:none;text-align:left;width:100%}
+#accountsList .directory-provider{width:40px;height:40px;flex:0 0 40px;border-radius:12px}
+#accountsList .directory-identity{flex:1;min-width:0}
+#accountsList .account-email{display:block;font-size:15px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#accountsList .account-login-route{display:block;margin-top:3px;font-size:12.5px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--color-tertiary)}
+#accountsList .account-access-text.positive{color:var(--color-positive);font-weight:600}
+#accountsList .directory-offers{position:relative}
+#accountsList .directory-offer-row{display:flex;align-items:flex-start;gap:10px;border-radius:16px;padding:12px;background:color-mix(in srgb,var(--color-text) 3.5%,transparent);border:1px solid color-mix(in srgb,var(--color-text) 7%,transparent)}
+#accountsList .directory-offer-icon{display:none}
+#accountsList .directory-offer-copy{flex:1;min-width:0}
+#accountsList .directory-offer-copy strong{display:block;font-size:16.5px;font-weight:800;letter-spacing:-.35px;line-height:1.2}
+#accountsList .directory-offer-copy small{display:block;margin-top:3px;font-size:12.5px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--color-tertiary)}
+#accountsList .directory-expiry-target{flex:0 0 auto}
+#accountsList .directory-expiry-pill{height:24px;display:inline-flex;align-items:center;gap:4px;padding:0 11px;border-radius:999px;background:color-mix(in srgb,var(--color-text) 6%,transparent);border:1px solid var(--color-border);font-size:12px;line-height:1}
+#accountsList .directory-expiry-pill.urgent{background:var(--data-warning-chip);border-color:var(--color-warning-border);color:var(--color-warning-icon)}
+#accountsList .directory-usage{margin-top:12px}
+#accountsList .directory-usage-boxes{display:flex;gap:6px;width:100%}
+#accountsList .directory-usage-box{flex:1 1 0;min-width:0;height:12px;min-height:12px;border-radius:999px}
+#accountsList .directory-usage-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;min-height:18px;padding:0}
+#accountsList .directory-use-limit{margin:0;padding:0;font-size:13px;line-height:1.3}
+#accountsList .directory-view-offers{display:none}
+#accountsList .directory-confirmed{color:var(--color-positive);font-weight:600;font-size:12.5px;white-space:nowrap}
+#accountsList .directory-more-offers{display:inline-flex;align-items:center;height:26px;padding:0 11px;margin-top:10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--color-accent-fill);border:1px solid var(--color-selected-border);color:var(--color-soft-accent)}
+#accountsList .directory-extras{margin-top:0}
+#accountsList .directory-restriction{height:22px;display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:0 10px;border-radius:999px;background:color-mix(in srgb,var(--color-text) 5%,transparent);border:1px solid var(--color-border);font-size:12px;color:var(--color-secondary)}
+#accountsList .directory-restriction svg{width:13px;height:13px}
+#accountsList .directory-chevron{margin-left:auto;flex:none;font-size:18px;line-height:1;color:var(--color-tertiary)}
+#accountsList .directory-offer-copy .directory-restriction{display:inline-flex}
+
+/* Compact Home reference: whole page fits 393x852 with the 66px dock. */
+@media(max-width:767px){
+ html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+ :root{ --size-nav:66px; }
+ html[data-layout=mobile] #mainNav.bottom-nav,html[data-layout=mobile] body:has(#view-home.active) #mainNav.bottom-nav{height:66px;min-height:66px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+ #app.app-shell{padding-top:calc(22px + env(safe-area-inset-top,0px))}
+ #view-home .home-intro{margin:0 0 10px}
+ #view-home .home-intro .home-title{font-size:26px;line-height:1.15;letter-spacing:-.6px;font-weight:800}
+ #view-home .eyebrow{font-size:10px;letter-spacing:.13em}
+ #view-home .scan-time{font-size:11.5px;line-height:1.35}
+ #view-home .total-saved-card{margin-top:12px;padding:14px;border-radius:20px;height:auto;margin-bottom:0}
+ #view-home .home-saved-copy .stat-label{font-size:10.5px;letter-spacing:.12em}
+ #view-home #savedStat{font-size:34px;line-height:1.05;letter-spacing:-.9px}
+ #view-home .home-savings-icon{width:40px;height:40px;border-radius:12px}
+ #view-home .home-savings-icon svg{width:19px;height:19px}
+ .weekly-savings-heading{margin-top:8px;font-size:10.5px;line-height:13px;letter-spacing:.1em}
+ .weekly-savings-plot{padding-top:8px}
+ .weekly-savings-plot svg{height:40px;aspect-ratio:auto}
+ .weekly-savings-labels{height:13px;margin-top:2px;font-size:11px;line-height:13px}
+ #view-home .home-savings-footer{margin-top:10px}
+ #view-home .home-savings-footer .stat-label,#view-home .home-savings-footer small{font-size:12px}
+ #view-home .home-view-savings{height:30px;min-height:30px;padding:0 14px;font-size:13px;border-radius:999px}
+ #view-home :is(.home-accounts-heading h2,.home-quick-actions>h2){font-size:18px;line-height:1.2;font-weight:800}
+ #view-home .home-accounts-heading,#view-home .home-quick-actions>h2{margin:16px 0 8px}
+ #view-home .home-view-accounts{font-size:13px}
+ #view-home .home-account-total{padding:12px 14px;border-radius:18px;margin-bottom:0}
+ #view-home .home-account-total .stat-label,#view-home .home-total-heading .stat-label{font-size:10.5px;letter-spacing:.1em}
+ #view-home .home-total-heading{margin:2px 0 0}
+ #view-home .home-total-heading strong{font-size:30px;line-height:1.1}
+ #view-home #homeLoginPercent{font-size:12px}
+ #view-home .home-account-split{height:7px;margin-top:10px;border-radius:999px}
+ #view-home .home-account-legend{margin-top:8px;font-size:12.5px;gap:6px 14px}
+ #view-home .home-account-legend button,#view-home .home-account-legend .home-extra-legend{font-size:12.5px;min-height:20px}
+ #view-home .home-status-tiles{gap:10px;margin:10px 0 0}
+ #view-home .home-status-tiles .stat-card{min-height:62px;padding:10px 12px;gap:10px;border-radius:16px}
+ #view-home .home-status-tiles .overview-icon{width:32px;height:32px;border-radius:10px}
+ #view-home .home-status-tiles .overview-icon svg{width:16px;height:16px}
+ #view-home .home-status-tiles .stat-value{font-size:22px;line-height:1.05;font-weight:800}
+ #view-home .home-status-tiles .stat-label{font-size:11.5px;line-height:14px}
+ #view-home .home-status-tiles .row-chevron{font-size:14px}
+ #view-home .home-tools-card{border-radius:18px}
+ #view-home .home-action-row{min-height:54px;height:54px;padding:0 12px;gap:12px}
+ #view-home .home-action-row>span:first-child{width:34px;height:34px;flex:0 0 34px;border-radius:10px}
+ #view-home .home-action-row>span:first-child svg{width:17px;height:17px}
+ #view-home .home-action-row strong{font-size:14.5px;line-height:18px}
+ #view-home .home-action-row small{font-size:12px;line-height:15px;margin-top:1px}
+ #view-home .home-action-row .row-chevron{font-size:16px}
+ #app.app-shell{padding-bottom:calc(102px + env(safe-area-inset-bottom,0px))}
+}
+@media(max-width:767px){
+ #app.app-shell{padding-top:calc(14px + env(safe-area-inset-top,0px))}
+ #view-home .home-intro{margin-bottom:6px}
+ #view-home .total-saved-card{padding:13px}
+ .weekly-savings-heading{margin-top:6px}
+ .weekly-savings-plot{padding-top:6px}
+ #view-home .home-savings-footer{margin-top:8px}
+ #view-home .home-accounts-heading,#view-home .home-quick-actions>h2{margin:14px 0 8px}
+ #view-home .home-account-total{padding:10px 14px}
+ #view-home .home-account-split{margin-top:8px}
+ #view-home .home-account-legend{margin-top:6px}
+}
+
+/* Finances: no virtual-card line, and a search that does not promise card digits. */
+.fi-search input{font-size:13px}
