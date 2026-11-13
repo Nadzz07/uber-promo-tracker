@@ -142,7 +142,7 @@ export function receiptAmountCoverage(metrics,count){
  return fields.every(s=>s.known===count)&&metrics.fees.complete===count?'':'Some receipt details are missing';
 }
 const partialAmount=s=>s.known>0&&(s.known<s.total||s.complete!=null&&s.complete<s.total);
-const amountLabel=(s,label,partialLabel)=>partialAmount(s)?partialLabel:label;
+const amountLabel=(s,label,partialLabel)=>partialAmount(s)&&partialLabel?partialLabel:label;
 const coverageLabel=s=>partialAmount(s)?'<small class="ri-coverage">'+s.known+' of '+s.total+' receipts'+(s.complete!=null&&s.complete<s.known?' · itemised fees':'')+'</small>':'';
 export function receiptCoverageDetails(metrics){
  return [['Receipt totals',metrics.paid],['Basket subtotal',metrics.subtotal],['Fees',metrics.fees],['Promo discounts',metrics.amounts.promos],['Uber Cash used',metrics.amounts.cash],['Out-of-pocket spend',metrics.outOfPocket]].map(([label,s])=>label+': '+(!s.known&&s.total?'not recorded':s.known+' of '+s.total+' receipts')+(s.complete!=null&&s.complete<s.known?' (partly itemised)':'')).join('. ')+'. Credit is a payment, not a promo saving. Spend uses recorded non-credit payments, or compatible receipt totals minus recorded credit. Unresolved adjustments are not assumed to be final payments.';
