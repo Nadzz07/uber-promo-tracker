@@ -508,3 +508,49 @@ html[data-motion=reduced] .offer-terms-anim,html[data-motion=reduced] .offer-ter
  .fi-show-all{min-height:42px;height:42px}
  .ri-page>p.ri-caption:last-child{font-size:11.5px}
 }
+
+/* Card polish from the reference comparison. */
+#accountsList .directory-offer-row{flex-direction:column;align-items:stretch}
+#accountsList .directory-offer-row .directory-expiry-target{position:static}
+#accountsList .directory-offer-row .directory-expiry-target .directory-expiry-pill{position:absolute;top:12px;right:12px}
+#accountsList .directory-offer-row{position:relative}
+#accountsList .directory-usage{margin-top:12px}
+#accountsList .directory-usage-footer{padding-right:2px}
+#accountsList .directory-confirmed{flex:none;max-width:40%;text-align:right}
+#view-accounts .search-wrap{border:0;background:transparent;padding:0}
+#view-accounts .search-wrap .search-input{border:1px solid var(--color-border);border-radius:14px;background:var(--color-dropdown);height:42px;width:100%}
+#view-accounts .account-filter-grid .directory-select>.app-select-trigger{font-size:13.5px}
+/* Page titles must never show a focus ring after programmatic navigation. */
+:is(h1,h2)[tabindex="-1"]:focus{outline:none}
+h1:focus:not(:focus-visible){outline:none}
+
+/* Account details compact reference: back circle, copy beside email, tighter rows. */
+@media(max-width:767px){
+ .sheet[data-screen="Account details"]{padding-top:0}
+ .sheet[data-screen="Account details"] .sheet-head{height:52px;min-height:52px}
+ .sheet[data-screen="Account details"] .sheet-close{width:36px;height:36px;border-radius:50%;background:var(--color-dropdown);border:1px solid var(--color-border);color:var(--color-text)}
+ .sheet[data-screen="Account details"] .account-sheet-hero{padding:12px 14px;border-radius:18px}
+ .sheet[data-screen="Account details"] .account-sheet-top{grid-template-columns:40px minmax(0,1fr) 36px;gap:12px;align-items:center}
+ .sheet[data-screen="Account details"] .account-detail-provider{width:40px;height:40px;grid-row:1}
+ .sheet[data-screen="Account details"] .account-sheet-email{font-size:15px;font-weight:700;grid-column:2;grid-row:1}
+ .sheet[data-screen="Account details"] .account-login-route{grid-column:2;grid-row:2;display:flex;align-items:center;gap:5px;font-size:12.5px}
+ .sheet[data-screen="Account details"] .account-sheet-actions{display:none}
+ .sheet[data-screen="Account details"] .account-copy-icon{width:36px;height:36px;border-radius:50%;flex:none;grid-column:3;grid-row:1}
+ .sheet[data-screen="Account details"] .offers-section .account-detail-offer{border-radius:18px;margin-bottom:10px}
+ .sheet[data-screen="Account details"] .account-offer-toggle{padding:12px 14px;grid-template-columns:40px minmax(0,1fr) auto;gap:4px 10px}
+ .sheet[data-screen="Account details"] .offer-icon-tile{width:40px;height:40px}
+ .sheet[data-screen="Account details"] .offer-name{font-size:16.5px;font-weight:800;letter-spacing:-.3px}
+ .sheet[data-screen="Account details"] .offer-details{font-size:12.5px}
+ .sheet[data-screen="Account details"] .usage-slot,.sheet[data-screen="Account details"] .compact-use-track>span{height:12px;min-height:12px}
+ .sheet[data-screen="Account details"] .usage-slot-grid,.sheet[data-screen="Account details"] .compact-use-track{gap:6px}
+ .sheet[data-screen="Account details"] .compact-completion-line{font-size:13px}
+ .sheet[data-screen="Account details"] .compact-expiry-badge{min-height:24px;font-size:12px;padding:3px 10px;border-radius:999px;background:color-mix(in srgb,var(--color-text) 7%,transparent)}
+ .sheet[data-screen="Account details"] .offer-terms-label{font-size:11px;letter-spacing:.1em;margin:12px 0 8px}
+ .sheet[data-screen="Account details"] .terms-grid{font-size:13px}
+ .sheet[data-screen="Account details"] .terms-grid>div{padding:8px 0}
+ .sheet[data-screen="Account details"] .account-offer-actions{margin-top:12px;gap:10px}
+ .sheet[data-screen="Account details"] .account-record-use,.sheet[data-screen="Account details"] .account-manage-toggle{min-height:44px;border-radius:14px}
+ .sheet[data-screen="Account details"] .account-section-caption{font-size:11px;letter-spacing:.12em;margin:16px 0 8px}
+ .sheet[data-screen="Account details"] .offer-history,.sheet[data-screen="Account details"] .account-management{border-radius:18px}
+ .sheet[data-screen="Account details"] .account-history-group .account-offer-toggle{padding:12px 0}
+}
