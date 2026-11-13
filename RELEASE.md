@@ -1,3 +1,15 @@
+## Concept-matched phone screens — 13 November 2026
+
+Rebuilds the phone layouts to the approved concepts in the blue theme, sized for
+393×852 iPhone screens with Dynamic Island and home-indicator safe areas. Home
+fits above a lowered dock, with Quick tools as a list. Accounts has compact totals,
+labelled Show/Sort/Providers/Offers filters, and offer panels that show
+"X of N used · Y left". Account details uses a back chevron, expandable offer cards
+with View/Hide full terms, and Record use/Manage actions. Savings, Receipt
+insights (Eats/Rides split, Uber Cash note, promo chips on recent receipts) and
+Finances (Money paid stats, review chip, card digits and weekday groups) are
+restyled to match. Interface only: no data, receipt or account policy changes.
+
 ## Compact reference screens and verified refresh — 11 November 2026
 
 Completes the latest compact phone design refinements across Home, Accounts,

@@ -416,66 +416,76 @@ html[data-motion=reduced] .offer-terms-anim,html[data-motion=reduced] .offer-ter
 #accountsList .directory-chevron{margin-left:auto;flex:none;font-size:18px;line-height:1;color:var(--color-tertiary)}
 #accountsList .directory-offer-copy .directory-restriction{display:inline-flex}
 
-/* Compact Home reference: whole page fits 393x852 with the 66px dock. */
+/* Phone Home, reference proportions. Budgeted for a 393x852 iPhone with the
+   Dynamic Island (59px) and home indicator (34px): 653px between the safe top
+   and the 66px dock, with every section breathing evenly and nothing clipped. */
 @media(max-width:767px){
  html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
  :root{ --size-nav:66px; }
  html[data-layout=mobile] #mainNav.bottom-nav,html[data-layout=mobile] body:has(#view-home.active) #mainNav.bottom-nav{height:66px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
- #app.app-shell:has(#view-home.active){padding-top:calc(22px + env(safe-area-inset-top,0px))}
- #view-home .home-intro{margin:0 0 10px}
- #view-home .home-intro .home-title{font-size:26px;line-height:1.15;letter-spacing:-.6px;font-weight:800}
+ #app.app-shell{padding-bottom:calc(80px + var(--dock-bottom,12px))}
+ #app.app-shell:has(#view-home.active){padding-bottom:max(calc(74px + var(--dock-bottom,12px)),calc(var(--home-nav-clearance,0px) + 26px - var(--dock-bottom,12px)))}
+ #app.app-shell:has(#view-home.active){padding-top:calc(6px + env(safe-area-inset-top,0px))}
+ .app-shell:has(#view-home.active)>.topbar{margin-bottom:10px}
+ .app-shell:has(#view-home.active)>.topbar .brand-kicker{margin:0 0 3px}
+ .app-shell:has(#view-home.active)>.topbar .brand-title{margin:0;line-height:31px}
  #view-home .eyebrow{font-size:10px;letter-spacing:.13em}
  #view-home .scan-time{font-size:11.5px;line-height:1.35}
- #view-home .total-saved-card{margin-top:12px;padding:14px;border-radius:20px;height:auto;margin-bottom:0}
- #view-home .home-saved-copy .stat-label{font-size:10.5px;letter-spacing:.12em}
+
+ /* Savings hero */
+ #view-home .total-saved-card{margin:0;padding:13px 16px 12px;border-radius:22px;height:auto}
+ #view-home .home-saved-copy{gap:2px}
+ #view-home .home-saved-copy .stat-label{font-size:10.5px;line-height:13px;letter-spacing:.12em}
  #view-home #savedStat{font-size:34px;line-height:1.05;letter-spacing:-.9px}
- #view-home .home-savings-icon{width:40px;height:40px;border-radius:12px}
- #view-home .home-savings-icon svg{width:19px;height:19px}
- .weekly-savings-heading{margin-top:8px;font-size:10.5px;line-height:13px;letter-spacing:.1em}
- .weekly-savings-plot{padding-top:8px}
- .weekly-savings-plot svg{height:40px;aspect-ratio:auto}
- .weekly-savings-labels{height:13px;margin-top:2px;font-size:11px;line-height:13px}
- #view-home .home-savings-footer{margin-top:10px}
- #view-home .home-savings-footer .stat-label,#view-home .home-savings-footer small{font-size:12px}
- #view-home .home-view-savings{height:30px;min-height:30px;padding:0 14px;font-size:13px;border-radius:999px}
- #view-home :is(.home-accounts-heading h2,.home-quick-actions>h2){font-size:18px;line-height:1.2;font-weight:800}
- #view-home .home-accounts-heading,#view-home .home-quick-actions>h2{margin:16px 0 8px}
- #view-home .home-view-accounts{font-size:13px}
- #view-home .home-account-total{padding:12px 14px;border-radius:18px;margin-bottom:0}
+ #view-home .home-savings-icon{width:42px;height:42px;border-radius:12px}
+ #view-home .home-savings-icon svg{width:20px;height:20px}
+ .weekly-savings-heading{margin-top:6px;font-size:10.5px;line-height:13px;letter-spacing:.1em}
+ .weekly-savings-plot{padding-top:4px}
+ /* Keep the chart's own 350x60 proportions so the line spans the card and
+    each point sits exactly above its week label (no letterboxing). */
+ .weekly-savings-plot svg{width:100%;height:auto;aspect-ratio:350/60}
+ .weekly-savings-labels{height:13px;margin-top:3px;font-size:11px;line-height:13px}
+ #view-home .home-savings-footer{margin-top:6px}
+ #view-home .home-savings-footer .stat-label,#view-home .home-savings-footer small,#view-home #homeReceiptCount{font-size:12.5px}
+ #view-home .saved-link{min-height:30px;height:30px;padding:0 14px;font-size:13.5px;border-radius:999px}
+
+ /* Section headings get real space above them, matching the reference. */
+ #view-home .home-intro{height:auto;margin:12px 2px 6px}
+ #view-home .home-intro .home-title,#view-home .home-quick-actions>h2{font-size:20px;line-height:24px;font-weight:800;letter-spacing:-.4px}
+ #view-home .home-quick-actions>h2{margin:12px 2px 6px}
+ #view-home .home-view-accounts{min-height:24px;font-size:13.5px}
+
+ /* Accounts summary */
+ #view-home .home-account-total{padding:9px 16px 8px;border-radius:20px;margin:0}
  #view-home .home-account-total .stat-label,#view-home .home-total-heading .stat-label{font-size:10.5px;letter-spacing:.1em}
  #view-home .home-total-heading{margin:2px 0 0}
- #view-home .home-total-heading strong{font-size:30px;line-height:1.1}
- #view-home #homeLoginPercent{font-size:12px}
- #view-home .home-account-split{height:7px;margin-top:10px;border-radius:999px}
- #view-home .home-account-legend{margin-top:8px;font-size:12.5px;gap:6px 14px}
- #view-home .home-account-legend button,#view-home .home-account-legend .home-extra-legend{font-size:12.5px;min-height:20px}
- #view-home .home-status-tiles{gap:10px;margin:10px 0 0}
- #view-home .home-status-tiles .stat-card{min-height:62px;padding:10px 12px;gap:10px;border-radius:16px}
- #view-home .home-status-tiles .overview-icon{width:32px;height:32px;border-radius:10px}
- #view-home .home-status-tiles .overview-icon svg{width:16px;height:16px}
- #view-home .home-status-tiles .stat-value{font-size:22px;line-height:1.05;font-weight:800}
- #view-home .home-status-tiles .stat-label{font-size:11.5px;line-height:14px}
- #view-home .home-status-tiles .row-chevron{font-size:14px}
- #view-home .home-tools-card{border-radius:18px}
- #view-home .home-action-row{min-height:54px;height:54px;padding:0 12px;gap:12px}
- #view-home .home-action-row>span:first-child{width:34px;height:34px;flex:0 0 34px;border-radius:10px}
- #view-home .home-action-row>span:first-child svg{width:17px;height:17px}
- #view-home .home-action-row strong{font-size:14.5px;line-height:18px}
- #view-home .home-action-row small{font-size:12px;line-height:15px;margin-top:1px}
- #view-home .home-action-row .row-chevron{font-size:16px}
- #app.app-shell{padding-bottom:calc(102px + env(safe-area-inset-bottom,0px))}
-}
-@media(max-width:767px){
- #app.app-shell:has(#view-home.active){padding-top:calc(14px + env(safe-area-inset-top,0px))}
- #view-home .home-intro{margin-bottom:6px}
- #view-home .total-saved-card{padding:13px}
- .weekly-savings-heading{margin-top:6px}
- .weekly-savings-plot{padding-top:6px}
- #view-home .home-savings-footer{margin-top:8px}
- #view-home .home-accounts-heading,#view-home .home-quick-actions>h2{margin:24px 0 8px}
- #view-home .home-account-total{padding:10px 14px}
- #view-home .home-account-split{margin-top:8px}
- #view-home .home-account-legend{margin-top:6px}
+ #view-home .home-total-heading strong,#view-home #usableStat{font-size:30px;line-height:1.1}
+ #view-home #homeLoginPercent{font-size:12.5px}
+ #view-home .home-account-split{height:8px;margin-top:8px;border-radius:999px}
+ #view-home .home-account-legend{margin-top:4px;font-size:13px;gap:4px 14px}
+ #view-home .home-account-legend button,#view-home .home-account-legend .home-extra-legend{font-size:13px;min-height:20px}
+ #view-home .home-account-legend strong{font-size:13px}
+
+ /* Ready / needs checking */
+ #view-home .home-status-tiles{gap:10px;margin:8px 0 0}
+ #view-home .home-status-tiles .stat-card{min-height:56px;padding:9px 12px;gap:10px;border-radius:18px}
+ #view-home .home-status-tiles .overview-icon{width:36px;height:36px;border-radius:11px}
+ #view-home .home-status-tiles .overview-icon svg{width:18px;height:18px}
+ #view-home .home-status-tiles .stat-value{font-size:24px;line-height:1.05;font-weight:800}
+ #view-home .home-status-tiles .stat-label{font-size:12.5px;line-height:15px}
+ #view-home .home-status-tiles .row-chevron{font-size:16px}
+
+ /* Quick tools: one grouped list, icon + title + subtitle + chevron. */
+ #view-home .home-tools-card{display:block;overflow:hidden;border:1px solid var(--data-border);border-radius:18px;background:linear-gradient(160deg,var(--data-group),var(--data-card-bottom));box-shadow:inset 0 1px 0 var(--data-row-shade)}
+ #view-home #homeAnalytics{display:block}
+ #view-home .home-action-row{position:relative;display:flex;flex-direction:row;align-items:center;gap:12px;width:100%;height:auto;min-height:48px;padding:7px 14px 7px 12px;border:0;border-bottom:1px solid var(--color-border);border-radius:0;background:none;box-shadow:none}
+ #view-home #homeAnalytics .home-action-row{border-bottom:0}
+ #view-home .home-action-row>span:first-child{align-self:center;width:34px;height:34px;flex:0 0 34px;border-radius:10px}
+ #view-home .home-action-row>span:first-child svg{width:18px;height:18px}
+ #view-home .home-action-row>span:nth-child(2){display:flex;flex-direction:column;flex:1;min-width:0}
+ #view-home .home-action-row strong{font-size:15px;line-height:18px;font-weight:650;overflow-wrap:anywhere}
+ #view-home .home-action-row small{position:static;width:auto;height:auto;margin:1px 0 0;clip:auto;overflow:visible;white-space:normal;font-size:12.5px;line-height:15px;color:var(--color-secondary)}
+ #view-home .home-action-row .row-chevron{position:static;font-size:18px;line-height:1;color:var(--color-tertiary)}
 }
 
 /* Finances: no virtual-card line, and a search that does not promise card digits. */
@@ -589,4 +599,362 @@ h1:focus:not(:focus-visible){outline:none}
  .sheet[data-screen="Account details"] .account-section-caption{font-size:11px;letter-spacing:.12em;margin:16px 0 8px}
  .sheet[data-screen="Account details"] .offer-history,.sheet[data-screen="Account details"] .account-management{border-radius:18px}
  .sheet[data-screen="Account details"] .account-history-group .account-offer-toggle{padding:12px 0}
+}
+
+/* Phone dock sits low, just clear of the home indicator, on every screen.
+   iPhone (34px inset): 24px from the edge. No inset: 10px. */
+@media(max-width:767px){
+ html[data-layout=mobile] { --dock-bottom:max(10px,calc(env(safe-area-inset-bottom,0px) - 10px)); }
+ html[data-layout=mobile] body #mainNav.bottom-nav,html[data-layout=mobile] body:has(.view.active) #mainNav.bottom-nav{bottom:var(--dock-bottom)}
+}
+
+/* Sitewide phone polish: same type scale and spacing as Home. */
+@media(max-width:767px){
+ /* Accounts: totals card uses Home's label/number scale. */
+ #view-accounts .accounts-summary{min-height:92px;padding:12px 14px;align-items:center}
+ #view-accounts .accounts-summary .accounts-stat{align-items:flex-start;padding:0 4px 0 12px}
+ #view-accounts .accounts-summary .accounts-stat:first-child{padding-left:2px}
+ #view-accounts .accounts-summary .accounts-stat span{font-size:10.5px;line-height:13px;font-weight:650;letter-spacing:.1em;text-transform:uppercase;color:var(--color-tertiary);padding-right:0}
+ #view-accounts .accounts-summary .accounts-stat strong{font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-.8px;margin-top:4px}
+ #view-accounts .accounts-summary .metric-help{position:static;width:24px;height:24px;margin:-6px -4px 0 0;padding:0}
+ #view-accounts .accounts-summary .metric-help svg{width:15px;height:15px}
+}
+/* Accounts list: the expiry pill no longer reserves an empty 44px line, and it
+   sits beside (not under) the card's chevron. */
+#accountsList .directory-offer-row{padding:12px 12px 12px 14px}
+#accountsList .directory-offer-row .directory-expiry-target{position:absolute;top:2px;right:34px;min-height:44px;height:44px;padding:0;margin:0;display:flex;align-items:center}
+#accountsList .directory-offer-row .directory-expiry-target .directory-expiry-pill{position:static}
+#accountsList .directory-offer-copy{padding-right:118px}
+#accountsList .directory-offer-copy strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#accountsList .directory-view-offers{top:11px;right:8px}
+
+/* Order Planner: the order-type picker shows the full choice. */
+#view-planner .planner-select-wrap{padding:0}
+#view-planner .planner-select-wrap .app-select-arrow,#view-planner .planner-select-wrap .app-select-arrow svg{width:18px;height:18px}
+#view-planner .planner-select-wrap .app-select-trigger{padding:0 8px 0 12px;gap:4px}
+#view-planner .planner-select-wrap .app-select-value{overflow:visible;text-overflow:clip;white-space:nowrap}
+
+/* Receipt insights / Savings: section pickers fit their label. */
+.ri-page .ri-section-head .ri-select-wrap app-select-control.app-select,.ri-page .ri-section-head .ri-select-wrap select.app-select-native{width:auto!important;min-width:108px}
+.ri-page .ri-section-head .ri-select-wrap .app-select-trigger{padding:0 10px 0 12px;gap:6px;justify-content:space-between}
+.ri-page .ri-section-head .ri-select-wrap .app-select-value{overflow:visible;text-overflow:clip;white-space:nowrap}
+
+/* Savings: Avg / Best saving tiles read like Home's stat tiles. */
+#view-receipts .ri-two-cards.savings-support{align-items:stretch}
+#view-receipts .ri-two-cards.savings-support>.icon-content-row{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:8px;margin:0;min-height:0;padding:12px 14px}
+#view-receipts .ri-two-cards.savings-support>.icon-content-row>svg{align-self:flex-start;width:30px;height:30px;padding:6px;box-sizing:border-box;border-radius:10px;border:1px solid var(--color-border);background:color-mix(in srgb,var(--color-text) 4%,transparent);flex:none}
+#view-receipts .ri-two-cards.savings-support .icon-content-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+#view-receipts .ri-two-cards.savings-support .icon-content-copy h2{margin:0;font-size:12.5px;line-height:15px;font-weight:500;letter-spacing:0;color:var(--color-secondary)}
+#view-receipts .ri-two-cards.savings-support .icon-content-copy strong{font-size:22px;line-height:1.1;font-weight:800;letter-spacing:-.4px}
+@media(max-width:767px){
+ #view-accounts .accounts-summary .accounts-stat>div{flex:1}
+ #view-accounts .accounts-summary .accounts-stat span{white-space:nowrap;letter-spacing:.08em}
+}
+#view-receipts .ri-two-cards.savings-support>.icon-content-row,#view-receipts .ri-two-cards.savings-support .icon-content-copy{text-align:left;align-items:flex-start}
+@media(max-width:767px){
+ #view-accounts .accounts-summary .accounts-stat .metric-help{position:absolute;top:-15px;right:-6px;margin:0;transform:none}
+}
+
+/* ===== Concept match: Accounts (phone) ===== */
+@media(max-width:767px){
+ /* Totals: sentence-case labels, big numbers, info at top-right, 74px tall. */
+ #view-accounts .accounts-summary{min-height:74px;padding:11px 14px 10px;margin-bottom:11px;border-radius:22px;align-items:stretch}
+ #view-accounts .accounts-summary .accounts-stat{align-items:flex-start;padding:0 2px 0 14px}
+ #view-accounts .accounts-summary .accounts-stat:first-child{padding-left:2px}
+ #view-accounts .accounts-summary .accounts-stat span{font-size:13px;line-height:17px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--color-secondary);gap:6px;align-items:center}
+ #view-accounts .accounts-summary .accounts-stat strong{font-size:31px;line-height:36px;font-weight:800;letter-spacing:-.9px;margin-top:1px}
+ #view-accounts .accounts-summary .accounts-stat .metric-help{top:-12px;right:-10px;width:40px;height:40px}
+ #view-accounts .accounts-summary .accounts-stat .metric-help svg{width:15px;height:15px}
+ #view-accounts .accounts-login-dot{width:7px;height:7px}
+ /* Filters: every control reads "Label  Value  ⌄" in one type scale. */
+ #view-accounts .account-filter-grid{gap:9px 9px}
+ #view-accounts .account-filter-grid .account-show-label{font-size:13.5px;font-weight:500;color:var(--color-secondary);margin-right:6px;flex:none}
+ #view-accounts .account-filter-grid #accountShowValue,#view-accounts .account-filter-grid #accountTypeValue,#view-accounts .account-filter-grid .app-select-value{font-size:13.5px;font-weight:700;color:var(--color-text)}
+ #view-accounts .account-filter-grid .directory-provider-select{gap:0;padding-left:12px}
+ #view-accounts .account-filter-grid .directory-provider-select .app-select-trigger{padding-left:0}
+ #view-accounts .account-filter-grid #accountTypeTrigger{justify-content:flex-start;gap:8px}
+ #view-accounts .account-filter-grid #accountTypeTrigger .account-show-label{margin-right:-2px}
+ #view-accounts .account-filter-grid #accountTypeTrigger .account-picker-chevron{margin-left:auto}
+ #view-accounts .accounts-results-head{margin:18px 2px 10px}
+ #view-accounts .accounts-results-head h2{font-size:20px;line-height:24px;font-weight:800;letter-spacing:-.4px}
+}
+/* Account cards: header row with chevron, one inner offer panel holding the
+   title, expiry pill, usage bars and usage line; "+N more offers" chip below. */
+#accountsList .directory-card{padding:13px 13px 12px;border-radius:22px;gap:0}
+#accountsList .directory-account-head{min-height:40px;gap:11px;margin:0 0 11px;padding:0 30px 0 0;border:0}
+#accountsList .directory-provider{width:38px;height:38px;flex:0 0 38px;border-radius:11px}
+#accountsList .account-email{font-size:15.5px;line-height:19px;font-weight:700}
+#accountsList .account-login-route{font-size:13px;line-height:17px;margin-top:1px;color:var(--color-secondary)}
+#accountsList .account-login-route .account-access-text.positive{font-weight:600}
+#accountsList .directory-view-offers{top:20px;right:10px;width:30px;height:30px;font-size:20px;color:var(--color-tertiary)}
+#accountsList .directory-offers{padding:12px 12px 11px 13px;border:1px solid color-mix(in srgb,var(--color-text) 7%,transparent);border-radius:16px;background:color-mix(in srgb,var(--color-text) 3.5%,transparent)}
+#accountsList .directory-offer-row{padding:0;border:0;border-radius:0;background:none;min-height:0}
+#accountsList .directory-offer-icon{display:none}
+#accountsList .directory-offer-copy{padding-right:100px}
+#accountsList .directory-offer-copy strong{font-size:17px;line-height:21px;font-weight:800;letter-spacing:-.2px}
+#accountsList .directory-offer-copy small{font-size:13px;line-height:17px;margin-top:2px;color:var(--color-secondary)}
+#accountsList .directory-offer-row .directory-expiry-target{top:-10px;right:-2px}
+#accountsList .directory-expiry-pill{height:24px;padding:0 10px;border:0;background:color-mix(in srgb,var(--color-text) 8%,transparent);font-size:12px;font-weight:650;color:var(--color-secondary)}
+#accountsList .directory-expiry-pill.urgent{border:0}
+#accountsList .directory-usage{margin-top:12px}
+#accountsList .directory-usage-boxes{gap:6px}
+#accountsList .directory-usage-box{height:11px;min-height:11px;border-radius:999px}
+#accountsList .directory-usage-box.unused{border:0;background:color-mix(in srgb,var(--color-accent) 16%,var(--data-group))}
+#accountsList .directory-usage-box.unknown{border:1px dashed color-mix(in srgb,var(--color-text) 18%,transparent);background:transparent}
+#accountsList .directory-usage-footer{margin-top:9px;padding:0;min-height:18px;border:0}
+#accountsList .directory-usage-footer .directory-use-limit{padding-right:0;font-size:13px;color:var(--color-secondary)}
+#accountsList .directory-confirmed{font-size:13px;font-weight:650}
+#accountsList .directory-extras{padding-top:10px}
+#accountsList .directory-more-offers{height:26px;margin-top:0;padding:0 11px;font-size:12.5px}
+@media(max-width:767px){
+ #view-accounts .account-filter-grid .directory-select>.account-show-label{display:block;width:auto;height:auto;font-size:13.5px;line-height:18px;margin:0 6px 0 0;flex:none}
+ #view-accounts .account-filter-grid .directory-select{gap:6px;padding:0 10px 0 12px}
+ #view-accounts .account-filter-grid .directory-select .app-select-trigger{gap:4px;padding:0}
+ #view-accounts .account-filter-grid .directory-select .app-select-value{overflow:visible;text-overflow:clip;white-space:nowrap}
+ #view-accounts .account-filter-grid #accountTypeTrigger{padding:0 10px 0 12px!important}
+ #view-accounts .account-filter-grid #accountTypeValue{overflow:visible;text-overflow:clip;white-space:nowrap}
+}
+#accountsList .directory-offers{position:static}
+#accountsList .directory-extras{border-top:0}
+@media(max-width:767px){
+ #view-accounts .account-filter-grid #accountTypeTrigger{gap:6px}
+ #view-accounts .account-filter-grid #accountTypeTrigger .account-show-label{margin-right:0}
+ #view-accounts .account-filter-grid #accountShowTrigger{gap:6px;padding:0 10px 0 12px}
+ #view-accounts .account-filter-grid #accountShowTrigger>span:last-child{margin-left:auto}
+ #view-accounts .account-filter-grid :is(#accountShowTrigger,#accountTypeTrigger)>span:last-child svg,#view-accounts .account-filter-grid .app-select-arrow svg{width:16px;height:16px}
+ #view-accounts .account-filter-grid .account-show-label{margin-right:0}
+ #view-accounts .account-filter-grid>*,#view-accounts .account-filter-grid .directory-select,#view-accounts .account-filter-grid #accountTypeTrigger,#view-accounts .account-filter-grid #accountShowTrigger{height:42px;min-height:42px}
+}
+@media(max-width:767px){
+ #view-accounts .account-filter-grid #accountTypeTrigger{gap:5px;padding:0 8px 0 11px!important}
+ #view-accounts .account-filter-grid #accountTypeTrigger .account-show-label,#view-accounts .account-filter-grid #accountTypeValue{font-size:13px}
+ #view-accounts .account-filter-grid #accountTypeTrigger>span:first-child{flex:0 0 15px}
+ #view-accounts .account-filter-grid #accountTypeValue{flex:0 1 auto;min-width:0}
+}
+
+/* ===== Concept match: Account details (phone) ===== */
+@media(max-width:767px){
+ .sheet[data-screen="Account details"] .sheet-head{height:58px;min-height:58px;justify-content:flex-start;gap:8px;padding:6px 16px 6px 8px;margin:0}
+ .sheet[data-screen="Account details"] .sheet-head>div{order:2}
+ .sheet[data-screen="Account details"] .sheet-title{font-size:27px;line-height:32px;font-weight:800;letter-spacing:-.7px}
+ .sheet[data-screen="Account details"] .sheet-close{order:1;position:relative;width:40px;height:44px;min-height:44px;border:0;border-radius:12px;background:none;color:var(--color-text)}
+ .sheet[data-screen="Account details"] .sheet-close svg{display:none}
+ .sheet[data-screen="Account details"] .sheet-close::before{content:'';position:absolute;left:17px;top:50%;width:11px;height:11px;border-left:2.4px solid currentColor;border-bottom:2.4px solid currentColor;border-radius:1px;transform:translateY(-50%) rotate(45deg)}
+ .sheet[data-screen="Account details"] .account-sheet-hero{padding:13px 14px;border-radius:22px;border:1px solid var(--data-border,var(--color-border))}
+ .sheet[data-screen="Account details"] .account-sheet-top{grid-template-columns:42px minmax(0,1fr) 38px;gap:12px}
+ .sheet[data-screen="Account details"] .account-detail-provider{width:42px;height:42px;border-radius:12px}
+ .sheet[data-screen="Account details"] .account-sheet-email{font-size:15.5px;line-height:19px}
+ .sheet[data-screen="Account details"] .account-login-route{font-size:13px;color:var(--color-secondary)}
+ .sheet[data-screen="Account details"] .account-copy-icon{width:38px;height:38px;background:color-mix(in srgb,var(--color-text) 7%,transparent);border:0}
+ .sheet[data-screen="Account details"] .offers-section>.account-section-head,.sheet[data-screen="Account details"] .account-offers-head{margin:20px 2px 10px}
+ /* Offer card */
+ .sheet[data-screen="Account details"] .offers-section .account-detail-offer{border:1px solid var(--data-border,var(--color-border));border-radius:22px;background:linear-gradient(170deg,var(--data-card-top),var(--data-card-bottom));margin-bottom:10px;overflow:visible}
+ .sheet[data-screen="Account details"] .offers-section .account-detail-offer[open]{border:1.5px solid color-mix(in srgb,var(--color-accent) 75%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--color-accent) 20%,var(--data-card-bottom)) 0%,color-mix(in srgb,var(--color-accent) 7%,var(--data-card-bottom)) 45%,var(--data-card-bottom) 100%);box-shadow:0 0 22px color-mix(in srgb,var(--color-accent) 18%,transparent)}
+ .sheet[data-screen="Account details"] .account-offer-toggle{grid-template-columns:40px minmax(0,1fr) auto;gap:2px 12px;padding:14px 14px 12px;align-items:center}
+ .sheet[data-screen="Account details"] .offer-icon-tile{width:40px;height:40px;grid-row:1/span 2;align-self:center;border-radius:12px}
+ .sheet[data-screen="Account details"] .account-offer-titleline{align-self:end}
+ .sheet[data-screen="Account details"] .offer-name{font-size:17.5px;line-height:21px;font-weight:800;letter-spacing:-.3px}
+ .sheet[data-screen="Account details"] .offer-details{grid-column:2/-1;align-self:start;font-size:13px!important;line-height:17px;color:var(--color-secondary)}
+ .sheet[data-screen="Account details"] .offer-details .directory-restriction,.sheet[data-screen="Account details"] .offer-details [class*=restriction]{display:flex;width:max-content;margin-top:7px}
+ .sheet[data-screen="Account details"] .account-offer-toggle>.compact-expiry-badge,.sheet[data-screen="Account details"] .account-offer-toggle>button.compact-expiry-badge{position:relative;grid-row:1;align-self:end;min-height:24px;height:24px}
+ .sheet[data-screen="Account details"] .account-offer-toggle>button.compact-expiry-badge::after{content:'';position:absolute;inset:-10px -4px}
+ .sheet[data-screen="Account details"] .account-offer-toggle .directory-expiry-pill,.sheet[data-screen="Account details"] .account-offer-toggle>span.compact-expiry-badge{height:24px;min-height:24px;padding:0 10px;border:0;border-radius:999px;background:color-mix(in srgb,var(--color-text) 8%,transparent);font-size:12px;font-weight:650;color:var(--color-secondary);display:inline-flex;align-items:center}
+ .sheet[data-screen="Account details"] .account-detail-offer[open] .account-offer-toggle .directory-expiry-pill,.sheet[data-screen="Account details"] .account-detail-offer[open] .account-offer-toggle>span.compact-expiry-badge{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--color-accent) 45%,transparent)}
+ .sheet[data-screen="Account details"] .account-offer-toggle>.account-offer-compact{margin-top:12px!important;gap:12px!important}
+ .sheet[data-screen="Account details"] .compact-completion-line{align-self:stretch;justify-content:flex-start;gap:8px;padding:0 44px 0 0!important;min-height:30px;align-items:center}
+ .sheet[data-screen="Account details"] .compact-completion-line small{font-size:13.5px;color:var(--color-text)}
+ .sheet[data-screen="Account details"] .compact-completion-line .compact-not-checked{height:20px;display:inline-flex;align-items:center;padding:0 8px;border-radius:999px;font-size:11px;color:var(--color-tertiary);border:1px solid var(--color-border)}
+ .sheet[data-screen="Account details"] .compact-use-track{gap:6px}
+ .sheet[data-screen="Account details"] .compact-use-track>span,.sheet[data-screen="Account details"] .usage-slot,.sheet[data-screen="Account details"] .usage-slot .usage-segment,.sheet[data-screen="Account details"] .usage-slot .usage-slot-control{height:12px;min-height:12px}
+ .sheet[data-screen="Account details"] .compact-use-track>span{border-radius:999px}
+ /* Expand / collapse chevron: a soft circle at the usage line's right. */
+ .sheet[data-screen="Account details"] .account-offer-toggle>svg:last-of-type{position:absolute;right:14px;bottom:12px;width:30px;height:30px;padding:7px;box-sizing:border-box;border-radius:50%;background:color-mix(in srgb,var(--color-text) 8%,transparent);color:var(--color-text);transition:transform 180ms ease}
+ .sheet[data-screen="Account details"] .account-detail-offer[open]>.account-offer-toggle{padding-bottom:6px}
+ .sheet[data-screen="Account details"] .account-detail-offer[open]>.account-offer-toggle>svg:last-of-type{transform:rotate(180deg);bottom:-41px;z-index:2}
+ .sheet[data-screen="Account details"] .account-detail-offer[open]:has(.usage-compact)>.account-offer-toggle>svg:last-of-type{bottom:-34px}
+ /* Expanded body */
+ .sheet[data-screen="Account details"] .account-offer-body{padding:6px 14px 14px;border:0}
+ .sheet[data-screen="Account details"] .use-progress.usage-slots{gap:6px;margin:0 0 12px}
+ .sheet[data-screen="Account details"] :is(.use-line,.usage-unknown-line){min-height:30px;display:flex;align-items:center;gap:6px;padding-right:44px;font-size:13.5px;font-weight:500;color:var(--color-text)}
+ .sheet[data-screen="Account details"] :is(.use-line,.usage-unknown-line) .account-usage-unknown{font-weight:500;color:var(--color-text);font-size:13.5px}
+ .sheet[data-screen="Account details"] .usage-legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12.5px;color:var(--color-secondary)}
+ .sheet[data-screen="Account details"] .usage-legend span{display:inline-flex;align-items:center;gap:7px}
+ .sheet[data-screen="Account details"] .usage-legend .usage-key{width:20px;height:9px;border-radius:999px}
+ .sheet[data-screen="Account details"] .account-offer-meta{border-top:1px solid var(--color-border);padding-top:4px}
+ .sheet[data-screen="Account details"] .offer-terms-label{margin:12px 0 2px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--color-tertiary)}
+ .sheet[data-screen="Account details"] .account-offer-meta>.terms-grid{display:block;margin:0;padding:0;border:0;border-radius:0;background:none}
+ .sheet[data-screen="Account details"] .account-offer-meta>.terms-grid>div{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:40px;padding:9px 0;border:0;border-bottom:1px solid var(--color-border);background:none}
+ .sheet[data-screen="Account details"] .account-offer-meta>.terms-grid dt{font-size:13.5px;font-weight:400;color:var(--color-secondary)}
+ .sheet[data-screen="Account details"] .account-offer-meta>.terms-grid dd{margin:0;font-size:13.5px;font-weight:700;color:var(--color-text);text-align:right}
+ .sheet[data-screen="Account details"] .offer-terms{margin-top:12px;border:1px solid var(--color-border);border-radius:14px;background:color-mix(in srgb,var(--color-text) 3%,transparent)}
+ .sheet[data-screen="Account details"] .offer-terms-toggle{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;font-size:14.5px;font-weight:650;color:var(--color-text)}
+ .sheet[data-screen="Account details"] .offer-terms-toggle>svg:first-child{width:17px;height:17px;color:var(--color-soft-accent)}
+ .sheet[data-screen="Account details"] .offer-terms-toggle>svg:last-child{margin-left:auto;width:16px;height:16px}
+ .sheet[data-screen="Account details"] .offer-terms-body{padding:0 12px 10px}
+ .sheet[data-screen="Account details"] .account-offer-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+ .sheet[data-screen="Account details"] .account-offer-actions>.manage-offer{grid-column:1/-1}
+ .sheet[data-screen="Account details"] .account-record-use,.sheet[data-screen="Account details"] .account-manage-toggle{height:46px;min-height:46px;border-radius:14px;font-size:15px;font-weight:700;gap:8px;justify-content:center}
+ .sheet[data-screen="Account details"] .account-record-use{background:linear-gradient(180deg,color-mix(in srgb,var(--color-accent) 30%,var(--data-card-bottom)),color-mix(in srgb,var(--color-accent) 18%,var(--data-card-bottom)));border:1.5px solid color-mix(in srgb,var(--color-accent) 70%,transparent);color:var(--color-soft-accent)}
+ .sheet[data-screen="Account details"] .account-manage-toggle{background:color-mix(in srgb,var(--color-text) 3%,transparent);border:1px solid var(--color-border);color:var(--color-text)}
+ .sheet[data-screen="Account details"] :is(.account-record-use,.account-manage-toggle) svg{width:17px;height:17px}
+}
+@media(max-width:767px){
+ .sheet[data-screen="Account details"] .offers-section .account-offer-toggle>svg:last-of-type{width:30px!important;height:30px!important;min-height:30px}
+ .sheet[data-screen="Account details"] .account-detail-offer[open]>.account-offer-toggle>svg:last-of-type{bottom:-71px}
+ .sheet[data-screen="Account details"] .account-detail-offer[open]:has(.usage-compact)>.account-offer-toggle>svg:last-of-type{bottom:-36px}
+ .sheet[data-screen="Account details"] .offer-terms-toggle>span{font-size:14.5px;font-weight:650;color:var(--color-text)}
+ .sheet[data-screen="Account details"] .usage-legend{flex-direction:row}
+}
+@media(max-width:767px){
+ .sheet[data-screen="Account details"] .usage-legend{display:flex;flex-direction:row;flex-wrap:wrap}
+ .sheet[data-screen="Account details"] .usage-legend>span{flex:0 0 auto;width:auto}
+ .sheet[data-screen="Account details"] .account-detail-offer[open]>.account-offer-toggle>svg:last-of-type{bottom:-63px}
+}
+@media(max-width:767px){
+ .sheet[data-screen="Account details"] .account-offer-actions .account-record-use:not(:disabled){background:linear-gradient(180deg,color-mix(in srgb,var(--color-accent) 30%,var(--data-card-bottom)),color-mix(in srgb,var(--color-accent) 17%,var(--data-card-bottom)))!important}
+ .sheet[data-screen="Account details"] .usage-legend{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important}
+ .sheet[data-screen="Account details"] .usage-legend>span{display:inline-flex!important;width:auto!important}
+}
+
+/* ===== Concept match: Savings / Receipt insights / Finances (phone) ===== */
+@media(max-width:767px){
+ #view-receipts .ri-page-head{gap:6px;align-items:flex-start;margin:0 0 12px}
+ #view-receipts .ri-page-head>button[data-receipts-back]{width:34px;height:40px;margin-left:-8px;border:0;background:none}
+ #view-receipts .ri-page-head>button[data-receipts-back] svg{width:22px;height:22px}
+ #view-receipts .ri-page-head>button[data-receipts-info]{width:34px;height:34px;border-radius:50%;margin-top:2px}
+ #view-receipts .ri-page-head>button[data-receipts-info] svg{width:17px;height:17px}
+ #view-receipts .ri-title-block h1{font-size:26px;line-height:32px;font-weight:800;letter-spacing:-.6px}
+ #view-receipts .ri-title-block p{margin-top:1px;font-size:13px;line-height:17px;color:var(--color-secondary)}
+ #view-receipts .ri-period,#view-receipts .fi-period{height:40px;min-height:40px;margin-top:0;border-radius:14px}
+ #view-receipts .ri-filters,#view-receipts .ri-tabs{height:35px;min-height:35px;margin-top:8px}
+ #view-receipts .ri-filters button,#view-receipts .ri-tabs button{height:35px;min-height:35px;border-radius:12px;font-size:13.5px;font-weight:600}
+ #view-receipts .ri-period-count{margin:9px 2px 8px;min-height:20px;font-size:12px}
+ #view-receipts .ri-period-count span{font-size:12px;color:var(--color-secondary)}
+ #view-receipts .ri-period-count button{font-size:12.5px;font-weight:650;min-height:24px}
+ #view-receipts .ri-overview>.ri-card,#view-receipts .ri-overview>.ri-two-cards,#view-receipts .ri-overview>section,#view-receipts .ri-overview>button.ri-card{margin-top:10px}
+ #view-receipts .ri-overview>.ri-period-count+*{margin-top:0}
+ #view-receipts .ri-card{border-radius:20px}
+ /* Hero */
+ #view-receipts .ri-paid-card{position:relative;display:block;padding:14px 16px 13px;min-height:0}
+ #view-receipts .ri-paid-card>svg{position:absolute;top:16px;right:16px;width:40px;height:40px;padding:10px;box-sizing:border-box;border-radius:12px;border:1px solid var(--color-positive-border,var(--color-border));background:color-mix(in srgb,var(--color-positive) 10%,transparent);color:var(--color-positive)}
+ #view-receipts .ri-paid-card .ri-hero-copy{padding-right:52px;display:block}
+ #view-receipts .ri-paid-card .ri-paid-label{font-size:10.5px;line-height:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+ #view-receipts .ri-paid-card .ri-paid-total{display:block;margin-top:3px;font-size:34px;line-height:38px;font-weight:800;letter-spacing:-1px}
+ #view-receipts .ri-paid-card .ri-hero-copy>p{margin:5px 0 0;font-size:13px;line-height:17px;color:var(--color-text);opacity:.9}
+ #view-receipts .ri-paid-card .ri-hero-copy>small{display:inline;margin:0;padding:0;border:0;font-size:11.5px;line-height:16px;color:var(--color-secondary)}
+ #view-receipts .ri-paid-card .ri-hero-copy>small+small::before{content:' · '}
+ #view-receipts .ri-paid-card .ri-hero-copy>p+small{display:inline-block;margin-top:3px}
+ #view-receipts .ri-paid-card .ri-hero-copy>p+small+small{display:inline}
+ #view-receipts .savings-hero .savings-source-caption{display:inline}
+ /* Avg / Best tiles: icon left, label over value */
+ #view-receipts .ri-two-cards.savings-support{gap:10px}
+ #view-receipts .ri-two-cards.savings-support>.icon-content-row{flex-direction:row;align-items:center;gap:11px;padding:11px 12px;min-height:58px;border-radius:18px}
+ #view-receipts .ri-two-cards.savings-support>.icon-content-row>svg{width:34px;height:34px;flex:0 0 34px;padding:8px;align-self:center;border-radius:10px;border:1px solid var(--color-selected-border,var(--color-border));background:var(--color-accent-fill);color:var(--color-soft-accent)}
+ #view-receipts .ri-two-cards.savings-support>.icon-content-row:nth-child(2)>svg{border-color:var(--color-warning-border);background:var(--data-warning-chip);color:var(--color-warning-icon)}
+ #view-receipts .ri-two-cards.savings-support .icon-content-copy{gap:1px}
+ #view-receipts .ri-two-cards.savings-support .icon-content-copy h2{min-height:0;font-size:11.5px;line-height:14px;font-weight:500;color:var(--color-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #view-receipts .ri-two-cards.savings-support .icon-content-copy strong{font-size:18px;line-height:22px;font-weight:800;color:var(--color-text)}
+ /* Bar-list cards (Savings over time / Weekly activity) */
+ #view-receipts .ri-activity{padding:13px 16px 12px}
+ #view-receipts .ri-activity .ri-section-head{display:flex;align-items:center;justify-content:space-between;margin:0 0 8px;min-height:30px}
+ #view-receipts .ri-activity .ri-section-head h2{margin:0;font-size:16.5px;line-height:20px;font-weight:800;letter-spacing:-.3px}
+ #view-receipts .ri-activity .ri-section-head>.ri-caption{margin:0;height:28px;display:inline-flex;align-items:center;padding:0 12px;border-radius:999px;border:1px solid var(--color-border);background:color-mix(in srgb,var(--color-text) 4%,transparent);font-size:12.5px;font-weight:600;color:var(--color-text)}
+ #view-receipts .ri-activity-rows{gap:0}
+ #view-receipts .ri-activity-row{display:grid;grid-template-columns:76px minmax(0,1fr) 64px;align-items:center;gap:12px;min-height:28px;padding:0}
+ #view-receipts .ri-activity-row>span:first-child{font-size:13px;color:var(--color-secondary);white-space:nowrap}
+ #view-receipts .ri-activity-track{height:7px;border-radius:999px}
+ #view-receipts .ri-activity-row>strong{font-size:13.5px;font-weight:750;text-align:right;white-space:nowrap}
+ #view-receipts .ri-activity-row>strong.ri-unknown{font-weight:500;color:var(--color-tertiary)}
+ #view-receipts .ri-activity>.ri-caption{margin:8px 0 0;font-size:11.5px;color:var(--color-tertiary)}
+ /* Secondary cards */
+ #view-receipts .savings-ranking{padding:13px 16px}
+ #view-receipts .savings-ranking h2{margin:0 0 8px;font-size:16.5px;line-height:20px;font-weight:800;padding:0;border:0}
+ #view-receipts .ri-breakdown{min-height:52px;padding:0 14px;font-size:14.5px;font-weight:650;border-radius:18px}
+}
+@media(max-width:767px){
+ #view-receipts .ri-paid-card .ri-hero-copy{padding-right:0}
+ #view-receipts .ri-paid-card .ri-paid-label,#view-receipts .ri-paid-card .ri-paid-total{padding-right:56px}
+}
+#view-receipts .ri-split{margin-top:12px;display:grid;gap:9px}
+#view-receipts .ri-split-track{display:flex;gap:5px;height:6px}
+#view-receipts .ri-split-track>span{border-radius:99px;min-width:6px}
+#view-receipts .ri-split-eats{background:var(--color-accent)}
+#view-receipts .ri-split-rides{flex:1;background:color-mix(in srgb,var(--color-secondary) 45%,transparent)}
+#view-receipts .ri-split-legend{display:flex;justify-content:space-between;font-size:13px;color:var(--color-secondary)}
+#view-receipts .ri-split-key{display:inline-flex;align-items:center;gap:6px}
+#view-receipts .ri-split-key::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--color-accent)}
+#view-receipts .ri-split-key.rides::before{background:var(--color-secondary)}
+#view-receipts .ri-split-key strong{color:var(--color-text);font-weight:650;margin-left:4px}
+@media(max-width:767px){
+ #view-receipts .ri-paid-card:has(.ri-split) .ri-hero-copy>p:not(.ri-payment-caption),#view-receipts .ri-paid-card:has(.ri-split) .ri-payment-caption,#view-receipts .ri-paid-card:has(.ri-split) .ri-coverage{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+ #view-receipts .ri-paid-card>[data-icon],#view-receipts .ri-paid-card>svg{color:var(--color-accent)}
+}
+@media(max-width:767px){
+ #view-receipts .ri-paid-card>svg,#view-receipts .ri-paid-card>[data-icon]{background:color-mix(in srgb,var(--color-accent) 14%,transparent)!important;border-color:var(--color-selected-border)!important;color:var(--color-accent)!important}
+ #view-receipts .ri-combined{padding:14px 14px 12px}
+ #view-receipts .ri-combined h2{font-size:17px;gap:10px;margin:0 0 12px}
+ #view-receipts .ri-combined h2 .data-icon{width:30px;height:30px}
+ #view-receipts .ri-combined-values strong{font-size:22px}
+ #view-receipts .ri-combined-note{display:flex;gap:7px;align-items:flex-start;margin:12px 0 0;font-size:12.5px;line-height:1.35;color:var(--color-secondary)}
+ #view-receipts .ri-combined-note svg{width:13px;height:13px;flex:none;margin-top:2px}
+ #view-receipts .ri-activity .ri-section-head .app-select-trigger{min-height:30px;height:30px;padding:0 10px 0 12px;border-radius:99px;font-size:13px}
+ #view-receipts .ri-activity .ri-section-head .app-select{width:auto!important}
+ #view-receipts .ri-activity h2{font-size:17px}
+ #view-receipts .ri-receipt-row .ri-row-amount{display:grid;justify-items:end;gap:4px}
+ #view-receipts .ri-promo-chip{font-size:11.5px;font-weight:650;color:var(--color-positive);border:1px solid var(--color-positive-border);background:color-mix(in srgb,var(--color-positive) 12%,transparent);border-radius:99px;padding:1px 7px;white-space:nowrap}
+ #view-receipts .ri-receipt-row>[data-icon="chevron-right"],#view-receipts .ri-receipt-row>svg:last-child{display:none}
+}
+.ri-combined-note{display:flex;gap:7px;font-size:12.5px;color:var(--color-secondary);margin:12px 0 0}
+.ri-combined-note svg{width:13px;height:13px;flex:none}
+.ri-promo-chip{font-size:11.5px;color:var(--color-positive)}
+@media(max-width:767px){
+ #view-receipts .ri-activity .ri-section-head .app-select-trigger{min-height:30px!important;height:30px!important;padding:0 10px 0 12px!important;border-radius:99px!important;font-size:13px!important;gap:6px}
+ #view-receipts .ri-activity .ri-section-head .app-select-arrow svg{width:13px;height:13px}
+ #view-receipts .ri-activity{padding-top:14px}
+}
+@media(max-width:767px){
+ #view-receipts .ri-recent-list .ri-receipt-row{grid-template-columns:34px minmax(0,1fr) auto!important;column-gap:12px;padding:11px 12px}
+ #view-receipts .ri-recent-list .ri-receipt-row>svg:last-child,#view-receipts .ri-recent-list .ri-receipt-row>[data-icon="chevron-right"]{display:none!important}
+ #view-receipts .ri-recent-list .ri-row-title{font-size:15px;font-weight:650}
+}
+/* Concept match: Finances (phone) */
+@media(max-width:767px){
+ #view-receipts .finance-page .fi-summary{padding:14px 14px 12px}
+ #view-receipts .finance-page .fi-money-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:2px}
+ #view-receipts .finance-page .fi-main-amount{font-size:34px;line-height:1.05;letter-spacing:-.02em}
+ #view-receipts .finance-page .fi-cash-note{font-size:12px;padding:3px 9px}
+ #view-receipts .finance-page .fi-cash-note svg{display:none}
+ #view-receipts .finance-page .fi-stats{margin-top:12px;padding-top:12px}
+ #view-receipts .finance-page .fi-stats strong{font-size:20px}
+ #view-receipts .finance-page .fi-review{min-height:58px;padding:10px 12px;margin-top:10px}
+ #view-receipts .finance-page .fi-review.fi-review-warning{border-color:var(--color-warning-border)!important;background:linear-gradient(180deg,color-mix(in srgb,var(--color-warning-icon) 9%,var(--data-card-top)),var(--data-card-bottom))!important}
+ #view-receipts .finance-page .fi-review strong{font-size:16px}
+ #view-receipts .finance-page .fi-review small{font-size:13px}
+ #view-receipts .finance-page .fi-review .data-icon{width:34px;height:34px}
+ #view-receipts .finance-page>.ri-section-head{margin:18px 2px 8px}
+ #view-receipts .finance-page>.ri-section-head h2{font-size:20px}
+ #view-receipts .finance-page .fi-search{min-height:40px;margin-top:8px}
+ #view-receipts .finance-page .fi-search input{font-size:15px}
+ #view-receipts .finance-page .fi-extra-filters>summary{font-size:12.5px;padding:8px 2px}
+ #view-receipts .finance-page .fi-transactions{padding:0;overflow:hidden}
+ #view-receipts .finance-page .fi-day{margin:0;padding:8px 14px;background:color-mix(in srgb,var(--color-border) 22%,transparent);border-top:1px solid var(--color-border);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+ #view-receipts .finance-page .fi-day:first-child{border-top:0}
+ #view-receipts .finance-page .fi-transaction{padding:10px 14px;min-height:58px;border-top:1px solid color-mix(in srgb,var(--color-border) 60%,transparent)}
+ #view-receipts .finance-page .fi-day+.fi-transaction{border-top:0}
+ #view-receipts .finance-page .fi-transaction .data-icon{width:34px;height:34px}
+ #view-receipts .finance-page .fi-transaction>span{display:grid;gap:2px}
+ #view-receipts .finance-page .fi-transaction>span>strong{font-size:15px;font-weight:650}
+ #view-receipts .finance-page .fi-card-line{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--color-secondary)}
+ #view-receipts .finance-page .fi-card-line svg{width:13px;height:13px}
+ #view-receipts .finance-page .fi-transaction>strong{font-size:16px}
+ #view-receipts .finance-page .fi-show-all{border-top:1px solid var(--color-border)}
+}
+.fi-card-line{display:inline-flex;align-items:center;gap:6px}
+.fi-card-line svg{width:13px;height:13px}
+@media(max-width:767px){
+ #view-receipts .finance-page .fi-search input{background:transparent!important;border:0!important;box-shadow:none!important}
+ #view-receipts .finance-page>.ri-section-head{margin:14px 2px 8px}
+}
+@media(max-width:767px){
+ .sheet[data-screen="Account details"] .offers-section .account-detail-offer:has(.account-selected-badge),.sheet[data-screen="Account details"] .account-detail-offer:has(.account-selected-badge){border-color:color-mix(in srgb,var(--color-soft-accent) 75%,var(--color-pale))!important}
 }
