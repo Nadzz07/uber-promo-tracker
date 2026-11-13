@@ -1133,3 +1133,75 @@ h1:focus:not(:focus-visible){outline:none}
  #view-receipts .ri-overview.finance-page .fi-review{min-height:55px!important;padding:6px 12px!important}
  #view-receipts .ri-overview.finance-page .fi-review strong{line-height:21px}
 }
+/* Account details d3 redesign: full-screen page + header / inset / chips promo cards */
+@media(max-width:767px){
+ html .sheet[data-screen="Account details"]{top:0!important;bottom:0!important;max-height:none!important;height:100%!important;border-radius:0!important;border:0!important;box-shadow:none!important;background:var(--color-screen)!important;transform:none}
+ html .sheet[data-screen="Account details"] .sheet-handle{display:none!important}
+ html .sheet[data-screen="Account details"] .sheet-head{padding-top:calc(10px + env(safe-area-inset-top,0px))!important}
+ html .sheet[data-screen="Account details"] #sheetTitle{font-size:24px!important;font-weight:800!important;letter-spacing:-.6px}
+ html .sheet[data-screen="Account details"] .sheet-body{padding-bottom:calc(102px + env(safe-area-inset-bottom,0px))!important}
+ /* account header */
+ html .sheet[data-screen="Account details"] .account-sheet-top{grid-template-columns:38px minmax(0,1fr) auto!important;gap:11px!important}
+ html .sheet[data-screen="Account details"] .account-detail-provider{width:38px!important;height:38px!important;min-width:38px;flex:none}
+ html .sheet[data-screen="Account details"] .account-sheet-email{font-size:14.5px!important;font-weight:700!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;overflow-wrap:normal!important;display:block}
+ /* card shell */
+ html .sheet[data-screen="Account details"] .account-detail-offer:not(.past-offer){border-radius:18px!important;margin:0 0 10px!important;border:1px solid var(--color-border)!important;background:var(--theme-panel)!important;box-shadow:none!important}
+ html .sheet[data-screen="Account details"] .account-detail-offer:not(.past-offer):has(.account-selected-badge){border-color:color-mix(in srgb,var(--color-soft-accent) 75%,var(--color-pale))!important;background:linear-gradient(180deg,color-mix(in srgb,var(--color-accent) 26%,transparent),transparent 75%),var(--theme-panel)!important;box-shadow:0 0 0 1px var(--color-selected-border),0 0 22px color-mix(in srgb,var(--color-accent) 22%,transparent)!important}
+ html .sheet[data-screen="Account details"] .account-detail-offer>summary.aof-card{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;padding:12px!important;position:relative;cursor:pointer}
+ html .sheet[data-screen="Account details"] .aof-head{display:flex;align-items:flex-start;gap:10px;min-width:0}
+ html .sheet[data-screen="Account details"] .aof-head>.offer-icon-tile{position:relative;flex:none!important;width:36px!important;height:36px!important;min-width:36px!important;border-radius:11px}
+ html .sheet[data-screen="Account details"] .aof-head>.offer-icon-tile .account-selected-badge{width:18px!important;height:18px!important;min-width:18px!important;top:-6px!important;right:-6px!important;font-size:10px;background:var(--color-accent)!important;color:var(--color-on-accent)!important;border:2px solid var(--color-screen)!important;box-shadow:none!important}
+ html .sheet[data-screen="Account details"] .aof-head>.account-offer-heading{display:flex!important;flex-direction:column;flex:1 1 auto;min-width:0;gap:2px}
+ html .sheet[data-screen="Account details"] .aof-head .offer-name{font-size:15.5px!important;font-weight:800!important;line-height:1.25}
+ html .sheet[data-screen="Account details"] .aof-head .offer-details{font-size:12px!important;line-height:1.35;color:var(--color-secondary);white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis}
+ html .sheet[data-screen="Account details"] .aof-head>.compact-expiry-badge{flex:none!important;min-height:22px!important;height:22px;padding:0!important;background:none!important;border:0!important;margin:0!important;position:static!important}
+ html .sheet[data-screen="Account details"] .aof-head .directory-expiry-pill{display:inline-flex;align-items:center;gap:4px;height:22px;min-height:22px!important;padding:0 9px!important;font-size:11.5px!important;font-weight:700;border-radius:999px;white-space:nowrap}
+ html .sheet[data-screen="Account details"] .aof-head .directory-expiry-pill svg{width:12px;height:12px}
+ /* inset box */
+ html .sheet[data-screen="Account details"] .account-detail-offer .account-offer-compact.aof-inset{display:flex!important;flex-direction:column!important;gap:8px!important;margin:10px 0 0!important;padding:10px 12px!important;border-radius:14px;background:color-mix(in srgb,var(--color-text) 3.5%,transparent);border:1px solid color-mix(in srgb,var(--color-text) 7%,transparent)}
+ html .sheet[data-screen="Account details"] .aof-inset .compact-use-track{display:grid!important;grid-template-columns:repeat(var(--compact-use-columns),minmax(0,1fr))!important;gap:6px!important;order:0!important;margin:0!important;padding:0!important}
+ html .sheet[data-screen="Account details"] .aof-inset .compact-use-track>span{height:12px!important;min-width:0;border-radius:999px}
+ html .sheet[data-screen="Account details"] .aof-inset .compact-completion-line{display:flex!important;align-items:center!important;justify-content:space-between;gap:10px;min-height:28px!important;padding:0!important}
+ html .sheet[data-screen="Account details"] .aof-inset .compact-order-completion{font-size:13px!important;color:var(--color-secondary);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ html .sheet[data-screen="Account details"] .aof-inset .compact-order-completion b{font-weight:600;color:var(--color-text)}
+ html .sheet[data-screen="Account details"] .aof-chevron{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:999px;background:color-mix(in srgb,var(--color-text) 7%,transparent);color:var(--color-secondary)}
+ html .sheet[data-screen="Account details"] .aof-chevron svg{position:static!important;width:15px!important;height:15px!important;transition:transform .26s ease-out}
+ html .sheet[data-screen="Account details"] .account-detail-offer[open] .aof-chevron svg{transform:rotate(180deg)}
+ /* chips */
+ html .sheet[data-screen="Account details"] .aof-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+ html .sheet[data-screen="Account details"] .aof-chips>span{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:999px;font-size:11.5px;font-weight:600;line-height:1;margin:0!important;border:1px solid var(--color-border);background:color-mix(in srgb,var(--color-text) 5%,transparent);color:var(--color-secondary)}
+ html .sheet[data-screen="Account details"] .aof-chips>span svg{width:12px;height:12px;flex:none}
+ html .sheet[data-screen="Account details"] .aof-chips>.aof-chip.positive{color:var(--color-positive);background:var(--color-positive-fill);border-color:var(--color-positive-border)}
+ html .sheet[data-screen="Account details"] .aof-chips>.aof-chip.warning{color:var(--color-warning-text);background:var(--color-warning-fill);border-color:var(--color-warning-border)}
+ /* open body */
+ html .sheet[data-screen="Account details"] .account-detail-offer:not(.past-offer) .account-offer-body{padding:0 12px 12px!important}
+ html .sheet[data-screen="Account details"] .account-detail-offer:not(.past-offer) .use-progress.usage-slots{margin:0 0 4px!important;padding:0!important;border:0!important;gap:0!important}
+ html .sheet[data-screen="Account details"] .account-detail-offer:not(.past-offer) .use-progress :is(.usage-slot-grid,.use-line,.usage-unknown-line){position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0);clip-path:inset(50%);margin:-1px!important;padding:0!important;border:0!important}
+ html .sheet[data-screen="Account details"] .account-detail-offer:not(.past-offer) .usage-legend{margin:2px 0 0!important}
+ html .sheet[data-screen="Account details"] .account-detail-offer:not(.past-offer) .terms-grid>div{min-height:32px!important;padding:6px 0!important}
+ html .sheet[data-screen="Account details"] .account-detail-offer:not(.past-offer) .offer-terms-toggle{min-height:38px!important;height:38px!important}
+ html .sheet[data-screen="Account details"] .account-detail-offer:not(.past-offer) .offer-terms-body{max-height:200px;overflow-y:auto;overscroll-behavior:contain}
+ html .sheet[data-screen="Account details"] .account-detail-offer:not(.past-offer) .account-offer-actions button{min-height:40px!important;height:40px!important}
+ html .sheet[data-screen="Account details"] .account-detail-offer:not(.past-offer)>.account-offer-body.motion-disclosure{transition:grid-template-rows .26s ease-out}
+ /* history + account rows */
+ html .sheet[data-screen="Account details"] :is(.account-section-label,.offer-section-label,.sheet-section-label){font-size:10px!important;letter-spacing:.12em;text-transform:uppercase;margin:16px 2px 8px!important}
+}
+@media(max-width:767px){
+ html .sheet[data-screen="Account details"] .aof-head .account-offer-titleline{display:block!important;text-align:left!important;width:auto!important;grid-column:auto!important;justify-self:start;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ html .sheet[data-screen="Account details"] .aof-head .offer-details{grid-column:auto!important;text-align:left}
+}
+@media(max-width:767px){
+ html .sheet[data-screen="Account details"] .aof-head .account-offer-titleline,html .sheet[data-screen="Account details"] .aof-head .offer-details{align-self:stretch!important;margin:0!important;max-width:100%}
+ html .sheet[data-screen="Account details"] .aof-head .offer-name{font-size:15.5px!important;font-weight:800!important}
+ html .sheet[data-screen="Account details"] .account-detail-offer[open] .aof-inset .compact-order-completion{display:block!important}
+ html .sheet[data-screen="Account details"] .account-detail-offer:not([open]) .aof-inset .compact-completion-line{padding-top:0!important;font-size:inherit}
+ html .sheet[data-screen="Account details"] .account-detail-offer .aof-inset .compact-use-track>span{height:12px!important}
+}
+@media(max-width:767px){
+ html .sheet[data-screen="Account details"] .account-detail-offer>summary.aof-card{width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+ html .sheet[data-screen="Account details"] .account-detail-offer>summary.aof-card>*{min-width:0;max-width:100%;box-sizing:border-box}
+ html .sheet[data-screen="Account details"] .aof-head .account-offer-heading{overflow:hidden}
+}
+@media(max-width:767px){
+ html .sheet[data-screen="Account details"] .account-detail-offer[open] .aof-inset .compact-use-track>[data-use-slot]{cursor:pointer;position:relative}
+}
