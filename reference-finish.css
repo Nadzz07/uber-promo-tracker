@@ -405,7 +405,9 @@ html[data-motion=reduced] .offer-terms-anim,html[data-motion=reduced] .offer-ter
 #accountsList .directory-usage-box{flex:1 1 0;min-width:0;height:12px;min-height:12px;border-radius:999px}
 #accountsList .directory-usage-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;min-height:18px;padding:0}
 #accountsList .directory-use-limit{margin:0;padding:0;font-size:13px;line-height:1.3}
-#accountsList .directory-view-offers{display:none}
+#accountsList .directory-card{position:relative}
+#accountsList .directory-view-offers{position:absolute;top:12px;right:12px;width:26px;height:26px;min-width:0;min-height:0;padding:0;margin:0;border:0;background:none;font-size:18px;line-height:1;color:var(--color-tertiary);z-index:3}
+#accountsList .directory-chevron{display:none}
 #accountsList .directory-confirmed{color:var(--color-positive);font-weight:600;font-size:12.5px;white-space:nowrap}
 #accountsList .directory-more-offers{display:inline-flex;align-items:center;height:26px;padding:0 11px;margin-top:10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--color-accent-fill);border:1px solid var(--color-selected-border);color:var(--color-soft-accent)}
 #accountsList .directory-extras{margin-top:0}
