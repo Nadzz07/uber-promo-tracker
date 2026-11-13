@@ -5,7 +5,7 @@ import {parseUberEatsReceipt} from './receipt-parser.js';
 import {parseUberTransportReceipt} from './transport-receipt-parser.js';
 import {receiptText,hasForwardedReceiptClaims} from './receipt-text.js';
 import {extractAccountAlias} from './parser-v2/utils.js';
-import {offerFingerprint} from './identity.js';
+import {offerFingerprint,campaignTermKey} from './identity.js';
 import {applyOfferExpiryPolicy,expiryEndTime} from './offer-time.js';
 
 export const MAIL_REVIEW_RULE_VERSION=9;
@@ -13,9 +13,53 @@ const at=v=>v&&Number.isFinite(Date.parse(v))?Date.parse(v):null;
 const positive=v=>typeof v==='number'&&Number.isFinite(v)&&v>0;
 const decision=(category,reason,destination=null,extra={})=>({category,reason,destination,...extra});
 
+// Security wording in the languages Uber actually sends. These phrasings mean
+// "do not share" or "verification code"; the code itself may be the whole subject.
+const SECURITY_CODE_WORDING=[
+ /nu\s+transmite\s+altcuiva/i,            // Romanian
+ /nu\s+partaja(?:\u021bi)?/i,              // Romanian
+ /cod(?:ul)?\s+de\s+verificare/i,          // Romanian
+ /no\s+compartas/i,                        // Spanish
+ /c\u00f3digo\s+de\s+verificaci\u00f3n/i,  // Spanish
+ /ne\s+partagez\s+pas/i,                   // French
+ /code\s+de\s+v\u00e9rification/i,         // French
+ /nicht\s+weitergeben/i,                   // German
+ /(?:best\u00e4tigungs|verifizierungs)code/i, // German
+ /non\s+condividere/i,                     // Italian
+ /codice\s+di\s+verifica/i,                // Italian
+ /n\u00e3o\s+(?:compartilhe|partilhe)/i,    // Portuguese
+ /c\u00f3digo\s+de\s+verifica\u00e7\u00e3o/i, // Portuguese
+ /nie\s+udost\u0119pniaj/i,                // Polish
+ /kod\s+weryfikacyjny/i,                   // Polish
+ /(?:kimseyle\s+)?payla\u015fmay\u0131n/i, // Turkish
+ /do\u011frulama\s+kodu/i,                 // Turkish
+ /deel\s+deze\s+code\s+niet/i,             // Dutch
+ /\u043d\u0435\s+\u0441\u043e\u043e\u0431\u0449\u0430\u0439\u0442\u0435/i, // Russian
+ /\u043a\u043e\u0434\s+\u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u0438\u044f/i, // Russian
+ /\u0644\u0627\s+\u062a\u0634\u0627\u0631\u0643/i, // Arabic
+ /\u30b3\u30fc\u30c9\u3092\u5171\u6709\u3057\u306a\u3044/i, // Japanese
+ /\ucf54\ub4dc\ub97c\s*\uacf5\uc720\ud558\uc9c0/i // Korean
+];
+
+// Security email classification. Exported so callers can assert the protection
+// takes priority over every ordinary sorting rule.
+export function isProtectedSecurityEmail(message){
+ const subject=String(message.subject||''),body=String(message.body||''),text=subject+'\n'+receiptText('',body);
+ const hasCode=/\b\d{3,8}\b/.test(text);
+ const foreignWording=SECURITY_CODE_WORDING.some(r=>r.test(text));
+ // Translated wording is decisive only with a code present, so ordinary
+ // marketing that happens to quote a security phrase is not protected.
+ if(foreignWording&&hasCode)return 'excluded_login_code';
+ return null;
+}
+
 export function mailIdentityExclusion(message){
  const subject=String(message.subject||''),text=receiptText(subject,message.body);
  if(/\b(?:verify|confirm)\s+your\s+(?:Uber\s+)?(?:account\s+)?email\b/i.test(subject))return 'excluded_login_link';
+ // Non-English security wording is checked first: a login code must never be
+ // swept up by a promotional rule just because its subject is not English.
+ const foreign=isProtectedSecurityEmail(message);
+ if(foreign)return foreign;
  const digits=/\b\d{4,8}\b|\b\d{3}[ -]\d{3}\b/.test(text);
  const codeSubject=/\b(?:uber(?: eats)? code|(?:verification|security|login|sign[ -]?in|one[ -]?time|authentication) code)\b/i.test(subject);
  const authSubject=/\b(?:log[ -]?in|sign[ -]?in|verify|verification|one[ -]?time|authentication)\b/i.test(subject);
@@ -120,10 +164,8 @@ export function explicitMailDecision(message,now=Date.now()){
  if(at(message.sentAt||message.receivedAt)==null)return null;
  const promo=parseUberPromo(message),scope=promo.evidence?.discountScope||promo.offerScope;
  if(promo.isPromo&&promo.service==='Uber Eats'&&promo.discountType==='fixed'&&promo.discount===8&&promo.minimumSpend===25)return decision('owner_excluded_8_off_25','Owner explicitly excludes £8 off a £25 minimum offer emails; existing tracker records stay intact.','Bin');
- if(promo.isPromo&&promo.service==='Uber Eats'&&promo.discountType==='fixed'&&promo.discount===15&&promo.minimumSpend===25)return decision('owner_excluded_15_off_25','Owner requested £15 off £25 offer emails in Bin; receipt and tracker history remain protected.','Bin');
  const sent=at(message.sentAt||message.receivedAt);
  const personalPercentageHeadline=/\d+%\s+off\s+your\s+(?:next|first)\s+(?:\d+\s+)?(?:meals?|orders?)\b/i.test(subject);
- if(promo.isPromo&&promo.service==='Uber Eats'&&promo.discountType==='percent'&&(scope==='order'||personalPercentageHeadline)&&sent!=null&&sent<oneCalendarMonthBefore(now))return decision('old_eats_percentage_email','Owner requested Eats percentage-off order emails older than one calendar month in Bin. Email age is not an assertion about expiry.','Bin');
  const genuineOrderTerms=promo.isPromo&&scope==='order'&&/\b(?:minimum spend|use (?:promo )?code|valid on .{0,20}orders|your next .{0,12}orders)\b/i.test(text);
  const redeemableOrderTerms=/\b(?:us(?:e|ing)|enter|apply)\s+(?:the\s+)?(?:promo(?:tional)?\s+)?code\b|\byour\s+(?:next|first)\s+.{0,28}(?:orders?|meals?)\b|\b(?:minimum spend|maximum discount|discount capped)\b/i.test(text);
  const discovery=/^(?:All the trusted picks|Crowd favourites, delivered|Feeling peckish\?|Restaurants everyone is loving|Satisfy your cravings|Widely loved and popular|Your favourites are calling|Delicious meal on your mind\? Let us help\.)$/i.test(subject.trim());
@@ -179,28 +221,49 @@ export function createMailReviewContext({accounts,historicalAccess=[],snapshot,f
   return {known:count>0||p.receiptState==='unused',used:count>0,count,full};
  };
  const completed=new Set();for(const p of snapshot.promos)if(p.discountType!=='uberCash'&&usage(p).full)completed.add(p.accountRef);
- const resolve=(message,account,promo)=>{
-  const privateId=offerFingerprint({...promo,accountRef:account.accountRef});
-  const offer=offers.get(publicIds.get(privateId));
-  if(offer?.accountRef!==account.accountRef)return null;
-  // Codes can be reused. Different explicit validity windows are not duplicates.
-  if(promo.code){
-   const sent=at(message.sentAt||message.receivedAt),start=at(offer.firstEmailSentAt||offer.emailSentAt),end=expiryEndTime(applyOfferExpiryPolicy(offer));
-   if(promo.expiryStatus==='exact'&&offer.expiryStatus==='exact'&&expiryEndTime(promo)!==end)return null;
-   if(start==null||sent==null||sent<start||(end!=null&&sent>=end))return null;
-  }
-  return offer;
+ const byTerm=new Map();
+ for(const offer of new Set(offers.values())){
+  const key=campaignTermKey({...offer,accountRef:offer.accountRef});
+  if(!byTerm.has(key))byTerm.set(key,[]);
+  byTerm.get(key).push(offer);
+ }
+ const codeWindowOk=(message,promo,offer)=>{
+  const sent=at(message.sentAt||message.receivedAt),start=at(offer.firstEmailSentAt||offer.emailSentAt),end=expiryEndTime(applyOfferExpiryPolicy(offer));
+  if(promo.expiryStatus==='exact'&&offer.expiryStatus==='exact'&&expiryEndTime(promo)!==end)return false;
+  return !(start==null||sent==null||sent<start||(end!=null&&sent>=end));
  };
+ // Reliability describes how sure we are that this email is the stored campaign.
+ // An estimated expiry is calculated from the email date, so it is never used
+ // as identity evidence; such a match may keep or update a campaign but must
+ // not authorise binning or archiving on its own.
+ const resolveMatch=(message,account,promo)=>{
+  if(!promo||!account)return null;
+  const privateId=offerFingerprint({...promo,accountRef:account.accountRef});
+  const exact=offers.get(publicIds.get(privateId));
+  if(exact?.accountRef===account.accountRef){
+   if(promo.code&&!codeWindowOk(message,promo,exact))return null;
+   return {offer:exact,reliable:true};
+  }
+  const candidates=(byTerm.get(campaignTermKey({...promo,accountRef:account.accountRef}))||[]).filter(o=>o.accountRef===account.accountRef);
+  if(candidates.length!==1)return null;
+  const candidate=candidates[0];
+  const emailExact=promo.expiryStatus==='exact',storedExact=candidate.expiryStatus==='exact';
+  if(emailExact&&storedExact&&expiryEndTime(promo)!==expiryEndTime(candidate))return null;
+  if(promo.code&&!codeWindowOk(message,promo,candidate))return null;
+  return {offer:candidate,reliable:emailExact&&storedExact};
+ };
+ const resolve=(message,account,promo)=>resolveMatch(message,account,promo)?.offer??null;
  const cashOverlap=p=>snapshot.promos.some(c=>{
   if(c.accountRef!==p.accountRef||c.discountType!=='uberCash')return false;
   const start=at(p.firstEmailSentAt||p.emailSentAt),cashStart=at(c.firstEmailSentAt||c.emailSentAt);
   const end=expiryEndTime(applyOfferExpiryPolicy(p)),cashEnd=expiryEndTime(applyOfferExpiryPolicy(c));
   return start!=null&&cashStart!=null&&end!=null&&cashEnd!=null&&Math.max(start,cashStart)<Math.min(end,cashEnd);
  });
- return {byEmail,offers,usage,completed,resolve,cashOverlap,receiptImported,now};
+ return {byEmail,offers,usage,completed,resolve,resolveMatch,cashOverlap,receiptImported,now};
 }
 
-export function reviewMailMessage(message,context){
+function reviewMailMessageCore(message,context){
+ context.__matchReliability=true;
  const subject=String(message.subject||''),text=receiptText(subject,message.body),sender=analyseSender(message.sender);
  const explicit=explicitMailDecision(message,context.now),confirmed=context.byEmail.get(extractAccountAlias(message.recipient));
  if(!explicit&&sender.trusted===true&&sender.confidence==='high'&&!isReceiptMail(message)&&/\b(?:payment (?:failed|declined|received|confirmation|receipt)|billing (?:problem|issue)|refund|invoice|amount charged|credits? (?:added|received)|membership (?:cancelled|canceled|ended))\b/i.test(subject))return {...decision('protected_transaction_notice','Actual billing, payment, refund or credited-balance record; leave intact.'),accountEmail:extractAccountAlias(message.recipient)};
@@ -209,6 +272,15 @@ export function reviewMailMessage(message,context){
  if(confirmed?.canLogin===false&&sender.trusted===true&&sender.confidence==='high'&&!isReceiptMail(message)&&!mailIdentityExclusion(message)&&!hasForwardedReceiptClaims(subject,message.body)&&!['protected_transaction_notice','keep_owner_benefit'].includes(explicit?.category)){
   const p=parseUberPromo(message);
   if(p.isPromo||explicit?.category==='eurostar_folder'||/\b(?:promo(?:tion)?|offer|voucher|discount)\b|\bUber Cash\b.{0,60}\b(?:waiting|available|use|enjoy)\b/i.test(subject))return {...decision('inaccessible_offer','Confirmed cannot log in: bin every Uber offer, including Cash, regardless of expiry.','Bin'),accountRef:confirmed.accountRef,accountEmail:extractAccountAlias(message.recipient)};
+ }
+ // Filed-without-discarding categories win over generic advertising rules.
+ const earlyPromo=parseUberPromo(message);
+ if(!isReceiptMail(message)){
+  const cashBalanceNotice=/£\s*\d+(?:\.\d+)?\s+(?:in|of)\s+Uber\s*Cash|Uber\s*Cash\s+(?:waiting|ready|to\s+use)|you(?:'ve|\u2019ve| have)\s+got\s+£\s*\d+/i.test(subject);
+  if(cashBalanceNotice&&!earlyPromo.evidence?.minimumSpend)return {...decision('cash_balance_notice','Uber Cash balance notification: filed to Others; it never creates or changes a Cash balance or a campaign.','Others'),accountEmail:extractAccountAlias(message.recipient)};
+  if(/^welcome to Uber One\b|officially an Uber One member/i.test(subject))return {...decision('uber_one_welcome','Uber One membership welcome: filed to Others; not a promotional campaign.','Others'),accountEmail:extractAccountAlias(message.recipient)};
+  // Owner listed these general notices as Others rather than advertising to bin.
+  if(/^your midday pick-me-up is here\b/i.test(subject))return {...decision('general_uber_mail','General Uber notice: filed to Others, not discarded.','Others'),accountEmail:extractAccountAlias(message.recipient)};
  }
  if(explicit)return {...explicit,accountEmail:extractAccountAlias(message.recipient)};
  if(sender.trusted!==true||sender.confidence!=='high')return decision('review','Sender is not verified as Uber.');
@@ -231,9 +303,14 @@ export function reviewMailMessage(message,context){
  if(/\bEurostar\b/i.test(subject))return result('excluded_eurostar','Accessible account: Eurostar is excluded; leave where it is.');
  const promo=parseUberPromo(message),scope=promo.evidence?.discountScope||promo.offerScope;
  if(promo.evidence?.termsConflict||promo.termsConflict)return result('review','Offer terms conflict; leave for review.');
+ // A Cash balance notification is not a campaign: it may never create or change
+ // a balance, and it is filed with general Uber mail rather than discarded.
+ const cashBalanceNotice=/£\s*\d+(?:\.\d+)?\s+(?:in|of)\s+Uber\s*Cash|Uber\s*Cash\s+(?:waiting|ready|to\s+use)|you(?:'ve|\u2019ve| have)\s+got\s+£\s*\d+/i.test(subject);
+ if(cashBalanceNotice&&!promo.evidence?.minimumSpend)return result('cash_balance_notice','Uber Cash balance notification: filed to Others; it never creates or changes a Cash balance or a campaign.','Others');
  // The parser identifies the service from source terms. No headline-only ride test.
  if(promo.isPromo&&promo.service==='Uber')return result('ride_promotion','Ride promotions are excluded from useful offers.','Bin');
- const offer=promo.isPromo?context.resolve(message,account,promo):null;
+ const match=promo.isPromo?context.resolveMatch(message,account,promo):null;context.__matchReliability=match?match.reliable:true;
+ const offer=match?match.offer:null;
  if(promo.isPromo&&promo.service==='Uber Eats'&&promo.discountType==='percent'&&scope!=='uncertain'){
   const sourceEnd=sourceConfirmedExpiry(promo);
   const campaignEnd=offer?.expiryStatus==='exact'&&offer.expiryConfidence==='confirmed'?expiryEndTime(applyOfferExpiryPolicy(offer)):null;
@@ -244,9 +321,9 @@ export function reviewMailMessage(message,context){
  }
  // The owner chose archival evidence, not an assumed zero-use/completed state.
  // Unmapped campaigns need their own explicit source date and full offer terms.
- const expiredUnknown=(end,extra={})=>result('retain_one_expired_unknown_offer','Expired personal offer with unknown usage: archive the latest source and bin only duplicates.','Archive',{...extra,family:JSON.stringify([account.accountRef,offerFingerprint({...promo,accountRef:account.accountRef}),end]),deduplicate:true,usageUnknown:true});
+ const expiredUnknown=()=>result('review','Expired offer with unknown usage: leave untouched until usage is known.');
  if(!offer&&promo.isPromo&&promo.service==='Uber Eats'&&promo.discountType==='fixed'&&scope==='order'&&positive(promo.discount)&&promo.evidence?.discount&&promo.evidence?.minimumSpend){
-  const end=sourceConfirmedExpiry(promo);if(end!=null&&end<=context.now)return expiredUnknown(end);
+  const end=sourceConfirmedExpiry(promo);if(end!=null&&end<=context.now)return expiredUnknown();
  }
  if(promo.isPromo&&(!offer||scope==='uncertain'))return result('review','Offer campaign identity is not established.');
  if(offer){
@@ -255,17 +332,32 @@ export function reviewMailMessage(message,context){
   const preferred=offer.service==='Uber Eats'&&offer.discountType==='fixed'&&[10,12,15].includes(offer.discount)&&offer.minimumSpend===15&&offer.minimumSpendVerified===true;
   const cash=offer.discountType==='uberCash',percent=offer.service==='Uber Eats'&&offer.discountType==='percent';
   const extra={offerId:offer.id,offerTitle:offer.title,family:offer.id};
-  if((preferred||cash||percent)&&u.used&&(u.full||expired||cash))return result('retain_one_used_offer','Receipt-confirmed used campaign: keep the latest source in Inbox and archive older promo emails.','Inbox',{...extra,deduplicate:true});
-  if((preferred||cash||percent)&&expired&&u.known&&!u.used)return result('expired_unused_offer','Expired offer is explicitly known to be unused.','Bin',extra);
-  if(!u.known&&expired)return expiredUnknown(end,extra);
+  if((preferred||cash||percent)&&u.used&&(u.full||expired))return result('retain_one_used_offer','Used or partly used expired campaign: keep one latest email in Archive and bin the duplicate copies.','Archive',{...extra,deduplicate:true});
+  if((preferred||cash||percent)&&u.used&&cash)return result('keep_current_offer','Receipt-confirmed Cash use; the campaign still has uses or needs review.','Inbox',{...extra,deduplicate:true});
+  if((preferred||cash||percent)&&expired&&u.known&&!u.used)return result('expired_unused_offer','Expired fixed-discount offer confirmed unused: bin every copy.','Bin',extra);
+  if(!u.known&&expired)return expiredUnknown();
   if(percent){
    if(context.cashOverlap(offer))return result('keep_percentage_cash','Eats percentage and Cash have overlapping dates; compatibility and usage remain separate.',null,extra);
    return result('review','Eats percentage offer has no verified overlapping Cash campaign.',null,extra);
   }
-  if(preferred||cash)return result('keep_current_offer','Offer still has uses or requires usage review; keep its emails.',null,extra);
+  if(preferred||cash)return result('keep_current_offer','One useful copy of a live campaign is kept; redundant copies are binned.',null,{...extra,deduplicate:true});
  }
  if(context.completed.has(account.accountRef))return result('completed_account_other','Tracked promo is receipt-confirmed fully used: bin other Uber emails.','Bin');
- return result('review','No receipt-confirmed promo completion; leave other mail for review.');
+ // Remaining Uber mail is neither a receipt, an offer, nor a security notice:
+ // it is filed to Others rather than discarded.
+ return result('general_uber_mail','General Uber notice, not a receipt, offer or security email: file to Others.','Others');
+}
+
+// A terms-only match (estimated expiry) may recognise a campaign, but must
+// never authorise binning or archiving on its own.
+export function reviewMailMessage(message,context){
+ const decided=reviewMailMessageCore(message,context);
+ const reliable=context.__matchReliability!==false;
+ if(!reliable&&['Bin','Archive'].includes(decided.destination)){
+  return {...decided,category:'review',destination:null,previousCategory:decided.category,
+   reason:'Matched an existing campaign by its terms because the expiry is estimated; confirm before filing.'};
+ }
+ return decided;
 }
 
 // Two passes let the latest physical source win globally across all folders.
@@ -278,5 +370,5 @@ export function finalizeMailDecision(source,classification,winner){
  if(!classification.deduplicate)return classification;
  const same=winner&&winner.accountId===source.accountId&&JSON.stringify(winner.path)===JSON.stringify(source.path)&&winner.nativeId===source.nativeId;
  if(classification.usageUnknown)return same?classification:{...classification,category:'duplicate_expired_unknown_offer',reason:'Duplicate of the same expired campaign; latest source is retained in Archive and usage remains unknown.',destination:'Bin',retentionProof:{accountId:winner.accountId,messageId:winner.message.messageId,raw:winner.sourceRaw||winner.raw}};
- return same?classification:{...classification,category:'older_used_offer',reason:'Older promo email from this used campaign: archive it; keep the latest in Inbox.',destination:'Archive'};
+ return same?classification:{...classification,category:'duplicate_campaign_copy',reason:'Duplicate copy of the same campaign: the single latest email is retained and the rest are binned.',destination:'Bin'};
 }
