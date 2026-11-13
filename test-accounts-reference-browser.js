@@ -22,7 +22,7 @@ try{for(const [width,height,large]of [[440,956,false],[440,763,false],[390,844,f
 
  assert.deepEqual(await p.locator('#accountLoginTabs button').evaluateAll(es=>es.map(e=>e.dataset.loginFilter)),['all','login','locked']);assert.equal(await p.locator('#accountLoginTabs [aria-pressed=true]').getAttribute('data-login-filter'),'all','Reordering preserves the selected value');
  assert.equal(await p.locator('#accountLoginTabs').evaluate(e=>getComputedStyle(e).gap),'6px','Login options use the reference spacing');
- assert.equal(await p.locator('#view-accounts .search-wrap').evaluate(e=>e.getBoundingClientRect().height),42,'Compact grouped search field');
+ assert.equal(await p.locator('#view-accounts .search-wrap').evaluate(e=>e.getBoundingClientRect().height),40,'Compact grouped search field');
  assert.equal(await p.locator('.directory-select > [data-icon]:first-child').count(),1,'Sort uses the reference outline icon');
  assert.equal(await p.locator('#accountSort option[value=best]').innerText(),'Best offer');
  assert.equal(await p.locator('#accountPreferredChips').isVisible(),false,'Offer chips are replaced by the multi-select');
