@@ -509,6 +509,36 @@ html[data-motion=reduced] .offer-terms-anim,html[data-motion=reduced] .offer-ter
  .ri-page>p.ri-caption:last-child{font-size:11.5px}
 }
 
+/* Accounts page: compact reference (screen-accounts-new). */
+@media(max-width:767px){
+ #view-accounts .accounts-head{margin:0 0 10px}
+ #view-accounts .accounts-head h1{font-size:28px;font-weight:800;letter-spacing:-.9px;line-height:1.2}
+ #view-accounts .accounts-summary{min-height:94px;padding:14px 16px;border-radius:20px;margin:0 0 10px;display:flex;align-items:stretch;background:var(--color-panel);border-color:var(--color-border)}
+ #view-accounts .accounts-summary .accounts-stat{flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:0 4px}
+ #view-accounts .accounts-summary .accounts-stat+.accounts-stat{border-left:1px solid var(--color-border)}
+ #view-accounts .accounts-summary .accounts-stat>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+ #view-accounts .accounts-summary .accounts-stat strong{font-size:44px;font-weight:800;line-height:1;letter-spacing:-1px;margin-top:4px}
+ #view-accounts .accounts-summary .accounts-stat span{font-size:17px;line-height:1.25;color:var(--color-secondary)}
+ #view-accounts .accounts-summary .metric-help{flex:none;width:26px;height:26px;margin-left:2px}
+ #view-accounts .search-wrap{display:flex;align-items:center;gap:10px;height:42px;min-height:42px;margin:0 0 10px;padding:0 14px;border:1px solid var(--color-border);border-radius:14px;background:var(--color-dropdown)}
+ #view-accounts .search-wrap .search-icon{position:static;transform:none;flex:0 0 auto;display:grid;place-items:center;width:19px;height:19px}
+ #view-accounts .search-wrap .search-icon svg{width:19px;height:19px}
+ #view-accounts .search-input{flex:1;min-width:0;width:0;height:42px;font-size:14.5px;border:0;background:transparent;padding:0;box-shadow:none}
+ #view-accounts .account-login-tabs{height:42px;min-height:42px;gap:6px;margin:0 0 10px}
+ #view-accounts .account-login-tabs button{height:42px;min-height:42px;font-size:13.5px;border-radius:14px}
+ #view-accounts .account-filter-grid{gap:8px 10px;margin:0 0 8px}
+ #view-accounts .account-filter-grid .directory-select,#view-accounts .account-filter-grid .account-type-picker .app-select-trigger{height:42px;min-height:42px;border-radius:14px;font-size:13.5px}
+ #view-accounts .accounts-results-head{margin:20px 0 10px}
+ #view-accounts .accounts-results-head h2{font-size:20px;font-weight:800;line-height:1.2}
+ #view-accounts #accountsMeta{font-size:13px}
+ #view-accounts .directory-card{border-radius:20px}
+ #view-accounts #accountsList{gap:10px}
+ #view-accounts .accounts-empty{min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center}
+ #view-accounts .accounts-empty .empty-tile{width:52px;height:52px;border-radius:16px}
+ #view-accounts .accounts-empty strong{font-size:17px;font-weight:800}
+ #view-accounts .accounts-empty p{font-size:13px;color:var(--color-tertiary);margin:0}
+}
+
 /* Card polish from the reference comparison. */
 #accountsList .directory-offer-row{flex-direction:column;align-items:stretch}
 #accountsList .directory-offer-row .directory-expiry-target{position:static}
@@ -517,8 +547,9 @@ html[data-motion=reduced] .offer-terms-anim,html[data-motion=reduced] .offer-ter
 #accountsList .directory-usage{margin-top:12px}
 #accountsList .directory-usage-footer{padding-right:2px}
 #accountsList .directory-confirmed{flex:none;max-width:40%;text-align:right}
-#view-accounts .search-wrap{border:0;background:transparent;padding:0}
-#view-accounts .search-wrap .search-input{border:1px solid var(--color-border);border-radius:14px;background:var(--color-dropdown);height:42px;width:100%}
+#view-accounts .search-wrap{border:1px solid var(--color-border);background:var(--color-dropdown);padding:0 14px;display:flex;align-items:center;gap:10px}
+#view-accounts .search-wrap .search-icon{position:static;transform:none;flex:0 0 auto;display:grid;place-items:center;width:19px;height:19px}
+#view-accounts .search-input{border:0;background:transparent;height:42px;flex:1;min-width:0;padding:0;box-shadow:none}
 #view-accounts .account-filter-grid .directory-select>.app-select-trigger{font-size:13.5px}
 /* Page titles must never show a focus ring after programmatic navigation. */
 :is(h1,h2)[tabindex="-1"]:focus{outline:none}

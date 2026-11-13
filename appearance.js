@@ -13,8 +13,14 @@ export function resolveLayout(value, viewportWidth) {
   return preference === 'auto' ? (Number(viewportWidth) >= 768 ? 'desktop' : 'mobile') : preference;
 }
 
+// The pre-blue default was purple (#d87dfc). Devices that never picked a
+// colour stored nothing, and iOS may clear site data entirely; either way the
+// reference look is blue now, so an old stored default follows the new default.
+export const LEGACY_DEFAULT_COLOUR = '#d87dfc';
 export function normaliseColour(value) {
-  return /^#[0-9a-f]{6}$/i.test(String(value || '')) ? value.toLowerCase() : DEFAULT_COLOUR;
+  const stored = /^#[0-9a-f]{6}$/i.test(String(value || '')) ? String(value).toLowerCase() : null;
+  if (!stored || stored === LEGACY_DEFAULT_COLOUR) return DEFAULT_COLOUR;
+  return stored;
 }
 
 export function colourHsl(value) {
