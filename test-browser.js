@@ -244,7 +244,7 @@ try {
 
   assert.equal(await filterPage.locator('[data-login-filter=login]').getAttribute('aria-pressed'),'true');await filterPage.locator('[data-login-filter=all]').click();await directoryStatus(filterPage,'unfinished');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'9 accounts','Active includes the inaccessible account and unstarted current offers');await directoryAvailability(filterPage,'ready');
   assert.equal(await filterPage.locator('#accountsMeta').innerText(),'9 accounts');
-  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4 confirmed · up to 1 left/);
+  assert.match(await filterPage.locator('#accountsList [data-card-account="A109"]').innerText(), /4 of 5 used · 1 left/);
   assert.equal(await filterPage.locator('#accountsList [data-card-account="A108"]').count(),1,'Active includes unstarted offers; it replaces the narrower Not finished scope');
   await navigate(filterPage,'home');
   await openHomeDetail(filterPage,'offers');await directoryReset(filterPage);await directoryType(filterPage,'cash');
