@@ -110,7 +110,7 @@ test('The true earliest accepted reminder stays earliest while a rejected latest
   const candidate = getOffers(db).find(p => p.offerId === first.offerId);
   assert.ok(candidate, 'Accepted reminder must restore the family to the read model');
   assert.equal(applyOfferExpiryPolicy(candidate).expiresAt, reminder.expiresAt, 'Reliable Uber deadline takes priority over the fallback');
-  assert.equal(applyOfferExpiryPolicy({...candidate,expires:null,expiresAt:null,expiryStatus:'unknown'}).expiresAt, '2026-07-08T17:05:15.000Z', 'The Cash cutoff uses the true earliest accepted email; a reminder cannot restart it');
+  const noWindow=applyOfferExpiryPolicy({...candidate,expires:null,expiresAt:null,expiryStatus:'unknown'});assert.equal(noWindow.expiresAt,null,'Uber Cash with no stated window stays unknown rather than inventing a cutoff');assert.equal(noWindow.expiryStatus,'unknown','A reminder cannot create a Cash deadline of its own');
 });
 
 test('A rejected stale explicit deadline cannot survive a latest accepted source with unknown expiry', (db, ref) => {

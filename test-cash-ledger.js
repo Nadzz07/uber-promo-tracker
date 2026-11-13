@@ -22,7 +22,7 @@ assert.equal(model([grant(),grant({id:'reminder',emailSentAt:'2026-10-15T12:00:0
 assert.equal(model([grant(),grant({id:'new-grant',emailSentAt:'2026-10-15T12:00:00Z',cashTerms:{explicitNewGrant:true}})]).grants.length,2);
 assert.equal(model([grant()],[receipt({uberCashUsed:10,total:0,refundAmount:10})]).grants[0].remaining,0,'A refund does not invent restored Cash');
 assert.equal(model([grant({grantRef:'g1'})],[receipt({cashGrantRef:'g1',uberCashUsed:10,cashRefundRestored:4})]).grants[0].remaining,4);
-const unknown=applyOfferExpiryPolicy(grant({expiryStatus:'unknown',expiresAt:null}));assert.equal(unknown.expiresAt,'2026-11-05T12:00:00.000Z');assert.equal(unknown.expiryBasis,'tracker_35_day_rule');
+const unknown=applyOfferExpiryPolicy(grant({expiryStatus:'unknown',expiresAt:null}));assert.equal(unknown.expiresAt,null,'Uber Cash with no stated window is not guessed');assert.equal(unknown.expiryStatus,'unknown');
 const duration=applyOfferExpiryPolicy(grant({firstEmailSentAt:'2026-10-01T12:00:00Z',emailSentAt:'2026-10-15T12:00:00Z',expiryStatus:'estimated',cashTerms:{anchor:'original_email',duration:31,unit:'days'}}));
 assert.equal(duration.expiresAt,'2026-11-01T12:00:00.000Z');
 assert.equal(applyOfferExpiryPolicy(grant({expiryStatus:'unknown',expiresAt:null,cashTerms:{anchor:'activation',duration:31,unit:'days'}})).expiresAt,'2026-11-01T12:00:00.000Z','A stated 31-day window counts from the first email');
