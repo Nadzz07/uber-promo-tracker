@@ -62,7 +62,7 @@ export function applyOfferExpiryPolicy(promo = {}) {
   if(promo.discountType==='uberCash'){
     const terms=promo.cashTerms||promo.evidence?.cashTerms||{};
     const anchor=offerTime(terms.anchorAt||promo.firstEmailSentAt||promo.emailSentAt);
-    if(terms.duration>0&&terms.anchor==='original_email'&&anchor!=null){
+    if(terms.duration>0&&anchor!=null){
       const date=new Date(anchor);
       if(terms.unit==='months'){
         const day=date.getUTCDate();date.setUTCDate(1);date.setUTCMonth(date.getUTCMonth()+terms.duration);

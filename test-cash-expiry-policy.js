@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {applyOfferExpiryPolicy} from './offer-time.js';
+import {parseUberPromo as parseUberPromoV2} from './parser.js';
 import {cashCreditHistory,currentCashPosition,reconcileCashGrants,publicCashEstimate} from './cash-ledger.js';
 import {accountPromoUseProjection,consumeManualUse,normaliseManualStore} from './manual-state.js';
 import {hasCurrentCash,matchesDiscoveryScope,normaliseOfferPreferences,plannerOffersForScope} from './offer-preferences.js';
@@ -8,7 +9,7 @@ import {cashForOrder} from './cash-planner.js';
 const now='2026-10-23T12:00:00Z',issuedAt='2026-05-15T08:38:46.000Z',cutoff='2026-06-19T08:38:46.000Z';
 const offer={id:'cash-may',accountRef:'A1',service:'Uber Eats',discountType:'uberCash',discount:12,firstEmailSentAt:issuedAt,emailSentAt:'2026-10-22T12:00:00Z',expiryStatus:'unknown',cashTerms:{duration:35,unit:'days',anchor:'activation'}};
 const before=JSON.stringify(offer),applied=applyOfferExpiryPolicy(offer);
-assert.equal(applied.expiresAt,cutoff);assert.equal(applied.expiryStatus,'estimated');assert.equal(applied.expiryBasis,'tracker_35_day_rule');assert.equal(applied.expiryConfidence,'policy');
+assert.equal(applied.expiresAt,cutoff);assert.equal(applied.expiryStatus,'estimated');assert.equal(applied.expiryBasis,'cash_original_email_duration');assert.equal(applied.expiryConfidence,'terms');
 assert.equal(applyOfferExpiryPolicy({...offer,emailSentAt:now}).expiresAt,cutoff,'Reminders cannot restart the cutoff');
 assert.equal(applyOfferExpiryPolicy({...offer,firstEmailSentAt:null,emailSentAt:null}).expiresAt,null,'No original date stays unknown');
 assert.equal(applyOfferExpiryPolicy({...offer,expiryStatus:'exact',expiresAt:'2026-12-01T00:00:00Z'}).expiresAt,'2026-12-01T00:00:00Z','Explicit expiry wins even when later than the cutoff');
@@ -22,7 +23,7 @@ assert.equal(position.status,'expired');assert.equal(position.remaining,0);asser
 assert.equal(cashForOrder(position,null,15,0,1,{now}).used,0);
 const history=cashCreditHistory(account,[{...offer,cashEstimate:old},{...offer,id:'reminder',cashEstimate:old}],now);
 assert.equal(history.length,1);assert.equal(history[0].status,'expired');assert.equal(history[0].expiresAt,cutoff);assert.equal(history[0].recordedUsed,4,'Expiry does not invent spending');
-assert.equal(history[0].expiryBasis,'tracker_35_day_rule');assert.equal(JSON.stringify(account),original);
+assert.equal(history[0].expiryBasis,'cash_original_email_duration');assert.equal(JSON.stringify(account),original);
 const dateOnly=cashCreditHistory(account,[{...offer,expiryStatus:'exact',expires:'2026-12-01',expiresAt:null}],now);
 assert.equal(dateOnly[0].expiresAt,'2026-12-01T23:59:59.999Z','An explicit date-only source remains the end-of-day deadline');
 const checked=currentCashPosition(account,[offer],{balance:9,at:'2026-10-22T12:00:00Z',receiptCount:0},[],{now,completeEvidence:true});
@@ -45,3 +46,18 @@ for(const manual of [false,true]){
  assert.deepEqual(plannerOffersForScope(view,[],'all',preferences).map(p=>p.id),['twelve','cash-current']);
 }
 console.log('✓ Cash first-email +35-day estimated cutoff, explicit terms, reminders, legacy history, spending, later verification and unknown dates; 30% suppression for manual and confirmed £12 use with Cash exempt.');
+
+// Owner rule: a stated validity window counts from the first Cash email.
+const firstEmail='2026-01-21T09:00:00Z';
+const notice=body=>{
+  const parsed=parseUberPromoV2({subject:'You have £12 in Uber Cash waiting in your account',body,sender:'Uber <noreply@uber.com>',recipient:'a@icloud.com',sentAt:firstEmail,receivedAt:firstEmail});
+  return {...parsed,discountType:'uberCash',discount:12,firstEmailSentAt:firstEmail,emailSentAt:firstEmail};
+};
+assert.equal(applyOfferExpiryPolicy(notice('Expires in 21 days.')).expiresAt,'2026-02-11T09:00:00.000Z','21 days from the first email');
+assert.equal(applyOfferExpiryPolicy(notice('Valid for 31 days.')).expiresAt,'2026-02-21T09:00:00.000Z','31 days from the first email');
+assert.equal(applyOfferExpiryPolicy(notice('Valid within 2 weeks.')).expiresAt,'2026-02-04T09:00:00.000Z','2 weeks from the first email');
+assert.equal(applyOfferExpiryPolicy(notice('Expires 31 days after it is added.')).expiresAt,'2026-02-21T09:00:00.000Z','31 days from the first email');
+assert.equal(applyOfferExpiryPolicy(notice('Expires in 21 days.')).expiryStatus,'estimated','A stated window stays an estimate, never an exact date');
+const reminder={...notice('Expires in 21 days.'),emailSentAt:'2026-01-28T09:00:00Z'};
+assert.equal(applyOfferExpiryPolicy(reminder).expiresAt,'2026-02-11T09:00:00.000Z','A reminder cannot restart the Cash clock');
+console.log('✓ Cash expiry counts a stated validity window from the first email and reminders never restart it');

@@ -82,8 +82,8 @@ for(const recipient of ['a@icloud.com','b@icloud.com']){
 // ── 6. Uber Cash notices never create a balance or a campaign ────────────
 const cashNotice=reviewMailMessage({...base,subject:'You have £12 in Uber Cash waiting in your account 🤑',body:'Use your Uber Cash. Unsubscribe.'},makeContext());
 assert.notEqual(cashNotice.category,'keep_current_offer','A Cash notice is not a tracked campaign');
-assert.equal(cashNotice.category,'cash_balance_notice','A Cash balance notice has its own classification');
-assert.equal(cashNotice.destination,'Others','A Cash balance notice is filed to Others, never treated as a balance change');
+assert.equal(cashNotice.category,'keep_cash_notice','Uber Cash is a promotion, so it keeps its own classification');
+assert.equal(cashNotice.destination,'Inbox','Uber Cash stays in the Inbox for an account you can log into and never changes a balance');
 
 // ── 7. Uber One welcome mail is not a promotion ───────────────────────────
 const uberOne=reviewMailMessage({...base,subject:'Welcome to Uber One, Nadim',body:'Your membership has started. Unsubscribe.'},makeContext());

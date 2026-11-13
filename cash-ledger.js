@@ -35,7 +35,7 @@ export function dedupeCashGrants(sources=[]){
   if(previous){previous.sourceRefs.push(sourceRef);if(source.offerId||source.id)previous.sourceOfferIds.push(source.offerId||source.id);
    // Explicit later deadline evidence can refine a grant, never turn a reminder
    // into a new issue or re-anchor a duration to the reminder date.
-   if(normalised.expiryStatus==='exact'&&end!=null&&(previous.end==null||previous.expiryBasis==='tracker_35_day_rule'||end<previous.end||terms.expiryExtension===true)){previous.end=end;previous.expiryBasis=normalised.expiryBasis;}
+   if(normalised.expiryStatus==='exact'&&end!=null&&(previous.end==null||['tracker_35_day_rule','cash_original_email_duration'].includes(previous.expiryBasis)||end<previous.end||terms.expiryExtension===true)){previous.end=end;previous.expiryBasis=normalised.expiryBasis;}
    continue;
   }
   previous={grantRef:grantKey(source),explicitRef:explicitRef||null,accountRef:source.accountRef,service:source.service,issued:amount(source.discount),minimumSpend:amount(source.minimumSpend)||0,at,end,

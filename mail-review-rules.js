@@ -276,8 +276,10 @@ function reviewMailMessageCore(message,context){
  // Filed-without-discarding categories win over generic advertising rules.
  const earlyPromo=parseUberPromo(message);
  if(!isReceiptMail(message)){
+  // Owner asked to keep plain Uber welcome notices in the Inbox for now.
+  if(/^welcome to Uber(?:\s+Eats)?\s*[!.,]?$/i.test(subject.trim()))return {...decision('keep_welcome_notice','Owner asked to keep Uber welcome notices in the Inbox for now; not a promotional campaign.','Inbox'),accountEmail:extractAccountAlias(message.recipient)};
   const cashBalanceNotice=/£\s*\d+(?:\.\d+)?\s+(?:in|of)\s+Uber\s*Cash|Uber\s*Cash\s+(?:waiting|ready|to\s+use)|you(?:'ve|\u2019ve| have)\s+got\s+£\s*\d+/i.test(subject);
-  if(cashBalanceNotice&&!earlyPromo.evidence?.minimumSpend)return {...decision('cash_balance_notice','Uber Cash balance notification: filed to Others; it never creates or changes a Cash balance or a campaign.','Others'),accountEmail:extractAccountAlias(message.recipient)};
+  if(cashBalanceNotice&&!earlyPromo.evidence?.minimumSpend)return {...decision('keep_cash_notice','Uber Cash is a promotion: kept in Inbox for an account you can log into. A notice never changes a Cash balance.','Inbox'),accountEmail:extractAccountAlias(message.recipient)};
   if(/^welcome to Uber One\b|officially an Uber One member/i.test(subject))return {...decision('uber_one_welcome','Uber One membership welcome: filed to Others; not a promotional campaign.','Others'),accountEmail:extractAccountAlias(message.recipient)};
   // Owner listed these general notices as Others rather than advertising to bin.
   if(/^your midday pick-me-up is here\b/i.test(subject))return {...decision('general_uber_mail','General Uber notice: filed to Others, not discarded.','Others'),accountEmail:extractAccountAlias(message.recipient)};
@@ -306,7 +308,7 @@ function reviewMailMessageCore(message,context){
  // A Cash balance notification is not a campaign: it may never create or change
  // a balance, and it is filed with general Uber mail rather than discarded.
  const cashBalanceNotice=/£\s*\d+(?:\.\d+)?\s+(?:in|of)\s+Uber\s*Cash|Uber\s*Cash\s+(?:waiting|ready|to\s+use)|you(?:'ve|\u2019ve| have)\s+got\s+£\s*\d+/i.test(subject);
- if(cashBalanceNotice&&!promo.evidence?.minimumSpend)return result('cash_balance_notice','Uber Cash balance notification: filed to Others; it never creates or changes a Cash balance or a campaign.','Others');
+ if(cashBalanceNotice&&!promo.evidence?.minimumSpend)return result('keep_cash_notice','Uber Cash is a promotion: kept in Inbox for an account you can log into. A notice never changes a Cash balance.','Inbox');
  // The parser identifies the service from source terms. No headline-only ride test.
  if(promo.isPromo&&promo.service==='Uber')return result('ride_promotion','Ride promotions are excluded from useful offers.','Bin');
  const match=promo.isPromo?context.resolveMatch(message,account,promo):null;context.__matchReliability=match?match.reliable:true;
