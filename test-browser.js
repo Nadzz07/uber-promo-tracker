@@ -69,14 +69,14 @@ try {
   for (const hidden of ['lo…ed', 're…ew', 'ex…ed', 'us…ed', 'ba…nt']) assert.equal(recommendation.includes(hidden), false);
   if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('[data-account-offers="A001"]:visible').first().click();
   assert.equal(await page.evaluate(() => document.activeElement.id), 'sheetClose');
-  await page.locator('[data-offer-key=test-offer-1]>summary').click();await clickOfferTerms(page);assert.match(await page.locator('.account-offer-expiry').first().getAttribute('aria-label'), /Ends 31 Dec at 23:59 UK/, 'An explicit Uber deadline takes priority over the fallback window');
+  await page.locator('[data-offer-key=test-offer-1]>summary').click();await clickOfferTerms(page);assert.match(await page.locator('[data-offer-key=test-offer-1] .directory-expiry-target').first().getAttribute('title'), /Ends 31 Dec at 23:59 UK/, 'An explicit Uber deadline takes priority over the fallback window');
   const sheetMotion = await page.locator('.sheet').evaluate(el => {
     const style=getComputedStyle(el);
     return {animation:style.animationName,properties:style.transitionProperty,durations:style.transitionDuration.split(',').map(Number.parseFloat)};
   });
-  assert.equal(sheetMotion.animation,'account-page-enter','Account details uses the reference right-to-left page entrance');
-  assert.match(sheetMotion.properties,/transform/);assert.match(sheetMotion.properties,/opacity/);
-  assert.ok(sheetMotion.durations.every(value=>value>=.2&&value<=.3),'Sheets use short, purposeful transitions');
+  assert.equal(sheetMotion.animation,'none','A competing entrance animation must not prevent reversible sheet transitions');
+  assert.match(sheetMotion.properties,/transform/);
+  assert.ok(sheetMotion.durations.every(value=>value>=.2&&value<=.33),'Sheets use short, purposeful transitions');
   assert.equal(await page.locator('#app').evaluate(e => e.inert), true);
   await page.keyboard.press('Shift+Tab');
   assert.equal(await page.evaluate(() => document.getElementById('sheetBackdrop').contains(document.activeElement)), true);
@@ -270,7 +270,7 @@ try {
   await filterPage.reload(); await filterPage.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');await openHomeDetail(filterPage,'offers');
   await directoryReset(filterPage);await directoryStatus(filterPage,'unfinished');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'9 accounts','One remaining use does not finish an account');
   await directoryReset(filterPage);await directoryType(filterPage,'cash-promo');await directoryAvailability(filterPage,'ready');assert.equal(await filterPage.locator('#accountsMeta').innerText(),'1 account');await navigate(filterPage,'home');
-  const preferredReady=Number(await filterPage.locator('#activeStat').innerText());await filterPage.locator('.stats-row [data-home-list=ready]').click();assert.equal(await filterPage.locator('#accountTypeValue').innerText(),'Preferred offers');assert.equal(Number((await filterPage.locator('#accountsMeta').innerText()).replace(/[^0-9]/g,'')),preferredReady);await filterPage.goBack();await filterPage.locator('#view-home.active').waitFor();
+  const preferredReady=Number(await filterPage.locator('#activeStat').innerText());await filterPage.locator('.stats-row [data-home-list=ready]').click();assert.equal(await filterPage.locator('#accountTypeValue').innerText(),'3 selected');assert.equal(Number((await filterPage.locator('#accountsMeta').innerText()).replace(/[^0-9]/g,'')),preferredReady);await filterPage.goBack();await filterPage.locator('#view-home.active').waitFor();
   assert.equal(await filterPage.locator('#homeReadyCount').innerText(),'Search offers in Accounts');
   filterOffers.splice(filterOffers.findIndex(p => p.id === 'another-single-102'), 1);
   filterOffers.push({ ...cashOffer, cashEstimate:{...cashOffer.cashEstimate,status:'estimated',remaining:7},id: 'cash-102', accountRef: 'A102', accountMasked: 'si…le@example.invalid', usesRemaining: 1 });

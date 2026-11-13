@@ -2263,7 +2263,7 @@
         </div>
         <div class="search-wrap"><span class="search-icon" data-icon="search" aria-hidden="true"></span><input id="accountSearch" class="search-input" type="search" aria-label="Search accounts" placeholder="Search accounts" autocomplete="off"></div>
         <div id="accountLoginTabs" class="account-login-tabs" role="group" aria-label="Login access"><button data-login-filter="all" aria-pressed="false"><span>All</span> <small data-login-count="all">0</small></button><button data-login-filter="login" aria-pressed="true"><span>Can log in</span> <small data-login-count="login">0</small></button><button data-login-filter="locked" aria-pressed="false"><span>Can’t log in</span> <small data-login-count="locked">0</small></button></div>
-        <div class="account-filter-grid"><label class="directory-select"><select id="accountProvider" aria-label="Login provider"><option value="all">All providers</option></select><span data-icon="chevron-down" aria-hidden="true"></span></label><div class="account-type-picker"><div class="account-offer-picker-row"><button id="accountTypeTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="accountTypeOptions" aria-labelledby="accountTypeValue"><span data-icon="tag" aria-hidden="true"></span><span id="accountTypeValue">All offers</span><span class="account-picker-chevron" data-icon="chevron-down" aria-hidden="true"></span></button><button id="clearAccountType" type="button" aria-label="Clear offer filter" hidden>Clear</button></div><div id="accountTypeOptions" role="listbox" aria-label="Offer filter" hidden></div></div><label class="directory-select directory-sort"><span data-icon="sort" aria-hidden="true"></span><select id="accountSort" aria-label="Sort accounts"><option value="best">Best offer</option><option value="email">Email</option></select><span data-icon="chevron-down" aria-hidden="true"></span></label><div class="account-show-picker"><button id="accountShowTrigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="accountShowOptions"><span data-icon="filter" aria-hidden="true"></span><span class="account-show-label">Show</span><strong id="accountShowValue">Active</strong><span data-icon="chevron-down" aria-hidden="true"></span></button><div id="accountShowOptions" role="listbox" aria-label="Show accounts" hidden></div></div></div>
+        <div class="account-filter-grid"><label class="directory-select"><select id="accountProvider" aria-label="Login provider"><option value="all">All providers</option></select><span data-icon="chevron-down" aria-hidden="true"></span></label><div class="account-type-picker"><div class="account-offer-picker-row"><button id="accountTypeTrigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="accountTypeOptions" aria-labelledby="accountTypeValue"><span data-icon="tag" aria-hidden="true"></span><span id="accountTypeValue">All offers</span><span class="account-picker-chevron" data-icon="chevron-down" aria-hidden="true"></span></button><button id="clearAccountType" type="button" aria-label="Clear offer filter" hidden>Clear</button></div><div id="accountTypeOptions" role="listbox" aria-multiselectable="true" aria-label="Offer filter" hidden></div></div><label class="directory-select directory-sort"><span data-icon="sort" aria-hidden="true"></span><select id="accountSort" aria-label="Sort accounts"><option value="best">Best offer</option><option value="email">Email</option></select><span data-icon="chevron-down" aria-hidden="true"></span></label><div class="account-show-picker"><button id="accountShowTrigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="accountShowOptions"><span data-icon="filter" aria-hidden="true"></span><span class="account-show-label">Show</span><strong id="accountShowValue">Active</strong><span data-icon="chevron-down" aria-hidden="true"></span></button><div id="accountShowOptions" role="listbox" aria-label="Show accounts" hidden></div></div></div>
         <div id="accountPreferredChips" class="account-preferred-chips" hidden role="group" aria-label="Preferred offer filters"></div>
         <div class="accounts-results-head"><h2>Matching accounts</h2><span id="accountsMeta" role="status" aria-live="polite"></span></div>
         <div id="accountsList" class="account-list"></div>
@@ -2300,7 +2300,6 @@
       <div id="sheetBody" class="sheet-body"></div>
     </div>
   </div>
-  <div id="appToast" class="app-toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <script type="module">
     import { financeIcon } from "./finance-layout.js";
@@ -2318,7 +2317,11 @@
     import {createDesktopShell} from "./desktop-shell.js";
     import {createWeeklySavingsChart,weeklySavingsData} from "./weekly-savings.js";
     import {buildUsedActivity} from "./used-activity.js";
-    import { offerTermsRows,offerFieldReviewReasons,offerTitle, useCountNeedsReview, effectiveDiscountPercent } from "./offer-details.js";
+    import {applyLocalOfferEdits,saveLocalOfferEdits,removeLocalOffer} from './offer-local-edits.js';
+    import {openOfferEditor,confirmOfferRemoval} from './offer-edit-ui.js';
+    import {installInteractionMotion} from './interaction-motion.js';
+    installInteractionMotion();
+    import { offerRestrictionRank,offerRestrictionText,offerTermsRows,offerFieldReviewReasons,offerTitle, useCountNeedsReview, effectiveDiscountPercent } from "./offer-details.js";
     import { THEME_KEY, DEFAULT_COLOUR, applyThemeTokens, THEME_PRESETS, normaliseColour, themeTokens, colourHsl, hslColour, LAYOUT_KEY, normaliseLayout, resolveLayout } from "./appearance.js";
     import { offerFinishedReason, offerClosureLabel, classifyOfferCompletion } from "./offer-state.js";
     import {createReceiptImporter} from './receipt-import.js';
@@ -2407,7 +2410,7 @@
     let accountOfferScope = "any";
     let accountLoginFilter = "login", accountProviderFilter = "all", accountSort = "best", accountTypeFilter = selectedOfferScope(offerPreferences);
     let accountFilter = "active";
-    const expiryTooltips=createExpiryTooltips(document.getElementById("accountsList"));
+    const expiryTooltips=createExpiryTooltips(document.body);
     let accountDisplayLimit = 48;
     let archivedDisplayLimit = 80;
     let selectedAccountRef = null;
@@ -2716,6 +2719,7 @@
     function discoveryAccess(account,scope){return matchesOfferScope({...account,hasEligibleOffers:account.hasEligibleOffers||hasCurrentCash(account),recommendationEligible:account.recommendationEligible||hasCurrentCash(account)&&account.canLogin===true&&!account.archived},scope);}
     function saveOfferState(next){try{offerPreferences=saveOfferPreferences(localStorage,next);return true;}catch{document.getElementById('localNotice').hidden=false;document.getElementById('localNotice').textContent='Offer preferences could not be saved. Browser storage is unavailable.';return false;}}
     function applyOfferScope(value,explicit=true){
+      directoryOfferSelection=null;
       if(!saveOfferState({...offerPreferences,selection:explicit?value:null}))return;
       accountTypeFilter=selectedOfferScope(offerPreferences);accountDisplayLimit=48;renderAll();
     }
@@ -2757,7 +2761,7 @@
       let view=offerWithPrivateReceiptUses(promo,financeVault.data);
       const state=getOfferManualState(manualStore,promo),baseline=Math.max(Number(state.receiptConfirmedBaseline||0),Number(state.lastEvidenceCount||0));
       if((privateDataUnavailable()||financeVault.data?.receiptMatchVersion!==1)&&baseline>Number(promo.receiptConfirmedUses||0))view={...promo,receiptConfirmedUses:null,trackingState:'needs_checking',usageEvidenceUnavailable:true};
-      privateReceiptViews.set(key,view);return view;
+      view=applyLocalOfferEdits(view,state,promo);privateReceiptViews.set(key,view);return view;
     }
     function allPromosForAccount(accountRef) {
       return accountPromoUseProjection(manualStore,(accountPromoIndex.get(accountRef)||[]).map(receiptAwarePromo));
@@ -2933,6 +2937,7 @@
 
     let selectedPlannerKey = null, otherOptionsOpen = false, plannerComparisonCache = null;
     const plannerMoney = value => new Intl.NumberFormat('en-GB', {style:'currency', currency:'GBP', minimumFractionDigits:2}).format(value);
+    function restrictionTag(promo){const label=offerRestrictionText(promo);return label?'<span class="directory-restriction">'+financeIcon('shop')+escapeHtml(label)+'</span>':'';}
     function plannerOfferSummary(promo) {
       if (!promo) return 'Uber Cash payment';
       return offerScopeLabel(accountOfferKey(promo));
@@ -2942,7 +2947,7 @@
         const account=accounts.find(a=>a.accountRef===order.accountRef)||order;
         return '<button class="plan-row" data-plan-account="'+escapeHtml(order.accountRef)+'" data-account-offers="'+escapeHtml(order.accountRef)+'" data-account-offer="'+escapeHtml(order.promoId||order.promo?.id||(order.cashUsed>0?'cash':''))+'" title="'+escapeHtml(accountDisplay(account))+'">'+
           '<span class="plan-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="plan-body"><span class="plan-account">'+escapeHtml(accountDisplay(account))+'</span>'+
-          '<span class="plan-promo">'+escapeHtml(plannerOfferSummary(order.promo))+(order.cashUsed>0?' · Uber Cash '+escapeHtml(plannerMoney(order.cashUsed)):'')+'</span>'+
+          '<span class="plan-promo">'+escapeHtml(plannerOfferSummary(order.promo))+restrictionTag(order.promo)+(order.cashUsed>0?' · Uber Cash '+escapeHtml(plannerMoney(order.cashUsed)):'')+'</span>'+
           '<span class="plan-subtotal">'+escapeHtml(money(order.subtotal))+' basket · '+escapeHtml(money(order.checkoutFees??order.extraFee))+(order.checkoutFees!=null?' recorded fees':' fee')+'</span>'+
           (plan.orders.filter(o=>o.accountRef===order.accountRef).length>1?'<span class="plan-subtotal">Order '+(index+1)+'</span>':'')+
           '</span><span class="plan-payment sr-only"><strong>'+escapeHtml(plannerMoney(order.estimatedPay))+'</strong> estimated payment</span>'+financeIcon('chevron-right')+'</button>';
@@ -3018,7 +3023,7 @@
         (selected.cashUsed>0?line('receipt','Total after promos and fees',escapeHtml(plannerMoney(selected.totalAfterPromosAndFees??(selected.subtotal-selected.grossSaving+(selected.checkoutFees??selected.extraFees)))))+line('wallet',selected.cashEstimated?'Cash applied · estimated':'Cash applied · verified','−'+escapeHtml(plannerMoney(selected.cashUsed))):'')+'</div>' +
         '<div class="plan-accounts"><h4>'+ (selected.accountCount===1?'Account to use':'Accounts to use')+'</h4>' + plannerAccountRows(selected) + '</div></div>' +
         '<details id="plannerOtherOptions" class="planner-other-options"' + (otherOptionsOpen ? ' open' : '') + '><summary>' + financeIcon('layers') + '<span>Other options<small>Compare plans</small></span></summary><div class="planner-alternatives">' +
-        (alternatives.length ? alternatives.map(plan => '<article class="plan-alternative" tabindex="0" role="button" data-select-plan="'+escapeHtml(plan.key)+'" aria-label="Use '+escapeHtml(plannerOfferSummary(plan.orders.find(o=>o.promo)?.promo))+' plan, '+escapeHtml(plannerMoney(plan.estimatedPay))+'"><div class="plan-alternative-head"><div><strong>'+escapeHtml(plan.cashUsed>0&&plan.grossSaving>0?'Cash + promo':plannerOfferSummary(plan.orders.find(o=>o.promo)?.promo))+'</strong><small>'+escapeHtml(plan.orders.map(o=>accountDisplay(accounts.find(a=>a.accountRef===o.accountRef)||o)).filter((v,i,a)=>a.indexOf(v)===i).join(' · '))+'</small>'+(plan.conditional?'<small>Confirm Cash + promo compatibility</small>':'')+'</div><div class="plan-alternative-price"><strong>'+escapeHtml(plannerMoney(plan.estimatedPay))+'</strong><small>'+(plan.estimatedPay===suggested.estimatedPay?'same cost':(plan.estimatedPay>suggested.estimatedPay?'+':'−')+escapeHtml(plannerMoney(Math.abs(plan.estimatedPay-suggested.estimatedPay))))+'</small></div><span class="plan-select" aria-hidden="true">Use</span></div></article>').join('') : '<p>No other eligible ordering strategy fits this basket.</p>') + '</div></details>' +
+        (alternatives.length ? alternatives.map(plan => '<article class="plan-alternative" tabindex="0" role="button" data-select-plan="'+escapeHtml(plan.key)+'" aria-label="Use '+escapeHtml(plannerOfferSummary(plan.orders.find(o=>o.promo)?.promo))+' plan, '+escapeHtml(plannerMoney(plan.estimatedPay))+'"><div class="plan-alternative-head"><div><strong>'+escapeHtml(plan.cashUsed>0&&plan.grossSaving>0?'Cash + promo':plannerOfferSummary(plan.orders.find(o=>o.promo)?.promo))+'</strong>'+restrictionTag(plan.orders.find(o=>o.promo)?.promo)+'<small>'+escapeHtml(plan.orders.map(o=>accountDisplay(accounts.find(a=>a.accountRef===o.accountRef)||o)).filter((v,i,a)=>a.indexOf(v)===i).join(' · '))+'</small>'+(plan.conditional?'<small>Confirm Cash + promo compatibility</small>':'')+'</div><div class="plan-alternative-price"><strong>'+escapeHtml(plannerMoney(plan.estimatedPay))+'</strong><small>'+(plan.estimatedPay===selected.estimatedPay?'same cost':(plan.estimatedPay>selected.estimatedPay?'+':'−')+escapeHtml(plannerMoney(Math.abs(plan.estimatedPay-selected.estimatedPay))))+'</small></div><span class="plan-select" aria-hidden="true">Use</span></div></article>').join('') : '<p>No other eligible ordering strategy fits this basket.</p>') + '</div></details>' +
         (selected.conditional ? '<p class="plan-conditional-note">Estimated payment assumes Uber accepts Cash with this promo.</p>' : '') +
         (Object.keys(privateWallets).length ? '<button class="planner-matching-action" data-open-sheet="finance" data-finance-target="cash">Manage Cash in Accounts <span aria-hidden="true">›</span></button>' : '');
       target.querySelector('.plan-badge-slot').append(status);
@@ -3050,18 +3055,21 @@
 
     function preferredScopeEmpty(selection=accountTypeFilter){return selection==='preferred'&&!offerPreferences.preferredPromos.length&&!offerPreferences.includeCash;}
     function emptyPreferredNotice(){return 'No preferred offer categories are enabled. Choose Preferred promos or enable Uber Cash in Settings.';}
+    let directoryOfferSelection=null,directoryOfferDraft=[];
     function accountTypeChoices(){return mainOfferChoices(offerPreferences);}
     function accountTypeLabel(key){return key==='preferred'?'Preferred offers':offerScopeLabel(key);}
     function directoryUsagePreview(promo,knownLimit,summary){
       const model=offerUsageSlots(financeVault.data,promo,manualStore,financeVault.status,knownLimit);
-      const boxes=model.compact?'':'<div class="directory-usage-boxes" role="list" aria-label="Offer uses" style="--directory-use-columns:'+model.total+'">'+model.slots.map(slot=>{
+      const boxes=model.compact?'<div class="directory-usage-boxes usage-unchecked" aria-label="Usage not checked" style="--directory-use-columns:5">'+Array.from({length:5},()=>'<span class="directory-usage-box unknown"></span>').join('')+'</div>':'<div class="directory-usage-boxes" role="list" aria-label="Offer uses" style="--directory-use-columns:'+model.total+'">'+model.slots.map(slot=>{
         const label=slot.kind==='confirmed'?'Receipt-confirmed use':slot.kind==='manual'?'Manually recorded use':slot.kind==='unused'?'Remaining use':'Usage unknown';
         return '<span class="directory-usage-box '+slot.kind+'" role="listitem" aria-label="'+label+' '+slot.number+'"></span>';
       }).join('')+'</div>';
       return '<div class="directory-usage">'+boxes+'</div><div class="directory-usage-footer"><p class="directory-use-limit">'+escapeHtml(summary)+'</p>';
     }
+    const directoryBarAppearances=new Set(),sheetBarAppearances=new Set();
     function directoryCard(account) {
       const offers=account.directoryOffers||account.promos||[],selected=accountTypeFilter==='cash'?null:offers.find(p=>p.discountType!=='uberCash');
+      const seenBars=selected?.id&&directoryBarAppearances.has(selected.id);if(selected?.id)directoryBarAppearances.add(selected.id);
       const wallet=account.cashPosition,cash=hasCurrentCash(account),status=account.canLogin===true&&account.accessStatus!=='pending'?'Can log in':account.canLogin===false&&account.accessStatus!=='pending'?'Can’t log in':'Not confirmed';
       const usage=selected?offerUsageEvidence(financeVault.data,selected,financeVault.status):null,pending=selected?pendingManualUses(manualStore,selected):0;
       const knownLimit=selected&&!useCountNeedsReview(selected)&&(selected.usesVerified===true||selected.evidence?.usesBasis==='explicit_offer_terms')&&Number.isInteger(Number(selected.uses))&&Number(selected.uses)>0;
@@ -3069,38 +3077,39 @@
       const minimum=selected&&(selected.minimumSpend==null||selected.minimumSpendVerified===false)?'Minimum spend unknown':selected&&Number(selected.minimumSpend)>0?money(selected.minimumSpend)+' minimum':'No minimum';
       const expiry=selected?directoryExpiry(selected):null,confirmed=selected&&['email_verified','verified'].includes(selected.termsVerification)&&selected.sourceEvidenceStatus!=='missing'&&offerTermsRows(selected).every(r=>r.status==='confirmed')&&!selected.needsReview;
       const pill=expiry?'<button type="button" class="directory-expiry-target" data-expiry-explanation="'+escapeHtml(expiry.explanation)+'" aria-label="'+escapeHtml(expiry.explanation)+'" aria-expanded="false"><span class="directory-expiry-pill'+(expiry.urgent?' urgent':'')+'">'+(expiry.urgent?financeIcon('clock'):'')+escapeHtml(expiry.label)+'</span></button>':'';
-      const promo=selected?'<div class="directory-offer-row"><span class="directory-offer-icon" aria-hidden="true">'+financeIcon('tag')+'</span><div class="directory-offer-copy"><strong>'+escapeHtml(accountOfferTitle(selected))+'</strong><small>'+escapeHtml(minimum)+(confirmed?'<span class="directory-confirmed">✓ Confirmed</span>':'')+'</small></div>'+pill+'</div>':'';
+      const promo=selected?'<div class="directory-offer-row"><span class="directory-offer-icon" aria-hidden="true">'+financeIcon('tag')+'</span><div class="directory-offer-copy"><strong>'+escapeHtml(accountOfferTitle(selected))+'</strong><small>'+escapeHtml(minimum)+restrictionTag(selected)+(confirmed?'<span class="directory-confirmed">✓ Confirmed</span>':'')+'</small></div>'+pill+'</div>':'';
       const more=Math.max(0,(account.promos||[]).filter(p=>p.discountType!=='uberCash'&&p.id!==selected?.id).length);
       const extra=cash||more?'<div class="directory-extras">'+(cash?'<span class="directory-cash">Uber Cash '+(wallet.status==='verified'?'':'~')+escapeHtml(money(wallet.remaining))+'</span>':'')+(more?'<span class="directory-more-offers">+'+more+' more offer'+(more===1?'':'s')+'</span>':'')+'</div>':'';
-      return '<article class="account-card directory-card'+(selectedAccountRef===account.accountRef?' picked':'')+'" data-card-account="'+escapeHtml(account.accountRef)+'"><button class="directory-account-head" data-account-offers="'+escapeHtml(account.accountRef)+'" data-account-offer="'+escapeHtml(selected?.id||(accountTypeFilter==='cash'?'cash':''))+'" aria-label="View account '+escapeHtml(accountDisplay(account))+'"><span class="directory-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="directory-identity"><span class="account-email">'+escapeHtml(accountDisplay(account))+'</span><span class="account-login-route">'+escapeHtml(loginRouteText(account))+'<span aria-hidden="true"> · </span><span class="account-access-text '+(status==='Can log in'?'positive':'')+'">'+(status==='Can log in'?'● ':'')+escapeHtml(status)+'</span></span>'+(selectedAccountRef===account.accountRef?'<small class="directory-selected">Chosen account</small>':'')+'</span></button>'+
-        '<div class="directory-offers">'+promo+'</div>'+(!selected&&!cash?'<p class="directory-no-offer">No current offers</p>':'')+(selected?directoryUsagePreview(selected,knownLimit,usageText):'')+'<button class="directory-view-offers" data-directory-offers="'+escapeHtml(account.accountRef)+'">View offers <span aria-hidden="true">›</span></button>'+(selected?'</div>':'')+extra+(account.archived?'<small class="directory-account-status">Archived</small>':'')+receiptReviewAction(account)+'</article>';
+      return '<article class="account-card directory-card'+(selectedAccountRef===account.accountRef?' picked':'')+'" data-card-account="'+escapeHtml(account.accountRef)+'" data-bars-seen="'+Boolean(seenBars)+'"><button class="directory-account-head" data-account-offers="'+escapeHtml(account.accountRef)+'" data-account-offer="'+escapeHtml(selected?.id||(accountTypeFilter==='cash'?'cash':''))+'" aria-label="View account '+escapeHtml(accountDisplay(account))+'"><span class="directory-provider" aria-hidden="true">'+accountProviderIcon(account)+'</span><span class="directory-identity"><span class="account-email">'+escapeHtml(accountDisplay(account))+'</span><span class="account-login-route">'+escapeHtml(loginRouteText(account))+'<span aria-hidden="true"> · </span><span class="account-access-text '+(status==='Can log in'?'positive':'')+'">'+(status==='Can log in'?'● ':'')+escapeHtml(status)+'</span></span>'+(selectedAccountRef===account.accountRef?'<small class="directory-selected">Chosen account</small>':'')+'</span></button>'+
+        '<div class="directory-offers">'+promo+'</div>'+(!selected&&!cash?'<p class="directory-no-offer">No current offers</p>':'')+(selected?directoryUsagePreview(selected,knownLimit,usageText):'')+'<button class="directory-view-offers" data-directory-offers="'+escapeHtml(account.accountRef)+'" aria-label="Open account details"><span aria-hidden="true">›</span></button>'+(selected?'</div>':'')+extra+(account.archived?'<small class="directory-account-status">Archived</small>':'')+receiptReviewAction(account)+'</article>';
     }
     function closeAccountPicker(restore=false) {
       document.getElementById('accountTypeOptions').hidden=true;
       document.getElementById('accountTypeTrigger').setAttribute('aria-expanded','false');
       if(restore)document.getElementById('accountTypeTrigger').focus({preventScroll:true});
     }
-    function openAccountPicker(last=false) {
-      document.getElementById("accountPreferredChips").hidden=false;
-      const trigger=document.getElementById('accountTypeTrigger'),menu=document.getElementById('accountTypeOptions');
-      menu.hidden=false;trigger.setAttribute('aria-expanded','true');
-      (last?menu.lastElementChild:menu.querySelector('[aria-selected="true"]')||menu.firstElementChild)?.focus({preventScroll:true});
-      const dock=document.getElementById('mainNav');
-      const limit=()=>Math.min(innerHeight,document.documentElement.dataset.layout==='mobile'?dock.getBoundingClientRect().top:innerHeight);
-      if(limit()-trigger.getBoundingClientRect().bottom<180)trigger.scrollIntoView({block:'start',behavior:'instant'});
-      menu.style.maxHeight=Math.max(80,Math.min(340,limit()-trigger.getBoundingClientRect().bottom-12))+'px';
+    function directoryOfferCount(selection){return directoryAccounts(enrichedAccounts(),{search:document.getElementById('accountSearch').value,login:accountLoginFilter,provider:accountProviderFilter,type:selection.length?selection:'all',management:normalizeDirectoryShow(accountFilter),availability:'any',includePendingAccess:true,sort:accountSort},offerPreferences).length;}
+    function renderDirectoryOfferMenu(){
+      const menu=document.getElementById('accountTypeOptions');
+      const choices=[...offerCatalogueChoices().filter(c=>!['all','preferred','other'].includes(c.key)),{key:'cash',label:'Uber Cash'},{key:'cash-promo',label:'Cash + promo'}];
+      menu.innerHTML='<div class="directory-menu-heading"><span>Preferred offers</span><button type="button" data-offer-clear="true">Clear</button></div>'+choices.map(c=>'<button type="button" data-offer-multi="'+escapeHtml(c.key)+'" role="option" aria-selected="'+directoryOfferDraft.includes(c.key)+'" tabindex="-1"><span class="directory-checkbox" aria-hidden="true">'+(directoryOfferDraft.includes(c.key)?'✓':'')+'</span><span>'+escapeHtml(c.label)+'</span></button>').join('')+'<button type="button" class="account-primary directory-offer-apply" data-offer-apply="true">Show '+directoryOfferCount(directoryOfferDraft)+' accounts</button>';
+    }
+    function openAccountPicker(last=false){
+      closeShowMenu();directoryOfferDraft=[...(directoryOfferSelection||(accountTypeFilter==='preferred'?offerPreferences.preferredPromos:/^(fixed|percent):/.test(accountTypeFilter)?[accountTypeFilter]:[]))];renderDirectoryOfferMenu();
+      const menu=document.getElementById('accountTypeOptions');menu.hidden=false;document.getElementById('accountTypeTrigger').setAttribute('aria-expanded','true');
+      const items=menu.querySelectorAll('[data-offer-multi]');(last?items[items.length-1]:items[0])?.focus({preventScroll:true});
     }
     function renderAccounts() {
       expiryTooltips?.close();
       document.getElementById('accountsTotal').textContent=accounts.length.toLocaleString('en-GB');
-      const loginCount=accounts.filter(a=>a.canLogin===true&&!a.archived&&a.accessStatus!=='pending').length;
+      const loginCount=accounts.filter(a=>a.canLogin===true&&a.accessStatus!=='pending').length;
       document.getElementById('accountsAccessible').textContent=loginCount.toLocaleString('en-GB');
       for(const [key,count]of [['all',accounts.length],['login',loginCount],['locked',accounts.length-loginCount]])document.querySelector('[data-login-count=\"'+key+'\"]').textContent=count.toLocaleString('en-GB');
       const search=String(document.getElementById('accountSearch').value||'').trim().toLowerCase();
       const choices=accountTypeChoices();
       const quick=[...offerPreferences.preferredPromos,...(offerPreferences.includeCash&&offerPreferences.anyPromoWithCash?['cash-promo']:[])];
       document.getElementById('accountPreferredChips').innerHTML=quick.map(key=>'<button type="button" data-preferred-filter="'+escapeHtml(key)+'" aria-pressed="'+(accountTypeFilter===key)+'" data-included="'+(accountTypeFilter==='preferred')+'">'+escapeHtml(key==='cash-promo'?'Cash + promo':accountTypeLabel(key))+'</button>').join('');
-      document.getElementById('accountTypeValue').textContent=accountTypeLabel(accountTypeFilter);
+      document.getElementById('accountTypeValue').textContent=directoryOfferSelection?.length?directoryOfferSelection.length+' selected':accountTypeFilter==='preferred'?offerPreferences.preferredPromos.length+' selected':accountTypeFilter==='all'?'All offers':'1 selected';
       document.getElementById('clearAccountType').hidden=accountTypeFilter==='all';
       if(document.getElementById('accountTypeOptions').hidden)document.getElementById('accountTypeOptions').innerHTML=choices.map(c=>'<button data-offer-type="'+escapeHtml(c.key)+'" role="option" aria-selected="'+(c.key===accountTypeFilter||c.key==='other'&&!choices.some(v=>v.key===accountTypeFilter))+'" tabindex="-1">'+financeIcon(c.key.startsWith('cash')?'wallet':'tag')+'<span>'+escapeHtml(c.label)+'</span><span aria-hidden="true">'+(c.key===accountTypeFilter||c.key==='other'&&!choices.some(v=>v.key===accountTypeFilter)?'✓':'')+'</span></button>').join('');
       const methods=enrichedAccounts().flatMap(a=>[a.loginMethod,...(a.loginMethods||[])]).filter(Boolean);
@@ -3111,7 +3120,7 @@
       document.querySelectorAll('[data-login-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.loginFilter===accountLoginFilter)));
       document.getElementById('accountShowValue').textContent=DIRECTORY_SHOW_CHOICES.find(c=>c.key===accountFilter).label;
       document.getElementById('accountShowOptions').innerHTML=DIRECTORY_SHOW_CHOICES.map(c=>'<button type="button" role="option" tabindex="-1" data-show-accounts="'+c.key+'" aria-selected="'+(c.key===accountFilter)+'"><span aria-hidden="true">'+(c.key===accountFilter?'✓':'')+'</span>'+c.label+'</button>').join('');
-      const list=directoryAccounts(enrichedAccounts(),{search,login:accountLoginFilter,provider:accountProviderFilter,type:accountTypeFilter,management:normalizeDirectoryShow(accountFilter),availability:accountOfferScope,includePendingAccess:true,sort:accountSort,...(accountFilter==='review'?{reviewAccountRefs:usedActivityModel().buckets.needs_checking.map(row=>row.account.accountRef)}:{})},offerPreferences,{emailFor:accountDisplay,valueFor:p=>{
+      const list=directoryAccounts(enrichedAccounts(),{search,login:accountLoginFilter,provider:accountProviderFilter,type:directoryOfferSelection?.length?directoryOfferSelection:accountTypeFilter,management:normalizeDirectoryShow(accountFilter),availability:accountOfferScope,includePendingAccess:true,sort:accountSort,...(accountFilter==='review'?{reviewAccountRefs:usedActivityModel().buckets.needs_checking.map(row=>row.account.accountRef)}:{})},offerPreferences,{emailFor:accountDisplay,valueFor:p=>{
         if(p.discountType==='uberCash'||p.minimumSpend==null||p.minimumSpendVerified===false)return null;
         const amount=Math.max(currentBasket(),Number(p.minimumSpend)||0),calculation=savingForSpend(p,amount);
         return calculation.eligible?calculation.saving:null;
@@ -3120,6 +3129,7 @@
       if(privateMigrationPending&&(accountTypeFilter!=='all'||accountOfferScope!=='any'||accountFilter==='offers')){document.getElementById('accountsList').innerHTML='<div class="empty">Import the updated private login file to restore saved promotion decisions.<button class="advanced-btn" data-open-sheet="health">Open Sync &amp; data</button></div>';return;}
       const shown=list.slice(0,accountDisplayLimit);
       document.getElementById('accountsList').innerHTML=shown.length?shown.map(directoryCard).join('')+(list.length>shown.length?'<button class="ghost-btn" data-show-more-accounts="true">Show '+Math.min(48,list.length-shown.length)+' more</button>':''):'<div class="empty">'+(preferredScopeEmpty()?emptyPreferredNotice():'No matching accounts.')+'<button class="advanced-btn" '+(preferredScopeEmpty()?'data-open-sheet="appearance"':'data-reset-directory="true"')+'>'+(preferredScopeEmpty()?'Settings':'Reset filters')+'</button></div>';
+      if(accountFilter==='archived')document.getElementById('accountsList').insertAdjacentHTML('beforeend',storedBalanceAccountsMarkup(search));
     }
 
     function activityRow(promo, meta, actionHtml = "") {
@@ -3326,11 +3336,11 @@
       return value + (minimum ? ' · minimum unknown' : Number(promo.minimumSpend) > 0 ? ' ' + money(promo.minimumSpend) : '');
     }
     function accountOfferExpiry(promo) {
-      const estimated=offerTermsRows(promo).find(r=>r.field==='expiry')?.estimated;return (offerCountdown(promo)||'Expiry unknown')+(estimated?' · Estimated':'');
+      return offerCountdown(promo)||'Expiry unknown';
     }
-    function accountExpiryMarkup(promo,cls) {
-      const end=expiryEndTime(promo),days=end==null?null:Math.ceil((end-Date.now())/86400000),urgent=days!=null&&days>=0&&days<=3;
-      return `<span class="${cls}${urgent?' expiry-urgent':''}" aria-label="${escapeHtml(accountOfferDeadline(promo))}" title="${escapeHtml(accountOfferDeadline(promo))}">${financeIcon(urgent?'clock':'menu-calendar')}${escapeHtml(accountOfferExpiry(promo))}</span>`;
+    function accountExpiryMarkup(promo,cls){
+      const expiry=directoryExpiry(promo);
+      return `<button type="button" title="${escapeHtml(accountOfferDeadline(promo))}" class="${cls} directory-expiry-target${expiry.urgent?' expiry-urgent':''}" data-expiry-explanation="${escapeHtml(expiry.explanation)}" aria-label="${escapeHtml(expiry.explanation)}" aria-expanded="false"><span class="directory-expiry-pill${expiry.urgent?' urgent':''}">${expiry.urgent?financeIcon('clock'):''}${escapeHtml(expiry.label)}</span></button>`;
     }
     function accountOfferDeadline(promo) {
       const end=expiryEndTime(promo);
@@ -3393,7 +3403,7 @@
       const manualUnknown=manual?`<p class="account-manual-usage">${manual} manual ${manual===1?'use':'uses'}</p>`:'';
       const semantics=known&&total!=null?`<div class="usage-progress-accessible" role="progressbar" aria-label="Receipt-confirmed uses" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${Math.min(total,confirmed)}" aria-valuetext="${confirmed} receipt-confirmed${manual?', '+manual+' manually recorded':''}"></div>`:'';
       if(model.compact)return `<section class="use-progress usage-compact">${line}${manualUnknown}${manual?`<div class="usage-compact-entries">${model.manualEntries.slice(-3).map(entry=>`<button class="account-sheet-link" data-manual-slot="${e(key)}">Manual · ${e(entry.at?formatDate(entry.at):'Date unknown')}</button>`).join('')}${manual>3?`<small>${manual-3} additional manual entries</small>`:''}</div>`:''}${total==null?'<p class="sheet-help">Use limit unknown</p>':`<p class="sheet-help">${total} permitted uses</p>`}</section>`;
-      return `<section class="use-progress usage-slots">${line}${semantics}<div class="usage-slot-grid" data-usage-columns="${Math.min(total,5)}" role="list" aria-label="Offer uses" style="--usage-slot-columns:${Math.min(total,5)};--usage-narrow-columns:${Math.min(total,3)}">${model.slots.map(marker).join('')}</div><div class="usage-legend"><span><i class="usage-key confirmed"></i>${known?confirmed+' confirmed from receipts':'Receipt usage unknown'}</span><span><i class="usage-key manual"></i>${manual} recorded manually</span></div>${model.partial?'<p class="account-usage-unknown">More matches need review.</p>':''}</section>`;
+      return `<section class="use-progress usage-slots">${line}${semantics}<div class="usage-slot-grid" data-usage-columns="${Math.min(total,12)}" role="list" aria-label="Offer uses" style="--usage-slot-columns:${Math.min(total,12)};--usage-narrow-columns:${Math.min(total,3)}">${model.slots.map(marker).join('')}</div><div class="usage-legend"><span><i class="usage-key confirmed"></i>${known?confirmed+' confirmed from receipts':'Receipt usage unknown'}</span><span><i class="usage-key manual"></i>${manual} recorded manually</span></div>${model.partial?'<p class="account-usage-unknown">More matches need review.</p>':''}</section>`;
     }
 
     function accountHistoricalMeta(promo,activity){
@@ -3410,25 +3420,25 @@
       return activity.bucket==='completed'?'Used '+activity.confirmedUses+(known?'/'+promo.uses:' receipt-confirmed')+' · '+date:activity.status+' · '+date;
     }
     function offerSheetCard(promo,{open=false,historic=false}={}){
-      const e=escapeHtml,key=promoStateKey(promo),total=Number(promo.uses);
+      const e=escapeHtml,key=promoStateKey(promo),total=Number(promo.uses),seenBars=sheetBarAppearances.has(key);sheetBarAppearances.add(key);
       const knownLimit=Number.isInteger(total)&&total>0&&!useCountNeedsReview(promo)&&(promo.usesVerified===true||promo.evidence?.usesBasis==='explicit_offer_terms');
       const usage=offerUsageEvidence(financeVault.data,promo,financeVault.status),knownConfirmed=usage.confirmed!=null;
       const slotModel=offerUsageSlots(financeVault.data,promo,manualStore,financeVault.status,knownLimit);
       const confirmed=usage.confirmed,pending=pendingManualUses(manualStore,promo),activity=manualActivity(manualStore,promo),remaining=effectiveRemainingUses(manualStore,promo),lifecycle=promotionActivity(manualStore,promo);
       const disabled=promo.hiddenByPromoUse||promo.usageEvidenceConflict||promo.canLogin!==true||remaining<=0||promo.trackingState==='needs_checking'&&!promo.usageEvidenceUnavailable||useCountNeedsReview(promo)||activity.ignored||effectivePromoState(manualStore,promo)==='used'||isExpired(promo);
       const minimum=promo.minimumSpend==null||accountOfferKey(promo)?.endsWith(':unknown')?'Minimum spend unknown':Number(promo.minimumSpend)>0?money(promo.minimumSpend)+' minimum':'No minimum spend';
-      const subtitle=[minimum,knownLimit?'Up to '+total+(total===1?' order':' orders'):'Use limit unknown'].filter(Boolean).join(' · ');
+      const subtitle=[minimum,knownLimit?total+(total===1?' order max':' orders max'):'Use limit unknown'].filter(Boolean).join(' · ');
       const term=(label,value)=>`<div><dt>${e(label)}</dt><dd>${e(value)}</dd></div>`;
       const termRows=offerTermsRows(promo,money),missingTerms=['Order type','Merchants','Other promos'].filter(label=>!termRows.some(row=>row.label===label));
-      const terms=termRows.filter(row=>!['Offer','Orders'].includes(row.label)).map(row=>`<div data-term-field="${e(row.field)}"><dt>${financeIcon(({'Minimum spend':'receipt','Order type':'bag','Merchants':'bag','Other promos':'layers','Expiry date':'menu-calendar'})[row.label]||'info')}<span>${e(row.label==='Expiry date'?'Expires':row.label)}</span></dt><dd>${e(row.value)}${row.estimated?'<span class="account-estimate-label">Estimated</span>':''}</dd></div>`).join('');
+      const terms=termRows.filter(row=>!['Offer','Orders','Minimum spend','Expiry date'].includes(row.label)).map(row=>`<div data-term-field="${e(row.field)}"><dt>${financeIcon(({'Minimum spend':'receipt','Order type':'bag','Merchants':'shop','Other promos':'layers','Expiry date':'menu-calendar'})[row.label]||'info')}<span>${e(row.label==='Expiry date'?'Expires':row.label)}</span></dt><dd>${e(row.value)}${row.estimated?'<span class="account-estimate-label">Estimated</span>':''}</dd></div>`).join('');
       const termsMissing=missingTerms.length?`<p class="terms-missing">Not recorded: ${e(missingTerms.map(label=>label.toLowerCase()).join(', '))}.</p>`:'';
       const fieldReasons=offerFieldReviewReasons(promo),usageOnly=fieldReasons.length&&fieldReasons.every(r=>r.field==='remainingUses');
       const fieldWarning=fieldReasons.length?(usageOnly?`<p class="offer-evidence-warning" title="${e(fieldReasons.map(r=>r.reason).join(' · '))}">${financeIcon('alert-circle')}<span>Estimated from recorded usage</span></p>`:`<button class="account-sheet-link offer-evidence-warning" data-review-offer-fields="${e(key)}" aria-label="Review offer details in Accounts" title="${e(fieldReasons.map(r=>r.reason).join(' · '))}">${financeIcon('alert-circle')}<span>Offer details need checking</span>${financeIcon('chevron-right')}</button>`):'';
-      const compactUsage=slotModel.confirmed==null?`<span class="compact-use-track usage-unchecked" aria-hidden="true" style="--compact-use-columns:5">${Array.from({length:5},()=>'<span class="unknown"></span>').join('')}</span>`:!slotModel.compact?`<span class="compact-use-track" aria-hidden="true" style="--compact-use-columns:${Math.min(slotModel.total,5)}">${slotModel.slots.map(slot=>`<span class="${slot.kind}"></span>`).join('')}</span>`:'';
+      const compactUsage=slotModel.confirmed==null?`<span class="compact-use-track usage-unchecked" aria-hidden="true" style="--compact-use-columns:5">${Array.from({length:5},()=>'<span class="unknown"></span>').join('')}</span>`:!slotModel.compact?`<span class="compact-use-track" aria-hidden="true" style="--compact-use-columns:${Math.min(slotModel.total,12)}">${slotModel.slots.map(slot=>`<span class="${slot.kind}"></span>`).join('')}</span>`:'';
       const progress=accountUsageMarkup(promo,knownLimit);
       const history=activity.verificationConflict?`<div class="account-evidence-conflict"><p role="status">${e(activity.verificationConflict)}</p><button data-review-evidence="${e(key)}"${promo.reviewReasons?.includes('ambiguous_receipt_match')?' disabled':''}>Accept current confirmed count</button></div>`:'';
       const row=(icon,label,helper,attribute,disabled=false,kind='')=>`<button class="account-manage-row ${kind}" ${attribute}${disabled?' disabled':''}>${financeIcon(icon)}<span><strong>${label}</strong><small>${helper}</small></span></button>`;
-      return `<details class="offer-card account-detail-offer${historic?' past-offer':''}" data-offer-key="${e(key)}"${historic?` data-history-key="${e(key)}"`:''}${open?' open':''}><summary class="account-offer-toggle">${financeIcon('promo-tag')}<span class="account-offer-heading"><span class="account-offer-titleline"><strong class="offer-name">${e(promo.discountType==='percent'?promoLabel(promo):accountOfferTitle(promo))}</strong>${accountCalculator?.promoKey===key?'<span class="account-selected-badge">Selected</span>':''}</span><small class="offer-details">${e(subtitle)}</small><small class="compact-offer-expiry">${e(historic?accountHistoricalMeta(promo,lifecycle):minimum+' · '+accountOfferExpiry(promo))}</small></span>${historic?`<span class="history-record-status ${e(lifecycle.bucket==='ignored'?'ignored':lifecycle.consumed?'completed':isExpired(promo)?'expired':'other')}">${historyCategoryIcon(lifecycle.bucket==='ignored'?'ignored':lifecycle.consumed?'completed':isExpired(promo)?'expired':'other')}<span>${e(lifecycle.bucket==='ignored'?'Ignored':lifecycle.consumed?'Completed':isExpired(promo)?'Expired':lifecycle.bucket==='manual'?'Manually finished':lifecycle.bucket==='needs_checking'?'Needs checking':'History')}</span></span>`:''}${financeIcon('chevron-down')}<span class="account-offer-compact">${accountExpiryMarkup(promo,'compact-expiry-badge')}<span class="compact-completion-line"><small class="compact-order-completion${slotModel.confirmed==null?' usage-not-checked':''}">${e(slotModel.confirmed==null?'Usage not checked'+(slotModel.manual?' · '+slotModel.manual+' manual':''):accountOrderCompletion(slotModel))}</small>${slotModel.remaining!=null?`<small class="compact-order-remaining">${slotModel.remaining} remaining</small>`:slotModel.confirmed==null?'<small class="compact-not-checked">Not checked</small>':''}</span>${compactUsage}</span></summary><div class="account-offer-body">${promo.hiddenByPromoUse||lifecycle.bucket!=='available'&&lifecycle.bucket!=='partial'?`<span class="account-offer-state">${e(promo.hiddenByPromoUse?'Hidden · another promo used':lifecycle.status)}</span>`:''}<div class="account-offer-meta"><details class="offer-terms" data-disclosure-key="terms-${e(key)}"><summary>${accountExpiryMarkup(promo,'account-offer-expiry')}<span>More terms</span>${financeIcon('chevron-down')}</summary><div class="disclosure-body"><dl class="terms-grid">${terms}</dl>${termsMissing}${fieldWarning}</div></details></div>${promo.hiddenByPromoUse||promo.hiddenByPreference?`<button class="account-restore-promo" data-restore-competing="${e(key)}">${promo.hiddenByPromoUse?'Restore promo':'Show in current offers'}</button>`:''}${progress}${accountReceiptMarkup(promo,usage)}<div class="account-offer-actions"><button class="account-record-use" data-use-one="${e(key)}"${disabled?' disabled':''}>${financeIcon('plus')}Record use</button><button class="account-manage-toggle" aria-label="Manage offer" data-manage-toggle="${e(key)}" aria-expanded="false" aria-controls="manage-${e(key)}">${financeIcon('more')}Manage${financeIcon('chevron-down')}</button><div class="manage-offer" id="manage-${e(key)}" data-disclosure-key="manage-${e(key)}" hidden>${row('undo','Undo manual use','Remove the latest manual entry',`data-undo-use="${e(key)}"`,pending<=0||promo.usageEvidenceConflict)}${row('ignored',activity.ignored?'Restore offer':'Ignore offer',activity.ignored?'Restore this offer to recommendations':'Exclude from recommendations',`data-toggle-ignore="${e(key)}" data-ignore="${!activity.ignored}"`,false,'warning')}${row('history',activity.forceDone?'Reopen offer':lifecycle.consumed?'Completed · verified':'Mark finished manually',activity.forceDone?'Remove manual finish':'Keep as manually finished, not verified',`data-mark-offer-done="${e(key)}" data-done="${!activity.forceDone}"`,lifecycle.consumed&&!activity.forceDone,'danger')}${history}</div></div></div></details>`;
+      return `<details class="offer-card account-detail-offer${historic?' past-offer':''}" data-offer-key="${e(key)}" data-bars-seen="${seenBars}"${historic?` data-history-key="${e(key)}"`:''}${open?' open':''}><summary class="account-offer-toggle"><span class="offer-icon-tile">${financeIcon('promo-tag')}${accountCalculator?.promoKey===key?'<span class="account-selected-badge" aria-label="Selected offer">✓</span>':''}</span><span class="account-offer-heading"><span class="account-offer-titleline"><strong class="offer-name">${e(promo.discountType==='percent'?promoLabel(promo):accountOfferTitle(promo))}</strong></span><small class="offer-details">${e(subtitle)}${restrictionTag(promo)}</small><small class="compact-offer-expiry">${e(historic?accountHistoricalMeta(promo,lifecycle):minimum+' · '+accountOfferExpiry(promo))}</small></span>${!historic?accountExpiryMarkup(promo,'compact-expiry-badge'):''}${historic?`<span class="history-record-status ${e(lifecycle.bucket==='ignored'?'ignored':lifecycle.consumed?'completed':isExpired(promo)?'expired':'other')}">${historyCategoryIcon(lifecycle.bucket==='ignored'?'ignored':lifecycle.consumed?'completed':isExpired(promo)?'expired':'other')}<span>${e(lifecycle.bucket==='ignored'?'Ignored':lifecycle.consumed?'Completed':isExpired(promo)?'Expired':lifecycle.bucket==='manual'?'Manually finished':lifecycle.bucket==='needs_checking'?'Needs checking':'History')}</span></span>`:''}${financeIcon('chevron-down')}<span class="account-offer-compact"><span class="compact-completion-line"><small class="compact-order-completion${slotModel.confirmed==null?' usage-not-checked':''}">${e(slotModel.confirmed==null?'Usage not checked'+(slotModel.manual?' · '+slotModel.manual+' manual':''):accountOrderCompletion(slotModel))}</small>${slotModel.remaining!=null?`<small class="compact-order-remaining">${slotModel.remaining} remaining</small>`:slotModel.confirmed==null?'<small class="compact-not-checked">Not checked</small>':''}</span>${compactUsage}</span></summary><div class="account-offer-body">${progress}${promo.hiddenByPromoUse||lifecycle.bucket!=='available'&&lifecycle.bucket!=='partial'?`<span class="account-offer-state">${e(promo.hiddenByPromoUse?'Hidden · another promo used':lifecycle.status)}</span>`:''}${promo.localTermsEdited||promo.localEditIssue?`<p class="offer-evidence-warning">${financeIcon('alert-circle')}<span>${e(promo.localEditIssue||'Manually edited terms · confirm in Uber')}</span></p>`:''}${fieldWarning}<div class="account-offer-meta"><h3 class="offer-terms-label">Terms</h3><dl class="terms-grid">${term('Minimum spend',promo.minimumSpend==null?'Unknown':money(promo.minimumSpend))}${term('Max uses',knownLimit?'Up to '+total+' orders':'Unknown')}${term('Expires',accountOfferExpiry(promo)+' · '+(promo.expiryStatus==='exact'?'Exact date':'Estimated'))}${offerRestrictionText(promo)?term('Applies to',offerRestrictionText(promo)):''}</dl><details class="offer-terms" data-disclosure-key="terms-${e(key)}"><summary>${financeIcon('receipt')}<span>View full terms</span>${financeIcon('chevron-down')}</summary><div class="disclosure-body"><dl class="full-terms-grid">${terms}</dl>${termsMissing}</div></details></div>${promo.hiddenByPromoUse||promo.hiddenByPreference?`<button class="account-restore-promo" data-restore-competing="${e(key)}">${promo.hiddenByPromoUse?'Restore promo':'Show in current offers'}</button>`:''}${accountReceiptMarkup(promo,usage)}<div class="account-offer-actions"><button class="account-record-use" data-use-one="${e(key)}"${disabled?' disabled':''}>${financeIcon('plus')}Record use</button><button class="account-manage-toggle" aria-label="Manage offer" data-manage-toggle="${e(key)}" aria-expanded="false" aria-controls="manage-${e(key)}">${financeIcon('more')}Manage${financeIcon('chevron-down')}</button><div class="manage-offer" id="manage-${e(key)}" data-disclosure-key="manage-${e(key)}" hidden>${row('ignored',activity.ignored?'Restore offer':'Mark as ignored','',`data-toggle-ignore="${e(key)}" data-ignore="${!activity.ignored}"`,false,'warning')}${row('edit','Edit offer','',`data-edit-offer="${e(key)}"`)}${row('trash','Remove offer','',`data-remove-offer="${e(key)}"`)}${history}</div></div>${activity.forceDone?`<button class="account-undo-inline" data-mark-offer-done="${e(key)}" data-done="false">Reopen offer</button>`:''}${pending>0?`<button class="account-undo-inline" data-undo-use="${e(key)}">${financeIcon('undo')}Undo manual use</button>`:''}</div></details>`;
     }
     function accountCalculatorMarkup(context,planner=false){
       const e=escapeHtml,ref=context.accountRef,items=allPromosForAccount(ref).filter(p=>p.discountType!=='uberCash'),cash=accountCashState(ref,context.promoKey),id=planner?'plannerAccountPromo':'accountCalcPromo';
@@ -3440,7 +3450,7 @@
     const accountReceiptChildStates=new Map();
     let plannerAccountOriginEntry=null;
     function accountDisclosureSnapshot(receiptId=null){
-      const host=document.getElementById('sheetBody');return {accountRef:openAccountRef,calculator:accountCalculator?{...accountCalculator}:null,receiptId,historyLimit:accountHistoryLimit,receiptLimits:[...accountReceiptLimits],scroll:host.scrollTop,expanded:[...host.querySelectorAll('details[open],div.manage-offer:not([hidden]),.account-management[data-expanded="true"]')].map(el=>el.dataset.offerKey||el.dataset.disclosureKey||el.id).filter(Boolean)};
+      const host=document.getElementById('sheetBody');return {accountRef:openAccountRef,calculator:accountCalculator?{...accountCalculator}:null,receiptId,historyLimit:accountHistoryLimit,receiptLimits:[...accountReceiptLimits],scroll:host.scrollTop,expanded:[...host.querySelectorAll('details[open],.account-management[data-expanded="true"]')].map(el=>el.dataset.offerKey||el.dataset.disclosureKey||el.id).filter(Boolean)};
     }
     function restoreAccountDisclosureState(saved){
       const host=document.getElementById('sheetBody'),keys=new Set(saved.expanded||[]);
@@ -3455,11 +3465,27 @@
       const target=document.querySelector('[data-match-key="'+CSS.escape(key)+'"]'),promo=promoByKey(key);if(!target||!promo)return;
       const scroll=document.getElementById('sheetBody').scrollTop;target.outerHTML=accountReceiptMarkup(promo);document.querySelector('[data-receipt-list="'+CSS.escape(key)+'"]')?.focus({preventScroll:true});document.getElementById('sheetBody').scrollTop=scroll;
     }
+    function closeOfferMenu(panel,focus=false){
+      if(!panel)return;try{panel.hidePopover?.();}catch{}panel.hidden=true;panel.removeAttribute('open');
+      const trigger=document.querySelector('[data-manage-toggle="'+CSS.escape(panel.id.replace(/^manage-/,''))+'"]');trigger?.setAttribute('aria-expanded','false');if(focus)trigger?.focus({preventScroll:true});
+    }
+    function showOfferMenu(panel,trigger){
+      for(const other of document.querySelectorAll('.manage-offer:not([hidden])'))if(other!==panel)closeOfferMenu(other);
+      panel.hidden=false;panel.setAttribute('open','');panel.setAttribute('role','menu');trigger.setAttribute('aria-expanded','true');
+      const items=[...panel.querySelectorAll('button')];for(const button of items){button.setAttribute('role','menuitem');button.tabIndex=-1;}
+      const floating=typeof panel.showPopover==='function';if(floating){panel.setAttribute('popover','manual');panel.showPopover();}
+      const r=trigger.getBoundingClientRect(),rect=panel.getBoundingClientRect(),width=Math.min(214,innerWidth-16),height=rect.height,top=r.bottom+6+height>innerHeight-8?Math.max(8,r.top-height-6):r.bottom+6,left=Math.max(8,Math.min(innerWidth-width-8,r.right-width));
+      if(floating){Object.assign(panel.style,{position:'fixed',top:top+'px',left:left+'px',width:width+'px',right:'auto',bottom:'auto',margin:'0'});}
+      else{const parent=panel.closest('.account-offer-actions').getBoundingClientRect();Object.assign(panel.style,{position:'absolute',top:(top-parent.top)+'px',left:(left-parent.left)+'px',width:width+'px',right:'auto'});}
+      items.find(button=>!button.disabled)?.focus({preventScroll:true});
+    }
+    document.addEventListener('pointerdown',event=>{for(const panel of document.querySelectorAll('.manage-offer:not([hidden])'))if(!panel.contains(event.target)&&!event.target.closest('[data-manage-toggle]'))closeOfferMenu(panel);},true);
+    document.addEventListener('keydown',event=>{const panel=document.activeElement?.closest('.manage-offer:not([hidden])');if(!panel)return;if(event.key==='Escape'){event.preventDefault();event.stopPropagation();closeOfferMenu(panel,true);}else if(['ArrowDown','ArrowUp','Home','End'].includes(event.key)){event.preventDefault();const items=[...panel.querySelectorAll('button:not(:disabled)')],i=items.indexOf(document.activeElement);items[event.key==='Home'?0:event.key==='End'?items.length-1:(i+(event.key==='ArrowDown'?1:-1)+items.length)%items.length]?.focus();}else if(event.key==='Tab')closeOfferMenu(panel,true);},true);
     document.addEventListener('click',event=>{
       if(event.target.closest('[data-more-account-history]')){accountHistoryLimit+=30;renderAccountSheet();document.querySelector('[data-more-account-history],#accountOfferHistory>summary')?.focus({preventScroll:true});return;}
       if(toggleAccountHistory(event))return;
-      const manualSlot=event.target.closest('[data-manual-slot]');if(manualSlot){const panel=document.getElementById('manage-'+manualSlot.dataset.manualSlot);if(panel){panel.hidden=false;panel.setAttribute('open','');panel.closest('.account-offer-actions').querySelector('[data-manage-toggle]')?.setAttribute('aria-expanded','true');panel.querySelector('[data-undo-use]')?.focus();}return;}
-      const manage=event.target.closest('[data-manage-toggle]');if(manage){const panel=document.getElementById('manage-'+manage.dataset.manageToggle);panel.hidden=!panel.hidden;panel.toggleAttribute('open',!panel.hidden);manage.setAttribute('aria-expanded',String(!panel.hidden));return;}
+      const manualSlot=event.target.closest('[data-manual-slot]');if(manualSlot){const undo=document.querySelector('[data-undo-use="'+CSS.escape(manualSlot.dataset.manualSlot)+'"]');if(undo){undo.scrollIntoView({block:'nearest',behavior:'instant'});undo.focus({preventScroll:true});}return;}
+      const manage=event.target.closest('[data-manage-toggle]');if(manage){const panel=document.getElementById('manage-'+manage.dataset.manageToggle);if(panel.hidden)showOfferMenu(panel,manage);else closeOfferMenu(panel,true);return;}
       const savingsReceipts=event.target.closest('[data-offer-savings-receipts]');if(savingsReceipts){const promo=promoByKey(savingsReceipts.dataset.offerSavingsReceipts);if(promo){const ids=offerMatchedReceipts(financeVault.data,promo).map(r=>r.receiptId),entry=routeEntries.get(currentRouteEntry);if(entry)entry.accountSnapshot=accountDisclosureSnapshot();closeSheet(true);switchView('savings',{preserveSheet:true});Object.assign(receiptInsightsView.state,{range:'all',service:'all',savingsList:true,savingsOffer:null,savingsReceiptIds:ids});receiptInsightsView.render();window.scrollTo({top:0,behavior:'instant'});}return;}
       const receipts=event.target.closest('[data-receipt-list]');if(receipts){const key=receipts.dataset.receiptList;accountReceiptLimits.set(key,(accountReceiptLimits.get(key)||1)>1?1:20);updateAccountReceiptList(key);return;}
       const more=event.target.closest('[data-more-matched-receipts]');if(more){const key=more.dataset.moreMatchedReceipts;accountReceiptLimits.set(key,(accountReceiptLimits.get(key)||20)+20);updateAccountReceiptList(key);return;}
@@ -3497,7 +3523,7 @@
 
       const e=escapeHtml,status=!positive&&!review&&!privateWallets[account.accountRef]?'Current amount not recorded':review?'Balance needs checking':cash.status==='verified'&&cash.verifiedAt?'Balance checked '+formatDate(cash.verifiedAt):cash.status==='verified'?'Manually checked balance':cash.status==='verified_reconciled'?'Estimated from balance check':'Estimated remaining';
       const expiry=positive&&cash.grants?.length?offerCountdown({expiresAt:cash.grants.map(g=>g.expiresAt).filter(Boolean).sort()[0],expiryStatus:'exact'}):'';
-      return `<details class="account-cash-entry" data-cash-entry data-cash-state="${e(cash.status)}" data-disclosure-key="cash"><summary>${financeIcon('wallet')}<span class="account-cash-copy"><span class="account-cash-title"><strong>Uber Cash</strong><span class="cash-balance-badge">Balance</span></span><small>${e(status+(expiry?' · '+expiry:''))}</small></span><div class="cash-entry-value"><strong class="cash-entry-balance${cash?.remaining!=null&&['verified','verified_reconciled','estimated'].includes(cash.status)?'':' cash-balance-unknown'}">${e(cash?.remaining!=null&&['verified','verified_reconciled','estimated'].includes(cash.status)?cashMoney(cash.remaining):'Unknown')}</strong>${cash.remaining!=null&&['estimated','verified_reconciled'].includes(cash.status)?'<span class="account-estimate-label">Estimated</span>':''}</div>${financeIcon('chevron-down')}</summary><div class="account-cash-body"><dl class="cash-current-summary"><div><dt>Current balance</dt><dd>${e(cash.remaining!=null&&['verified','verified_reconciled','estimated'].includes(cash.status)?cashMoney(cash.remaining):'Unknown')}${cash.status==='estimated'||cash.status==='verified_reconciled'?'<small>Estimated</small>':''}</dd></div><div><dt>Last checked</dt><dd>${e(cash.verifiedAt?formatEvidenceTime(cash.verifiedAt):'Not checked')}</dd></div></dl>${accountCreditHistory(account,cashItems)}<div data-account-balance-editor="${e(account.accountRef)}"></div></div></details>`;
+      return `<details class="account-cash-entry" data-cash-entry data-cash-state="${e(cash.status)}" data-disclosure-key="cash"><summary>${financeIcon('wallet')}<span class="account-cash-copy"><span class="account-cash-title"><strong>Uber Cash</strong><span class="cash-balance-badge">Balance</span></span><small>${e(status+(expiry?' · '+expiry:''))}</small></span><div class="cash-entry-value"><strong class="cash-entry-balance${cash?.remaining!=null&&['verified','verified_reconciled','estimated'].includes(cash.status)?'':' cash-balance-unknown'}">${e(cash?.remaining!=null&&['verified','verified_reconciled','estimated'].includes(cash.status)?cashMoney(cash.remaining):'Unknown')}</strong>${cash.remaining!=null&&['estimated','verified_reconciled'].includes(cash.status)?'<span class="account-estimate-label">Estimated</span>':''}</div>${financeIcon('chevron-down')}</summary><div class="account-cash-body"><dl class="cash-current-summary"><div><dt>Current balance</dt><dd>${e(cash.remaining!=null&&['verified','verified_reconciled','estimated'].includes(cash.status)?cashMoney(cash.remaining):'Unknown')}${cash.status==='estimated'||cash.status==='verified_reconciled'?'<small>Estimated</small>':''}</dd></div><div><dt>Last checked</dt><dd>${e(cash.verifiedAt?formatEvidenceTime(cash.verifiedAt):'Not checked')}</dd></div></dl>${accountCreditHistory(account,cashItems)}<button type="button" class="account-sheet-link" data-manage-balance="true">Update balance</button></div></details>`;
     }
 
     function accountSheetRecord(ref){
@@ -3525,7 +3551,7 @@
       const buttons=groups.filter(g=>historyCategoryOrder.slice(0,3).includes(g.key)).sort((a,b)=>historyCategoryOrder.indexOf(a.key)-historyCategoryOrder.indexOf(b.key));
       const tab=g=>`<button type="button" class="history-tab ${g.key}" id="history-tab-${g.key}" role="tab" aria-selected="${g.key===category}" aria-controls="accountHistoryResults" tabindex="${g.key===category?'0':'-1'}" data-history-category="${g.key}">${g.key==='review'?'<i class="history-review-dot" aria-hidden="true"></i>':''}<span>${e(g.label)}</span><strong>${g.records.length.toLocaleString('en-GB')}</strong></button>`;
       const other=groups.filter(g=>!buttons.includes(g)&&g.records.length);
-      return `<div class="account-history-tabs" role="tablist" aria-label="Historical offer status">${buttons.map(tab).join('')}${other.map(tab).join('')}</div>`;
+      return `<div class="account-history-controls"><div class="account-history-tabs" role="tablist" aria-label="Historical offer status">${buttons.map(tab).join('')}</div>${other.length?`<label class="history-extra-statuses"><select id="historyExtraStatus" data-history-extra aria-label="Other saved offer statuses"><option value="" disabled${other.some(g=>g.key===category)?'':' selected'}>Other saved offers</option>${other.map(g=>`<option value="${e(g.key)}"${g.key===category?' selected':''}>${e(g.label)} · ${g.records.length}</option>`).join('')}</select></label>`:''}</div>`;
     }
     function accountHistoryResults(groups, category, expanded=new Set()) {
       const e=escapeHtml,group=groups.find(g=>g.key===category)||groups[0],sort=accountHistorySorts.get(openAccountRef)||'latest';
@@ -3534,7 +3560,7 @@
       const heading=({completed:'Completed offers',expired:'Expired offers',ignored:'Ignored offers',manual:'Manually finished',exhausted:'Exhausted credit',other:'Other offers',review:'Needs checking'})[group.key]||group.label;
       const selected=records.find(r=>r.kind==='promo'?promoStateKey(r.promo)===accountOfferToOpen:r.grant.offers.some(p=>promoStateKey(p)===accountOfferToOpen));
       const shown=records.slice(0,accountHistoryLimit);if(selected&&!shown.includes(selected)){shown.pop();shown.push(selected);}
-      return `<div class="account-history-results-heading"><h3 class="account-history-label">${e(heading)}</h3><select class="account-history-sort" aria-label="Sort past offers" data-history-sort>${[['latest','Latest first'],['oldest','Oldest first'],['name','Offer name']].map(([value,label])=>`<option value="${value}"${sort===value?' selected':''}>${label}</option>`).join('')}</select></div><section id="accountHistoryResults" role="tabpanel" aria-labelledby="history-tab-${e(group.key)}" class="account-history-group ${e(group.key)}" aria-label="${e(group.label)}">${shown.map(r=>r.kind==='cash'?accountCreditRecord(r.grant,true):offerSheetCard(r.promo,{historic:true,open:expanded.has(promoStateKey(r.promo))||promoStateKey(r.promo)===accountOfferToOpen})).join('')}${!records.length?`<p class="account-history-empty">No ${e(group.label.toLowerCase())} offers.</p>`:''}</section>${records.length>shown.length?`<button type="button" class="ghost-btn" data-more-account-history="true">Show ${Math.min(30,records.length-shown.length)} more · ${shown.length} of ${records.length}</button>`:''}`;
+      return `<div class="account-history-results-heading"><h3 id="accountHistoryResultsTitle" class="account-history-label">${e(heading)}</h3><select class="account-history-sort" aria-label="Sort past offers" data-history-sort>${[['latest','Latest first'],['oldest','Oldest first'],['name','Offer name']].map(([value,label])=>`<option value="${value}"${sort===value?' selected':''}>${label}</option>`).join('')}</select></div><section id="accountHistoryResults" role="tabpanel" aria-labelledby="accountHistoryResultsTitle" class="account-history-group ${e(group.key)}" aria-label="${e(group.label)}">${shown.map(r=>r.kind==='cash'?accountCreditRecord(r.grant,true):offerSheetCard(r.promo,{historic:true,open:expanded.has(promoStateKey(r.promo))||promoStateKey(r.promo)===accountOfferToOpen})).join('')}${!records.length?`<p class="account-history-empty">Nothing here yet</p>`:''}</section>${records.length>shown.length?`<button type="button" class="ghost-btn" data-more-account-history="true">Show ${Math.min(30,records.length-shown.length)} more · ${shown.length} of ${records.length}</button>`:''}`;
     }
     function accountHistoryMarkup(groups, expanded, activeExpanded=new Set()) {
       const total=groups.reduce((n,g)=>n+g.records.length,0);if(!total)return '';
@@ -3549,13 +3575,14 @@
       const groups=accountHistoryModels.get(openAccountRef),history=document.getElementById('accountOfferHistory');if(!groups||!history||!groups.some(g=>g.key===category))return;
       const scroll=document.getElementById('sheetBody').scrollTop;
       accountHistorySelections.set(openAccountRef,category);accountHistoryLimit=30;
+      history.querySelector('.account-history-controls').outerHTML=accountHistoryControls(groups,category);
       history.querySelector('.account-history-results').innerHTML=accountHistoryResults(groups,category);
       for(const button of history.querySelectorAll('[data-history-category]')){const selected=button.dataset.historyCategory===category;button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;}
       observeUsageSlots(document.getElementById('sheetBody'));
       if(focus)history.querySelector('[data-history-category="'+category+'"]')?.focus({preventScroll:true});
       document.getElementById('sheetBody').scrollTop=scroll;
     }
-    document.addEventListener('change',event=>{if(!event.target.matches('[data-history-sort]'))return;accountHistorySorts.set(openAccountRef,event.target.value);chooseAccountHistoryCategory(accountHistorySelections.get(openAccountRef));document.querySelector('[data-history-sort]')?.focus({preventScroll:true});});
+    document.addEventListener('change',event=>{if(event.target.matches('[data-history-extra]')){chooseAccountHistoryCategory(event.target.value);return;}if(!event.target.matches('[data-history-sort]'))return;accountHistorySorts.set(openAccountRef,event.target.value);chooseAccountHistoryCategory(accountHistorySelections.get(openAccountRef));document.querySelector('[data-history-sort]')?.focus({preventScroll:true});});
     document.addEventListener('click',event=>{const tab=event.target.closest('[data-history-category]');if(tab)chooseAccountHistoryCategory(tab.dataset.historyCategory,true);});
     document.addEventListener('keydown',event=>{const tab=event.target.closest('[data-history-category]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const tabs=[...tab.closest('[role="tablist"]').querySelectorAll('[role="tab"]')],index=tabs.indexOf(tab),next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;chooseAccountHistoryCategory(tabs[next].dataset.historyCategory,true);});
     const historyMotions=new WeakMap();
@@ -3567,7 +3594,7 @@
       previous?.animation.cancel();historyMotions.delete(details);content.style.overflow='';
       if(motionReduced()||!content.animate){details.open=opening;document.getElementById('sheetBody').scrollTop=scroll;return true;}
       details.open=true;content.style.overflow='hidden';
-      const animation=content.animate([{height:from+'px'},{height:(opening?content.scrollHeight:0)+'px'}],{duration:180,easing:'ease-out'}),motion={animation,opening};historyMotions.set(details,motion);
+      const animation=content.animate([{height:from+'px'},{height:(opening?content.scrollHeight:0)+'px'}],{duration:opening?260:200,easing:'cubic-bezier(.2,.8,.2,1)'}),motion={animation,opening};historyMotions.set(details,motion);
       animation.onfinish=()=>{if(historyMotions.get(details)!==motion)return;details.open=opening;content.style.overflow='';historyMotions.delete(details);};
       document.getElementById('sheetBody').scrollTop=scroll;return true;
     }
@@ -3575,7 +3602,7 @@
       return allPromosForAccount(openAccountRef).map(p=>promoStateKey(p)+'|'+offerCountdown(p)).join(';');
     }
     function accountManagementMarkup(account,receiptRule='') {
-      if(account.privateHistoryOnly)return '<section class="account-management"><p class="sheet-help">This stored account is not in the current account list. Its private balance history remains available; login details are not recorded here.</p></section>';
+      if(account.privateHistoryOnly)return `<section class="account-management" data-disclosure-key="manage-account" data-expanded="false"><h3><button type="button" class="account-management-toggle" id="accountManagementToggle" data-account-management-toggle aria-expanded="false" aria-controls="accountManagementBody">${financeIcon('user')}<span>Manage account</span>${financeIcon('chevron-down')}</button></h3><div id="accountManagementBody" class="account-management-body" hidden><p class="sheet-help">This stored account is not in the current account list. Its private balance history remains available; login details are not recorded here.</p><div data-account-balance-editor="${escapeHtml(account.accountRef)}"></div></div></section>`;
       const e = escapeHtml;
       const note=accountManualRecord(manualStore,account).note??account.notes??account.note??'';
       const methods = [...new Set((Array.isArray(account.loginMethods) ? account.loginMethods : account.loginMethod === 'Both' ? ['iCloud','Google'] : [account.loginMethod]).filter(value => ['iCloud','Google'].includes(value)))];
@@ -3583,7 +3610,7 @@
       const archived = accountArchived(currentAccountState(account)), deactivated = account.deactivated || account.accountStatus === 'deactivated';
       return `<section class="account-management" data-disclosure-key="manage-account" data-expanded="false"><h3><button type="button" class="account-management-toggle" id="accountManagementToggle" data-account-management-toggle aria-expanded="false" aria-controls="accountManagementBody">${financeIcon('user')}<span>Manage account</span>${financeIcon('chevron-down')}</button></h3><div id="accountManagementBody" class="account-management-body" hidden>
         <dl class="account-record-summary account-record-reference"><div><dt>Login access</dt><dd class="account-record-access${access === 'Can log in' ? ' positive' : ''}">${access === 'Can log in' ? '<span class="status-dot" aria-hidden="true"></span>' : ''}${e(access)}</dd></div><div><dt>Login method</dt><dd class="account-record-methods">${methods.length ? methods.map(method => `<span>${financeIcon(method === 'iCloud' ? 'cloud' : 'google')}${method}</span>`).join('') : 'Not confirmed'}</dd></div></dl>
-        ${accountCashEntry(account,allPromosForAccount(account.accountRef).filter(p=>p.discountType==='uberCash'))?'<button type="button" class="account-sheet-link" data-manage-balance="true">Update balance</button>':`<div data-account-balance-editor="${e(account.accountRef)}"></div>`}${receiptRule}<p class="account-record-source">From your account records.</p>
+        <div data-account-balance-editor="${e(account.accountRef)}"></div>${receiptRule}<p class="account-record-source">From your account records.</p>
         <section class="account-notes"><div><span>Notes</span><button type="button" class="account-management-action" data-edit-account-note="true">Edit</button></div><p data-account-note-text>${e(note||'No notes')}</p><div data-account-note-editor hidden><label class="sr-only" for="accountNote">Account notes</label><textarea id="accountNote" maxlength="10000" rows="3">${e(note)}</textarea><div><button type="button" class="account-management-action" data-save-account-note="true">Save</button><button type="button" class="account-management-action" data-cancel-account-note="true">Cancel</button></div></div></section>
         <p class="account-management-feedback" role="status" aria-live="polite" hidden></p><div class="account-archive-row">${financeIcon('archive')}<div><span>${archived ? 'Archived account' : 'Archive account'}</span><small>Keeps receipts and history.</small></div><button type="button" class="account-management-action" data-account-archive="${!archived}"${deactivated ? ' disabled' : ''}>${archived ? 'Unarchive' : 'Archive'}</button></div>
       </div></section>`;
@@ -3599,8 +3626,8 @@
       if(!animate||motionReduced()||!body.animate){body.hidden=!open;return;}
       body.hidden=false;body.style.overflow='hidden';
       const timing=getComputedStyle(document.documentElement).getPropertyValue('--motion-fast').trim();
-      const duration=Number.isFinite(parseFloat(timing))?parseFloat(timing)*(timing.endsWith('ms')?1:1000):180;
-      const animation=body.animate([{height:from+'px',opacity:open ? .65 : 1},{height:(open?body.scrollHeight:0)+'px',opacity:open?1:.65}],{duration,easing:'ease-out'});
+      const duration=open?260:200;
+      const animation=body.animate([{height:from+'px',opacity:open ? .65 : 1},{height:(open?body.scrollHeight:0)+'px',opacity:open?1:.65}],{duration,easing:'cubic-bezier(.2,.8,.2,1)'});
       accountManagementMotions.set(panel,animation);
       animation.onfinish=()=>{if(accountManagementMotions.get(panel)!==animation)return;body.hidden=!open;body.style.overflow='';accountManagementMotions.delete(panel);};
     }
@@ -3625,10 +3652,10 @@
       }
     }
     document.addEventListener('click', event => {
+      if(event.target.closest('[data-manage-balance]')){const management=document.querySelector('.account-management');if(management)setAccountManagementOpen(management,true);const editor=management?.querySelector('.cash-balance-editor');if(editor){editor.open=true;editor.scrollIntoView({block:'center',behavior:'instant'});editor.querySelector('input')?.focus({preventScroll:true});}return;}
       const panel = event.target.closest('.account-management'); if (!panel) return;
       if (event.target.closest('[data-account-management-toggle]')) { setAccountManagementOpen(panel, panel.dataset.expanded !== 'true',true); return; }
       const account = accounts.find(row => row.accountRef === openAccountRef); if (!account) return;
-      if(event.target.closest('[data-manage-balance]')){const cash=document.querySelector('[data-cash-entry]');cash.open=true;const editor=cash.querySelector('.cash-balance-editor');if(editor){editor.open=true;editor.scrollIntoView({block:'center',behavior:'instant'});editor.querySelector('input')?.focus({preventScroll:true});}return;}
       if(event.target.closest('[data-edit-account-note]')){panel.querySelector('[data-account-note-editor]').hidden=false;panel.querySelector('[data-account-note-text]').hidden=true;panel.querySelector('#accountNote').focus();return;}
       if(event.target.closest('[data-cancel-account-note]')){panel.querySelector('[data-account-note-editor]').hidden=true;panel.querySelector('[data-account-note-text]').hidden=false;panel.querySelector('#accountNote').value=accountManualRecord(manualStore,account).note??account.notes??account.note??'';panel.querySelector('[data-edit-account-note]').focus();return;}
       if(event.target.closest('[data-save-account-note]')){commitAccountManagement({note:panel.querySelector('#accountNote').value});return;}
@@ -3640,7 +3667,7 @@
       setSheetHeading('Account details','');
       const host=document.getElementById('sheetBody'),previous=host.querySelector('[data-account-sheet="'+CSS.escape(account.accountRef)+'"]');
       const scroll=previous?host.scrollTop:0,focusKey=previous&&document.activeElement?.dataset,focusId=previous&&document.activeElement?.id;
-      const expanded=new Set(previous?[...host.querySelectorAll('details[open],div.manage-offer:not([hidden]),.account-management[data-expanded="true"]')].map(e=>e.dataset.offerKey||e.dataset.disclosureKey||e.id).filter(Boolean):[]);
+      const expanded=new Set(previous?[...host.querySelectorAll('details[open],.account-management[data-expanded="true"]')].map(e=>e.dataset.offerKey||e.dataset.disclosureKey||e.id).filter(Boolean):[]);
       const activeExpanded=new Set(previous?[...host.querySelectorAll('.offers-section details[data-offer-key][open]')].map(el=>el.dataset.offerKey):[]);
       const items=allPromosForAccount(openAccountRef).slice().sort((a,b)=>String(b.emailSentAt||'').localeCompare(String(a.emailSentAt||'')));
       const promosOnly=items.filter(p=>p.discountType!=='uberCash'),cashItems=items.filter(p=>p.discountType==='uberCash');
@@ -3650,7 +3677,7 @@
       if(reviewItems.length)historyGroups.push({key:'review',label:'Needs checking',records:reviewItems.map(promo=>({kind:'promo',key:promoStateKey(promo),promo,activity:promotionActivity(manualStore,promo)}))});
       const ranked=rankPromosForSpend(liveItems,currentBasket(),{service:'Uber Eats',accountRef:account.accountRef,accessibleOnly:false});
       const preferred=accountOfferToOpen||(window.history.state?.trackerAccount===account.accountRef?window.history.state.trackerOffer:null)||ranked[0]?.promo?.id||liveItems[0]?.id;
-      liveItems.sort((a,b)=>Number(promoStateKey(b)===preferred)-Number(promoStateKey(a)===preferred)||Number(Boolean(b.promoInUse))-Number(Boolean(a.promoInUse)));
+      liveItems.sort((a,b)=>Number(promoStateKey(b)===preferred)-Number(promoStateKey(a)===preferred)||Number(Boolean(b.promoInUse))-Number(Boolean(a.promoInUse))||(Number(b.discount||0)-Number(a.discount||0))||offerRestrictionRank(a)-offerRestrictionRank(b));
       historicItems.sort((a,b)=>Number(promoStateKey(b)===preferred)-Number(promoStateKey(a)===preferred));
       const receiptMet=currentAccountState(account).accountUsed;
       const cashEntry=accountCashEntry(account,cashItems);
@@ -3731,6 +3758,12 @@
       renderLockedSearch("");
     }
 
+    function storedBalanceAccountsMarkup(search='') {
+      const term=String(search).trim().toLowerCase();
+      const stored=[...new Set((financeVault.data?.events||[]).filter(e=>e.kind==='cash').map(e=>e.accountRef))].filter(ref=>!accounts.some(a=>a.accountRef===ref)).map(accountSheetRecord).filter(a=>a&&(!term||[a.accountRef,a.accountMasked].join(' ').toLowerCase().includes(term)));
+      return stored.length?'<section class="sheet-section stored-balance-accounts"><h2>Other stored accounts</h2><p class="sheet-help">Balance history retained outside the current account list.</p>'+stored.map(a=>'<button class="sheet-action-row" data-account-offers="'+escapeHtml(a.accountRef)+'">'+financeIcon('wallet')+'<span>'+escapeHtml(accountDisplay(a))+'<small>Stored balance history</small></span>'+financeIcon('chevron-right')+'</button>').join('')+'</section>':'';
+    }
+
     function renderLockedSearch(search) {
       const target = document.getElementById("sheetLockedList");
       if (!target) return;
@@ -3789,14 +3822,11 @@
         row('receipt','Receipts and savings','Review Eats and Ride activity, supported totals and clearly labelled estimates.') +
         row('shield','Your privacy','Published views use masked accounts and safe totals. Full emails, original receipts and promo codes stay private.') +
         row('check','Understanding status','Account usage, verified promotion completion, expiry, manual finish and login access keep separate rules.') +
+        row('info','Display measurements',window.innerWidth+' CSS px wide · viewport scale '+(window.visualViewport?.scale||1)+' · root '+getComputedStyle(document.documentElement).fontSize) +
         '<button class="sheet-action-row" data-open-guide="overview">' + financeIcon('help') + '<span>Open Help & Guide</span></button>';
     }
 
-    function currentAccountSources(){
-      const current=[...(financeVault.data?.trackerSource?.accounts||[]),...(payload.accounts||[])],refs=new Set(current.map(a=>a.accountRef));
-      const privateOnly=(financeVault.data?.accounts||[]).filter(a=>a?.accountRef&&!refs.has(a.accountRef)).map(a=>({...a,canLogin:null,accessStatus:'unknown',loginMethod:null,loginMethods:[],archived:true,accountStatus:'archived',privateHistoryOnly:true}));
-      return [...new Map([...privateOnly,...current].map(a=>[a.accountRef,a])).values()];
-    }
+    function currentAccountSources(){return [...new Map([...(financeVault.data?.trackerSource?.accounts||[]),...(payload.accounts||[])].map(a=>[a.accountRef,a])).values()];}
     function restoreSourceProjection(){
       const source=financeVault.data?.trackerSource;if(!source)return;
       history=[...new Map([...source.history,...history].map(r=>[r.id,r])).values()];
@@ -3833,8 +3863,7 @@
     function setSheetHeading(title, sub) {
       const sheet = document.querySelector('.sheet');
       sheet.dataset.screen = title;
-      document.getElementById("sheetClose").innerHTML='×';
-      document.getElementById("sheetClose").setAttribute('aria-label','Close');
+      document.getElementById("sheetClose").innerHTML=title==='Account details'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg>':'×';
       sheet.toggleAttribute('data-planner-fees',title==='Fee settings'&&currentView==='planner');
       delete sheet.dataset.receiptCheck;delete sheet.dataset.receiptInsights;sheet.querySelectorAll('.ri-range-wrap,.ri-back').forEach(e=>e.remove());
       sheet.removeAttribute('data-finance-layout');
@@ -3845,14 +3874,6 @@
       icon.innerHTML = financeIcon(icons[title] || 'info');
       document.getElementById("sheetTitle").textContent = title;
       document.getElementById("sheetSub").textContent = sub || "";
-    }
-
-    let appToastTimer;
-    function showAppToast(message) {
-      const toast=document.getElementById('appToast');
-      if(!toast)return;
-      toast.textContent=message;toast.classList.add('visible');
-      clearTimeout(appToastTimer);appToastTimer=setTimeout(()=>toast.classList.remove('visible'),1600);
     }
 
     function showSheet() {
@@ -3876,10 +3897,23 @@
       backdrop.classList.add("open");
       backdrop.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
-      document.getElementById("sheetClose").focus();updateSidebar();
+      syncDesktopDetails();document.getElementById("sheetClose").focus();updateSidebar();
     }
 
+    function syncDesktopDetails() {
+      const backdrop=document.getElementById('sheetBackdrop'),view=document.getElementById('view-accounts');
+      const pane=innerWidth>=768&&currentView==='accounts'&&openSheetType==='account';
+      view.classList.toggle('has-detail-pane',pane);backdrop.classList.toggle('desktop-account-pane',pane);
+      backdrop.classList.toggle('desktop-account-drawer',innerWidth>=768&&openSheetType==='account'&&!pane);
+      if(pane){view.append(backdrop);document.getElementById('app').inert=false;document.body.style.overflow='';}
+      else if(backdrop.parentElement!==document.body)document.body.append(backdrop);
+      backdrop.querySelector('.sheet').setAttribute('aria-modal',String(!pane));
+      for(const card of document.querySelectorAll('#accountsList [data-card-account]'))card.classList.toggle('desktop-selected',pane&&card.dataset.cardAccount===openAccountRef);
+    }
+    window.addEventListener('resize',syncDesktopDetails);
+
     function closeSheet(skipHistory = false) {
+      expiryTooltips.close();for(const panel of document.querySelectorAll('.manage-offer:not([hidden])'))closeOfferMenu(panel);
       if(!skipHistory&&openSheetType==='receipt-detail'&&window.history.state?.trackerSheet==='receipt-detail'){window.history.back();return;}
       if(!skipHistory&&accountReceiptReturn&&openSheetType==='finance'&&window.history.state?.accountReceiptChild){window.history.back();return;}
       if (!skipHistory && !routeRestoring && window.history.state?.trackerSheet) window.history.back();
@@ -3894,7 +3928,7 @@
       if (sheetOpener?.isConnected) sheetOpener.focus({preventScroll:true});
       sheetOpener = null;
       openSheetType = null;
-      openAccountRef = null;updateSidebar();
+      openAccountRef = null;syncDesktopDetails();updateSidebar();
     }
 
     function openUtilitySheet(type, financeTarget = null, financeMissing = false, financeAccount = null, financeReceipt = null) {
@@ -3964,8 +3998,8 @@
       const past = document.querySelector('#sheetBody details[data-history-key="' + CSS.escape(promoStateKey(promo)) + '"]');
       if (past) { document.getElementById('accountOfferHistory').open = true; past.open = true; }
       if(!managementAction){currentOffer?.querySelector('.account-matching-receipts')?.scrollIntoView({block:'nearest'});return;}
-      const management=currentOffer?.querySelector('.manage-offer');if(management){if(management.tagName==='DETAILS')management.open=true;else management.hidden=false;management.setAttribute('open','');currentOffer.querySelector('[data-manage-toggle]')?.setAttribute('aria-expanded','true');}
-      document.querySelector('#sheetBody [data-mark-offer-done="' + CSS.escape(promoStateKey(promo)) + '"], #sheetBody [data-toggle-ignore="' + CSS.escape(promoStateKey(promo)) + '"]')?.focus();
+      const management=currentOffer?.querySelector('.manage-offer');if(management)closeOfferMenu(management);
+      currentOffer?.querySelector('[data-manage-toggle]')?.focus({preventScroll:true});
     }
     function renderOfferConfirmation(promo, kind) {
       pendingOfferAction = {key:promoStateKey(promo), kind};
@@ -4103,6 +4137,7 @@
       if(preferredViews.has(view)&&!preferredEditor.active)preferredEditor.start();
       if(!preferredViews.has(view))preferredEditor.end();
       if(currentView==='receipts'&&view!=='receipts'&&receiptInsightsView?.state.reviewContext){Object.assign(receiptInsightsView.state,receiptInsightsView.state.reviewContext,{reviewAccountRef:null,reviewContext:null,reviewHub:false,correctedOnly:false});}
+      if(openSheetType&&view!==currentView&&!routeOptions?.preserveSheet)closeSheet(true);
       recordViewRoute(view,routeOptions);
       if(view==='receipts'&&routeRestoring&&routeEntries.get(currentRouteEntry)?.reviewState)Object.assign(receiptInsightsView.state,routeEntries.get(currentRouteEntry).reviewState);
       currentView = view;updateBrowserTheme();updateSidebar();
@@ -4392,8 +4427,8 @@
     document.getElementById('accountPreferredChips').addEventListener('click',event=>{const chip=event.target.closest('[data-preferred-filter]');if(chip){const key=chip.dataset.preferredFilter,focused=document.activeElement===chip;applyOfferScope(key,true,'directory');if(focused)document.querySelector('[data-preferred-filter="'+CSS.escape(key)+'"]')?.focus({preventScroll:true});}});
     document.getElementById('accountTypeTrigger').addEventListener('click',()=>{if(document.getElementById('accountTypeOptions').hidden)openAccountPicker();else closeAccountPicker(true);});
     document.getElementById('accountTypeTrigger').addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();openAccountPicker(e.key==='ArrowUp');}});
-    document.getElementById('accountTypeOptions').addEventListener('click',e=>{const option=e.target.closest('[data-offer-type]');if(option){if(option.dataset.offerType==='other'){chooseOtherOffers(document.getElementById('accountTypeTrigger'));return;}closeAccountPicker(true);applyOfferScope(option.dataset.offerType);}});
-    document.getElementById('accountTypeOptions').addEventListener('keydown',e=>{const menu=e.currentTarget,options=[...menu.children],i=options.indexOf(document.activeElement);if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeAccountPicker(true);}else if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){e.preventDefault();const next=e.key==='Home'?0:e.key==='End'?options.length-1:(i+(e.key==='ArrowDown'?1:-1)+options.length)%options.length;options[next].focus({preventScroll:true});options[next].scrollIntoView({block:'nearest'});}else if(e.key==='Tab'){e.preventDefault();closeAccountPicker();(e.shiftKey?document.getElementById('accountTypeTrigger'):document.querySelector('#accountPreferredChips button')||document.getElementById('accountShowTrigger')).focus();}else if(e.key.length===1&&!e.ctrlKey&&!e.metaKey){const found=options.slice(i+1).concat(options.slice(0,i+1)).find(b=>b.textContent.trim().toLowerCase().startsWith(e.key.toLowerCase()));found?.focus();}});
+    document.getElementById('accountTypeOptions').addEventListener('click',e=>{const option=e.target.closest('[data-offer-multi]');if(option){const key=option.dataset.offerMulti;directoryOfferDraft=directoryOfferDraft.includes(key)?directoryOfferDraft.filter(v=>v!==key):[...directoryOfferDraft,key];renderDirectoryOfferMenu();document.querySelector('[data-offer-multi="'+CSS.escape(key)+'"]')?.focus({preventScroll:true});}else if(e.target.closest('[data-offer-clear]')){directoryOfferDraft=[];renderDirectoryOfferMenu();}else if(e.target.closest('[data-offer-apply]')){directoryOfferSelection=directoryOfferDraft.length>1?[...directoryOfferDraft]:null;accountTypeFilter=directoryOfferDraft.length===1?directoryOfferDraft[0]:'all';saveOfferState({...offerPreferences,selection:accountTypeFilter});accountDisplayLimit=48;closeAccountPicker(true);renderAccounts();}});
+    document.getElementById('accountTypeOptions').addEventListener('keydown',e=>{const menu=e.currentTarget,options=[...menu.querySelectorAll('button')],i=options.indexOf(document.activeElement);if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeAccountPicker(true);}else if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){e.preventDefault();const next=e.key==='Home'?0:e.key==='End'?options.length-1:(i+(e.key==='ArrowDown'?1:-1)+options.length)%options.length;options[next].focus({preventScroll:true});options[next].scrollIntoView({block:'nearest'});}else if(e.key==='Tab'){e.preventDefault();closeAccountPicker();(e.shiftKey?document.getElementById('accountTypeTrigger'):document.querySelector('#accountsList [data-account-offers]')||document.getElementById('accountShowTrigger')).focus();}else if(e.key.length===1&&!e.ctrlKey&&!e.metaKey){const found=options.slice(i+1).concat(options.slice(0,i+1)).find(b=>b.textContent.trim().toLowerCase().startsWith(e.key.toLowerCase()));found?.focus();}});
     document.addEventListener('pointerdown',e=>{if(!e.target.closest('.account-type-picker'))closeAccountPicker();});
     document.addEventListener('focusin',e=>{if(!e.target.closest('.account-type-picker'))closeAccountPicker();});
     function openDirectoryStatus(scope,query='') {
@@ -4401,7 +4436,7 @@
       document.getElementById('accountSearch').value=query;
       switchView('accounts');window.scrollTo({top:0,behavior:'instant'});
     }
-    function resetDirectory() {accountFilter='active';accountOfferScope='any';accountTypeFilter='all';saveOfferState({...offerPreferences,selection:'all'});accountProviderFilter='all';accountLoginFilter='login';accountSort='best';document.getElementById('accountSearch').value='';accountDisplayLimit=48;renderAccounts();}
+    function resetDirectory() {directoryOfferSelection=null;accountFilter='active';accountOfferScope='any';accountTypeFilter='all';saveOfferState({...offerPreferences,selection:'all'});accountProviderFilter='all';accountLoginFilter='login';accountSort='best';document.getElementById('accountSearch').value='';accountDisplayLimit=48;renderAccounts();}
     function openAccountsOffers(){
       if(currentView!=='accounts'){switchView('accounts',{offerSelector:true});return;}
       const trigger=document.getElementById('accountTypeTrigger');trigger.scrollIntoView({block:'center',behavior:'instant'});openAccountPicker();
@@ -4410,6 +4445,7 @@
     document.getElementById('recommendation').addEventListener('keydown',e=>{const row=e.target.closest('.plan-alternative[data-select-plan]');if(row&&['Enter',' '].includes(e.key)){e.preventDefault();row.click();}});
     document.getElementById("app").addEventListener("click", event => {
 
+      const directoryCardTarget=event.target.closest('[data-card-account]');if(directoryCardTarget&&!event.target.closest('button,a,input,select,textarea')){directoryCardTarget.querySelector('[data-account-offers]')?.click();return;}
       const directoryOffers=event.target.closest('[data-directory-offers]');if(directoryOffers){const account=enrichedAccounts().find(a=>a.accountRef===directoryOffers.dataset.directoryOffers);const card=directoryOffers.closest('[data-card-account]');openAccountSheet(account?.accountRef,card?.querySelector('[data-account-offers]')?.dataset.accountOffer);return;}
       if(event.target.closest('[data-reset-directory]')){resetDirectory();document.getElementById('accountSearch').focus();return;}
       const chosenPlan = event.target.closest('[data-select-plan]');
@@ -4467,9 +4503,10 @@
     });
 
     document.addEventListener("keydown", event => {
+      if(document.querySelector('dialog[open]'))return;
       if (!openSheetType) { if (event.key === "Escape" && ["offers","planner"].includes(currentView)) returnHome(); return; }
       if (event.key === "Escape") closeSheet();
-      if (event.key === "Tab") {
+      if (event.key === "Tab" && !document.getElementById("sheetBackdrop").classList.contains("desktop-account-pane")) {
         const controls = [...document.querySelectorAll('#sheetBackdrop button:not([disabled]), #sheetBackdrop input:not([disabled]), #sheetBackdrop select:not([disabled]), #sheetBackdrop summary, #sheetBackdrop [tabindex="0"]')]
           .filter(element => element.getClientRects().length);
         const first = controls[0], last = controls[controls.length - 1];
@@ -4479,6 +4516,11 @@
     });
 
     document.getElementById("sheetBody").addEventListener("click", event => {
+      const editButton=event.target.closest('[data-edit-offer]'),removeButton=event.target.closest('[data-remove-offer]');
+      if(editButton||removeButton){const key=editButton?.dataset.editOffer||removeButton.dataset.removeOffer,source=promoKeyIndex.get(key),view=promoByKey(key);if(!source||!view)return;for(const panel of document.querySelectorAll('.manage-offer:not([hidden])'))closeOfferMenu(panel);
+        const commit=next=>{localStorage.setItem(STATE_KEY,JSON.stringify(next));manualStore=next;invalidateAccountProjection();renderAll();renderAccountSheet();};
+        if(editButton)openOfferEditor(view,{restriction:offerRestrictionText(view),onSave:values=>{const latest=readManualStore();commit(saveLocalOfferEdits(latest,{...source,receiptConfirmedUses:view.receiptConfirmedUses},values));}});
+        else confirmOfferRemoval({onConfirm:()=>commit(removeLocalOffer(readManualStore(),source))});return;}
       const fieldReview=event.target.closest('[data-review-offer-fields]');if(fieldReview){const p=promoByKey(fieldReview.dataset.reviewOfferFields),a=p&&accounts.find(a=>a.accountRef===p.accountRef);if(a){closeSheet(true);openDirectoryStatus('review',accountDisplay(a));}return;}
       if (event.target.closest('[data-show-more-archived]')) {
         archivedDisplayLimit += 80;
@@ -4498,8 +4540,21 @@
       if (copyButton) {
         const account = accounts.find(a => a.accountRef === copyButton.dataset.copyEmail), address = deviceEmail(deviceAccounts, account);
         if (!address) return;
-        navigator.clipboard?.writeText(address).then(() => showAppToast('Copied')).catch(() => showAppToast('Could not copy email'));
-        if (!navigator.clipboard) showAppToast('Could not copy email');
+        navigator.clipboard?.writeText(address).then(() => { copyButton.textContent = 'Copied'; }).catch(() => { copyButton.textContent = 'Select and copy the email above'; });
+        if (!navigator.clipboard) copyButton.textContent = 'Select and copy the email above';
+        return;
+      }
+      const useThisAccount = event.target.closest("[data-use-this-account]");
+      if (useThisAccount) {
+        const account = accounts.find(a => a.accountRef === useThisAccount.dataset.useThisAccount);
+        if (!account || !currentAccountState(account).recommendationEligible) return;
+        selectedAccountRef = useThisAccount.dataset.useThisAccount;
+        closeSheet(true);
+        switchView('accounts');
+        requestAnimationFrame(() => {
+          const card = document.querySelector('[data-card-account="' + CSS.escape(selectedAccountRef) + '"]');
+          card?.scrollIntoView({ behavior: motionReduced() ? "instant" : "smooth", block: "center" });
+        });
         return;
       }
 

@@ -55,6 +55,26 @@ export function offerFingerprint(promo = {}) {
   });
 }
 
+// Campaign identity without the expiry window. Estimated expiry is calculated
+// from when an email arrived, so it can never be treated as proof that two
+// emails describe different campaigns. Exact expiry stays additional evidence.
+export function campaignTermKey(promo = {}) {
+  const minimum = promo.minimumSpendVerified === false || promo.minimumSpend == null
+    ? "unknown"
+    : Number(promo.minimumSpend);
+  return JSON.stringify({
+    accountRef: promo.accountRef || null,
+    service: promo.service || null,
+    discountType: promo.discountType || null,
+    discount: promo.discount == null ? null : Number(promo.discount),
+    maxSaving: promo.maxSaving ?? null,
+    perUseCap: promo.perUseCap ?? null,
+    uses: Number(promo.uses ?? 1),
+    minimumSpend: minimum,
+    code: promo.code || null
+  });
+}
+
 export function receiptFingerprint(receipt = {}) {
   if (receipt.orderId) {
     return "rcp_" + stableHash({

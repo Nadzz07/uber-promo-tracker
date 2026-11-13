@@ -83,7 +83,7 @@ test('account-applied duration retains source uncertainty while the tracker appl
   const current = { ...p, firstEmailSentAt: base.sentAt };
   const state = classifyOfferTrackingState(current, { now: new Date('2026-10-08T20:00:00Z') });
   assert.equal(state.trackingState, 'available');
-  assert.equal(applyOfferExpiryPolicy(current).expiryBasis, 'tracker_35_day_rule');assert.equal(applyOfferExpiryPolicy(current).expiryStatus,'estimated');
+  assert.equal(applyOfferExpiryPolicy(current).expiryBasis, 'cash_original_email_duration');assert.equal(applyOfferExpiryPolicy(current).expiryStatus,'estimated');
   const reminder = { ...current, emailSentAt: '2026-10-08T12:00:00Z' };
   assert.equal(applyOfferExpiryPolicy(reminder).expiresAt, applyOfferExpiryPolicy(current).expiresAt);
   assert.equal(classifyOfferTrackingState(reminder, { now: new Date('2026-10-23T00:00:00Z') }).trackingState, 'expired');

@@ -62,7 +62,7 @@ export function applyOfferExpiryPolicy(promo = {}) {
   if(promo.discountType==='uberCash'){
     const terms=promo.cashTerms||promo.evidence?.cashTerms||{};
     const anchor=offerTime(terms.anchorAt||promo.firstEmailSentAt||promo.emailSentAt);
-    if(terms.duration>0&&terms.anchor==='original_email'&&anchor!=null){
+    if(terms.duration>0&&anchor!=null){
       const date=new Date(anchor);
       if(terms.unit==='months'){
         const day=date.getUTCDate();date.setUTCDate(1);date.setUTCMonth(date.getUTCMonth()+terms.duration);
@@ -70,11 +70,11 @@ export function applyOfferExpiryPolicy(promo = {}) {
       }else date.setTime(anchor+terms.duration*(terms.unit==='weeks'?7:1)*86400000);
       return {...promo,expiresAt:date.toISOString(),expires:londonDate.format(date),expiryStatus:'estimated',expiryBasis:'cash_original_email_duration',expiryConfidence:'terms'};
     }
-    // Relative source terms still win. When application time is unavailable,
-    // the owner's tracker policy uses first email + 35 days as an estimate,
-    // never as a verified contractual expiry or a reminder's new grant date.
+    // Relative source terms still win.
     if(explicit!=null&&['weekday_from_email_date','relative_to_email_date','cash_original_email_duration'].includes(promo.expiryBasis))return promo;
-    promo={...promo,expires:null,expiresAt:null,expiryStatus:'unknown',expiryBasis:terms.anchor==='activation'?'cash_activation_unknown':null,expiryConfidence:null};
+    // Owner rule: Uber Cash with no stated validity window is not guessed. It
+    // stays unknown so it reaches Needs checking instead of inventing a date.
+    return {...promo,expires:null,expiresAt:null,expiryStatus:'unknown',expiryBasis:terms.anchor==='activation'?'cash_activation_unknown':null,expiryConfidence:null};
   }
   const anchor = offerTime(promo.firstEmailSentAt || promo.emailSentAt);
   if (anchor == null) return promo;

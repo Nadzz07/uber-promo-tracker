@@ -88,6 +88,9 @@ exclude:
   - mail-review-rules.js
   - MAIL_REVIEW.md
   - test-mail-cleanup.js
+  - test-mail-master-rules.js
+  - capture-non-uber-mail.local.js
+  - test-mail-owner-exclusions.js
   - test-reviewed-cleanup.js
   - test-finance-browser.js
   - test-order-dates.js
@@ -151,3 +154,7 @@ exclude:
 
   - test-app-select-menus-browser.js
   - test-compact-393-browser.js
+  - test-desktop-compositions-browser.js
+  - test-offer-edit-browser.js
+  - test-offer-local-edits.js
+  - test-receipt-link-refresh-browser.js

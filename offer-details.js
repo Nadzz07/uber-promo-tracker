@@ -50,3 +50,18 @@ export function offerTermsRows(promo={},money=v=>new Intl.NumberFormat('en-GB',{
 export function offerFieldReviewReasons(promo={}){
  const fields=offerTermsRows(promo).filter(r=>(promo.discountType!=='uberCash'||r.field==='expiry')&&(r.estimated||r.status==='unknown')).map(r=>({field:r.field,status:r.status,reason:r.reason||r.label+' is not confirmed'}));if(Number(promo.receiptConfirmedUses)>0&&Number(promo.usesRemaining)>0)fields.push({field:'remainingUses',status:'estimated',reason:'Remaining uses are estimated from recorded usage'});return fields;
 }
+
+// Empty is only unrestricted when the source explicitly recorded no restriction.
+export function offerRestrictionText(promo={}){
+ if(!promo)return '';
+ const value=promo.restriction??promo.restrictions?.merchantRestriction;
+ if(typeof value==='string'&&value.trim())return value.trim();
+ return promo.restrictions?.merchantLimited===true?'Selected merchants':'';
+}
+
+export function offerRestrictionRank(promo={}){
+ if(!promo)return 0;
+ if(typeof promo.restriction==='string')return promo.restriction.trim()?1:0;
+ if(typeof promo.restrictions?.merchantRestriction==='string')return promo.restrictions.merchantRestriction.trim()?1:0;
+ return promo.restrictions?.merchantLimited===false?0:1;
+}

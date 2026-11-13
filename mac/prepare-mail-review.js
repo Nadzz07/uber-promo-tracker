@@ -12,8 +12,10 @@ import {getReceipts,getTransportReceipts} from '../private-db.js';
 import {receiptFingerprint,transportReceiptFingerprint} from '../identity.js';
 import {parseDeviceAccounts} from '../device-accounts.js';
 import {validateFinanceData} from '../private-finance-vault.js';
-import {createMailReviewContext,historicalMailAccess,reviewMailMessage,campaignWinner,finalizeMailDecision,MAIL_REVIEW_RULE_VERSION} from '../mail-review-rules.js';
+import {createMailReviewContext,historicalMailAccess,reviewMailMessage,campaignWinner,finalizeMailDecision,mailIdentityExclusion,MAIL_REVIEW_RULE_VERSION} from '../mail-review-rules.js';
 import {cleanupPolicyFingerprint} from '../cleanup-policy.js';
+import {confirmedFiling} from '../mail-filing-rules.js';
+import {analyseSender} from '../parser-v2/sender.js';
 process.umask(0o077);
 const args=process.argv.slice(2),options={};for(let i=0;i<args.length;i+=2){if(!['--capture','--out','--db','--accounts','--finance','--snapshot'].includes(args[i])||!args[i+1])throw Error('Expected named preview inputs.');options[args[i].slice(2)]=path.resolve(args[i+1]);}
 for(const key of ['capture','out','db','accounts','finance','snapshot'])if(!options[key])throw Error('Missing preview input: '+key);
@@ -46,11 +48,11 @@ async function* sources(parse=true){for await(const line of jsonLines(fs.createR
  if(addresses.length!==1||addresses[0]!==normal(message.recipient))message.sender='';
  yield {...s,message};
 }}
-for await(const source of sources()){sourceCount++;if(sourceCount%1000===0)console.log('Classified '+sourceCount+' sources for preview.');const c=reviewMailMessage(source.message,context),key=targetKey(source);if(classified.has(key))throw Error('Duplicate physical source in capture.');classified.set(key,{classification:c,message:{subject:source.message.subject,sentAt:source.message.sentAt,recipient:source.message.recipient,messageId:source.message.messageId}});if(c.deduplicate)winners.set(c.family,campaignWinner(winners.get(c.family),{accountId:source.accountId,path:source.path,nativeId:source.nativeId,sourceRaw:source.raw,message:{messageId:source.message.messageId,sentAt:source.message.sentAt,receivedAt:source.message.receivedAt}}));}
+for await(const source of sources()){sourceCount++;if(sourceCount%1000===0)console.log('Classified '+sourceCount+' sources for preview.');const uberSender=analyseSender(source.message.sender).trusted===true;const securityLike=!uberSender&&(Boolean(mailIdentityExclusion(source.message))||/multi-factor|two-factor|authentication settings|new device sign|password|security code/i.test(String(source.message.subject||'')));const filed=uberSender||securityLike?null:confirmedFiling(source,source.message,new Set());const c=securityLike?{category:'non_uber_security',reason:'Login or security email outside Uber: filed to Others, never binned.',destination:'Others'}:filed?{category:'non_uber_filing',reason:'Non-Uber mail filed by its actual sender into '+filed+'.',destination:filed}:reviewMailMessage(source.message,context),key=targetKey(source);if(classified.has(key))throw Error('Duplicate physical source in capture.');classified.set(key,{classification:c,message:{subject:source.message.subject,sentAt:source.message.sentAt,recipient:source.message.recipient,messageId:source.message.messageId}});if(c.deduplicate)winners.set(c.family,campaignWinner(winners.get(c.family),{accountId:source.accountId,path:source.path,nativeId:source.nativeId,sourceRaw:source.raw,message:{messageId:source.message.messageId,sentAt:source.message.sentAt,receivedAt:source.message.receivedAt}}));}
 if(!completed||completed.captured!==sourceCount)throw Error('Mail scan is incomplete; preview is not executable.');
 fs.mkdirSync(options.out,{recursive:true,mode:0o700});const plan=path.join(options.out,'plan.local.jsonl.gz'),details=path.join(options.out,'moves.local.jsonl.gz'),report=path.join(options.out,'report.local.json');
 if([plan,details,report].some(f=>fs.existsSync(f)))throw Error('Do not overwrite an existing approval preview.');
-const parts=['Archive','Uber Receipts','Bin'].map((destination,index)=>{const file=path.join(options.out,'plan-part-'+index+'.tmp.local.gz'),zip=createGzip(),output=fs.createWriteStream(file,{flags:'wx',mode:0o600});zip.pipe(output);return {destination,file,zip,output};});const detailZip=createGzip(),detailFile=fs.createWriteStream(details,{flags:'wx',mode:0o600});detailZip.pipe(detailFile);
+const parts=['Archive','Uber Receipts','Bin','Others','Inbox','Amazon'].map((destination,index)=>{const file=path.join(options.out,'plan-part-'+index+'.tmp.local.gz'),zip=createGzip(),output=fs.createWriteStream(file,{flags:'wx',mode:0o600});zip.pipe(output);return {destination,file,zip,output};});const detailZip=createGzip(),detailFile=fs.createWriteStream(details,{flags:'wx',mode:0o600});detailZip.pipe(detailFile);
 const write=async(stream,value)=>{if(!stream.write(JSON.stringify(value)+'\n'))await once(stream,'drain');};
 const counts={},destinations={},byReason={},examples=[],seen=new Set();let alreadyThere=0,preserved=0,review=0,planned=0;
 try{for await(const source of sources(false)){
