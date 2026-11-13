@@ -50,7 +50,7 @@ for await(const source of sources()){sourceCount++;if(sourceCount%1000===0)conso
 if(!completed||completed.captured!==sourceCount)throw Error('Mail scan is incomplete; preview is not executable.');
 fs.mkdirSync(options.out,{recursive:true,mode:0o700});const plan=path.join(options.out,'plan.local.jsonl.gz'),details=path.join(options.out,'moves.local.jsonl.gz'),report=path.join(options.out,'report.local.json');
 if([plan,details,report].some(f=>fs.existsSync(f)))throw Error('Do not overwrite an existing approval preview.');
-const parts=['Archive','Uber Receipts','Bin','Others'].map((destination,index)=>{const file=path.join(options.out,'plan-part-'+index+'.tmp.local.gz'),zip=createGzip(),output=fs.createWriteStream(file,{flags:'wx',mode:0o600});zip.pipe(output);return {destination,file,zip,output};});const detailZip=createGzip(),detailFile=fs.createWriteStream(details,{flags:'wx',mode:0o600});detailZip.pipe(detailFile);
+const parts=['Archive','Uber Receipts','Bin','Others','Inbox'].map((destination,index)=>{const file=path.join(options.out,'plan-part-'+index+'.tmp.local.gz'),zip=createGzip(),output=fs.createWriteStream(file,{flags:'wx',mode:0o600});zip.pipe(output);return {destination,file,zip,output};});const detailZip=createGzip(),detailFile=fs.createWriteStream(details,{flags:'wx',mode:0o600});detailZip.pipe(detailFile);
 const write=async(stream,value)=>{if(!stream.write(JSON.stringify(value)+'\n'))await once(stream,'drain');};
 const counts={},destinations={},byReason={},examples=[],seen=new Set();let alreadyThere=0,preserved=0,review=0,planned=0;
 try{for await(const source of sources(false)){
