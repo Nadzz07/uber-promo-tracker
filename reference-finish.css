@@ -416,66 +416,82 @@ html[data-motion=reduced] .offer-terms-anim,html[data-motion=reduced] .offer-ter
 #accountsList .directory-chevron{margin-left:auto;flex:none;font-size:18px;line-height:1;color:var(--color-tertiary)}
 #accountsList .directory-offer-copy .directory-restriction{display:inline-flex}
 
-/* Compact Home reference: whole page fits 393x852 with the 66px dock. */
+/* Phone Home, reference proportions. Budgeted for a 393x852 iPhone with the
+   Dynamic Island (59px) and home indicator (34px): 653px between the safe top
+   and the 66px dock, with every section breathing evenly and nothing clipped. */
 @media(max-width:767px){
  html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
  :root{ --size-nav:66px; }
  html[data-layout=mobile] #mainNav.bottom-nav,html[data-layout=mobile] body:has(#view-home.active) #mainNav.bottom-nav{height:66px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
- #app.app-shell:has(#view-home.active){padding-top:calc(22px + env(safe-area-inset-top,0px))}
- #view-home .home-intro{margin:0 0 10px}
- #view-home .home-intro .home-title{font-size:26px;line-height:1.15;letter-spacing:-.6px;font-weight:800}
+ #app.app-shell{padding-bottom:calc(80px + var(--dock-bottom,12px))}
+ #app.app-shell:has(#view-home.active){padding-top:calc(12px + env(safe-area-inset-top,0px))}
+ .app-shell:has(#view-home.active)>.topbar{margin-bottom:14px}
  #view-home .eyebrow{font-size:10px;letter-spacing:.13em}
  #view-home .scan-time{font-size:11.5px;line-height:1.35}
- #view-home .total-saved-card{margin-top:12px;padding:14px;border-radius:20px;height:auto;margin-bottom:0}
- #view-home .home-saved-copy .stat-label{font-size:10.5px;letter-spacing:.12em}
+
+ /* Savings hero */
+ #view-home .total-saved-card{margin:0;padding:14px 16px;border-radius:22px;height:auto}
+ #view-home .home-saved-copy{gap:2px}
+ #view-home .home-saved-copy .stat-label{font-size:10.5px;line-height:13px;letter-spacing:.12em}
  #view-home #savedStat{font-size:34px;line-height:1.05;letter-spacing:-.9px}
- #view-home .home-savings-icon{width:40px;height:40px;border-radius:12px}
- #view-home .home-savings-icon svg{width:19px;height:19px}
+ #view-home .home-savings-icon{width:42px;height:42px;border-radius:12px}
+ #view-home .home-savings-icon svg{width:20px;height:20px}
  .weekly-savings-heading{margin-top:8px;font-size:10.5px;line-height:13px;letter-spacing:.1em}
- .weekly-savings-plot{padding-top:8px}
- .weekly-savings-plot svg{height:40px;aspect-ratio:auto}
- .weekly-savings-labels{height:13px;margin-top:2px;font-size:11px;line-height:13px}
- #view-home .home-savings-footer{margin-top:10px}
- #view-home .home-savings-footer .stat-label,#view-home .home-savings-footer small{font-size:12px}
- #view-home .home-view-savings{height:30px;min-height:30px;padding:0 14px;font-size:13px;border-radius:999px}
- #view-home :is(.home-accounts-heading h2,.home-quick-actions>h2){font-size:18px;line-height:1.2;font-weight:800}
- #view-home .home-accounts-heading,#view-home .home-quick-actions>h2{margin:16px 0 8px}
- #view-home .home-view-accounts{font-size:13px}
- #view-home .home-account-total{padding:12px 14px;border-radius:18px;margin-bottom:0}
+ .weekly-savings-plot{padding-top:4px}
+ /* Keep the chart's own 350x60 proportions so the line spans the card and
+    each point sits exactly above its week label (no letterboxing). */
+ .weekly-savings-plot svg{width:100%;height:auto;aspect-ratio:350/60}
+ .weekly-savings-labels{height:13px;margin-top:3px;font-size:11px;line-height:13px}
+ #view-home .home-savings-footer{margin-top:8px}
+ #view-home .home-savings-footer .stat-label,#view-home .home-savings-footer small,#view-home #homeReceiptCount{font-size:12.5px}
+ #view-home .saved-link{min-height:30px;height:30px;padding:0 14px;font-size:13.5px;border-radius:999px}
+
+ /* Section headings get real space above them, matching the reference. */
+ #view-home .home-intro{height:auto;margin:18px 2px 8px}
+ #view-home .home-intro .home-title,#view-home .home-quick-actions>h2{font-size:20px;line-height:24px;font-weight:800;letter-spacing:-.4px}
+ #view-home .home-quick-actions>h2{margin:18px 2px 8px}
+ #view-home .home-view-accounts{min-height:24px;font-size:13.5px}
+
+ /* Accounts summary */
+ #view-home .home-account-total{padding:10px 16px;border-radius:20px;margin:0}
  #view-home .home-account-total .stat-label,#view-home .home-total-heading .stat-label{font-size:10.5px;letter-spacing:.1em}
  #view-home .home-total-heading{margin:2px 0 0}
- #view-home .home-total-heading strong{font-size:30px;line-height:1.1}
- #view-home #homeLoginPercent{font-size:12px}
- #view-home .home-account-split{height:7px;margin-top:10px;border-radius:999px}
- #view-home .home-account-legend{margin-top:8px;font-size:12.5px;gap:6px 14px}
- #view-home .home-account-legend button,#view-home .home-account-legend .home-extra-legend{font-size:12.5px;min-height:20px}
+ #view-home .home-total-heading strong,#view-home #usableStat{font-size:30px;line-height:1.1}
+ #view-home #homeLoginPercent{font-size:12.5px}
+ #view-home .home-account-split{height:8px;margin-top:8px;border-radius:999px}
+ #view-home .home-account-legend{margin-top:4px;font-size:13px;gap:4px 14px}
+ #view-home .home-account-legend button,#view-home .home-account-legend .home-extra-legend{font-size:13px;min-height:20px}
+ #view-home .home-account-legend strong{font-size:13px}
+
+ /* Ready / needs checking */
  #view-home .home-status-tiles{gap:10px;margin:10px 0 0}
- #view-home .home-status-tiles .stat-card{min-height:62px;padding:10px 12px;gap:10px;border-radius:16px}
- #view-home .home-status-tiles .overview-icon{width:32px;height:32px;border-radius:10px}
- #view-home .home-status-tiles .overview-icon svg{width:16px;height:16px}
- #view-home .home-status-tiles .stat-value{font-size:22px;line-height:1.05;font-weight:800}
- #view-home .home-status-tiles .stat-label{font-size:11.5px;line-height:14px}
- #view-home .home-status-tiles .row-chevron{font-size:14px}
- #view-home .home-tools-card{border-radius:18px}
- #view-home .home-action-row{min-height:54px;height:54px;padding:0 12px;gap:12px}
- #view-home .home-action-row>span:first-child{width:34px;height:34px;flex:0 0 34px;border-radius:10px}
- #view-home .home-action-row>span:first-child svg{width:17px;height:17px}
- #view-home .home-action-row strong{font-size:14.5px;line-height:18px}
- #view-home .home-action-row small{font-size:12px;line-height:15px;margin-top:1px}
- #view-home .home-action-row .row-chevron{font-size:16px}
- #app.app-shell{padding-bottom:calc(102px + env(safe-area-inset-bottom,0px))}
+ #view-home .home-status-tiles .stat-card{min-height:58px;padding:10px 12px;gap:10px;border-radius:18px}
+ #view-home .home-status-tiles .overview-icon{width:36px;height:36px;border-radius:11px}
+ #view-home .home-status-tiles .overview-icon svg{width:18px;height:18px}
+ #view-home .home-status-tiles .stat-value{font-size:24px;line-height:1.05;font-weight:800}
+ #view-home .home-status-tiles .stat-label{font-size:12.5px;line-height:15px}
+ #view-home .home-status-tiles .row-chevron{font-size:16px}
+
+ /* Quick tools: three even tiles (as on desktop) instead of a squeezed list. */
+ #view-home .home-tools-card{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;overflow:visible;border:0;border-radius:0;background:none;box-shadow:none}
+ #view-home #homeAnalytics{display:flex;min-width:0}
+ #view-home .home-action-row{position:relative;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:8px;width:100%;min-width:0;height:auto;min-height:0;padding:10px 10px 11px;border:1px solid var(--data-border);border-radius:18px;background:linear-gradient(160deg,var(--data-group),var(--data-card-bottom));box-shadow:inset 0 1px 0 var(--data-row-shade)}
+ #view-home .home-action-row>span:first-child{align-self:flex-start;width:32px;height:32px;flex:0 0 32px;border-radius:10px}
+ #view-home .home-action-row>span:first-child svg{width:18px;height:18px}
+ #view-home .home-action-row>span:nth-child(2){flex:none;width:100%;min-width:0}
+ #view-home .home-action-row strong{font-size:13px;line-height:16px;font-weight:650;overflow-wrap:break-word;text-wrap:balance}
+ #view-home .home-action-row small{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+ #view-home .home-action-row .row-chevron{position:absolute;top:16px;right:11px;font-size:16px;line-height:1}
 }
-@media(max-width:767px){
- #app.app-shell:has(#view-home.active){padding-top:calc(14px + env(safe-area-inset-top,0px))}
- #view-home .home-intro{margin-bottom:6px}
- #view-home .total-saved-card{padding:13px}
- .weekly-savings-heading{margin-top:6px}
- .weekly-savings-plot{padding-top:6px}
- #view-home .home-savings-footer{margin-top:8px}
- #view-home .home-accounts-heading,#view-home .home-quick-actions>h2{margin:24px 0 8px}
- #view-home .home-account-total{padding:10px 14px}
- #view-home .home-account-split{margin-top:8px}
- #view-home .home-account-legend{margin-top:6px}
+/* Very narrow phones keep the readable list; they scroll instead. */
+@media(max-width:370px){
+ #view-home .home-tools-card{display:block;overflow:hidden;border:1px solid var(--data-border);border-radius:18px;background:linear-gradient(160deg,var(--data-group),var(--data-card-bottom))}
+ #view-home .home-action-row{flex-direction:row;align-items:center;gap:12px;min-height:56px;padding:0 12px;border:0;border-bottom:1px solid var(--color-border);border-radius:0;background:none;box-shadow:none}
+ #view-home #homeAnalytics .home-action-row{border-bottom:0}
+ #view-home .home-action-row>span:first-child{align-self:center}
+ #view-home .home-action-row>span:nth-child(2){flex:1;width:auto}
+ #view-home .home-action-row small{position:static;width:auto;height:auto;margin:1px 0 0;clip:auto;white-space:normal;overflow:visible;font-size:12px;line-height:15px}
+ #view-home .home-action-row .row-chevron{position:static}
 }
 
 /* Finances: no virtual-card line, and a search that does not promise card digits. */
@@ -589,4 +605,58 @@ h1:focus:not(:focus-visible){outline:none}
  .sheet[data-screen="Account details"] .account-section-caption{font-size:11px;letter-spacing:.12em;margin:16px 0 8px}
  .sheet[data-screen="Account details"] .offer-history,.sheet[data-screen="Account details"] .account-management{border-radius:18px}
  .sheet[data-screen="Account details"] .account-history-group .account-offer-toggle{padding:12px 0}
+}
+
+/* Phone dock sits low, just clear of the home indicator, on every screen.
+   iPhone (34px inset): 24px from the edge. No inset: 10px. */
+@media(max-width:767px){
+ html[data-layout=mobile] { --dock-bottom:max(10px,calc(env(safe-area-inset-bottom,0px) - 10px)); }
+ html[data-layout=mobile] body #mainNav.bottom-nav,html[data-layout=mobile] body:has(.view.active) #mainNav.bottom-nav{bottom:var(--dock-bottom)}
+}
+
+/* Sitewide phone polish: same type scale and spacing as Home. */
+@media(max-width:767px){
+ /* Accounts: totals card uses Home's label/number scale. */
+ #view-accounts .accounts-summary{min-height:92px;padding:12px 14px;align-items:center}
+ #view-accounts .accounts-summary .accounts-stat{align-items:flex-start;padding:0 4px 0 12px}
+ #view-accounts .accounts-summary .accounts-stat:first-child{padding-left:2px}
+ #view-accounts .accounts-summary .accounts-stat span{font-size:10.5px;line-height:13px;font-weight:650;letter-spacing:.1em;text-transform:uppercase;color:var(--color-tertiary);padding-right:0}
+ #view-accounts .accounts-summary .accounts-stat strong{font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-.8px;margin-top:4px}
+ #view-accounts .accounts-summary .metric-help{position:static;width:24px;height:24px;margin:-6px -4px 0 0;padding:0}
+ #view-accounts .accounts-summary .metric-help svg{width:15px;height:15px}
+}
+/* Accounts list: the expiry pill no longer reserves an empty 44px line, and it
+   sits beside (not under) the card's chevron. */
+#accountsList .directory-offer-row{padding:12px 12px 12px 14px}
+#accountsList .directory-offer-row .directory-expiry-target{position:absolute;top:2px;right:34px;min-height:44px;height:44px;padding:0;margin:0;display:flex;align-items:center}
+#accountsList .directory-offer-row .directory-expiry-target .directory-expiry-pill{position:static}
+#accountsList .directory-offer-copy{padding-right:118px}
+#accountsList .directory-offer-copy strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#accountsList .directory-view-offers{top:11px;right:8px}
+
+/* Order Planner: the order-type picker shows the full choice. */
+#view-planner .planner-select-wrap{padding:0}
+#view-planner .planner-select-wrap .app-select-arrow,#view-planner .planner-select-wrap .app-select-arrow svg{width:18px;height:18px}
+#view-planner .planner-select-wrap .app-select-trigger{padding:0 8px 0 12px;gap:4px}
+#view-planner .planner-select-wrap .app-select-value{overflow:visible;text-overflow:clip;white-space:nowrap}
+
+/* Receipt insights / Savings: section pickers fit their label. */
+.ri-page .ri-section-head .ri-select-wrap app-select-control.app-select,.ri-page .ri-section-head .ri-select-wrap select.app-select-native{width:auto!important;min-width:108px}
+.ri-page .ri-section-head .ri-select-wrap .app-select-trigger{padding:0 10px 0 12px;gap:6px;justify-content:space-between}
+.ri-page .ri-section-head .ri-select-wrap .app-select-value{overflow:visible;text-overflow:clip;white-space:nowrap}
+
+/* Savings: Avg / Best saving tiles read like Home's stat tiles. */
+#view-receipts .ri-two-cards.savings-support{align-items:stretch}
+#view-receipts .ri-two-cards.savings-support>.icon-content-row{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:8px;margin:0;min-height:0;padding:12px 14px}
+#view-receipts .ri-two-cards.savings-support>.icon-content-row>svg{align-self:flex-start;width:30px;height:30px;padding:6px;box-sizing:border-box;border-radius:10px;border:1px solid var(--color-border);background:color-mix(in srgb,var(--color-text) 4%,transparent);flex:none}
+#view-receipts .ri-two-cards.savings-support .icon-content-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+#view-receipts .ri-two-cards.savings-support .icon-content-copy h2{margin:0;font-size:12.5px;line-height:15px;font-weight:500;letter-spacing:0;color:var(--color-secondary)}
+#view-receipts .ri-two-cards.savings-support .icon-content-copy strong{font-size:22px;line-height:1.1;font-weight:800;letter-spacing:-.4px}
+@media(max-width:767px){
+ #view-accounts .accounts-summary .accounts-stat>div{flex:1}
+ #view-accounts .accounts-summary .accounts-stat span{white-space:nowrap;letter-spacing:.08em}
+}
+#view-receipts .ri-two-cards.savings-support>.icon-content-row,#view-receipts .ri-two-cards.savings-support .icon-content-copy{text-align:left;align-items:flex-start}
+@media(max-width:767px){
+ #view-accounts .accounts-summary .accounts-stat .metric-help{position:absolute;top:-15px;right:-6px;margin:0;transform:none}
 }
