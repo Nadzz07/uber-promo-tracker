@@ -478,3 +478,31 @@ html[data-motion=reduced] .offer-terms-anim,html[data-motion=reduced] .offer-ter
 
 /* Finances: no virtual-card line, and a search that does not promise card digits. */
 .fi-search input{font-size:13px}
+
+/* Compact Finances reference. */
+@media(max-width:767px){
+ .ri-page .ri-period,.ri-page .fi-period{height:40px;min-height:40px;border-radius:14px;padding:0 12px;margin-top:10px}
+ .ri-page .ri-period .ri-period-label,.ri-page .fi-period .ri-period-label{font-size:14px;font-weight:600}
+ .ri-page .ri-period .ri-period-range{font-size:12.5px;font-weight:600;color:var(--color-soft-accent)}
+ .ri-page .ri-tabs,.ri-page .ri-filters{height:36px;min-height:36px;border-radius:12px;gap:6px;margin-top:8px}
+ .ri-page .ri-tabs button,.ri-page .ri-filters button{height:36px;min-height:36px;font-size:13px;border-radius:12px}
+ .ri-page .ri-count,.ri-page .ri-caption{font-size:12px;margin-top:10px}
+ .ri-page .ri-card{border-radius:18px;padding:12px 14px}
+ .ri-page .ri-card+.ri-card{margin-top:10px}
+ .ri-page .ri-card h2,.ri-page .ri-section-head h2{font-size:18px;line-height:1.2;font-weight:800;margin:16px 0 8px}
+ .fi-summary{padding:14px;border-radius:20px}
+ .fi-summary .ri-eyebrow{font-size:10.5px;letter-spacing:.12em}
+ .fi-summary .ri-paid-total,.fi-summary strong.ri-paid-total{font-size:34px;line-height:1.05;letter-spacing:-.9px}
+ .fi-summary .fi-stat-label,.fi-summary small{font-size:10px;letter-spacing:.08em}
+ .fi-summary .fi-stat-value{font-size:19px;font-weight:800;line-height:1.15}
+ .fi-search{height:38px;min-height:38px;border-radius:13px}
+ .fi-search input{font-size:13px}
+ .fi-transactions .ri-day,.fi-transactions .fi-day{font-size:11px;letter-spacing:.08em;padding:7px 0}
+ .fi-transaction{min-height:54px;height:54px;align-items:center;gap:12px}
+ .fi-transaction>span:first-of-type{display:flex;flex-direction:column;justify-content:center;min-width:0}
+ .fi-transaction strong{font-size:14.5px;line-height:1.2;font-weight:700}
+ .fi-transaction small{font-size:12px;line-height:1.2}
+ .fi-transaction>strong:last-child{font-size:15px;font-weight:800}
+ .fi-show-all{min-height:42px;height:42px}
+ .ri-page>p.ri-caption:last-child{font-size:11.5px}
+}
