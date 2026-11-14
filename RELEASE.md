@@ -1,3 +1,11 @@
+## 2026-11-14 — Concept-exact screens, Money paid card, mail rules v10
+
+- Account details is a full-screen page: header, inset usage bar with status and chevron, conditional chips, themed selected card, terms preview and actions.
+- Finances: new theme-coloured Money paid card (amount, known/not-recorded payments line, Orders/Average/Biggest boxes), "All receipts checked" review state, Filters row, amber "Not recorded" pill.
+- Receipts: the missing-details note now names what is missing (for example subtotals and fees).
+- Mail rules v10: subjects are normalised (quotes, invisible characters, emoji) before the owner rules run; older previews are invalidated.
+- Removed an unused hidden menu render on every Accounts refresh.
+
 ## Concept-matched phone screens — 13 November 2026
 
 Rebuilds the phone layouts to the approved concepts in the blue theme, sized for
