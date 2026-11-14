@@ -1239,3 +1239,214 @@ h1:focus:not(:focus-visible){outline:none}
 .home-status-tiles .stat-card{overflow:hidden}
 .home-status-tiles .home-stat-copy .stat-label{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:767px){#view-home .home-status-tiles .stat-card{gap:9px!important;padding-right:8px!important}}
+
+/* Accounts card: usage-not-checked state (one amber status line, dashed bars) */
+#accountsList .directory-usage-boxes.usage-unchecked{display:flex!important;gap:6px!important}
+#accountsList .usage-unchecked .directory-usage-box.unknown{flex:1 1 0;min-width:0;height:12px!important;min-height:12px!important;border:1.5px dashed color-mix(in srgb,var(--color-text) 22%,transparent)!important;border-radius:999px;background:transparent!important;opacity:1!important;box-sizing:border-box}
+#accountsList .usage-unchecked-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px!important;min-height:18px}
+#accountsList .directory-unchecked-status{display:inline-flex!important;align-items:center;gap:6px;min-width:0;margin:0;color:var(--color-warning-text)!important;font-size:12.5px!important;font-weight:600;line-height:18px}
+#accountsList .directory-unchecked-status>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#accountsList .directory-unchecked-status svg{flex:none;width:14px;height:14px;stroke-width:2;color:var(--color-warning-text)}
+#accountsList .directory-up-to{flex:none;color:var(--color-secondary);font-size:12.5px;font-weight:500;white-space:nowrap;line-height:18px}
+/* Account details: same amber usage-not-checked status row */
+html .sheet[data-screen="Account details"] .aof-inset .compact-use-track.usage-unchecked>span:not(.manual){border:1.5px dashed color-mix(in srgb,var(--color-text) 22%,transparent)!important;background:transparent!important;box-sizing:border-box}
+html .sheet[data-screen="Account details"] .aof-inset .compact-order-completion.usage-not-checked{display:inline-flex!important;align-items:center;gap:6px;color:var(--color-warning-text)!important;font-weight:600!important;font-size:12.5px!important}
+html .sheet[data-screen="Account details"] .aof-inset .compact-order-completion.usage-not-checked svg{flex:none;width:14px;height:14px;stroke-width:2}
+html .sheet[data-screen="Account details"] .aof-inset .aof-up-to{margin-left:auto;color:var(--color-secondary);font-size:12.5px;white-space:nowrap}
+html .sheet[data-screen="Account details"] .aof-inset .aof-up-to+.aof-chevron{margin-left:8px!important}
+
+/* Bottom bar: docked full-width bar (replaces the floating pill) */
+@media(max-width:767px){
+ html[data-layout=mobile]{--dock-bottom:0px;--size-nav:56px;--nav-dock-height:calc(56px + env(safe-area-inset-bottom,0px))}
+ html[data-layout=mobile] body #mainNav.bottom-nav,html[data-layout=mobile] body:has(.view.active) #mainNav.bottom-nav,html[data-layout=mobile] body:has(#view-home.active) #mainNav.bottom-nav,html[data-layout=mobile] body:has(.main-screen.active) #mainNav.bottom-nav{
+  position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;transform:none!important;
+  width:100%!important;max-width:none!important;margin:0!important;
+  height:var(--nav-dock-height)!important;min-height:var(--nav-dock-height)!important;
+  padding:0 0 env(safe-area-inset-bottom,0px)!important;box-sizing:border-box!important;
+  display:flex!important;align-items:stretch!important;gap:0!important;
+  border:0!important;border-top:1px solid color-mix(in srgb,var(--color-text) 8%,transparent)!important;border-radius:0!important;
+  background:color-mix(in srgb,var(--color-screen) 80%,var(--data-black))!important;background-image:none!important;
+  box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  z-index:60!important;overflow:visible!important}
+ html[data-layout=mobile]{--nav-i:0;--nav-on:0}
+ html[data-layout=mobile]:has(#mainNav .nav-btn.active){--nav-on:1}
+ html[data-layout=mobile]:has(#mainNav .nav-btn[data-view=accounts].active){--nav-i:1}
+ html[data-layout=mobile]:has(#mainNav .nav-btn[data-view=more].active){--nav-i:2}
+ html[data-layout=mobile] #mainNav.bottom-nav .nav-glider{display:none!important}
+ /* Sliding active pill (56 × 30) and top-edge indicator, both centred on the active column */
+ html[data-layout=mobile] body #mainNav.bottom-nav::before,html[data-layout=mobile] body #mainNav.bottom-nav::after{content:''!important;position:absolute!important;z-index:0;pointer-events:none;inset:auto;background-image:none;
+  left:calc((var(--nav-i) + .5) * 100% / 3);opacity:var(--nav-on);transition:left .2s ease-out,opacity .2s ease-out}
+ html[data-layout=mobile] body #mainNav.bottom-nav::before{top:9px!important;width:56px;height:30px;margin-left:-28px;border-radius:999px;box-sizing:border-box;
+  background:color-mix(in srgb,var(--color-accent) 20%,var(--color-screen))!important;border:1px solid color-mix(in srgb,var(--color-soft-accent) 42%,transparent);
+  box-shadow:0 0 16px color-mix(in srgb,var(--color-accent) 14%,transparent)}
+ html[data-layout=mobile] body #mainNav.bottom-nav::after{top:-1px!important;width:28px;height:3px;margin-left:-14px;border-radius:0 0 3px 3px;
+  background:var(--color-accent)!important;box-shadow:0 0 10px color-mix(in srgb,var(--color-accent) 55%,transparent)}
+ html[data-layout=mobile] #mainNav.bottom-nav .nav-btn,html[data-layout=mobile] body:has(.view.active) #mainNav.bottom-nav .nav-btn{
+  position:relative;z-index:1;flex:1 1 0!important;min-width:0;width:auto!important;
+  height:56px!important;min-height:56px!important;margin:0!important;padding:9px 4px 0!important;box-sizing:border-box;
+  display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;gap:3px!important;
+  border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+  color:var(--color-secondary)!important;font-size:11px!important;font-weight:600!important;line-height:14px!important;
+  transition:transform .12s ease-out;-webkit-tap-highlight-color:transparent}
+ html[data-layout=mobile] #mainNav.bottom-nav .nav-btn svg{flex:none;width:22px!important;height:22px!important;margin:4px 0 0!important;stroke-width:1.8;color:inherit}
+ html[data-layout=mobile] #mainNav.bottom-nav .nav-btn.active{color:var(--color-text)!important;font-weight:700!important;background:transparent!important}
+ html[data-layout=mobile] #mainNav.bottom-nav .nav-btn.active svg{color:var(--color-soft-accent)}
+ html[data-layout=mobile] #mainNav.bottom-nav .nav-btn:active{transform:scale(.96)}
+ html[data-layout=mobile] #mainNav.bottom-nav .nav-btn::before,html[data-layout=mobile] #mainNav.bottom-nav .nav-btn::after{content:none!important}
+ /* Page clearance: bar height + 16px so the last card scrolls fully above the bar */
+ html[data-layout=mobile] body,html[data-layout=mobile] body:has(.view.active){padding-bottom:0!important}
+ html[data-layout=mobile] #app.app-shell,html[data-layout=mobile] #app.app-shell:has(.view.active),html[data-layout=mobile] #app.app-shell:has(#view-home.active){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
+ html[data-layout=mobile]:has(.view.active){scroll-padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
+}
+@media(max-width:767px) and (prefers-reduced-motion:reduce){
+ html[data-layout=mobile] body #mainNav.bottom-nav::before,html[data-layout=mobile] body #mainNav.bottom-nav::after,html[data-layout=mobile] #mainNav.bottom-nav .nav-btn{transition:none!important}
+}
+
+/* Sync & data page (s-sync): compact hero, refresh card and grouped import/backup lists */
+#syncDataPage{--sd-pad:16px}
+#syncDataPage .sd-header{display:flex;align-items:center;gap:8px;min-height:36px;margin:0 0 10px;position:relative;flex-wrap:wrap}
+#syncDataPage .sd-header>div{flex:1;min-width:0;display:contents}
+#syncDataPage .sd-header h1{flex:1;min-width:0;margin:0;font-size:24px;line-height:30px;font-weight:800;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#syncDataPage .sd-header p{order:3;flex:0 0 100%;margin:-4px 0 0;padding-left:40px;font-size:12.5px;line-height:17px;color:var(--color-secondary)}
+#syncDataPage .sd-header button{position:relative;width:44px;height:44px;min-height:44px;margin:-4px -6px;padding:0;border:0;border-radius:50%;background:none;color:var(--color-text);flex:none}
+#syncDataPage .sd-header button:first-child{margin-left:-10px;margin-right:-4px}
+#syncDataPage .sd-header button svg{position:relative;width:20px;height:20px}
+#syncDataPage .sd-header [data-sync-info]::before{content:'';position:absolute;inset:6px;border-radius:50%;border:1px solid var(--data-border);background:var(--data-group)}
+#syncDataPage .sd-header [data-sync-info] svg{width:17px;height:17px}
+#syncDataPage .sd-card{margin-bottom:10px}
+#syncDataPage .sd-email{padding:14px;border-radius:20px}
+#syncDataPage .sd-email-top{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:22px}
+#syncDataPage .sd-eyebrow{margin:0;font-size:10.5px;line-height:14px;letter-spacing:.14em;font-weight:700;color:var(--color-soft-accent)}
+#syncDataPage .sd-daily{display:inline-flex;align-items:center;gap:6px;max-width:none;min-height:22px;height:22px;padding:0 9px;border-radius:999px;font-size:11px;font-weight:700;line-height:1;white-space:nowrap}
+#syncDataPage .sd-daily::before{width:6px;height:6px}
+#syncDataPage .sd-daily[data-schedule=confirmed]{border-color:var(--color-positive-border);background:var(--color-positive-fill);color:var(--color-positive)}
+#syncDataPage .sd-scan{display:flex;align-items:center;gap:12px;margin-top:10px;padding:0}
+#syncDataPage .sd-scan .data-icon,#syncDataPage .sd-row .data-icon,#syncDataPage .sd-refresh-heading .data-icon{display:grid;place-items:center;flex:none;border-radius:11px}
+#syncDataPage .sd-scan .data-icon{width:38px;height:38px}
+#syncDataPage .sd-scan .data-icon svg{width:19px;height:19px}
+#syncDataPage .sd-scan p{margin:0;font-size:11.5px;line-height:15px;color:var(--color-secondary)}
+#syncDataPage .sd-scan strong{display:block;margin:2px 0 0;font-size:20px;line-height:25px;font-weight:800;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#syncDataPage .sd-email-caption{display:flex;align-items:center;gap:8px;margin:10px 0 0;padding:0;border:0;font-size:12px;line-height:16px;color:var(--color-secondary)}
+#syncDataPage .sd-email-caption svg{width:15px;height:15px}
+#syncDataPage .sd-refresh-card{padding:12px 14px;border-radius:18px}
+#syncDataPage .sd-refresh-heading{display:flex;align-items:center;gap:12px;margin:0}
+#syncDataPage .sd-refresh-heading .data-icon{width:34px;height:34px;border-radius:10px}
+#syncDataPage .sd-refresh-heading .data-icon svg{width:18px;height:18px}
+#syncDataPage .sd-refresh-heading h2{margin:0;font-size:14.5px;line-height:19px;font-weight:700;letter-spacing:-.01em}
+#syncDataPage .sd-refresh-heading p{margin:1px 0 0;font-size:12px;line-height:16px;color:var(--color-secondary)}
+#syncDataPage .sd-refresh{min-height:44px;height:44px;margin-top:10px;border-radius:14px;font-size:14px;font-weight:700;gap:8px}
+#syncDataPage .sd-refresh svg{width:17px;height:17px}
+#syncDataPage .sd-heading{margin:16px 2px 8px;font-size:18px;line-height:23px;font-weight:800;letter-spacing:-.02em}
+#syncDataPage .sd-group{border-radius:18px;overflow:hidden;background:var(--data-group)}
+#syncDataPage .sd-group .sd-row{min-height:60px;padding:10px 14px;gap:12px;border-bottom:1px solid var(--data-border)}
+#syncDataPage .sd-group .sd-row:last-child{border-bottom:0}
+#syncDataPage .sd-group .sd-row .data-icon{width:34px;height:34px;border-radius:10px}
+#syncDataPage .sd-group .sd-row .data-icon svg{width:18px;height:18px}
+#syncDataPage .sd-group .sd-row>span:not(.data-icon){flex:1;min-width:0}
+#syncDataPage .sd-group .sd-row strong{display:block;font-size:14.5px;line-height:19px;font-weight:700}
+#syncDataPage .sd-group .sd-row small{display:block;margin-top:2px;font-size:12px;line-height:16px;color:var(--color-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#syncDataPage .sd-group .sd-row>svg:last-child{width:16px;height:16px;flex:none;color:var(--color-tertiary)}
+#syncDataPage .sd-restore-warning{color:var(--color-secondary)!important}
+#syncDataPage .sd-notice:empty{display:none}
+
+/* Full-screen flow pages: Import receipts / accounts, Export and Restore backup */
+dialog.rim-page{position:fixed;inset:0;width:100%;max-width:440px;height:100dvh!important;max-height:100dvh!important;margin:0 auto;padding:env(safe-area-inset-top,0px) 0 0;border:0;border-radius:0;background:linear-gradient(180deg,var(--color-screen),color-mix(in srgb,var(--color-accent) 5%,var(--color-screen)));color:var(--color-text);box-shadow:none;transform:translateX(100%);opacity:1;transition:transform 280ms cubic-bezier(.2,.8,.2,1),display 280ms allow-discrete,overlay 280ms allow-discrete}
+dialog.rim-page[open]{transform:none;transition-duration:280ms}
+dialog.rim-page:not([open]){transition-duration:220ms;transition-timing-function:ease-in}
+@starting-style{dialog.rim-page[open]{transform:translateX(100%)}}
+dialog.rim-page::backdrop{background:var(--color-screen);opacity:1;backdrop-filter:none;-webkit-backdrop-filter:none}
+dialog.rim-page>div{height:100%!important;max-height:none!important;display:flex;flex-direction:column;min-height:0}
+dialog.rim-page .rim-body{flex:1 1 auto!important;min-height:0;overflow:auto;padding:0 16px 12px}
+dialog.rim-page .rp-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:0;padding:12px 16px 8px}
+dialog.rim-page .rp-header>div{display:contents}
+dialog.rim-page .rp-header h1{flex:1;min-width:0;margin:0;font-size:24px;line-height:30px;font-weight:800;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+dialog.rim-page .rp-header p{order:3;flex:0 0 100%;margin:-4px 0 0!important;padding-left:40px;font-size:12.5px;line-height:17px;color:var(--color-secondary)}
+dialog.rim-page .rp-header button,dialog.rim-page .rp-header button:last-child{position:relative;width:44px;height:44px;min-height:44px;margin:-4px -6px;padding:0;border:0;border-radius:50%;background:none;color:var(--color-text);display:grid;place-items:center;flex:none;box-shadow:none}
+dialog.rim-page .rp-header button:first-child{margin-left:-10px;margin-right:-4px}
+dialog.rim-page .rp-header button svg{position:relative;width:20px;height:20px}
+dialog.rim-page .rp-header .rp-info::before{content:'';position:absolute;inset:6px;border-radius:50%;border:1px solid var(--data-border);background:var(--data-group)}
+dialog.rim-page .rp-header .rp-info svg{width:17px;height:17px}
+dialog.rim-page .rp-steps{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:4px 16px 12px}
+dialog.rim-page .rp-steps span{padding-top:7px;border-top:3px solid color-mix(in srgb,var(--color-accent) 20%,var(--data-border));border-radius:2px;font-size:11.5px;line-height:15px;font-weight:600;color:var(--color-tertiary)}
+dialog.rim-page .rp-steps span.done{border-top-color:var(--color-accent)}
+dialog.rim-page .rp-steps span.current{color:var(--color-text);font-weight:700}
+dialog.rim-page .rim-icon-tile{width:34px;height:34px;flex:0 0 34px!important;border-radius:10px}
+dialog.rim-page .rim-icon-tile svg{width:18px;height:18px}
+dialog.rim-page .rim-card{margin:0 0 10px;border-radius:18px;background:var(--data-group);border:1px solid var(--data-border)}
+dialog.rim-page .rp-title{margin:16px 2px 8px!important;font-size:18px!important;line-height:23px!important;font-weight:800!important;letter-spacing:-.02em;text-transform:none!important;color:var(--color-text)!important}
+dialog.rim-page .rp-section-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+dialog.rim-page .rp-section-head span{font-size:12px;color:var(--color-tertiary)}
+dialog.rim-page .rp-list{padding:0 14px!important}
+dialog.rim-page .rp-list>.rp-row,dialog.rim-page .rp-list>.rim-summary-row{display:flex;align-items:center;gap:12px;min-height:52px;padding:9px 0;border-bottom:1px solid var(--data-border);font-size:14px}
+dialog.rim-page .rp-list>:last-child{border-bottom:0}
+dialog.rim-page .rp-row>span:not(.rim-icon-tile),dialog.rim-page .rim-summary-row>.rim-summary-label{flex:1;min-width:0;font-size:14.5px;font-weight:600;line-height:19px}
+dialog.rim-page .rp-row strong{display:block;font-size:14.5px;line-height:19px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+dialog.rim-page .rp-row small{display:block;margin-top:2px;font-size:12px;line-height:16px;font-weight:400;color:var(--color-secondary)}
+dialog.rim-page .rp-row>b,dialog.rim-page .rp-row>strong,dialog.rim-page .rim-summary-row>strong{flex:none;font-size:15px;font-weight:700;color:var(--color-text)}
+dialog.rim-page .rim-summary-row>strong.rim-amber{color:var(--color-warning-text)}
+dialog.rim-page .rp-drop{display:flex;flex-direction:column;align-items:center;gap:4px;padding:24px 16px!important;border:1.5px dashed color-mix(in srgb,var(--color-soft-accent) 55%,transparent)!important;background:linear-gradient(135deg,color-mix(in srgb,var(--color-accent) 7%,transparent),transparent 70%),var(--data-group)!important;text-align:center;cursor:pointer}
+dialog.rim-page .rp-drop .rim-icon-tile{width:46px;height:46px;flex-basis:46px!important;border-radius:13px;margin-bottom:6px}
+dialog.rim-page .rp-drop .rim-icon-tile svg{width:22px;height:22px}
+dialog.rim-page .rp-drop strong{font-size:16px;line-height:21px;font-weight:800}
+dialog.rim-page .rp-drop small{font-size:12px;line-height:16px;color:var(--color-secondary)}
+dialog.rim-page .rp-note{display:flex;align-items:flex-start;gap:8px;margin:10px 4px 12px;font-size:12px;line-height:17px;color:var(--color-secondary)}
+dialog.rim-page .rp-note svg{width:14px;height:15px;flex:none;margin-top:1px;color:var(--color-tertiary)}
+dialog.rim-page .rp-file{display:flex;align-items:center;gap:12px;min-height:0;padding:12px 14px}
+dialog.rim-page .rp-file .rim-icon-tile{width:38px;height:38px;flex-basis:38px!important;border-radius:11px}
+dialog.rim-page .rp-file>span:not(.rim-icon-tile){flex:1;min-width:0}
+dialog.rim-page .rp-file strong{font-size:14.5px;line-height:19px;font-weight:700}
+dialog.rim-page .rp-file small{display:flex;align-items:center;gap:5px;margin-top:2px;font-size:12px;line-height:16px;color:var(--color-secondary)}
+dialog.rim-page .rp-file small svg{width:13px;height:13px}
+dialog.rim-page .rp-file button{min-height:44px;padding:0 4px;border:0;background:none;font-size:14px;font-weight:700;color:var(--color-soft-accent);flex:none}
+dialog.rim-page .rp-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 6px}
+dialog.rim-page .rp-stat{display:flex;align-items:center;gap:10px;min-width:0;padding:12px;border-radius:16px;border:1px solid var(--data-border);background:var(--data-group)}
+dialog.rim-page .rp-stat strong{display:block;font-size:22px;line-height:26px;font-weight:800}
+dialog.rim-page .rp-stat small{display:block;font-size:12px;line-height:16px;color:var(--color-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+dialog.rim-page .rp-stat>span:last-child{min-width:0}
+dialog.rim-page .rp-good{border-color:var(--color-positive-border);background:linear-gradient(135deg,var(--color-positive-fill),transparent 80%),var(--data-group)}
+dialog.rim-page .rp-good strong,dialog.rim-page .rp-good .rim-icon-tile{color:var(--color-positive)}
+dialog.rim-page .rp-good .rim-icon-tile{border-color:var(--color-positive-border);background:var(--color-positive-fill)}
+dialog.rim-page .rp-warn{border-color:var(--color-warning-border);background:linear-gradient(135deg,var(--color-warning-fill),transparent 80%),var(--data-group)}
+dialog.rim-page .rp-warn strong,dialog.rim-page :is(.rp-warn,.rp-warning-card) .rim-icon-tile{color:var(--color-warning-text)}
+dialog.rim-page :is(.rp-warn,.rp-warning-card) .rim-icon-tile{border-color:var(--color-warning-border);background:var(--color-warning-fill)}
+dialog.rim-page .rp-warning-card{display:flex;align-items:flex-start;gap:12px;margin:10px 0;padding:12px 14px;border-radius:18px;border:1px solid var(--color-warning-border);background:var(--data-group)}
+dialog.rim-page .rp-warning-card strong{display:block;font-size:14.5px;line-height:19px;font-weight:700}
+dialog.rim-page .rp-warning-card small{display:block;margin-top:2px;font-size:12px;line-height:17px;color:var(--color-secondary)}
+dialog.rim-page .rp-hero{padding:14px!important;border-radius:20px!important;border-color:var(--data-accent-border)!important;background:linear-gradient(135deg,var(--data-accent-fill),var(--data-card-bottom) 80%)!important}
+dialog.rim-page .rp-hero-file{display:flex;align-items:center;gap:12px}
+dialog.rim-page .rp-hero-file .rim-icon-tile{width:38px;height:38px;flex-basis:38px!important;border-radius:11px}
+dialog.rim-page .rp-hero-file small{display:block;font-size:11.5px;line-height:15px;color:var(--color-secondary)}
+dialog.rim-page .rp-hero-file strong{display:block;margin-top:1px;font-size:15px;line-height:20px;font-weight:700;overflow-wrap:anywhere}
+dialog.rim-page .rp-mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+dialog.rim-page .rp-mini-stats>div{padding:9px 11px;border-radius:12px;border:1px solid var(--data-border);background:color-mix(in srgb,var(--color-text) 4%,transparent)}
+dialog.rim-page .rp-mini-stats small{display:block;font-size:10px;line-height:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-tertiary)}
+dialog.rim-page .rp-mini-stats strong{display:block;margin-top:2px;font-size:17px;line-height:22px;font-weight:800}
+dialog.rim-page .rp-done{display:flex;align-items:center;gap:12px;padding:14px}
+dialog.rim-page .rp-done p{margin:2px 0 0;font-size:12px;color:var(--color-secondary)}
+dialog.rim-page .rp-link{min-height:40px;border:0;background:none;padding:0 2px;color:var(--color-soft-accent);font-weight:700}
+dialog.rim-page .rim-help{margin-top:6px;border:1px solid var(--data-border)!important;border-radius:16px;background:var(--data-group);padding:0 12px}
+dialog.rim-page .rim-help summary{min-height:48px;gap:10px;font-size:13px;color:var(--color-text);justify-content:flex-start}
+dialog.rim-page .rim-help summary .rim-icon-tile{width:28px;height:28px;flex-basis:28px!important;border-radius:8px}
+dialog.rim-page .rim-help summary .rim-icon-tile svg{width:15px;height:15px}
+dialog.rim-page .rim-help summary>span:not(.rim-icon-tile){flex:1}
+dialog.rim-page .rim-help summary>svg:last-child{transform:rotate(90deg)}
+dialog.rim-page .rim-help[open] summary>svg:last-child{transform:rotate(270deg)}
+dialog.rim-page .rim-help p{margin:0 0 10px;font-size:12px;line-height:17px}
+dialog.rim-page .bk-changes{margin-top:4px}
+dialog.rim-page .rim-actions{flex:none;display:grid;gap:2px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))!important;background:transparent;border:0}
+dialog.rim-page .rim-actions .rim-primary,dialog.rim-page .rim-actions form .rim-primary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;border-radius:16px;font-size:15.5px;font-weight:800;box-shadow:0 8px 24px color-mix(in srgb,var(--color-accent) 22%,transparent)}
+dialog.rim-page .rim-actions .rim-primary svg{width:18px;height:18px}
+dialog.rim-page .rim-actions>button:not(.rim-primary){min-height:44px;border:0;background:none;font-size:15px;font-weight:700;color:var(--color-soft-accent)}
+dialog.rim-page .rim-actions>p{margin:0 0 6px;text-align:center;font-size:13px;color:var(--color-secondary)}
+@media(prefers-reduced-motion:reduce){dialog.rim-page,dialog.rim-page[open]{transform:none!important;transition:opacity 80ms ease,display 80ms allow-discrete,overlay 80ms allow-discrete!important}}
+html[data-motion=reduced] dialog.rim-page{transform:none!important;transition:opacity 80ms ease,display 80ms allow-discrete,overlay 80ms allow-discrete!important}
+
+/* Accounts login filter: three separate pill buttons with real gaps (no shared track behind them) */
+#view-accounts #accountLoginTabs.account-login-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0;border:0;border-radius:0;background:none!important;background-image:none!important;box-shadow:none}
+/* Column width = (100% - 2 gaps)/3; each step moves one column + one gap */
+#view-accounts #accountLoginTabs.account-login-tabs::before{width:calc((100% - 16px)/3);border-radius:14px;transform:translateX(calc(var(--tab-index) * (100% + 8px)));box-shadow:0 0 14px color-mix(in srgb,var(--color-accent) 14%,transparent)}
+#view-accounts #accountLoginTabs.account-login-tabs button{min-width:0;border:1px solid var(--data-border);border-radius:14px;background:var(--data-group)!important;color:var(--color-secondary);font-weight:600;white-space:nowrap}
+#view-accounts #accountLoginTabs.account-login-tabs button[aria-pressed=true]{background:transparent!important;border-color:transparent;color:var(--color-soft-accent);font-weight:700}
+#view-accounts #accountLoginTabs.account-login-tabs button::before,#view-accounts #accountLoginTabs.account-login-tabs button+button::before{content:none!important}
+#view-accounts #accountLoginTabs.account-login-tabs button small{color:inherit;opacity:.8}
+@media(max-width:767px){html[data-layout=mobile] body:has(.preferred-page.active) #mainNav.bottom-nav{display:none!important}}

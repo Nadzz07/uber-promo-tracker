@@ -22,7 +22,7 @@ export function prepareAccountImport(input,accounts,saved){
    if(methods!==undefined&&methods!==''){if(!Array.isArray(methods)||!methods.length||methods.some(v=>!['iCloud','Google'].includes(v)))throw Error('Provider must be iCloud, Google or Both.');next.loginMethods=[...new Set(methods)].sort();const before=(account.loginMethods|| (account.loginMethod==='Both'?['Google','iCloud']:account.loginMethod?[account.loginMethod]:[])).slice().sort();if(JSON.stringify(before)!==JSON.stringify(next.loginMethods))fields.push('Provider: '+(before.join(' + ')||'Unknown')+' → '+next.loginMethods.join(' + '));}
    if(row.note!==undefined){if(typeof row.note!=='string'||row.note.length>10000)throw Error('Invalid note.');if((account.note||'')!==row.note){notes[ref]=row.note;fields.push('Notes: '+(account.note||'Empty')+' → '+(row.note||'Clear note'));}}
    if(!fields.length){unchanged++;continue;}
-   mapping[ref]=next;if(prior)updated++;else added++;review.push({email:next.email,fields});
+   mapping[ref]=next;if(prior)updated++;else added++;const provider=(next.loginMethods||account.loginMethods||(account.loginMethod&&account.loginMethod!=='Both'?[account.loginMethod]:account.loginMethod==='Both'?['iCloud','Google']:[])).join(' + ');review.push({email:next.email,fields,added:!prior,provider,canLogin:typeof next.canLogin==='boolean'?next.canLogin:account.canLogin});
   }catch(error){issues.push({index,reason:error.message});}
  }
  if(!groups.size||!added&&!updated&&!unchanged&&issues.length)throw Error('No account rows can be imported. '+(issues[0]?.reason||''));

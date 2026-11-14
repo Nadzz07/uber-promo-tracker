@@ -267,8 +267,9 @@ expect to re-import after a long absence.
   still lands on the reference look.
 - **Compact scale.** The reference is measured on a 440 pt-wide iPhone and the
   implementation targets 393 × 852. Sizes are literal px, not rem/vw, with
-  `-webkit-text-size-adjust:100%`. Navigation is 66 px tall with a 12 px bottom
-  gap. `reference-finish.css` holds the compact overrides for Home, the account
+  `-webkit-text-size-adjust:100%`. Navigation (since 14 Nov) is a full-width
+  docked bar, 56 px + safe area, with a sliding 56×30 pill and 28×3 indicator;
+  page bottom padding is bar + 16 px. `reference-finish.css` holds the compact overrides for Home, the account
   card, offer terms and Accounts.
 - **Anchors before edits.** Several regressions came from editing a block that
   matched in more than one place. Verify the anchor and make one atomic patch;
@@ -304,10 +305,9 @@ Both must be green before a merge; CI enforces them. Notes that save time:
 - `test-mail-owner-exclusions.js` and `test-mail-master-rules.js` encode the
   owner's 27 named exclusions and the master Mail rules. Treat them as the
   specification for Mail behaviour.
-- `test-offer-reference-browser.js` is **stale**: it targets
-  `.offer-preview-card`, which was removed when offer search was unified into
-  Accounts. It is not part of `test:browser`, so it fails in isolation. Delete it
-  or rewrite it against the current offers markup.
+- The stale `test-offer-reference-browser.js` (it targeted the removed
+  `.offer-preview-card`) was deleted on 14 Nov; offer coverage lives in the
+  Accounts/Account details suites.
 - There is no `timeout` binary on this Mac by default (`coreutils` not
   installed); use plain `node <test>` loops.
 
@@ -348,10 +348,9 @@ approved digest.
 
 UI, in the order they were being worked:
 
-1. **Accounts third tab wording.** Live reads `Can't log in 22`; the owner's
-   reference reads `Needs check 183`. These are different sets in the data, so
-   this is a product decision (relabel vs. change the filter) before it is a
-   code change. Do not relabel without changing the filter.
+1. **Accounts third tab wording — resolved 14 Nov.** The owner chose
+   `All / Can log in / Can't log in`, shown as three separate buttons with
+   8 px gaps. `Needs check` stays a Home tile, not an Accounts tab.
 2. **Filter chip text.** `Offers 3 selected` in the build vs a shorter
    `3 selected` in the reference.
 3. **Physical device verification.** All layout work was verified in Chromium
@@ -365,7 +364,7 @@ UI, in the order they were being worked:
 
 Operational:
 
-6. `test-offer-reference-browser.js` stale (see §8).
+6. ~~`test-offer-reference-browser.js` stale~~ — deleted 14 Nov.
 7. The owner must re-import the two private transfer files after any iOS storage
    eviction, and should add the tracker to the Home Screen to slow it down.
 

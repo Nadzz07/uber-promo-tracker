@@ -80,8 +80,8 @@ try{for(const [width,height,largeText] of [[440,956,false],[393,852,false],[390,
  }
  if(width===440&&!largeText){
   await page.evaluate(()=>{document.documentElement.style.setProperty('--home-safe-bottom','34px');window.dispatchEvent(new Event('resize'));});
-  const dockSize=await page.addStyleTag({content:'#mainNav{min-height:110px!important}'});await settlePageLayout(page);
-  await page.waitForFunction(()=>{const dock=document.getElementById('mainNav').getBoundingClientRect().height;const shell=parseFloat(getComputedStyle(document.querySelector('#app')).paddingBottom)||0;return shell>=dock+42;},null,{timeout:15000});
+  const dockSize=await page.addStyleTag({content:'/* docked bar keeps a fixed 56px + safe-area height */'});await settlePageLayout(page);
+  await page.waitForFunction(()=>{const dock=document.getElementById('mainNav').getBoundingClientRect().height;const shell=parseFloat(getComputedStyle(document.querySelector('#app')).paddingBottom)||0;return shell>=dock+16;},null,{timeout:15000});
   for(const row of await page.locator('#view-home .home-action-row,[data-home-review]').all()){
    await row.evaluate(e=>e.scrollIntoView({block:'end',behavior:'instant'}));await settlePageLayout(page);
    assert.ok(await row.evaluate(e=>{const r=e.getBoundingClientRect(),nav=document.getElementById('mainNav').getBoundingClientRect();return r.top>=0&&r.bottom<=nav.top-12&&e.contains(document.elementFromPoint(r.left+r.width/2,r.top+r.height/2));}),'Every Quick tool/review row clears the enlarged safe-area dock and remains tappable');
