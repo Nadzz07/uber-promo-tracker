@@ -4,6 +4,7 @@
 - Finances: new theme-coloured Money paid card (amount, known/not-recorded payments line, Orders/Average/Biggest boxes), "All receipts checked" review state, Filters row, amber "Not recorded" pill.
 - Receipts: the missing-details note now names what is missing (for example subtotals and fees).
 - Mail rules v10: subjects are normalised (quotes, invisible characters, emoji) before the owner rules run; older previews are invalidated.
+- Fixed two WebKit (Safari) overflow bugs: the hidden native sort select and long Home tile labels at large text sizes widened the page.
 - Removed an unused hidden menu render on every Accounts refresh.
 
 ## Concept-matched phone screens — 13 November 2026

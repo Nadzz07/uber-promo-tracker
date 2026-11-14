@@ -1235,3 +1235,6 @@ h1:focus:not(:focus-visible){outline:none}
 .finance-page .fi-extra-filters>summary>svg:last-child{color:var(--color-secondary)}
 .finance-page .fi-summary{background:radial-gradient(120% 110% at 0% 0%,color-mix(in srgb,var(--color-accent) 34%,transparent),transparent 72%),linear-gradient(165deg,color-mix(in srgb,var(--color-accent) 30%,var(--color-screen)),color-mix(in srgb,var(--color-accent) 16%,var(--color-screen)))!important}
 .finance-page .fi-summary{background:radial-gradient(120% 110% at 0% 0%,color-mix(in srgb,var(--color-accent) 20%,transparent),transparent 72%),linear-gradient(165deg,color-mix(in srgb,var(--color-accent) 20%,var(--color-screen)),color-mix(in srgb,var(--color-accent) 8%,var(--color-screen)))!important}
+/* Home status tiles: long labels (large text sizes) truncate instead of widening the page */
+.home-status-tiles .stat-card{overflow:hidden}
+.home-status-tiles .home-stat-copy .stat-label{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis}

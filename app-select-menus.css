@@ -9,3 +9,4 @@
 #view-accounts .directory-sort:has(.app-select)>[data-icon]:first-child { position:static; transform:none; flex:0 0 16px; width:16px; height:16px; }
 @media(hover:hover) { .app-select-option:hover:not(:disabled),.app-select-trigger:hover:not(:disabled) { background:var(--data-hover); }.app-select-option[aria-selected=true]:hover { background:var(--color-selected); } }
 @media(prefers-reduced-motion:reduce) { .app-select-arrow { transition:none; } }
+.app-select>.app-select-native{padding:0!important;min-width:0;max-width:100%;box-sizing:border-box;overflow:hidden}
