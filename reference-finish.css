@@ -1238,3 +1238,4 @@ h1:focus:not(:focus-visible){outline:none}
 /* Home status tiles: long labels (large text sizes) truncate instead of widening the page */
 .home-status-tiles .stat-card{overflow:hidden}
 .home-status-tiles .home-stat-copy .stat-label{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:767px){#view-home .home-status-tiles .stat-card{gap:9px!important;padding-right:8px!important}}
