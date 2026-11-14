@@ -8,7 +8,18 @@ import {extractAccountAlias} from './parser-v2/utils.js';
 import {offerFingerprint,campaignTermKey} from './identity.js';
 import {applyOfferExpiryPolicy,expiryEndTime} from './offer-time.js';
 
-export const MAIL_REVIEW_RULE_VERSION=9;
+export const MAIL_REVIEW_RULE_VERSION=10;
+// Subjects arrive with typographic quotes, invisible joiners, soft hyphens,
+// non-breaking spaces and decorative emoji. Normalise once so every owner rule
+// (many anchored with ^...$) matches the same wording however Mail encoded it.
+// Digits and letters are untouched, so security-code detection is unaffected.
+export function cleanSubject(value){
+ return String(value||'').normalize('NFKC')
+  .replace(/[\u2018\u2019\u201A\u201B\u2032]/g,"'").replace(/[\u201C\u201D\u201E\u201F\u2033]/g,'"')
+  .replace(/[\u00AD\u200B-\u200D\u2060\uFEFF\u034F]/g,'').replace(/[\u2010-\u2013]/g,'-')
+  .replace(/[\p{Extended_Pictographic}\uFE0F\u20E3]+/gu,' ').replace(/\s+/g,' ').trim();
+}
+const CASH_BALANCE_SUBJECT=/£\s*\d+(?:\.\d+)?\s+(?:in|of)\s+Uber\s*Cash|Uber\s*Cash\s+(?:waiting|ready|to\s+use)|you(?:'ve| have)\s+got\s+£\s*\d+/i;
 const at=v=>v&&Number.isFinite(Date.parse(v))?Date.parse(v):null;
 const positive=v=>typeof v==='number'&&Number.isFinite(v)&&v>0;
 const decision=(category,reason,destination=null,extra={})=>({category,reason,destination,...extra});
@@ -44,7 +55,7 @@ const SECURITY_CODE_WORDING=[
 // Security email classification. Exported so callers can assert the protection
 // takes priority over every ordinary sorting rule.
 export function isProtectedSecurityEmail(message){
- const subject=String(message.subject||''),body=String(message.body||''),text=subject+'\n'+receiptText('',body);
+ const subject=cleanSubject(message.subject),body=String(message.body||''),text=subject+'\n'+receiptText('',body);
  const hasCode=/\b\d{3,8}\b/.test(text);
  const foreignWording=SECURITY_CODE_WORDING.some(r=>r.test(text));
  // Translated wording is decisive only with a code present, so ordinary
@@ -54,7 +65,7 @@ export function isProtectedSecurityEmail(message){
 }
 
 export function mailIdentityExclusion(message){
- const subject=String(message.subject||''),text=receiptText(subject,message.body);
+ const subject=cleanSubject(message.subject),text=receiptText(subject,message.body);
  if(/\b(?:verify|confirm)\s+your\s+(?:Uber\s+)?(?:account\s+)?email\b/i.test(subject))return 'excluded_login_link';
  // Non-English security wording is checked first: a login code must never be
  // swept up by a promotional rule just because its subject is not English.
@@ -75,7 +86,7 @@ export function mailIdentityExclusion(message){
 }
 
 export function isMarketingOnlyOrderThanks(message){
- const subject=String(message.subject||''),text=receiptText(subject,message.body);
+ const subject=cleanSubject(message.subject),text=receiptText(subject,message.body);
  if(!/\bthanks for ordering[!.]?$/i.test(subject.trim()))return false;
  const template=/pan to plate with just a few taps/i.test(text)&&/explore top eats|make your own masterpiece|browse all/i.test(text)&&/\bunsubscribe\b/i.test(text);
  const transaction=/\b(?:order|trip|ride|receipt|invoice)\s*(?:id|number|#|details|date)\b|\b(?:total paid|amount charged|fare breakdown|payment method\s*(?:[:\-]|(?:Visa|Mastercard|PayPal|Apple Pay|Uber Cash|Cash|Card)\b)|card ending|order placed)\b|\bsubtotal\s*[:£]/i.test(text);
@@ -83,7 +94,7 @@ export function isMarketingOnlyOrderThanks(message){
 }
 
 export function isReceiptMail(message){
- const subject=String(message.subject||''),text=receiptText(subject,message.body);
+ const subject=cleanSubject(message.subject),text=receiptText(subject,message.body);
  const candidate=/\breceipt\b|thanks for|(?:trip|order|ride) (?:details|total|id|number)|fare breakdown|amount charged/i.test(subject+'\n'+text)||/^your .{0,80}(?:trip|ride|order)\b/i.test(subject);
  if(!candidate)return false;
  if(parseUberEatsReceipt(message).isReceipt||parseUberTransportReceipt(message).isReceipt)return true;
@@ -103,7 +114,7 @@ function oneCalendarMonthBefore(now){const d=new Date(now),day=d.getUTCDate();d.
 // These are categories, not just a blacklist of remembered titles. Call only
 // after sender, receipt, identity and genuine Eurostar protections have run.
 function ownerMarketingPreference(message,text){
- const subject=String(message.subject||'').normalize('NFKC').replace(/[’‘]/g,"'").trim();
+ const subject=cleanSubject(message.subject).normalize('NFKC').replace(/[’‘]/g,"'").trim();
  const clean=text.replace(/&(?:shy|zwnj|zwj|#(?:847|8199|8204|8205|65279));/gi,' ').replace(/\s+/g,' '),lead=clean.slice(0,2400);
  const bin=(category,reason)=>decision(category,reason,'Bin');
  if(/^Browse new deals[.!]?$/i.test(subject))return bin('owner_excluded_browse_teaser','Owner explicitly requested Browse new deals in Bin.');
@@ -141,7 +152,7 @@ function ownerMarketingPreference(message,text){
  return null;
 }
 export function explicitMailDecision(message,now=Date.now()){
- const subject=String(message.subject||''),text=receiptText(subject,message.body),sender=analyseSender(message.sender),address=String(message.sender||'').match(/<?([a-z0-9._%+-]+@([a-z0-9.-]+))>?(?:\s*)$/i),domain=address?.[2]?.toLowerCase();
+ const subject=cleanSubject(message.subject),text=receiptText(subject,message.body),sender=analyseSender(message.sender),address=String(message.sender||'').match(/<?([a-z0-9._%+-]+@([a-z0-9.-]+))>?(?:\s*)$/i),domain=address?.[2]?.toLowerCase();
  const eurostarSender=domain==='eurostar.com'||domain?.endsWith('.eurostar.com');
  if(isReceiptMail(message))return null;
  if(!(sender.trusted===true&&sender.confidence==='high')&&!eurostarSender)return null;
@@ -264,7 +275,7 @@ export function createMailReviewContext({accounts,historicalAccess=[],snapshot,f
 
 function reviewMailMessageCore(message,context){
  context.__matchReliability=true;
- const subject=String(message.subject||''),text=receiptText(subject,message.body),sender=analyseSender(message.sender);
+ const subject=cleanSubject(message.subject),text=receiptText(subject,message.body),sender=analyseSender(message.sender);
  const explicit=explicitMailDecision(message,context.now),confirmed=context.byEmail.get(extractAccountAlias(message.recipient));
  if(!explicit&&sender.trusted===true&&sender.confidence==='high'&&!isReceiptMail(message)&&/\b(?:payment (?:failed|declined|received|confirmation|receipt)|billing (?:problem|issue)|refund|invoice|amount charged|credits? (?:added|received)|membership (?:cancelled|canceled|ended))\b/i.test(subject))return {...decision('protected_transaction_notice','Actual billing, payment, refund or credited-balance record; leave intact.'),accountEmail:extractAccountAlias(message.recipient)};
  // A confirmed inaccessible Uber account cannot supply a usable offer, including
@@ -278,7 +289,7 @@ function reviewMailMessageCore(message,context){
  if(!isReceiptMail(message)){
   // Owner asked to keep plain Uber welcome notices in the Inbox for now.
   if(/^welcome to Uber(?:\s+Eats)?\s*[!.,]?$/i.test(subject.trim()))return {...decision('keep_welcome_notice','Owner asked to keep Uber welcome notices in the Inbox for now; not a promotional campaign.','Inbox'),accountEmail:extractAccountAlias(message.recipient)};
-  const cashBalanceNotice=/£\s*\d+(?:\.\d+)?\s+(?:in|of)\s+Uber\s*Cash|Uber\s*Cash\s+(?:waiting|ready|to\s+use)|you(?:'ve|\u2019ve| have)\s+got\s+£\s*\d+/i.test(subject);
+  const cashBalanceNotice=CASH_BALANCE_SUBJECT.test(subject);
   if(cashBalanceNotice&&!earlyPromo.evidence?.minimumSpend)return {...decision('keep_cash_notice','Uber Cash is a promotion: kept in Inbox for an account you can log into. A notice never changes a Cash balance.','Inbox'),accountEmail:extractAccountAlias(message.recipient)};
   if(/^welcome to Uber One\b|officially an Uber One member/i.test(subject))return {...decision('uber_one_welcome','Uber One membership welcome: filed to Others; not a promotional campaign.','Others'),accountEmail:extractAccountAlias(message.recipient)};
   // Owner listed these general notices as Others rather than advertising to bin.
@@ -307,7 +318,7 @@ function reviewMailMessageCore(message,context){
  if(promo.evidence?.termsConflict||promo.termsConflict)return result('review','Offer terms conflict; leave for review.');
  // A Cash balance notification is not a campaign: it may never create or change
  // a balance, and it is filed with general Uber mail rather than discarded.
- const cashBalanceNotice=/£\s*\d+(?:\.\d+)?\s+(?:in|of)\s+Uber\s*Cash|Uber\s*Cash\s+(?:waiting|ready|to\s+use)|you(?:'ve|\u2019ve| have)\s+got\s+£\s*\d+/i.test(subject);
+ const cashBalanceNotice=CASH_BALANCE_SUBJECT.test(subject);
  if(cashBalanceNotice&&!promo.evidence?.minimumSpend)return result('keep_cash_notice','Uber Cash is a promotion: kept in Inbox for an account you can log into. A notice never changes a Cash balance.','Inbox');
  // The parser identifies the service from source terms. No headline-only ride test.
  if(promo.isPromo&&promo.service==='Uber')return result('ride_promotion','Ride promotions are excluded from useful offers.','Bin');

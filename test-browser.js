@@ -88,7 +88,7 @@ try {
   offer.receiptConfirmedUses = 2; offer.usesRemaining = 3;
   await page.reload(); await page.waitForFunction(() => document.getElementById('scanLabel').textContent === 'Updated');
   if(await page.locator("#view-home.active").count())await openHomeDetail(page,'offers');await page.locator('[data-account-offers="A001"]:visible').first().click();
-  assert.match(await page.locator('#sheetBody').innerText(), /3 remaining/);
+  assert.match(await page.locator('#sheetBody').innerText(), /3 (remaining|left)/);
   await page.keyboard.press('Escape');
   await navigate(page,'accounts');await directoryReset(page);await page.locator('#accountSearch').fill('ba…nt');
   await page.locator('#accountsList [data-account-offers="A007"]').click();

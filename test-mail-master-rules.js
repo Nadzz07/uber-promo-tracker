@@ -117,3 +117,19 @@ assert.equal(mailIdentityExclusion(chatGptCode),'excluded_login_code','A non-Ube
 // Non-Uber security mail is filed to Others, never binned and never left cluttering the Inbox.
 assert.equal(confirmedFiling(row(['INBOX'],7),chatGptCode,new Set()),'Others','Non-Uber security mail files to Others');
 console.log('✓ Non-Uber filing: Amazon sender routing, Others fallback, Uber/receipt/Eurostar/Sent/Bin protection and non-Uber login codes protected');
+
+// ── Subject normalisation: owner rules match however Mail encoded the title ──
+{
+ const {cleanSubject}=await import('./mail-review-rules.js');
+ assert.equal(cleanSubject('You\u2019ve got \u00a315 in Uber\u00a0Cash \ud83c\udf89'),"You've got £15 in Uber Cash");
+ assert.equal(cleanSubject('Browse\u200b new deals\u00ad!'),'Browse new deals!');
+ assert.equal(cleanSubject('Your code: 482913'),'Your code: 482913','Digits are never altered');
+ const ctx=makeContext([]);
+ const teaser=reviewMailMessage({...base,subject:'Browse new deals \ud83d\uded2',body:'Fresh deals near you. Unsubscribe'},ctx);
+ assert.equal(teaser.destination,'Bin','Emoji-decorated owner-excluded teaser still matches its exact-subject rule');
+ const cash=reviewMailMessage({...base,subject:'You\u2019ve got \u00a35 in Uber\u00a0Cash',body:'Your Uber Cash is ready to use on your next order.'},ctx);
+ assert.equal(cash.category,'keep_cash_notice','Curly apostrophes and non-breaking spaces still identify a Cash notice');
+ const code=reviewMailMessage({...base,subject:'\ud83d\udd12 Your Uber verification code',body:'Your verification code is 482913. Do not share it.'},ctx);
+ assert.equal(code.destination??null,null,'A decorated security-code email is never moved');
+ console.log('✓ Subject normalisation: quotes, invisible characters and emoji no longer defeat owner rules; security codes stay protected');
+}
