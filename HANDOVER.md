@@ -45,8 +45,8 @@ Rules that must not be broken:
 
 1. Only `promos.json` and `history.json` are committed from the data pipeline.
    Never commit a DB, CSV, MBOX, receipt export, vault transfer or `*.local.*`.
-2. `build-site.js` publishes an explicit allowlist of application files (35 at
-   handover). Adding a file to `dist/` requires adding it to that list; the
+2. `build-site.js` publishes an explicit allowlist of application files (55 at
+   handover; `npm run build` prints the count). Adding a file to `dist/` requires adding it to that list; the
    reverse is automatic. Never turn it into a directory copy.
 3. `public-snapshot.js` (`assertPublicSnapshot`) and `validate-public.js` reject
    a snapshot that contains private fields. `npm run build` calls the first, so a
