@@ -4,6 +4,7 @@
 - Finances: new theme-coloured Money paid card (amount, known/not-recorded payments line, Orders/Average/Biggest boxes), "All receipts checked" review state, Filters row, amber "Not recorded" pill.
 - Receipts: the missing-details note now names what is missing (for example subtotals and fees).
 - Mail rules v10: subjects are normalised (quotes, invisible characters, emoji) before the owner rules run; older previews are invalidated.
+- Home status tiles get slightly more text room so "Accounts ready" and "Needs checking" show in full; very large text truncates instead of overflowing.
 - Fixed two WebKit (Safari) overflow bugs: the hidden native sort select and long Home tile labels at large text sizes widened the page.
 - Removed an unused hidden menu render on every Accounts refresh.
 
