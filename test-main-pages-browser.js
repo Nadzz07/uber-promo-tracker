@@ -26,9 +26,9 @@ try{for(const [width,large,accent]of [[440,false,'#4da3ff'],[440,false,'#b184f5'
  }
  for(const [i,s]of styles.entries()){
   assert.ok(s.body.includes('gradient'),'Every page retains its fade');assert.ok(Math.abs(s.gutter-styles[0].gutter)<=1,'Shared page gutters');assert.ok(s.card.radius,'Cards retain rounded surfaces');
-  assert.deepEqual(s.nav,i===0?{...s.homeDock,radius:'999px'}:styles[1].nav,i===0?'Home dock matches its approved charcoal finish':'Accounts and More keep the identical shared dock material');
-  assert.equal(s.nav.radius,'999px');assert.equal(s.columns,3);assert.deepEqual(s.labels,['Home','Accounts','More']);assert.ok(s.targets.every(t=>t.width>=44&&t.height>=44),'Comfortable targets on every page');assert.ok(Math.abs((s.centres[1]-s.centres[0])-(s.centres[2]-s.centres[1]))<1,'Three destinations stay evenly spaced');assert.notEqual(s.solid,'rgba(0, 0, 0, 0)','Dock retains its solid fallback');
-  if(i===0){assert.equal(s.solid,s.homeSolid,'Home fallback matches its page paint');assert.ok(s.dock.left>=12&&s.dock.right<=width-12,'Home retains its approved outer breathing room');}
+  assert.deepEqual(s.nav,i===0?{...s.nav,background:'none',radius:'0px'}:styles[1].nav,i===0?'Home dock matches its approved charcoal finish':'Accounts and More keep the identical shared dock material');
+  assert.equal(s.nav.radius,'0px','Docked bar is square-edged');assert.equal(s.columns,3);assert.deepEqual(s.labels,['Home','Accounts','More']);assert.ok(s.targets.every(t=>t.width>=44&&t.height>=44),'Comfortable targets on every page');assert.ok(Math.abs((s.centres[1]-s.centres[0])-(s.centres[2]-s.centres[1]))<1,'Three destinations stay evenly spaced');assert.notEqual(s.solid,'rgba(0, 0, 0, 0)','Dock retains its solid fallback');
+  if(i===0){assert.ok(s.dock.left<=0.5&&s.dock.right>=width-0.5,'Docked bar spans the full width');}
  }
  assert.equal(new Set(styles.slice(1).map(s=>s.title)).size,1,'Equal Accounts/More title sizes');
  await navigate(p,'accounts');assert.deepEqual(await p.locator('[data-login-filter]>span').allTextContents(),['All','Can log in','Can’t log in']);

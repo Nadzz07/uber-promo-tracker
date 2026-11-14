@@ -7,6 +7,7 @@ exclude:
   - reviewed-cleanup-plan.js
   - .github
   - .gitignore
+  - HANDOVER.md
   - README.md
   - account-discovery.js
   - access-list.js

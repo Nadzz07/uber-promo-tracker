@@ -80,7 +80,7 @@ try {for(const [width,height,large] of [[320,568,false],[390,844,false],[393,852
  await page.locator('#plannerFeeInput').fill('2');assert.equal(await page.locator('.recommendation-save').innerText(),'£10.00\nIncluding estimated fees');
  await page.reload();await page.locator('#view-planner.active').waitFor();assert.equal(await page.locator('#plannerFeeInput').inputValue(),'2.00');assert.equal(Number(await page.locator('#basketInput').inputValue()),30);
  if(large)await page.addStyleTag({content:'#view-planner input,#view-planner select{font-size:24px!important}'});
- assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£5.00','£5.00']);
+ await page.waitForFunction(()=>document.querySelectorAll('.plan-payment strong').length===2,null,{timeout:10000});assert.deepEqual(await page.locator('.plan-payment strong').allTextContents(),['£5.00','£5.00']);
  await page.locator('#basketInput').fill('45');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent?.startsWith('3 orders ·'));assert.equal(await page.locator('.recommendation-save').innerText(),'£15.00\nIncluding estimated fees');
  await page.locator('.plan-row').first().click();await page.locator('[data-account-sheet]').waitFor();await dismiss(page);assert.equal(await page.locator('#basketInput').inputValue(),'45');
  await page.locator('#basketInput').fill('15');await page.waitForFunction(()=>document.querySelector('.recommendation-title')?.textContent?.startsWith('1 order ·'));assert.equal(await page.locator('.recommendation-save').innerText(),'£5.00\nIncluding estimated fees');

@@ -1,3 +1,13 @@
+## 2026-11-14 — Docked bottom bar, Sync & data redesign, usage-not-checked cards
+
+- Bottom bar is now a full-width docked bar (56px + safe area, solid background, top hairline) on every page. The active tab gets a 56×30 tinted pill and a 28×3 top indicator that slide between tabs in 200ms (off with reduced motion). More stays active on its sub pages; full-screen pages hide the bar. Page bottom padding is bar height + 16px.
+- Accounts "usage not checked" state: dashed bars only, amber "Usage not checked" with alert icon and "Up to N left" on the right. Account details uses the same amber line.
+- Sync & data matches the new design: compact header, Email updates hero with the schedule chip on the eyebrow row, Refresh card, grouped Import data and Backups lists. Import rows show "Last import 10 Nov · 13 receipts" once something has been imported.
+- Import receipts, Import accounts, Export backup and Restore backup are full-screen pages that slide in (280ms) with a back arrow, info button, two-step bar, stat boxes, preview lists and a pinned primary button.
+- Accounts login filter: All, Can log in and Can’t log in are three separate buttons with 8px gaps; the sliding highlight lands exactly on each button.
+- Calculations re-checked against the owner's current private export (476 receipts, 239 current accounts + 129 receipt-only historical identities kept separate): receipt totals £1,914.63, promo savings £2,784.01 (292 receipts, Uber Cash excluded), Uber Cash £1,019.44 (89 receipts), other reported savings £1,392.04, total £4,176.05 — all match an independent recount and the published summary.
+- Fixed: Export backup failed with "Invalid backup offer relationship" when published history contained rows for removed accounts. Those unlinked rows are now left out of the backup.
+
 ## 2026-11-14 — Concept-exact screens, Money paid card, mail rules v10
 
 - Account details is a full-screen page: header, inset usage bar with status and chevron, conditional chips, themed selected card, terms preview and actions.

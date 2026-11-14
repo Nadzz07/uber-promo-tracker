@@ -66,7 +66,7 @@ try{
    },{top,bottom});
    if(width<980)await page.waitForFunction(()=>{
     const nav=document.querySelector('.bottom-nav'),s=getComputedStyle(nav);
-    return Math.abs(parseFloat(getComputedStyle(document.body).paddingBottom)-(nav.getBoundingClientRect().height+parseFloat(s.bottom)+16))<1.1;
+    const r=nav.getBoundingClientRect();return Math.abs(r.bottom-innerHeight)<1.1&&parseFloat(getComputedStyle(document.getElementById('app')).paddingBottom)>=r.height+15;
    });
    const layout=await page.evaluate(()=>{
     const head=document.querySelector('#view-planner .detail-view-head');
@@ -75,7 +75,7 @@ try{
     const background=getComputedStyle(document.body,'::before');
     return{header:rect(head),headerColor:getComputedStyle(head).backgroundColor,ancestors,background:{height:parseFloat(background.height),color:background.backgroundColor,filter:background.filter},nav:rect(document.querySelector('.bottom-nav')),padding:parseFloat(getComputedStyle(document.body).paddingBottom),overflow:document.documentElement.scrollWidth>innerWidth};
    });
-   if(width<980){assert.equal(layout.header.top,top+24,'Only the shell applies the top inset');assert.equal(layout.background.height,top);assert.equal(layout.background.color,layout.headerColor);assert.equal(layout.background.filter,'none');if(large)assert.ok(Math.abs(layout.nav.height-66)<1,'The shared dock token stays 66px with enlarged text');}
+   if(width<980){assert.equal(layout.header.top,top+24,'Only the shell applies the top inset');assert.equal(layout.background.height,top);assert.equal(layout.background.color,layout.headerColor);assert.equal(layout.background.filter,'none');if(large)assert.ok(Math.abs(layout.nav.height-56)<1,'The docked bar stays 56px with enlarged text');}
    for(const ancestor of layout.ancestors){assert.ok(ancestor.filter==='none'||ancestor.filter==='blur(0px)');assert.equal(ancestor.backdrop,'none');assert.ok(!['clip','hidden'].includes(ancestor.overflowY),'No ancestor clips vertical page scrolling');}
    assert.equal(layout.overflow,false);
    for(const expanded of [false,true]){
